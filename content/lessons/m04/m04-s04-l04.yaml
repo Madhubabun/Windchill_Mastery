@@ -1,0 +1,263 @@
+id: m04-s04-l04
+subtitle: Same data, cleaner screens. Show people the fields they need - in the order they think.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, layouts, types, attributes]
+
+blocks:
+  - type: text
+    md: |
+      E-Bike Part has its new fields. Priya opens **New Part** and sighs: Battery Voltage is at the
+      very bottom, under fifteen inherited fields she never uses, including a *Paint Code* field the
+      scooter team added years ago.
+
+      Fields existing is one thing. **Where** they appear, in **which group** and **on which screen**
+      is another. Windchill calls that arrangement a **layout**, and each type has its own set.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the arrangement of fields on a screen" → *[[layout]]*
+      - "the form you fill when creating" → *create layout*
+      - "the form you fill when editing" → *edit layout*
+      - "the read-only view of the object" → the [[information-page]] layouts (for example the attributes shown on its details tab)
+      - "a heading that bundles fields" → *group* (for example *E-Bike Specs*)
+
+  - type: diagram
+    title: One type, several layouts
+    caption: The attributes live on the type. Layouts decide which ones each screen shows. Click to explore.
+    diagram:
+      width: 800
+      height: 420
+      groups:
+        - { label: E-Bike Part type, x: 20, y: 20, w: 240, h: 380, tone: neutral }
+        - { label: Layouts (screens), x: 300, y: 20, w: 480, h: 380, tone: info }
+      nodes:
+        - id: attrs
+          label: All attributes
+          sublabel: inherited + new
+          x: 40
+          y: 160
+          w: 200
+          h: 64
+          tone: primary
+          shape: cylinder
+          detail: |
+            Number, name, source, unit, Paint Code (inherited) and Battery Voltage, Motor Power, IP
+            Rating, Pedal Assist Levels, Max Current (new). **Every** attribute exists on every
+            E-Bike Part, whether a layout shows it or not.
+        - id: create
+          label: Create layout
+          sublabel: what you fill in first
+          x: 330
+          y: 50
+          w: 200
+          tone: accent
+          detail: |
+            Keep it short: number (often generated), name, and the **E-Bike Specs** group - Battery
+            Voltage, Motor Power, IP Rating. Every **required** field must be here (or filled in by a rule).
+        - id: edit
+          label: Edit layout
+          sublabel: what you can change later
+          x: 330
+          y: 170
+          w: 200
+          tone: accent
+          detail: Usually the create fields plus the ones filled later, like Pedal Assist Levels. Read-only fields such as Max Current don't belong here.
+        - id: info
+          label: Information page layout
+          sublabel: what everyone reads
+          x: 330
+          y: 290
+          w: 200
+          tone: accent
+          detail: The full picture, grouped for readers. Max Current shows here, next to the values it's calculated from.
+        - id: hidden
+          label: Paint Code
+          sublabel: on no layout
+          x: 580
+          y: 170
+          w: 180
+          tone: warning
+          detail: |
+            Removed from all E-Bike Part layouts. It still exists on the type, stays in the database
+            and may still show up in search criteria, exports and reports. **Hidden is not secured.**
+          real: To protect a value, use access control - not a layout.
+      edges:
+        - { from: attrs, to: create }
+        - { from: attrs, to: edit }
+        - { from: attrs, to: info }
+        - { from: attrs, to: hidden, dashed: true, label: not shown }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Users judge a PLM system by its forms. A clean create form with the right fields in a clear
+      group gets filled in properly. A cluttered one gets the minimum, or the wrong fields. Layouts are
+      the cheapest data-quality tool you have.
+
+  - type: walkthrough
+    title: Edit the create layout for E-Bike Part
+    who: Business admin (Jordan)
+    where: [Site, Utilities, Type and Attribute Management, Manage Types]
+    steps:
+      - title: Open the type's layouts
+        where: [Manage Types, Part, E-Bike Part, Layouts]
+        md: Select **E-Bike Part** and open its **Layouts** tab. You see the screens the type has (for example create, edit and information-page layouts).
+      - title: Override the inherited layout
+        where: [Layouts, Create layout, Edit]
+        md: |
+          If the layout is still **inherited** from Part, create E-Bike Part's own copy first, so your
+          changes don't affect every other part type.
+      - title: Add a group
+        where: [Create layout, New Group]
+        md: Add a group called **E-Bike Specs** near the top.
+      - title: Place the attributes
+        where: [Create layout, E-Bike Specs]
+        md: Drag (or add) **Battery Voltage**, **Motor Power** and **IP Rating** into the group, in that order.
+      - title: Remove what nobody needs
+        where: [Create layout, Paint Code, Remove]
+        md: Remove **Paint Code** from the layout. Before removing anything, check it isn't **Value Required**.
+      - title: Save and test
+        where: [Products, E-Bike E1, New Part]
+        md: Create a test E-Bike Part. The E-Bike Specs group should appear near the top and Paint Code should be gone.
+    result: Priya's New Part form opens with an E-Bike Specs group of three fields near the top. Other part types are unchanged.
+
+  - type: walkthrough
+    title: Group the information page
+    who: Business admin (Jordan)
+    where: [Manage Types, E-Bike Part, Layouts]
+    steps:
+      - title: Open the information page layout
+        where: [E-Bike Part, Layouts, "Information page layout"]
+        md: Open the layout used on the information page's attributes area. Override it for E-Bike Part if it's inherited.
+      - title: Mirror the create form
+        where: [Information page layout, New Group]
+        md: Add the same **E-Bike Specs** group, with Max Current (A) after Battery Voltage and Motor Power.
+      - title: Check it
+        where: [Products, E-Bike E1, EB-10021, Details]
+        md: Open EB-10021's information page and confirm the group reads clearly.
+    result: Readers see E-Bike Specs grouped the same way as on the create form, including the calculated Max Current.
+
+  - type: simulation
+    title: Tune the E-Bike Part create form
+    intro: |
+      Motor Power is **Value Required**. Paint Code is not. Rearrange the create form, then have Priya
+      create **EB-10023**. What happens if a required field isn't on the form?
+    headline: "Motor Power on form: {power} · Paint Code: {paint} · Grouping: {grouping} · Last create: {created}"
+    initial: { power: Shown, paint: Shown, grouping: One long list, created: not tried }
+    actions:
+      - id: hide-power
+        label: Remove Motor Power from the create layout
+        when: { power: Shown }
+        do: [{ set: { power: Hidden } }]
+        log: Motor Power is gone from the form - but it's still Value Required on the type.
+        blockedHint: Motor Power is already off the form.
+      - id: show-power
+        label: Put Motor Power back on the create layout
+        when: { power: Hidden }
+        do: [{ set: { power: Shown } }]
+        log: Motor Power is back on the form.
+        blockedHint: Motor Power is already on the form.
+      - id: hide-paint
+        label: Remove Paint Code from the create layout
+        when: { paint: Shown }
+        do: [{ set: { paint: Hidden } }]
+        log: Paint Code is off the form. The attribute still exists - it's just not shown here.
+        blockedHint: Paint Code is already off the form.
+      - id: show-paint
+        label: Put Paint Code back
+        when: { paint: Hidden }
+        do: [{ set: { paint: Shown } }]
+        log: Paint Code is back. Users are confused again.
+        blockedHint: Paint Code is already on the form.
+      - id: group
+        label: Add the E-Bike Specs group at the top
+        when: { grouping: One long list }
+        do: [{ set: { grouping: E-Bike Specs at top } }]
+        log: Battery Voltage, Motor Power and IP Rating now sit together at the top.
+        blockedHint: The group is already there.
+      - id: ungroup
+        label: Remove the group
+        when: { grouping: E-Bike Specs at top }
+        do: [{ set: { grouping: One long list } }]
+        log: Back to one long list.
+        blockedHint: There's no group to remove.
+      - id: create
+        label: Priya creates EB-10023
+        when: { power: Shown }
+        do: [{ set: { created: EB-10023 saved } }]
+        log: "EB-10023 saved with all required values. Form: Paint Code {paint}, grouping {grouping}."
+        blockedHint: "Save fails: Motor Power is required, but it isn't on the form, so Priya can't fill it in. Required fields must be on the create layout (or filled in by a rule)."
+    goals:
+      - label: A clean form that works
+        when: { paint: Hidden, grouping: E-Bike Specs at top, created: EB-10023 saved }
+        message: Short, grouped, and every required field present.
+      - label: Hide the clutter
+        when: { paint: Hidden }
+        message: Hidden from the form, still on the type.
+
+  - type: callout
+    variant: version-note
+    versions: ["all"]
+    md: |
+      The list of layouts a type has, their names and the drag-and-drop editor look different across
+      releases. Some releases also separate a *primary attributes* area from the full attributes
+      layout on the information page. The idea - per-type, inheritable, grouped layouts - is the same.
+
+  - type: callout
+    variant: pitfall
+    title: Hiding is not security
+    md: |
+      Removing a field from a layout only hides it from that screen. The value can still appear in
+      search, reports, exports and integrations. If Voltra Cells must not see cost data, that's an
+      **access control** job, not a layout job.
+
+  - type: callout
+    variant: pitfall
+    title: The required field you hid
+    md: |
+      Hide a **Value Required** attribute from the create layout and nobody can create the object -
+      the save fails with a "value required" message nobody can fix from the form. Either keep it on
+      the form, remove the constraint, or have a rule fill it in.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Sit with two real users for ten minutes while they create a part. Watch where their eyes go and
+      which fields they skip. Then design the layout. It beats any amount of admin guesswork.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Jordan removes Paint Code from every E-Bike Part layout. What happens to the attribute?
+        options:
+          - "It still exists on the type and its values stay in the database - it's just not shown on those screens"
+          - "It's deleted from the type"
+          - "Its values are erased from every part"
+          - "Only administrators can see it from now on"
+        answer: 0
+        explanation: Layouts control display only. The attribute and its values are untouched - and not secured.
+      - kind: truefalse
+        prompt: Editing E-Bike Part's own create layout also changes the create form for every other part type.
+        answer: false
+        explanation: Once you override the layout on E-Bike Part, changes apply to E-Bike Part (and its subtypes) only.
+      - kind: single
+        prompt: After a layout change, nobody can create E-Bike Parts - the save says Motor Power is required. What's the likely cause?
+        options:
+          - "Motor Power was removed from the create layout but is still Value Required"
+          - "The IP Rating list is empty"
+          - "Max Current has a formula"
+          - "The information page layout has no groups"
+        answer: 0
+        explanation: Required fields must be on the create form, or be filled in automatically by a rule.
+
+  - type: summary
+    points:
+      - A layout decides which attributes a screen shows, in which groups and order.
+      - Types have separate layouts for create, edit and the information page; subtypes inherit until you override.
+      - Override on the subtype so other part types don't change.
+      - Every required attribute must be on the create layout or filled in by a rule.
+      - Hiding is not security - protect sensitive values with access control.

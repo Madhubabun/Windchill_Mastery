@@ -1,0 +1,226 @@
+id: m04-s01-l03
+subtitle: Where people really come from - and which half of the job is yours.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, participants, ldap, directory-server, sso, governance]
+
+blocks:
+  - type: text
+    md: |
+      In the last lesson Nina "appeared" in Windchill. But where does a person *actually* live?
+
+      Not in Windchill's database. People live in an **address book** - a [[directory-server]]. Windchill reads
+      it using a standard protocol called [[ldap]]. Windchill's database keeps its own record for each person (the
+      one tasks and history point at), but the *source of truth* for "does Nina exist, what's her email, can she
+      log in?" is the directory.
+
+      As a business admin you don't need to configure LDAP. You **do** need to know what it gives you, what it
+      doesn't, and who to call when it breaks.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the address book of people and groups" → [[directory-server]]
+      - "the language for reading that address book" → [[ldap]]
+      - "Windchill's own, built-in address book" → *Windchill Directory Server*
+      - "the company-wide address book IT runs" → *corporate / enterprise directory* (often Active Directory)
+      - "log in once, use every app" → *single sign-on (SSO)*
+
+  - type: diagram
+    title: Two address books, one Windchill
+    caption: A common Acme-style setup. Click each box to see what it provides.
+    diagram:
+      width: 820
+      height: 400
+      groups:
+        - { label: Owned by IT / system admin, x: 20, y: 20, w: 330, h: 360, tone: neutral }
+        - { label: Owned by business admin, x: 560, y: 20, w: 240, h: 360, tone: neutral }
+      nodes:
+        - id: idp
+          label: Company login
+          sublabel: SSO / web server
+          x: 60
+          y: 60
+          w: 250
+          tone: info
+          detail: |
+            When Kai opens Windchill, the **login** is checked before Windchill does any work - by the web server
+            against the directory, or by the company's single sign-on service. Passwords and login policies are
+            IT's world.
+        - id: corp
+          label: Corporate directory
+          sublabel: e.g. Active Directory
+          x: 60
+          y: 170
+          w: 250
+          tone: primary
+          shape: cylinder
+          detail: |
+            IT's master list of employees: user names, full names, emails, departments. Windchill usually **reads**
+            it and does not write to it. Joiners and leavers are created and disabled here by IT.
+          real: Most mid-size and large companies connect their corporate directory so nobody manages passwords twice.
+        - id: wcds
+          label: Windchill Directory
+          sublabel: built-in directory server
+          x: 60
+          y: 290
+          w: 250
+          tone: accent
+          shape: cylinder
+          detail: |
+            The directory installed with Windchill. It commonly stores the **groups** created in Windchill, the
+            administrator accounts, and any users who aren't in the corporate directory (for example a supplier
+            whose engineers have no Acme account).
+        - id: wc
+          label: Windchill
+          sublabel: participant records
+          x: 400
+          y: 170
+          w: 130
+          tone: warning
+          detail: |
+            Windchill keeps one record per participant and the address of its directory entry. It combines both
+            directories so Jordan sees one list of people in Participant Administration.
+        - id: groups
+          label: Groups
+          sublabel: ACME-Engineering…
+          x: 590
+          y: 70
+          w: 180
+          tone: success
+          detail: Jordan creates and fills Windchill groups. They usually live in the Windchill directory, so Jordan can change them without an IT ticket.
+        - id: teams
+          label: Teams and roles
+          sublabel: in each context
+          x: 590
+          y: 170
+          w: 180
+          tone: success
+          detail: Which groups fill which roles in Scooter S2, E-Bike E1 and the libraries. Pure business admin territory.
+        - id: rules
+          label: Access and tasks
+          sublabel: who sees and does what
+          x: 590
+          y: 270
+          w: 180
+          tone: success
+          detail: Access rules and workflow assignments point at groups and roles - again the business admin's job.
+      edges:
+        - { from: idp, to: corp, label: checks password }
+        - { from: corp, to: wc, label: LDAP read }
+        - { from: wcds, to: wc, label: LDAP read/write, bidirectional: true }
+        - { from: wc, to: groups }
+        - { from: wc, to: teams }
+        - { from: wc, to: rules }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      When someone "can't log in", the problem is usually in the left half of the picture (IT). When someone
+      "logs in but can't see the product", it's usually the right half (Jordan). Knowing the split cuts the time
+      a ticket spends bouncing between teams from days to minutes.
+
+  - type: comparison
+    title: Who owns what
+    columns: [Business admin (Jordan), System admin / IT (Rosa)]
+    rows:
+      - label: Users
+        cells: ["Requests accounts; checks organization and groups", "Creates, disables and renames users in the directory"]
+      - label: Passwords and login
+        cells: [Not involved, "SSO, password policy, login failures"]
+      - label: Groups
+        cells: [Creates groups and maintains membership, Connects the directory where groups are stored]
+      - label: Teams and roles
+        cells: [Fills roles in products and libraries, Not involved]
+      - label: Directory connection
+        cells: [Reports problems, "Configures and monitors the LDAP connections"]
+      - label: Disconnected participants
+        cells: [Finds and reconnects them, Explains what changed in the directory]
+      - label: Directory reorganisation
+        cells: [Gets notified and checks for disconnections, Plans it and tells the Windchill admins first]
+    takeaway: "IT owns 'who exists and can log in'. The business admin owns 'what they can see and do in Windchill'."
+
+  - type: comparison
+    title: Corporate directory vs Windchill's own directory
+    columns: [Corporate directory, Windchill Directory]
+    rows:
+      - label: Typical content
+        cells: [Employees, "Windchill groups, admin accounts, external users"]
+      - label: Who changes it
+        cells: [IT, Windchill administrators]
+      - label: Windchill access
+        cells: [Usually read-only, Read and write]
+      - label: Good for
+        cells: ["One login for all company apps; automatic joiners and leavers", "Groups the business admin manages; suppliers without company accounts"]
+
+  - type: example
+    variant: real-world
+    title: Voltra's engineers need logins
+    industry: Micromobility
+    md: |
+      Voltra Cells' battery engineers must review cell specs for **EB-10021** (the E-Bike E1 battery pack). They are
+      not Acme employees, so they have no corporate directory account.
+
+      Rosa creates their accounts in Windchill's own directory with organization **Voltra Cells**. Jordan adds them
+      to `SUP-Voltra` and puts that group in the e-bike team's supplier role. When the contract ends, Jordan removes
+      the group from the team in one step, and Rosa disables the accounts.
+    takeaway: External users often live in a different directory from employees - plan who creates and who removes them.
+
+  - type: callout
+    variant: version-note
+    versions: ["Windchill+", "Newer releases"]
+    md: |
+      Windchill+ and many recent on-premises installations use **single sign-on** with the company's identity
+      provider, so logins never touch Windchill passwords. User provisioning on Windchill+ is handled through that
+      identity setup rather than by site administrators, but group and team management stays with the business admin.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **"Fixing" a login problem by creating a second user.** If Nina can't log in, don't create `nina.ortiz2` in
+      Windchill's directory. You now have two Ninas, and her tasks are split between them. Find out from IT why the
+      real account fails.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      **Agree the split in writing.** One page: who creates users, who disables leavers, who manages groups, and the
+      rule "directory changes are announced to Windchill admins". It's the cheapest governance you'll ever do.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Kai can log in but can't see the E-Bike E1 product. Whose half of the picture is this most likely in?
+        options: [IT - the corporate directory, The business admin - teams and access, The database administrator, The CAD administrator]
+        answer: 1
+        explanation: Logging in works, so the directory and SSO are fine. Visibility of a product comes from teams and access - Jordan's area.
+      - kind: truefalse
+        prompt: Windchill usually writes changes back into the corporate directory, such as new phone numbers.
+        answer: false
+        explanation: Corporate directories are usually connected read-only. Windchill writes only to directories it is allowed to, typically its own.
+
+  - type: flashcards
+    title: Directory deck
+    cards:
+      - front: LDAP
+        back: "The standard protocol Windchill uses to read and write directory entries (users and groups)."
+      - front: Windchill Directory Server
+        back: "The directory installed with Windchill. Often holds Windchill groups, admin accounts and external users."
+      - front: Corporate directory
+        back: "IT's master list of employees (often Active Directory). Usually read-only for Windchill."
+      - front: "\"Can't log in\" - whose ticket?"
+        back: "Usually IT / system admin: directory, password or SSO."
+      - front: "\"Can log in but can't see it\" - whose ticket?"
+        back: "Usually the business admin: groups, teams and access."
+      - front: Single sign-on (SSO)
+        back: "Log in once with the company identity; Windchill trusts that login."
+      - front: Why notify Windchill admins of directory moves?
+        back: "Moved or renamed entries create disconnected participants and stall tasks."
+
+  - type: summary
+    points:
+      - People live in a directory; Windchill reads it with LDAP and keeps its own record per participant.
+      - Many companies combine a read-only corporate directory with Windchill's own directory for groups and externals.
+      - "IT owns who exists and can log in; the business admin owns what they can see and do."
+      - Write the split down and make directory changes a shared event.

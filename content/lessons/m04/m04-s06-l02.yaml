@@ -1,0 +1,301 @@
+id: m04-s06-l02
+subtitle: The life cycle says where a part can go. A workflow says who does what to get it there - in what order.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, workflow, workflow-editor, activities, connectors, variables]
+
+blocks:
+  - type: text
+    md: |
+      In Module 3 you received review tasks, clicked **Approve** or **Reject**, and watched the work
+      move on. Each of those tasks was a box on a drawing that an admin made in the **workflow
+      template editor**.
+
+      Jordan's assignment this week: a small **E-Bike Part Quick Review** workflow.
+
+      1. Freeze the part (state *Under Review*).
+      2. Leo, playing the **Reviewer** role, approves or rejects - and must say why if he rejects.
+      3. Rejected? Unfreeze it and send it to the **Designer** role for rework, then review again.
+      4. Approved? Release it and tell manufacturing. No humans needed for that last bit.
+
+      Four lines of English. Let's turn them into a [[workflow]].
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a box a person has to work on" → *assigned activity* (it shows up as a [[task]])
+      - "a box the system does by itself" → [[workflow-robot|robot]]
+      - "a junction where paths wait or merge" → *connector* (AND, OR, threshold)
+      - "the arrows between boxes" → *links*; "which arrow fires" → *routing*
+      - "a named value the workflow remembers" → [[workflow-variable]]
+      - "the part the workflow is about" → *primary business object*
+
+  - type: diagram
+    title: E-Bike Part Quick Review, as Jordan draws it
+    caption: Blue boxes are people, green pills are robots. Click any box to see how it is configured.
+    diagram:
+      width: 840
+      height: 430
+      groups:
+        - { label: Happy path, x: 10, y: 20, w: 820, h: 130, tone: success }
+        - { label: Rework loop, x: 230, y: 250, w: 360, h: 160, tone: warning }
+      nodes:
+        - id: start
+          label: Start
+          x: 25
+          y: 60
+          w: 80
+          tone: neutral
+          shape: circle
+          detail: Every workflow has exactly one start. When the process is launched, the link out of Start fires.
+        - id: freeze
+          label: Set State
+          sublabel: Under Review
+          x: 125
+          y: 60
+          w: 120
+          tone: success
+          shape: pill
+          detail: |
+            A Set State [[workflow-robot|robot]]. It moves the primary business object (the part) to
+            *Under Review*, so the phase access from lesson 1 kicks in and nobody can edit it.
+        - id: review
+          label: Review part
+          sublabel: role Reviewer
+          x: 270
+          y: 60
+          w: 150
+          tone: primary
+          detail: |
+            An **assigned activity**. Participants: the **Reviewer** role (resolved from the E-Bike E1
+            team, so Leo gets the task). Routing: **manual**, with two events - *Approve* and *Reject*.
+            Variables: `reviewComments` is shown on the task form.
+          real: Use roles here, never named users. Teams change; templates shouldn't have to.
+        - id: release
+          label: Set State
+          sublabel: Released
+          x: 450
+          y: 60
+          w: 120
+          tone: success
+          shape: pill
+          detail: A second Set State robot. It runs only when the Review activity fires its *Approve* event.
+        - id: notify
+          label: Notify
+          sublabel: Manufacturing role
+          x: 595
+          y: 60
+          w: 120
+          tone: success
+          shape: pill
+          detail: A Notification robot sends Ana's team an email with a link to the released part.
+        - id: end
+          label: End
+          x: 740
+          y: 60
+          w: 75
+          tone: neutral
+          shape: circle
+          detail: Reaching End completes the process. It disappears from Leo's and Priya's task lists.
+        - id: unfreeze
+          label: Set State
+          sublabel: In Work
+          x: 250
+          y: 290
+          w: 130
+          tone: success
+          shape: pill
+          detail: Fired by the *Reject* event. It moves the part back to In Work so the Designer can edit it again.
+        - id: rework
+          label: Rework part
+          sublabel: role Designer
+          x: 420
+          y: 290
+          w: 150
+          tone: primary
+          detail: |
+            Another assigned activity, for the **Designer** role (Priya). It shows `reviewComments`
+            read-only, so Priya sees exactly what Leo asked for. When she completes it, the loop link
+            sends the part back to the freeze robot and the review starts again.
+      edges:
+        - { from: start, to: freeze }
+        - { from: freeze, to: review }
+        - { from: review, to: release, label: Approve }
+        - { from: release, to: notify }
+        - { from: notify, to: end }
+        - { from: review, to: unfreeze, label: Reject }
+        - { from: unfreeze, to: rework }
+        - { from: rework, to: freeze, label: loop link, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Workflows turn "we usually email Leo" into a process that **always** happens the same way,
+      records who decided what and when, and never forgets to tell manufacturing. That record is
+      exactly what an ISO auditor or a customer asks to see.
+
+  - type: comparison
+    title: The editor's toolbox
+    columns: [What it is, Who does the work, In Jordan's workflow]
+    rows:
+      - label: Assigned activity
+        cells: ["A task for people", "The roles or participants you list", "Review part, Rework part"]
+      - label: Robot
+        cells: ["An automatic step", "The system", "Set State (x3), Notify"]
+      - label: Connector
+        cells: ["Merges or splits paths (AND waits for all, OR for any, threshold for some)", "The system", "Not needed - each step has one clear way in"]
+      - label: Link
+        cells: ["An arrow fired by an event such as Approve or Reject", "-", "Seven links, one of them a loop link"]
+      - label: Variable
+        cells: ["A named value stored with each running process", "Set by tasks or expressions", "reviewComments (text)"]
+    takeaway: People-boxes, robot-boxes, junctions, arrows and memory. Every workflow is built from these five.
+
+  - type: walkthrough
+    title: Build the Quick Review workflow
+    who: A business administrator of the organization or the product
+    where: [Organization, Utilities, Workflow Template Administration]
+    steps:
+      - title: Create the template
+        where: [Organization, "Acme Mobility", Utilities, Workflow Template Administration, New]
+        md: |
+          Choose **New** and name it `E-Bike Part Quick Review`. Give it a category and a description,
+          and keep it **disabled** until it has been tested. The workflow editor opens.
+      - title: Add the variable
+        where: [Workflow editor, Template properties, Variables]
+        md: |
+          Add a [[workflow-variable]] `reviewComments` of type text (String). Note the built-in
+          variables such as the primary business object - the part the process runs on.
+      - title: Draw the people steps
+        where: [Workflow editor, Assigned Activity]
+        md: |
+          Drop two assigned activities: **Review part** and **Rework part**. For each, open its
+          properties and set **Participants** to a role (Reviewer, Designer). On Review part, set
+          **Routing** to manual with the events *Approve* and *Reject*, and on the **Variables** tab
+          show `reviewComments` (required, so a reject is never silent).
+      - title: Add the robots
+        where: [Workflow editor, Robots]
+        md: |
+          Add three **Set State** robots (Under Review, Released, In Work) and one **Notification**
+          robot addressed to the Manufacturing role. Each Set State robot acts on the primary business
+          object.
+      - title: Connect everything
+        where: [Workflow editor, Link tool]
+        md: |
+          Draw links Start → Under Review robot → Review part. From Review part, link the
+          *Approve* event to the Released robot (then Notify → End) and the *Reject* event to the
+          In Work robot → Rework part. Link Rework part back to the Under Review robot and mark it as
+          a **loop link** so the downstream steps reset for a fresh round.
+      - title: Save, check in, test, enable
+        where: [Workflow Template Administration, "E-Bike Part Quick Review"]
+        md: |
+          Save and check in. Workflow templates are iterated like life cycles: running processes keep
+          the iteration they started on. Test it in a sandbox, then mark the template **enabled** and
+          attach it where it should launch (for example the phase of an advanced life cycle).
+    result: |
+      The template is listed as enabled. Running processes can be followed in **Workflow Process
+      Administration** under the same Utilities page, where an admin can also see stuck steps.
+
+  - type: callout
+    variant: version-note
+    versions: ["All releases"]
+    md: |
+      Depending on your release, the workflow editor opens either as a separate Java-based window or
+      inside the browser, and some property tabs are named a little differently. The building blocks
+      (activities, robots, connectors, links, variables, routing events) are the same.
+
+  - type: simulation
+    title: Run the Quick Review
+    intro: |
+      You are the process engine. Launch the workflow on **EB-10021 Battery pack** and play Leo
+      and Priya. Try to reject without a comment - the required variable will stop you.
+    headline: "Step: {step} · EB-10021 is {state} · rework rounds: {rounds}"
+    initial: { step: Not started, state: In Work, rounds: 0, comment: empty, notified: false }
+    actions:
+      - id: launch
+        label: Launch the process
+        when: { step: [Not started, Completed] }
+        do: [{ set: { step: Review part, state: Under Review, comment: empty, notified: false, rounds: 0 } }]
+        log: "Start fired. Set State robot → Under Review. Leo (Reviewer) gets a task: Review part."
+        blockedHint: The process is already running.
+      - id: comment
+        label: "Leo: type review comments"
+        when: { step: Review part, comment: empty }
+        do: [{ set: { comment: "IP rating missing" } }]
+        log: "reviewComments = \"{comment}\""
+        blockedHint: Only the reviewer, during the review, edits the comments.
+      - id: reject
+        label: "Leo: Reject"
+        when: { step: Review part, comment: "IP rating missing" }
+        do: [{ set: { step: Rework part, state: In Work } }, { inc: rounds }]
+        log: "Reject event fired. Set State robot → In Work. Priya (Designer) gets Rework part with the comment: {comment}."
+        blockedHint: reviewComments is required on this task. Type a comment before rejecting.
+      - id: rework
+        label: "Priya: complete Rework"
+        when: { step: Rework part }
+        do: [{ set: { step: Review part, state: Under Review, comment: empty } }]
+        log: Loop link fired. Set State robot → Under Review again. Leo gets a fresh Review part task.
+        blockedHint: There is no rework task right now.
+      - id: approve
+        label: "Leo: Approve"
+        when: { step: Review part }
+        do: [{ set: { step: Completed, state: Released, notified: true } }]
+        log: "Approve event fired. Robots ran instantly: Set State → Released, then Notify → Manufacturing. Process complete."
+        blockedHint: Approve is only possible during the review.
+    goals:
+      - label: Send the part back for rework with a reason
+        when: { step: Rework part }
+        message: The Reject event chose the rework path, and the required variable made sure Priya knows why.
+      - label: Release EB-10021 after at least one rework round
+        when: { state: Released, rounds: 1 }
+        message: One loop, then approval. Robots did the state changes and the email with no human clicks.
+
+  - type: example
+    variant: real-world
+    title: The workflow that waited for Bob
+    industry: Micromobility
+    md: |
+      Acme's first-ever workflow assigned reviews to a **named user**, Bob. Bob went on parental
+      leave; forty processes sat in his task list for three weeks. Jordan's rebuild uses the
+      **Reviewer role**, filled from each product's team - when someone is away, the product manager
+      swaps the team member and new tasks go to the new person.
+    takeaway: Roles in templates, names in teams.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Building one giant workflow for everything.** A 60-node workflow with branches for every
+      product line is impossible to test and scary to change. Prefer a few small templates, each
+      with one clear job, and reuse them.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Name routing events as **verbs the user understands** - *Approve*, *Reject*, *Need info* - not
+      *Path 1* and *Path 2*. They become the buttons on the task, and the process history reads like
+      a story: "Leo - Reject - IP rating missing".
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: In Jordan's workflow, which element moves EB-10021 to Released without anyone clicking anything?
+        options: [An assigned activity, A Set State robot, An OR connector, The reviewComments variable]
+        answer: 1
+        explanation: Robots are automatic steps. The Set State robot changes the life cycle state of the primary business object the moment the Approve link reaches it.
+      - kind: multi
+        prompt: Which settings belong on the **Review part** activity? (Choose all that apply.)
+        options: [Participants - the Reviewer role, Routing events Approve and Reject, Show reviewComments as required, The list of life cycle states]
+        answers: [0, 1, 2]
+        explanation: An activity has participants, routing and visible variables. The list of life cycle states is defined elsewhere and used by the life cycle template.
+      - kind: truefalse
+        prompt: An AND connector continues as soon as any one of its incoming paths arrives.
+        answer: false
+        explanation: AND waits for all incoming paths. OR continues on the first one. A threshold connector continues after a set number.
+
+  - type: summary
+    points:
+      - Workflows are built from assigned activities, robots, connectors, links and variables.
+      - Activities assign work to roles. Routing events (Approve, Reject) decide which link fires.
+      - Variables carry information between steps - make the important ones required.
+      - Loops go back through a loop link so the steps reset for a new round.
+      - Templates are iterated. Test in a sandbox, then enable.

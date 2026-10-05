@@ -1,0 +1,32 @@
+# New glossary terms introduced in section m04-s01 (Participants).
+- id: participant
+  term: Participant
+  plain: Anyone (or any bundle of people) Windchill can give work or access to.
+  definition: The umbrella name for the things Windchill can assign access, roles and tasks to - users, groups and organizations. Participants are created and maintained with the Participant Administration utility.
+  aka: [Principal]
+  related: [group, organization, directory-server]
+
+- id: group
+  term: Group
+  plain: A named list of people, so you can manage them all at once.
+  definition: A participant that contains users and, optionally, other groups. Groups are used to fill team roles, grant access and route tasks so that admins change membership in one place instead of on every object or team. Groups can be created at site or organization level.
+  related: [participant, organization, context-team]
+
+- id: organization
+  term: Organization (participant)
+  plain: A company - yours or a partner's - that people belong to.
+  definition: A participant that represents a company or legal entity. Every user is tied to one organization. An organization participant can exist on its own (for example a supplier) or can also own an organization context that holds products and libraries.
+  related: [participant, organization-context, group]
+
+- id: ldap
+  term: LDAP
+  plain: The standard language Windchill uses to read its address book of people.
+  definition: Lightweight Directory Access Protocol, the industry-standard protocol for reading and writing directory entries such as users and groups. Windchill uses LDAP to talk to its own directory server and, optionally, to a corporate directory such as Active Directory.
+  aka: [Lightweight Directory Access Protocol]
+  related: [directory-server, participant]
+
+- id: disconnected-participant
+  term: Disconnected participant
+  plain: A user or group Windchill remembers, but can no longer find in the address book.
+  definition: A participant whose record in the Windchill database no longer matches an entry in the directory, usually because the entry was deleted, renamed or moved in LDAP. Disconnected participants cannot log in or be resolved for tasks until an administrator reconnects them to the right entry or removes them.
+  related: [participant, ldap, directory-server]

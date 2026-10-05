@@ -1,0 +1,324 @@
+id: m04-s06-l04
+subtitle: Number, folder, life cycle, team - filled in before the user even sees the form. Here's the rule behind the magic, and how to fix it when the magic stops.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, oir, object-initialization-rules, defaults, numbering]
+
+blocks:
+  - type: text
+    md: |
+      Picture Priya creating her tenth E-Bike Part of the day. Without help she would have to type a
+      number (which one is free?), pick a folder, choose the right life cycle and the right team.
+      Ten parts, forty chances to get something wrong.
+
+      With an **object initialization rule** (OIR), she picks the type **E-Bike Part**, types a name
+      and a voltage, and clicks Finish. Windchill fills in the rest:
+
+      | Field | Filled with |
+      | --- | --- |
+      | Number | `EB-10050` - next value from the e-bike sequence |
+      | Folder | `/Default/E-Bike Parts` |
+      | Life cycle | `E-Bike Part Life Cycle` (lesson 1) |
+      | Team template | the E-Bike part team template |
+
+      You've built the life cycle and the workflow. The OIR is the glue that hands them to every new
+      object - automatically and identically.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the auto-fill rule for a type in a context" → [[object-initialization-rule]] (OIR)
+      - "where the next number comes from" → number generator + database sequence (see [[numbering-scheme]])
+      - "the default home of new objects" → default [[folder]]
+      - "which map of states it follows" → the [[life-cycle]] template
+
+  - type: animation
+    title: What happens when Priya clicks New Part
+    diagram:
+      width: 840
+      height: 380
+      groups:
+        - { label: Where Windchill looks for a rule, x: 300, y: 10, w: 250, h: 360, tone: neutral }
+      nodes:
+        - { id: priya, label: Priya, sublabel: New Part in E-Bike E1, x: 20, y: 160, w: 180, tone: accent, shape: pill }
+        - { id: prod, label: E-Bike E1, sublabel: product rules, x: 330, y: 40, w: 190, tone: primary }
+        - { id: org, label: Acme Mobility, sublabel: organization rules, x: 330, y: 160, w: 190, tone: info }
+        - { id: site, label: Site, sublabel: out-of-the-box rules, x: 330, y: 280, w: 190, tone: neutral }
+        - { id: form, label: Create form, sublabel: pre-filled, x: 620, y: 100, w: 190, tone: success, shape: doc }
+        - { id: part, label: EB-10050, sublabel: In Work · /Default/E-Bike Parts, x: 620, y: 240, w: 190, tone: success, shape: doc }
+      edges:
+        - { from: priya, to: prod, label: type E-Bike Part }
+        - { from: prod, to: org, label: "none here?", dashed: true }
+        - { from: org, to: site, label: "none here?", dashed: true }
+        - { from: prod, to: form, label: rule found }
+        - { from: form, to: part, label: Finish }
+    chapters:
+      - title: Priya picks a type
+        caption: Priya is inside **E-Bike E1** and chooses the type **E-Bike Part**. The context and the type are the two keys of the lookup.
+        show: [priya, prod, org, site]
+        highlight: [priya]
+        flow: [priya>prod]
+      - title: Nearest context first
+        caption: Windchill looks for a rule for that type in the **current context**. Jordan put the E-Bike Part rule in E-Bike E1, so it is found right here.
+        show: [priya, prod, org, site]
+        highlight: [prod]
+      - title: Otherwise, go up
+        caption: If the product had no rule, Windchill would try the **organization**, then the **site**. A rule in a lower context overrides one higher up.
+        show: [priya, prod, org, site]
+        highlight: [org, site]
+        flow: [prod>org, org>site]
+      - title: The form arrives pre-filled
+        caption: Number, folder, life cycle and team come from the rule. Fields the rule marks as server-assigned are not editable.
+        show: [priya, prod, org, site, form]
+        highlight: [form]
+        flow: [prod>form]
+      - title: The part is created
+        caption: "On Finish the sequence hands out the next value: **EB-10050**, In Work, in `/Default/E-Bike Parts`."
+        highlight: [part]
+        flow: [form>part]
+        seconds: 7
+
+  - type: diagram
+    title: Who wins? Context and type together
+    caption: Rules are looked up by context (up the tree) and by type (up the type hierarchy). Click each box.
+    diagram:
+      width: 820
+      height: 330
+      groups:
+        - { label: Type Part, x: 20, y: 20, w: 380, h: 290, tone: neutral }
+        - { label: Subtype E-Bike Part, x: 420, y: 20, w: 380, h: 290, tone: accent }
+      nodes:
+        - id: site-part
+          label: Site · Part
+          sublabel: out-of-the-box
+          x: 60
+          y: 230
+          w: 300
+          tone: neutral
+          detail: The default rule shipped with Windchill. Plain sequence numbers, the Basic life cycle, the Default folder. Never edit it - override it lower down.
+        - id: org-part
+          label: Acme Mobility · Part
+          sublabel: company default
+          x: 60
+          y: 140
+          w: 300
+          tone: info
+          detail: Jordan's company-wide rule for ordinary parts, used by Scooter S2 and anything without its own rule.
+        - id: prod-part
+          label: E-Bike E1 · Part
+          sublabel: not created
+          x: 60
+          y: 50
+          w: 300
+          tone: neutral
+          detail: E-Bike E1 has no rule for plain Part, so a plain part created there falls back to the organization rule.
+        - id: prod-ebike
+          label: E-Bike E1 · E-Bike Part
+          sublabel: Jordan's new rule
+          x: 460
+          y: 50
+          w: 300
+          tone: success
+          detail: |
+            The rule for this lesson: EB- numbers, the E-Bike Parts folder, the E-Bike Part life cycle
+            and team template. It applies when someone in E-Bike E1 creates an **E-Bike Part**.
+          real: Values the subtype rule leaves out are typically taken from the parent type's rule, so keep subtype rules short and focused.
+        - id: org-ebike
+          label: Acme Mobility · E-Bike Part
+          sublabel: not created
+          x: 460
+          y: 140
+          w: 300
+          tone: neutral
+          detail: Jordan deliberately didn't create this. E-Bike Parts are only meant to be created in E-Bike E1.
+      edges:
+        - { from: prod-part, to: org-part, label: falls back to, dashed: true }
+        - { from: org-part, to: site-part, label: overrides, dashed: true }
+        - { from: prod-ebike, to: org-part, label: inherits unset values, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      OIRs are the cheapest data quality tool you have. A right default is used thousands of times
+      without anyone thinking about it. A wrong default is copied just as faithfully - so one
+      afternoon of testing an OIR saves months of cleaning up misfiled parts.
+
+  - type: walkthrough
+    title: Create the E-Bike Part OIR in E-Bike E1
+    who: A business administrator of the product (or organization)
+    where: [Products, "E-Bike E1", Utilities, Object Initialization Rules Administration]
+    steps:
+      - title: Open the OIR utility in the right context
+        where: [Products, "E-Bike E1", Utilities, Object Initialization Rules Administration]
+        md: |
+          The context you open it from is the context the rule belongs to. Jordan opens it from
+          **E-Bike E1**, not from the organization, because only this product makes e-bike parts.
+      - title: Start from a working rule
+        where: [Object Initialization Rules Administration, "<Part rule>", Download]
+        md: |
+          Find the existing rule for **Part** (inherited from the organization or site) and download
+          its XML. Starting from a rule that already works avoids most syntax mistakes.
+      - title: Edit the values
+        where: [Your text editor]
+        md: |
+          Change the number generator, folder path, life cycle and team template values (see the
+          snippet below). Folder paths and template names must match **exactly** what exists in E-Bike E1.
+      - title: Create the rule for the subtype
+        where: [Object Initialization Rules Administration, New Rule]
+        md: |
+          Choose **New Rule**, give it a name (`E-Bike Part defaults`), select the type **E-Bike Part**,
+          upload the edited XML and make sure the rule is **enabled**.
+      - title: Test it
+        where: [Products, "E-Bike E1", Folders, New, New Part]
+        md: |
+          Create a test part of type E-Bike Part. Check the number, folder, state and life cycle on its
+          information page. Then create one in **Scooter S2** to confirm the rule does *not* apply there.
+    result: |
+      New E-Bike Parts in E-Bike E1 arrive with an EB- number, in `/Default/E-Bike Parts`, In Work
+      on the E-Bike Part Life Cycle. Other contexts and types are untouched.
+
+  - type: text
+    md: |
+      ### What the rule looks like (simplified)
+
+      An OIR is a short XML file: one `AttrValue` per attribute it fills. This excerpt is trimmed to
+      show the idea - copy the exact syntax from a rule that works on your own system.
+
+      ```xml
+      <!-- E-Bike Part defaults (excerpt) -->
+      <AttrValue id="number" algorithm="...NumberGenerator">
+        <Arg>EB-</Arg>
+        <Arg>{GEN:wt.enterprise.SequenceGenerator:EBPART_seq:5:0}</Arg>
+      </AttrValue>
+      <AttrValue id="folder.id" algorithm="...FolderPathAttributeAlgorithm">
+        <String>/Default/E-Bike Parts</String>
+      </AttrValue>
+      <AttrValue id="lifeCycle.id" algorithm="...LifeCycleTemplateAttributeAlgorithm">
+        <String>E-Bike Part Life Cycle</String>
+      </AttrValue>
+      ```
+
+      Read it like a form: **number** = "EB-" plus the next value of the sequence `EBPART_seq`,
+      padded to 5 digits; **folder** = that path; **life cycle** = that template. The next section's
+      numbering lesson goes deeper on the number part.
+
+  - type: callout
+    variant: version-note
+    versions: ["All releases"]
+    md: |
+      The utility is called **Object Initialization Rules Administration** in the context's Utilities
+      page in most releases. Some attributes that once needed an OIR (simple default values) can also
+      be set in Type and Attribute Management in newer releases. Numbering, folder, life cycle and team
+      defaults remain classic OIR territory. On Windchill+, check which contexts you may edit rules in.
+
+  - type: scenario
+    variant: troubleshooting
+    title: "\"My e-bike part has no EB number!\""
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Monday, 9:05. Priya messages Jordan: "I made a new E-Bike Part and the number field was
+          empty - I had to type one. Is the rule broken?" What does Jordan ask first?
+        choices:
+          - label: "Which product were you in when you clicked New?"
+            next: s2
+            good: true
+            feedback: "Context is half the lookup key. Always check it first."
+          - label: "Rewrite the XML from scratch"
+            next: fail-rewrite
+            feedback: "Rewriting a rule that may be fine is guessing, not debugging."
+      - id: s2
+        md: |
+          Priya checks: she was in **Scooter S2** - she needed a shared bracket and started there. The
+          E-Bike Part rule lives in E-Bike E1, so Scooter S2 fell back to the organization's plain Part
+          rule. Fixed? She tries again in E-Bike E1... **still no EB number**. Next check?
+        choices:
+          - label: "Is the rule enabled, and is it for the type E-Bike Part (not Part)?"
+            next: s3
+            good: true
+            feedback: "Rule status and rule type - the next two keys."
+          - label: "Restart the server"
+            next: s2-restart
+            feedback: "Rarely the answer, and it interrupts everyone."
+      - id: s2-restart
+        md: |
+          Rosa is not thrilled: restarting interrupts every user and OIR changes don't normally need
+          it. Back to the rule itself - what do you check?
+        choices:
+          - label: "The rule's enabled flag and its type"
+            next: s3
+            good: true
+      - id: s3
+        md: |
+          The rule list shows it: Jordan uploaded the new rule on Friday but left it **disabled** while
+          testing. Jordan enables it. Priya tries once more and gets an **error** when she clicks
+          Finish, mentioning the sequence `EBPART_seq`. What is the most likely cause?
+        choices:
+          - label: "The database sequence was never created"
+            next: s4
+            good: true
+            feedback: "The rule names a sequence that must exist in the database. That's a system admin task."
+          - label: "Priya lacks permission to create parts"
+            next: s3-perm
+            feedback: "Then the New action would be missing or the error would mention access."
+      - id: s3-perm
+        md: |
+          Priya created parts fine on Friday, and the error names the sequence. Look at what the rule
+          *references*.
+        choices:
+          - label: "Check that EBPART_seq exists in the database"
+            next: s4
+            good: true
+      - id: s4
+        md: |
+          Rosa creates `EBPART_seq` starting at **10000** using the database scripts documented for
+          Acme's database. Priya creates EB-10000... wait, Kai already used EB-10021 by hand last week.
+          What now?
+        choices:
+          - label: "Start the sequence above the highest number already used"
+            next: win
+            good: true
+            feedback: "Check existing numbers first, then start the sequence after them."
+          - label: "Ignore it - Windchill will skip duplicates"
+            next: partial
+            feedback: "It won't skip. A clash shows up as a uniqueness error on the day the sequence reaches 10021."
+      - id: win
+        md: |
+          Rosa restarts the sequence at **10050**, above every hand-typed number. New E-Bike Parts now
+          get EB-10050, EB-10051... in the right folder and life cycle. Jordan writes a one-page
+          "OIR checklist": context, type, enabled, referenced names exist, test create.
+        outcome: success
+      - id: partial
+        md: |
+          It works for 21 parts - then someone's create fails with a uniqueness error at EB-10021.
+          Fixable, but annoying. Always align the sequence with existing numbers before go-live.
+        outcome: partial
+      - id: fail-rewrite
+        md: |
+          Jordan rewrites the XML, introduces a typo in the folder path, and now every E-Bike Part
+          creation fails. The original rule was fine - Priya was simply in the wrong product.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Editing the site's out-of-the-box rules.** It seems quicker, but it changes behaviour for
+      every organization, gets overwritten or conflicts at upgrade time, and is hard to undo. Override
+      at organization or product level instead.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Keep every OIR XML file in a version-controlled folder with a one-line comment on why each value
+      exists. When an auditor or a new admin asks "why does this part go into that folder?", the answer
+      is a file, not a memory.
+
+  - type: summary
+    points:
+      - An OIR sets starting values - number, folder, life cycle, team - for one type in one context.
+      - Windchill looks in the current context first, then the organization, then the site.
+      - Subtype rules can stay short. Unset values are typically taken from the parent type's rule.
+      - Debug in order - context, type, enabled, referenced names and sequences exist, then test.
+      - Never edit site out-of-the-box rules. Override them lower down.

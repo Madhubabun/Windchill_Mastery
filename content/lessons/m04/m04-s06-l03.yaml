@@ -1,0 +1,304 @@
+id: m04-s06-l03
+subtitle: Let the system do the boring steps - and pick the right path on its own - without turning your workflow into a software project.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, workflow, robots, expressions, conditional-routing]
+
+blocks:
+  - type: text
+    md: |
+      Jordan's Quick Review workflow is live. Then Leo brings news from a safety audit:
+
+      > "Battery packs at **48 V or more** need an extra **safety review**. Everything else can keep
+      > the standard review."
+
+      Jordan could ask every requester to pick the right path. People would forget. Instead, the
+      workflow should **look at the part and decide**. That takes two tools:
+
+      - **Robots** - steps the system runs by itself (you met Set State and Notify already).
+      - **Expressions** - a few lines of Java-like code that set the routing result.
+
+      The trick at expert level is not writing clever code. It is writing **as little code as
+      possible**, and making it impossible for it to get stuck.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a step the system does alone" → [[workflow-robot|robot]]
+      - "a fork where the system picks the path" → *conditional routing* (a conditional router node, or conditional routing on an activity)
+      - "the few lines of code that decide" → [[workflow-expression]]
+      - "the value the code reads" → [[workflow-variable]], e.g. `batteryVoltage`
+      - "the path name the code returns" → the routing *event*, set in `result`
+
+  - type: diagram
+    title: Routing by battery voltage
+    caption: The diamond-like router reads one variable and fires exactly one event. Click each box.
+    diagram:
+      width: 840
+      height: 400
+      groups:
+        - { label: Decided by the system, x: 160, y: 20, w: 300, h: 360, tone: info }
+      nodes:
+        - id: start
+          label: Start
+          x: 20
+          y: 170
+          w: 100
+          tone: neutral
+          shape: circle
+          detail: The process is launched on an E-Bike Part, for example EB-10021 Battery pack (Battery Voltage 48 V).
+        - id: copy
+          label: Read voltage
+          sublabel: expression robot
+          x: 190
+          y: 60
+          w: 240
+          tone: success
+          shape: pill
+          detail: |
+            An **Execute Expression** robot copies the part's *Battery Voltage* attribute into the
+            workflow variable `batteryVoltage`. Jordan doesn't hand-write this lookup: Acme's
+            developer provides a tested one-line helper call for reading attributes.
+          real: Keep attribute lookups in one shared, tested helper. Copy-pasted lookup code in 20 templates is how upgrades break.
+        - id: router
+          label: Conditional router
+          sublabel: "result = ?"
+          x: 190
+          y: 175
+          w: 240
+          tone: warning
+          detail: |
+            The routing expression sets `result` to the **name of one event**: "Safety review" or
+            "Standard review". The link with that event name fires. The names must match exactly.
+        - id: notify
+          label: Timer + reminder
+          sublabel: timer robot
+          x: 190
+          y: 290
+          w: 240
+          tone: success
+          shape: pill
+          detail: |
+            Optional: a **Timer** robot running in parallel waits 3 working days, then a
+            **Notification** robot nudges the reviewer. Robots are great at nagging politely.
+        - id: safety
+          label: Safety review
+          sublabel: role Safety Reviewer
+          x: 520
+          y: 90
+          w: 200
+          tone: danger
+          detail: An assigned activity for the Safety Reviewer role (Leo's team). Only packs at 48 V or more come here.
+        - id: standard
+          label: Standard review
+          sublabel: role Reviewer
+          x: 520
+          y: 250
+          w: 200
+          tone: primary
+          detail: The normal review from the previous lesson - and the **safe default** when the voltage is unknown.
+        - id: done
+          label: Release path
+          x: 750
+          y: 170
+          w: 80
+          tone: neutral
+          shape: circle
+          detail: Both reviews end in the same Set State → Released robot when approved.
+      edges:
+        - { from: start, to: copy }
+        - { from: copy, to: router }
+        - { from: router, to: safety, label: "Safety review" }
+        - { from: router, to: standard, label: "Standard review" }
+        - { from: safety, to: done }
+        - { from: standard, to: done }
+        - { from: start, to: notify, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Automatic routing turns a safety rule into something that **cannot be skipped**. When the
+      auditor asks "how do you make sure every 48 V pack gets a safety review?", Jordan doesn't say
+      "we remind people" - Jordan shows the router and the process history.
+
+  - type: comparison
+    title: Robots you'll actually use
+    columns: [Does what, Use it when, Watch out]
+    rows:
+      - label: Set State
+        cells: ["Changes the object's life cycle state", "Freezing or releasing at a fixed point", "The target state must exist in the object's life cycle"]
+      - label: Notification
+        cells: ["Sends an email to roles or participants", "Telling people something happened", "Too many emails train people to ignore them"]
+      - label: Timer
+        cells: ["Waits for a duration or a date", "Reminders and escalations", "Pair it with a clear action when it fires"]
+      - label: Synchronize
+        cells: ["Waits until an event or condition happens", "Waiting for another object or process", "Can wait forever if the event never comes"]
+      - label: Launch Process
+        cells: ["Starts another workflow template", "Reusing a small sub-process", "Keep track of which process owns the object"]
+      - label: Execute Expression
+        cells: ["Runs a short piece of Java-like code", "Setting variables or calling a tested helper", "Exceptions stop the step - keep it tiny"]
+    takeaway: Reach for the no-code robots first. Execute Expression is the last tool in the box, not the first.
+
+  - type: comparison
+    title: Three ways a step chooses its next link
+    columns: [Manual routing, Conditional routing, Automatic (all links)]
+    rows:
+      - label: Who decides
+        cells: ["The person doing the task", "An expression", "Nobody - every outgoing link fires"]
+      - label: Example
+        cells: ["Leo clicks Approve or Reject", "48 V or more → Safety review", "Notify Quality and Manufacturing at the same time"]
+      - label: Risk
+        cells: ["People pick the wrong button", "A typo in an event name strands the process", "Paths must be joined later with an AND or OR connector"]
+    takeaway: Let humans decide judgement calls. Let expressions decide facts.
+
+  - type: text
+    md: |
+      ### The whole expression
+
+      Here is everything Jordan writes in the router. The router lists two events: `Safety review`
+      and `Standard review`.
+
+      ```java
+      // Safe default first: if nothing below matches, we still go somewhere sensible.
+      result = "Standard review";
+      if (batteryVoltage >= 48.0) {
+          result = "Safety review";
+      }
+      ```
+
+      That's it - five lines. Notice what makes it **safe**:
+
+      | Rule | Why |
+      | --- | --- |
+      | Set a default `result` first | An unexpected value can never leave the process with no path. |
+      | Event names copied, not retyped | `"Safety Review"` with a capital R is a different event - and a stuck process. |
+      | Read a variable, not the database | The variable is filled once by a tested helper. The router stays trivial. |
+      | Use **Check Syntax** in the editor | It catches typos before the template is saved - not in production. |
+      | No loops, no waits, no writes | Anything bigger belongs in a developer's tested Java class, called in one line. |
+
+  - type: scenario
+    variant: what-if
+    title: What if the router meets real data?
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          The router is live. Priya launches a review on **EB-10035 Display unit**. It has no battery,
+          so *Battery Voltage* is empty and the helper puts **0** in `batteryVoltage`. What happens?
+        choices:
+          - label: "It goes to Standard review because of the default"
+            next: s2
+            good: true
+            feedback: "Right. 0 is below 48, and even a surprise value would hit the default first."
+          - label: "The process stops with an error"
+            next: s1-err
+            feedback: "Not with this expression - the comparison works on 0 and the default is already set."
+      - id: s1-err
+        md: |
+          With the default set on line 1 and a number in the variable, nothing can fail here. It would
+          only fail if the variable could be **empty** (an object type with no value) and the code used
+          it without checking. Jordan's helper always returns a number for exactly that reason.
+        choices:
+          - label: Continue
+            next: s2
+      - id: s2
+        md: |
+          Next month Kai asks to add a third event, **Fast track**, for packs under 12 V. A colleague
+          adds the link in the diagram but types `result = "Fast Track";` in the code. A 9 V pack
+          arrives. What happens?
+        choices:
+          - label: "The process gets stuck at the router"
+            next: s3
+            good: true
+            feedback: "Yes. No outgoing link is called \"Fast Track\" (capital T), so nothing fires."
+          - label: "Windchill picks the closest matching event"
+            next: s2-guess
+            feedback: "Windchill doesn't guess. Event names must match exactly."
+      - id: s2-guess
+        md: |
+          There is no fuzzy matching. The process sits at the router until an admin finds it in
+          **Workflow Process Administration**. How should Jordan prevent this?
+        choices:
+          - label: "Copy event names from the router's event list and test every branch in a sandbox"
+            next: s3
+            good: true
+            feedback: "That's the habit."
+      - id: s3
+        md: |
+          Rosa (system admin) spots the stuck process. To unblock it today, which is the best move?
+        choices:
+          - label: "Fix the template, check it in, and handle the stuck process from Workflow Process Administration"
+            next: win
+            good: true
+            feedback: "Fix forward, then deal with the stranded process explicitly. Running processes keep their old template iteration, so they need handling."
+          - label: "Just fix the template - the running process will pick it up"
+            next: partial
+            feedback: "Running processes stay on the iteration they started with."
+          - label: "Add a big try/catch around the code that routes everything to Standard review"
+            next: fail
+            feedback: "That hides the bug and silently skips safety rules."
+      - id: win
+        md: |
+          New processes use the fixed template, and the stuck one is restarted or completed by hand
+          with a note in its history. Jordan adds "test every branch" to the release checklist.
+        outcome: success
+      - id: partial
+        md: |
+          New processes work, but the stuck one is still stuck - templates are **iterated** and a
+          running process follows the iteration it started on. Someone still has to handle it.
+        outcome: partial
+      - id: fail
+        md: |
+          Now 9 V packs go to Standard review and nobody notices the rule is broken. Silent failure is
+          worse than a loud one. Keep expressions tiny and let real errors surface.
+        outcome: fail
+
+  - type: example
+    variant: real-world
+    title: The 400-line expression
+    industry: Micromobility
+    md: |
+      A previous contractor wrote a 400-line Execute Expression robot that read BOMs, calculated
+      costs and emailed suppliers. It worked - until a Windchill upgrade changed one internal method,
+      and every engineering change at Acme stopped at that robot. Jordan and Acme's developer replaced
+      it with **one line** calling a tested Java class that lives in the code repository, with unit
+      tests and an upgrade checklist.
+    takeaway: Workflow templates hold decisions. Real logic lives in tested code.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Hiding errors.** Wrapping an expression in `try { ... } catch (Exception e) { }` makes the
+      process "never fail" - and silently does the wrong thing. Let real errors stop the step so an
+      admin sees them in Workflow Process Administration.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Write the routing rule in plain English in the router's **description** first ("48 V or more →
+      Safety review, otherwise Standard"). The next admin will read that before the code - and you
+      can test the code against it.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Why does Jordan's expression set `result = "Standard review";` on its first line?
+        options:
+          - It is required by the syntax checker
+          - So the process always has a valid path even if no condition matches
+          - To make the safety review optional
+        answer: 1
+        explanation: A default result means an unexpected value still leads to a defined, sensible path instead of a stuck process.
+      - kind: truefalse
+        prompt: For "notify Quality and Manufacturing at the same time", automatic routing (fire all links) is a good fit.
+        answer: true
+        explanation: When every path should run, no decision is needed. Remember to join the paths later with an AND or OR connector if they meet again.
+
+  - type: summary
+    points:
+      - Robots automate steps. Prefer Set State, Notification, Timer and Synchronize over code.
+      - Conditional routing lets an expression pick one event by name.
+      - Safe expressions are tiny - default result first, exact event names, no hidden errors.
+      - Bigger logic belongs in tested Java code called in one line.
+      - A stuck process stays stuck after a template fix. Handle it in Workflow Process Administration.

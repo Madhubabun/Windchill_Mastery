@@ -1,0 +1,347 @@
+id: m04-s05-l04
+subtitle: The most common admin ticket in PLM. Solve it like a detective, not with Full Control.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [access-control, troubleshooting, effective-permissions, business-admin]
+
+blocks:
+  - type: text
+    md: |
+      Tuesday, 08:12. Email from Lin at Voltra Cells:
+
+      > *"Kai said the battery pack drawing EB-10021 was released yesterday. I search for it and get
+      > nothing. Can you check?"*
+
+      The fastest "fix" is to add Lin to `ACME-Engineering`. It also gives a supplier access to
+      everything engineers see. A good admin finds the **one** missing piece and fixes only that.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "what Lin can actually do to that drawing" → [[effective-permissions|effective permissions]]
+      - "the admin X-ray for who can do what, and why" → [[access-information-tool|access information tool]]
+      - "a hidden item in a structure that you're not allowed to read" → *Secured Information* placeholder
+      - "giving more access than needed" → *over-granting* (the opposite of *least privilege*)
+
+  - type: callout
+    variant: note
+    title: Invisible is the default
+    md: |
+      Windchill doesn't say "access denied" in search results. Objects you can't **Read** simply don't
+      appear. In a structure or a related-objects table, they may show as a **Secured Information**
+      placeholder. So "I can't find it" and "I'm not allowed to see it" look identical to the user.
+
+  - type: diagram
+    title: The seven usual suspects
+    caption: Check them roughly in this order. The cheap checks come first. Click each one.
+    diagram:
+      width: 820
+      height: 400
+      nodes:
+        - id: s1
+          label: 1 · Right object?
+          sublabel: number · version · context
+          x: 20
+          y: 20
+          w: 240
+          h: 56
+          tone: neutral
+          detail: |
+            Search for it yourself (as admin). Is EB-10021's drawing really Released, or still **Under
+            Review**? Is it in E-Bike E1, or was it checked in to another product by mistake?
+        - id: s2
+          label: 2 · Right person?
+          sublabel: account · groups · team role
+          x: 290
+          y: 20
+          w: 240
+          h: 56
+          tone: neutral
+          detail: |
+            Is Lin's account in `SUP-Voltra`? Is `SUP-Voltra` in the E-Bike E1 team with the Supplier
+            role? A new hire on the supplier side often has an account but no group.
+        - id: s3
+          label: 3 · Right folder?
+          sublabel: which domain it uses
+          x: 560
+          y: 20
+          w: 240
+          h: 56
+          tone: primary
+          detail: |
+            Voltra's rules live in the **Battery** domain. If the drawing was saved in the *Electrics*
+            folder (E1 Default domain), the Battery rules never apply to it.
+        - id: s4
+          label: 4 · Matching grant?
+          sublabel: type · state · participant
+          x: 20
+          y: 130
+          w: 240
+          h: 56
+          tone: primary
+          detail: |
+            Is there a grant for that **type** (CAD Document vs Document), that **state** (Released, not
+            Released for Production), and a participant Lin belongs to?
+        - id: s5
+          label: 5 · A deny somewhere?
+          sublabel: whole domain chain
+          x: 290
+          y: 130
+          w: 240
+          h: 56
+          tone: warning
+          detail: Check denies in the object's domain **and every parent**. One deny for any of Lin's groups cancels every policy grant.
+        - id: s6
+          label: 6 · Security label?
+          sublabel: authorized · agreement expired?
+          x: 560
+          y: 130
+          w: 240
+          h: 56
+          tone: danger
+          detail: |
+            A restricted label value blocks unauthorized users whatever the rules say. If access worked
+            last week and nothing else changed, check whether an [[agreement]] expired.
+        - id: s7
+          label: 7 · Ad hoc changed?
+          sublabel: removed · absolute deny
+          x: 290
+          y: 240
+          w: 240
+          h: 56
+          tone: warning
+          detail: |
+            Was a workflow or person granting this ad hoc and has since removed it? Or did someone add an
+            absolute deny that now beats the ad hoc grant?
+        - id: tool
+          label: Access information tool
+          sublabel: shows 4 to 7 in one place
+          x: 290
+          y: 330
+          w: 240
+          h: 56
+          tone: success
+          shape: pill
+          detail: |
+            The [[access-information-tool|access information tool]] reports Lin's effective permissions on
+            the exact object and, in most releases, which source granted or denied each. Use it to
+            confirm your theory.
+      edges:
+        - { from: s1, to: s2 }
+        - { from: s2, to: s3 }
+        - { from: s3, to: s4 }
+        - { from: s4, to: s5 }
+        - { from: s5, to: s6 }
+        - { from: s6, to: s7 }
+        - { from: s7, to: tool }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Each over-grant is a small, permanent leak that nobody remembers. Auditors find them years later,
+      or a supplier finds them sooner. Fixing the real cause also fixes the *next* ticket: if one
+      drawing was in the wrong folder, ten more probably are too.
+
+  - type: walkthrough
+    title: Check someone's effective permissions on an object
+    who: Organization or context administrator (exact tools and who may use them vary by release)
+    where: ["<object> information page", Actions, "<access information action>"]
+    steps:
+      - title: Find the exact version
+        where: [Search, "EB-10021", "<drawing information page>"]
+        md: |
+          Open the drawing's information page. Check its **context**, **folder** and **state** in the
+          details area. That already answers suspects 1 and 3.
+      - title: Open the access information
+        where: ["<information page>", Actions, "<access information action>"]
+        md: |
+          Use the object's access information action (named along the lines of *View Access Rights* or
+          *Access Information*, depending on release). Pick the participant: Lin's user account.
+      - title: Read the effective permissions
+        where: ["<access information>", "<participant>"]
+        md: |
+          You'll see what Lin can do (Read, Download and so on) and, in most releases, why: the policy
+          rule, ad hoc rule or security label behind each grant or denial.
+      - title: Cross-check the rules
+        where: ["E-Bike E1", Utilities, Policy Administration, "<object's domain>"]
+        md: Open Policy Administration on the object's domain and its parents to read the exact rule you found, including inherited denies.
+      - title: Check team membership
+        where: ["E-Bike E1", Team]
+        md: Confirm the participant's group holds the expected role in the context team.
+    result: |
+      You can name the single cause, such as *"drawing sits in Electrics, not Battery"*, and show the evidence.
+
+  - type: callout
+    variant: version-note
+    versions: ["Varies by release"]
+    md: |
+      The name and location of the access information tool have changed across releases. Some put it on
+      the object's Actions menu, others in Policy Administration or Participant Administration, and some
+      need extra admin rights. If you can't find it, check your release's help for "access rights" or
+      "effective permissions". The diagnosis order above doesn't change.
+
+  - type: scenario
+    variant: troubleshooting
+    title: Lin can't find EB-10021
+    start: t1
+    nodes:
+      - id: t1
+        md: Lin can't find the EB-10021 battery drawing. What do you check first?
+        choices:
+          - label: "Search for it as admin: number, version, state, folder"
+            next: t2
+            good: true
+            feedback: Cheapest check first. Confirm the object is what everyone thinks it is.
+          - label: Add Lin to ACME-Engineering so it works
+            next: bad1
+            feedback: That's over-granting before you know the cause.
+          - label: Ask Rosa to restart the server
+            next: bad2
+            feedback: Access rules apply immediately; restarts don't fix rule logic.
+      - id: bad1
+        md: |
+          Lin now sees the drawing, and also every In Work part, CAD model and change in E1 and Scooter S2.
+          Kai finds out a week later. You remove Lin from the group and start again.
+        outcome: fail
+      - id: bad2
+        md: The restart takes 20 minutes, disrupts everyone, and Lin still can't see the drawing. Back to square one.
+        choices:
+          - { label: Start the investigation properly, next: t2 }
+      - id: t2
+        md: |
+          The drawing exists in E-Bike E1, revision A, **Released**. But its location is the
+          **Electrics** folder, not **Battery**. What does that mean?
+        choices:
+          - label: It uses the E1 Default domain, so the Battery rules don't apply
+            next: t3
+            good: true
+            feedback: Exactly. A folder decides the domain.
+          - label: Nothing, the folder doesn't affect access
+            next: t2-hint
+            feedback: The folder decides the domain, and the domain decides which rules apply.
+      - id: t2-hint
+        md: An object uses its folder's domain. Electrics uses E1 Default, which has no Supplier grant. Look again.
+        choices:
+          - { label: Got it, next: t3 }
+      - id: t3
+        md: How do you fix it without over-granting?
+        choices:
+          - label: Move the drawing (and its model) to the Battery folder
+            next: t4
+            good: true
+            feedback: The object now sits in the zone built for exactly this.
+          - label: Copy the Battery Supplier rule into E1 Default
+            next: bad3
+            feedback: That reaches every E1 folder.
+          - label: Add an ad hoc Read for SUP-Voltra on the drawing
+            next: partial1
+            feedback: It works for this one, but hides the real problem.
+      - id: bad3
+        md: Voltra can now read every Released CAD Document in E-Bike E1, including motor and frame drawings they shouldn't see.
+        outcome: fail
+      - id: partial1
+        md: |
+          Lin sees EB-10021, but next week's EB-10025 cell module drawing lands in Electrics too and
+          the ticket comes back. Ad hoc fixes treat symptoms.
+        outcome: partial
+      - id: t4
+        md: |
+          After the move, the access tool shows Lin has **Read** and **Download**. Lin confirms. One
+          last thing?
+        choices:
+          - label: Tell Priya, and check Electrics for other battery drawings
+            next: win
+            good: true
+            feedback: Fix the cause, then the pattern.
+          - label: Close the ticket
+            next: partial2
+            feedback: Fine, but the same mistake will happen again.
+      - id: partial2
+        md: The ticket is closed. Two weeks later another battery drawing is filed in Electrics.
+        outcome: partial
+      - id: win
+        md: |
+          Priya now saves battery CAD in Battery. You find two more misfiled drawings and move them. You
+          also ask whether a CAD workspace or initialization setting can default battery CAD to the right
+          folder. Least privilege kept, root cause fixed.
+        outcome: success
+
+  - type: scenario
+    variant: what-if
+    title: "What if it was something else?"
+    start: w1
+    nodes:
+      - id: w1
+        md: Same complaint, different cause. Pick a case to see the right fix.
+        choices:
+          - { label: Drawing is still Under Review, next: w-state }
+          - { label: Org-level Deny Read for the Supplier role, next: w-deny }
+          - { label: "Label 'Voltra Proprietary' expired agreement", next: w-label }
+          - { label: Lin's account isn't in SUP-Voltra, next: w-group }
+      - id: w-state
+        md: |
+          **Fix: nothing to fix.** The rule grants Released only, by design. Tell Lin it'll appear when
+          Maya's review completes. If Voltra genuinely must review it now, add a time-boxed ad hoc Read on
+          that one version, and remove it afterwards.
+        outcome: success
+      - id: w-deny
+        md: |
+          **Fix: find out why the deny exists before touching it.** If it's an intentional red line, the
+          answer is "no". If it's too broad, narrow its state or type at the organization level. Don't
+          add an ad hoc grant to work around a deny you don't understand.
+        outcome: success
+      - id: w-label
+        md: |
+          **Fix: renew the agreement**, through its approval process, if the business still wants Voltra
+          cleared. Don't remove the label from the object; that would expose it to everyone with a policy
+          grant.
+        outcome: success
+      - id: w-group
+        md: |
+          **Fix: add Lin's account to `SUP-Voltra`** (in Participant Administration, or the supplier's
+          own admin if delegated). Never add Lin directly to rules; the group exists so people can come
+          and go.
+        outcome: success
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **"It works for me."** An admin account bypasses access control, so it proves nothing. Reproduce
+      with a test user who has the same groups and roles as the person reporting the problem, or use the
+      access information tool for their actual account.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Keep a short access log for every fix: who, which object, cause, change made and why. When an
+      auditor asks "why can Voltra read the Battery folder?", you'll answer in one line instead of an
+      afternoon.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Lin searches for EB-10021 and gets no result. As admin you find it immediately. What does this tell you?
+        options: [Search is broken, Lin most likely lacks Read access to it, The drawing was deleted, Lin typed the number wrong]
+        answer: 1
+        explanation: Search only returns objects the user can read. Admins bypass access, so you see it. Confirm with the access information tool.
+      - kind: order
+        prompt: Put Jordan's checks in a sensible order, cheapest first.
+        items: [Confirm object version and state, Confirm user's groups and team role, Check the object's folder and domain, Look for matching grants and inherited denies, Check security labels and agreements]
+        explanation: Start with facts you can check in seconds (the object, the person, the folder) before reading rules and label configuration.
+      - kind: multi
+        prompt: Which fixes avoid over-granting when a Released battery drawing is misfiled in Electrics? (Choose all that apply.)
+        options: [Move it to the Battery folder, Copy the Supplier rule into E1 Default, Add Lin to ACME-Engineering, Fix the folder default so new battery CAD lands in Battery]
+        answers: [0, 3]
+        explanation: Moving the object and fixing the cause keep Voltra inside its zone. The other two open whole products to a supplier.
+      - kind: truefalse
+        prompt: Removing a security label from an object is a good quick fix when an agreement has expired.
+        answer: false
+        explanation: Removing the label exposes the object to everyone with a policy grant. Renew the agreement if the access is still wanted.
+
+  - type: summary
+    points:
+      - Unreadable objects are invisible in search, so "can't find" often means "can't read".
+      - Check object, person, folder, grants, denies, labels and ad hoc changes, cheapest first.
+      - Use the access information tool to see effective permissions and their sources.
+      - Fix the single real cause, then the pattern behind it; never fix with Full Control or a big group.

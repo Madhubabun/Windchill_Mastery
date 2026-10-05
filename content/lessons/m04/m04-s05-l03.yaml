@@ -1,0 +1,271 @@
+id: m04-s05-l03
+subtitle: Rules flow downhill. Design the hill so they land where you want.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [access-control, domains, inheritance, deny]
+
+blocks:
+  - type: text
+    md: |
+      Two weeks after Voltra joined, Kai pings Jordan: *"Why can Voltra see Priya's half-finished
+      battery drawings?!"* Jordan's Battery rules only grant **Released**. So where did the extra
+      access come from?
+
+      From **above**. Someone had added a convenience rule at the organization level, and every domain
+      below inherited it. Domains inherit; that's their strength, and the source of most surprises.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "rules flow from parent zones to child zones" → *domain inheritance*
+      - "the zone a zone sits under" → *parent domain*
+      - "a 'no' that beats grants from anywhere in the chain" → [[deny-rule|deny]]
+      - "a 'no' that even one-off grants can't beat" → [[absolute-deny|absolute deny]]
+
+  - type: diagram
+    title: What the Battery domain really "sees"
+    caption: The effective rule set for a domain is its own rules plus every ancestor's. Click each layer.
+    diagram:
+      width: 820
+      height: 430
+      nodes:
+        - id: site
+          label: Site root
+          sublabel: 2 rules
+          x: 40
+          y: 20
+          w: 200
+          h: 52
+          tone: neutral
+          detail: Site-wide rules, such as basic Read on system objects everyone needs. Owned by Rosa (system admin).
+        - id: org
+          label: Acme Default
+          sublabel: 3 rules (one is new!)
+          x: 40
+          y: 110
+          w: 200
+          h: 52
+          tone: primary
+          detail: |
+            Company-wide rules. The new one, added by someone in a hurry: **ALL · CAD Document · All states ·
+            Grant Read**. *ALL* means every user, so suppliers are included. It flows down into every product.
+        - id: pdm
+          label: PDM
+          sublabel: 1 rule
+          x: 40
+          y: 200
+          w: 200
+          h: 52
+          tone: primary
+          detail: The parent of all products and libraries. Rules here reach Scooter S2, E-Bike E1 and Acme Standard Parts alike.
+        - id: e1
+          label: E-Bike E1 Default
+          sublabel: 6 rules
+          x: 40
+          y: 290
+          w: 200
+          h: 52
+          tone: accent
+          detail: E1 team rules for designers, members and change roles.
+        - id: battery
+          label: Battery
+          sublabel: 2 rules
+          x: 40
+          y: 375
+          w: 200
+          h: 48
+          tone: success
+          detail: Jordan's Voltra rules. Read the Battery folder, and Read + Download Released CAD Documents.
+        - id: effective
+          label: Effective for Battery
+          sublabel: 2 + 3 + 1 + 6 + 2 = 14 rules
+          x: 380
+          y: 180
+          w: 240
+          h: 64
+          tone: warning
+          detail: |
+            Windchill evaluates all 14 together. For Voltra on an In Work drawing, the org rule grants Read,
+            so Voltra sees it. **Grants add up across levels**; there's no "closest rule wins".
+        - id: lesson
+          label: No closest-wins
+          sublabel: union of grants · any deny cuts
+          x: 380
+          y: 300
+          w: 240
+          h: 60
+          tone: danger
+          detail: |
+            Many people expect a child domain to override its parent, like CSS or file permissions.
+            It doesn't. A child can **add** grants and **add** denies, but it can't "un-grant" a parent's
+            grant except with a deny.
+      edges:
+        - { from: site, to: org }
+        - { from: org, to: pdm }
+        - { from: pdm, to: e1 }
+        - { from: e1, to: battery }
+        - { from: site, to: effective, dashed: true }
+        - { from: org, to: effective, dashed: true, label: leak }
+        - { from: pdm, to: effective, dashed: true }
+        - { from: e1, to: effective, dashed: true }
+        - { from: battery, to: effective, dashed: true }
+        - { from: effective, to: lesson }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      One rule at the top of the tree quietly changes access in every product beneath it. In a regulated
+      company that's an audit finding; with a supplier involved it can be an IP leak. Designing the
+      hierarchy, deciding *which* rule goes *where*, is the main architecture decision in access control.
+
+  - type: simulation
+    title: Keep Voltra on released drawings only
+    intro: |
+      You're Jordan. Set Voltra up, survive Kai's org-wide "convenience rule", then test the two
+      kinds of deny against a one-off ad hoc grant. Watch what Voltra can see after each step.
+    headline: "Phase: {phase} · Released drawings: {released} · In Work drawings: {inWork}"
+    initial: { phase: Start, released: Hidden, inWork: Hidden, adhocDrawing: "n/a" }
+    actions:
+      - id: join
+        label: Add SUP-Voltra to E-Bike E1 team (Supplier role)
+        when: { phase: Start }
+        do: [{ set: { phase: In team } }]
+        log: Voltra is on the team, but no rule grants the Supplier role anything on battery CAD yet. Membership alone shows almost nothing.
+        blockedHint: Voltra is already on the team.
+      - id: grant
+        label: "Battery domain: Supplier · CAD Document · Released · Grant Read + Download"
+        when: { phase: In team }
+        do: [{ set: { phase: Granted, released: Visible } }]
+        log: Released battery drawings are now visible to Voltra. In Work ones still aren't; no rule matches that state.
+        blockedHint: Put Voltra on the team first, or you've already added this rule.
+      - id: leak
+        label: "Kai adds at Acme Default: ALL · CAD Document · All states · Grant Read"
+        when: { phase: Granted }
+        do: [{ set: { phase: Leaked, inWork: Visible } }]
+        log: The org rule flows down to E1 and Battery. ALL includes suppliers, so Voltra now sees In Work drawings too. Leak!
+        blockedHint: This happens after Jordan's grant is in place.
+      - id: fix-deny
+        label: "Battery domain: Supplier · CAD Document · In Work · Deny Read"
+        when: { phase: Leaked }
+        do: [{ set: { phase: Fixed by deny, inWork: Hidden } }]
+        log: The deny beats the inherited org grant for the Supplier role. In Work hidden again, and Kai keeps his rule for employees.
+        blockedHint: Only needed once there's a leak to fix.
+      - id: fix-remove
+        label: Ask Kai to replace ALL with ACME-All in his rule
+        when: { phase: Leaked }
+        do: [{ set: { phase: Fixed at source, inWork: Hidden } }]
+        log: Fixing the rule at its source. Employees keep Read, suppliers get nothing from it. Cleaner than piling on denies.
+        blockedHint: Only needed once there's a leak to fix.
+      - id: adhoc
+        label: Ad hoc grant Read on one In Work drawing (EB-10021 rev B) to SUP-Voltra
+        when: { phase: [Fixed by deny, Fixed at source] }
+        do: [{ set: { phase: Ad hoc added, adhocDrawing: Visible } }]
+        log: That single drawing is visible to Voltra. An ad hoc grant adds to policy and even overrides a regular deny. Every other In Work drawing stays hidden.
+        blockedHint: Fix the leak first.
+      - id: absolute
+        label: "Acme Default: Supplier · CAD Document · In Work · Absolute Deny Read"
+        when: { phase: Ad hoc added }
+        do: [{ set: { phase: Absolute deny, adhocDrawing: Hidden } }]
+        log: Absolute deny overrides the ad hoc grant. EB-10021 rev B disappears for Voltra. No exception can reopen In Work CAD to suppliers now.
+        blockedHint: Add the ad hoc grant first to see what absolute deny does to it.
+      - id: reset
+        label: Start over
+        when: { phase: [In team, Granted, Leaked, Fixed by deny, Fixed at source, Ad hoc added, Absolute deny] }
+        do: [{ set: { phase: Start, released: Hidden, inWork: Hidden, adhocDrawing: "n/a" } }]
+        log: Back to an empty rule set.
+        blockedHint: You're already at the start.
+    goals:
+      - label: Voltra sees Released only, even after the leak
+        when: { released: Visible, inWork: Hidden, phase: [Fixed by deny, Fixed at source] }
+        message: Inherited grants need either a fix at the source or a deny lower down. Fixing the source is usually cleaner.
+      - label: Watch an ad hoc grant open a single object
+        when: { adhocDrawing: Visible }
+        message: Ad hoc is per object. Great for a one-off review, dangerous if forgotten.
+      - label: Lock it down with absolute deny
+        when: { phase: Absolute deny }
+        message: Absolute deny is the only rule an ad hoc grant can't beat. Use it for true red lines.
+
+  - type: text
+    md: |
+      ### Designing a hierarchy that won't surprise you
+      | Put it at... | When the rule is... | Acme example |
+      | --- | --- | --- |
+      | Site | Needed by every organization on the server | Basic Read on system objects (system admin) |
+      | Organization Default | True for **all** of the company's products | `ACME-All` may Read Released parts |
+      | PDM parent | True for all products and libraries, not projects | What the Members role may do in any product |
+      | Product Default | Specific to one product team | E1 Designers may Modify In Work parts |
+      | Custom child domain | A **subset** of folders needs different rules | Battery: Supplier reads Released CAD |
+
+      Rule of thumb: **grant as low as possible, deny as high as necessary.** Grants placed low reach
+      only who needs them. A red-line deny placed high protects every context, including ones not
+      created yet.
+
+  - type: scenario
+    variant: challenge
+    title: Hexa Tooling joins the scooter line
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Hexa Tooling (machining supplier) needs Released drawings for SC-2000 and SC-1042 in
+          **Scooter S2**. Rosa suggests: *"Just reuse Voltra's rule. Put it at Acme Default so it covers
+          both products."* What do you do?
+        choices:
+          - label: "Make a Machining child domain in Scooter S2 and grant SUP-Hexa there"
+            next: s2
+            good: true
+            feedback: Low grants keep each supplier inside their own fence.
+          - label: "Put Supplier role · Released CAD · Read at Acme Default"
+            next: f1
+            feedback: Now every supplier in every product sees every Released drawing, including Voltra on the scooter.
+      - id: f1
+        md: |
+          A month later Voltra's engineer finds Scooter S2 frame drawings in a search. Nothing broke
+          technically; the rule did exactly what it said. You have to move the rule down and explain the
+          exposure to Maya.
+        outcome: fail
+      - id: s2
+        md: |
+          Done. Now Maya wants a guarantee: *"No supplier must ever modify or delete Acme data, whatever
+          anyone adds later."* Where and how?
+        choices:
+          - label: "Absolute Deny Modify + Delete for a SUP-All supplier group at Acme Default"
+            next: s3
+            good: true
+            feedback: A red-line deny placed high covers every current and future context.
+          - label: "Regular Deny in each supplier's child domain"
+            next: p1
+            feedback: Works today, but a new context or an ad hoc grant could reopen it.
+      - id: p1
+        md: |
+          It works for Battery and Machining today. But the next product's supplier folder won't have the
+          deny unless someone remembers, and an ad hoc grant can override a regular deny.
+        outcome: partial
+      - id: s3
+        md: |
+          Hierarchy done: supplier grants live low in their own child domains, and the red-line absolute
+          deny lives high at the organization. Kai's leaky ALL rule now names `ACME-All` instead.
+        outcome: success
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Using ALL as "all employees".** The *ALL* participant means every user who can log in, which
+      includes supplier accounts, partner logins and service users. Create a real employee group
+      (`ACME-All`) and grant to that.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Before saving a rule high in the tree, list the contexts beneath that domain and read the rule
+      aloud for each: *"In Acme Standard Parts, ALL may read In Work CAD. OK?"* If any sentence
+      sounds wrong, move the rule down.
+
+  - type: summary
+    points:
+      - A domain's effective rules are its own plus every ancestor's, all evaluated together.
+      - There's no "closest rule wins". Grants add up and any matching deny cuts.
+      - Grant as low as possible, deny as high as necessary.
+      - Ad hoc grants override regular denies; absolute deny is the red line nothing crosses.
+      - Never use ALL to mean employees; suppliers are users too.

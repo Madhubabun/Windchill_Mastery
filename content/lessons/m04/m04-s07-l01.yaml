@@ -1,0 +1,211 @@
+id: m04-s07-l01
+subtitle: E-Bike E1 took Jordan three weeks to set up. E-Bike E2 should take ten minutes. That's what context templates are for.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, templates, context-templates, products, libraries]
+
+blocks:
+  - type: text
+    md: |
+      Over the last few sections Jordan set up **E-Bike E1** properly: a tidy folder tree, team roles,
+      access rules for Voltra Cells, the E-Bike Part object initialization rule, a couple of
+      preferences. Now Kai announces **E-Bike E2**, a cargo model, launching next quarter.
+
+      Jordan could repeat three weeks of clicks - and get half of them slightly different. Or Jordan can
+      capture E-Bike E1's **setup** (not its parts!) as a **context template**, and create E2 from it in
+      minutes. Same structure, same rules, zero drift.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a starter kit for a new product or library" → [[context-template]]
+      - "the product we copy the setup from" → the source [[context]]
+      - "the shelf where templates live" → the organization's (or site's) **Templates** page
+      - "business data" → [[part|parts]], [[document|documents]], [[cad-document|CAD documents]] and changes
+
+  - type: diagram
+    title: What travels in the starter kit
+    caption: The setup goes into the template. The business data stays home. Click each box.
+    diagram:
+      width: 820
+      height: 400
+      groups:
+        - { label: "E-Bike E1 (live product)", x: 20, y: 20, w: 300, h: 360, tone: neutral }
+        - { label: "Acme E-Bike Product template", x: 360, y: 20, w: 200, h: 360, tone: accent }
+        - { label: E-Bike E2 (new), x: 600, y: 20, w: 200, h: 360, tone: success }
+      nodes:
+        - id: setup
+          label: Setup
+          sublabel: folders · roles · rules
+          x: 40
+          y: 70
+          w: 260
+          tone: primary
+          detail: Folder tree, team roles, access policies, object initialization rules, preferences. This is what Jordan spent three weeks on - and what the template captures.
+        - id: data
+          label: Business data
+          sublabel: EB-10021 and friends
+          x: 40
+          y: 250
+          w: 260
+          tone: warning
+          shape: doc
+          detail: Parts, CAD, documents, change objects, their history. They belong to E-Bike E1 and are **not** exported into the template.
+        - id: tpl
+          label: Template XML
+          sublabel: stored at org level
+          x: 380
+          y: 160
+          w: 160
+          tone: accent
+          shape: doc
+          detail: |
+            A [[context-template]] is essentially an XML description (often zipped) of the setup.
+            It sits on Acme Mobility's Templates page so every new product can choose it.
+        - id: e2
+          label: E-Bike E2
+          sublabel: same setup · empty
+          x: 620
+          y: 160
+          w: 160
+          tone: success
+          detail: Created from the template - same folders, roles and rules as E1, but no parts. The team gets its own members.
+      edges:
+        - { from: setup, to: tpl, label: export }
+        - { from: tpl, to: e2, label: create from }
+        - { from: data, to: tpl, label: stays behind, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Every product created by hand is a snowflake: slightly different folders, a forgotten access
+      rule, an OIR that never got copied. Snowflakes make reports wrong, access problems weird and
+      upgrades risky. Templates make **"how Acme sets up a product"** a repeatable, reviewable thing.
+
+  - type: comparison
+    title: What a context template carries
+    columns: ["In the template?", Notes]
+    rows:
+      - label: Folder structure
+        cells: ["Yes", "The whole tree, e.g. /Default/E-Bike Parts and /Default/Specs"]
+      - label: Team roles
+        cells: ["Yes", "Role names such as Designer and Reviewer. People are usually added per product"]
+      - label: Access control rules
+        cells: ["Yes", "Domains and policy rules - review supplier rules before reusing them"]
+      - label: Object initialization rules
+        cells: ["Yes", "The E-Bike Part OIR comes along with its folder and life cycle names"]
+      - label: Preferences and local templates
+        cells: ["Often", "Depends on the release and what the export includes - check the XML"]
+      - label: "Parts, CAD and documents"
+        cells: ["No", "Business data never travels in a context template"]
+      - label: Live processes and history
+        cells: ["No", "E2 starts with a clean history"]
+    takeaway: A template is the empty, fully-furnished house - not the family that lives in it.
+
+  - type: walkthrough
+    title: Turn E-Bike E1's setup into a template
+    who: An organization administrator (business admin at organization level)
+    where: [Products, "E-Bike E1"]
+    steps:
+      - title: Clean up the source first
+        where: [Products, "E-Bike E1", Utilities]
+        md: |
+          Remove one-off experiments: test folders, a temporary access rule for an auditor, the
+          disabled draft OIR. Whatever is in E1's setup today will be in every future product.
+      - title: Save or export it as a template
+        where: [Products, "E-Bike E1", Actions]
+        md: |
+          Use the product's **save as template / export template** action (wording and location vary
+          by release - in many it is in the product's actions or on its row in the Products list).
+          Name it `Acme E-Bike Product` and describe what it is for.
+      - title: Review what was captured
+        where: [Organization, "Acme Mobility", Templates, Product Templates]
+        md: |
+          Open the organization's **Templates** page and find the new product template. Download its
+          file and skim the XML: folders, roles, rules. Remove anything specific to E1, such as rules
+          that name Voltra Cells, if E2 will use a different supplier.
+      - title: Publish it
+        where: [Organization, "Acme Mobility", Templates, Product Templates]
+        md: |
+          Import the reviewed file if you edited it, and make sure the template is **enabled** so
+          product creators can select it.
+      - title: Create the new product from it
+        where: [Products, New Product]
+        md: |
+          Choose **New Product**, name it **E-Bike E2**, and pick `Acme E-Bike Product` as the template.
+          Then add real people to its team roles.
+    result: |
+      E-Bike E2 opens with E1's folder tree, roles and rules already in place, and no parts. Jordan
+      creates one test E-Bike Part in E2 to confirm the OIR and access rules work.
+
+  - type: callout
+    variant: version-note
+    versions: ["All releases", "Windchill+"]
+    md: |
+      Product, library and project templates are managed on the **Templates** page of the organization
+      (and of the site, for site-wide templates). Out-of-the-box templates such as a general product
+      or library template are always available. The exact name and location of the "save as template"
+      action differs between releases. On Windchill+, site-level templates are managed by PTC, so
+      business admins work with organization-level templates.
+
+  - type: example
+    variant: real-world
+    title: The supplier rule that travelled
+    industry: Micromobility
+    md: |
+      A company like Acme once built a template from a live product without reviewing it. Hidden
+      inside was an access rule giving its battery supplier read access to released CAD. Every new
+      product created from that template quietly gave the same supplier the same access - including
+      a motor program the supplier had nothing to do with. It was found during an audit, a year later.
+    takeaway: Review a template's access rules as carefully as the product's - they are copied blindly.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Expecting existing products to update when the template changes.** A template is a starting
+      point. Products created from it are independent copies of the setup - changing the template later
+      only affects products created afterwards.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Keep a **"golden" template product** - an empty product used only to build and test the setup -
+      instead of exporting from a busy live product. It never collects one-off rules, and it is the
+      safe place to try changes before exporting the next template version.
+
+  - type: flashcards
+    title: Context templates deck
+    cards:
+      - front: Context template
+        back: "A starter kit (XML) for a new product, library or project: folders, roles, rules - no business data."
+      - front: Where templates live
+        back: "On the Templates page of the organization (or site)."
+      - front: Does a template carry parts and CAD?
+        back: "No. Business data stays in the source context."
+      - front: Change a template - do existing products change?
+        back: "No. Only products created afterwards get the new setup."
+      - front: Golden template product
+        back: "An empty product used only to build and test the setup before exporting a template."
+      - front: Before exporting from a live product
+        back: "Clean up one-off rules, test folders and draft OIRs - they would travel too."
+
+  - type: quiz
+    questions:
+      - kind: multi
+        prompt: Jordan creates E-Bike E2 from the Acme E-Bike Product template. What will E2 have on day one? (Choose all that apply.)
+        options: [E1's folder tree, The Designer and Reviewer roles, The E-Bike Part OIR, A copy of EB-10021 Battery pack]
+        answers: [0, 1, 2]
+        explanation: The template carries setup - folders, roles, rules. Parts like EB-10021 stay in E1.
+      - kind: truefalse
+        prompt: After Jordan adds a new folder to the template, E-Bike E1 and E2 get that folder automatically.
+        answer: false
+        explanation: Templates are used only at creation time. Existing products must be changed separately.
+
+  - type: summary
+    points:
+      - A context template captures a product's or library's setup so new contexts start identical.
+      - It carries folders, roles, access rules, OIRs and often preferences - never business data.
+      - Templates live on the organization's (or site's) Templates page.
+      - Clean up and review a template before reuse. Its rules are copied blindly.
+      - Changing a template affects only contexts created afterwards.

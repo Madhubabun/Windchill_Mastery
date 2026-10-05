@@ -1,0 +1,112 @@
+id: m04-s05-check
+subtitle: Can you keep Voltra on released battery drawings, and prove why?
+version: 1.0.0
+updated: "2026-10-05"
+tags: [access-control, checkpoint]
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **access control**: domains and policy rules, how grants, denies, ad hoc rules and
+      labels combine, domain inheritance, troubleshooting "why can't I see it?", and security labels
+      with agreements. Score 80% to pass. Every answer explains itself.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: multi
+        prompt: Jordan writes a policy rule. Which of these does it specify? (Choose all that apply.)
+        options: [Object type, Life cycle state or All, Participant, A specific object number, Permissions granted or denied]
+        answers: [0, 1, 2, 4]
+        explanation: Policy rules are stored in a domain and cover type (with subtypes), state, participant and permissions. Rules for one specific object are ad hoc rules.
+      - kind: single
+        prompt: A new battery drawing is checked in to E-Bike E1's Battery folder. Which rules control it?
+        options:
+          - Only rules written in the Battery domain
+          - Rules in the Battery domain plus every parent domain
+          - Only the rules of the user who created it
+          - Rules in the E1 Default domain only
+        answer: 1
+        explanation: The object uses its folder's domain (Battery) and that domain inherits all rules from E1 Default, PDM, the organization and the site.
+      - kind: single
+        prompt: Ana is in two groups. One grant gives her Download on Released CAD; a deny for her other group removes Download in a parent domain. Result?
+        options: [She can download, She can't download, It depends which domain is closer, It depends which group was added first]
+        answer: 1
+        explanation: Policy grants add up across participants and domains, and any matching deny removes the permission. There is no "closest rule wins".
+      - kind: truefalse
+        prompt: An ad hoc Read grant on one object can override a regular policy Deny Read for the same user.
+        answer: true
+        explanation: Ad hoc grants beat regular policy denies. Only an absolute deny stops them.
+      - kind: single
+        prompt: Maya wants a guarantee that no supplier can ever delete Acme data, even if someone adds ad hoc grants later. What do you use?
+        options:
+          - A regular deny in each supplier child domain
+          - An absolute deny for the supplier group high in the domain tree
+          - A security label on every object
+          - Removing suppliers from all teams
+        answer: 1
+        explanation: Absolute deny overrides every grant including ad hoc ones. Placing it high (e.g. Acme Default) also covers contexts created later.
+      - kind: single
+        prompt: Voltra suddenly sees In Work battery drawings. Battery only grants Released. Most likely cause?
+        options:
+          - A grant in a parent domain such as Acme Default that includes suppliers
+          - The drawings are Released by mistake
+          - Voltra's account is an administrator
+          - The search index is stale
+        answer: 0
+        explanation: Inherited grants flow down. A broad rule like "ALL · CAD Document · All states · Read" at the organization reaches every domain below. (An admin account would also explain it, but it's far less likely.)
+      - kind: order
+        prompt: "Lin can't find EB-10021. Order Jordan's checks, cheapest first."
+        items: [Confirm the object's version and state, Confirm Lin's groups and team role, Check the folder and its domain, Read grants and inherited denies, Check security labels and agreements]
+        explanation: Facts that take seconds come first. Then the rule chain, then labels. The access information tool confirms the final theory.
+      - kind: multi
+        prompt: The EB-10021 drawing was misfiled in Electrics, so Voltra can't see it. Which fixes avoid over-granting? (Choose all that apply.)
+        options:
+          - Move the drawing to the Battery folder
+          - Copy the Supplier grant to E1 Default
+          - Add Lin to ACME-Engineering
+          - Find and move other misfiled battery drawings
+        answers: [0, 3]
+        explanation: Moving objects into the zone built for them keeps least privilege. The other two open whole products to a supplier.
+      - kind: truefalse
+        prompt: Being authorized for a security label value gives a user Read access to every object with that value.
+        answer: false
+        explanation: Labels only restrict. Authorization gets you past the label gate, but a policy or ad hoc rule must still grant the permission.
+      - kind: single
+        prompt: An outside test lab needs one labelled cell spec for 60 days. What's the cleanest set-up?
+        options:
+          - An approved agreement naming the lab, the label value, the object and an expiry date
+          - Add the lab to the authorized group for the label value
+          - Remove the label until the test is done
+          - An ad hoc grant on the object
+        answer: 0
+        explanation: Agreements clear specific participants for labelled objects for a period, with approval and automatic expiry. An ad hoc grant can't get past a label.
+
+  - type: flashcards
+    title: Access control deck
+    cards:
+      - front: Domain
+        back: A rule zone. Each folder (and its objects) belongs to one domain; domains form a tree and inherit parents' rules.
+      - front: Policy rule
+        back: Stored in a domain. Type (+ subtypes) · state or All · participant · permissions with Grant, Deny or Absolute Deny.
+      - front: Where is Policy Administration?
+        back: "The context's Utilities page (Site, Organization, Product or Library) → Policy Administration."
+      - front: Grants vs denies
+        back: Policy grants from all your participants and parent domains add up; any matching deny removes the permission.
+      - front: Ad hoc rule
+        back: A grant on one object. Can override a regular deny, never an absolute deny.
+      - front: Absolute deny
+        back: The red line. Overrides every grant, including ad hoc ones. Only the admin bypass is stronger.
+      - front: Administrator bypass
+        back: Site Administrators skip access checks. Never test a user's access with an admin account.
+      - front: Security label
+        back: A per-object restriction. Unauthorized users are blocked whatever the rules grant; authorization alone grants nothing.
+      - front: Agreement
+        back: Clears named participants for labelled objects for a period, once approved and until it expires.
+      - front: "Grant low, deny high"
+        back: Put grants in the lowest domain that needs them and red-line denies high so they cover every context.
+      - front: "\"Can't find it\" usually means..."
+        back: The user can't Read it. Search hides unreadable objects; structures show Secured Information placeholders.
+      - front: Effective permissions
+        back: What a user can really do on one object after policy, denies, ad hoc rules, absolute denies and labels are combined.

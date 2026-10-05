@@ -1,0 +1,19 @@
+# New glossary terms introduced in section m04-s03 (Teams and roles).
+- id: role
+  term: Role
+  plain: A job title inside a context, like "Reviewer" or "Designer", that you fill with real people.
+  definition: A named responsibility (for example Product Manager, Designer, Reviewer or Promoter) that is filled with participants - users, groups or organizations - in a context team or an object's team. Workflows, access rules and notifications point at roles instead of named people, so the same process works in every context.
+  related: [team, team-template, workflow, context]
+
+- id: team
+  term: Team (context team)
+  plain: The guest list of a product or library - who is in it, and in which role.
+  definition: The set of roles and their participants for a context such as a product, library or project. Membership in the team gives people access to the context, and the team's roles are what workflows and access rules resolve against.
+  aka: [Context team]
+  related: [role, team-template, context]
+
+- id: team-template
+  term: Team template
+  plain: A reusable cast list that tells Windchill which roles an object's workflow needs and who fills them by default.
+  definition: An administrative template that defines roles and default participants for the team created for an object or process, typically referenced by a life cycle template. When an object starts its life cycle, its team is built from the team template and from the context team, and workflow tasks are assigned to those roles.
+  related: [role, team, life-cycle, workflow]

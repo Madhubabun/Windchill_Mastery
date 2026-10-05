@@ -1,0 +1,115 @@
+id: m04-s06-check
+subtitle: Prove you can lay the rails - life cycles, workflows, robots and the rules that hand them to every new object.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, lifecycle, workflow, oir, checkpoint]
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **process automation** at Acme Mobility: designing life cycle templates,
+      building workflows, robots and safe routing expressions, and object initialization rules.
+      Score 80% to pass. Every answer explains itself, so a miss still teaches you something.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: order
+        prompt: Put Jordan's steps for a new E-Bike Part life cycle template in a sensible order.
+        items:
+          - Agree the states and moves with Kai, Maya and Leo
+          - Add the phases in order
+          - Define the Promote, Demote and Revise transitions
+          - Grant phase access to roles
+          - Save and test with a dummy part
+          - Point the OIR at the template
+        explanation: Agree first, then build phases, transitions and role access, test with a dummy part, and only then let the OIR hand the template to every new object.
+      - kind: single
+        prompt: Jordan adds a Rework state to the live E-Bike Part life cycle. What happens to EB-10021, created last month?
+        options:
+          - It moves to the new iteration automatically
+          - It keeps following the old iteration until an admin reassigns its life cycle
+          - It is locked until someone revises it
+          - It loses its current state
+        answer: 1
+        explanation: Saving an edit creates a new iteration. New objects use it. Existing objects keep their iteration until an admin deliberately reassigns them.
+      - kind: truefalse
+        prompt: In the Released phase, the best practice is to grant modify access to the named users who might need to fix typos.
+        answer: false
+        explanation: Grant phase access to roles, not named users - and Released usually has no modify at all. Changes to released data go through a new revision.
+      - kind: single
+        prompt: In the Quick Review workflow, Leo must explain every rejection. How does Jordan enforce that?
+        options:
+          - Add a Timer robot after the review
+          - Show the reviewComments variable on the Review task and make it required
+          - Send Leo a reminder email
+          - Add an AND connector
+        answer: 1
+        explanation: A required workflow variable on the task form blocks completion until it is filled, so the Reject path always carries a reason.
+      - kind: multi
+        prompt: Which of these are robots, i.e. steps the system performs without a human task? (Choose all that apply.)
+        options: [Set State, Notification, Timer, Review part (role Reviewer)]
+        answers: [0, 1, 2]
+        explanation: Set State, Notification and Timer run automatically. Review part is an assigned activity - a task for people in the Reviewer role.
+      - kind: single
+        prompt: A router must send packs of 48 V or more to Safety review. Which expression is the safest?
+        options:
+          - "result = \"Standard review\"; if (batteryVoltage >= 48.0) { result = \"Safety review\"; }"
+          - "if (batteryVoltage >= 48.0) { result = \"Safety review\"; }"
+          - "try { if (batteryVoltage >= 48.0) { result = \"Safety review\"; } } catch (Exception e) { }"
+        answer: 0
+        explanation: Setting a default result first guarantees a valid path. The second can leave no result. The third also hides errors silently.
+      - kind: truefalse
+        prompt: Fixing a typo in a routing event name and checking in the template also unblocks the process that is already stuck at that router.
+        answer: false
+        explanation: Running processes stay on the template iteration they started with. The stuck process must be handled separately in Workflow Process Administration.
+      - kind: multi
+        prompt: Which values can the E-Bike Part object initialization rule set? (Choose all that apply.)
+        options: [The number from the EB sequence, The default folder, The life cycle template, Who approves the review task]
+        answers: [0, 1, 2]
+        explanation: An OIR sets starting values such as number, folder, life cycle and team template. Who approves comes from the workflow's roles and the context team.
+      - kind: single
+        prompt: Priya creates an E-Bike Part in Scooter S2 and gets no EB number. The E-Bike Part rule lives in E-Bike E1 and works there. Why?
+        options:
+          - The rule is disabled
+          - OIRs are looked up by context, so Scooter S2 used the organization's rule
+          - The sequence ran out of numbers
+          - Priya is not in the Designer role
+        answer: 1
+        explanation: The lookup starts in the current context and walks up. Scooter S2 has no E-Bike Part rule, so it fell back to the organization-level rule.
+      - kind: order
+        prompt: Order Jordan's OIR debugging checklist.
+        items:
+          - Which context was the user in?
+          - Is there a rule for this exact type?
+          - Is the rule enabled?
+          - Do the folder, life cycle and sequence it names exist?
+          - Create a test object and check its information page
+        explanation: Context and type are the lookup keys, then the rule's status, then the things it references - and finally a real test.
+
+  - type: flashcards
+    title: Process automation deck
+    cards:
+      - front: Phase
+        back: "One state in a life cycle template plus its rules: role access and, in advanced life cycles, a phase workflow."
+      - front: Transition
+        back: "An allowed move between states, such as Promote, Demote or Revise. Undefined moves are not offered."
+      - front: Revise transition
+        back: "Says which state a new revision starts in - for example Released → In Work."
+      - front: Editing a live life cycle
+        back: "Creates a new iteration. New objects use it; existing ones keep theirs until reassigned."
+      - front: Assigned activity
+        back: "A workflow step for people. Set participants by role and routing events such as Approve and Reject."
+      - front: Robot
+        back: "An automatic workflow step - Set State, Notification, Timer, Synchronize, Launch Process, Execute Expression."
+      - front: Workflow variable
+        back: "A named value stored with each running process, such as reviewComments. Can be required on a task."
+      - front: Conditional routing
+        back: "An expression sets result to the name of one event. Default first, exact names, tiny code."
+      - front: Loop link
+        back: "A link back to an earlier step so the steps after it reset for a fresh round."
+      - front: Object initialization rule (OIR)
+        back: "XML rule per type per context that sets number, folder, life cycle and team defaults on create."
+      - front: OIR lookup order
+        back: "Current context, then organization, then site. Lower contexts override higher ones."

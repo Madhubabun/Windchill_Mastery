@@ -1,0 +1,107 @@
+id: m04-s07-check
+subtitle: Starter kits, number machines and padlocks - prove you can set up the next Acme product without drift.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, templates, numbering, preferences, checkpoint]
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **templates, numbering and preferences**: what a context template carries,
+      how auto-numbering works with OIRs and sequences, smart versus dumb numbers, and which preference
+      level wins. Score 80% to pass.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: multi
+        prompt: Jordan exports E-Bike E1's setup as the Acme E-Bike Product template. What can it carry? (Choose all that apply.)
+        options: [The folder tree, Team roles, Access rules and OIRs, The EB-10021 Battery pack part]
+        answers: [0, 1, 2]
+        explanation: A context template carries the setup. Parts, CAD, documents and their history stay in the source product.
+      - kind: single
+        prompt: Hidden in E1 is an access rule giving Voltra Cells read access to released CAD. E2 will use a different battery supplier. What should Jordan do before publishing the template?
+        options:
+          - Nothing - E2's team decides access
+          - Review the template's access rules and remove the Voltra-specific rule
+          - Delete Voltra Cells from Windchill
+        answer: 1
+        explanation: Template rules are copied blindly into every new product. Review and remove anything specific to the source product.
+      - kind: truefalse
+        prompt: When Jordan improves the template next month, E-Bike E1 and E2 pick up the improvement automatically.
+        answer: false
+        explanation: Templates apply only when a context is created. Existing products must be changed on their own.
+      - kind: order
+        prompt: Order the steps to set up EB- auto-numbering.
+        items:
+          - Agree the prefix and range with Kai, Ana and Maya
+          - Rosa creates the database sequence above existing EB numbers
+          - Jordan references the sequence in the E-Bike Part OIR
+          - Jordan makes the number server-assigned
+          - Test by creating two E-Bike Parts
+        explanation: Decide the scheme, create the sequence, wire it into the OIR, lock down manual entry, then test.
+      - kind: single
+        prompt: Kai proposes BAT-48V-13AH as a part number. What is the strongest argument against it?
+        options:
+          - Windchill cannot store such numbers
+          - If the capacity changes, the number becomes wrong or must change everywhere it is used
+          - It is too short
+          - Smart numbers can't be server-assigned
+        answer: 1
+        explanation: Smart numbers encode facts that change. Put Battery Voltage and capacity in attributes and keep the number stable.
+      - kind: single
+        prompt: In `{GEN:wt.enterprise.SequenceGenerator:EBPART_seq:5:0}`, what does EBPART_seq name?
+        options: [The OIR, The database sequence, The folder, The life cycle]
+        answer: 1
+        explanation: The generator reads the next value from the database sequence EBPART_seq, pads it to 5 digits with 0, and the rule adds the EB- prefix.
+      - kind: truefalse
+        prompt: Maya finds that EB-10057 doesn't exist. This proves a part was deleted.
+        answer: false
+        explanation: Cancelled creates and sequence caching skip values. Sequences guarantee uniqueness, not gapless numbers.
+      - kind: single
+        prompt: Site says Yes, Acme Mobility says No (locked), E-Bike E1 says Yes. What applies in E-Bike E1?
+        options: ["Yes", "No", "Whatever each user chooses"]
+        answer: 1
+        explanation: The organization's lock makes its No apply to every context below it. E1's Yes is ignored.
+      - kind: single
+        prompt: Kai's admin set tables to 100 rows in E-Bike E1, but Priya still sees 25. What is most likely?
+        options:
+          - Priya has her own user-level value
+          - The preference needs a server restart
+          - The product admin set it at site level
+        answer: 0
+        explanation: Where users may set a preference themselves, their own value is the closest level and wins.
+      - kind: multi
+        prompt: Which are good preference habits? (Choose all that apply.)
+        options:
+          - Set at the lowest level that solves the problem
+          - Lock only real company policy
+          - Before unlocking, check for old overrides below
+          - Change site-level values to fix one product
+        answers: [0, 1, 2]
+        explanation: Low level, few locks, and a check before unlocking. Site-level changes affect every organization on the server.
+
+  - type: flashcards
+    title: Templates, numbering and preferences deck
+    cards:
+      - front: Context template
+        back: "A starter kit for a new product, library or project: folders, roles, access rules, OIRs - no business data."
+      - front: Where context templates live
+        back: "On the Templates page of the organization (or site)."
+      - front: Golden template product
+        back: "An empty product used only to build and test the setup before exporting a template."
+      - front: Smart number
+        back: "A number that encodes properties (BAT-48V-13AH). Readable, but breaks when the property changes."
+      - front: Dumb (non-significant) number
+        back: "Just unique (EB-10050). Meaning lives in attributes and classification."
+      - front: Auto-numbering in Windchill
+        back: "An OIR number generator reading the next value of a database sequence, plus a prefix."
+      - front: Server-assigned number
+        back: "A constraint in the OIR so users can't type their own number."
+      - front: Where to start a new sequence
+        back: "Above the highest number already used by hand."
+      - front: Preference levels
+        back: "Site → organization → context (product, library, project) → user for some preferences."
+      - front: Preference lock
+        back: "Stops lower levels overriding a value. The locked value applies everywhere below."

@@ -1,0 +1,121 @@
+id: m04-s03-check
+subtitle: Roles, teams, team templates - and the missing task that ruins a launch week.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, roles, teams, checkpoint]
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **teams and roles**: what roles are, how teams and team templates fill them,
+      and how roles drive tasks, access and notifications at Acme. Score 80% to pass. Every answer
+      explains itself.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: Acme's promotion workflow assigns its review activity to "Reviewer". Why a role and not Leo's name?
+        options:
+          - "So the same workflow works in every product, and each product's team says who the reviewer is"
+          - "Because workflows cannot store user names at all"
+          - "Because roles give the reviewer full control of the context"
+          - "Because roles are faster for the database"
+        answer: 0
+        explanation: Roles decouple the process from people. Each context team fills the role, so one workflow fits Scooter S2 and E-Bike E1 alike, and people can change without editing templates.
+      - kind: multi
+        prompt: Which participants can fill a role in a context team? (Choose all that apply.)
+        options: [A user, A group such as ACME-Quality, An organization such as Voltra Cells, A life cycle state]
+        answers: [0, 1, 2]
+        explanation: Users, groups and organizations are participants. A life cycle state is not a participant.
+      - kind: single
+        prompt: Jordan needs a reusable list of roles (Promoter, Reviewer, Approver) that life cycle templates can use to build each object's process team. What does Jordan create?
+        options: [A team template, A new group, A new context, A saved search]
+        answer: 0
+        explanation: A team template defines the roles (and optional default participants) for the team built when an object's process starts.
+      - kind: truefalse
+        prompt: Giving Ana full access to E-Bike E1 makes manufacturing review tasks appear in her work list.
+        answer: false
+        explanation: Access is not assignment. Tasks come from the role an activity is assigned to and who fills that role.
+      - kind: single
+        prompt: The workflow assigns a task to "Reviewer". The E-Bike E1 team has a role called "Reviewers", filled with ACME-Quality. What happens?
+        options:
+          - "Nobody in ACME-Quality gets the task - the exact role Reviewer is empty"
+          - "Windchill matches the closest name and assigns ACME-Quality"
+          - "The task goes to every user in the product"
+          - "The workflow refuses to start"
+        answer: 0
+        explanation: Roles match exactly. A near-miss name leaves the real role empty, so the task doesn't reach the intended people.
+      - kind: single
+        prompt: Leo is added to the Reviewer role at 10:00. A review task for EB-10021 was created at 09:00 with the role empty. What should Jordan do?
+        options:
+          - "Reassign the open task (or refresh the process team) so it resolves again"
+          - "Nothing - the task moves to Leo automatically"
+          - "Delete EB-10021 and create it again"
+          - "Give Leo administrator rights"
+        answer: 0
+        explanation: Tasks resolve roles when they are created. Existing tasks need to be reassigned after the team is fixed.
+      - kind: order
+        prompt: Order how Windchill gets a review task to Leo.
+        items:
+          - The review activity starts and names the role Reviewer
+          - Windchill looks up Reviewer in the process team
+          - The role resolves against the E-Bike E1 context team
+          - The group ACME-Quality expands to its members
+          - Leo sees the task in his work list
+        explanation: Activity → role → process team → context team → group → person.
+      - kind: single
+        prompt: A new quality engineer joins Acme. What setup means she reviews e-bike AND scooter parts with one change?
+        options:
+          - "Both products fill Reviewer with ACME-Quality, so Rosa adds her to that group once"
+          - "Jordan adds her by name to every workflow template"
+          - "Each product manager adds her to their own team"
+          - "She is given site administrator rights"
+        answer: 0
+        explanation: Put people in groups, put groups in roles. One group change reaches every context using it.
+      - kind: multi
+        prompt: Which statements about roles are true? (Choose all that apply.)
+        options:
+          - "Role names come from a site-wide list, so they mean the same thing everywhere"
+          - "Access rules in a context can be granted to team roles"
+          - "Notifications can be sent to a role"
+          - "Every role must contain exactly one user"
+        answers: [0, 1, 2]
+        explanation: Roles are shared names that drive tasks, access and notifications. They can hold any number of participants - often a group.
+      - kind: single
+        prompt: A user says "I can't open EB-10021". Which area do you check first?
+        options: [Access rules and permissions, Workflow role assignment, The team template's name, The revision scheme]
+        answer: 0
+        explanation: Can't open → access. No task → roles and teams. Asking which one it is halves your search.
+
+  - type: flashcards
+    title: Teams and roles deck
+    cards:
+      - front: "Role"
+        back: "A job name (Reviewer, Designer, Promoter) that processes, access rules and notifications point at."
+      - front: "Context team"
+        back: "Role → participants for one product, library or project."
+      - front: "Team template"
+        back: "Reusable roles and default participants used to build an object's process team."
+      - front: "Participants"
+        back: "Users, groups and organizations that fill roles."
+      - front: "Golden rule for filling roles"
+        back: "People in groups, groups in roles."
+      - front: "When is a workflow role resolved?"
+        back: "When the task is created. Later team changes need a reassign for open tasks."
+      - front: "Access vs assignment"
+        back: "Permissions decide what you may do. Roles in a process decide what work you get."
+      - front: "Role name drift"
+        back: "Reviewer vs Reviewers - a near miss leaves the real role empty and nobody gets the task."
+      - front: "Missing task: first check"
+        back: "Which role the activity uses, and who fills that role in the context team."
+      - front: "First question for 'I can't see it'"
+        back: "Can't open it (access) or don't have the task (roles)?"
+
+  - type: summary
+    points:
+      - Roles name the job; teams name the people per context.
+      - Team templates build each object's process team.
+      - Roles drive tasks, access and notifications - separately.
+      - Trace activity → role → team → group → person to fix missing tasks.

@@ -1,0 +1,282 @@
+id: m04-s09-l02
+subtitle: Put a part in the tree once, fill in four values - and it can be found and reused for years.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [classification, search, reuse, parts]
+
+blocks:
+  - type: text
+    md: |
+      A tree is only useful if parts are **in** it. This lesson does both halves:
+
+      1. **Classify** a part - Kai puts EB-10021, the E1's 36 V battery pack from Voltra Cells, into
+         the *Li-ion packs* node and fills in its attributes.
+      2. **Find** a part by classification - Priya, designing a cargo variant, looks for an existing
+         36 V pack before asking Voltra for a new one.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "put a part in a node of the tree" → *classify* ([[classification]])
+      - "the node's properties you fill in" → [[classification-attribute|classification attributes]]
+      - "walk the tree, then filter by properties" → [[classification-search]]
+      - "use what exists instead of making a new one" → [[part-reuse]]
+
+  - type: animation
+    title: Classify once, found forever
+    diagram:
+      width: 820
+      height: 300
+      nodes:
+        - { id: part, label: EB-10021, sublabel: Battery pack 36V, x: 20, y: 110, w: 150, tone: primary, shape: doc }
+        - { id: node, label: Li-ion packs, sublabel: classification node, x: 230, y: 110, w: 170, tone: success }
+        - { id: attrs, label: Attributes filled, sublabel: "36 V · 14 Ah · NMC", x: 460, y: 30, w: 170, tone: accent }
+        - { id: index, label: Searchable, sublabel: by node + values, x: 460, y: 190, w: 170, tone: info, shape: cylinder }
+        - { id: priya, label: Priya finds it, sublabel: cargo variant, x: 680, y: 110, w: 130, tone: accent, shape: pill }
+      edges:
+        - { from: part, to: node, label: classify }
+        - { from: node, to: attrs, label: inherits fields }
+        - { from: attrs, to: index }
+        - { from: index, to: priya, label: filter match }
+    chapters:
+      - title: Pick the node
+        caption: Kai classifies EB-10021 into **Electrical → Battery packs → Li-ion packs** - a leaf, not a grouping node.
+        show: [part, node]
+        highlight: [node]
+        flow: [part>node]
+      - title: Fill the attributes
+        caption: The node brings its own and inherited fields - Nominal voltage, Capacity, Chemistry. Kai picks values from the lists, with units.
+        show: [part, node, attrs]
+        highlight: [attrs]
+        flow: [node>attrs]
+      - title: Now it's findable
+        caption: Windchill can now match the part by node **and** by each value - no guessing names.
+        show: [part, node, attrs, index]
+        highlight: [index]
+        flow: [attrs>index]
+      - title: Months later...
+        caption: Priya filters Li-ion packs for 36 V and at least 14 Ah. EB-10021 comes up first. Reused - not re-bought.
+        show: [part, node, attrs, index, priya]
+        highlight: [priya]
+        flow: [index>priya]
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Classification only pays off when two people do their part: whoever **creates** the part classifies
+      it properly, and whoever **needs** a part searches the tree before creating one. Business admins
+      make both easy - clear node names, short attribute lists, and (where it fits) classification
+      required when a library part is created.
+
+  - type: walkthrough
+    title: Classify an existing part
+    who: Part owner with modify rights (Kai), or a librarian for library parts
+    where: ["<part>", Information page, Actions]
+    steps:
+      - title: Open the part
+        where: [Search, "EB-10021", Information page]
+        md: Find EB-10021 and open its [[information-page]].
+      - title: Start editing
+        where: [Information page, Actions, "Edit (or Check Out and Edit)"]
+        md: |
+          Classification values are part attributes, so changing them follows the normal edit rules - the
+          part is checked out (often automatically) and checked in afterwards, creating a new iteration.
+      - title: Choose the classification node
+        where: [Edit, Classification, "Electrical → Battery packs → Li-ion packs"]
+        md: |
+          In the classification field or step, browse or search the tree and select the **leaf** node.
+          Grouping nodes like *Electrical* are usually not selectable.
+      - title: Fill the classification attributes
+        where: [Edit, Classification attributes]
+        md: |
+          Enter Nominal voltage **36 V**, Capacity **14 Ah**, Chemistry **NMC**. Use the lists and
+          units provided. Required attributes must be filled before you can save.
+      - title: Save and check in
+        where: [Edit, Save / Check In]
+        md: Save and check in. The part's information page now shows its classification and values.
+    result: EB-10021 shows its classification path and attribute values, and appears in classification searches on Li-ion packs (and on Battery packs, the node above).
+
+  - type: walkthrough
+    title: Find a reusable part by classification
+    who: Any user who can read the parts (Priya)
+    where: [Navigator, Search, Classification]
+    steps:
+      - title: Open classification search
+        where: [Navigator, Search, "Classification search"]
+        md: |
+          Open the search area and choose the classification option (its name and position vary by
+          release). The classification tree appears.
+      - title: Walk the tree
+        where: [Classification, Electrical, Battery packs]
+        md: |
+          Open nodes from general to specific. Searching on a node includes parts classified in the
+          nodes **below** it, so stop at *Battery packs* if you'd also accept other chemistries.
+      - title: Filter by attributes
+        where: [Battery packs, Attribute filters]
+        md: |
+          Set Nominal voltage = 36 V and Capacity ≥ 14 Ah. The result count drops with every filter.
+      - title: Check before you reuse
+        where: [Results, "<part>", Information page]
+        md: |
+          Prefer **Released** parts. Check [[where-used]] to see who already relies on it, and the
+          context - a part in the **Acme Standard Parts** library is meant for reuse.
+      - title: Reuse it
+        where: [Your structure, Insert existing part]
+        md: Add the found part to your structure instead of creating a new one.
+    result: Priya reuses EB-10021 in the cargo variant. No new part number, no new supplier qualification.
+
+  - type: callout
+    variant: version-note
+    versions: ["All releases"]
+    md: |
+      Depending on release and configuration, you classify a part in the create or edit wizard, from a
+      dedicated classify action, or both. Classification search may be a separate search mode or a
+      filter inside advanced search. The ideas - pick a leaf node, fill constrained values, search by node
+      plus values - are the same everywhere.
+
+  - type: simulation
+    title: Priya's battery hunt
+    intro: |
+      Priya needs a **36 V Li-ion pack with at least 14 Ah** for the cargo variant. Find a part she can
+      reuse. Try a wrong branch or the "create new" shortcut too, just to see what happens.
+    headline: "Node: {node} · filters: {filters} · results: {results} · picked: {picked}"
+    initial:
+      node: Acme Parts
+      filters: none
+      results: "9,000+"
+      picked: none
+    actions:
+      - id: open-elec
+        label: Open Electrical
+        when: { node: Acme Parts }
+        do: [{ set: { node: Electrical, results: "1,140" } }]
+        log: Electrical holds batteries, motors, connectors and harnesses.
+        blockedHint: Go back to the top of the tree first.
+      - id: open-mech
+        label: Open Mechanical
+        when: { node: Acme Parts }
+        do: [{ set: { node: Mechanical, results: "6,300" } }]
+        log: Screws, nuts, bearings, frames... no batteries here. Wrong branch.
+        blockedHint: Go back to the top of the tree first.
+      - id: open-batt
+        label: Open Battery packs
+        when: { node: Electrical }
+        do: [{ set: { node: Battery packs, results: "38" } }]
+        log: 38 battery packs across all chemistries. Filters here also cover Li-ion packs below.
+        blockedHint: Battery packs is under Electrical.
+      - id: open-lion
+        label: Open Li-ion packs
+        when: { node: Battery packs, filters: none }
+        do: [{ set: { node: Li-ion packs, results: "31" } }]
+        log: 31 Li-ion packs.
+        blockedHint: Li-ion packs is under Battery packs (clear filters before moving down).
+      - id: filter-volt
+        label: "Filter: Nominal voltage = 36 V"
+        when: { node: [Battery packs, Li-ion packs], filters: none }
+        do: [{ set: { filters: "36 V", results: "6" } }]
+        log: 6 packs at 36 V.
+        blockedHint: Open Battery packs or Li-ion packs - only those nodes have a voltage attribute.
+      - id: filter-ah
+        label: "Filter: Capacity ≥ 14 Ah"
+        when: { filters: "36 V" }
+        do: [{ set: { filters: "36 V and ≥ 14 Ah", results: "2" } }]
+        log: "2 results: EB-10021 (Released, Voltra Cells) and EB-10088 (In Work prototype)."
+        blockedHint: Filter by voltage first.
+      - id: clear
+        label: Clear filters
+        when: { filters: ["36 V", "36 V and ≥ 14 Ah"] }
+        do: [{ set: { filters: none, results: "unfiltered", picked: none } }]
+        log: Filters cleared.
+        blockedHint: No filters to clear.
+      - id: pick-proto
+        label: Pick EB-10088 (In Work)
+        when: { filters: "36 V and ≥ 14 Ah", picked: none }
+        do: [{ set: { picked: "EB-10088 (In Work)" } }]
+        log: "Careful: EB-10088 is an unreleased prototype. It may change or never be released. Is there a released one?"
+        blockedHint: Filter down to the 2 results first (or you already picked one - clear filters to start again).
+      - id: pick-released
+        label: Pick EB-10021 (Released)
+        when: { filters: "36 V and ≥ 14 Ah", picked: [none, "EB-10088 (In Work)"] }
+        do: [{ set: { picked: "EB-10021 (Released)" } }]
+        log: Released, from Voltra Cells, already used in E-Bike E1. Priya adds it to the cargo variant.
+        blockedHint: Filter down to the 2 results first.
+      - id: create-new
+        label: Give up and create a new part
+        when: { picked: none }
+        do: [{ set: { picked: "new duplicate part" } }]
+        log: "A new pack number means a new supplier quote, qualification and stock bin - and EB-10021 already fits. Go back and search."
+        blockedHint: You already picked something - go back to the top to start again.
+      - id: top
+        label: Back to the top of the tree
+        when: { node: [Electrical, Mechanical, Battery packs, Li-ion packs] }
+        do: [{ set: { node: Acme Parts, filters: none, results: "9,000+", picked: none } }]
+        log: Back at Acme Parts.
+        blockedHint: You're already at the top.
+    goals:
+      - label: Reuse a released 36 V, 14 Ah pack
+        when: { picked: "EB-10021 (Released)" }
+        message: Node + attribute filters + a released state = a safe reuse.
+      - label: Spot the risky pick
+        when: { picked: "EB-10088 (In Work)" }
+        message: Matching values aren't enough. Check the state before you reuse.
+
+  - type: example
+    variant: real-world
+    title: The pack that wasn't in the tree
+    industry: Micromobility
+    md: |
+      Sam (field service) needed a replacement pack for an early E1 prototype and couldn't find it by
+      classification - because the engineer who created it had picked *Battery packs* without filling
+      Capacity, and searches filtered on capacity skip blanks. Jordan made Capacity **required** on
+      that node. Two weeks later every new pack had it.
+    takeaway: An empty attribute is invisible to a filtered search. Make the important ones required.
+
+  - type: callout
+    variant: pitfall
+    title: The same fact in two places
+    md: |
+      The *E-Bike Part* subtype already has a **Battery Voltage** attribute, and the Li-ion packs node has
+      **Nominal voltage**. If people fill one and not the other, searches disagree. Decide which one is
+      the master for searching, document it, and keep the other in sync (or don't create it). The
+      same applies to anything that is both a type attribute and a classification attribute.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      When you search, start one level **higher** than you think (e.g. *Battery packs*, not *Li-ion
+      packs*) and let the attribute filters do the narrowing. You'll catch parts someone classified into
+      a sibling node by mistake.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Kai classifies EB-10021 into a node. Which choice is best?
+        options: [Electrical, Battery packs, Li-ion packs, Acme Parts]
+        answer: 2
+        explanation: Classify into the most specific (leaf) node that fits. It inherits all the attributes above and makes the part findable from every level.
+      - kind: truefalse
+        prompt: A classification search on Battery packs also returns parts classified into Li-ion packs.
+        answer: true
+        explanation: Searching on a node includes the nodes below it. That's why starting one level higher is a useful trick.
+      - kind: single
+        prompt: Priya's filtered search returns two matching packs - one Released, one In Work. Which should she reuse?
+        options: [The In Work one - it's newer, The Released one, Either - they match the same values, Neither - create a new part]
+        answer: 1
+        explanation: Released parts are approved and stable. An In Work prototype can still change or be dropped.
+      - kind: single
+        prompt: Sam can't find a pack he knows exists, even though it's classified in Battery packs. What's the most likely reason?
+        options: [The pack's Capacity attribute is empty, Classification search ignores libraries, The tree is too shallow, He searched the wrong product]
+        answer: 0
+        explanation: Filters skip parts with blank values. Make key attributes required on the node.
+      - kind: order
+        prompt: Order Priya's reuse steps.
+        items: [Open classification search, Walk to the right node, Filter by attribute values, Check state and where-used, Add the part to her structure]
+        explanation: Tree first, filters second, sanity checks third - then reuse.
+
+  - type: summary
+    points:
+      - Classify into the most specific node and fill its attributes with constrained values.
+      - Classification values are part attributes - editing them creates a new iteration.
+      - Classification search = pick a node (includes nodes below) + filter by values.
+      - Prefer released parts, check where-used, and make key attributes required.

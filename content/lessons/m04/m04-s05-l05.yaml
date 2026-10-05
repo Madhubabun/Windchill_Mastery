@@ -1,0 +1,273 @@
+id: m04-s05-l05
+subtitle: Some data needs a fence that no rule can open. Labels build it; agreements are the gate key.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [access-control, security-labels, agreements, export-control, compliance]
+
+blocks:
+  - type: text
+    md: |
+      E-Bike E1 is growing up. Two new kinds of data arrive, and domain rules alone can't protect them:
+
+      1. **Voltra's proprietary cell data.** Voltra shares its cell chemistry spec (EB-10025 cell
+         module) under an NDA. Only Acme's named battery engineers may see it, *including* in folders
+         where other E1 members normally read everything.
+      2. **Export-controlled firmware design.** The EB-10030 motor controller uses encryption that
+         Acme's (fictional) compliance team classifies as export controlled. Only cleared people may
+         access it, wherever it's stored.
+
+      Policy rules grant by **zone**. These need a rule that travels **with the object** and says *"not
+      you, whatever else you've been given."* That's a **security label**.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a clearance sticker on an object" → [[security-label|security label]]
+      - "who is cleared for one sticker value" → *authorized participants* for a label value
+      - "a time-limited clearance for named people and objects" → [[agreement]]
+      - "export rules for technology" → *export control* (e.g. classifications under national export laws)
+
+  - type: diagram
+    title: How a label sits on top of normal access
+    caption: The label is a gate in front of the rules. Click each box.
+    diagram:
+      width: 820
+      height: 420
+      groups:
+        - { label: Label gate, x: 20, y: 140, w: 780, h: 110, tone: danger }
+      nodes:
+        - id: obj
+          label: EB-10025 cell spec
+          sublabel: "Proprietary: Voltra"
+          x: 310
+          y: 20
+          w: 200
+          h: 60
+          tone: warning
+          shape: doc
+          detail: |
+            The document carries a label value *Third-Party Proprietary = Voltra*. Labels are set **per
+            object**, usually by its creator or a security officer, or defaulted automatically for a type
+            or context.
+        - id: authorized
+          label: Authorized list
+          sublabel: ACME-Battery-Core
+          x: 40
+          y: 170
+          w: 200
+          h: 56
+          tone: success
+          detail: |
+            Each restricted label value names who's authorized: a group, an organization or users. Here
+            only `ACME-Battery-Core` (Kai and two engineers) is cleared for *Proprietary: Voltra*.
+        - id: agreement
+          label: Agreement
+          sublabel: CertLab · 60 days
+          x: 310
+          y: 170
+          w: 200
+          h: 56
+          tone: info
+          detail: |
+            An [[agreement]] clears **extra** participants for this label value on the objects it lists, from
+            approval until its expiry date. Then it stops clearing them, with no admin clean-up needed.
+        - id: blocked
+          label: Everyone else
+          sublabel: e.g. Ana, Sam
+          x: 580
+          y: 170
+          w: 200
+          h: 56
+          tone: danger
+          detail: |
+            Ana is an E1 member with a policy Read grant on all E1 documents. She is **not** authorized for
+            the label value, so she can't see EB-10025. No grant, ad hoc rule or regular deny changes that.
+        - id: rules
+          label: Normal rules
+          sublabel: policy + ad hoc
+          x: 170
+          y: 300
+          w: 200
+          h: 56
+          tone: primary
+          detail: |
+            Passing the label gate grants **nothing**. Kai still needs a policy or ad hoc grant to read the
+            document. Labels only take away access.
+        - id: result
+          label: Effective permissions
+          sublabel: labels ∩ rules
+          x: 450
+          y: 300
+          w: 200
+          h: 56
+          tone: accent
+          shape: pill
+          detail: You need **both** clearance for every restricted label value on the object **and** a grant from the rules.
+      edges:
+        - { from: obj, to: authorized }
+        - { from: obj, to: agreement }
+        - { from: obj, to: blocked }
+        - { from: authorized, to: rules, label: cleared }
+        - { from: agreement, to: rules, label: cleared until expiry }
+        - { from: rules, to: result }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Export-control and NDA violations are legal problems, not IT problems. Companies get fined, lose
+      export privileges or lose supplier trust. Labels give compliance teams a control they can audit:
+      *"Show me everything labelled Export Controlled and everyone authorized for it."* Agreements add
+      the paper trail: who approved the exception, for which objects, and until when.
+
+  - type: comparison
+    title: Domains, labels and agreements, side by side
+    columns: [Domain policy rules, Security labels, Agreements]
+    rows:
+      - label: Question it answers
+        cells: ["What may this role do in this zone?", "Who is cleared to touch this object at all?", "Who gets temporary clearance, and why?"]
+      - label: Attached to
+        cells: [A domain (via folders), Each object (label value), A set of objects and participants]
+      - label: Grants access
+        cells: [Yes, "No - only restricts", "No - only clears for labels; rules must still grant"]
+      - label: Follows the object if moved
+        cells: ["No - new folder means new domain", "Yes - the label stays on the object", "Yes - it lists the objects"]
+      - label: Expires
+        cells: [No, "No - until the value is changed", "Yes - expiry date and life cycle"]
+      - label: Typical owner
+        cells: [Business admin, Security or compliance officer, Compliance or program manager]
+      - label: Set up by
+        cells: [Policy Administration, "Label configuration by the system admin; values set on objects", Created and approved in the context]
+    takeaway: Domains draw the everyday picture, labels fence off sensitive objects, and agreements open a gate in that fence for a time.
+
+  - type: example
+    variant: case-study
+    title: The certification lab and the 60-day key
+    industry: Micromobility
+    md: |
+      **Situation.** E-Bike E1's battery must pass a (fictional) safety certification at an external lab,
+      **CertLab**. The lab needs the EB-10025 cell spec, which carries *Proprietary: Voltra*. Voltra agrees,
+      but only for the certification window.
+
+      **First idea (rejected).** Add CertLab's group to `ACME-Battery-Core`. That clears them for *every*
+      Voltra-proprietary object, forever, and nobody would remember to remove it.
+
+      **What Jordan did.**
+      1. Created a `SUP-CertLab` group and added it to the E1 team with a narrow *Reviewer* role. Policy
+         grants that role Read on Released documents in Battery.
+      2. Created an **agreement** naming `SUP-CertLab`, the label value *Proprietary: Voltra*, the
+         objects EB-10025 and its test plan, and an expiry date 60 days out.
+      3. Routed the agreement for approval to Maya and Voltra's contact. On approval it became
+         active and CertLab could open exactly those two documents.
+
+      **Outcome.** Certification passed in 41 days. On day 60 the agreement expired, and the lab lost
+      access without anyone touching a rule. The audit trail showed who approved what, and Voltra
+      renewed its NDA with Acme for the next product.
+    takeaway: When access has a reason and an end date, use an agreement, not a group membership.
+
+  - type: walkthrough
+    title: Set a security label on an object
+    who: A user with permission to modify security labels on the object (often the owner or a security officer)
+    where: ["<object> information page", Actions, Edit Security Labels]
+    steps:
+      - title: Open the object
+        where: [Search, "EB-10025", "<information page>"]
+        md: Open the cell spec's information page. Its security labels are listed with its attributes once labels are enabled.
+      - title: Edit the labels
+        where: ["<information page>", Actions, Edit Security Labels]
+        md: |
+          Choose the label editing action and pick the value, such as *Third-Party Proprietary → Voltra*.
+          You'll only see labels your system admin has configured.
+      - title: Save and verify
+        where: ["<information page>", "<access information action>"]
+        md: Check an unauthorized test user's effective permissions. They should now have none on this object.
+    result: The object is fenced. Only participants authorized for the value (or cleared by an active agreement) can reach it, and still only if rules grant them access.
+
+  - type: walkthrough
+    title: Create an agreement
+    who: Users allowed to create agreements in the context (commonly a compliance or program role)
+    where: [Products, "E-Bike E1", "<agreements location>"]
+    steps:
+      - title: Start a new agreement
+        where: ["E-Bike E1", "<agreements location>", New Agreement]
+        md: In the context, create a new agreement. Depending on release, this is from the folders' New menu or a dedicated agreements page.
+      - title: Fill in the essentials
+        where: [New Agreement, Attributes]
+        md: Give it a clear name (e.g. *CertLab cell spec certification*), the security label value it covers and an **expiry date**.
+      - title: Add participants and objects
+        where: [Agreement, Participants, Objects]
+        md: Add `SUP-CertLab` as authorized participant and add EB-10025 and its test plan as the secured objects.
+      - title: Get it approved
+        where: [Agreement, "<life cycle / workflow>"]
+        md: Submit it through its life cycle. It authorizes nobody until it reaches its active (approved) state.
+    result: Once approved, CertLab is cleared for that label value on those objects until the expiry date.
+
+  - type: callout
+    variant: version-note
+    versions: ["All releases", "Windchill+"]
+    md: |
+      Security labels are **off until configured**. A system admin defines the labels, their values and
+      authorized participants in site configuration and enables them. Agreements are a separate, optional
+      capability. Names of actions (such as *Edit Security Labels*) and where agreements are created vary
+      by release. On Windchill+, label configuration typically goes through PTC's administration process
+      rather than direct file edits.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Labels don't spread by themselves.** Labelling the EB-10030 controller part doesn't label its CAD
+      model, drawing or the firmware document. Each object carries its own label. Use defaults (for example
+      initialization rules for a type in a context) and reviews so related objects get labelled together,
+      or your fence has holes.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Start with **few labels and few values**, such as one export-control label and one third-party
+      proprietary label. Create one test user per clearance level and keep them. Every label value
+      multiplies the test cases, and compliance teams prefer a simple model they can explain.
+
+  - type: exercise
+    title: Design label-based access for the E1 Fleet program
+    environment: paper
+    goal: |
+      Acme wins a fleet contract. The E1 **Fleet** variant adds a GPS tracking module whose design is export
+      controlled, and an external integrator, **Hexa Tooling**, machines its housing. Design the access model.
+    steps:
+      - "Decide which objects get the *Export Control* label value, and how you'll make sure CAD, drawings and documents get it too."
+      - "Name the group authorized for that value. Who is in it, and who approves joining it?"
+      - "Hexa needs the housing drawing (not the electronics) for 90 days. Label, agreement, policy, or a mix?"
+      - "Write the policy rules Hexa still needs to actually read the drawing once cleared."
+      - "List the test users you'll create to prove the model works."
+    expected: |
+      A good design labels the GPS module part, CAD and documents. The housing drawing is labelled
+      only if it really contains controlled data; if not, keep it unlabelled and use a domain rule.
+      An `ACME-ExportCleared` group is approved by compliance. If the housing drawing is labelled,
+      Hexa gets an **agreement** for that drawing only, with a 90-day expiry. A policy grant to Hexa's
+      role (Read on Released CAD in its own child domain) still supplies the actual permission. Test
+      users: cleared employee, uncleared employee, Hexa with and without an active agreement.
+
+  - type: quiz
+    questions:
+      - kind: truefalse
+        prompt: If Kai is authorized for the label value "Proprietary - Voltra", he can read every object with that label.
+        answer: false
+        explanation: Authorization only gets him past the label gate. A policy or ad hoc rule must still grant Read.
+      - kind: single
+        prompt: CertLab needs one labelled document for 60 days. Best tool?
+        options: [Add CertLab to the authorized group, An agreement with an expiry date, Remove the label for 60 days, An ad hoc Read grant]
+        answer: 1
+        explanation: An agreement clears exactly those participants for those objects and expires by itself. An ad hoc grant can't get past the label gate.
+      - kind: single
+        prompt: Ana has a policy grant on all E1 documents but isn't authorized for the Export Controlled value on EB-10030's firmware spec. What can she do with it?
+        options: [Read only, Read and Download, Nothing, Whatever the policy grants]
+        answer: 2
+        explanation: A restricted label value blocks unauthorized users whatever other rules grant.
+
+  - type: summary
+    points:
+      - A security label travels with the object and blocks everyone not authorized for its value.
+      - Labels only restrict. Cleared users still need a policy or ad hoc grant.
+      - Agreements clear named participants for labelled objects for a period, with approval and expiry.
+      - Labels are configured by the system admin; values are set per object, so label related objects together.
+      - Keep the label model small and keep test users for each clearance level.

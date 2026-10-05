@@ -1,0 +1,102 @@
+# New glossary terms introduced in section m04-s05 (Access control).
+- id: domain
+  term: Domain (administrative domain)
+  plain: A "rule zone". Everything stored in it follows the same access rules.
+  definition: |
+    An administrative area that holds access control policy rules, plus some other policies such as
+    notification and indexing rules. Each folder (and so every object in it) belongs to exactly one domain.
+    Domains form a tree: site, organization, then each product or library context. A domain inherits
+    the rules of all its parent domains.
+  aka: [Administrative domain, Policy domain]
+  related: [access-control-rule, policy-administration, folder, context]
+
+- id: access-control-rule
+  term: Access control rule (policy rule)
+  plain: '"People in this group may do these things to this kind of object in this state."'
+  definition: |
+    A rule stored in a domain that grants, denies or absolutely denies permissions (Read, Download,
+    Modify, Delete and so on). It applies to one object type and its subtypes, one life cycle state
+    (or all states) and one participant (a user, group, organization or context role). It covers every
+    matching object in that domain and its child domains.
+  aka: [Policy rule, Policy access control rule, ACL rule]
+  related: [domain, deny-rule, absolute-deny, ad-hoc-access, lifecycle-state]
+
+- id: policy-administration
+  term: Policy Administration
+  plain: The admin tool where you see domains and write the access rules for each one.
+  definition: |
+    The utility, opened from a context's Utilities page (site, organization, product or library),
+    where administrators browse the domain tree and create, edit and delete access control rules
+    and other domain-based policies.
+  aka: [Policy Administrator]
+  related: [domain, access-control-rule]
+
+- id: ad-hoc-access
+  term: Ad hoc access control
+  plain: An extra permission stuck onto one single object, not a rule for a whole domain.
+  definition: |
+    Permissions granted directly on an individual object to a participant, for example through the
+    object's Edit Access Control action or automatically by a workflow or team. Ad hoc rules only ever
+    grant, and they can override a regular policy deny but never an absolute deny.
+  aka: [Ad hoc rule, Ad hoc permission]
+  related: [access-control-rule, absolute-deny, effective-permissions]
+
+- id: deny-rule
+  term: Deny (denied permission)
+  plain: A rule that says "no", and beats every policy "yes" for the same person and permission.
+  definition: |
+    A policy rule that denies a permission to a participant. A deny overrides grants from policy rules
+    at any level of the domain tree for that user. An ad hoc grant on a specific object can still
+    override a regular deny.
+  related: [access-control-rule, absolute-deny, ad-hoc-access]
+
+- id: absolute-deny
+  term: Absolute deny
+  plain: The hardest "no". Not even a one-off permission on the object can undo it.
+  definition: |
+    A policy rule setting that denies a permission so that no grant can override it, including ad hoc
+    grants on individual objects. Use it for hard boundaries, such as "suppliers never modify Acme
+    data". Only administrators who bypass access control are unaffected.
+  related: [deny-rule, ad-hoc-access, access-control-rule]
+
+- id: security-label
+  term: Security label
+  plain: A sticker such as "Export controlled" that hides an object from everyone not cleared for it.
+  definition: |
+    An attribute-like marking on an object (for example an export-control or third-party-proprietary
+    label) whose values each have an authorized participant list. A user who is not authorized for
+    every restricted label value on an object is denied access, whatever the policy or ad hoc rules
+    grant. Being authorized does not grant anything by itself; normal rules must still grant access.
+  aka: [Standard security label, Custom security label]
+  related: [agreement, access-control-rule, effective-permissions]
+
+- id: agreement
+  term: Agreement (authorization agreement)
+  plain: A signed-off permission slip. It clears named people for labelled objects until a set end date.
+  definition: |
+    A Windchill object that authorizes participants to access objects carrying certain security label
+    values, for a defined period. It names the label values, the participants and the objects, and
+    is active only while approved and not expired. Typical uses are export licences and supplier
+    non-disclosure agreements.
+  related: [security-label, effective-permissions]
+
+- id: effective-permissions
+  term: Effective permissions
+  plain: What a person can actually do to one object once every rule has been counted.
+  definition: |
+    The final set of permissions a participant holds on a specific object after Windchill combines
+    policy grants and denies from the object's domain and its parents, ad hoc grants, absolute denies
+    and security label authorization.
+  aka: [Effective access]
+  related: [access-control-rule, ad-hoc-access, security-label, access-information-tool]
+
+- id: access-information-tool
+  term: Access information tool
+  plain: The admin "X-ray" that shows who can do what to an object, and why.
+  definition: |
+    The administrator tools that report a participant's effective permissions on an object and where
+    they come from (policy rules, ad hoc rules, security labels). Names differ by release, such as
+    access information or view access rights. They are the first stop when someone asks "why can't I
+    see it?".
+  aka: [View access rights, Access information]
+  related: [effective-permissions, policy-administration]

@@ -1,0 +1,472 @@
+id: m04-cap
+subtitle: A new division starts Monday. You're the one who makes Windchill ready for it.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [capstone, business-admin, contexts, types, numbering, access-control]
+
+blocks:
+  - type: text
+    md: |
+      It's Wednesday. Jordan, Acme Mobility's business administrator, is out on leave from tomorrow,
+      and the board has just announced it: **Acme is launching an e-bike division.** Twelve engineers
+      start Monday, and Voltra Cells, the battery supplier, joins the same day.
+
+      Jordan's handover note is short:
+
+      > "Everything for **E-Bike E1** is on you now. Engineers need a product they can work in from
+      > minute one. E-bike parts need their own type with the battery and motor data, and numbers
+      > must come out as EB-something without anyone typing them. Voltra must see our **released**
+      > battery drawings and nothing else. And please *prove* the access works before Monday.
+      > Rosa (system admin) can help with anything server-side. Good luck!"
+
+      Everything you need is in Module 4. This is your graduation project as a business admin.
+
+  - type: callout
+    variant: note
+    title: Your mission checklist
+    md: |
+      1. Create the **E-Bike E1** product from a template, with a team.
+      2. Add an **E-Bike Part** subtype with three attributes.
+      3. Configure **auto-numbering** for it with an object initialization rule.
+      4. Set access so **Voltra sees only released drawings**.
+      5. **Prove** the access works with the access tools.
+
+  - type: callout
+    variant: terms
+    title: Plain words → admin words
+    md: |
+      | Plain words | Official term |
+      | --- | --- |
+      | The shared space the e-bike team works in | Product **[[context]]** ([[product-context]]) |
+      | "A kind of part, with its own fields" | Subtype (a soft type) with attributes |
+      | "Fill in the number automatically" | Object initialization rule (OIR) |
+      | "Who may see what, in which state" | Access control policy rules on a domain |
+      | "Can Voltra really not see it?" | Checking a participant's effective permissions |
+
+  - type: diagram
+    title: What you're building
+    caption: Click each box to see what it does for the e-bike division and where you configure it.
+    diagram:
+      width: 820
+      height: 420
+      groups:
+        - { label: Site and organization level, x: 10, y: 10, w: 800, h: 130, tone: neutral }
+        - { label: E-Bike E1 product, x: 10, y: 160, w: 800, h: 250, tone: accent }
+      nodes:
+        - id: template
+          label: Product template
+          sublabel: Acme standard
+          x: 30
+          y: 50
+          w: 170
+          tone: info
+          shape: doc
+          detail: |
+            The template carries the folder structure, team roles, policies and default settings
+            every Acme product starts with. Creating E-Bike E1 from it means you configure the
+            *differences*, not everything from scratch.
+          real: Companies that skip templates end up with ten products configured ten slightly different ways.
+        - id: subtype
+          label: E-Bike Part
+          sublabel: subtype of Part
+          x: 230
+          y: 50
+          w: 170
+          tone: primary
+          detail: |
+            A subtype of Part, created in **Type and Attribute Management**. It adds Battery Voltage
+            (V), Motor Power (W) and IP Rating (an enumeration: IP54, IP65, IP67). No code needed.
+          real: Defined once at site or organization level so every product can use it.
+        - id: groups
+          label: Groups
+          sublabel: ACME-Engineering, SUP-Voltra
+          x: 430
+          y: 50
+          w: 180
+          tone: info
+          detail: |
+            The engineers sit in `ACME-Engineering`. Voltra's people belong to the Voltra Cells
+            organization and sit in `SUP-Voltra`. You assign whole groups to team roles, never
+            twelve users one by one.
+        - id: org
+          label: Voltra Cells
+          sublabel: external organization
+          x: 640
+          y: 50
+          w: 150
+          tone: warning
+          detail: Voltra is a separate organization. Its users exist in Windchill but belong to nobody's product until you put them on a team.
+        - id: team
+          label: Product team
+          sublabel: roles → groups
+          x: 30
+          y: 220
+          w: 170
+          tone: success
+          detail: |
+            The team maps roles to people: `ACME-Engineering` → Designer, Jordan → Product Manager,
+            `SUP-Voltra` → Supplier. Roles are what policies, tasks and notifications point at.
+        - id: oir
+          label: Numbering OIR
+          sublabel: EB-#####
+          x: 230
+          y: 220
+          w: 170
+          tone: primary
+          detail: |
+            An object initialization rule for E-Bike Part in this product: number generated from a
+            sequence with the prefix `EB-`, number field not editable, plus the default folder and
+            life cycle.
+        - id: policy
+          label: Access rule
+          sublabel: Supplier · Released · Read
+          x: 430
+          y: 220
+          w: 180
+          tone: warning
+          detail: |
+            A policy rule on the product's domain: the **Supplier** role gets Read and Download on
+            CAD documents in the **Released** state. Nothing else is granted to them, so In Work
+            data stays invisible.
+          real: Grant the minimum. Adding rights later is easy; finding out a supplier saw your next-gen design is not.
+        - id: check
+          label: Access check
+          sublabel: proof for Monday
+          x: 640
+          y: 220
+          w: 150
+          tone: success
+          detail: |
+            Before go-live, you check a real Voltra user against a released drawing (should be
+            Read) and an In Work one (should be nothing). Proof, not hope.
+        - id: data
+          label: First parts
+          sublabel: "EB-10021 battery pack"
+          x: 230
+          y: 330
+          w: 170
+          tone: info
+          detail: When an engineer creates an E-Bike Part on Monday, the OIR numbers it, files it and starts its life cycle. The engineer just types a name.
+      edges:
+        - { from: template, to: team, label: creates }
+        - { from: groups, to: team, label: fill roles }
+        - { from: org, to: groups, dashed: true }
+        - { from: subtype, to: oir, label: rule for }
+        - { from: oir, to: data, label: numbers }
+        - { from: team, to: policy, label: role used by }
+        - { from: policy, to: check, label: verified by }
+
+  - type: walkthrough
+    title: Your route through Windchill
+    who: A business administrator with organization-level admin rights (site admin for the type work)
+    steps:
+      - title: Create the product from the template
+        where: [Browse, Products, New Product]
+        md: |
+          Name it **E-Bike E1**, choose Acme's standard product template, and finish. The template
+          lays down folders, roles and policies. Check the product's **Folders** to confirm.
+      - title: Fill the team
+        where: [E-Bike E1, Team]
+        md: |
+          Add the `ACME-Engineering` group to the **Designer** role, Jordan (or yourself) as
+          **Product Manager**, and `SUP-Voltra` to a **Supplier** role. Add the role first if the
+          template doesn't have it.
+      - title: Create the subtype
+        where: [Site or Organization, Utilities, Type and Attribute Management]
+        md: |
+          Select **Part**, create a new subtype **E-Bike Part**, then add three attributes: Battery
+          Voltage (real number with unit), Motor Power (integer, watts) and IP Rating (string with an
+          enumerated list IP54, IP65, IP67). Add sensible constraints, such as voltage between 24
+          and 72.
+      - title: Show the new attributes
+        where: [Type and Attribute Management, E-Bike Part, Layouts]
+        md: Add the three attributes to the create and information page layouts, otherwise nobody sees them.
+      - title: Add the numbering rule
+        where: [E-Bike E1, Utilities, Object Initialization Rules Administration]
+        md: |
+          Create a rule for **E-Bike Part** in this product. Set the number to be generated with the
+          prefix `EB-` and a sequence (starting at 10050, above any hand-typed numbers), make the number non-editable, and set the
+          default folder and life cycle.
+      - title: Grant Voltra the minimum
+        where: [E-Bike E1, Utilities, Policy Administration]
+        md: |
+          On the product's default domain, add a rule for type **CAD Document**, state **Released**,
+          participant **Supplier** role: grant **Read** and **Download**. Grant nothing for other
+          states.
+      - title: Prove it
+        where: [Information page, Actions, access information]
+        md: |
+          Pick a released battery drawing and an In Work one. Use the access tool (it may be called
+          *View Access Information* or similar in your release) to check a Voltra user's
+          permissions on each.
+    result: |
+      Released drawing → Voltra has Read and Download. In Work drawing → no access at all. A test
+      E-Bike Part comes out as EB-10050, in the right folder, In Work, with the three attributes on
+      its information page.
+
+  - type: callout
+    variant: version-note
+    versions: ["Windchill+"]
+    md: |
+      On Windchill+ (SaaS), site-level type changes and some utilities may be limited or go through
+      PTC's change process. Do the type work at organization level where your release allows, and
+      check with your PTC contact for anything site-wide.
+
+  - type: simulation
+    title: "Wednesday to Monday: set up the division"
+    intro: |
+      Do the setup in an order that works. Some steps need others done first, just like in the real
+      system. Watch the headline: you're finished when every item is ready **and verified**.
+    headline: "E1 product: {product} · team: {team} · E-Bike Part: {subtype} ({attrs}/3 attributes) · numbering: {oir} · Voltra access: {access} · proof: {proof}"
+    initial:
+      product: none
+      team: none
+      subtype: none
+      attrs: 0
+      oir: manual
+      access: none
+      proof: none
+    actions:
+      - id: blank
+        label: Create E-Bike E1 from scratch
+        when: { product: none }
+        do: [{ set: { product: blank } }]
+        log: E-Bike E1 exists, but it's empty. No folders, no roles, no policies. That's a lot of manual work ahead.
+      - id: fromtemplate
+        label: Create E-Bike E1 from the Acme template
+        when: { product: [none, blank] }
+        do: [{ set: { product: from template } }]
+        log: Product created from the template. Folders, standard roles and base policies are in place.
+      - id: team
+        label: Put groups into team roles
+        when: { product: [blank, from template] }
+        do: [{ set: { team: ready } }]
+        log: ACME-Engineering → Designer, SUP-Voltra → Supplier. Twelve engineers handled in one step.
+        blockedHint: There's no product yet to hold a team.
+      - id: subtype
+        label: Create the E-Bike Part subtype
+        when: { subtype: none }
+        do: [{ set: { subtype: ready } }]
+        log: E-Bike Part now exists under Part. Every product can use it.
+      - id: attr
+        label: Add an attribute to E-Bike Part
+        when: { subtype: ready, attrs: [0, 1, 2] }
+        do: [{ inc: attrs }]
+        log: Attribute added ({attrs}/3). Don't forget it on the layouts.
+        blockedHint: Create the subtype first, or you have all three already.
+      - id: oir
+        label: Add the EB- numbering rule (OIR)
+        when: { subtype: ready, product: [blank, from template] }
+        do: [{ set: { oir: "EB-##### auto" } }]
+        log: New E-Bike Parts in E1 will be numbered EB-10050, EB-10051 and so on. Nobody types a number.
+        blockedHint: The rule needs both the subtype and the product it applies in.
+      - id: grantall
+        label: "Give SUP-Voltra Full Control (quick fix)"
+        when: { team: ready, access: [none, released only] }
+        do: [{ set: { access: everything, proof: none } }]
+        log: Voltra can now see and edit everything in E1, including next year's In Work designs. Quick, but dangerous.
+        blockedHint: Put Voltra on the team first.
+      - id: grantreleased
+        label: Grant Supplier role Read on Released CAD documents
+        when: { team: ready, access: [none, everything] }
+        do: [{ set: { access: released only, proof: none } }]
+        log: Supplier role gets Read and Download on Released CAD documents. Nothing else.
+        blockedHint: Put Voltra on the team first.
+      - id: checkwide
+        label: Check a Voltra user on an In Work drawing
+        when: { access: everything }
+        do: [{ set: { proof: "FAILED - Voltra sees In Work" } }]
+        log: The access check shows Full Control on an In Work drawing. Exactly what Jordan asked you to prevent.
+      - id: checkreleased
+        label: Check a Voltra user on released and In Work drawings
+        when: { access: released only }
+        do: [{ set: { proof: verified } }]
+        log: Released drawing → Read and Download. In Work drawing → no access. Proven.
+      - id: checknone
+        label: Check a Voltra user before granting anything
+        when: { access: none, team: ready }
+        do: [{ set: { proof: "FAILED - Voltra sees nothing" } }]
+        log: Voltra can't see even released drawings. Safe, but useless to the supplier.
+    goals:
+      - label: Product created from the template with a team
+        when: { product: from template, team: ready }
+        message: Template plus groups in roles. Monday's engineers can log in and work.
+      - label: E-Bike Part with three attributes
+        when: { subtype: ready, attrs: 3 }
+        message: Data modelled without a line of code.
+      - label: Division ready and verified
+        when: { product: from template, team: ready, subtype: ready, attrs: 3, oir: "EB-##### auto", access: released only, proof: verified }
+        message: Everything configured, and the access proven. Jordan would be proud.
+
+  - type: scenario
+    variant: challenge
+    title: "Monday, 9:00: the phones start ringing"
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          It's go-live. First call, from Voltra: *"We can't see the drawing for EB-10021, the
+          battery pack."* You check: the drawing exists, and it's **In Work**. What do you do?
+        choices:
+          - label: "Explain that it isn't released yet. That's the access working as designed"
+            next: s2
+            good: true
+            feedback: "Exactly. The rule says Released only. If Voltra needs it early, that's a decision for Kai, not a quick fix."
+          - label: "Give Voltra an ad hoc Read on that drawing to be helpful"
+            next: s1-adhoc
+            feedback: "Helpful today, a leak tomorrow. Let's see."
+          - label: "Add SUP-Voltra to the Designer role so they see everything"
+            next: fail-designer
+            feedback: "That's the opposite of what Jordan asked."
+      - id: s1-adhoc
+        md: |
+          Kai sees it and isn't happy: the In Work drawing still has an unapproved cell layout, and
+          ad hoc grants are easy to forget. What now?
+        choices:
+          - label: "Remove the ad hoc grant and route the request to Kai"
+            next: s2
+            good: true
+            feedback: "Recovered. Exceptions go through the person who owns the data."
+      - id: s2
+        md: |
+          Second call, from Priya: *"I created an E-Bike Part and it's numbered 0000231, not EB-!"*
+          You look. She created it in the **Scooter S2** product by mistake. What's going on?
+        choices:
+          - label: "The EB- rule lives in E-Bike E1, so it doesn't apply in Scooter S2. Help her create it in E1"
+            next: s3
+            good: true
+            feedback: "Right. An OIR applies in the context where it's defined and the contexts below it."
+          - label: "Copy the EB- rule up to site level so it works everywhere"
+            next: s2-site
+            feedback: "Bigger change than it sounds."
+      - id: s2-site
+        md: |
+          A site-level rule would number E-Bike Parts as EB- in *every* product, including ones that
+          shouldn't have e-bike parts at all, and it hides the real mistake: the part is in the wrong
+          product. What's the better fix?
+        choices:
+          - label: "Leave the rule in E1 and have Priya create the part in E-Bike E1"
+            next: s3
+            good: true
+            feedback: "Fix the cause, not the symptom."
+      - id: s3
+        md: |
+          Third call, from a new engineer, Tom: *"I can't create anything in E-Bike E1."* He's in
+          the company directory but not in `ACME-Engineering`. Best fix?
+        choices:
+          - label: "Add Tom to the ACME-Engineering group"
+            next: win
+            good: true
+            feedback: "One change, and he inherits the Designer role in every product that uses the group."
+          - label: "Add Tom directly to the Designer role in E1"
+            next: partial-direct
+            feedback: "It works, but think about next month."
+          - label: "Make Tom a product administrator"
+            next: fail-admin
+            feedback: "Way more power than he needs."
+      - id: win
+        md: |
+          **Go-live handled.** Voltra sees only what's released, numbering is automatic, and new
+          engineers get access by joining one group. Jordan's message from the beach: "Told you you'd
+          be fine."
+        outcome: success
+      - id: partial-direct
+        md: |
+          Tom can work, but now he's the one engineer outside the group. When Acme adds a second
+          e-bike product, he's missing again. **Manage people through groups; put groups in roles.**
+        outcome: partial
+      - id: fail-designer
+        md: |
+          Voltra now sees every In Work design in E1, including the next-generation pack nobody was
+          meant to see. Undoing a leak is impossible. **Grant the minimum, then add if asked.**
+        outcome: fail
+      - id: fail-admin
+        md: |
+          Tom can now change policies and the team for the whole product. Admin rights aren't a fix
+          for missing group membership.
+        outcome: fail
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      A business admin's work is invisible when it's done right: people log in and everything just
+      works. When it's done wrong, it shows up as blocked engineers, typed-in numbers that clash, or a
+      supplier who saw something they shouldn't. A one-hour setup checked properly saves weeks.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Testing as yourself.** As an administrator you can see almost everything, so "I can open it"
+      proves nothing. Always check access *as the participant* (or with the access tools for that
+      participant).
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Once E-Bike E1 works, **save it as a context template**. The next division then starts with
+      the subtype in use, the numbering rule, the team roles and the supplier policy already in
+      place.
+
+  - type: exercise
+    title: Write the go-live checklist
+    environment: windchill-trial
+    goal: Turn this capstone into a checklist you could hand to Jordan, or try it in a trial system if you have admin rights there.
+    steps:
+      - List each object you created (product, subtype, attributes, rule, policy) and **where** you created it (site, organization or product).
+      - Note who should be in each team role, by group.
+      - Write down the two access checks you ran and their expected results.
+      - Add one thing you would test with a real engineer on Monday morning.
+    expected: A one-page checklist with every setting, its context level and how you proved it. If you used a trial system, a test E-Bike Part numbered EB-10050.
+
+  - type: quiz
+    title: Capstone check
+    passMark: 0.7
+    questions:
+      - kind: order
+        prompt: Put the setup steps in an order that works.
+        items:
+          - Create E-Bike E1 from the product template
+          - Put groups into the product team roles
+          - Create the E-Bike Part subtype and its attributes
+          - Add the numbering rule for E-Bike Part in E1
+          - Grant the Supplier role Read on Released CAD documents
+          - Check a Voltra user's access on released and In Work drawings
+        explanation: The product and team come first, because rules and policies point at them. The subtype must exist before a rule can target it. Proof comes last.
+      - kind: single
+        prompt: Why put SUP-Voltra in a Supplier role instead of naming Voltra users in the access rule?
+        options:
+          - Rules on roles keep working as people join and leave the group
+          - Users can't be named in access rules at all
+          - Roles give more permissions than users
+          - It's required for numbering to work
+        answer: 0
+        explanation: Grant to roles, fill roles with groups, manage people in groups. When Voltra hires someone, adding them to SUP-Voltra is the only change.
+      - kind: multi
+        prompt: What does the E-Bike Part numbering rule do on Monday? (Choose all that apply.)
+        options:
+          - Generates EB- numbers from a sequence
+          - Stops users typing their own numbers
+          - Files new parts in a default folder and life cycle
+          - Applies to E-Bike Parts in every product on the site
+        answers: [0, 1, 2]
+        explanation: The rule was defined in E-Bike E1, so it applies there and in contexts below it, not across the whole site.
+      - kind: truefalse
+        prompt: As the admin, opening the In Work drawing yourself proves Voltra can't see it.
+        answer: false
+        explanation: Admins see almost everything. Check effective permissions for a Voltra user, or log in as a test supplier user.
+      - kind: single
+        prompt: Voltra asks for an In Work drawing "just this once". Best response?
+        options:
+          - Route the request to the data owner (Kai) to decide
+          - Give the whole Supplier role Full Control
+          - Give an ad hoc grant without asking anyone
+          - Move the drawing to Released yourself
+        answer: 0
+        explanation: Access exceptions are a business decision by the data owner. The admin implements the decision, not the other way round.
+
+  - type: summary
+    points:
+      - Start contexts from a template, then configure only what's different.
+      - Model data with subtypes and attributes, and show them through layouts.
+      - Let an object initialization rule number new parts automatically in the right context.
+      - Grant the minimum to roles, fill roles with groups, and prove access as the participant.

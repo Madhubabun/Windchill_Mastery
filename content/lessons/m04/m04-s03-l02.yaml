@@ -1,0 +1,319 @@
+id: m04-s03-l02
+subtitle: '"I never got the task." Learn to trace why in five minutes.'
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, roles, teams, workflow, troubleshooting, access]
+
+blocks:
+  - type: text
+    md: |
+      Roles do three jobs in Windchill. Learn them and most "Windchill is broken" tickets become
+      five-minute fixes:
+
+      1. **Tasks** - workflow activities are assigned to a role. Whoever fills it gets the task.
+      2. **Access** - access rules can grant permissions to a role in a context.
+      3. **Notifications** - "tell the Product Manager when it's Released".
+
+      The catch: these are **separate** mechanisms. Having full access to a part does not put a task
+      in your work list. Being in a role does not mean you can see every object. Today Jordan learns
+      that the hard way.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "work that shows up in my list" → *[[task]]* (a workflow work item)
+      - "turning a role into real people" → *role resolution*
+      - "a job title in this product" → *[[role]]*, filled in the *[[team]]*
+      - "the process team built for one object" → built from a *[[team-template]]*
+
+  - type: animation
+    title: How a role becomes a task in Leo's list
+    diagram:
+      width: 800
+      height: 340
+      nodes:
+        - { id: submit, label: Promotion request, sublabel: EB-10021 battery pack, x: 20, y: 140, w: 170, tone: primary }
+        - { id: wfact, label: Review activity, sublabel: "assigned to: Reviewer", x: 230, y: 140, w: 160, tone: accent }
+        - { id: proc-team, label: Process team, sublabel: from team template, x: 430, y: 40, w: 160, tone: info }
+        - { id: ctx-team, label: E-Bike E1 team, sublabel: "Reviewer = ACME-Quality", x: 430, y: 240, w: 170, tone: info }
+        - { id: group, label: ACME-Quality, sublabel: "Leo + 2 others", x: 630, y: 240, w: 150, tone: neutral, shape: pill }
+        - { id: worklist, label: Leo's work list, sublabel: "Review EB-10021", x: 630, y: 40, w: 150, tone: success, shape: doc }
+      edges:
+        - { from: submit, to: wfact, label: starts }
+        - { from: wfact, to: proc-team, label: "who is Reviewer?" }
+        - { from: proc-team, to: ctx-team, label: resolve, dashed: true }
+        - { from: ctx-team, to: group, label: expand }
+        - { from: group, to: worklist, label: task }
+    chapters:
+      - title: Someone submits work
+        caption: Priya submits a promotion request for **EB-10021**. Its workflow starts.
+        show: [submit]
+        highlight: [submit]
+      - title: The activity names a role
+        caption: The review activity doesn't name Leo. It says **Reviewer**.
+        show: [submit, wfact]
+        highlight: [wfact]
+        flow: [submit>wfact]
+      - title: Windchill asks the process team
+        caption: The process team was built from the **team template** when the process started.
+        show: [submit, wfact, proc-team]
+        highlight: [proc-team]
+        flow: [wfact>proc-team]
+      - title: The role resolves against the context team
+        caption: Reviewer has no fixed person in the template, so Windchill reads the **E-Bike E1** team. Reviewer = ACME-Quality.
+        show: [submit, wfact, proc-team, ctx-team]
+        highlight: [ctx-team]
+        flow: [proc-team>ctx-team]
+      - title: Groups expand to people
+        caption: ACME-Quality has three members, including Leo.
+        show: [submit, wfact, proc-team, ctx-team, group]
+        highlight: [group]
+        flow: [ctx-team>group]
+      - title: The task lands
+        caption: Leo (and his teammates) see **Review EB-10021** in their work lists. Resolution happens **when the task is created** - remember that.
+        highlight: [worklist]
+        flow: [group>worklist]
+        seconds: 8
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      A missing task is invisible. Nobody gets an error - the part just sits in review while the
+      launch date slips. Admins who can trace role resolution quickly are the ones engineering teams
+      trust.
+
+  - type: comparison
+    title: Three things roles drive - and what they don't
+    columns: [Tasks, Access, Notifications]
+    rows:
+      - label: Uses the role to...
+        cells: ["Decide who gets a work item", "Decide what you may read or change", "Decide who gets an email"]
+      - label: Resolved when
+        cells: ["When the task is created", "Every time you open or act on an object", "When the event happens"]
+      - label: Change the team and...
+        cells: ["Open tasks usually keep their old assignees", "Takes effect right away", "Next event uses the new team"]
+      - label: Does NOT give you
+        cells: ["Permission to edit everything", "A task in your list", "Access to the object it mentions"]
+    takeaway: Access is not assignment. Fix the right mechanism.
+
+  - type: simulation
+    title: Get Leo his review task
+    intro: |
+      Priya's promotion request for **EB-10021** is in review, but the review task went to nobody.
+      Leo is a quality engineer, but he is not yet in the group **ACME-Quality**, and E-Bike E1's
+      **Reviewer** role is empty. Try things in any order. Some "fixes" don't fix anything.
+    headline: "EB-10021 review task → {task} · Reviewer role: {role} · Leo in ACME-Quality: {leoInGroup} · Leo's access: {access}"
+    initial: { task: Unassigned, role: empty, leoInGroup: false, access: Read }
+    actions:
+      - id: grant
+        label: Give Leo full access to E-Bike E1 parts
+        when: { access: Read }
+        do: [{ set: { access: Full } }]
+        log: "Leo can now edit EB-10021. His work list is still empty: access is not assignment. Task → {task}."
+        blockedHint: Leo already has full access.
+      - id: revoke
+        label: Put Leo's access back to Read
+        when: { access: Full }
+        do: [{ set: { access: Read } }]
+        log: Access reset to Read. Good hygiene - extra rights nobody needs are an audit finding.
+        blockedHint: Leo only has Read access already.
+      - id: fill-role
+        label: Add ACME-Quality to the Reviewer role
+        when: { role: empty }
+        do: [{ set: { role: ACME-Quality } }]
+        log: "E-Bike E1 team: Reviewer = ACME-Quality. But the open task was resolved when it was created - it still says {task}."
+        blockedHint: The Reviewer role is already filled.
+      - id: empty-role
+        label: Remove ACME-Quality from the Reviewer role
+        when: { role: ACME-Quality }
+        do: [{ set: { role: empty } }]
+        log: Reviewer is empty again. Future review tasks would go to nobody.
+        blockedHint: The Reviewer role is already empty.
+      - id: add-leo
+        label: Add Leo to ACME-Quality
+        when: { leoInGroup: false }
+        do: [{ set: { leoInGroup: true } }]
+        log: Leo is now in ACME-Quality. Every context where that group holds a role now includes him.
+        blockedHint: Leo is already in the group.
+      - id: remove-leo
+        label: Remove Leo from ACME-Quality
+        when: { leoInGroup: true }
+        do: [{ set: { leoInGroup: false } }]
+        log: Leo left ACME-Quality.
+        blockedHint: Leo isn't in the group.
+      - id: reassign
+        label: Reassign the open task to the Reviewer role
+        when: { role: ACME-Quality, leoInGroup: true, task: Unassigned }
+        do: [{ set: { task: Leo and ACME-Quality } }]
+        log: The task was re-resolved against the fixed team. Leo sees "Review EB-10021" in his work list.
+        blockedHint: "Reassigning only helps once the Reviewer role is filled and Leo is in the group that fills it. Otherwise the task resolves to nobody again (or not to Leo)."
+      - id: reset
+        label: Reset the scenario
+        when: { task: Leo and ACME-Quality }
+        do: [{ set: { task: Unassigned, role: empty, leoInGroup: false, access: Read } }]
+        log: Back to the start. Try it in a different order.
+        blockedHint: Finish the fix first.
+    goals:
+      - label: Prove that access is not assignment
+        when: { access: Full, task: Unassigned }
+        message: Full access, still no task. Tasks come from roles, not permissions.
+      - label: Leo receives the review task
+        when: { task: Leo and ACME-Quality }
+        message: Fill the role, put the person in the group, then re-resolve the open task.
+
+  - type: walkthrough
+    title: Diagnose a missing task assignment
+    who: Business admin (Jordan) or the context's manager
+    steps:
+      - title: Find the process and the activity
+        where: ["<object> information page", Processes or Routing History]
+        md: Open the object (EB-10021) and find its running process. Note the activity that should have reached the person and **which role** it is assigned to.
+      - title: Check the role in the context team
+        where: [Products, E-Bike E1, Team]
+        md: Is that exact role in the team, and is it filled? Watch for near-miss names such as *Reviewers*.
+      - title: Check the person is in the participant
+        where: [Organization or Site, Utilities, Participant Administration]
+        md: If the role is filled by a group, confirm the person is a member (and that their account is active). Groups from the company directory may sync on a schedule.
+      - title: Check the process team
+        where: ["<process>", Team]
+        md: If the team template gives the role a fixed participant, that wins over the context team for this process.
+      - title: Fix and re-resolve
+        where: ["<task or process>", Reassign / Update Team]
+        md: |
+          After fixing the team, reassign the open work item or refresh the process team, depending on
+          what your release and permissions offer. New processes pick up the fix automatically.
+    result: The person sees the task in their work list, and the next process for that role resolves correctly without help.
+
+  - type: scenario
+    variant: troubleshooting
+    title: '"Sam never got the field-return review"'
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Sam (field service) should review every change that affects spare parts for E-Bike E1. A
+          change for EB-10021 finished yesterday without Sam ever seeing it. Maya is not happy. What
+          do you check first?
+        choices:
+          - label: "Which role the review activity is assigned to, and who fills it in the E-Bike E1 team"
+            next: s2
+            good: true
+            feedback: Start from the process and the role. That's the chain the task followed.
+          - label: "Give Sam full control of E-Bike E1 so it can't happen again"
+            next: f-access
+            feedback: Access doesn't create tasks.
+          - label: "Ask Rosa to restart the server"
+            next: f-restart
+            feedback: Nothing here suggests a server problem.
+      - id: s2
+        md: |
+          The activity is assigned to **Service Reviewer**. In the E-Bike E1 team that role exists...
+          and is empty. In Scooter S2 it's filled with the group *ACME-Service*. What's your fix?
+        choices:
+          - label: "Add ACME-Service to Service Reviewer in the E-Bike E1 team"
+            next: s3
+            good: true
+            feedback: Same group as the scooter product - consistent and easy to maintain.
+          - label: "Add Sam personally to the role"
+            next: s3-person
+            feedback: It works today. What happens when Sam is on holiday?
+      - id: s3-person
+        md: |
+          It works - until Sam's two-week holiday, when nobody else gets service reviews. Want to
+          switch to the group?
+        choices:
+          - label: "Yes - use ACME-Service instead"
+            next: s3
+            good: true
+            feedback: Groups give you cover for holidays and turnover.
+      - id: s3
+        md: |
+          The role is filled. Maya asks: "Will Sam now get the review for the change that already
+          finished yesterday?"
+        choices:
+          - label: "No - finished and existing tasks were resolved earlier. New processes will reach Sam."
+            next: s4
+            good: true
+            feedback: Right. Role resolution happens when the task is created.
+          - label: "Yes - all tasks update instantly"
+            next: f-instant
+            feedback: Team changes don't rewrite history.
+      - id: s4
+        md: |
+          Last step: how do you stop this recurring when Acme launches its next product?
+        choices:
+          - label: "Add the role and its default group to the product template or shared team used for new products"
+            next: win
+            good: true
+            feedback: Fix the source, not just the symptom.
+          - label: "Remember to check it manually next time"
+            next: partial
+            feedback: Memory is not a control.
+      - id: win
+        md: Sam is in the loop for E-Bike E1, and the next product starts with the role pre-filled. Maya adds "role check" to the launch checklist. **Fixed at the root.**
+        outcome: success
+      - id: partial
+        md: It works for E-Bike E1, but the next product launch will have the same empty role. **Partly fixed.**
+        outcome: partial
+      - id: f-access
+        md: Sam can now edit everything in E-Bike E1 - and still gets no tasks. You've added an audit finding and solved nothing.
+        outcome: fail
+      - id: f-restart
+        md: The restart interrupts 200 users. The role is still empty. Nothing changes.
+        outcome: fail
+      - id: f-instant
+        md: Maya waits for a task that never comes. Existing and completed work keep their original assignees.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    title: Fixing the team and expecting old tasks to move
+    md: |
+      Adding someone to a role affects **new** tasks and access right away. Tasks that already exist
+      were resolved when they were created. Either reassign them or let the process owner do it -
+      otherwise people wait for work that never arrives.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      When a ticket says "I can't see it" ask **"can't open it, or don't have the task?"** Can't open
+      → access rules. No task → roles and teams. One question halves your search.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Leo has full control of EB-10021 but no review task. What's the most likely reason?
+        options:
+          - "He isn't in the role (or the group filling the role) the review activity is assigned to"
+          - "His access is too low"
+          - "The part is in the wrong folder"
+          - "Tasks only go to administrators"
+        answer: 0
+        explanation: Tasks come from role resolution, not from permissions. Full control doesn't put work in your list.
+      - kind: truefalse
+        prompt: Adding Leo to the Reviewer role automatically moves review tasks that were already created to him.
+        answer: false
+        explanation: Roles are resolved when a task is created. Existing tasks keep their assignees until someone reassigns them.
+      - kind: order
+        prompt: Put Jordan's diagnosis steps in a sensible order.
+        items:
+          - Find the activity and the role it is assigned to
+          - Check the role is filled in the context team
+          - Check the person is in the group filling the role
+          - Fix the team or group
+          - Reassign the open task
+        explanation: Follow the chain the task took - activity, role, team, group - then fix and re-resolve.
+      - kind: multi
+        prompt: Which of these can a role drive? (Choose all that apply.)
+        options: [Workflow task assignment, Access permissions in a context, Notifications, The part's revision letter]
+        answers: [0, 1, 2]
+        explanation: Roles drive tasks, access and notifications. Revision letters come from the revision scheme.
+
+  - type: summary
+    points:
+      - Roles drive three separate things - tasks, access and notifications.
+      - Access is not assignment - permissions never put a task in a work list.
+      - Tasks resolve roles when they are created. Fixing the team helps new tasks; reassign old ones.
+      - Trace activity → role → team → group → person, then fix the source.

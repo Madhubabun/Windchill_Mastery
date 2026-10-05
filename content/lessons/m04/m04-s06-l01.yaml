@@ -1,0 +1,380 @@
+id: m04-s06-l01
+subtitle: In Module 3 you rode the rails. Now you lay them - states, transitions and who may do what in each phase.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, lifecycle, states, transitions, phases]
+
+blocks:
+  - type: text
+    md: |
+      In Module 3 you promoted parts and watched them move from *In Work* to *Released*. That path
+      didn't appear by magic. Someone drew it: which stops exist, which moves are allowed between them,
+      and who may touch the object at each stop.
+
+      At Acme Mobility that someone is **Jordan**. The new **E-Bike E1** division wants its own rails
+      for the new **E-Bike Part** subtype. Kai's wish list, scribbled on a sticky note:
+
+      - parts start **In Work**, where designers edit freely
+      - a quick **Under Review** stop where nobody changes them while Leo from Quality looks
+      - **Released** for the factory, and **Obsolete** when a part is retired
+      - a new revision (EB-10021 A → B) must start again in **In Work**
+
+      Today you turn that sticky note into a **life cycle template**.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the map of stops and allowed moves" → life cycle template (see [[life-cycle]])
+      - "one stop on the map" → [[lifecycle-state]], configured as a [[phase]]
+      - "an allowed move between stops" → [[transition]] (Promote, Demote, Revise...)
+      - "who may do what at this stop" → the phase's role-based access
+      - "start the next big edition" → [[revise]]
+
+  - type: diagram
+    title: The E-Bike Part life cycle Jordan will build
+    caption: Each box is a phase. Each arrow is a transition. Click a box to see what Jordan configures there.
+    diagram:
+      width: 820
+      height: 380
+      groups:
+        - { label: Editable, x: 20, y: 90, w: 210, h: 120, tone: accent }
+        - { label: Frozen, x: 270, y: 90, w: 530, h: 120, tone: neutral }
+      nodes:
+        - id: inwork
+          label: In Work
+          sublabel: phase 1
+          x: 45
+          y: 125
+          w: 160
+          tone: accent
+          shape: pill
+          detail: |
+            The first phase. Every new E-Bike Part lands here. Jordan gives the **Designer** role
+            modify rights in this phase, so Priya can check out and edit.
+          real: Most companies keep the first state wide open for the design team and lock everything later.
+        - id: review
+          label: Under Review
+          sublabel: phase 2
+          x: 295
+          y: 125
+          w: 160
+          tone: warning
+          shape: pill
+          detail: |
+            A frozen stop. Designers keep **read** but lose modify, so nobody edits the part while
+            Leo reviews it. The **Reviewer** role gets read access here.
+        - id: released
+          label: Released
+          sublabel: phase 3
+          x: 470
+          y: 125
+          w: 150
+          tone: success
+          shape: pill
+          detail: |
+            What the factory builds. Ana's manufacturing group gets read access. Nobody gets modify -
+            to change a released part you [[revise]] it instead.
+        - id: obsolete
+          label: Obsolete
+          sublabel: phase 4
+          x: 635
+          y: 125
+          w: 150
+          tone: neutral
+          shape: pill
+          detail: |
+            Retired. Still searchable for service (Sam needs old parts), but flagged so nobody designs
+            it into a new e-bike.
+        - id: rev
+          label: Revise
+          sublabel: new revision starts here
+          x: 295
+          y: 280
+          w: 220
+          tone: info
+          detail: |
+            The **Revise** [[transition]] says which state the new revision starts in. Jordan sets
+            Released → In Work, so EB-10021 B.1 starts editable again while A stays Released.
+      edges:
+        - { from: inwork, to: review, label: Promote }
+        - { from: review, to: released, label: Promote }
+        - { from: review, to: inwork, label: Demote, dashed: true }
+        - { from: released, to: obsolete, label: Promote }
+        - { from: released, to: rev, dashed: true }
+        - { from: rev, to: inwork, label: Revise }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      The life cycle is where **access, process and compliance meet**. Auditors ask "could anyone
+      change a released part?" - the honest answer lives in the phase access settings. Change boards
+      rely on "Released means frozen". Get the template right and the whole company gets those
+      guarantees for free on every single part.
+
+  - type: comparison
+    title: Basic or advanced life cycle?
+    columns: [Basic life cycle, Advanced life cycle]
+    rows:
+      - label: What it has
+        cells: ["States, transitions and per-phase access", "All of that plus a workflow per phase and gate workflows between phases"]
+      - label: Who drives the moves
+        cells: ["Promotion requests, change processes and Set State", "The phase workflows themselves, plus the same actions"]
+      - label: Typical use
+        cells: ["Parts, documents and CAD that change through change management", "Objects that run their own process, such as change objects and promotion requests"]
+      - label: Effort to maintain
+        cells: [Low, "Higher - every phase workflow is another template to test"]
+    takeaway: For E-Bike Parts Jordan picks Basic. The review happens in a promotion request or change process, not inside the part's own life cycle.
+
+  - type: walkthrough
+    title: Create the E-Bike Part life cycle template
+    who: A business administrator of the organization (or site)
+    where: [Organization, Utilities, Life Cycle Template Administration]
+    steps:
+      - title: Open the life cycle utility
+        where: [Organization, "Acme Mobility", Utilities, Life Cycle Template Administration]
+        md: |
+          Jordan creates the template at **organization** level so any Acme product could reuse it.
+          A template created inside one product is only available to that product.
+      - title: Start a new template
+        where: [Life Cycle Template Administration, New]
+        md: |
+          Choose **New**. Give it a clear name - `E-Bike Part Life Cycle` - and a description.
+          Pick the object class it applies to (Part) and leave **Basic** selected. Make sure it is
+          **enabled**, or nobody can use it.
+      - title: Add the phases in order
+        where: [Template editor, Phases]
+        md: |
+          Add a phase for each state: **In Work**, **Under Review**, **Released**, **Obsolete**. The
+          state names come from Windchill's list of life cycle states. If a state you need is
+          missing (say *Under Review*), it must be added to that list first - see the version note.
+      - title: Define the transitions
+        where: [Template editor, Transitions]
+        md: |
+          For each phase, set where each transition leads. **Promote**: In Work → Under Review →
+          Released → Obsolete. **Demote**: Under Review → In Work. **Revise**: Released → In Work.
+          A move you don't define simply isn't offered to users.
+      - title: Set phase roles and access
+        where: [Template editor, "<phase>", Access Control]
+        md: |
+          Select each phase and grant access to **roles**, not named people: Designer gets modify in
+          In Work only, Reviewer gets read in Under Review, everyone on the team gets read in Released.
+          The real people behind each role come from the context team.
+      - title: Save and check in
+        where: [Template editor, Save]
+        md: |
+          Save the template. Life cycle templates are versioned objects: each saved edit becomes a
+          new iteration, so the history of the rules is kept.
+    result: |
+      `E-Bike Part Life Cycle` appears in the template list as enabled. It does nothing yet - the
+      object initialization rule in lesson 4 tells Windchill to give it to every new E-Bike Part.
+
+  - type: callout
+    variant: version-note
+    versions: ["Older releases", "Newer releases"]
+    md: |
+      Where the **list of life cycle states** is maintained differs by release. In older releases
+      the system administrator adds states in a resource file and restarts the server. In newer
+      releases they are managed as a list in Type and Attribute Management. The phase editor and
+      the tab names (Access Control, Transitions, Workflow) also look slightly different between
+      releases. On Windchill+ some site-level changes may need PTC support.
+
+  - type: text
+    md: |
+      ### Editing a life cycle that is already live
+
+      Six weeks later Kai asks for one more state: **Rework**, for parts bounced back by Quality.
+      Jordan edits the template. What happens to the 300 E-Bike Parts that already exist?
+
+  - type: animation
+    title: What changes when you edit a live template
+    diagram:
+      width: 820
+      height: 330
+      nodes:
+        - { id: it1, label: Template it. 1, sublabel: 4 phases, x: 40, y: 40, w: 170, tone: primary }
+        - { id: it2, label: Template it. 2, sublabel: + Rework phase, x: 40, y: 230, w: 170, tone: accent }
+        - { id: oldpart, label: EB-10021, sublabel: created in May, x: 330, y: 40, w: 160, tone: neutral, shape: doc }
+        - { id: newpart, label: EB-10140, sublabel: created today, x: 330, y: 230, w: 160, tone: success, shape: doc }
+        - { id: reassign, label: Reassign life cycle, sublabel: admin action, x: 600, y: 135, w: 190, tone: warning }
+      edges:
+        - { from: it1, to: it2, label: Jordan edits }
+        - { from: oldpart, to: it1, label: still uses }
+        - { from: newpart, to: it2, label: uses }
+        - { from: reassign, to: oldpart, label: moves it, dashed: true }
+    chapters:
+      - title: Iteration 1 is in use
+        caption: Every E-Bike Part created so far points at **iteration 1** of the template.
+        show: [it1, oldpart]
+        highlight: [it1]
+        flow: [oldpart>it1]
+      - title: Jordan saves an edit
+        caption: Adding the Rework phase creates **iteration 2**. The old iteration is kept.
+        show: [it1, it2, oldpart]
+        highlight: [it2]
+        flow: [it1>it2]
+      - title: New objects get the new rules
+        caption: Parts created **after** the edit start on iteration 2 and can use Rework.
+        show: [it1, it2, oldpart, newpart]
+        highlight: [newpart]
+        flow: [newpart>it2]
+      - title: Existing objects keep the old rules
+        caption: EB-10021 still follows iteration 1 - **no Rework state for it**. Nothing broke, but nothing changed either.
+        show: [it1, it2, oldpart, newpart]
+        highlight: [oldpart]
+        flow: [oldpart>it1]
+      - title: Moving old objects on purpose
+        caption: To move existing objects to the new rules, an admin **reassigns** their life cycle - deliberately, in batches, after testing.
+        highlight: [reassign]
+        flow: [reassign>oldpart]
+        seconds: 8
+
+  - type: simulation
+    title: Build it, use it, change it
+    intro: |
+      Build the E-Bike Part life cycle, check it in, create a test part, then edit the live template.
+      Watch which iteration the test part follows.
+    headline: "Template it. {iteration} · {status} · EB-10021 follows it. {partOn}"
+    initial: { status: Draft, iteration: 0, inWork: false, underReview: false, released: false, promote: false, revise: false, roles: false, rework: false, partOn: none }
+    actions:
+      - id: add-inwork
+        label: Add phase In Work
+        when: { inWork: false }
+        do: [{ set: { inWork: true } }]
+        log: In Work added as the first phase. Every new part will start here.
+      - id: add-review
+        label: Add phase Under Review
+        when: { inWork: true, underReview: false }
+        do: [{ set: { underReview: true } }]
+        log: Under Review added as phase 2.
+        blockedHint: Add In Work first - phases are listed in order.
+      - id: add-released
+        label: Add phase Released (+ Obsolete)
+        when: { underReview: true, released: false }
+        do: [{ set: { released: true } }]
+        log: Released and Obsolete added. The phases are in place.
+        blockedHint: Add Under Review first.
+      - id: transitions
+        label: Define Promote and Demote
+        when: { released: true, promote: false }
+        do: [{ set: { promote: true } }]
+        log: Promote runs In Work → Under Review → Released → Obsolete. Demote sends Under Review back to In Work.
+        blockedHint: Transitions connect phases - add all the phases first.
+      - id: revise
+        label: Define Revise → In Work
+        when: { released: true, revise: false }
+        do: [{ set: { revise: true } }]
+        log: A new revision of a Released part will start In Work.
+        blockedHint: Add the Released phase first.
+      - id: roles
+        label: Set phase access by role
+        when: { underReview: true, roles: false }
+        do: [{ set: { roles: true } }]
+        log: Designer can modify only In Work. Reviewer and team get read later on. Roles, not names.
+        blockedHint: Add at least In Work and Under Review first.
+      - id: checkin
+        label: Save and check in
+        when: { promote: true, revise: true, roles: true, status: [Draft, Checked out] }
+        do: [{ inc: iteration }, { set: { status: Checked in } }]
+        log: Template checked in as iteration {iteration}. Parts created from now on use it.
+        blockedHint: Finish phases, transitions, Revise and phase access first - and the template must not already be checked in.
+      - id: create-part
+        label: Create test part EB-10021
+        when: { status: Checked in, iteration: 1, partOn: none }
+        do: [{ set: { partOn: "1" } }]
+        log: EB-10021 created In Work on template iteration 1.
+        blockedHint: Check in iteration 1 first. (Already created? Use Start over to try again.)
+      - id: checkout
+        label: Edit the live template
+        when: { status: Checked in, partOn: ["1", "2"] }
+        do: [{ set: { status: Checked out } }]
+        log: Template checked out for editing. Running objects are not affected while you edit.
+        blockedHint: Create the test part first, so you can see the effect of an edit.
+      - id: add-rework
+        label: Add phase Rework
+        when: { status: Checked out, rework: false }
+        do: [{ set: { rework: true } }]
+        log: Rework phase added between Under Review and In Work.
+        blockedHint: Check the template out first.
+      - id: reassign
+        label: Reassign EB-10021 to the latest iteration
+        when: { status: Checked in, rework: true, partOn: "1" }
+        do: [{ set: { partOn: "2" } }]
+        log: EB-10021 now follows iteration 2 and can use Rework. You did this on purpose - that's the point.
+        blockedHint: Add Rework and check in iteration 2 first.
+      - id: reset
+        label: Start over
+        do: [{ set: { status: Draft, iteration: 0, inWork: false, underReview: false, released: false, promote: false, revise: false, roles: false, rework: false, partOn: none } }]
+        log: Blank template. Build it again.
+    goals:
+      - label: Check in a complete iteration 1
+        when: { iteration: 1, status: Checked in }
+        message: A usable template needs phases, transitions and phase access.
+      - label: Check in a template with Rework while EB-10021 stays on iteration 1
+        when: { rework: true, status: Checked in, partOn: "1" }
+        message: Existing objects keep the iteration they started with. Edits are not retroactive.
+      - label: Move EB-10021 to the new rules on purpose
+        when: { partOn: "2" }
+        message: Reassigning is a deliberate admin step - test first, then move objects in batches.
+
+  - type: example
+    variant: case-study
+    title: The state that vanished
+    industry: Micromobility
+    md: |
+      Before Jordan joined, an admin "tidied up" the scooter life cycle by removing a little-used
+      **Prototype** state. Thirty Scooter S2 parts were sitting in Prototype at the time. They didn't
+      disappear, but they were now in a state the latest template didn't know, and the next
+      reassignment attempt failed with confusing errors.
+
+      Jordan's rule since then: **never remove or rename a state that objects are in**. Add the new
+      state, move objects out of the old one, and only then retire it - after a test run on a copy of
+      the data.
+    takeaway: Treat a live life cycle like a public road - add lanes freely, close them only after the traffic has moved.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Granting access to named users in a phase.** It works on day one and rots by month three,
+      when Priya moves to the scooter team. Always grant phase access to **roles** and let the
+      context team say who plays each role.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Sketch the states and arrows on a whiteboard with Kai, Maya and Leo **before** opening the
+      editor - the meeting is the hard part. Then build and test the template in a test system or a
+      sandbox product, and promote one dummy part through every transition before go-live.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Kai wants EB-10021 revision B to start editable even though A is Released. Which setting does Jordan change?
+        options: [The Promote transition from Released, The Revise transition from Released, The access rules of the Released phase, The name of the In Work state]
+        answer: 1
+        explanation: The Revise transition says which state a new revision starts in. Released → In Work gives B.1 an editable start while A stays Released.
+      - kind: truefalse
+        prompt: When Jordan saves an edit to a live life cycle template, all existing E-Bike Parts immediately follow the new rules.
+        answer: false
+        explanation: Saving creates a new iteration. New objects use it; existing objects keep the iteration they started with until an admin reassigns them on purpose.
+      - kind: multi
+        prompt: Which of these does Jordan configure inside the life cycle template? (Choose all that apply.)
+        options: [The phases and their order, The Promote and Revise transitions, Phase access for roles such as Designer, Which real people are Designers on E-Bike E1]
+        answers: [0, 1, 2]
+        explanation: The template defines phases, transitions and role-based phase access. Who plays each role comes from the context team, not the template.
+      - kind: single
+        prompt: Leo finds 30 parts sitting in a state Jordan wants to retire. What is the safe order?
+        options:
+          - "Delete the state from the template, then fix the parts"
+          - "Add the replacement state, move the parts out, then retire the old state"
+          - "Rename the state so the parts follow automatically"
+        answer: 1
+        explanation: Never remove or rename a state that objects are in. Add the new one, move the parts out deliberately, then retire the old state.
+
+  - type: summary
+    points:
+      - A life cycle template is a map of phases (states) and transitions (allowed moves).
+      - Each phase grants access to roles - the context team decides who plays each role.
+      - Basic life cycles fit parts and documents. Advanced ones add phase and gate workflows.
+      - Edits create a new iteration. Existing objects keep their iteration until you reassign them.
+      - Never remove or rename a state that objects are sitting in.

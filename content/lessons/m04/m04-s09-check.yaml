@@ -1,0 +1,96 @@
+id: m04-s09-check
+subtitle: Can you design a tree people will use - and find a part in it?
+version: 1.0.0
+updated: "2026-10-05"
+tags: [classification, reuse, checkpoint]
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **part classification**: why it drives reuse, how to design a classification
+      tree, how to classify a part and how to find a reusable part with classification search. Score
+      80% to pass.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: What's the main business reason Acme introduces part classification?
+        options: [To make parts look tidy, To make reuse easier and stop duplicate parts, To replace part numbers, To control who can edit parts]
+        answer: 1
+        explanation: Every duplicate part costs money to qualify, buy, stock and service. Classification makes the existing part easy to find.
+      - kind: single
+        prompt: Which classification tree design is best for Acme's first version?
+        options:
+          - "One node per team: Kai's team, Priya's team..."
+          - "One node per supplier: Voltra Cells, Hexa Tooling..."
+          - "By what parts are: Mechanical → Fasteners → Machine screws"
+          - "Eight levels deep so every part has its own node"
+        answer: 2
+        explanation: Teams, suppliers and products change; what a part is doesn't. Keep it shallow - three or four levels.
+      - kind: truefalse
+        prompt: An attribute defined on the Fasteners node is inherited by the Machine screws and Nuts nodes below it.
+        answer: true
+        explanation: Attributes flow down the tree, which is why the upper nodes should carry only attributes that apply to everything below them.
+      - kind: single
+        prompt: Jordan wants classification to drive findability, and a part type to drive numbering and life cycle. Which statement fits?
+        options:
+          - Create a subtype for every kind of screw
+          - Types decide rules; classification decides how parts are found
+          - Classification replaces part types
+          - Types and classification are the same thing
+        answer: 1
+        explanation: A few types carry business rules; a larger classification tree describes what parts physically are.
+      - kind: multi
+        prompt: Which make good classification attributes for the Machine screws node? (Choose all that apply.)
+        options: [Thread size from a list, Length in mm, Designer's favourite colour, "Free-text notes on how it was tested"]
+        answers: [0, 1]
+        explanation: Good attributes are things people search or compare on, with constrained values and units. Notes belong in documents.
+      - kind: single
+        prompt: Kai classifies EB-10021 (36 V Li-ion pack). Which node should he pick?
+        options: [Electrical, Battery packs, Li-ion packs, Acme Parts]
+        answer: 2
+        explanation: Pick the most specific leaf that fits. The part still shows up in searches on Battery packs and Electrical.
+      - kind: truefalse
+        prompt: Changing a part's classification values is an edit to the part, so it follows the normal check-out and check-in rules.
+        answer: true
+        explanation: Classification values are attributes of the part, so editing them creates a new iteration like any other edit.
+      - kind: order
+        prompt: Order Priya's steps to reuse a battery pack.
+        items: [Open classification search, Walk to Battery packs, Filter 36 V and at least 14 Ah, Check state and where-used, Insert it into her structure]
+        explanation: Tree, filters, sanity checks, then reuse.
+      - kind: single
+        prompt: Sam's filtered search misses a pack that is classified in the right node. Most likely cause?
+        options: [The filtered attribute is blank on that part, The node is too specific, Searches never include sub-nodes, The part is in a library]
+        answer: 0
+        explanation: Filters skip blank values. Making key attributes required on the node fixes this for new parts.
+      - kind: single
+        prompt: Priya's search returns EB-10021 (Released) and EB-10088 (In Work). Both match. What should she do?
+        options: [Reuse EB-10021, Reuse EB-10088, Create a new part to be safe, Reuse both]
+        answer: 0
+        explanation: Prefer released parts - they are approved and stable. A prototype can still change or be dropped.
+
+  - type: flashcards
+    title: Part classification deck
+    cards:
+      - front: Classification
+        back: Putting a part into a node of a shared tree of part kinds, giving it standard attributes.
+      - front: Classification structure
+        back: The company-wide tree of nodes, maintained centrally (organization or site level).
+      - front: Classification node
+        back: A branch or leaf of the tree. Leaves usually carry the parts; upper nodes group.
+      - front: Classification attribute
+        back: A constrained property of one kind of part, e.g. Thread size for screws.
+      - front: Inheritance
+        back: Attributes defined on a node apply to every node below it.
+      - front: Classification search
+        back: Pick a node (includes nodes below), then filter by attribute values.
+      - front: Part reuse
+        back: Using an existing, ideally released, part instead of creating a near-duplicate.
+      - front: Type vs classification
+        back: Type drives rules (numbering, life cycle, access); classification drives findability.
+      - front: Blank attributes
+        back: Invisible to filtered searches. Make the important ones required.
+      - front: Good first tree
+        back: By what parts are, 3-4 levels deep, 3-6 searchable attributes per leaf.

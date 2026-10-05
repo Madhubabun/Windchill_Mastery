@@ -1,0 +1,251 @@
+id: m04-s02-l01
+subtitle: Site, organization, product, library, project - one family tree, and settings flow down it like water.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, contexts, inheritance, site, organization]
+
+blocks:
+  - type: text
+    md: |
+      In Module 1 you learned that every object lives in a [[context]]. Now you're on the admin side, and the
+      big idea changes: contexts aren't just *addresses*, they're **layers of settings**.
+
+      Think of a block of flats. The building has rules for everyone (no fireworks). Each floor can add its own
+      (quiet after 10 pm on floor 3). Each flat decides the rest. Windchill works the same way:
+
+      - The [[site]] is the building.
+      - The [[organization-context|organization]] is a floor - Acme Mobility's floor.
+      - **Products, libraries and projects** are the flats.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the whole building - settings for everyone" → [[site]]
+      - "your company's floor" → [[organization-context]]
+      - "one product line's flat" → [[product-context|product]]
+      - "the shared storeroom of reusable parts" → [[library]]
+      - "a temporary space for a piece of work" → [[project-context|project]]
+      - "products, libraries and projects together" → *application contexts*
+
+  - type: diagram
+    title: Acme's context family tree
+    caption: Settings defined higher up reach everything below. Click each level.
+    diagram:
+      width: 820
+      height: 400
+      groups:
+        - { label: Application contexts, x: 20, y: 220, w: 780, h: 160, tone: neutral }
+      nodes:
+        - id: site
+          label: Site
+          sublabel: the whole server
+          x: 320
+          y: 20
+          w: 180
+          tone: neutral
+          detail: |
+            The [[site]]. Settings here reach **every** organization and context: base types and attributes,
+            default life cycles and workflows, server-wide preferences, baseline access rules. Changed rarely, by
+            site administrators, with care.
+          real: On Windchill+ many site-level settings are managed by PTC or reserved; customers do most configuration at organization level.
+        - id: org
+          label: Acme Mobility
+          sublabel: organization
+          x: 320
+          y: 120
+          w: 180
+          tone: primary
+          detail: |
+            The [[organization-context]]. Jordan's main workbench: Acme's access policies, numbering rules,
+            subtypes, context templates and shared teams. Everything Acme creates inherits from here.
+          real: Most companies have exactly one organization context. Hosting several companies on one server is the main reason for more.
+        - id: s2
+          label: Scooter S2
+          sublabel: product
+          x: 40
+          y: 260
+          w: 170
+          tone: accent
+          detail: A product inherits Acme's settings and can add its own - for example its own team and a rule that numbers parts SC-.
+        - id: e1
+          label: E-Bike E1
+          sublabel: product (new)
+          x: 230
+          y: 260
+          w: 170
+          tone: accent
+          detail: The new e-bike product. It overrides numbering so its parts start with EB-, and keeps everything else from Acme.
+        - id: lib
+          label: Acme Standard Parts
+          sublabel: library
+          x: 420
+          y: 260
+          w: 190
+          tone: success
+          detail: |
+            A [[library]] of reusable items - screws, bearings, connectors. Same inheritance as a product, but its
+            purpose is reuse, so it usually has a wider read audience and a smaller author team.
+        - id: proj
+          label: Voltra Cell Dev
+          sublabel: project
+          x: 630
+          y: 260
+          w: 160
+          tone: info
+          detail: |
+            A [[project-context|project]] for joint battery-cell work with Voltra Cells. Time-bound, invite-only,
+            archived when the work is done. Projects are used with [[projectlink]].
+      edges:
+        - { from: site, to: org, label: inherits }
+        - { from: org, to: s2 }
+        - { from: org, to: e1 }
+        - { from: org, to: lib }
+        - { from: org, to: proj }
+        - { from: e1, to: lib, label: uses parts, dashed: true }
+
+  - type: text
+    md: |
+      **What flows down the tree?** Almost every business admin setting has a "home" level:
+
+      | Setting | Typical home | How lower levels interact |
+      | --- | --- | --- |
+      | Types and attributes | Site or organization | Visible to everyone below |
+      | Life cycle and workflow templates | Site or organization | Visible below; a context can add its own |
+      | Numbering and other initialization rules | Organization | A product can override for its own data |
+      | Preferences | Site or organization | Overridable below - **unless locked** higher up |
+      | Access rules | Organization and context | Rules **add up** from every level above |
+
+      Two patterns to remember: **"nearest wins"** for things like numbering rules and preferences, and
+      **"everything adds up"** for access rules. You'll go deep on each in later sections.
+
+  - type: animation
+    title: How Windchill finds the right setting
+    diagram:
+      width: 820
+      height: 340
+      nodes:
+        - { id: site, label: Site, sublabel: "numbering: default", x: 320, y: 20, w: 180, tone: neutral }
+        - { id: org, label: Acme Mobility, sublabel: "numbering: SC-", x: 320, y: 120, w: 180, tone: primary }
+        - { id: s2, label: Scooter S2, sublabel: no own rule, x: 80, y: 230, w: 180, tone: accent }
+        - { id: e1, label: E-Bike E1, sublabel: "numbering: EB-", x: 560, y: 230, w: 180, tone: accent }
+        - { id: lock, label: Locked preference, sublabel: set at site, x: 40, y: 20, w: 180, tone: danger, shape: pill }
+      edges:
+        - { from: s2, to: org, label: look up }
+        - { from: e1, to: org, label: look up }
+        - { from: org, to: site, label: look up }
+        - { from: lock, to: site, dashed: true }
+    chapters:
+      - title: Priya creates a part in E-Bike E1
+        caption: Windchill needs a number. It starts looking in the **nearest** context - E-Bike E1 itself.
+        show: [e1]
+        highlight: [e1]
+        seconds: 5
+      - title: Found it on the first floor
+        caption: E-Bike E1 has its own rule, so the part gets **EB-10022**. Nothing higher up is even consulted. Nearest wins.
+        show: [e1, org, site]
+        highlight: [e1]
+        seconds: 6
+      - title: Kai creates a part in Scooter S2
+        caption: Scooter S2 has no numbering rule of its own...
+        show: [s2, e1, org, site]
+        highlight: [s2]
+        seconds: 5
+      - title: ...so Windchill looks one level up
+        caption: Acme Mobility's rule applies, and the part gets an **SC-** number. The product **inherited** it.
+        show: [s2, e1, org, site]
+        highlight: [org]
+        flow: [s2>org]
+        seconds: 6
+      - title: No rule anywhere? The site default
+        caption: If neither the context nor the organization had a rule, the lookup would continue to the **site** default.
+        show: [s2, e1, org, site]
+        highlight: [site]
+        flow: [s2>org, org>site]
+        seconds: 6
+      - title: Locks stop the override
+        caption: Some settings, such as preferences, can be **locked** at site or organization level. Then lower contexts must use that value - no override allowed.
+        show: [s2, e1, org, site, lock]
+        highlight: [lock]
+        seconds: 7
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Inheritance is how one business admin can run fifty products. Set it once at organization level and every
+      new product gets it for free. Get it wrong at organization level, and you get it wrong fifty times. That's
+      why Jordan always asks **"which level should this live at?"** before changing anything.
+
+  - type: example
+    variant: real-world
+    title: The numbering rule in the wrong place
+    industry: Micromobility
+    md: |
+      When E-Bike E1 started, an eager admin put the EB- numbering rule at **organization** level "to save time".
+      The next morning, new scooter parts were being numbered EB- too. Moving the rule down into the **E-Bike E1
+      product** fixed it: the e-bike got its EB- numbers and Scooter S2 went back to inheriting SC- from Acme.
+    takeaway: Put a setting at the lowest level that covers everyone who needs it - and no higher.
+
+  - type: walkthrough
+    title: Find where a context's settings live
+    who: Business administrator
+    steps:
+      - title: Open the organization's Utilities
+        where: [Navigator, Browse, Organizations, "Acme Mobility", Utilities]
+        md: |
+          Organization-level settings (policies, numbering rules, templates, types, preferences) are reached from
+          the organization's **Utilities** page.
+      - title: Open a product's Utilities
+        where: [Products, "E-Bike E1", Utilities]
+        md: |
+          Each product and library has its own **Utilities** page with the same kinds of tools, scoped to that
+          context. Settings you change here affect only this context.
+      - title: Site level (site admins only)
+        where: [Navigator, Browse, Site, Utilities]
+        md: Site-level utilities affect every organization. On Windchill+ some of them are not available to customers.
+    result: You know the three doors - site, organization and context Utilities - and which one changes how much.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Changing something at site level "because that's where the admin menu is".** A site change reaches every
+      organization and context on the server. Unless you truly mean everyone, work at organization or context level.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      **Keep a "settings map".** A simple table: setting → level it lives at → why. When someone asks "why do e-bike
+      parts get EB- numbers?", the answer is one lookup away - and new admins learn the tree in an hour.
+
+  - type: quiz
+    questions:
+      - kind: order
+        prompt: Order Acme's contexts from the top of the tree down.
+        items: [Site, Acme Mobility organization, E-Bike E1 product]
+        explanation: The site holds organizations, and organizations hold application contexts such as products, libraries and projects.
+      - kind: single
+        prompt: E-Bike E1 has its own numbering rule and Acme Mobility has a different one. Which does a new e-bike part use?
+        options: [The organization's rule, The product's rule, The site default, Whichever was created last]
+        answer: 1
+        explanation: For rules like numbering, the nearest context wins. E-Bike E1's own rule applies to e-bike parts.
+      - kind: truefalse
+        prompt: A preference locked at organization level can still be changed in each product.
+        answer: false
+        explanation: Locking stops lower levels from overriding the value. That's the point of a lock.
+      - kind: single
+        prompt: Acme wants every product, current and future, to use the same access policy for released drawings. Where should Jordan define it?
+        options: [In each product separately, In the Acme Mobility organization, In the Acme Standard Parts library, In a project]
+        answer: 1
+        explanation: Rules at organization level are inherited by every product and library under it, including ones created later.
+      - kind: multi
+        prompt: Which are application contexts? (Choose all that apply.)
+        options: [Scooter S2 product, Acme Standard Parts library, Voltra Cell Dev project, The site]
+        answers: [0, 1, 2]
+        explanation: Products, libraries and projects are application contexts where data lives. The site and organization are the layers above them.
+
+  - type: summary
+    points:
+      - "Site → organization → product, library, project: the context tree."
+      - Settings defined higher up flow down to everything below.
+      - "Nearest wins for numbering and preferences (unless locked); access rules add up."
+      - Put each setting at the lowest level that covers everyone who needs it.

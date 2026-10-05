@@ -1,0 +1,279 @@
+id: m04-s01-l02
+subtitle: Create a user, build a group, and rescue someone who fell out of the address book.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, participants, participant-administration, ldap, troubleshooting]
+
+blocks:
+  - type: text
+    md: |
+      Monday, 9:02. Three tickets land on Jordan's desk:
+
+      1. **Nina** starts today as an e-bike engineer. She needs a login and the right groups.
+      2. Engineering wants a new group, `ACME-Ebike-Core`, for the people who work only on E-Bike E1.
+      3. "Maya's change tasks have vanished since IT reorganised the directory last Friday."
+
+      All three are jobs for **Participant Administration**. The third one is the sneaky classic: a
+      [[disconnected-participant]].
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the admin page for people and groups" → *Participant Administration*
+      - "Windchill's own copy of a person, linked to the address book" → *participant record*
+      - "the address book entry's full address" → *distinguished name (DN)*
+      - "a person Windchill remembers but can't find any more" → [[disconnected-participant]]
+
+  - type: diagram
+    title: Why participants get disconnected
+    caption: Windchill keeps its own record of each participant and remembers where the directory entry lives. Click each box.
+    diagram:
+      width: 800
+      height: 300
+      groups:
+        - { label: Windchill database, x: 20, y: 20, w: 300, h: 260, tone: neutral }
+        - { label: Directory (LDAP), x: 470, y: 20, w: 310, h: 260, tone: neutral }
+      nodes:
+        - id: rec
+          label: Maya's record
+          sublabel: tasks · teams · history
+          x: 60
+          y: 70
+          w: 220
+          tone: primary
+          shape: cylinder
+          detail: |
+            Windchill stores a record for every participant. Workflow tasks, team roles, "Created by" and group
+            memberships all point at **this record**, which in turn remembers the address of Maya's directory entry.
+        - id: pointer
+          label: Remembered address
+          sublabel: "…ou=People,o=Acme"
+          x: 60
+          y: 190
+          w: 220
+          tone: warning
+          detail: The record holds the entry's distinguished name - its full address in the directory tree.
+        - id: old
+          label: Old entry
+          sublabel: ou=People (gone)
+          x: 510
+          y: 70
+          w: 230
+          tone: danger
+          detail: Last Friday IT moved everyone from the `People` branch into department branches. The old address no longer exists.
+        - id: new
+          label: New entry
+          sublabel: ou=Change,o=Acme
+          x: 510
+          y: 190
+          w: 230
+          tone: success
+          detail: Maya's entry still exists - at a new address. Windchill doesn't know that until an admin **reconnects** the record to it.
+      edges:
+        - { from: rec, to: pointer }
+        - { from: pointer, to: old, label: broken link, dashed: true }
+        - { from: pointer, to: new, label: reconnect, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      A disconnected participant isn't just a login problem. Tasks addressed to that person can't be resolved,
+      notifications stop, and workflows quietly stall - a change notice can sit for days waiting for someone who
+      "doesn't exist". Spotting disconnected participants after every directory change is part of a business
+      admin's routine.
+
+  - type: walkthrough
+    title: Create a user
+    who: Organization or site administrator, when Windchill's own directory stores the users
+    where: [Organization, Utilities, Participant Administration]
+    steps:
+      - title: Open Participant Administration
+        where: [Organizations, "Acme Mobility", Utilities, Participant Administration]
+        md: Open the organization's **Utilities** page and launch **Participant Administration**.
+      - title: Start a new user
+        where: [Participant Administration, New User]
+        md: |
+          Choose the action to create a **new user**. If more than one directory is connected, pick the one
+          that Windchill is allowed to write to (usually Windchill's own directory server).
+      - title: Fill in the essentials
+        md: |
+          Enter the **user name** (the login, e.g. `nina.ortiz`), full name, email and **organization**
+          (*Acme Mobility*). Set an initial password if passwords are stored in Windchill's directory.
+      - title: Add her to groups
+        md: |
+          Add Nina to `ACME-Engineering` (and later `ACME-Ebike-Core`). You can do this in the wizard if it offers a
+          groups step, or afterwards from each group's members list.
+    result: |
+      Nina appears in Participant Administration with Acme Mobility as her organization. Because her groups
+      already fill the right team roles, she sees the products she needs at her first login.
+
+  - type: callout
+    variant: note
+    title: When users come from corporate IT
+    md: |
+      Most companies connect a corporate directory such as Active Directory. Then **IT creates the user** there,
+      and the user appears in Windchill automatically (usually at first login or first search). Jordan's job
+      starts at groups and teams. The next lesson covers who owns what.
+
+  - type: walkthrough
+    title: Create a group and add members
+    who: Organization administrator
+    where: [Organization, Utilities, Participant Administration]
+    steps:
+      - title: Start a new group
+        where: [Participant Administration, New Group]
+        md: |
+          Choose the action to create a **new group**. Creating it from the *organization's* Participant
+          Administration makes it an organization-level group owned by Acme.
+      - title: Name and describe it
+        md: |
+          Name: `ACME-Ebike-Core`. Description: "Engineers assigned full-time to E-Bike E1. Owner: Kai." A one-line
+          description saves hours of guessing later.
+      - title: Add members
+        md: |
+          Search for and add users (Nina, Priya) or whole groups. Prefer adding existing groups when the whole
+          group belongs - that's nesting.
+    result: The group exists and can now be used in team roles, access rules and workflow assignments.
+
+  - type: walkthrough
+    title: Find and fix disconnected participants
+    who: Organization or site administrator
+    where: [Utilities, Participant Administration]
+    steps:
+      - title: List the disconnected participants
+        where: [Participant Administration, Disconnected participants]
+        md: |
+          Open the view or search option that lists **disconnected participants** (named *Maintenance* or
+          similar in some releases). Each row is a Windchill record whose directory entry can't be found.
+      - title: Find out why with IT
+        md: |
+          Ask IT what changed: was the person **moved or renamed** (entry still exists) or **removed** (they left)?
+          Don't guess - the right fix depends on the answer.
+      - title: Reconnect moved or renamed people
+        where: [Disconnected participants, Reconnect]
+        md: |
+          Select the participant, choose **Reconnect**, search the directory for the person's *current* entry and
+          select it. The record keeps all its history, tasks and team memberships.
+      - title: Handle real leavers deliberately
+        md: |
+          For someone who has left, first reassign their open tasks and replace them in groups and teams. Only then
+          remove the record, following your company's offboarding procedure.
+    result: |
+      The disconnected list is empty (or contains only people you've decided to keep for history). Maya's tasks are
+      back in her task list.
+
+  - type: callout
+    variant: version-note
+    versions: ["Varies by release"]
+    md: |
+      The label of the disconnected-participants view and the exact name of the reconnect action differ between
+      releases, and some releases show a warning icon next to disconnected participants in normal search results.
+      The idea - list, investigate, reconnect or remove - is the same everywhere.
+
+  - type: simulation
+    title: Onboard Nina, then survive the directory reshuffle
+    intro: |
+      Create Nina, put her in the right group, then watch what happens when IT moves her directory entry. Fix it
+      the *right* way. (Hint: there's a tempting shortcut that costs you her history.)
+    headline: "Nina · {status} · entry at: {ldap} · in ACME-Engineering: {inGroup}"
+    initial: { exists: "no", inGroup: "no", status: Not created, ldap: "-", found: "no", fixed: "no" }
+    actions:
+      - id: create
+        label: Create user Nina
+        when: { exists: "no" }
+        do: [{ set: { exists: "yes", status: Connected, ldap: ou=Engineering } }]
+        log: Nina's record is created and linked to her directory entry at ou=Engineering. Organization = Acme Mobility.
+        blockedHint: Nina already exists - creating her twice would make a duplicate.
+      - id: addgroup
+        label: Add Nina to ACME-Engineering
+        when: { exists: "yes", inGroup: "no" }
+        do: [{ set: { inGroup: "yes" } }]
+        log: Nina is in ACME-Engineering, so she inherits its roles in Scooter S2 and E-Bike E1 teams.
+        blockedHint: Create Nina first (or she's already in the group).
+      - id: itmove
+        label: IT moves Nina to ou=EBike
+        when: { status: Connected }
+        do: [{ set: { status: Disconnected, ldap: ou=EBike, found: "no" } }]
+        log: IT reorganised the directory. Nina's record still points at the old address - she is now DISCONNECTED. Her tasks stop resolving.
+        blockedHint: Nina needs a connected record before IT can move her entry.
+      - id: list
+        label: List disconnected participants
+        when: { status: Disconnected, found: "no" }
+        do: [{ set: { found: "yes" } }]
+        log: Nina shows up in the disconnected list. IT confirms she was moved, not removed.
+        blockedHint: Nothing is disconnected right now (or you already found her).
+      - id: reconnect
+        label: Reconnect Nina to her new entry
+        when: { status: Disconnected, found: "yes" }
+        do: [{ set: { status: Connected, found: "no", fixed: "yes" } }]
+        log: Reconnected to ou=EBike. Same record, same history, same groups and tasks - nothing lost.
+        blockedHint: First list the disconnected participants to find her.
+      - id: delete
+        label: Delete Nina's record and start over
+        when: { status: Disconnected, found: "yes" }
+        do: [{ set: { exists: "no", inGroup: "no", status: Not created, ldap: "-", found: "no" } }]
+        log: Gone - and so are her group memberships and the link to her open tasks. Recreating her gives a brand-new record. Reconnect would have kept everything.
+        blockedHint: First list the disconnected participants to find her.
+    goals:
+      - label: Onboard Nina into ACME-Engineering
+        when: { exists: "yes", inGroup: "yes" }
+        message: User created, group added - roles in every team that uses the group follow automatically.
+      - label: Reconnect Nina after the directory move
+        when: { fixed: "yes" }
+        message: Reconnect keeps the record's history and memberships. Deleting would have thrown them away.
+
+  - type: example
+    variant: case-study
+    title: The Friday directory clean-up
+    industry: Micromobility
+    md: |
+      Rosa (Acme's system administrator) agreed with IT to reorganise the corporate directory into department
+      branches over a weekend. Nobody told Jordan. On Monday, 40 Acme people were disconnected. Two change notices
+      for the scooter's hinge had stalled because their approver was one of them.
+
+      Jordan listed the disconnected participants, got a mapping of old to new addresses from IT, and reconnected
+      all 40 in an afternoon. Then Jordan and Rosa added one line to IT's change checklist: *"Directory moves:
+      notify the Windchill admins and run a disconnected-participant check the same day."*
+    takeaway: Directory changes are Windchill changes. Put the disconnected-participant check into IT's process, not just yours.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Deleting and recreating a disconnected user.** It looks like a quick fix, but the new record is a stranger
+      to Windchill: old tasks, team memberships and history still point at the old record. Reconnect whenever the
+      person still exists in the directory.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      **Make offboarding a checklist.** Before removing someone: reassign open tasks, swap them out of groups and team
+      roles, and transfer ownership of their checked-out work. A leaver with a checked-out assembly blocks everybody.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Since IT moved her directory entry, Maya can't be found by Windchill and her tasks have stalled. What is the best fix?
+        options: [Delete Maya's record and create her again, Reconnect Maya's record to her new directory entry, Ask Maya to use a colleague's login, Restart the method servers]
+        answer: 1
+        explanation: Maya still exists - only her address changed. Reconnect points the existing record at the new entry and keeps all history and assignments.
+      - kind: multi
+        prompt: Which problems can a disconnected participant cause? (Choose all that apply.)
+        options: [Workflow tasks that can't be resolved, Missing notifications, Stalled change notices, Corrupted CAD files in the vault]
+        answers: [0, 1, 2]
+        explanation: Disconnection breaks the link between the Windchill record and the directory, so anything addressed to that person suffers. Files in the vault are not affected.
+      - kind: order
+        prompt: Put Jordan's offboarding steps for a leaver in a sensible order.
+        items: [Reassign their open tasks, Replace them in groups and team roles, Remove their Windchill record]
+        explanation: Move the work and the responsibilities first; remove the record last so nothing is left pointing at a person who no longer exists.
+      - kind: truefalse
+        prompt: When users come from a corporate directory such as Active Directory, the business admin normally creates them in Participant Administration.
+        answer: false
+        explanation: IT creates users in the corporate directory and they appear in Windchill automatically. The business admin manages groups, teams and Windchill-side membership.
+
+  - type: summary
+    points:
+      - Participant Administration (organization or site Utilities) creates users and groups and maintains them.
+      - Windchill keeps its own record per participant that remembers where the directory entry lives.
+      - Moving, renaming or removing directory entries creates disconnected participants.
+      - Reconnect people who still exist; offboard leavers deliberately - never delete-and-recreate.

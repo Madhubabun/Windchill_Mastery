@@ -1,0 +1,31 @@
+# New glossary terms introduced in section m04-s02 (Contexts).
+- id: site
+  term: Site (context)
+  plain: The very top of the Windchill server - settings here reach everyone.
+  definition: The highest context on a Windchill server. Rules, types, templates and preferences defined at site level are inherited by every organization and every product, library and project below it, unless a lower level is allowed to override them.
+  related: [context, organization-context]
+
+- id: organization-context
+  term: Organization context
+  plain: Your company's own floor of the building, holding all its products and libraries.
+  definition: The context that sits between the site and the application contexts. It holds company-wide settings such as access policies, object initialization rules, templates and shared teams, which its products, libraries and projects inherit.
+  related: [site, organization, product-context, library]
+
+- id: project-context
+  term: Project (context)
+  plain: A temporary team space for a piece of work, often with partners.
+  definition: An application context, used with ProjectLink, for time-bound collaboration such as a supplier development project. Like products and libraries it has its own team, folders and rules, inherited from its organization.
+  related: [context, projectlink, organization-context]
+
+- id: shared-team
+  term: Shared team
+  plain: One team list that several products or libraries all use.
+  definition: A team defined once at organization level and selected when a context is created, so several contexts share the same role membership. A change to the shared team reaches every context that uses it.
+  related: [context-team, organization-context, group]
+
+- id: context-team
+  term: Context team
+  plain: The team that belongs to just one product, library or project.
+  definition: The roles and members defined directly in a single context. Context teams drive who can see the context and who receives its tasks, and are usually seeded from a team template when the context is created.
+  aka: [Local team]
+  related: [shared-team, context, group]

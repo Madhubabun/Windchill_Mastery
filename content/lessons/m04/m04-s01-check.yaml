@@ -1,0 +1,95 @@
+id: m04-s01-check
+subtitle: Prove you can run Acme's people layer - users, groups, organizations and the directory behind them.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, participants, checkpoint]
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **participants**: users, groups and organizations, Participant Administration,
+      disconnected participants, and the split between the business admin and IT. Score 80% to pass.
+      Every answer explains itself, so a miss still teaches you something.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: multi
+        prompt: Which of these are participants in Windchill? (Choose all that apply.)
+        options: [The user Kai, The group ACME-Quality, The organization Voltra Cells, The product Scooter S2]
+        answers: [0, 1, 2]
+        explanation: Users, groups and organizations are participants - things you can give access or work to. Scooter S2 is a context, not a participant.
+      - kind: single
+        prompt: Hexa Tooling's machinist gets a Windchill account. How many organizations can his user belong to?
+        options: [Exactly one, "Two - Hexa Tooling and Acme Mobility", As many as he has groups, None until he joins a team]
+        answer: 0
+        explanation: A user belongs to exactly one organization - here Hexa Tooling. Group memberships are separate and can be many.
+      - kind: truefalse
+        prompt: "`ACME-Quality` is nested inside `ACME-Change-Board`. Leo, a member of `ACME-Quality`, therefore counts as a change board member."
+        answer: true
+        explanation: Members of a nested group count as members of every group that contains it.
+      - kind: single
+        prompt: Jordan is setting up the E-Bike E1 team. What should fill the Designer role?
+        options: [Each designer added individually, The group ACME-Engineering (or ACME-Ebike-Core), The organization Acme Mobility, Nobody until the first part is created]
+        answer: 1
+        explanation: Filling roles with groups means joiners and leavers are handled once, in the group, instead of in every team. The whole organization would be far too broad.
+      - kind: single
+        prompt: Where does Jordan create a new organization-level group such as ACME-Ebike-Core?
+        options: [In the product's folder tree, "Participant Administration on Acme Mobility's Utilities page", In the corporate directory's admin console, In a workflow template]
+        answer: 1
+        explanation: Participant Administration on the organization's Utilities page creates groups owned by that organization.
+      - kind: single
+        prompt: After IT renamed Maya's directory entry, her change tasks stopped arriving. What has happened?
+        options: [Her password expired, She became a disconnected participant, Her product was deleted, The vault is offline]
+        answer: 1
+        explanation: Windchill's record still points at the old directory address, so Maya is disconnected. Reconnecting her record to the renamed entry fixes it.
+      - kind: order
+        prompt: Put Jordan's disconnected-participant fix in order.
+        items: [List the disconnected participants, Ask IT whether each person moved or left, Reconnect people who moved to their new entries, Offboard real leavers deliberately]
+        explanation: Find them, learn the cause, reconnect people who still exist and handle leavers with the offboarding checklist.
+      - kind: truefalse
+        prompt: Deleting a disconnected user and creating them again keeps their old tasks and history.
+        answer: false
+        explanation: A new record is a different participant. Old tasks and history still point at the old one. Reconnect instead.
+      - kind: multi
+        prompt: Which jobs normally belong to IT or the system admin, not the business admin? (Choose all that apply.)
+        options: [Configuring the LDAP connection to the corporate directory, Password and single sign-on policy, Filling team roles with groups, Creating employee accounts in Active Directory]
+        answers: [0, 1, 3]
+        explanation: IT owns who exists and can log in. Filling team roles is business admin work.
+      - kind: single
+        prompt: Voltra Cells' engineers have no Acme corporate accounts. Where are their users most likely created?
+        options: [In Windchill's own directory with organization Voltra Cells, In Acme's Active Directory as Acme employees, In a shared login for all of Voltra, They can't use Windchill]
+        answer: 0
+        explanation: External users often live in Windchill's own directory with their own organization. Shared logins destroy traceability.
+
+  - type: flashcards
+    title: Participants checkpoint deck
+    cards:
+      - front: Participant
+        back: "A user, group or organization - anything Windchill can grant access or work to."
+      - front: Group nesting
+        back: "Groups can contain groups; inner members count as outer members."
+      - front: Organization-level group
+        back: "Owned by one organization and managed by its organization admins."
+      - front: Participant Administration
+        back: "Utility on the organization or site Utilities page to create and maintain participants."
+      - front: Disconnected participant
+        back: "A Windchill record whose directory entry was moved, renamed or removed."
+      - front: Reconnect vs delete
+        back: "Reconnect keeps history and assignments. Delete-and-recreate loses them."
+      - front: LDAP
+        back: "Protocol Windchill uses to talk to directory servers."
+      - front: Corporate directory
+        back: "IT's employee list, usually read-only for Windchill."
+      - front: Windchill's own directory
+        back: "Often stores Windchill groups, admin accounts and external users."
+      - front: The ownership split
+        back: "IT: who exists and can log in. Business admin: what they can see and do."
+
+  - type: summary
+    points:
+      - Users belong to one organization and many groups; groups fill roles.
+      - Participant Administration creates, finds and repairs participants.
+      - Reconnect disconnected people; offboard leavers deliberately.
+      - IT owns the directory and login; the business admin owns groups, teams and access.

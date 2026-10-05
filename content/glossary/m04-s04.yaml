@@ -1,0 +1,60 @@
+# New glossary terms introduced in section m04-s04 (Types and attributes).
+- id: type-and-attribute-management
+  term: Type and Attribute Management
+  plain: The admin tool where you design your company's kinds of objects and the fields they carry - no code.
+  definition: The Windchill administration utility used to create and manage subtypes, attributes, constraints, enumerations, calculated attributes and layouts. Changes are configuration stored in the database, so they survive upgrades far better than code customizations.
+  aka: [TAM, Type Manager]
+  related: [subtype, global-attribute, local-attribute, enumeration, layout]
+
+- id: subtype
+  term: Subtype
+  plain: Your own flavour of a standard object, like "E-Bike Part" as a special kind of Part.
+  definition: A type created by an administrator underneath an existing type (for example under Part or Document). It inherits everything from its parent - attributes, behaviour, layouts and rules - and can add its own attributes, constraints and layouts.
+  aka: [Soft type]
+  related: [soft-type, type-and-attribute-management, part, document]
+
+- id: soft-type
+  term: Soft type
+  plain: The old nickname for a subtype - "soft" because it's made by configuration, not hard-coded.
+  definition: The historical name for a subtype defined through administration rather than in Java code. A type defined in Java code is sometimes called a modeled or "hard" type.
+  aka: [Modeled type (the opposite)]
+  related: [subtype, type-and-attribute-management]
+
+- id: global-attribute
+  term: Global attribute
+  plain: A field defined once in a shared library of attributes and reused on many types.
+  definition: An attribute based on a reusable attribute definition, so the same definition (name, data type, units) can be added to several types. Searches and reports can then find the value consistently across all types that use it.
+  aka: [Reusable attribute]
+  related: [local-attribute, attribute-constraint, type-and-attribute-management]
+
+- id: local-attribute
+  term: Local attribute
+  plain: A field that belongs to one type only and is defined right there on it.
+  definition: An attribute created directly on a single type (and inherited by that type's own subtypes). It cannot be added to unrelated types.
+  related: [global-attribute, subtype]
+
+- id: attribute-constraint
+  term: Attribute constraint
+  plain: A rule on a field, like "must be filled in" or "must be between 24 and 72".
+  definition: A rule attached to an attribute on a type that limits the values users can enter, for example Value Required, a numeric range, a string length or format, a legal or enumerated value list, or Immutable. Constraints are inherited by subtypes and enforced when the object is saved.
+  aka: [Constraint]
+  related: [global-attribute, local-attribute, enumeration]
+
+- id: enumeration
+  term: Enumeration
+  plain: A managed pick-list, such as IP54 / IP65 / IP67.
+  definition: A named list of entries, each with an internal name, a display name and a selectable flag, managed in Type and Attribute Management. An attribute uses it through an enumerated value list constraint, so users choose from the list instead of typing free text.
+  aka: [Enumerated value list, Pick-list]
+  related: [attribute-constraint, global-attribute]
+
+- id: calculated-attribute
+  term: Calculated attribute
+  plain: A field Windchill works out for you from other fields, like a spreadsheet formula.
+  definition: An attribute whose value comes from a formula over other attributes of the same object (for example motor power divided by battery voltage). Users cannot type into it.
+  related: [global-attribute, local-attribute]
+
+- id: layout
+  term: Layout
+  plain: The arrangement of fields a user sees when creating, editing or viewing a type.
+  definition: A type's definition of which attributes appear, in which groups and order, on screens such as the create and edit forms and the information page. Subtypes inherit their parent's layouts until you override them.
+  related: [subtype, type-and-attribute-management, information-page]

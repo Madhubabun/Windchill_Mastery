@@ -1,0 +1,35 @@
+# New glossary terms introduced in section m04-s07 (Templates, numbering and preferences).
+- id: context-template
+  term: Context template
+  plain: A starter kit for a new product or library - folders, team roles and rules already set up.
+  definition: An XML-based template, usually stored at the organization or site level, used when creating a product, library or project. Depending on the release and what was exported, it can carry the folder structure, team roles, access policies, object initialization rules, preferences and templates. It does not carry the business data (parts, documents, CAD) of the context it was made from.
+  aka: [Product template, Library template]
+  related: [context, product-context, library, object-initialization-rule]
+
+- id: numbering-scheme
+  term: Numbering scheme
+  plain: The company rule for what an object's number looks like and where the next one comes from.
+  definition: The pattern and source of object numbers, such as a prefix plus a zero-padded value from a database sequence (EB-10021). In Windchill a numbering scheme is usually implemented with an object initialization rule that calls a number generator, so numbers are assigned by the server instead of typed by users.
+  aka: [Auto-numbering, Number generator]
+  related: [object-initialization-rule, smart-number, part]
+
+- id: smart-number
+  term: Smart number (significant number)
+  plain: A part number that tries to describe the part, like "BAT-48V-13AH".
+  definition: A number whose characters carry meaning (category, size, material, voltage). The opposite is a non-significant or "dumb" number, which is just a unique sequence value. Smart numbers are easy to read but break when the described property changes or the code space runs out; most PLM teams prefer dumb numbers plus attributes and classification.
+  aka: [Significant number, Intelligent number]
+  related: [numbering-scheme, part]
+
+- id: preference
+  term: Preference
+  plain: A setting that changes how Windchill behaves - for everyone, one company, one product or one person.
+  definition: A named configuration value managed in Preference Management. Preferences can be set at site, organization, context (product, library, project) and often user level. The value closest to where the user is working wins, unless a higher level has locked it.
+  aka: [Preference Management]
+  related: [context, preference-lock]
+
+- id: preference-lock
+  term: Preference lock
+  plain: A padlock that stops lower levels from changing a setting.
+  definition: A flag set on a preference at one level (for example the organization) that prevents contexts and users below it from overriding the value. The locked value then applies everywhere below that level until the lock is removed.
+  aka: [Locked preference]
+  related: [preference, context]

@@ -1,0 +1,292 @@
+id: m04-s01-l01
+subtitle: People, the lists they're on, and the companies they belong to. Get this layer right and everything above it gets easy.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, participants, users, groups, organizations]
+
+blocks:
+  - type: text
+    md: |
+      Welcome to business admin. For this module you shadow **Jordan**, Acme Mobility's business
+      administrator. Jordan's first job every Monday? Answering "why can't *this person* see *that thing*?"
+
+      Almost every answer starts at the bottom layer: **who is this person, which lists are they on,
+      and which company do they belong to?** Windchill calls everyone it can give work or access to a
+      [[participant]]. There are three kinds:
+
+      - **Users** - one human with a login. Kai, Priya, Maya.
+      - **Groups** - a named list of users (and even other groups). `ACME-Engineering`.
+      - **Organizations** - a company. Acme Mobility, or the battery supplier Voltra Cells.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "anyone Windchill can give access or work to" → [[participant]]
+      - "one person with a login" → *user*
+      - "a named list of people" → [[group]]
+      - "the company someone belongs to" → [[organization]]
+      - "the address book behind the logins" → [[directory-server]] (spoken to via [[ldap]])
+
+  - type: diagram
+    title: Acme's participant map
+    caption: Users belong to one organization. Groups collect users (and groups). Teams use groups. Click each box.
+    diagram:
+      width: 820
+      height: 440
+      groups:
+        - { label: Organizations, x: 20, y: 10, w: 780, h: 90, tone: neutral }
+        - { label: Groups, x: 20, y: 120, w: 780, h: 110, tone: neutral }
+        - { label: Users, x: 20, y: 250, w: 780, h: 90, tone: neutral }
+      nodes:
+        - id: org-acme
+          label: Acme Mobility
+          sublabel: organization
+          x: 150
+          y: 38
+          w: 180
+          h: 52
+          tone: primary
+          detail: |
+            Acme's own [[organization]]. Every Acme employee's user record points here. It is also the
+            name of Acme's *organization context*, which holds the Scooter S2 and E-Bike E1 products
+            (more on that in the Contexts section).
+        - id: org-voltra
+          label: Voltra Cells
+          sublabel: organization
+          x: 520
+          y: 38
+          w: 180
+          h: 52
+          tone: info
+          detail: |
+            An external [[organization]] - the battery supplier. Creating it as its own organization means
+            Voltra users are clearly *not* Acme people, which makes it easy to write rules like "suppliers see
+            only released drawings".
+          real: Many companies create one organization participant per strategic supplier, without giving each one a full set of products.
+        - id: g-eng
+          label: ACME-Engineering
+          sublabel: group
+          x: 40
+          y: 155
+          w: 180
+          tone: accent
+          detail: |
+            A [[group]] of every Acme design engineer. When a new engineer joins, Jordan adds them here once,
+            and they instantly get the right role in every product team that uses this group.
+        - id: g-quality
+          label: ACME-Quality
+          sublabel: group
+          x: 240
+          y: 155
+          w: 160
+          tone: accent
+          detail: Quality engineers like Leo. Used to fill review roles and to grant read access to test data.
+        - id: g-ccb
+          label: ACME-Change-Board
+          sublabel: group with a group in it
+          x: 420
+          y: 155
+          w: 190
+          tone: warning
+          detail: |
+            Groups can contain **other groups**. The change board contains Maya directly *and* the whole
+            `ACME-Quality` group, so every quality engineer is automatically a board member.
+          real: Keep nesting to two or three levels. Deep nesting makes "why can Bob see this?" very hard to answer.
+        - id: g-voltra
+          label: SUP-Voltra
+          sublabel: supplier group
+          x: 630
+          y: 155
+          w: 160
+          tone: info
+          detail: Voltra Cells' engineers. The `SUP-` prefix shouts "external!" every time someone adds this group to a team.
+        - id: u-kai
+          label: Kai
+          sublabel: engineering lead
+          x: 40
+          y: 275
+          w: 120
+          tone: success
+          shape: pill
+          detail: A user. Organization = Acme Mobility. Member of `ACME-Engineering`.
+        - id: u-priya
+          label: Priya
+          sublabel: designer
+          x: 180
+          y: 275
+          w: 120
+          tone: success
+          shape: pill
+          detail: A user. Organization = Acme Mobility. Member of `ACME-Engineering`.
+        - id: u-leo
+          label: Leo
+          sublabel: quality
+          x: 320
+          y: 275
+          w: 120
+          tone: success
+          shape: pill
+          detail: A user in `ACME-Quality` - and therefore also, through nesting, on the change board.
+        - id: u-maya
+          label: Maya
+          sublabel: change manager
+          x: 460
+          y: 275
+          w: 130
+          tone: success
+          shape: pill
+          detail: A direct member of `ACME-Change-Board`, which she chairs.
+        - id: u-voltra
+          label: Voltra engineer
+          sublabel: external user
+          x: 620
+          y: 275
+          w: 170
+          tone: info
+          shape: pill
+          detail: A user whose organization is **Voltra Cells**, not Acme. Member of `SUP-Voltra` only.
+        - id: team
+          label: Scooter S2 team
+          sublabel: roles filled by groups
+          x: 300
+          y: 370
+          w: 220
+          tone: neutral
+          detail: |
+            Product teams have roles (Designer, Reviewer, ...). Jordan fills those roles with **groups**, not
+            individual users. Teams and roles get their own section later in this module.
+      edges:
+        - { from: u-kai, to: g-eng }
+        - { from: u-priya, to: g-eng }
+        - { from: u-leo, to: g-quality }
+        - { from: g-quality, to: g-ccb, label: nested }
+        - { from: u-maya, to: g-ccb }
+        - { from: u-voltra, to: g-voltra }
+        - { from: g-eng, to: org-acme, dashed: true }
+        - { from: g-voltra, to: org-voltra, dashed: true }
+        - { from: g-eng, to: team, dashed: true }
+        - { from: g-ccb, to: team, dashed: true }
+
+  - type: text
+    md: |
+      **Three relationships to remember:**
+
+      | Relationship | Rule of thumb |
+      | --- | --- |
+      | User → organization | Exactly **one**. It's who employs (or represents) them. |
+      | User → group | **Many**. Kai can be in `ACME-Engineering` and `ACME-Ebike-Pilot`. |
+      | Group → group | Allowed (nesting). Members of the inner group count as members of the outer one. |
+
+      Where a group *lives* matters too. A **site-level** group is visible to every organization on the
+      server. An **organization-level** group belongs to one organization and is managed by its organization
+      administrators - that's where Jordan keeps almost all of Acme's groups.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Access rules, team roles and workflow tasks all point at participants. If they point at **groups**,
+      onboarding a new hire is one click: add them to the right groups and they get the right access in every
+      product. If they point at **individual users**, every hire, leaver and promotion means hunting through
+      dozens of teams and rules - and somebody always gets missed (often a leaver who keeps access).
+
+  - type: example
+    variant: real-world
+    title: Planning groups for the e-bike division
+    industry: Micromobility
+    md: |
+      Acme is launching **E-Bike E1**. Before anyone creates a single part, Jordan sketches the groups:
+
+      - **By function, company-wide**: `ACME-Engineering`, `ACME-Quality`, `ACME-Manufacturing`, `ACME-Service`.
+      - **By programme, only when needed**: `ACME-Ebike-Core` for the twelve people who work only on the e-bike.
+      - **By external company**: `SUP-Voltra` (battery cells), `SUP-Hexa` (machining) - each user also has their
+        own supplier as their organization.
+
+      Jordan writes one sentence per group describing who belongs in it, and puts it in the group's description.
+      Six months later nobody has to guess.
+    takeaway: Plan groups around jobs people do, not around individual people - then the same groups serve every product.
+
+  - type: walkthrough
+    title: Look up a group and its members
+    who: Organization administrator (Jordan) or site administrator
+    where: [Organization, Utilities, Participant Administration]
+    steps:
+      - title: Open your organization's Utilities
+        where: [Navigator, Browse, Organizations, "Acme Mobility", Utilities]
+        md: |
+          Browse to **Organizations**, open **Acme Mobility** and choose its **Utilities** page. Business
+          admin tools live here. (Site administrators find the same utility under **Site → Utilities**.)
+      - title: Launch Participant Administration
+        where: [Utilities, Participant Administration]
+        md: |
+          Open **Participant Administration**. It is the one place to search, create and maintain users,
+          groups and organizations.
+      - title: Search for the group
+        where: [Participant Administration, Search]
+        md: |
+          Set the participant type to **Group**, type `ACME-Eng*` and search. The [[wildcard]] saves typing.
+      - title: Open the group and check its members
+        where: [Participant Administration, "ACME-Engineering", Members]
+        md: |
+          Open the group's information. Its **members** list shows users *and* nested groups. Many releases
+          also show which groups this group belongs to - handy for tracing nesting.
+    result: |
+      You can see exactly who is in `ACME-Engineering`, directly or through nested groups, and you know where
+      to go when someone asks "who's on the change board?"
+
+  - type: callout
+    variant: version-note
+    versions: ["Windchill+"]
+    md: |
+      On Windchill+ (PTC's SaaS offering), user accounts are usually provisioned through your company's identity
+      provider and some **site-level** participant tasks are reserved for PTC. Organization-level groups and team
+      membership are still managed by your business administrator in the same way.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Adding individual users to teams and rules "just this once".** It works on day one. Six months later
+      Jordan can't remove a leaver without searching every product team. Put people in groups; put groups in teams.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      **Use a naming convention that tells a story.** `ACME-` for internal groups, `SUP-` for suppliers, and a
+      function or programme after it. When someone scrolls a picker list at 5 pm, the prefix alone stops them
+      adding a supplier group to a confidential product.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: A Voltra Cells engineer gets a Windchill login. Which organization should their user belong to?
+        options: ["Acme Mobility, because Acme hosts the server", Voltra Cells, No organization at all, Both organizations]
+        answer: 1
+        explanation: A user belongs to exactly one organization - the company they work for. Keeping suppliers in their own organization makes it easy to treat them differently in access rules.
+      - kind: truefalse
+        prompt: Adding Leo to `ACME-Quality` also makes him a member of `ACME-Change-Board`, because `ACME-Quality` is nested inside it.
+        answer: true
+        explanation: Members of a nested group count as members of the outer group. That's the power - and the risk - of nesting.
+
+  - type: flashcards
+    title: Participants deck
+    cards:
+      - { front: Participant, back: "Anything Windchill can give access or work to: a user, group or organization." }
+      - front: User → organization
+        back: "Exactly one. The company the person works for (or represents)."
+      - front: User → group
+        back: "Many. A user can be in as many groups as their jobs need."
+      - front: Nested group
+        back: "A group inside a group. Its members count as members of the outer group."
+      - front: Site-level vs organization-level group
+        back: "Site groups are visible server-wide; organization groups belong to one organization and its admins."
+      - front: Where to manage participants
+        back: "Participant Administration, on the Utilities page of the organization (or site)."
+      - front: Why fill team roles with groups?
+        back: "Onboarding and offboarding become one change in one place instead of edits in every team."
+
+  - type: summary
+    points:
+      - "Participants come in three kinds: users, groups and organizations."
+      - A user belongs to one organization and to as many groups as needed. Groups can nest.
+      - Plan groups around jobs and companies, then use groups (not people) in teams and rules.
+      - Participant Administration on the organization's (or site's) Utilities page is where you manage them.

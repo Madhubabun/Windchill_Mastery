@@ -1,0 +1,121 @@
+id: m04-s04-check
+subtitle: Subtypes, attributes, constraints, pick-lists, formulas and layouts - modelling Acme's data without code.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, types, attributes, layouts, checkpoint]
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **types and attributes**, built around Jordan's **E-Bike Part** subtype and its
+      Battery Voltage, Motor Power and IP Rating attributes. Score 80% to pass. Every answer explains
+      itself.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: Acme needs e-bike parts to carry voltage, power and IP rating. What's the best first move?
+        options:
+          - "Create an E-Bike Part subtype of Part in Type and Attribute Management"
+          - "Ask a developer to write a custom Java part class"
+          - "Tell engineers to type the values into the description"
+          - "Create a new product context for every motor"
+        answer: 0
+        explanation: A subtype is configuration, built in the browser, inherits everything from Part and survives upgrades. Custom code is the last resort.
+      - kind: truefalse
+        prompt: A Battery Pack subtype created under E-Bike Part inherits Battery Voltage, Motor Power and IP Rating.
+        answer: true
+        explanation: Subtypes inherit attributes, constraints and layouts from their parent, all the way down.
+      - kind: single
+        prompt: The scooter team also needs a battery voltage field. How should Battery Voltage be defined?
+        options:
+          - "As a global attribute based on one reusable definition, added to both types"
+          - "As a local attribute on each type, both called Voltage"
+          - "As an enumeration"
+          - "As a calculated attribute"
+        answer: 0
+        explanation: Global attributes are defined once and reused, so search, reports and ERP mapping see one field.
+      - kind: multi
+        prompt: Which constraints fit Battery Voltage on E-Bike Part? (Choose all that apply.)
+        options: [Value Required, "Range 24 to 72", Enumerated value list of IP ratings, String Length of 6]
+        answers: [0, 1]
+        explanation: Voltage is a required number within limits. IP lists and string lengths belong to other attributes.
+      - kind: single
+        prompt: Acme no longer wants new parts rated IP54, but 300 existing parts are IP54. What does Jordan do?
+        options:
+          - "Mark the IP54 entry as not selectable"
+          - "Delete the IP54 entry"
+          - "Rename the IP54 internal name to IP65"
+          - "Remove the IP Rating attribute from the type"
+        answer: 0
+        explanation: Not selectable hides the entry from new choices while existing parts keep their value. Deleting or renaming internal names breaks existing data.
+      - kind: single
+        prompt: Ana wants Max Current on every e-bike part, always equal to Motor Power ÷ Battery Voltage. What should Jordan create?
+        options: [A calculated attribute, An enumeration, A local text attribute users fill in, A new subtype]
+        answer: 0
+        explanation: Calculated attributes derive values from a formula, so they never go stale or get typed wrong.
+      - kind: order
+        prompt: Put Jordan's IP Rating set-up in order.
+        items:
+          - Create the IP Rating global enumeration
+          - Add the entries IP54, IP65 and IP67
+          - Add an enumerated value list constraint to the IP Rating attribute
+          - Test the drop-down by creating a part in a test context
+        explanation: Build the list, fill it, attach it to the attribute through a constraint, then test.
+      - kind: single
+        prompt: After Jordan's layout change, saving any new E-Bike Part fails with "Motor Power is required". Why?
+        options:
+          - "Motor Power is Value Required but was removed from the create layout"
+          - "The Range constraint is too wide"
+          - "The subtype's internal name changed"
+          - "The information page layout is missing"
+        answer: 0
+        explanation: Required attributes must be on the create layout, or be set by a rule. Otherwise nobody can fill them in.
+      - kind: truefalse
+        prompt: Removing a cost attribute from all layouts stops Voltra Cells from seeing it anywhere.
+        answer: false
+        explanation: Layouts only control display on those screens. Values may still appear in search, reports and exports. Protect sensitive data with access control.
+      - kind: multi
+        prompt: Which are good practices when modelling types? (Choose all that apply.)
+        options:
+          - "Agree an internal naming convention before creating types"
+          - "Search the reusable attribute library before creating a new attribute"
+          - "Build and test in a test system before production"
+          - "Create a new subtype for every part category"
+        answers: [0, 1, 2]
+        explanation: Internal names are permanent, reuse prevents duplicates and testing avoids surprises. Too many subtypes make search, rules and reports painful.
+
+  - type: flashcards
+    title: Types and attributes deck
+    cards:
+      - front: "Subtype"
+        back: "Your own kind of object under a shipped type (E-Bike Part under Part). Inherits everything from its parent."
+      - front: "Soft type"
+        back: "The old name for a subtype - created by configuration, not code."
+      - front: "Type and Attribute Management"
+        back: "The admin utility for subtypes, attributes, constraints, enumerations, calculated attributes and layouts."
+      - front: "Global attribute"
+        back: "Built on a reusable definition and attachable to many types."
+      - front: "Local attribute"
+        back: "Defined on one type only (and inherited by its subtypes)."
+      - front: "Attribute constraint"
+        back: "A rule on values: Value Required, Range, String Length, enumerated list, Immutable..."
+      - front: "Enumeration entry"
+        back: "Internal name (permanent), display name (shown) and selectable flag."
+      - front: "Retire a pick-list value"
+        back: "Mark it not selectable - never delete an entry that's in use."
+      - front: "Calculated attribute"
+        back: "Read-only value from a formula, e.g. Max Current = Motor Power ÷ Battery Voltage."
+      - front: "Layout"
+        back: "Which attributes a screen shows, grouped and ordered - per type, inherited by subtypes."
+      - front: "Hidden vs secured"
+        back: "Removing a field from a layout hides it; only access control protects it."
+
+  - type: summary
+    points:
+      - Subtypes model your data as configuration and inherit from their parent.
+      - Global attributes are reused across types; local ones stay on one type.
+      - Constraints, enumerations and calculated attributes keep values clean.
+      - Layouts shape the screens - keep required fields on the create form, and never mistake hiding for security.

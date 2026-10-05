@@ -1,0 +1,266 @@
+id: m04-s03-l01
+subtitle: Name the job, not the person. Then let Windchill find the person.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, roles, teams, team-template, workflow]
+
+blocks:
+  - type: text
+    md: |
+      E-Bike E1 is about to launch, and Jordan, Acme's business administrator, gets the same
+      question three times before lunch: *"Who reviews e-bike parts?"*
+
+      Kai says Leo. Leo says "anyone in Quality". Maya says "whoever is on the CCB this month".
+      If Windchill's processes had **Leo** typed into them, every holiday, promotion or new hire
+      would break something.
+
+      So Windchill never asks "who?" first. It asks **"which job?"** - *Reviewer*, *Designer*,
+      *Promoter* - and only then looks up who holds that job **in this context, today**. The job is
+      a **role**. The lookup table is a **team**. A reusable cast list for a process is a
+      **team template**.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a job title inside a product" → *[[role]]* (Reviewer, Designer, Product Manager, Promoter...)
+      - "the product's guest list, sorted by job" → *[[team]]* (the context team)
+      - "people, groups or whole organizations that fill a job" → *participants*
+      - "a reusable cast list a process starts from" → *[[team-template]]*
+
+  - type: diagram
+    title: Roles are the plug, people are the socket
+    caption: Processes and rules point at roles. The team decides who sits in each role for one context. Click each box.
+    diagram:
+      width: 800
+      height: 420
+      groups:
+        - { label: Defined once (site), x: 20, y: 20, w: 210, h: 380, tone: neutral }
+        - { label: Filled per context, x: 260, y: 20, w: 270, h: 380, tone: info }
+        - { label: Who uses roles, x: 560, y: 20, w: 220, h: 380, tone: accent }
+      nodes:
+        - id: role-list
+          label: Role list
+          sublabel: Designer · Reviewer · Promoter...
+          x: 35
+          y: 70
+          w: 180
+          h: 64
+          tone: neutral
+          detail: |
+            The **names** of roles are a site-wide list. Every context picks from the same list, so
+            "Reviewer" means the same job in Scooter S2, E-Bike E1 and Acme Standard Parts.
+            Windchill ships with common roles; companies add their own (for example *Battery Safety Engineer*).
+          real: Keep the list short. Fifty roles nobody understands is worse than ten everybody does.
+        - id: team-tpl
+          label: Team template
+          sublabel: reusable cast list
+          x: 35
+          y: 250
+          w: 180
+          h: 64
+          tone: primary
+          shape: doc
+          detail: |
+            A **team template** lists the roles a process needs (for example *Submitter*, *Reviewer*,
+            *Approver*) and can name default participants. A life cycle template refers to it, so
+            each object or process that starts gets its own small team built from it.
+          real: Many companies run happily on the shipped default team template and only add one or two of their own.
+        - id: ctx-team
+          label: E-Bike E1 team
+          sublabel: context team
+          x: 300
+          y: 70
+          w: 190
+          h: 64
+          tone: info
+          detail: |
+            The product's **team** maps each role to participants:
+            - Product Manager → Kai
+            - Designer → ACME-Engineering
+            - Reviewer → ACME-Quality
+            - Promoter → Maya
+            Being in the team at all is also what lets people into the context.
+        - id: obj-team
+          label: Team of EB-10021
+          sublabel: built when its process starts
+          x: 300
+          y: 250
+          w: 190
+          h: 64
+          tone: info
+          detail: |
+            When the battery pack EB-10021 starts a review, Windchill builds its process team from
+            the **team template** and resolves each role against the **context team**. Result:
+            Reviewer → everyone in ACME-Quality, including Leo.
+        - id: wf
+          label: Workflow tasks
+          sublabel: "assign to: Reviewer"
+          x: 590
+          y: 60
+          w: 170
+          tone: accent
+          detail: Workflow activities are assigned to **roles**. At run time the role is resolved to people, who see the task in their work list.
+        - id: acl
+          label: Access rules
+          sublabel: "grant to: Designer"
+          x: 590
+          y: 170
+          w: 170
+          tone: accent
+          detail: Access rules in a context can be granted to team roles, so "Designers can modify In Work parts" stays true whoever the designers are.
+        - id: notify
+          label: Notifications
+          sublabel: "tell: Product Manager"
+          x: 590
+          y: 280
+          w: 170
+          tone: accent
+          detail: Notifications and subscriptions can target roles, for example "tell the Product Manager when anything is Released".
+      edges:
+        - { from: role-list, to: ctx-team, label: picked from }
+        - { from: role-list, to: team-tpl, label: picked from }
+        - { from: team-tpl, to: obj-team, label: seeds }
+        - { from: ctx-team, to: obj-team, label: resolves, dashed: true }
+        - { from: obj-team, to: wf }
+        - { from: ctx-team, to: acl }
+        - { from: ctx-team, to: notify }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Roles are what make **one** process work for **many** products. Acme can run the same promotion
+      workflow on scooters and e-bikes, because the workflow says "Reviewer" and each product's team
+      says who that is. When Leo goes on holiday, Jordan changes one team entry - not twelve workflow
+      templates.
+
+  - type: comparison
+    title: Role, group, team, team template
+    columns: [What it is, Acme example, Who maintains it]
+    rows:
+      - label: Role
+        cells: ["A job name, the same everywhere", "Reviewer", "Site admin adds new role names (rarely)"]
+      - label: Group
+        cells: ["A list of users", "ACME-Quality (Leo and two others)", "Participant administration or the company directory"]
+      - label: Team
+        cells: ["Role → participants for one context", "E-Bike E1: Reviewer = ACME-Quality", "Context manager or business admin"]
+      - label: Team template
+        cells: ["Reusable roles for a process", "Promotion team: Promoter + Reviewer + Approver", "Business admin"]
+    takeaway: Put people in groups, put groups in roles, point processes at roles.
+
+  - type: example
+    variant: real-world
+    title: The day the reviewer left
+    industry: Micromobility
+    md: |
+      Before Windchill, Acme's scooter team routed approvals by email to a named quality engineer.
+      When he left, 40 approval emails sat in a dead mailbox for two weeks.
+
+      In Windchill, Jordan set E-Bike E1's **Reviewer** role to the group **ACME-Quality**, not to
+      Leo personally. When a new quality engineer joins, Rosa adds her to ACME-Quality once, and she
+      instantly becomes a reviewer in every product that uses that group.
+    takeaway: Roles plus groups survive people moving around. Names typed into processes don't.
+
+  - type: walkthrough
+    title: Fill the roles of the E-Bike E1 team
+    who: Product or library manager, or Jordan as business admin
+    where: [Products, E-Bike E1, Team]
+    steps:
+      - title: Open the product's team
+        where: [Browse, Products, E-Bike E1, Team]
+        md: Open the product and go to its **Team** page. You see the roles of the context and who is in each.
+      - title: Add a role if it's missing
+        where: [Team, Actions, Add Role]
+        md: |
+          If *Reviewer* isn't listed yet, use the team's action to **add a role** and pick it from
+          the role list. You can only pick names that exist in the site-wide role list.
+      - title: Add participants to the role
+        where: [Team, Reviewer, Add Users / Add Participants]
+        md: |
+          Select the role and add participants. Prefer **groups** (ACME-Quality) over single users,
+          and add an organization such as Voltra Cells only when every one of its users should hold the role.
+      - title: Check the result
+        where: [Team, Members]
+        md: Confirm each role shows the right participants. Members who are in no role usually show under the general *Members* role.
+    result: E-Bike E1's team lists Product Manager, Designer, Reviewer and Promoter, each filled with a group or person. New tasks for those roles now resolve to real people.
+
+  - type: walkthrough
+    title: Create a team template
+    who: Business admin (Jordan)
+    where: [Organization, Utilities, Team Templates]
+    steps:
+      - title: Open the team templates utility
+        where: [Organization, Acme Mobility, Utilities, Team Templates]
+        md: |
+          Open the organization's **Utilities** page and choose the team template utility. Creating
+          it at organization level makes it available to Acme's products and libraries.
+      - title: Start a new template
+        where: [Team Templates, New Team Template]
+        md: Give it a clear name and description, for example **E-Bike Promotion Team** - "Roles for promotion reviews of e-bike parts".
+      - title: Add roles
+        where: [Team template, Roles]
+        md: |
+          Add the roles the process will assign work to, such as **Promoter**, **Reviewer** and
+          **Approver**. Use the exact role names the workflow template uses.
+      - title: Add default participants (optional)
+        where: [Team template, Participants]
+        md: |
+          Leave roles empty to let them resolve from each product's team, or add a default such as
+          the group ACME-Quality for Reviewer when it should be the same everywhere.
+      - title: Enable it and connect it
+        where: [Team template, Enabled]
+        md: |
+          Make sure the template is **enabled**. Then whoever owns life cycle templates selects it as
+          the team template for the relevant life cycle (life cycle templates are covered later in
+          this module).
+    result: The new team template appears in the list as enabled. Objects that start the e-bike life cycle get a team built from it.
+
+  - type: callout
+    variant: version-note
+    versions: ["all"]
+    md: |
+      **Where new role names come from varies by release.** In older releases a system administrator
+      added roles by editing a resource file and restarting. Newer releases let administrators manage
+      the role list as an enumeration in Type and Attribute Management. Ask Rosa which applies before
+      promising anyone a new role. On Windchill+ (SaaS), site-level changes like this may be limited
+      or handled by PTC.
+
+  - type: callout
+    variant: pitfall
+    title: Role name drift
+    md: |
+      The workflow assigns a task to **Reviewer**. The team has **Reviewers**, or a custom
+      *Quality Reviewer*. Close is not enough: Windchill matches the exact role, the role stays empty
+      and nobody gets the task. Agree on one role list and reuse it everywhere.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Write a one-page **role catalogue**: each role, what it does, which processes use it and which
+      group usually fills it. Jordan pins it in the admin space. It's the fastest way to onboard a new
+      product manager and the first thing auditors ask about.
+
+  - type: flashcards
+    cards:
+      - front: "Role"
+        back: "A job name (Reviewer, Designer...) that processes and rules point at. Filled with people per context."
+      - front: "Team (context team)"
+        back: "The role → participants list for one product, library or project."
+      - front: "Team template"
+        back: "A reusable list of roles (and optional default participants) used to build a process or object team."
+      - front: "Participants that can fill a role"
+        back: "Users, groups and organizations."
+      - front: "Best practice for filling roles"
+        back: "Put people in groups, put groups in roles."
+      - front: "Where do role names come from?"
+        back: "A site-wide role list, so a role means the same thing in every context."
+      - front: "Why not type a person's name into a workflow?"
+        back: "People change jobs and take holidays. A role is re-filled once in the team, and every process follows."
+
+  - type: summary
+    points:
+      - Processes, access rules and notifications point at roles, not people.
+      - A context team says who fills each role in one product or library.
+      - Team templates are reusable cast lists that build the team for an object's process.
+      - Fill roles with groups so people can come and go without touching processes.
+      - Use exact, shared role names - a near miss means an empty role.

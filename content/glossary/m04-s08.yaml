@@ -1,0 +1,20 @@
+# New glossary terms introduced in section m04-s08 (Business reporting).
+- id: query-builder
+  term: Query Builder
+  plain: The point-and-click tool for asking Windchill a custom question without writing code.
+  definition: The Windchill tool a business administrator uses to define a report template - which object types to read, how to join them, which attributes to show, which criteria to filter by and which values users are prompted for when they run it.
+  aka: [Report template editor]
+  related: [report-template, report-management, advanced-search]
+
+- id: report-template
+  term: Report template
+  plain: A saved, reusable question - run it any time and get fresh answers.
+  definition: A stored query built with Query Builder and kept in a context (site, organization, product or library). Users run it to produce a report as a table or an export file. It can include parameters that the user fills in at run time, and the results respect each user's access rights.
+  aka: [Query Builder report]
+  related: [query-builder, report-management, saved-search]
+
+- id: report-management
+  term: Report Management
+  plain: The admin page where report templates are created, edited, copied and moved between systems.
+  definition: A utility available on a context's Utilities page (typically site and organization, often products and libraries too) that lists the context's report templates and offers actions to create them with Query Builder, edit, delete, and export or import them.
+  related: [query-builder, report-template]
