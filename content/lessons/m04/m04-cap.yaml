@@ -3,6 +3,14 @@ subtitle: A new division starts Monday. You're the one who makes Windchill ready
 version: 1.0.0
 updated: "2026-10-05"
 tags: [capstone, business-admin, contexts, types, numbering, access-control]
+sources:
+  - id: ac
+    where: "Module 3, Create products and libraries; Module 4, Manage object subtypes, Add attributes to an object type, Manage attribute visibility; Module 6, Add a new context role; Module 7, Manage OIRs, Specify custom numbering scheme rules; Module 8, Identify components of a domain access control rule, Troubleshoot access control issues; Module 9, Describe context templates"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "The Use of Object Type Hierarchy in Rules"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/objrules/ObjRuleObjectTypeHierarchy.html"
+    covers: "A parent-type rule in the current context switches off a subtype rule defined higher up"
 
 blocks:
   - type: text
@@ -56,9 +64,9 @@ blocks:
         - id: template
           label: Product template
           sublabel: Acme standard
-          x: 30
+          x: 25
           y: 50
-          w: 170
+          w: 136
           tone: info
           shape: doc
           detail: |
@@ -69,9 +77,9 @@ blocks:
         - id: subtype
           label: E-Bike Part
           sublabel: subtype of Part
-          x: 230
+          x: 181
           y: 50
-          w: 170
+          w: 136
           tone: primary
           detail: |
             A subtype of Part, created in **Type and Attribute Management**. It adds Battery Voltage
@@ -80,9 +88,9 @@ blocks:
         - id: groups
           label: Groups
           sublabel: ACME-Engineering, SUP-Voltra
-          x: 430
+          x: 493
           y: 50
-          w: 180
+          w: 136
           tone: info
           detail: |
             The engineers sit in `ACME-Engineering`. Voltra's people belong to the Voltra Cells
@@ -91,9 +99,9 @@ blocks:
         - id: org
           label: Voltra Cells
           sublabel: external organization
-          x: 640
+          x: 649
           y: 50
-          w: 150
+          w: 136
           tone: warning
           detail: Voltra is a separate organization. Its users exist in Windchill but belong to nobody's product until you put them on a team.
         - id: team
@@ -109,14 +117,16 @@ blocks:
         - id: oir
           label: Numbering OIR
           sublabel: EB-#####
-          x: 230
-          y: 220
-          w: 170
+          x: 337
+          y: 50
+          w: 136
           tone: primary
           detail: |
-            An object initialization rule for E-Bike Part in this product: number generated from a
-            sequence with the prefix `EB-`, number field not editable, plus the default folder and
-            life cycle.
+            An object initialization rule for E-Bike Part, defined at the **Acme Mobility
+            organization** level: a custom numbering scheme with the prefix `EB-` and a sequence,
+            plus the default life cycle. PTC recommends organization- or site-level rules over
+            product-level ones, because product-level rules can restrict moving objects between
+            products later.
         - id: policy
           label: Access rule
           sublabel: Supplier · Released · Read
@@ -143,10 +153,10 @@ blocks:
           label: First parts
           sublabel: "EB-10021 battery pack"
           x: 230
-          y: 330
+          y: 220
           w: 170
           tone: info
-          detail: When an engineer creates an E-Bike Part on Monday, the OIR numbers it, files it and starts its life cycle. The engineer just types a name.
+          detail: When an engineer creates an E-Bike Part on Monday, the OIR numbers it and sets its life cycle. The engineer just types a name.
       edges:
         - { from: template, to: team, label: creates }
         - { from: groups, to: team, label: fill roles }
@@ -161,16 +171,17 @@ blocks:
     who: A business administrator with organization-level admin rights (site admin for the type work)
     steps:
       - title: Create the product from the template
-        where: [Browse, Products, New Product]
+        where: [Navigator, Browse, Products, New Product]
         md: |
-          Name it **E-Bike E1**, choose Acme's standard product template, and finish. The template
-          lays down folders, roles and policies. Check the product's **Folders** to confirm.
+          Name it **E-Bike E1**, pick Acme's standard product template from the **Template** list,
+          and click **OK**. The template lays down the folder structure, the product team, object
+          initialization rules and access policy rules. Check the product's **Folders** to confirm.
       - title: Fill the team
         where: [E-Bike E1, Team]
         md: |
-          Add the `ACME-Engineering` group to the **Designer** role, Jordan (or yourself) as
-          **Product Manager**, and `SUP-Voltra` to a **Supplier** role. Add the role first if the
-          template doesn't have it.
+          Add the `ACME-Engineering` group to the **Designer** role and `SUP-Voltra` to a
+          **Supplier** role. If the template has no Supplier role, add it to the team first: a
+          context team can take new roles.
       - title: Create the subtype
         where: [Site or Organization, Utilities, Type and Attribute Management]
         md: |
@@ -180,37 +191,37 @@ blocks:
           and 72.
       - title: Show the new attributes
         where: [Type and Attribute Management, E-Bike Part, Layouts]
-        md: Add the three attributes to the create and information page layouts, otherwise nobody sees them.
+        md: Edit the layouts E-Bike Part inherits from Part and add the three attributes, so they show on the create and information pages. Don't start a brand-new layout on the subtype; a first new layout drops all the inherited ones.
       - title: Add the numbering rule
-        where: [E-Bike E1, Utilities, Object Initialization Rules Administration]
+        where: [Organization, Utilities, Business Administration, Object Initialization Rules Administration]
         md: |
-          Create a rule for **E-Bike Part** in this product. Set the number to be generated with the
-          prefix `EB-` and a sequence (starting at 10050, above any hand-typed numbers), make the number non-editable, and set the
-          default folder and life cycle.
+          In the Acme Mobility organization, add a rule for **E-Bike Part**. Give it a custom
+          numbering scheme with the prefix `EB-` and a sequence that starts above any hand-typed
+          numbers (Acme picked 10050), and set the default life cycle. A rule for a subtype takes
+          precedence over the Part rule, so only E-Bike Parts get EB- numbers. Keep it at
+          organization level, not in the product: product-level rules can restrict moving objects
+          between products later.
+
+          One check before you leave: open the same utility in **E-Bike E1**. If the product
+          template left a product-level rule for **Part** there, that rule switches off the
+          organization's E-Bike Part rule inside E1, so remove it or fold your settings into it.
       - title: Grant Voltra the minimum
-        where: [E-Bike E1, Utilities, Policy Administration]
+        where: [E-Bike E1, Utilities, Business Administration, Policy Administration]
         md: |
-          On the product's default domain, add a rule for type **CAD Document**, state **Released**,
-          participant **Supplier** role: grant **Read** and **Download**. Grant nothing for other
-          states.
+          Select the product's domain in the left pane, then add an access control rule: type
+          **CAD Document**, state **Released**, participant the **Supplier** role, permissions
+          **Read** and **Download** granted. Grant nothing for other states.
       - title: Prove it
-        where: [Information page, Actions, access information]
+        where: [Information page, Actions, Edit Access Control]
         md: |
-          Pick a released battery drawing and an In Work one. Use the access tool (it may be called
-          *View Access Information* or similar in your release) to check a Voltra user's
-          permissions on each.
+          Open a released battery drawing and an In Work one. On each one's **Edit Access Control**
+          page, click the **View Access Information** icon next to the Supplier role. The **Access
+          Information** page lists every rule behind that participant's permissions and says
+          whether each comes from a policy rule, an ad hoc rule or a security label.
     result: |
       Released drawing → Voltra has Read and Download. In Work drawing → no access at all. A test
-      E-Bike Part comes out as EB-10050, in the right folder, In Work, with the three attributes on
+      E-Bike Part comes out as EB-10050, In Work, with the three attributes on
       its information page.
-
-  - type: callout
-    variant: version-note
-    versions: ["Windchill+"]
-    md: |
-      On Windchill+ (SaaS), site-level type changes and some utilities may be limited or go through
-      PTC's change process. Do the type work at organization level where your release allows, and
-      check with your PTC contact for anything site-wide.
 
   - type: simulation
     title: "Wednesday to Monday: set up the division"
@@ -256,10 +267,10 @@ blocks:
         blockedHint: Create the subtype first, or you have all three already.
       - id: oir
         label: Add the EB- numbering rule (OIR)
-        when: { subtype: ready, product: [blank, from template] }
+        when: { subtype: ready }
         do: [{ set: { oir: "EB-##### auto" } }]
-        log: New E-Bike Parts in E1 will be numbered EB-10050, EB-10051 and so on. Nobody types a number.
-        blockedHint: The rule needs both the subtype and the product it applies in.
+        log: Organization-level rule added. New E-Bike Parts will be numbered EB-10050, EB-10051 and so on.
+        blockedHint: The rule needs the subtype to exist first.
       - id: grantall
         label: "Give SUP-Voltra Full Control (quick fix)"
         when: { team: ready, access: [none, released only] }
@@ -276,12 +287,12 @@ blocks:
         label: Check a Voltra user on an In Work drawing
         when: { access: everything }
         do: [{ set: { proof: "FAILED - Voltra sees In Work" } }]
-        log: The access check shows Full Control on an In Work drawing. Exactly what Jordan asked you to prevent.
+        log: Access Information shows Full Control on an In Work drawing. Exactly what Jordan asked you to prevent.
       - id: checkreleased
         label: Check a Voltra user on released and In Work drawings
         when: { access: released only }
         do: [{ set: { proof: verified } }]
-        log: Released drawing → Read and Download. In Work drawing → no access. Proven.
+        log: "Access Information: released drawing → Read and Download. In Work drawing → no access. Proven." 
       - id: checknone
         label: Check a Voltra user before granting anything
         when: { access: none, team: ready }
@@ -329,23 +340,23 @@ blocks:
             feedback: "Recovered. Exceptions go through the person who owns the data."
       - id: s2
         md: |
-          Second call, from Priya: *"I created an E-Bike Part and it's numbered 0000231, not EB-!"*
-          You look. She created it in the **Scooter S2** product by mistake. What's going on?
+          Second call, from Priya: *"My new battery part is numbered 0000231, not EB-!"* You look.
+          She picked the type **Part** in the create window, not **E-Bike Part**. What's going on?
         choices:
-          - label: "The EB- rule lives in E-Bike E1, so it doesn't apply in Scooter S2. Help her create it in E1"
+          - label: "The EB- rule is for the E-Bike Part subtype. Help her create it as an E-Bike Part"
             next: s3
             good: true
-            feedback: "Right. An OIR applies in the context where it's defined and the contexts below it."
-          - label: "Copy the EB- rule up to site level so it works everywhere"
+            feedback: "Right. A rule applies to its type and that type's subtypes, so plain Parts keep the normal numbering."
+          - label: "Change the Part rule so every part gets an EB- number"
             next: s2-site
             feedback: "Bigger change than it sounds."
       - id: s2-site
         md: |
-          A site-level rule would number E-Bike Parts as EB- in *every* product, including ones that
-          shouldn't have e-bike parts at all, and it hides the real mistake: the part is in the wrong
-          product. What's the better fix?
+          Changing the Part rule would give EB- numbers to scooter bolts, wheels and everything else
+          Acme creates, and it hides the real mistake: the wrong type was picked. Her part also
+          misses the battery attributes. What's the better fix?
         choices:
-          - label: "Leave the rule in E1 and have Priya create the part in E-Bike E1"
+          - label: "Leave the rules alone and have Priya create it as an E-Bike Part"
             next: s3
             good: true
             feedback: "Fix the cause, not the symptom."
@@ -396,23 +407,23 @@ blocks:
   - type: callout
     variant: pitfall
     md: |
-      **Testing as yourself.** As an administrator you can see almost everything, so "I can open it"
-      proves nothing. Always check access *as the participant* (or with the access tools for that
-      participant).
+      **Testing as yourself.** Your own admin access says nothing about what a supplier can see,
+      so "I can open it" proves nothing. Always check access *for the participant*, with the
+      Access Information page, or with a test account that has only the supplier's memberships.
 
   - type: callout
     variant: pro-tip
     md: |
       Once E-Bike E1 works, **save it as a context template**. The next division then starts with
-      the subtype in use, the numbering rule, the team roles and the supplier policy already in
-      place.
+      the folders, the team roles and the supplier policy already in place. The subtype and its
+      numbering rule live at organization level, so they already apply everywhere in Acme.
 
   - type: exercise
     title: Write the go-live checklist
     environment: windchill-trial
     goal: Turn this capstone into a checklist you could hand to Jordan, or try it in a trial system if you have admin rights there.
     steps:
-      - List each object you created (product, subtype, attributes, rule, policy) and **where** you created it (site, organization or product).
+      - List each object you created (product, subtype, attributes, numbering rule, access rule) and **where** you created it (site, organization or product).
       - Note who should be in each team role, by group.
       - Write down the two access checks you ran and their expected results.
       - Add one thing you would test with a real engineer on Monday morning.
@@ -428,10 +439,10 @@ blocks:
           - Create E-Bike E1 from the product template
           - Put groups into the product team roles
           - Create the E-Bike Part subtype and its attributes
-          - Add the numbering rule for E-Bike Part in E1
+          - Add the organization-level numbering rule for E-Bike Part
           - Grant the Supplier role Read on Released CAD documents
           - Check a Voltra user's access on released and In Work drawings
-        explanation: The product and team come first, because rules and policies point at them. The subtype must exist before a rule can target it. Proof comes last.
+        explanation: The product and team come first, because the access rule points at the product's domain and the Supplier role. The subtype must exist before a rule can target it. Proof comes last.
       - kind: single
         prompt: Why put SUP-Voltra in a Supplier role instead of naming Voltra users in the access rule?
         options:
@@ -445,15 +456,15 @@ blocks:
         prompt: What does the E-Bike Part numbering rule do on Monday? (Choose all that apply.)
         options:
           - Generates EB- numbers from a sequence
-          - Stops users typing their own numbers
-          - Files new parts in a default folder and life cycle
-          - Applies to E-Bike Parts in every product on the site
-        answers: [0, 1, 2]
-        explanation: The rule was defined in E-Bike E1, so it applies there and in contexts below it, not across the whole site.
+          - Sets the default life cycle for new E-Bike Parts
+          - Gives plain Parts an EB- number too
+          - Takes precedence over the Part rule for E-Bike Parts
+        answers: [0, 1, 3]
+        explanation: The rule is for the E-Bike Part subtype, so it wins over the Part rule for E-Bike Parts and leaves plain Parts alone.
       - kind: truefalse
         prompt: As the admin, opening the In Work drawing yourself proves Voltra can't see it.
         answer: false
-        explanation: Admins see almost everything. Check effective permissions for a Voltra user, or log in as a test supplier user.
+        explanation: Your access is not Voltra's. Check the Supplier role on the Access Information page, or log in as a test supplier account.
       - kind: single
         prompt: Voltra asks for an In Work drawing "just this once". Best response?
         options:

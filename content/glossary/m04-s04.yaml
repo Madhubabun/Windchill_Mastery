@@ -2,59 +2,76 @@
 - id: type-and-attribute-management
   term: Type and Attribute Management
   plain: The admin tool where you design your company's kinds of objects and the fields they carry - no code.
-  definition: The Windchill administration utility used to create and manage subtypes, attributes, constraints, enumerations, calculated attributes and layouts. Changes are configuration stored in the database, so they survive upgrades far better than code customizations.
-  aka: [TAM, Type Manager]
-  related: [subtype, global-attribute, local-attribute, enumeration, layout]
+  definition: The Windchill administration utility, opened from the Site or Organization Utilities page, for managing types and subtypes, their attributes, constraints, layouts and cascading attributes, plus global enumerations, reusable attributes, measurement systems and quantities of measure. Its changes are configuration, so they don't need recompiling or a change to the object model.
+  aka: [Type Manager]
+  related: [subtype, reusable-attribute, global-attribute, local-attribute, enumeration, layout]
 
 - id: subtype
   term: Subtype
   plain: Your own flavour of a standard object, like "E-Bike Part" as a special kind of Part.
-  definition: A type created by an administrator underneath an existing type (for example under Part or Document). It inherits everything from its parent - attributes, behaviour, layouts and rules - and can add its own attributes, constraints and layouts.
+  definition: A type created by a site or organization administrator underneath an existing type (for example under Part or Document). It inherits its parent's attributes and administrative settings unless you override them, and can have its own attributes, layouts, access control rules and object initialization rules. Subtypes are non-modeled - no code or recompiling.
   aka: [Soft type]
   related: [soft-type, type-and-attribute-management, part, document]
 
 - id: soft-type
   term: Soft type
-  plain: The old nickname for a subtype - "soft" because it's made by configuration, not hard-coded.
-  definition: The historical name for a subtype defined through administration rather than in Java code. A type defined in Java code is sometimes called a modeled or "hard" type.
-  aka: [Modeled type (the opposite)]
-  related: [subtype, type-and-attribute-management]
+  plain: An older nickname for a subtype - "soft" because it's made by configuration, not hard-coded.
+  definition: A name still found in older training and customization material for a subtype defined through administration rather than in the Java object model. Current Windchill documentation says subtype.
+  related: [subtype, modeled-attribute, type-and-attribute-management]
 
 - id: global-attribute
   term: Global attribute
-  plain: A field defined once in a shared library of attributes and reused on many types.
-  definition: An attribute based on a reusable attribute definition, so the same definition (name, data type, units) can be added to several types. Searches and reports can then find the value consistently across all types that use it.
-  aka: [Reusable attribute]
-  related: [local-attribute, attribute-constraint, type-and-attribute-management]
+  plain: A field added to a type from the shared library of reusable attributes.
+  definition: An attribute on a type that is based on a reusable attribute definition, so the same definition can be used by more than one type. Global attributes can hold zero or more values, are stored in tables separate from the type's own table, and are by far the most commonly used kind of attribute. Use one whenever the attribute must be multi-valued or used by unrelated types.
+  related: [reusable-attribute, local-attribute, attribute-constraint, type-and-attribute-management]
+
+- id: reusable-attribute
+  term: Reusable attribute
+  plain: A field definition kept in a shared library so many types can use it.
+  definition: An attribute definition created under Manage Reusable Attributes in Type and Attribute Management, with an internal name, data type, display name, description and optional logical identifier. Adding it to a type creates a global attribute on that type; PTC's course material uses "reusable attribute" and "global attribute" interchangeably. Definitions created at site level are available to all organizations; those created in an organization stay private to it.
+  aka: [Global attribute definition]
+  related: [global-attribute, type-and-attribute-management]
 
 - id: local-attribute
   term: Local attribute
-  plain: A field that belongs to one type only and is defined right there on it.
-  definition: An attribute created directly on a single type (and inherited by that type's own subtypes). It cannot be added to unrelated types.
+  plain: A field stored right on one type's own database table.
+  definition: An attribute restricted to one parent type because its value is stored in a column of that type's table. A suitable column must exist, which the system administrator adds with the AddColumns tool. A local attribute holds zero or one value and performs better than a single-valued global attribute.
   related: [global-attribute, subtype]
+
+- id: alias-attribute
+  term: Alias attribute
+  plain: A field that shows a value borrowed from a related object.
+  definition: An attribute whose value comes from an attribute on a related object, found by following a mapping written with type and attribute internal names. It lets an information page or table for one type display information from another object. Alias attributes can have zero to many values.
+  related: [global-attribute, calculated-attribute, layout]
+
+- id: modeled-attribute
+  term: Modeled attribute
+  plain: A field built in Java code by a developer, not configured by an admin.
+  definition: A custom attribute added to the Windchill object model with code. It can do anything Java can, such as validating against a third-party system, but it adds development cost and makes upgrades more complex. PTC's guidance is to use it only when no configurable attribute type can meet the need.
+  related: [global-attribute, local-attribute, soft-type]
 
 - id: attribute-constraint
   term: Attribute constraint
   plain: A rule on a field, like "must be filled in" or "must be between 24 and 72".
-  definition: A rule attached to an attribute on a type that limits the values users can enter, for example Value Required, a numeric range, a string length or format, a legal or enumerated value list, or Immutable. Constraints are inherited by subtypes and enforced when the object is saved.
+  definition: A rule set on an attribute for one type that limits the values users can enter - for example Required, Valid Range, String Length, Regular Expression, Legal Value List, Enumerated Value List, Single-Valued or Immutable. The constraint belongs to the type and attribute combination, so the same attribute can be constrained differently on different types. A value must satisfy every enabled constraint.
   aka: [Constraint]
   related: [global-attribute, local-attribute, enumeration]
 
 - id: enumeration
   term: Enumeration
   plain: A managed pick-list, such as IP54 / IP65 / IP67.
-  definition: A named list of entries, each with an internal name, a display name and a selectable flag, managed in Type and Attribute Management. An attribute uses it through an enumerated value list constraint, so users choose from the list instead of typing free text.
-  aka: [Enumerated value list, Pick-list]
+  definition: A global enumeration is a Windchill object that stores a list of legal values (entries with an internal name and a display name), kept in an enumeration organizer in Type and Attribute Management. It does not say which attributes use it; an attribute uses it through an Enumerated Value List constraint. Entries can be removed from the selection list without changing objects that already use them.
+  aka: [Global enumeration, Pick-list]
   related: [attribute-constraint, global-attribute]
 
 - id: calculated-attribute
   term: Calculated attribute
   plain: A field Windchill works out for you from other fields, like a spreadsheet formula.
-  definition: An attribute whose value comes from a formula over other attributes of the same object (for example motor power divided by battery voltage). Users cannot type into it.
-  related: [global-attribute, local-attribute]
+  definition: An attribute derived from other attributes with a formula, either by joining strings or by maths. Formulas refer to attributes by internal name. Calculated attributes always carry an Immutable constraint, are not stored directly in the database, and are recalculated once a create or edit action has been processed.
+  related: [alias-attribute, global-attribute, local-attribute]
 
 - id: layout
   term: Layout
-  plain: The arrangement of fields a user sees when creating, editing or viewing a type.
-  definition: A type's definition of which attributes appear, in which groups and order, on screens such as the create and edit forms and the information page. Subtypes inherit their parent's layouts until you override them.
+  plain: The arrangement of fields a user sees on a particular screen for a type.
+  definition: A type's definition of which attributes appear, in which groups and order, on screens such as create, edit and the information page, managed on the type's Layouts tab. Subtypes inherit their parent's layouts and can edit them; creating a first new layout on a subtype drops all inherited layouts, so every layout must then be rebuilt for that subtype.
   related: [subtype, type-and-attribute-management, information-page]

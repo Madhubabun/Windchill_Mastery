@@ -19,14 +19,14 @@ cheatsheet:
     - title: Access control
       points:
         - "Policy rules: domain + type + state + participant → permissions. They inherit down the domain hierarchy."
-        - Deny beats grant; an absolute deny beats everything except administrators.
-        - Ad hoc access is for one object; security labels restrict access to sensitive data whatever else is granted.
-        - "Debug \"I can't see it\" with the access tools for that user. Never test as an admin, and never fix with Full Control."
+        - "Granted by one rule and denied by another means denied. Priority, highest first: security label denial, absolute deny, ad hoc grants, rules for a named user, then rules for groups, roles and organizations."
+        - Ad hoc access is for one object; security labels deny everyone who isn't authorized, whatever else is granted.
+        - "Debug \"I can't see it\" with Edit Access Control → View Access Information for that participant. Never fix it with Full Control."
     - title: Process and defaults
       points:
-        - "Life cycle templates define states, transitions and phase roles; workflow templates define the process. Test changes on a copy first, because objects and running processes already use the live template."
+        - "Life cycle templates define states, transitions and phase roles; workflow templates define the process. Reassign Life Cycle moves objects to another template."
         - Robots automate workflow steps; keep routing expressions short and safe.
-        - "Object initialization rules (OIRs) set defaults when an object is created: number, folder, life cycle, team. The most specific context wins."
+        - "Object initialization rules (OIRs) set defaults when an object is created: number, folder, life cycle, team template. Rules from every level merge; the lower level and the subtype rule win. Define them at organization or site level."
         - Context templates carry folders, roles, policies and rules into each new product. Preferences can be set and locked at site, organization or context level.
     - title: Reports and classification
       points:

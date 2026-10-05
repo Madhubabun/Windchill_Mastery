@@ -1,0 +1,250 @@
+id: m04-s06-l06
+subtitle: One workflow per state, one workflow for everything, a mix - or no workflow at all. Picking the shape matters more than drawing the boxes.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, workflow, workflow-strategy, lifecycle, promotion, change]
+sources:
+  - id: ac
+    where: "Module 5: Describe Windchill life cycles (phase and gate); Identify life cycle types; Identify life cycle best practices; Define a workflow strategy; Describe modular and single workflows; Describe combined and change and promotion request workflows; Identify characteristics of workflow designs 1 and 2; Associate workflow templates to advanced life cycles; Compare promotion requests to change management objects"
+
+blocks:
+  - type: text
+    md: |
+      Jordan can now build life cycles and workflows. The harder question comes next: **how should
+      they fit together?** Acme manages very different things:
+
+      - **E-Bike Parts** - thousands of them, alive for years
+      - **battery test reports** - a formal review every single time
+      - **concept sketches** - most never go anywhere
+      - **marketing brochures** - no engineering change process at all
+
+      One shape won't fit them all. The course describes four workflow strategies. This lesson helps
+      you pick.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the working part of a state" → *phase*; "the checkpoint at the end of a state" → [[life-cycle-gate|gate]]
+      - "small workflows, one per phase or gate" → *modular* approach
+      - "one big workflow that drives the whole life" → *single* approach
+      - "manual moves for some states, a workflow for others" → *combined* approach
+      - "let another object's workflow move it" → *change and promotion request* approach
+
+  - type: diagram
+    title: Four ways to drive a life cycle
+    caption: The same three-state life cycle, driven four ways. Click each box.
+    diagram:
+      width: 840
+      height: 420
+      groups:
+        - { label: Workflow on the object, x: 20, y: 20, w: 520, h: 380, tone: neutral }
+        - { label: Workflow elsewhere, x: 560, y: 20, w: 260, h: 380, tone: accent }
+      nodes:
+        - id: modular
+          label: Modular
+          sublabel: a workflow per phase or gate
+          x: 40
+          y: 60
+          w: 230
+          tone: info
+          detail: |
+            Small workflows attached to the phases (and possibly gates) of each state, reused several
+            times in one life cycle. Each is simple to specify and test. Windchill locks objects while a
+            gate process runs, so the popular variant puts workflows in phases only. If you use gates at
+            all, the modular approach is required.
+          real: The course notes modular workflows are rarely used in production environments.
+        - id: single
+          label: Single
+          sublabel: one workflow in the first phase
+          x: 290
+          y: 60
+          w: 230
+          tone: primary
+          detail: |
+            One workflow attached to the phase of the first state drives every state change. Easier to
+            maintain and more flexible - and the course's recommended practice. But every object keeps
+            a running workflow, which costs CPU, memory and database space.
+        - id: combined
+          label: Combined
+          sublabel: Set State, then a workflow
+          x: 40
+          y: 250
+          w: 230
+          tone: warning
+          detail: |
+            Lighter methods (a manual Set State or a promotion request) handle the informal stages; a
+            workflow starts only once the formal process begins. Fewer nodes, fewer workflows running at
+            once.
+        - id: changepr
+          label: Change or promotion request
+          sublabel: basic life cycle on the object
+          x: 590
+          y: 150
+          w: 210
+          tone: success
+          detail: |
+            No workflow on the object at all. Its state is driven by the workflow of another object - a
+            promotion request or a change object. The object keeps a fast **basic** life cycle, and one
+            procedure can release many objects at once.
+      edges:
+        - { from: modular, to: single, label: fewer templates, dashed: true }
+        - { from: single, to: changepr, label: workflow moves out, dashed: true }
+
+  - type: comparison
+    title: The four approaches side by side
+    columns: [Modular, Single, Combined, Change or promotion request]
+    rows:
+      - label: Life cycle type
+        cells: ["Advanced", "Advanced", "Advanced", "Basic"]
+      - label: Strength
+        cells: ["Reuse; small workflows", "One clear workflow per object; flexible", "Simpler workflow; fewer running", "Fast; one procedure releases many objects"]
+      - label: Weakness
+        cells: ["Many pieces to coordinate", "A running workflow per object - extra server load", "Needs discipline for the manual moves", "Needs the change or promotion setup"]
+      - label: Required when
+        cells: ["You use gate workflows", "-", "Not every state move is formalized", "-"]
+      - label: Out of the box
+        cells: ["-", "Used by change objects and promotion requests themselves", "-", "Available for parts, documents and CAD documents"]
+    takeaway: Single is the recommended workflow design - but for objects that exist in large numbers or live for years, let a change or promotion request do the driving.
+
+  - type: text
+    md: |
+      ### Four questions before you draw anything
+
+      The course suggests asking these for each object type:
+
+      1. Are objects released **one by one**, or many together?
+      2. Does the journey from first to last state take **hours, days, months or years**?
+      3. Does the **same release process** apply to many kinds of object?
+      4. Is there a **formal process** for every state move in the life cycle?
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Strategy mistakes don't show up in testing. A single workflow on every part runs fine with ten
+      test parts - and quietly loads the server with tens of thousands of long-running processes a year
+      later. Choosing the shape first is what keeps Windchill fast.
+
+  - type: scenario
+    variant: challenge
+    title: Jordan's strategy meeting
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          First up: **E-Bike Parts**. Thousands of them, alive for years, released in batches through
+          Maya's change process. Kai suggests "one big workflow on every part, like the test reports".
+          What does Jordan propose?
+        choices:
+          - label: "A basic life cycle, with releases driven by promotion requests and change objects"
+            next: s2
+            good: true
+            feedback: "Right. Large numbers and long lives make a per-object workflow expensive."
+          - label: "A single workflow on every part"
+            next: s1-load
+            feedback: "Every part would carry a running workflow for years."
+      - id: s1-load
+        md: |
+          Rosa runs the numbers: 20,000 parts, each with a workflow that runs until the part is retired.
+          The course warns the single approach doesn't suit objects in large quantities or with long
+          life cycles. Reconsider?
+        choices:
+          - label: "Basic life cycle; let promotion requests and change objects drive the state"
+            next: s2
+            good: true
+      - id: s2
+        md: |
+          Next: **battery test reports**. Few of them, short-lived, and every one goes through the same
+          formal review. Which shape?
+        choices:
+          - label: "A single workflow in the phase of the first state"
+            next: s3
+            good: true
+            feedback: "One workflow, one clear relationship, easy to maintain - the recommended design."
+          - label: "Modular workflows in every phase and gate"
+            next: s2-gate
+            feedback: "Possible, but more pieces - and gates lock the report while they run."
+      - id: s2-gate
+        md: |
+          Leo points out that authors must be able to fix reports during review, but a gate process
+          locks modification. Jordan switches to...
+        choices:
+          - label: "One single workflow in the first state's phase"
+            next: s3
+            good: true
+      - id: s3
+        md: |
+          Last: **concept sketches**. Most are abandoned informally; only some enter a formal design
+          review. What fits?
+        choices:
+          - label: "Combined - a manual Set State into Review, then a workflow starts"
+            next: win
+            good: true
+            feedback: "Lighter moves for the informal part, a workflow only where the process is formal."
+          - label: "A single workflow from the moment a sketch is created"
+            next: partial
+            feedback: "Most sketches would carry a workflow that never finishes."
+      - id: win
+        md: |
+          Jordan's strategy sheet: parts on basic life cycles with promotion and change; test reports on a
+          single workflow; sketches combined. Brochures stay on a simple basic life cycle - non-engineering
+          data rarely needs the change process.
+        outcome: success
+      - id: partial
+        md: |
+          It works, but hundreds of abandoned sketches keep idle workflows alive. Jordan moves sketches to
+          the combined approach in the next release.
+        outcome: partial
+
+  - type: example
+    variant: real-world
+    title: The gate that froze the fixes
+    industry: Micromobility
+    md: |
+      A company like Acme used a modular design with a review workflow in every **gate**. Reviewers kept
+      asking for small fixes - but objects in a gate process can't be modified, so authors had to wait
+      for the review to end, get demoted, fix, and resubmit. Moving the review into the **phase** (and
+      then into one single workflow) cut the loop from days to hours.
+    takeaway: Gates lock objects. Put work that needs editing in phases.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Mixing transitions with a running workflow.** In an advanced life cycle, Promote, Lock and Set
+      State can move an object behind its workflow's back. Revise and Change are safe alongside
+      workflows. If you choose the single approach, let the workflow own the state changes.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Write the strategy down as a one-page table - object type, life cycle (basic or advanced),
+      approach, why. It's the first thing a new admin or an upgrade partner should read.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Which workflow design does the course recommend as best practice for objects that do need a workflow?
+        options: [Modular, Single, A workflow in every gate, No workflow ever]
+        answer: 1
+        explanation: Single workflows are less complex and easier to manage than modular ones, which are rarely used in production.
+      - kind: truefalse
+        prompt: If you use gate workflows in a life cycle, you must use the modular approach.
+        answer: true
+        explanation: With gates, one workflow runs to enter the gate and another to move from the gate to the next phase - that is the modular approach.
+      - kind: multi
+        prompt: Why is "change or promotion request" a good fit for E-Bike Parts? (Choose all that apply.)
+        options:
+          - The parts can keep a fast basic life cycle
+          - One procedure can release many parts together
+          - Out-of-the-box processes already handle parts, documents and CAD documents
+          - It gives every part its own running workflow
+        answers: [0, 1, 2]
+        explanation: The state is driven by another object's workflow, so the parts need no workflow of their own.
+
+  - type: summary
+    points:
+      - "Four strategies: modular, single, combined, and change or promotion request."
+      - Single workflows are the recommended design - but each object keeps a running workflow.
+      - Objects in large numbers or with long lives fit basic life cycles driven by promotion or change.
+      - Combined fits when not every state move is formalized.
+      - Gates lock objects; modular is required only if you use gate workflows.

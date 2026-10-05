@@ -1,0 +1,398 @@
+id: m04-s01-l05
+subtitle: Deleting a participant is one click and a dozen side effects. Know them before you click.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, participants, offboarding, delete, workflows, workspaces]
+sources:
+  - id: ac
+    where: "Module 2, Manage existing participants; Delete a user account: overview; Describe the results of deleting a user; Identify the business process, workspace and running process implications of deleting users; Delete a user account: methods; Delete a group; Describe the results of deleting a group; Identify the business process implications of deleting groups; Delete an organization"
+  - id: ac
+    where: "Module 19, Resolve disconnected principals; Clean up data for deleted users (personal cabinet not removed automatically, monthly clean-up)"
+  - id: ac
+    where: "Module 8, Identify domain and cabinet administrative objects (personal cabinet contents)"
+
+blocks:
+  - type: text
+    md: |
+      Friday afternoon. **Marco**, one of Acme's CAD designers, is leaving. HR's ticket says: "Remove Marco from
+      Windchill." Also, Acme's machining contract with **Hexa Tooling** has ended, so `SUP-Hexa` "can go".
+
+      In Participant Administration, deleting takes one click. What that click *does* is the lesson. Windchill
+      cleans up after a deleted participant in many places at once - groups, rules, templates, teams, running
+      workflows - and some of the user's work can be lost for good if you skip the preparation.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "remove the person from Windchill but leave the address-book entry" → *Delete from Windchill*
+      - "remove the person from Windchill and from the address book" → *Delete from Windchill and Directory Server*
+      - "the user's private storage, incl. workspaces" → [[personal-cabinet]]
+      - "a person Windchill remembers but can't find any more" → [[disconnected-participant]]
+      - "the user's list of tasks" → *assignments list*
+
+  - type: diagram
+    title: Three ways a user can disappear
+    caption: Only one of them is clean. Click each path.
+    diagram:
+      width: 820
+      height: 380
+      nodes:
+        - id: marco
+          label: Marco
+          sublabel: user object + directory entry
+          x: 300
+          y: 20
+          w: 220
+          tone: primary
+          shape: pill
+          detail: Marco exists twice - as a user object in Windchill and as an entry in the directory server. A clean removal deals with both, in the right order.
+        - id: wc
+          label: Delete from Windchill
+          sublabel: entry stays in directory
+          x: 20
+          y: 150
+          w: 240
+          tone: success
+          detail: |
+            Removes the user object and does all of Windchill's clean-up, but leaves the directory entry for other
+            company systems. The only option when Windchill has read-only access to the directory (as is typical with
+            Microsoft Active Directory). Note: if the entry stays and Marco signs in again, Windchill creates a **new**
+            user object for him - without his old groups.
+        - id: both
+          label: Delete from Windchill and Directory Server
+          sublabel: needs write access
+          x: 290
+          y: 150
+          w: 240
+          tone: success
+          detail: Removes the user object with full Windchill clean-up **and** removes the directory entry. Only available when Windchill is configured with a directory server it can write to.
+        - id: dironly
+          label: Removed in the directory only
+          sublabel: e.g. by IT
+          x: 560
+          y: 150
+          w: 240
+          tone: danger
+          detail: |
+            IT deletes the entry, nobody touches Windchill. Marco can no longer sign in and drops out of many searches -
+            but none of Windchill's clean-up runs. His user object becomes a [[disconnected-participant]] that still sits in
+            groups, rules and teams.
+        - id: fix
+          label: Search, add, delete
+          sublabel: finish the job
+          x: 560
+          y: 280
+          w: 240
+          tone: warning
+          detail: Search Disconnected Participants, add the user to the Participant Administration table and delete them from Windchill. That runs the clean-up that was skipped.
+        - id: mail
+          label: Admin email
+          sublabel: manual actions required
+          x: 150
+          y: 280
+          w: 260
+          tone: info
+          detail: After a delete in Participant Administration, the administrator gets an email saying the account has been disabled and listing manual actions that are still needed.
+      edges:
+        - { from: marco, to: wc }
+        - { from: marco, to: both }
+        - { from: marco, to: dironly }
+        - { from: dironly, to: fix, label: then }
+        - { from: wc, to: mail, dashed: true }
+        - { from: both, to: mail, dashed: true }
+
+  - type: text
+    md: |
+      **What Windchill does when you delete a user in Participant Administration**
+
+      | Area | Effect |
+      | --- | --- |
+      | Groups, notification lists, access rules | The user is removed from every one that names them. |
+      | Templates and teams | Removed from role mappings in life cycle templates, workflow templates, team templates, context teams and team instances. |
+      | Running workflows | Removed as a participant from every initiated workflow process. |
+      | History | Still shown in iteration history, life cycle history and details pages - just no longer as an email link. |
+      | Personal cabinet | **Not** removed automatically. It stays until an admin deletes it. |
+
+      And there are three things you simply can't delete: the **Administrator** user, the **Administrator** group,
+      and your own account.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Two kinds of damage come from a careless delete. **Lost work**: anything Marco uploaded to a server-side workspace
+      but never checked in disappears when his personal cabinet goes. **Broken process**: tasks fall back to other
+      people, and a workflow can even be suspended. Both are avoidable with ten minutes of preparation.
+
+  - type: text
+    md: |
+      **What happens to running workflows**
+
+      1. Marco's open assignments must be **completed or reassigned** - Windchill won't let you delete him while his
+         assignments list still has items.
+      2. Future tasks can no longer go to Marco. They go to the **responsible role** named in the workflow instead.
+      3. If Marco himself filled that responsible role, the task goes to the **process initiator**.
+      4. If the assignee, the responsible role's people and the initiator are all deleted, Windchill **suspends the
+         workflow** and notifies the administrator.
+
+  - type: animation
+    title: Where Marco's next task goes
+    diagram:
+      width: 820
+      height: 300
+      nodes:
+        - { id: task, label: Next review task, sublabel: was for Marco, x: 30, y: 120, w: 200, tone: primary }
+        - { id: resp, label: Responsible role, sublabel: named in workflow, x: 310, y: 30, w: 200, tone: accent }
+        - { id: init, label: Process initiator, sublabel: who started it, x: 310, y: 130, w: 200, tone: warning }
+        - { id: susp, label: Workflow suspended, sublabel: admin notified, x: 310, y: 230, w: 200, tone: danger }
+        - { id: admin, label: Jordan, sublabel: administrator, x: 600, y: 230, w: 180, tone: info, shape: pill }
+      edges:
+        - { from: task, to: resp, label: first }
+        - { from: task, to: init, label: if Marco was the responsible role }
+        - { from: task, to: susp, label: if nobody is left }
+        - { from: susp, to: admin, label: email }
+    chapters:
+      - title: Marco is deleted
+        caption: A design review on **EB-10021** is still running. Its next task was meant for Marco.
+        show: [task]
+        highlight: [task]
+        seconds: 5
+      - title: Fallback one - the responsible role
+        caption: The task can't go to a deleted user, so it goes to the **responsible role** defined in the workflow.
+        show: [task, resp]
+        highlight: [resp]
+        flow: [task>resp]
+        seconds: 6
+      - title: Fallback two - the initiator
+        caption: If Marco *was* the person in that responsible role, the task goes to the **process initiator** instead.
+        show: [task, resp, init]
+        highlight: [init]
+        flow: [task>init]
+        seconds: 6
+      - title: Nobody left
+        caption: If the assignee, the responsible role and the initiator are all deleted, the workflow is **suspended** and the administrator is told.
+        show: [task, resp, init, susp, admin]
+        highlight: [susp, admin]
+        flow: [task>susp, susp>admin]
+        seconds: 7
+
+  - type: walkthrough
+    title: Offboard a user safely
+    who: Organization or site administrator, ideally with the leaver's help
+    where: [Organizations, "Acme Mobility", Utilities, Participant Administration]
+    steps:
+      - title: Empty the assignments list
+        md: |
+          Make sure every task in Marco's assignments list is completed or reassigned to someone else. Best done by Marco
+          before he leaves; otherwise an administrator does it.
+      - title: Deal with checked-out work
+        md: |
+          Check in everything Marco has checked out, or cancel the checkout with **Undo Checkout**. This step is critical:
+          work that is checked out but never uploaded to the server is lost when the list of checked-out work is cleared.
+          Remember CAD workspaces too.
+      - title: Add Marco to the table
+        where: [Participant Administration, Search]
+        md: Search for Marco and add him to the Participant Administration table.
+      - title: Delete with the right option
+        where: [Participant Administration, Delete from Windchill]
+        md: |
+          Click **Delete from Windchill** to clean up Windchill and leave the directory entry for other systems - the only
+          choice with a read-only directory. Use **Delete from Windchill and Directory Server** only if Windchill can write
+          to the directory and the entry really should go.
+      - title: Read the email and finish up
+        md: |
+          Act on the "manual actions required" email. If the username might ever be reused, delete Marco's personal cabinet
+          too - only possible once everything checked out to his workspaces has been checked in.
+    result: |
+      Marco is gone from groups, rules, templates, teams and running workflows. His name still appears in history, nothing
+      he worked on was lost, and no workflow is waiting for him.
+
+  - type: comparison
+    title: Deleting a user, a group, an organization
+    columns: [User, Group, Organization]
+    rows:
+      - label: Before you delete
+        cells: ["Empty assignments; check in or undo checkouts", "Impact analysis - groups are used in access control, workflows and licensing", Check whether it has an organization context]
+      - label: Can it be deleted?
+        cells: ["Yes, except Administrator and yourself", "Yes, except the Administrator group", "Organization contexts: never. The participant: only if no organization context uses it"]
+      - label: What happens to people
+        cells: [The user object is removed, "Members are disassociated, not deleted", "-"]
+      - label: Clean-up Windchill runs
+        cells: ["Groups, notification lists, access rules, role mappings, running workflows", "Access rules, notification lists, role mappings, running workflows", "-"]
+      - label: Running workflows
+        cells: [Future tasks fall back to responsible role or initiator, Future tasks go to the responsible role if nobody else is left, "-"]
+    takeaway: Users and groups delete with side effects; organization contexts don't delete at all.
+
+  - type: scenario
+    variant: what-if
+    title: Marco's last day
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          It's Marco's last day. He has three open review tasks and a checked-out battery bracket assembly in his CAD
+          workspace with changes he uploaded this morning but never checked in. HR wants him "out" by 5 pm. What first?
+        choices:
+          - label: Delete Marco now - Windchill cleans up
+            next: fail1
+            feedback: Windchill won't even let you while his assignments list has items - and his uploaded work is at risk.
+          - label: Ask Marco to finish or reassign his tasks and check in the assembly
+            next: s2
+            good: true
+            feedback: Right order. The person who knows the work is still here.
+          - label: Ask IT to delete his directory entry
+            next: fail2
+            feedback: That only disconnects him. None of Windchill's clean-up happens.
+      - id: s2
+        md: |
+          Tasks reassigned, assembly checked in. Acme's directory is Active Directory, read-only for Windchill. Which
+          delete action?
+        choices:
+          - label: Delete from Windchill
+            next: s3
+            good: true
+            feedback: Correct. Windchill can't change a read-only directory, and IT disables the entry their way.
+          - label: Delete from Windchill and Directory Server
+            next: partial1
+            feedback: That needs write access to the directory, which Windchill doesn't have here.
+      - id: s3
+        md: |
+          Done - and the admin email arrives. A year later Acme hires a different person whose username would also be
+          `marco`. What must still have happened?
+        choices:
+          - label: Marco's personal cabinet must have been deleted
+            next: win
+            good: true
+            feedback: Reusing a username requires deleting the old user's personal cabinet.
+          - label: Nothing - deleted usernames are free automatically
+            next: partial2
+            feedback: The personal cabinet isn't removed automatically, and it blocks the name.
+      - id: win
+        md: |
+          **Clean offboarding.** No lost work, no orphaned tasks, history intact, and the personal cabinet tidied up in
+          Jordan's monthly clean-up.
+        outcome: success
+      - id: partial1
+        md: |
+          With a read-only directory that option won't work. Jordan uses **Delete from Windchill** and asks IT to handle the
+          directory entry.
+        outcome: partial
+      - id: partial2
+        md: |
+          The new hire's account can't use the name until Jordan deletes the old personal cabinet. Add it to the monthly
+          clean-up: personal cabinets of deleted users don't go away on their own.
+        outcome: partial
+      - id: fail1
+        md: |
+          The delete is refused while assignments remain - and had it gone through after a rushed reassignment, deleting his
+          personal cabinet later would also delete the uploaded-but-not-checked-in work in his workspace.
+        outcome: fail
+      - id: fail2
+        md: |
+          Marco is now a disconnected participant. He still sits in groups, rules and teams, and nothing was cleaned up.
+          Jordan has to search disconnected participants and delete him from Windchill anyway.
+        outcome: fail
+
+  - type: scenario
+    variant: troubleshooting
+    title: The supplier group that vanished
+    start: t1
+    nodes:
+      - id: t1
+        md: |
+          Acme stored `SUP-Hexa` in the corporate directory. IT deleted it there when the Hexa contract ended. Now an
+          engineer says a machining review workflow "looks odd" and `SUP-Hexa` still appears in some admin pages with a
+          strange status. What's going on?
+        choices:
+          - label: The group is a disconnected participant
+            next: t2
+            good: true
+            feedback: Deleting it only in the directory leaves the Windchill group object behind, pointing at nothing.
+          - label: The directory deletion cleaned everything up; it's a cache issue only
+            next: tfail
+            feedback: A directory-only deletion skips Windchill's clean-up entirely.
+      - id: t2
+        md: Right. How do you finish the job?
+        choices:
+          - label: Search Disconnected Participants, add SUP-Hexa to the table, delete it from Windchill
+            next: t3
+            good: true
+            feedback: That runs Windchill's clean-up for the group.
+          - label: Recreate SUP-Hexa in the directory so it connects again
+            next: tpartial
+            feedback: That brings back a group you meant to remove.
+      - id: t3
+        md: |
+          Windchill removes the group from access rules, notification lists, role mappings and running workflows. Its
+          members are disassociated - not deleted. Future workflow tasks that had nobody else go to the responsible role.
+          One last check?
+        choices:
+          - label: Purge or refresh the participant cache so admin pages show the change
+            next: twin
+            good: true
+            feedback: Participants are cached; changes made outside Windchill may not show until the cache is refreshed.
+          - label: Delete the Hexa users too, just in case
+            next: tpartial2
+            feedback: Deleting a group never requires deleting its members - decide on each user separately.
+      - id: twin
+        md: |
+          **Fixed.** Next time, Jordan and IT agree: impact analysis first (access rules, workflows, licenses), then delete
+          from Windchill, then from the directory.
+        outcome: success
+      - id: tpartial
+        md: The group is back and connected - but it was supposed to be gone. Reconnecting is for things that should still exist.
+        outcome: partial
+      - id: tpartial2
+        md: Some Hexa users still had open questions on old changes. Users are separate decisions with their own offboarding steps.
+        outcome: partial
+      - id: tfail
+        md: Purging the cache alone leaves the disconnected group in rules and teams. The Windchill-side deletion is still missing.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **"We'll just recreate them."** If you delete a user from Windchill while their directory entry still exists, the
+      next sign-in creates a brand-new user object - not the old one - with none of the old group memberships. And a
+      recreated user with the same name looks identical in history pages, so you can't tell the two apart later.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      **Run a monthly participant clean-up.** Search disconnected participants, finish their deletion or reconnect them,
+      and remove personal cabinets of deleted users after checking in anything left in them. PTC recommends doing both at
+      least once a month.
+
+  - type: quiz
+    questions:
+      - kind: order
+        prompt: Put Jordan's safe user deletion in order.
+        items: [Complete or reassign the user's assignments, Check in or undo their checked-out work, Delete the user in Participant Administration, Delete the personal cabinet if the username will be reused]
+        explanation: Move the work first, protect checked-out work second, delete third. The personal cabinet comes last and needs everything in it checked in.
+      - kind: single
+        prompt: A workflow's next task was for a deleted user who was also the person in the workflow's responsible role. Where does the task go?
+        options: [To the site administrator, To the process initiator, Nowhere - it is cancelled, To every member of the organization]
+        answer: 1
+        explanation: Normally a deleted user's tasks go to the responsible role. If the deleted user was that role, the task goes to the process initiator. If nobody is left at all, the workflow is suspended.
+      - kind: truefalse
+        prompt: Deleting the group `SUP-Hexa` from Windchill also deletes its member users.
+        answer: false
+        explanation: Members are only disassociated from the group. They are not deleted from Windchill or from the directory.
+      - kind: single
+        prompt: Kai asks Jordan to delete an old organization context that nobody uses. What happens?
+        options: [It is deleted with all its products, It can't be deleted - organization contexts may not be deleted, It is deleted once its participant is deleted, It becomes a disconnected participant]
+        answer: 1
+        explanation: Organization contexts can't be deleted, and an organization participant can't be deleted while an organization context is associated with it.
+      - kind: multi
+        prompt: When Jordan deletes a user in Participant Administration, what does Windchill do automatically? (Choose all that apply.)
+        options: [Removes them from groups and notification lists, Removes them from role mappings in templates and teams, Removes them as a participant from running workflows, Deletes their personal cabinet]
+        answers: [0, 1, 2]
+        explanation: Groups, notification lists, access rules, role mappings and running workflows are cleaned up. The personal cabinet is not removed automatically.
+
+  - type: summary
+    points:
+      - "Before deleting a user: empty the assignments list, then check in or undo checked-out work."
+      - Delete from Windchill (or from Windchill and the directory, if writable). A directory-only delete leaves a disconnected participant.
+      - Windchill removes a deleted user from groups, rules, role mappings and running workflows; history keeps the name.
+      - Tasks fall back to the responsible role, then the initiator; with nobody left the workflow is suspended.
+      - Deleting a group disassociates members. Organization contexts can't be deleted.

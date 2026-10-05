@@ -3,6 +3,26 @@ subtitle: Acme owns 14 different M6 screws. Nobody meant to. Here's how a good t
 version: 1.0.0
 updated: "2026-10-05"
 tags: [classification, reuse, parts, business-admin]
+sources:
+  - id: pl
+    where: "Windchill PartsLink Classification: overview; PartsLink capabilities; Implementation considerations; Implementation strategy; Classification structure; Classification attributes; Create and update classification structures; Create and update classification attributes; The classification autonaming rule; Installation and configuration overview"
+  - id: ac
+    where: "Describe object typing capabilities; Manage reusable attributes; Optional servers (indexing required for Parts Classification)"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Classification Nodes"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wcclassreuse/WCClassReuseClassNodeAbout.html"
+    covers: "Do not use the same attribute on a classification node and an object type"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Classification Attributes"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wcclassreuse/WCClassReuseAttrTab.html"
+    covers: "Inherited vs local attributes, edit mode, removing attributes loses data"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Classification Constraints"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wcclassreuse/WCClassReuseConstraintsAbout.html"
+    covers: "Constraint types for classification attributes (Required, Enumerated Value List, Valid Range...)"
 
 blocks:
   - type: text
@@ -32,8 +52,8 @@ blocks:
       width: 840
       height: 450
       groups:
-        - { label: Upper levels - grouping only, x: 10, y: 10, w: 820, h: 275, tone: neutral }
-        - { label: Leaf nodes - parts are classified here, x: 10, y: 300, w: 820, h: 140, tone: success }
+        - { label: "Upper levels - grouping (set as not instantiable)", x: 10, y: 10, w: 820, h: 275, tone: neutral }
+        - { label: "End nodes - instantiable, parts are classified here", x: 10, y: 300, w: 820, h: 140, tone: success }
       nodes:
         - id: root
           label: Acme Parts
@@ -51,7 +71,10 @@ blocks:
           y: 110
           w: 160
           tone: primary
-          detail: A grouping node. Nobody classifies a part as just "Mechanical" - it's too vague to help anyone find anything.
+          detail: |
+            A grouping node. Nobody should classify a part as just "Mechanical" - it's too vague to help
+            anyone find anything. Jordan sets its **Instantiable** property to *No*, so it can't be
+            picked as a part's classification.
         - id: elec
           label: Electrical
           x: 550
@@ -69,7 +92,7 @@ blocks:
           detail: |
             Adds **Material** (steel 8.8, stainless A2...) and **Finish** (zinc, black oxide...). Every
             node below Fasteners inherits them.
-          real: Material is usually an enumerated list, not free text - "stainless", "SS" and "A2" would otherwise be three values.
+          real: Give Material an enumerated value list, not free text - otherwise "stainless", "SS" and "A2" become three values.
         - id: bear
           label: Bearings
           sublabel: "+ Bore, Outer dia."
@@ -86,7 +109,7 @@ blocks:
           w: 180
           tone: success
           detail: |
-            A leaf node. A screw classified here has five classification attributes: Material and Finish
+            An end node, set as instantiable. A screw classified here has five classification attributes: Material and Finish
             (inherited from Fasteners) plus **Thread size** (M3...M10), **Length** (mm) and **Drive**
             (hex, Torx, Phillips).
           real: This is the node that ends the 14-screws problem - every M6 × 20 hex screw now looks identical in search.
@@ -194,8 +217,9 @@ blocks:
     md: |
       Each new part number has hidden costs: someone qualifies the supplier, purchasing negotiates a
       price, the warehouse stocks another bin, and service keeps a spare for years. Industry rules of
-      thumb put that at hundreds to thousands per part over its life. Classification is the cheapest
-      way to make **[[part-reuse|reuse]]** easier than reinventing.
+      thumb put that at hundreds to thousands per part over its life. PTC pitches PartsLink on exactly
+      this: less duplication, lower inventory and maintenance cost, and faster design. Classification is
+      the cheapest way to make **[[part-reuse|reuse]]** easier than reinventing.
 
   - type: comparison
     title: Part type or classification?
@@ -211,7 +235,7 @@ blocks:
         cells: ["A handful of types", "Dozens to hundreds of nodes"]
       - label: Changes
         cells: ["Rarely - affects business rules", "Grows as the catalogue grows"]
-    takeaway: Types decide how a part behaves. Classification decides how it's found. Don't build a type for every kind of screw.
+    takeaway: "Types decide how a part behaves. Classification decides how it's found. Don't build a type for every kind of screw - and PTC advises not putting the same attribute on both a type and a classification node."
 
   - type: example
     variant: case-study
@@ -224,7 +248,8 @@ blocks:
       factory stocked four separate bins for them.
 
       **What Jordan did**
-      1. Workshop with Priya, Ana and Kai: list the 30 part kinds Acme buys most.
+      1. Workshop with Priya, Ana and Kai: list the 30 **purchased** part kinds Acme buys most - a pilot
+         set, not the whole catalogue.
       2. Drew a tree **three levels deep** (group → family → leaf) - nothing deeper for now.
       3. For each leaf, picked **3-6 attributes** people actually search on, with units and
          enumerated lists.
@@ -236,39 +261,48 @@ blocks:
     takeaway: Start small - the parts you buy most, a shallow tree, a few searchable attributes - and grow it.
 
   - type: walkthrough
-    title: Where the classification tree is maintained
-    who: Business administrator (often with the site or organization administrator)
-    where: ["Site or Organization", Utilities, Type and Attribute Management]
+    title: Add a node to the classification tree
+    who: A member of the Classification Administrators group (Jordan)
+    where: [Navigator, Browse, Classification Administration, Manage Classifications]
     steps:
-      - title: Open Type and Attribute Management
-        where: ["Organization", Utilities, Type and Attribute Management]
+      - title: Open Manage Classifications
+        where: [Navigator, Browse, Classification Administration, Manage Classifications]
         md: |
-          Classification structures are company-wide, so they live at organization (or site) level -
-          not in a product. Open the context's **Utilities** page and choose **Type and Attribute
-          Management**.
-      - title: Find the classification structure
-        where: [Type and Attribute Management, Classification]
+          Classification is administered from its own **Classification Administration** area, not from a
+          product. Only members of the classification administrators group can change the structures.
+      - title: Pick the structure
+        where: [Manage Classifications, Namespaces, Parts]
         md: |
-          Look for the classification area (named *Classification* or similar, depending on release).
-          It shows the tree of classification nodes. Select a node to see its own and inherited
-          attributes.
-      - title: Add a node and its attributes
-        where: [Classification, "<parent node>", New Node]
+          The **namespace** list names the classification structure. Choose the one used for parts
+          (documents can have their own). Expand the tree down to the parent you want - here
+          *Mechanical → Fasteners*.
+      - title: Insert the node
+        where: [Classification Tree, "Fasteners", Insert Node]
         md: |
-          Create the node under the right parent, give it a clear name and description, set whether
-          parts may be classified directly into it, then add its attributes - with units and
-          constraints (lists, ranges).
-    result: The new node appears in the tree, inherits its parent's attributes, and becomes available when users classify parts.
+          Right-click the parent and choose **Insert Node**. Give it an internal name, a display name
+          (*Washers*) and a description. Set **Instantiable** to *Yes* if parts may be classified into it
+          directly; leave grouping nodes non-instantiable.
+      - title: Add its attributes
+        where: ["Washers", Actions, Edit, Attributes, Add attribute to class]
+        md: |
+          Put the node in **edit mode**, open the **Attributes** tab and add attributes to the class.
+          Classification attributes are reusable (global) attributes managed in Type and Attribute
+          Management, so pick an existing one - Inner diameter, Outer diameter - before creating
+          another. Use units, and constraints such as an enumerated value list, a valid range or
+          *Required*.
+    result: |
+      Washers appears under Fasteners, inherits Material and Finish, shows its own attributes on the
+      Attributes tab, and can be picked when someone classifies a part.
 
   - type: callout
     variant: version-note
-    versions: ["All releases", "Windchill+"]
+    versions: ["All releases"]
     md: |
-      Classification is part of Windchill's PartsLink capability, which may need its own license and
-      setup; menu names for the classification area differ between releases, and many companies load
-      large trees from a spreadsheet using an import tool. On **Windchill+**, organization-level type
-      and classification administration is usually available, but check site-level options with your
-      provider. A later module covers PartsLink in depth.
+      Classification comes from **Windchill PartsLink**, an additional module installed as an add-on.
+      It needs Windchill's index search (Solr) running, plus some one-time setup by an administrator,
+      including a *classification binding attribute* on the Part and Document types in Type and Attribute
+      Management. Whole structures can be exported (CSV or XML) and imported from the Classification
+      Tree's Actions menu, and PTC ships a demo structure that can be loaded as a starting point.
 
   - type: callout
     variant: pitfall
@@ -284,6 +318,11 @@ blocks:
       For every attribute you're tempted to add, ask: "Would someone **search** or **compare** on this?"
       If not, it belongs in a document or a description, not a classification attribute. Fewer,
       well-constrained attributes beat 25 optional free-text fields nobody fills in.
+
+      Then go one step further: a node can carry an **autonaming rule** that builds the part name from
+      the node name and key attribute values. *"Machine screw M6 × 20 hex"* every time - the 14-names
+      problem can't come back. And if several child nodes share an attribute, move it up to the parent
+      so they all inherit it.
 
   - type: flashcards
     cards:
@@ -301,6 +340,8 @@ blocks:
         back: Type decides rules (numbering, life cycle, access). Classification decides how a part is found and compared.
       - front: Why classify?
         back: To make reuse easy and stop duplicate parts, which cost money to qualify, buy, stock and service.
+      - front: Instantiable
+        back: A node property. Only instantiable nodes can be picked as a part's classification; grouping nodes are set to No.
       - front: A good first tree
         back: Shallow (3-4 levels), based on what parts are, with 3-6 searchable attributes per leaf.
 
@@ -310,3 +351,4 @@ blocks:
       - The tree goes general → specific; attributes are inherited downward.
       - Types drive business rules; classification drives findability and reuse.
       - Start shallow with the parts you buy most and 3-6 searchable attributes per leaf.
+      - Nodes are maintained in Classification Administration → Manage Classifications by classification administrators.

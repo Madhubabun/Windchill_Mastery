@@ -3,6 +3,44 @@ subtitle: Stop exporting ten searches into a spreadsheet. Ask Windchill the real
 version: 1.0.0
 updated: "2026-10-05"
 tags: [reporting, query-builder, report-template, business-admin]
+sources:
+  - id: ac
+    where: "Business administrator tasks (building report templates); Administer administrator-saved searches; Manage reports; Author reports; Define, edit, and save queries"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Query Builder"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/querybuilder/QBQueryBuilderOview.html"
+    covers: "Query Builder tabs, launch from New/Edit Report Template, what Apply requires"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Properties (Query Builder)"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/querybuilder/QBProperties.html"
+    covers: "Name and Description, Distinct, Group By, Bypass Access Control and who may set it"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Tables and Joins (Query Builder)"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/querybuilder/QBTablesAndJoins.html"
+    covers: "Tables, aliases, joining every type, duplicate rows without joins"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Adding Tables and Joins on a Report Template"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/querybuilder/QBTablesAndJoinsAdd.html"
+    covers: "Select Types to Add, Modify Alias, Create Join window, link joins"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Select or Constrain (Query Builder)"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/querybuilder/QBSelectOrConstrain.html"
+    covers: "Reportable items, parameter values, display names used as column headings"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Managing Report Templates"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/querybuilder/QBReportTemplatesTable.html"
+    covers: "Report Templates table actions, inheritance from parent contexts, export and import"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Using the Report Builder"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/reportbuilder/ReportBuilderUse.html"
+    covers: "Running a report: criteria, Generate, Results Table"
 
 blocks:
   - type: text
@@ -15,99 +53,90 @@ blocks:
       That needs a question that crosses a relationship - and Jordan wants to save that question so
       Maya can rerun it herself every Monday.
 
-      That's what this lesson is about: building a reusable report with Windchill's report builder.
+      That's what this lesson is about: building a reusable report with Windchill's **Query Builder**.
 
   - type: callout
     variant: terms
     md: |
       **Plain words → official term**
       - "the click-together question builder" → [[query-builder|Query Builder]]
-      - "a saved question anyone allowed can rerun" → [[report-template]]
-      - "the admin page that lists them" → [[report-management|Report Management]]
+      - "a saved question that can be run again and again" → [[report-template]]
+      - "the admin page that lists them" → [[report-management|Report Management]] (it shows the *Report Templates* table)
+      - "the page where you fill in the blanks and press Generate" → [[report-builder|Report Builder]]
       - "connecting two kinds of objects in one question" → *join*
-      - "a blank the user fills in when running it" → *parameter* (run-time criterion)
-      - "the columns you want back" → *select* (or *select/group*)
+      - "a blank the person running it fills in" → *parameter value*
 
   - type: diagram
-    title: The five ingredients of a report template
-    caption: Every report template answers five questions. Click each box.
+    title: The four tabs of Query Builder
+    caption: A report template is built on four tabs, left to right. Click each box.
     diagram:
       width: 820
       height: 340
       nodes:
-        - id: types
-          label: Types
-          sublabel: what to read
+        - id: props
+          label: Properties
+          sublabel: name and behaviour
           x: 20
           y: 40
-          w: 140
+          w: 170
           tone: primary
           detail: |
-            The object types the query reads, for example **Part**, **Document** or a change object.
-            Add a type once per role it plays - a parent part and a child part are two entries
-            with different aliases.
-          real: Most real reports use two to four types. Ten types usually means the question should be split.
-        - id: joins
-          label: Joins
-          sublabel: how they connect
-          x: 180
+            The template's **Name** (unique, shown in the Report Templates table) and **Description**,
+            plus switches such as **Distinct**, **Group By** and **Bypass Access Control**. When you
+            create a new template, this is the only tab available at first.
+          real: A good description is the cheapest documentation you'll ever write - say what the report answers and how terms like "open" are defined.
+        - id: tables
+          label: Tables and Joins
+          sublabel: what to read, how it connects
+          x: 220
           y: 40
-          w: 140
+          w: 180
           tone: accent
           detail: |
-            Joins say *which* part goes with *which* document. In Windchill, relationships are usually
-            stored as **link objects** (a [[described-by]] link, a [[uses-link]] and so on), so you join
-            Part → link → Document.
-          real: Missing joins are the number one cause of reports that return millions of rows.
+            Add the object types (shown as *tables*), each with an **alias**. Then draw **joins**
+            between them. A *link join* follows an association Windchill already models between two
+            types, such as a part and the document that describes it.
+          real: PTC's rule of thumb - when a query has several types, join every one of them. A table with no join can return duplicate rows.
         - id: select
-          label: Select
-          sublabel: which columns
-          x: 340
+          label: Select or Constrain
+          sublabel: columns and blanks
+          x: 430
           y: 40
-          w: 140
+          w: 180
           tone: info
           detail: |
-            The attributes shown as columns: part number, name, state, document number, modified date.
-            You can rename column headings and group or count rows (for example "parts per state").
+            Choose the **reportable items** (attributes that become columns and criteria), give them
+            friendly **display names**, and add **parameter values** - inputs the user supplies when
+            the report runs.
         - id: criteria
           label: Criteria
-          sublabel: which rows
-          x: 500
+          sublabel: fixed filters
+          x: 640
           y: 40
-          w: 140
+          w: 160
           tone: warning
           detail: |
-            Filters such as *context = E-Bike E1* and *state = In Work*. A criterion can be fixed, or
-            turned into a **parameter** so the person running the report types or picks the value.
-        - id: sort
-          label: Sort & output
-          sublabel: how it looks
-          x: 660
-          y: 40
-          w: 140
-          tone: success
-          detail: |
-            Sort order (newest first, by number...) and how results come out: an on-screen table
-            or an export such as CSV/Excel, depending on your release and setup.
+            Extra conditions that are always applied, on top of whatever the user enters in Report
+            Builder - for example, only parts in one product.
         - id: template
           label: Report template
-          sublabel: saved in a context
+          sublabel: in the Report Templates table
           x: 300
           y: 200
-          w: 220
+          w: 240
           h: 64
           tone: primary
           shape: doc
           detail: |
-            The saved [[report-template]] lives in a context. A template saved at **organization** level
-            can be offered to every product; one saved in **E-Bike E1** stays with that product.
-          real: "Results always respect access rights: two people running the same template can see different rows."
+            The saved [[report-template]] lives in the context where you built it. Report Management
+            in a product also lists templates from its parent organization and the site, so a template
+            built at organization level is offered to every product below it.
+          real: "Unless Bypass Access Control is on, results respect each user's access: two people running the same template can get different rows."
       edges:
-        - { from: types, to: template }
-        - { from: joins, to: template }
+        - { from: props, to: template }
+        - { from: tables, to: template }
         - { from: select, to: template }
         - { from: criteria, to: template }
-        - { from: sort, to: template }
 
   - type: animation
     title: What a join actually does
@@ -115,37 +144,38 @@ blocks:
       width: 820
       height: 330
       nodes:
-        - { id: parts, label: Parts, sublabel: EB-10021 · EB-10040 · EB-10102, x: 20, y: 40, w: 220, h: 64, tone: primary, shape: cylinder }
-        - { id: links, label: Described-by links, sublabel: part ↔ document pairs, x: 300, y: 40, w: 220, h: 64, tone: accent, shape: cylinder }
-        - { id: docs, label: Documents, sublabel: DOC-BAT-01 · DOC-MOT-03, x: 580, y: 40, w: 220, h: 64, tone: info, shape: cylinder }
-        - { id: mess, label: No join = every pair, sublabel: 3 parts × 2 docs = 6 rows (mostly wrong), x: 60, y: 200, w: 300, h: 70, tone: danger }
-        - { id: result, label: With joins = true pairs, sublabel: "EB-10021 → DOC-BAT-01 ...", x: 460, y: 200, w: 300, h: 70, tone: success, shape: doc }
+        - { id: parts, label: Parts, sublabel: EB-10021 · EB-10040 · EB-10102, x: 20, y: 40, w: 240, h: 64, tone: primary, shape: cylinder }
+        - { id: docs, label: Documents, sublabel: DOC-BAT-01 · DOC-MOT-03, x: 560, y: 40, w: 240, h: 64, tone: info, shape: cylinder }
+        - { id: link, label: Link join, sublabel: "part ↔ describing document", x: 300, y: 40, w: 220, h: 64, tone: accent, shape: pill }
+        - { id: mess, label: No join, sublabel: rows repeat and pair up wrongly, x: 60, y: 200, w: 300, h: 70, tone: danger }
+        - { id: result, label: With a join = true pairs, sublabel: "EB-10021 → DOC-BAT-01 ...", x: 460, y: 200, w: 300, h: 70, tone: success, shape: doc }
       edges:
-        - { from: parts, to: links, label: part side }
-        - { from: links, to: docs, label: document side }
+        - { from: parts, to: link, label: role A }
+        - { from: link, to: docs, label: role B }
         - { from: parts, to: mess, dashed: true }
         - { from: docs, to: mess, dashed: true }
-        - { from: links, to: result, label: only linked pairs }
+        - { from: link, to: result, label: only linked pairs }
     chapters:
-      - title: Two lists, no connection
-        caption: You add **Part** and **Document** to the report. On their own they are just two lists.
+      - title: Two tables, no connection
+        caption: Jordan adds **Part** and **Document** on the Tables and Joins tab. On their own they are just two lists.
         show: [parts, docs]
         highlight: [parts, docs]
       - title: Forget the join...
-        caption: Without a join, the database pairs **every** part with **every** document. 3 × 2 is small; 2,000 parts × 900 documents is 1.8 million rows and a very slow server.
+        caption: With nothing telling the query which part belongs to which document, rows get repeated and mismatched. In database terms, unjoined tables multiply - and the answer is wrong.
         show: [parts, docs, mess]
         highlight: [mess]
         flow: [parts>mess, docs>mess]
         seconds: 8
-      - title: Add the link object
-        caption: Relationships live in **link objects**. Add the described-by link type to the report as a third type.
-        show: [parts, docs, links]
-        highlight: [links]
-      - title: Join both sides
-        caption: Join Part to the link's part side, and the link's document side to Document. Now only pairs that really exist come back.
-        show: [parts, docs, links, result]
+      - title: Draw the join
+        caption: Jordan drags a line between the two tables. The **Create Join** window lists the joins that exist between them; he picks the link join for the describing relationship.
+        show: [parts, docs, link]
+        highlight: [link]
+        flow: [parts>link, link>docs]
+      - title: Only real pairs
+        caption: Now each row is a part and a document that are actually linked. Every type in the query is joined to another one.
+        show: [parts, docs, link, result]
         highlight: [result]
-        flow: [parts>links, links>docs, links>result]
+        flow: [link>result]
         seconds: 8
 
   - type: callout
@@ -153,100 +183,93 @@ blocks:
     md: |
       Without report templates, every manager's question becomes a support ticket, or someone spends
       Friday afternoon gluing CSV exports together in a spreadsheet - with data that is stale by Monday.
-      A good template answers the question **live**, for anyone allowed to ask it, with the same
-      definition every time. That last part matters: if two teams count "open parts" differently,
-      their numbers will never agree in a meeting.
+      A good template answers the question **live**, with the same definition every time. That last
+      part matters: if two teams count "open parts" differently, their numbers will never agree in a
+      meeting.
 
   - type: comparison
     title: Saved search or report template?
     columns: [Saved search, Report template]
     rows:
       - label: Who builds it
-        cells: [Any user, Business administrator (or someone with Report Management rights)]
+        cells: ["Any user for themselves; administrators can share one with groups", "Administrators, in the Report Templates table (Report Management)"]
       - label: Object types
-        cells: [One type (or a few) per search, Several types joined through their relationships]
-      - label: Columns
-        cells: [The table view's columns, Any attribute of any joined type - plus counts and groups]
+        cells: ["The types you search for", "Several types joined through their relationships"]
       - label: Run-time input
-        cells: [Edit the criteria yourself, Parameters prompt the user for values]
+        cells: ["Users can edit the criteria of a shared saved search", "Parameter values and constrainable fields appear as criteria in Report Builder"]
+      - label: Output
+        cells: ["A search results table", "A Results Table you can export, in formats such as PDF, HTML, CSV or XML"]
       - label: Best for
         cells: ["Finding objects to open and act on", "Answering a question with a table or export"]
     takeaway: "If the answer needs two kinds of objects side by side, it's a report template. If you just need to find things, a [[saved-search]] is lighter."
 
   - type: walkthrough
     title: Build a report template with Query Builder
-    who: Business administrator (Jordan) with Report Management rights in the context
+    who: Business administrator (Jordan) for the context
     where: ["<context>", Utilities, Report Management]
     steps:
       - title: Choose the right context
-        where: [Navigator, Browse, "Organizations or Products", "<context>"]
+        where: [Navigator, Browse, "<context>"]
         md: |
-          Decide where the template should live **before** you build it. Jordan wants Maya and the
-          E-bike team to use it, and nobody else needs it yet, so he opens the **E-Bike E1** product.
-          A template for every product would be built at organization level instead.
+          Decide where the template should live **before** you build it. Jordan wants it for the
+          E-bike team only, so he opens the **E-Bike E1** product. A template for every product would
+          be built at organization level instead - products see their parents' templates.
       - title: Open Report Management
         where: ["E-Bike E1", Utilities, Report Management]
         md: |
-          Open the context's **Utilities** page and choose **Report Management**. You see the report
-          templates already stored in this context.
+          On the context's **Utilities** page, choose **Report Management**. The *Report Templates*
+          table lists templates from this context and its parent contexts.
       - title: Start a new report template
-        where: [Report Management, "New Report Template"]
+        where: [Report Templates table, New Report Template]
         md: |
-          Use the **New** report template action. Query Builder opens. Its pages (often shown as tabs)
-          follow the five ingredients: types, joins/relationships, select, criteria, sort.
-      - title: Add the types
-        where: [Query Builder, Types]
+          Click **New Report Template**. Query Builder opens with only the **Properties** tab
+          available. Enter a clear **Name** and a **Description**, for example
+          *"E1 - parts and their spec documents"*.
+      - title: Add the tables
+        where: [Query Builder, Tables and Joins, Add]
         md: |
-          Add **Part** (or the *E-Bike Part* subtype if you only want e-bike parts), the
-          **described-by link** type, and **Document**. Give each an alias you'll recognise, like
-          *P*, *L* and *D*.
+          Click **Add** and pick **Part** (or the *E-Bike Part* subtype if you only want e-bike parts)
+          and **Document** in the *Select Types to Add* window. Use **Modify Alias** to give each a
+          short alias you'll recognise.
       - title: Join them
-        where: [Query Builder, "Joins / Relationships"]
+        where: [Query Builder, Tables and Joins, Create Join]
         md: |
-          Join **P** to the part side of **L**, and the document side of **L** to **D**. Query Builder
-          offers the valid relationships between the types you added; pick from that list rather than
-          joining on look-alike attributes such as names.
-      - title: Pick the columns
-        where: [Query Builder, Select]
+          Drag a line from one table's corner to the other. The **Create Join** window shows the joins
+          available between the two types; choose the link join for the describing relationship
+          rather than matching on look-alike attributes such as names.
+      - title: Pick columns and parameters
+        where: [Query Builder, Select or Constrain]
         md: |
-          Select P.Number, P.Name, P.State, D.Number, D.Name. Rename headings to plain words like
-          *Part* and *Spec document* - managers read headings, not attribute names.
-      - title: Add criteria and a parameter
+          Add the reportable items - part number, name, state, document number, document name - and
+          give them plain **display names** like *Part* and *Spec document*. Managers read headings,
+          not attribute names. Make sure **state** can be constrained, so whoever runs the report can
+          choose *In Work*, *Under Review* or *Released*.
+      - title: Add fixed criteria
         where: [Query Builder, Criteria]
         md: |
-          Add *context name = E-Bike E1*. For the life cycle state, make the criterion a
-          **parameter** so whoever runs it can choose *In Work*, *Under Review* or *Released*. One
-          template now replaces three.
-      - title: Sort, save and test
-        where: [Query Builder, Sort, Save]
+          Add conditions that should *always* apply, on top of what the user enters - here, only
+          objects in the E-Bike E1 context.
+      - title: Apply and test
+        where: [Report Templates table, "<template>", View Report]
         md: |
-          Sort by part number. Save with a clear name and description, for example
-          *"E1 - parts and their spec documents (by state)"*. Run it once yourself and check a few rows
-          against the parts' information pages.
+          **Apply** becomes available once there is a name, at least one table and at least one
+          reportable item. Then run the template with **View Report**: Report Builder opens, you set
+          the criteria and click **Generate**. Check a few rows against the parts' information pages.
     result: |
-      The template appears in Report Management for E-Bike E1. Running it prompts for a state and
-      returns one row per part-document pair, filtered by what the person running it is allowed to see.
-
-  - type: callout
-    variant: version-note
-    versions: ["Older releases", "Newer releases"]
-    md: |
-      In older releases Query Builder ran as a separate Java-based window; newer releases provide it in
-      the browser. Tab names and the exact place of the joins page vary, but the five ingredients are the
-      same. On **Windchill+**, check which contexts let you create report templates - site-level utilities
-      are often reserved for the service provider, so build at organization or product level.
+      The template appears in the Report Templates table for E-Bike E1. Running it opens Report Builder,
+      asks for a state, and returns one row per part-document pair.
 
   - type: simulation
     title: Build Maya's report
     intro: |
-      Build the template *"E-bike parts and their spec documents"*. Try running it **before** you join
-      the types, just to see what happens, then finish it properly and save a version with a parameter.
-      Use **Start over** whenever you want a clean page.
-    headline: "Types: {typesAdded} · joined: {joined} · filter: {criteria} · last run: {lastRun}"
+      Build the template *"E1 - parts and their spec documents"*. Try generating it **before** you
+      join the tables, just to see what happens, then finish it properly and save a version where the
+      state is chosen at run time. Use **Start over** whenever you want a clean page.
+    headline: "Tables: {tablesAdded} · joined: {joined} · state filter: {criteria} · last run: {lastRun}"
     initial:
-      typesAdded: 0
+      named: false
+      tablesAdded: 0
       partAdded: false
-      linkAdded: false
       docAdded: false
       joined: false
       columnsChosen: false
@@ -254,104 +277,114 @@ blocks:
       saved: false
       lastRun: not run
     actions:
+      - id: name
+        label: "Properties: enter name and description"
+        when: { named: false }
+        do: [{ set: { named: true } }]
+        log: Named "E1 - parts and their spec documents", with a description of what it answers. The other tabs open up.
+        blockedHint: Already named.
       - id: add-part
-        label: Add type - Part
-        when: { partAdded: false }
-        do: [{ set: { partAdded: true } }, { inc: typesAdded }]
+        label: Add table - Part
+        when: { named: true, partAdded: false }
+        do: [{ set: { partAdded: true } }, { inc: tablesAdded }]
         log: Added Part with alias P.
-        blockedHint: Part is already in the query.
+        blockedHint: Name the template on the Properties tab first. (Already added? Part is in the query.)
       - id: add-doc
-        label: Add type - Document
-        when: { docAdded: false }
-        do: [{ set: { docAdded: true } }, { inc: typesAdded }]
+        label: Add table - Document
+        when: { named: true, docAdded: false }
+        do: [{ set: { docAdded: true } }, { inc: tablesAdded }]
         log: Added Document with alias D.
-        blockedHint: Document is already in the query.
-      - id: add-link
-        label: Add type - Described-by link
-        when: { linkAdded: false, partAdded: true }
-        do: [{ set: { linkAdded: true } }, { inc: typesAdded }]
-        log: Added the described-by link with alias L. It holds the real part-document pairs.
-        blockedHint: Add Part first, so you can see what the link connects. (Already added? It's in the query.)
+        blockedHint: Name the template on the Properties tab first. (Already added? Document is in the query.)
       - id: run-unjoined
-        label: Run preview (no joins yet)
+        label: Generate (no join yet)
         when: { partAdded: true, docAdded: true, joined: false }
-        do: [{ set: { lastRun: "1.8 million rows" } }]
-        log: "Ouch: every part paired with every document - 2,000 × 900 = 1.8 million rows. The server sweats, and the answer is wrong."
-        blockedHint: Needs Part and Document in the query and no joins yet.
+        do: [{ set: { lastRun: "duplicate rows" } }]
+        log: "Ouch: parts and documents repeat and pair up wrongly. Nothing tells the query which document belongs to which part."
+        blockedHint: Needs Part and Document in the query and no join yet.
       - id: join
-        label: Join P → L → D
-        when: { partAdded: true, linkAdded: true, docAdded: true, joined: false }
+        label: Create Join - link join P ↔ D
+        when: { partAdded: true, docAdded: true, joined: false }
         do: [{ set: { joined: true } }]
-        log: Joined Part to the link's part side and the link's document side to Document.
-        blockedHint: Add all three types first (Part, link, Document).
+        log: Picked the link join for the describing relationship in the Create Join window.
+        blockedHint: Add both tables first.
       - id: columns
-        label: "Select columns (part no., name, state, doc no.)"
+        label: "Select or Constrain: part no., name, state, doc no."
         when: { joined: true, columnsChosen: false }
         do: [{ set: { columnsChosen: true } }]
-        log: Columns chosen and renamed to Part, Name, State, Spec document.
-        blockedHint: Join the types first so the columns make sense together.
+        log: Reportable items added and given display names Part, Name, State, Spec document.
+        blockedHint: Join the tables first so the columns make sense together.
       - id: run-all
-        label: Run (no criteria)
+        label: Generate (no criteria)
         when: { columnsChosen: true, criteria: none }
         do: [{ set: { lastRun: "1,240 rows" } }]
         log: Correct pairs, but from every context you can see - Scooter S2 included. Too much for Maya.
         blockedHint: Pick columns first. (This run is for a template without criteria.)
       - id: add-criteria
-        label: "Add criteria: context = E-Bike E1, state = In Work"
+        label: "Criteria: context = E-Bike E1, state = In Work"
         when: { columnsChosen: true, criteria: none }
         do: [{ set: { criteria: fixed } }]
-        log: Fixed criteria added.
+        log: Fixed criteria added on the Criteria tab.
         blockedHint: Pick columns first. If criteria already exist, start over to try again.
       - id: run-fixed
-        label: Run (fixed criteria)
+        label: Generate (fixed criteria)
         when: { criteria: fixed }
         do: [{ set: { lastRun: "42 rows" } }]
         log: 42 In Work e-bike parts with their spec documents. Exactly Maya's question - but only for In Work.
         blockedHint: Add the fixed criteria first.
       - id: make-param
-        label: Turn State into a parameter
+        label: Let the user choose State at run time
         when: { criteria: fixed }
-        do: [{ set: { criteria: parameter } }]
-        log: State is now asked at run time. One template covers In Work, Under Review and Released.
-        blockedHint: Add the fixed criteria first, then turn State into a parameter.
+        do: [{ set: { criteria: "chosen at run time" } }]
+        log: State moved out of the fixed criteria and offered as a criterion in Report Builder. One template covers In Work, Under Review and Released.
+        blockedHint: Add the fixed criteria first, then move State to run time.
       - id: run-param
-        label: Run (prompted for State)
-        when: { criteria: parameter }
+        label: Generate (State picked in Report Builder)
+        when: { criteria: "chosen at run time" }
         do: [{ set: { lastRun: "prompted" } }]
-        log: The report asks "State?" - Maya picks Under Review and gets 17 rows.
-        blockedHint: Turn State into a parameter first.
+        log: Report Builder shows a State field - Maya picks Under Review and gets 17 rows.
+        blockedHint: Move State to run time first.
       - id: save
-        label: Save as "E1 - parts and spec documents"
-        when: { criteria: parameter, saved: false }
+        label: Apply and save the template
+        when: { criteria: "chosen at run time", saved: false }
         do: [{ set: { saved: true } }]
-        log: Saved in E-Bike E1 Report Management. Maya can run it every Monday.
-        blockedHint: Save the version with a parameter (already saved? Start over to build another).
+        log: Saved in the E-Bike E1 Report Templates table. Maya can run it every Monday.
+        blockedHint: Save the version where State is chosen at run time (already saved? Start over to build another).
       - id: reset
         label: Start over
-        when: { typesAdded: [1, 2, 3] }
+        when: { named: true }
         do:
-          - set: { typesAdded: 0, partAdded: false, linkAdded: false, docAdded: false, joined: false, columnsChosen: false, criteria: none, saved: false, lastRun: not run }
+          - set: { named: false, tablesAdded: 0, partAdded: false, docAdded: false, joined: false, columnsChosen: false, criteria: none, saved: false, lastRun: not run }
         log: Blank Query Builder again.
         blockedHint: Nothing to clear yet.
     goals:
       - label: See what a missing join does
-        when: { lastRun: "1.8 million rows" }
-        message: No join = every combination. Always join through the link object.
+        when: { lastRun: "duplicate rows" }
+        message: No join = repeated, mismatched rows. Join every table in the query.
       - label: Get exactly Maya's 42 rows
         when: { lastRun: "42 rows" }
         message: Joins give correct pairs; criteria give the right slice.
-      - label: Save a template with a parameter
+      - label: Save a template where State is chosen at run time
         when: { saved: true }
-        message: One template, many questions. Parameters beat copies.
+        message: One template, many questions. Run-time criteria beat copies.
 
   - type: callout
     variant: pitfall
-    title: The report that slowed down everyone
+    title: Two switches that quietly remove security
     md: |
-      Reports run against the **live production database**. A template with a missing join, or one
-      that reads every iteration of every part across the whole site, can make Windchill sluggish for
-      everyone while it runs. Before publishing a template: check the joins, filter by context early,
-      and (where your types allow it) limit to the latest iteration. Test it on a test system first.
+      On the Properties tab, **Distinct** and **Group By** look harmless - they remove duplicate rows or
+      group results into counts. But selecting either one automatically turns on **Bypass Access
+      Control** and locks it, and with that switch on, the query output is no longer restricted by
+      access rights. PTC limits who can set it to privileged groups listed in a server property (by
+      default, the Administrators group). Before you build a "count per state" report, decide who should
+      be able to run it, because they will see counts across data they may not otherwise be able to read.
+
+  - type: callout
+    variant: pitfall
+    title: Don't "fix" the built-in reports
+    md: |
+      Windchill ships predefined report templates, and some of them are used by the user interface
+      itself. PTC's advice is to leave them alone unless you are sure an edit is valid - editing one can
+      break the screen that depends on it. Create a new template instead.
 
   - type: callout
     variant: pro-tip
@@ -359,8 +392,8 @@ blocks:
       Name templates as **audience - question**: *"CCB - open change requests by age"*,
       *"E1 - parts and spec documents"*. Put the definition in the description ("open = any state except
       Resolved and Cancelled"). When numbers are argued over in a meeting, the description settles it.
-      Many releases let you **export** a template from Report Management and **import** it on another
-      system, so you can build on test and move it to production.
+      You can also **Export Report Templates** (a ZIP file) from one system and **Import Report Templates**
+      on another, so you can build and test on a test server and move the finished template to production.
 
   - type: quiz
     questions:
@@ -372,30 +405,30 @@ blocks:
           - Saved searches only work for administrators
           - Documents can't be searched
         answer: 1
-        explanation: Searches find objects of a type. Showing parts next to their documents means joining Part, the described-by link and Document - a report template's job.
+        explanation: Searches find objects. Showing parts next to their documents means joining Part and Document in one query - a report template's job.
       - kind: single
-        prompt: Jordan runs a new template and gets 1.8 million rows. What's the most likely cause?
-        options: [A missing join between the types, Too many columns selected, The sort order, The template is in the wrong context]
+        prompt: Jordan's new template returns repeated, mismatched part-document rows. What's the most likely cause?
+        options: [A table without a join, Too many columns selected, A long description, The template is in the wrong context]
         answer: 0
-        explanation: Without a join the database pairs every row of one type with every row of the other. Join through the link object.
-      - kind: truefalse
-        prompt: Two people running the same report template always see exactly the same rows.
-        answer: false
-        explanation: Results respect each user's access rights, so someone who can't read Scooter S2 data won't see Scooter S2 rows.
+        explanation: PTC advises joining every type in a multi-type query; an unjoined table can return duplicate rows.
       - kind: order
-        prompt: Put Jordan's build steps in a sensible order.
-        items: [Choose the context, Add the types, Join them, Select columns, Add criteria and parameters, Save and test]
-        explanation: Decide where it lives, then build types → joins → columns → criteria, and test before telling anyone.
+        prompt: Put the Query Builder tabs in the order Jordan works through them.
+        items: [Properties, Tables and Joins, Select or Constrain, Criteria]
+        explanation: Name it first (the other tabs open after that), add and join tables, choose the reportable items, then add fixed criteria.
+      - kind: truefalse
+        prompt: Ticking Group By on the Properties tab also turns on Bypass Access Control.
+        answer: true
+        explanation: Group By and Distinct both select Bypass Access Control automatically, so the output is no longer restricted by each user's access.
       - kind: single
-        prompt: Maya needs the same report for In Work, Under Review and Released parts. Best approach?
-        options: [Three templates, One template with State as a parameter, One template with no state filter, Ask Rosa for a database script]
+        prompt: Jordan builds a template in the Acme organization. Where can it be run from?
+        options: [Only the organization's Utilities page, The organization and the products and libraries below it, Only the site, Only Jordan's Home page]
         answer: 1
-        explanation: A parameter asks for the value at run time. One definition is easier to maintain and impossible to get out of sync.
+        explanation: Report Management in a product lists templates from the product, its parent organization and the site.
 
   - type: summary
     points:
-      - A report template is a saved question built with Query Builder in Report Management.
-      - Five ingredients - types, joins, select, criteria, sort/output.
-      - Join through link objects; a missing join returns every combination.
-      - Parameters let one template answer many variations of a question.
-      - Results respect access rights, and heavy reports hit the live database - test first.
+      - A report template is a saved query built with Query Builder from the Report Templates table in Report Management.
+      - Four tabs - Properties, Tables and Joins, Select or Constrain, Criteria.
+      - Join every table; a missing join returns duplicate, mismatched rows.
+      - Constrainable fields and parameter values let one template answer many variations in Report Builder.
+      - Distinct and Group By switch on Bypass Access Control - decide who may run such reports.

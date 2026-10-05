@@ -3,29 +3,34 @@ subtitle: '"I never got the task." Learn to trace why in five minutes.'
 version: 1.0.0
 updated: "2026-10-05"
 tags: [business-admin, roles, teams, workflow, troubleshooting, access]
+sources:
+  - id: ac
+    where: "Module 6, Manage Windchill teams: overview; Describe the team members context group; Identify context roles in OOTB context templates; Describe role resolution for workflow-driven objects; Describe team instances; Define a team instance upon object creation; Identify team role resolution best practices; Describe shared teams. Module 7, Activity: Create an object to test the attributes applied by its OIR. Module 8, Define a notification policy. Module 2, Delete a user account (reassigning tasks)"
 
 blocks:
   - type: text
     md: |
-      Roles do three jobs in Windchill. Learn them and most "Windchill is broken" tickets become
-      five-minute fixes:
+      Roles do two jobs in Windchill, and notifications ride along beside them. Learn how each works
+      and most "Windchill is broken" tickets become five-minute fixes:
 
-      1. **Tasks** - workflow activities are assigned to a role. Whoever fills it gets the task.
-      2. **Access** - access rules can grant permissions to a role in a context.
-      3. **Notifications** - "tell the Product Manager when it's Released".
+      1. **Tasks** - a workflow activity names a role. Windchill resolves it to people through the
+         object's team instance, and they get the task.
+      2. **Access** - access rules are written for the context groups that mirror the roles.
+      3. **Notifications** - notification rules and workflow email robots send mail to users,
+         groups or organizations, and only to people who can **read** the object.
 
-      The catch: these are **separate** mechanisms. Having full access to a part does not put a task
-      in your work list. Being in a role does not mean you can see every object. Today Jordan learns
-      that the hard way.
+      The catch: these are **separate** mechanisms. Full access to a part does not put a task in your
+      list. Being in a role does not guarantee you'll get an email about an object you can't read.
+      Today Jordan learns that the hard way.
 
   - type: callout
     variant: terms
     md: |
       **Plain words → official term**
-      - "work that shows up in my list" → *[[task]]* (a workflow work item)
-      - "turning a role into real people" → *role resolution*
-      - "a job title in this product" → *[[role]]*, filled in the *[[team]]*
-      - "the process team built for one object" → built from a *[[team-template]]*
+      - "work that shows up in my list" → *[[task]]* (a workflow assignment)
+      - "turning a role into real people" → *[[role-resolution]]*
+      - "the private team built for one object" → *[[team-instance]]*, started from a *[[team-template]]*
+      - "an email Windchill sends about an event" → *[[notification]]*
 
   - type: animation
     title: How a role becomes a task in Leo's list
@@ -33,157 +38,186 @@ blocks:
       width: 800
       height: 340
       nodes:
-        - { id: submit, label: Promotion request, sublabel: EB-10021 battery pack, x: 20, y: 140, w: 170, tone: primary }
-        - { id: wfact, label: Review activity, sublabel: "assigned to: Reviewer", x: 230, y: 140, w: 160, tone: accent }
-        - { id: proc-team, label: Process team, sublabel: from team template, x: 430, y: 40, w: 160, tone: info }
+        - { id: create, label: New document, sublabel: E-Bike battery spec, x: 20, y: 140, w: 170, tone: primary }
+        - { id: tpl, label: Team template, sublabel: lists Reviewer, x: 230, y: 40, w: 160, tone: info, shape: doc }
+        - { id: inst, label: Team instance, sublabel: this document only, x: 230, y: 240, w: 160, tone: info }
         - { id: ctx-team, label: E-Bike E1 team, sublabel: "Reviewer = ACME-Quality", x: 430, y: 240, w: 170, tone: info }
-        - { id: group, label: ACME-Quality, sublabel: "Leo + 2 others", x: 630, y: 240, w: 150, tone: neutral, shape: pill }
-        - { id: worklist, label: Leo's work list, sublabel: "Review EB-10021", x: 630, y: 40, w: 150, tone: success, shape: doc }
+        - { id: wfact, label: Review activity, sublabel: "assigned to: Reviewer", x: 430, y: 40, w: 170, tone: accent }
+        - { id: worklist, label: "Leo's task list", sublabel: Review battery spec, x: 640, y: 140, w: 140, tone: success, shape: doc }
       edges:
-        - { from: submit, to: wfact, label: starts }
-        - { from: wfact, to: proc-team, label: "who is Reviewer?" }
-        - { from: proc-team, to: ctx-team, label: resolve, dashed: true }
-        - { from: ctx-team, to: group, label: expand }
-        - { from: group, to: worklist, label: task }
+        - { from: create, to: tpl, label: rule picks }
+        - { from: tpl, to: inst, label: starts }
+        - { from: ctx-team, to: inst, label: adds people, dashed: true }
+        - { from: inst, to: wfact, label: resolves }
+        - { from: wfact, to: worklist, label: task }
     chapters:
-      - title: Someone submits work
-        caption: Priya submits a promotion request for **EB-10021**. Its workflow starts.
-        show: [submit]
-        highlight: [submit]
-      - title: The activity names a role
-        caption: The review activity doesn't name Leo. It says **Reviewer**.
-        show: [submit, wfact]
-        highlight: [wfact]
-        flow: [submit>wfact]
-      - title: Windchill asks the process team
-        caption: The process team was built from the **team template** when the process started.
-        show: [submit, wfact, proc-team]
-        highlight: [proc-team]
-        flow: [wfact>proc-team]
-      - title: The role resolves against the context team
-        caption: Reviewer has no fixed person in the template, so Windchill reads the **E-Bike E1** team. Reviewer = ACME-Quality.
-        show: [submit, wfact, proc-team, ctx-team]
+      - title: Priya creates a document
+        caption: Priya creates a battery specification in **E-Bike E1**. Its life cycle starts a workflow.
+        show: [create]
+        highlight: [create]
+      - title: The rule picks a team template
+        caption: The object initialization rule for this type names a **team template**. Its roles - including **Reviewer** - go into a new **team instance**.
+        show: [create, tpl, inst]
+        highlight: [tpl, inst]
+        flow: [create>tpl, tpl>inst]
+      - title: The context team adds people
+        caption: E-Bike E1's team has ACME-Quality in Reviewer, so those people are added to the instance's **existing** Reviewer role.
+        show: [create, tpl, inst, ctx-team]
         highlight: [ctx-team]
-        flow: [proc-team>ctx-team]
-      - title: Groups expand to people
-        caption: ACME-Quality has three members, including Leo.
-        show: [submit, wfact, proc-team, ctx-team, group]
-        highlight: [group]
-        flow: [ctx-team>group]
+        flow: [ctx-team>inst]
+      - title: The activity names a role
+        caption: The review activity doesn't name Leo. It says **Reviewer**, and the team instance answers.
+        show: [create, tpl, inst, ctx-team, wfact]
+        highlight: [wfact]
+        flow: [inst>wfact]
       - title: The task lands
-        caption: Leo (and his teammates) see **Review EB-10021** in their work lists. Resolution happens **when the task is created** - remember that.
+        caption: Leo and his ACME-Quality colleagues see the review task. The team instance was fixed **when it was built** - remember that.
         highlight: [worklist]
-        flow: [group>worklist]
+        flow: [wfact>worklist]
         seconds: 8
 
   - type: callout
     variant: why-it-matters
     md: |
-      A missing task is invisible. Nobody gets an error - the part just sits in review while the
+      A missing task is invisible. Nobody gets an error - the document just sits in review while the
       launch date slips. Admins who can trace role resolution quickly are the ones engineering teams
       trust.
 
   - type: comparison
-    title: Three things roles drive - and what they don't
+    title: Three things that reach people - and what they don't do
     columns: [Tasks, Access, Notifications]
     rows:
-      - label: Uses the role to...
-        cells: ["Decide who gets a work item", "Decide what you may read or change", "Decide who gets an email"]
-      - label: Resolved when
-        cells: ["When the task is created", "Every time you open or act on an object", "When the event happens"]
-      - label: Change the team and...
-        cells: ["Open tasks usually keep their old assignees", "Takes effect right away", "Next event uses the new team"]
+      - label: Decided by
+        cells: ["Roles in the object's team instance", "Access rules on context groups, Team Members and other principals", "Notification rules or email robots naming users, groups or organizations"]
+      - label: Change the context team and...
+        cells: ["Existing team instances don't change", "The context groups mirror the team", "Rules still name the same recipients"]
+      - label: Hidden dependency
+        cells: ["The role must be in the team template or life cycle state", "Edit rights in shipped templates mostly come from Team Members", "No read access to the object means no email"]
       - label: Does NOT give you
         cells: ["Permission to edit everything", "A task in your list", "Access to the object it mentions"]
-    takeaway: Access is not assignment. Fix the right mechanism.
+    takeaway: Access is not assignment. Find the mechanism first, then fix it.
 
   - type: simulation
     title: Get Leo his review task
     intro: |
-      Priya's promotion request for **EB-10021** is in review, but the review task went to nobody.
-      Leo is a quality engineer, but he is not yet in the group **ACME-Quality**, and E-Bike E1's
-      **Reviewer** role is empty. Try things in any order. Some "fixes" don't fix anything.
-    headline: "EB-10021 review task → {task} · Reviewer role: {role} · Leo in ACME-Quality: {leoInGroup} · Leo's access: {access}"
-    initial: { task: Unassigned, role: empty, leoInGroup: false, access: Read }
+      Priya is about to create **EB-10024**, an e-bike battery specification that goes through
+      review. Right now the team template the rule uses does **not** list *Reviewer*, E-Bike E1's
+      Reviewer role is empty, and Leo isn't in **ACME-Quality** yet. Try things in any order -
+      including creating the object too early.
+    headline: "Template lists Reviewer: {tpl} · E-Bike E1 Reviewer: {ctx} · Leo in ACME-Quality: {leo} · Leo's access: {access} · EB-10024 review → {task}"
+    initial: { tpl: "no", ctx: empty, leo: "no", access: Read, task: not created yet }
     actions:
       - id: grant
-        label: Give Leo full access to E-Bike E1 parts
+        label: Give Leo full access to E-Bike E1
         when: { access: Read }
         do: [{ set: { access: Full } }]
-        log: "Leo can now edit EB-10021. His work list is still empty: access is not assignment. Task → {task}."
+        log: "Leo can now edit anything in E-Bike E1. His task list doesn't change: access is not assignment. Review → {task}."
         blockedHint: Leo already has full access.
       - id: revoke
         label: Put Leo's access back to Read
         when: { access: Full }
         do: [{ set: { access: Read } }]
-        log: Access reset to Read. Good hygiene - extra rights nobody needs are an audit finding.
+        log: Access back to Read. Extra rights nobody needs are an audit finding.
         blockedHint: Leo only has Read access already.
+      - id: add-tpl
+        label: Add Reviewer to the team template
+        when: { tpl: "no" }
+        do: [{ set: { tpl: "yes" } }]
+        log: "The template now lists Reviewer. Objects created from now on get a Reviewer role. An existing team instance does not change."
+        blockedHint: The template already lists Reviewer.
+      - id: remove-tpl
+        label: Remove Reviewer from the team template
+        when: { tpl: "yes" }
+        do: [{ set: { tpl: "no" } }]
+        log: Reviewer is out of the template again. New team instances won't contain it.
+        blockedHint: The template doesn't list Reviewer.
       - id: fill-role
-        label: Add ACME-Quality to the Reviewer role
-        when: { role: empty }
-        do: [{ set: { role: ACME-Quality } }]
-        log: "E-Bike E1 team: Reviewer = ACME-Quality. But the open task was resolved when it was created - it still says {task}."
+        label: Add ACME-Quality to Reviewer in the E-Bike E1 team
+        when: { ctx: empty }
+        do: [{ set: { ctx: ACME-Quality } }]
+        log: "E-Bike E1 team: Reviewer = ACME-Quality. The context team can add people to a role in a team instance - but only if that role is already there."
         blockedHint: The Reviewer role is already filled.
       - id: empty-role
-        label: Remove ACME-Quality from the Reviewer role
-        when: { role: ACME-Quality }
-        do: [{ set: { role: empty } }]
-        log: Reviewer is empty again. Future review tasks would go to nobody.
+        label: Empty the Reviewer role in the E-Bike E1 team
+        when: { ctx: ACME-Quality }
+        do: [{ set: { ctx: empty } }]
+        log: Reviewer is empty again in the context team.
         blockedHint: The Reviewer role is already empty.
       - id: add-leo
         label: Add Leo to ACME-Quality
-        when: { leoInGroup: false }
-        do: [{ set: { leoInGroup: true } }]
-        log: Leo is now in ACME-Quality. Every context where that group holds a role now includes him.
+        when: { leo: "no" }
+        do: [{ set: { leo: "yes" } }]
+        log: Leo is in ACME-Quality. Every context where that group holds a role now includes him.
         blockedHint: Leo is already in the group.
       - id: remove-leo
         label: Remove Leo from ACME-Quality
-        when: { leoInGroup: true }
-        do: [{ set: { leoInGroup: false } }]
+        when: { leo: "yes" }
+        do: [{ set: { leo: "no" } }]
         log: Leo left ACME-Quality.
         blockedHint: Leo isn't in the group.
-      - id: reassign
-        label: Reassign the open task to the Reviewer role
-        when: { role: ACME-Quality, leoInGroup: true, task: Unassigned }
+      - id: create-early
+        label: Create EB-10024 now (template still without Reviewer)
+        when: { task: not created yet, tpl: "no" }
+        do: [{ set: { task: nobody } }]
+        log: "EB-10024's team instance has no Reviewer role, so the context team has nothing to add people to. Review → nobody - even if E-Bike E1's Reviewer role is full."
+        blockedHint: Either EB-10024 already exists, or the template already lists Reviewer - use the other create button.
+      - id: create-ready
+        label: Create EB-10024 with Reviewer in the template
+        when: { task: not created yet, tpl: "yes", ctx: ACME-Quality, leo: "yes" }
         do: [{ set: { task: Leo and ACME-Quality } }]
-        log: The task was re-resolved against the fixed team. Leo sees "Review EB-10021" in his work list.
-        blockedHint: "Reassigning only helps once the Reviewer role is filled and Leo is in the group that fills it. Otherwise the task resolves to nobody again (or not to Leo)."
+        log: Template role + context team participants + Leo in the group. Leo sees the review task.
+        blockedHint: "For Leo to get the task, the template must list Reviewer, E-Bike E1 must fill Reviewer with ACME-Quality, and Leo must be in that group. (Or create it early to see what goes wrong.)"
+      - id: fix-instance
+        label: Update EB-10024's team instance from its details page
+        when: { task: nobody, ctx: ACME-Quality, leo: "yes" }
+        do: [{ set: { task: Leo (instance updated) } }]
+        log: With the right permissions, Jordan adds the Reviewer role and ACME-Quality to EB-10024's own team instance. Leo gets the task.
+        blockedHint: "Only useful once EB-10024 exists without a reviewer, and you know who should fill it: ACME-Quality in the context team, with Leo in the group."
       - id: reset
         label: Reset the scenario
-        when: { task: Leo and ACME-Quality }
-        do: [{ set: { task: Unassigned, role: empty, leoInGroup: false, access: Read } }]
-        log: Back to the start. Try it in a different order.
-        blockedHint: Finish the fix first.
+        when: { task: [Leo and ACME-Quality, Leo (instance updated), nobody] }
+        do: [{ set: { tpl: "no", ctx: empty, leo: "no", access: Read, task: not created yet } }]
+        log: Back to the start. Try a different order.
+        blockedHint: Create EB-10024 first.
     goals:
       - label: Prove that access is not assignment
-        when: { access: Full, task: Unassigned }
+        when: { access: Full, task: [nobody, not created yet] }
         message: Full access, still no task. Tasks come from roles, not permissions.
+      - label: See a full context role fail
+        when: { task: nobody, ctx: ACME-Quality }
+        message: The context team only adds people to roles already in the team instance. The role has to come from the template or the life cycle.
       - label: Leo receives the review task
-        when: { task: Leo and ACME-Quality }
-        message: Fill the role, put the person in the group, then re-resolve the open task.
+        when: { task: [Leo and ACME-Quality, Leo (instance updated)] }
+        message: Template role, context team, group membership - then the task reaches the person.
 
   - type: walkthrough
     title: Diagnose a missing task assignment
     who: Business admin (Jordan) or the context's manager
     steps:
-      - title: Find the process and the activity
-        where: ["<object> information page", Processes or Routing History]
-        md: Open the object (EB-10021) and find its running process. Note the activity that should have reached the person and **which role** it is assigned to.
-      - title: Check the role in the context team
-        where: [Products, E-Bike E1, Team]
-        md: Is that exact role in the team, and is it filled? Watch for near-miss names such as *Reviewers*.
-      - title: Check the person is in the participant
-        where: [Organization or Site, Utilities, Participant Administration]
-        md: If the role is filled by a group, confirm the person is a member (and that their account is active). Groups from the company directory may sync on a schedule.
-      - title: Check the process team
-        where: ["<process>", Team]
-        md: If the team template gives the role a fixed participant, that wins over the context team for this process.
-      - title: Fix and re-resolve
-        where: ["<task or process>", Reassign / Update Team]
+      - title: Open the object's details
+        where: ["<object>", Details page]
         md: |
-          After fixing the team, reassign the open work item or refresh the process team, depending on
-          what your release and permissions offer. New processes pick up the fix automatically.
-    result: The person sees the task in their work list, and the next process for that role resolves correctly without help.
+          Open the object. Its properties show the **life cycle template**, the current state and the
+          **team template** it was created with. Note the activity that should have reached the
+          person and **which role** it is assigned to.
+      - title: Is the role in the team template or the life cycle state?
+        where: [Utilities, Team Administration]
+        md: |
+          Open the team template the object uses and check the role is listed (or that the life
+          cycle state lists it). If neither does, the context team **cannot** add it.
+      - title: Is the role filled in the context team?
+        where: [Products, E-Bike E1, Team]
+        md: Is that exact role in the team, and does it have participants? A custom organization role with a similar name doesn't count.
+      - title: Is the person in the participant?
+        where: [Organization or Site, Utilities, Participant Administration]
+        md: If the role is filled by a group, confirm the person is a member.
+      - title: Fix the source, then the open object
+        where: ["<object>", Details page, Team]
+        md: |
+          Fix the template or the team so **new** objects resolve correctly. Existing team instances
+          don't pick up the fix: update the object's team instance from its details page (you need
+          the right permissions), or reassign the open task.
+    result: The person sees the task, and the next object of that type resolves correctly without help.
 
   - type: scenario
     variant: troubleshooting
@@ -192,11 +226,11 @@ blocks:
     nodes:
       - id: s1
         md: |
-          Sam (field service) should review every change that affects spare parts for E-Bike E1. A
-          change for EB-10021 finished yesterday without Sam ever seeing it. Maya is not happy. What
-          do you check first?
+          Sam (field service) should review every e-bike spare-parts document. A document for the
+          EB-10021 battery pack finished its workflow yesterday without Sam ever seeing it. Maya is
+          not happy. What do you check first?
         choices:
-          - label: "Which role the review activity is assigned to, and who fills it in the E-Bike E1 team"
+          - label: "Which role the review activity uses, and whether that role is in the object's team template and the E-Bike E1 team"
             next: s2
             good: true
             feedback: Start from the process and the role. That's the chain the task followed.
@@ -208,8 +242,9 @@ blocks:
             feedback: Nothing here suggests a server problem.
       - id: s2
         md: |
-          The activity is assigned to **Service Reviewer**. In the E-Bike E1 team that role exists...
-          and is empty. In Scooter S2 it's filled with the group *ACME-Service*. What's your fix?
+          The activity is assigned to **Service Reviewer**. The team template lists it. In the
+          E-Bike E1 team that role exists... and is empty. In Scooter S2 it's filled with the group
+          *ACME-Service*. What's your fix?
         choices:
           - label: "Add ACME-Service to Service Reviewer in the E-Bike E1 team"
             next: s3
@@ -229,21 +264,21 @@ blocks:
             feedback: Groups give you cover for holidays and turnover.
       - id: s3
         md: |
-          The role is filled. Maya asks: "Will Sam now get the review for the change that already
-          finished yesterday?"
+          The role is filled. Maya asks: "Will the documents that are already in their workflows now
+          reach Sam?"
         choices:
-          - label: "No - finished and existing tasks were resolved earlier. New processes will reach Sam."
+          - label: "No - their team instances were built earlier and don't change. I'll update the open ones; new documents will reach Sam."
             next: s4
             good: true
-            feedback: Right. Role resolution happens when the task is created.
-          - label: "Yes - all tasks update instantly"
+            feedback: Right. A team instance is unaffected by later changes to the context team.
+          - label: "Yes - every open process updates instantly"
             next: f-instant
-            feedback: Team changes don't rewrite history.
+            feedback: Team changes don't rewrite existing team instances.
       - id: s4
         md: |
           Last step: how do you stop this recurring when Acme launches its next product?
         choices:
-          - label: "Add the role and its default group to the product template or shared team used for new products"
+          - label: "Add the role and its group to the product template or shared team used for new products"
             next: win
             good: true
             feedback: Fix the source, not just the symptom.
@@ -251,7 +286,7 @@ blocks:
             next: partial
             feedback: Memory is not a control.
       - id: win
-        md: Sam is in the loop for E-Bike E1, and the next product starts with the role pre-filled. Maya adds "role check" to the launch checklist. **Fixed at the root.**
+        md: Sam is in the loop for E-Bike E1, open documents are updated, and the next product starts with the role pre-filled. Maya adds "role check" to the launch checklist. **Fixed at the root.**
         outcome: success
       - id: partial
         md: It works for E-Bike E1, but the next product launch will have the same empty role. **Partly fixed.**
@@ -263,57 +298,74 @@ blocks:
         md: The restart interrupts 200 users. The role is still empty. Nothing changes.
         outcome: fail
       - id: f-instant
-        md: Maya waits for a task that never comes. Existing and completed work keep their original assignees.
+        md: Maya waits for tasks that never come. Open documents keep the team instances they were built with.
         outcome: fail
 
   - type: callout
     variant: pitfall
-    title: Fixing the team and expecting old tasks to move
+    title: Fixing the team and expecting open work to move
     md: |
-      Adding someone to a role affects **new** tasks and access right away. Tasks that already exist
-      were resolved when they were created. Either reassign them or let the process owner do it -
-      otherwise people wait for work that never arrives.
+      Changing the context team, the team template or the life cycle template does **not** change
+      team instances that already exist. Update the open objects' team instances or reassign their
+      tasks - otherwise people wait for work that never arrives.
+
+  - type: callout
+    variant: pitfall
+    title: The notification that never came
+    md: |
+      Windchill does not send a notification to someone who can't read the object. If Voltra Cells
+      should get an email about a battery drawing, check their **access** to it before you debug the
+      mail server.
 
   - type: callout
     variant: pro-tip
     md: |
-      When a ticket says "I can't see it" ask **"can't open it, or don't have the task?"** Can't open
-      → access rules. No task → roles and teams. One question halves your search.
+      When a ticket says "I can't see it", ask **"can't open it, or don't have the task?"** Can't open
+      → access rules. No task → team instance, template and team. One question halves your search.
 
   - type: quiz
     passMark: 0.7
     questions:
       - kind: single
-        prompt: Leo has full control of EB-10021 but no review task. What's the most likely reason?
+        prompt: Leo has full access to E-Bike E1 but no review task. What's the most likely reason?
         options:
-          - "He isn't in the role (or the group filling the role) the review activity is assigned to"
+          - "He isn't resolved into the role the review activity is assigned to"
           - "His access is too low"
           - "The part is in the wrong folder"
           - "Tasks only go to administrators"
         answer: 0
-        explanation: Tasks come from role resolution, not from permissions. Full control doesn't put work in your list.
+        explanation: Tasks come from role resolution, not from permissions. Full access doesn't put work in your list.
       - kind: truefalse
-        prompt: Adding Leo to the Reviewer role automatically moves review tasks that were already created to him.
+        prompt: E-Bike E1's Reviewer role is full, but the object's team template and life cycle state don't list Reviewer. The context team still adds Reviewer to the object's team instance.
         answer: false
-        explanation: Roles are resolved when a task is created. Existing tasks keep their assignees until someone reassigns them.
+        explanation: The context team only adds participants to roles that already exist in the team instance. It never adds roles.
+      - kind: truefalse
+        prompt: Adding Leo to the context team automatically updates the team instances of objects already in their workflows.
+        answer: false
+        explanation: Once created, a team instance is unaffected by changes to the templates or context team it came from. Update it from the object's details page, or reassign the task.
       - kind: order
         prompt: Put Jordan's diagnosis steps in a sensible order.
         items:
           - Find the activity and the role it is assigned to
+          - Check the role is in the team template or life cycle state
           - Check the role is filled in the context team
           - Check the person is in the group filling the role
-          - Fix the team or group
-          - Reassign the open task
-        explanation: Follow the chain the task took - activity, role, team, group - then fix and re-resolve.
-      - kind: multi
-        prompt: Which of these can a role drive? (Choose all that apply.)
-        options: [Workflow task assignment, Access permissions in a context, Notifications, The part's revision letter]
-        answers: [0, 1, 2]
-        explanation: Roles drive tasks, access and notifications. Revision letters come from the revision scheme.
+          - Fix the source and update the open object's team instance
+        explanation: Follow the chain the task took - activity, role, template, team, group - then fix and update.
+      - kind: single
+        prompt: A notification rule should email Voltra Cells when a battery drawing is released, but nobody at Voltra gets it. Mail works for everyone else. What do you check first?
+        options:
+          - "Whether Voltra's users can read the drawing"
+          - "Whether Voltra's users have a task for it"
+          - "The drawing's revision letter"
+          - "The team template's name"
+        answer: 0
+        explanation: Windchill doesn't send notifications to users who lack read access to the object.
 
   - type: summary
     points:
-      - Roles drive three separate things - tasks, access and notifications.
-      - Access is not assignment - permissions never put a task in a work list.
-      - Tasks resolve roles when they are created. Fixing the team helps new tasks; reassign old ones.
-      - Trace activity → role → team → group → person, then fix the source.
+      - Tasks, access and notifications are separate mechanisms - fix the right one.
+      - Access is not assignment - permissions never put a task in a list.
+      - A role reaches a task only if it is in the object's team instance; the context team just adds people.
+      - Existing team instances don't follow later changes; update them or reassign open tasks.
+      - Notifications only go to people who can read the object.

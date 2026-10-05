@@ -3,14 +3,22 @@ subtitle: One definition, many types. Then fence the values so bad data can't ge
 version: 1.0.0
 updated: "2026-10-05"
 tags: [business-admin, attributes, global-attribute, local-attribute, constraints]
+sources:
+  - id: ac
+    where: "Module 4, Describe global object attributes; Describe local object attributes; Add attributes to an object type: workflow; Create reusable attributes; Activity: Create reusable attributes; Constrain strings to a set of values; Constrain attributes: examples; Manage attribute constraints; Activity: Add attributes to a subtype"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Attribute Constraint Rules"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/typeattr/TypeMgrAttrConstraintRuleRef.html"
+    covers: "Constraint names (Valid Range, Required, Immutable, Single-Valued, String Length, Regular Expression and others) and what each enforces"
 
 blocks:
   - type: text
     md: |
       E-Bike Part exists. Now it needs fields. Jordan has to make two choices for each one:
 
-      1. **Where does the field live?** In a shared library so other types can reuse it
-         (**global**), or only on this one type (**local**)?
+      1. **Where does the field live?** As a **global** attribute built from a shared, reusable
+         definition, or as a **local** attribute stored right on the type's own table?
       2. **What values are allowed?** "48", "48V", "forty-eight" and "480" (a typo) should not all be
          possible. Rules on a field are called **constraints**.
 
@@ -21,44 +29,53 @@ blocks:
     variant: terms
     md: |
       **Plain words → official term**
-      - "a field defined once, reused on many types" → *[[global-attribute]]* (built on a reusable attribute)
-      - "a field that belongs to one type" → *[[local-attribute]]*
-      - "a rule on a field" → *[[attribute-constraint]]* (Value Required, Range, String Length...)
-      - "what kind of value" → *data type* (String, Integer, Real Number, Real Number with Units, Boolean, Date and Time, URL)
+      - "a field definition in a shared library" → *[[reusable-attribute]]*
+      - "that definition added to a type" → *[[global-attribute]]*
+      - "a field stored on one type's own table" → *[[local-attribute]]*
+      - "a rule on a field" → *[[attribute-constraint]]* (Required, Valid Range, String Length...)
+      - "what kind of value" → *data type* (Boolean, String, Integer, Real Number, Real Number with Units, Reference, URL...)
+
+  - type: callout
+    variant: note
+    title: Five kinds of attribute
+    md: |
+      Windchill has five kinds of object attribute: **global**, **local**, **calculated**, **alias**
+      and **modeled**. This lesson covers the first two, the next lesson calculated attributes, and
+      the last lesson of the section alias and modeled ones.
 
   - type: diagram
     title: Global vs local, at Acme
-    caption: Global attributes live in a shared library and get attached to many types. Local ones belong to one type. Click to explore.
+    caption: Global attributes come from a shared library and can be added to many types. Local ones live on one type. Click to explore.
     diagram:
       width: 800
       height: 420
       groups:
-        - { label: Reusable attribute library, x: 20, y: 20, w: 240, h: 380, tone: neutral }
+        - { label: Reusable attributes, x: 20, y: 20, w: 240, h: 380, tone: neutral }
         - { label: Types, x: 300, y: 20, w: 480, h: 380, tone: info }
       nodes:
         - id: lib-voltage
           label: Battery Voltage
-          sublabel: real number · V
+          sublabel: real number with units
           x: 40
           y: 70
           w: 200
           tone: primary
           shape: cylinder
           detail: |
-            Defined **once**: name, data type, units. Jordan adds it to E-Bike Part *and* to the scooter
-            battery parts. A search for "Battery Voltage = 48 V" finds both.
+            Defined **once**: internal name, data type, display name, logical identifier. Jordan adds
+            it to E-Bike Part *and* to the scooter battery parts, so both use the same definition.
         - id: lib-power
           label: Motor Power
-          sublabel: real number · W
+          sublabel: real number with units
           x: 40
           y: 180
           w: 200
           tone: primary
           shape: cylinder
-          detail: Scooter S2 has motors too, so Motor Power is defined globally and reused.
+          detail: Scooter S2 has motors too, so Motor Power is a reusable attribute.
         - id: lib-ip
           label: IP Rating
-          sublabel: "string · IP54/65/67"
+          sublabel: string
           x: 40
           y: 290
           w: 200
@@ -67,13 +84,13 @@ blocks:
           detail: Chargers, displays and motors all have IP ratings. One definition keeps reports consistent. Its pick-list comes in the next lesson.
         - id: t-ebike
           label: E-Bike Part
-          sublabel: uses 3 global + 1 local
+          sublabel: 3 global + 1 local
           x: 340
           y: 120
           w: 200
           h: 64
           tone: accent
-          detail: Gets all three global attributes, plus one **local** attribute that only makes sense for e-bikes.
+          detail: Gets all three global attributes, plus one **local** attribute that only e-bikes need.
         - id: t-scooter
           label: Scooter battery part
           sublabel: uses Battery Voltage
@@ -81,7 +98,7 @@ blocks:
           y: 280
           w: 200
           tone: info
-          detail: A Scooter S2 part type reuses the same Battery Voltage definition. Same name, same unit, same search.
+          detail: A Scooter S2 part type reuses the same Battery Voltage definition - same name, same units.
         - id: local
           label: Pedal Assist Levels
           sublabel: local integer
@@ -90,9 +107,9 @@ blocks:
           w: 180
           tone: warning
           detail: |
-            A **local** attribute on E-Bike Part. Scooters have no pedals, so nothing else will ever
-            need it. It's inherited by E-Bike Part's own subtypes, but you can't attach it to
-            unrelated types.
+            A **local** attribute on E-Bike Part. It's stored in a column of the type's own table, holds
+            at most one value and is fast. It needs a free column of the right data type - Rosa adds
+            columns with the **AddColumns** tool if there are none.
       edges:
         - { from: lib-voltage, to: t-ebike }
         - { from: lib-power, to: t-ebike }
@@ -104,42 +121,55 @@ blocks:
     title: Global or local?
     columns: [Global attribute, Local attribute]
     rows:
-      - label: Defined
-        cells: ["Once in the reusable attribute library", "Directly on one type"]
-      - label: Reuse on other types
-        cells: ["Yes - attach it anywhere", "No - only that type and its subtypes"]
-      - label: Search across types
-        cells: ["One criterion finds every type using it", "Only within that type family"]
-      - label: Good for
-        cells: ["Company-wide facts: voltage, material, weight, IP rating", "Truly type-specific facts: pedal assist levels"]
-      - label: Risk
-        cells: ["A definition change touches every type that uses it", "Duplicates appear if two types each invent 'Voltage'"]
-    takeaway: If two types could ever need the same fact, make it global.
+      - label: Based on
+        cells: ["A reusable attribute definition", "A column on the type's own table"]
+      - label: Number of values
+        cells: ["Zero or more (can be multi-valued)", "Zero or one"]
+      - label: Use on other types
+        cells: ["Yes - unrelated types can share it", "No - restricted to its parent type"]
+      - label: Setup
+        cells: ["None beyond the definition", "A column of that data type must exist (AddColumns)"]
+      - label: Performance
+        cells: ["Stored in separate tables", "Better than a single-valued global attribute"]
+      - label: Use it when
+        cells: ["Multi-valued, shared by unrelated types, or no local columns available", "One value, one type, performance matters"]
+    takeaway: Global attributes are by far the most common. Choose local on purpose, not by accident.
 
   - type: callout
     variant: why-it-matters
     md: |
       Duplicate attributes are the most common data-model mess in PLM. If the scooter team creates
       *Voltage* and the e-bike team creates *Battery Voltage*, every report, search and ERP mapping
-      needs two of everything. A shared, global definition prevents that before it starts.
+      needs two of everything. A shared, reusable definition prevents that before it starts.
 
   - type: comparison
     title: Constraints that keep E-Bike data clean
-    columns: [What it does, Acme example]
+    columns: [What it enforces, Acme example]
     rows:
-      - label: Value Required
-        cells: ["Users can't save without a value", "Battery Voltage must be filled in"]
-      - label: Range
-        cells: ["Number must fall inside limits", "Battery Voltage 24 to 72 V; Motor Power 100 to 1000 W"]
-      - label: String Length / Format
-        cells: ["Limits length or pattern of text", "Supplier code exactly 6 characters"]
-      - label: Enumerated or legal value list
+      - label: Required
+        cells: ["The attribute must have at least one value", "Battery Voltage must be filled in"]
+      - label: Valid Range
+        cells: ["Value must lie between From and To (inclusive)", "Battery Voltage 24 to 72; Motor Power 100 to 1000"]
+      - label: String Length
+        cells: ["Number of characters between a minimum and maximum", "Supplier code of exactly 6 characters"]
+      - label: Regular Expression
+        cells: ["Text must match a pattern", "Certification ID like CE-12345"]
+      - label: Enumerated / Legal Value List
         cells: ["Only values from a list", "IP Rating = IP54, IP65 or IP67 (next lesson)"]
-      - label: Single-valued
-        cells: ["Only one value allowed", "One IP rating per part"]
+      - label: Single-Valued
+        cells: ["No more than one value", "One IP rating per part"]
       - label: Immutable
-        cells: ["Can't change after it's set", "A certification ID once assigned"]
+        cells: ["Values can't be set, edited or removed - mainly to retire an attribute", "An old field kept on screen but frozen"]
     takeaway: A constraint at the source beats a clean-up project later.
+
+  - type: callout
+    variant: note
+    title: Constraints belong to the type, not the definition
+    md: |
+      You constrain an attribute **where it is used on a type**. The same Battery Voltage definition
+      can be limited to 24 to 72 V on E-Bike Part and stay unconstrained on another type. New
+      attributes also start with a default constraint from their data type - for example a
+      maximum string length.
 
   - type: example
     variant: real-world
@@ -150,77 +180,70 @@ blocks:
       The ERP interface sent it on, purchasing flagged a "high-voltage" safety review, and two days
       went to finding a typo.
 
-      After Jordan added a **Range** constraint (24 to 72 V), Windchill rejects the value on save
-      with a clear message. The typo never leaves Priya's screen.
+      After Jordan added a **Valid Range** constraint (24 to 72), Windchill won't accept 480 for an
+      E-Bike Part. The typo never leaves Priya's screen.
     takeaway: Constraints catch mistakes where they are cheapest - at entry.
 
   - type: walkthrough
-    title: Add a global attribute to E-Bike Part
-    who: Business admin (Jordan)
-    where: [Site, Utilities, Type and Attribute Management]
+    title: Create a reusable attribute
+    who: Site or organization administrator (Jordan)
+    where: [Browse, Site, Utilities, Type and Attribute Management, Manage Reusable Attributes]
     steps:
-      - title: Create the reusable definition
-        where: [Type and Attribute Management, Manage Reusable Attributes]
+      - title: Make an organizer
+        where: [Manage Reusable Attributes, Root, right-click, New Attribute Organizer]
+        md: Expand **Manage Reusable Attributes**, right-click **Root** and choose **New Attribute Organizer**. Name it, for example *Acme Electrical*.
+      - title: Create the attribute
+        where: [Acme Electrical, right-click, New Reusable Attribute]
         md: |
-          Open **Manage Reusable Attributes** and create **Battery Voltage** in a sensible organizer
-          (for example *Electrical*). Choose the data type: **Real Number with Units** if your
-          measurement system includes voltage, otherwise **Real Number** and put "(V)" in the display name.
-      - title: Open the subtype
-        where: [Manage Types, Part, E-Bike Part, Attributes]
-        md: Select **E-Bike Part** and open its **Attributes** tab.
-      - title: Add it as a global attribute
-        where: [Attributes, New Attribute, Global]
+          Right-click the organizer and choose **New Reusable Attribute**. Enter an **Internal Name**
+          without spaces (`BatteryVoltage`), a **Data Type**, a **Display Name** (*Battery Voltage*)
+          and a **Logical Identifier** that is unique across the site.
+      - title: Pick the data type carefully
+        where: [New Reusable Attribute, Data Type]
         md: |
-          Create a **new attribute**, choose **Global**, and pick Battery Voltage from the reusable
-          library. Give it an internal name for this type and save.
-      - title: Repeat for the others
-        where: [Attributes, New Attribute]
-        md: |
-          Add **Motor Power** and **IP Rating** the same way. Add **Pedal Assist Levels** as a
-          **Local** attribute (data type Integer), because only e-bikes need it.
-    result: The Attributes tab of E-Bike Part lists the inherited Part attributes plus Battery Voltage, Motor Power, IP Rating and Pedal Assist Levels.
+          **Real Number with Units** needs a quantity of measure. Check **Manage Quantities of
+          Measure** for one that fits voltage; administrators can create new ones there if needed.
+    result: Battery Voltage appears in the Acme Electrical organizer. Created at site level, it is available to every organization; created in an organization, it stays private to that organization.
 
   - type: walkthrough
-    title: Add constraints to Battery Voltage
-    who: Business admin (Jordan)
-    where: [Type and Attribute Management, Manage Types, E-Bike Part]
+    title: Add it to E-Bike Part and constrain it
+    who: Site or organization administrator (Jordan)
+    where: [Type and Attribute Management, Manage Types, Part, E-Bike Part]
     steps:
-      - title: Select the attribute on the type
-        where: [E-Bike Part, Attributes, Battery Voltage]
-        md: Select **Battery Voltage** on the E-Bike Part type (not in the reusable library), so the rule applies to e-bike parts only.
-      - title: Add Value Required
-        where: [Battery Voltage, Constraints, Add]
-        md: Add a **Value Required** constraint.
-      - title: Add a Range
-        where: [Battery Voltage, Constraints, Add]
-        md: Add a **Range** constraint from 24 to 72, both limits included.
+      - title: Put the type in edit mode
+        where: [Manage Types, E-Bike Part, Actions, Edit]
+        md: Select **E-Bike Part**, open the **Attributes** tab and choose **Actions → Edit**. (New types start in edit mode; existing ones don't.)
+      - title: Create the attribute on the type
+        where: [Attributes, Create a new attribute]
+        md: |
+          Click **Create a new attribute**, enter an internal name, choose **Global** and click
+          **Next**. Use **Find in tree** to pick *Battery Voltage*, click **Next**, check the display
+          name and click **Finish**. Only the attribute kinds the type supports are offered.
+      - title: Add Required
+        where: [Battery Voltage, Constraints, Create a new constraint]
+        md: Open the **Constraints** tab, click **Create a new constraint**, choose **Required** and click **OK**.
+      - title: Add a Valid Range
+        where: [Battery Voltage, Constraints, Create a new constraint]
+        md: Add a **Valid Range** constraint from 24 to 72. Then **Save**.
       - title: Test it
-        where: [Products, E-Bike E1, New Part]
-        md: In a test context, create an E-Bike Part with 480 V. You should get a validation message and the part should not save.
-    result: Battery Voltage shows two constraints on E-Bike Part. Out-of-range or empty values are rejected on save.
-
-  - type: callout
-    variant: version-note
-    versions: ["all"]
-    md: |
-      The list of constraint types and their exact names differs a little between releases, and so
-      does how local attributes are stored. Check the constraint list on your own system. Units
-      depend on your measurement system's quantities of measure - if voltage isn't one of them, ask
-      Rosa before inventing a workaround.
+        where: [Test context, New Part]
+        md: In a test context, create an E-Bike Part. Battery Voltage is marked with an asterisk as required; try 480 and see that it isn't accepted.
+    result: Battery Voltage is on E-Bike Part with two constraints. Empty or out-of-range values are blocked.
 
   - type: callout
     variant: pitfall
-    title: Adding Value Required to a type that already has data
+    title: Constraints that fight each other
     md: |
-      Thousands of existing parts have no value yet. The new constraint won't fix them - but it
-      **will** block their next edit until someone fills the field. Load the missing values first,
-      or warn users, before you switch it on.
+      If an attribute has several constraints, a value must satisfy **all** the enabled ones. A
+      Valid Range of 24 to 72 plus a legal value list of 12, 36 and 48 leaves only 36 and 48 - is that
+      what you meant? Add constraints one at a time and test each.
 
   - type: callout
     variant: pro-tip
     md: |
-      Search the reusable attribute library **before** you create anything. Nine times out of ten,
-      "Weight", "Material" or "Voltage" already exists. Reuse beats re-invent.
+      Search **Manage Reusable Attributes** before you create anything. Windchill ships many
+      attributes ready to reuse, and someone may already have made "Weight" or "Material". Reuse
+      beats re-invent.
 
   - type: quiz
     passMark: 0.7
@@ -228,35 +251,35 @@ blocks:
       - kind: single
         prompt: Scooter battery parts and E-Bike Parts both need a voltage field. What should Jordan create?
         options:
-          - "One global attribute, Battery Voltage, attached to both types"
+          - "One reusable attribute, added to both types as a global attribute"
           - "A local Voltage attribute on each type"
           - "A text field in the description"
           - "Two subtypes called Voltage"
         answer: 0
-        explanation: One definition used everywhere keeps search, reports and integrations simple.
+        explanation: Global attributes based on one definition can be used by unrelated types. Local attributes are restricted to one parent type.
       - kind: single
-        prompt: Which constraint stops Priya from saving 480 V when the legal range is 24 to 72 V?
-        options: [Range, Immutable, Single-valued, String Length]
+        prompt: Which constraint stops Priya from saving 480 when the legal range is 24 to 72?
+        options: [Valid Range, Immutable, Single-Valued, String Length]
         answer: 0
-        explanation: A Range constraint rejects numbers outside its limits.
+        explanation: Valid Range requires the value to be between the From and To values, inclusive.
       - kind: truefalse
-        prompt: A local attribute on E-Bike Part can be attached to the Document type too.
+        prompt: A local attribute can hold several values, as long as the type has a free column.
         answer: false
-        explanation: Local attributes belong to one type and its subtypes. Use a global attribute when other types need it.
+        explanation: Local attributes hold zero or one value. Use a global attribute when you need multiple values.
       - kind: multi
-        prompt: Jordan adds Value Required to Motor Power on a type that already has 2,000 parts with no value. What happens? (Choose all that apply.)
+        prompt: When should Jordan choose a global attribute? (Choose all that apply.)
         options:
-          - "Existing parts keep their empty value for now"
-          - "Users editing those parts must fill in Motor Power to save"
-          - "Windchill fills in a value automatically"
-          - "Windchill deletes the parts with no value"
-        answers: [0, 1]
-        explanation: Constraints are checked on save. Old data stays as it is until someone edits it - then the rule applies.
+          - "The attribute must be multi-valued"
+          - "Unrelated types need the same attribute"
+          - "The type has no columns available for local attributes"
+          - "Only one type needs it and every millisecond counts"
+        answers: [0, 1, 2]
+        explanation: Those three are PTC's reasons to use global attributes. For one value on one type where performance matters, a local attribute is the faster choice.
 
   - type: summary
     points:
-      - Global attributes are defined once and reused on many types; local ones belong to one type.
-      - If two types could ever need the same fact, make it global.
-      - Constraints such as Value Required and Range block bad data at entry.
-      - Put constraints on the attribute as used on the type, and test them in a test context.
-      - Plan for existing data before switching on a new required rule.
+      - Reusable attribute definitions become global attributes on types; local attributes live on one type's table.
+      - Global - shared, multi-valued, most common. Local - one value, one type, faster, needs a column.
+      - Constraints such as Required and Valid Range block bad data at entry.
+      - Constraints belong to the type-and-attribute pair, and a value must satisfy all of them.
+      - Search the reusable library before you create a new attribute.

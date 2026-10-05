@@ -1,19 +1,33 @@
 id: m04-s07-l03
-subtitle: Hundreds of switches, four levels, one padlock. Know which level wins and you'll never hear "but I changed it!" again.
+subtitle: Hundreds of switches, several levels, one padlock. Know which level wins and you'll never hear "but I changed it!" again.
 version: 1.0.0
 updated: "2026-10-05"
 tags: [business-admin, preferences, preference-management, locking]
+sources:
+  - id: ac
+    where: "Module 5: Manage promotion preferences (user and context levels, locked preferences, Set Preference, delete child instances). Module 8: Activity: Create an ad hoc rule (Preference Management Context field, categories, Set Preference). Appendix A (additional system administration): Manage preferences (levels, overridable or not). Appendix B: Configure change management preferences and administration (Affected End Items Display)"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "About Locking Preferences"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/prefmgr/PrefMgrPrefLockAbout.html"
+    covers: "Lock icon shown at all levels; locked value can't be changed at lower levels; locks can be unlocked; delete child instances before locking"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Locking a Preference"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/prefmgr/PrefMgrPrefLock.html"
+    covers: "Lock through Set Preference and the Locked checkbox"
 
 blocks:
   - type: text
     md: |
-      Windchill has hundreds of **preferences**: switches that change behaviour, from how tables
-      display to which change process steps are allowed. The interesting part isn't any single
-      switch. It's **where** you flip it.
+      Windchill has a huge number of **preferences**: switches that change behaviour, from how tables
+      display to how change objects work. The interesting part isn't any single switch. It's **where**
+      you flip it.
 
-      Maya (change manager) has a rule for Acme: every change notice must start from a change request -
-      no shortcuts. There is a change management preference that allows a [[change-notice]] without a
-      [[change-request]]. Kai, in E-Bike E1, would love that shortcut "just for the pilot".
+      Maya (change manager) wants traceability: every [[change-request]] at Acme must show which end
+      products it affects. A change management preference, **Affected End Items Display**, shows or
+      hides the Affected End Items table on problem reports, variances and change requests. Kai, in
+      E-Bike E1, would love to hide it "just for the pilot".
 
       Who wins? It depends on the level each of them sets it at - and on one little padlock.
 
@@ -24,12 +38,12 @@ blocks:
       - "a switch that changes behaviour" → [[preference]]
       - "the screen where admins flip them" → *Preference Management* (on each context's Utilities page)
       - "the padlock that stops lower levels changing it" → [[preference-lock]]
-      - "the value that really applies here" → the *effective* value
-      - "remove my override and inherit again" → delete or reset the preference at that level
+      - "values set further down the tree" → *child instances*
+      - "where I opened the screen from" → the *Context* field at the top of Preference Management
 
   - type: diagram
-    title: Four levels - closest wins, unless locked
-    caption: Values flow down. A lower level overrides a higher one - until someone above locks it. Click each level.
+    title: Values flow down - unless locked
+    caption: A value set at one level applies to all lower levels, which may override it - until someone above locks it. Click each level.
     diagram:
       width: 820
       height: 420
@@ -41,34 +55,34 @@ blocks:
           y: 20
           w: 220
           tone: neutral
-          detail: The value for the whole server. Usually left at the shipped default or set by Rosa. On Windchill+ many site values are managed by PTC.
+          detail: The value for the whole server, set by a site administrator. Site administrators can lock preferences for everyone below.
         - id: org
           label: Acme Mobility
-          sublabel: "No · locked by Maya's request"
+          sublabel: "Yes · locked"
           x: 300
           y: 120
           w: 220
           tone: primary
           detail: |
-            Jordan sets **No** here and **locks** it. Every product and library in Acme now gets No,
-            and their admins can't override it.
+            Jordan sets **Yes** here and **locks** it. Every product and library in Acme now gets Yes, and
+            the preference shows a lock icon at every level below.
           real: Lock the few settings that are company policy. Leave the rest open so products can adapt.
         - id: e1
           label: E-Bike E1
-          sublabel: "tried Yes · ignored"
+          sublabel: "visible, not editable"
           x: 130
           y: 230
           w: 220
           tone: warning
-          detail: Kai's product admin tried to set Yes. Because the organization value is locked, the product value cannot take effect.
+          detail: Kai's product admin can see the preference but can't change it - it was locked at a higher level.
         - id: s2
           label: Scooter S2
-          sublabel: inherits No
+          sublabel: inherits Yes
           x: 470
           y: 230
           w: 220
           tone: accent
-          detail: No value set here, so it simply inherits from Acme Mobility.
+          detail: No value set here, so it simply gets the organization's value.
         - id: user
           label: User level
           sublabel: only some preferences
@@ -77,12 +91,12 @@ blocks:
           w: 220
           tone: info
           detail: |
-            Some preferences (mostly display things like table sizes or default views) can also be set
-            by each user for themselves. Policy-type preferences like this one usually can't.
+            Some preferences are personal - display, searching, tables and so on. Users set them under
+            **Quick Links → My Settings → Preferences**. Others can only be set by administrators.
       edges:
-        - { from: site, to: org, label: inherits }
+        - { from: site, to: org, label: applies to }
         - { from: org, to: e1, label: locked }
-        - { from: org, to: s2, label: inherits }
+        - { from: org, to: s2, label: applies to }
         - { from: e1, to: user, dashed: true }
         - { from: s2, to: user, dashed: true }
 
@@ -90,102 +104,100 @@ blocks:
     variant: why-it-matters
     md: |
       Preferences are where company policy quietly lives. If Maya's rule is only a slide in a
-      training deck, someone in a hurry will skip it. As a locked preference, the shortcut simply
-      isn't offered - and nobody needs to remember the rule.
+      training deck, someone in a hurry will skip it. As a locked preference, the table is simply
+      always there - and nobody needs to remember the rule.
 
   - type: walkthrough
     title: Set and lock a preference for all of Acme
     who: An organization administrator
-    where: [Organization, "Acme Mobility", Utilities, Preference Management]
+    where: [Browse, Organizations, "Acme Mobility", Utilities, Preference Management]
     steps:
       - title: Open Preference Management at the right level
-        where: [Organization, "Acme Mobility", Utilities, Preference Management]
+        where: [Browse, Organizations, "Acme Mobility", Utilities, Preference Management]
         md: |
-          The level you open it from is the level you change. For a company policy, that's the
-          **organization**. For one product only, open it from that product's Utilities.
+          It is in the **Business Administration** section of the Utilities page. The **Context** field
+          at the top shows where you opened it - and only that context's preferences are shown. For a
+          company policy, that's the organization.
       - title: Find the preference
-        where: [Preference Management, Change Management]
+        where: [Preference Management, "<category>"]
         md: |
-          Preferences are grouped in categories. Expand **Change Management** (or search by name) and
-          find the preference that allows a change notice without a change request. Read its description
-          to confirm what it does.
-      - title: Set the value
+          Preferences are grouped by category and subcategory. Find **Affected End Items Display** and
+          read its description to confirm what it does.
+      - title: Clear lower-level values first
+        where: [Preference Management, "<preference>", Delete Child Instances]
+        md: |
+          PTC recommends deleting existing **child instances** before you lock at site or organization
+          level - values that products or libraries below have already set. Site and organization
+          administrators can do this from the preference's row.
+      - title: Set the value and lock it
         where: [Preference Management, "<preference>", Set Preference]
-        md: Choose the set or edit action and pick **No**. The table now shows the value at this level.
-      - title: Lock it
-        where: [Preference Management, "<preference>", Lock]
         md: |
-          Use the **Lock** action. A lock icon appears. From now on, products, libraries and projects in
-          Acme Mobility cannot override it.
+          Right-click the preference and choose **Set Preference**. Pick **Yes**, tick **Locked**, and
+          click OK. The lock icon appears.
       - title: Check the effect lower down
-        where: [Products, "E-Bike E1", Utilities, Preference Management]
+        where: [Browse, Products, "E-Bike E1", Utilities, Preference Management]
         md: |
-          Open the same preference in E-Bike E1. It shows the inherited **No** and cannot be changed
-          there. Then create a test change notice to confirm the shortcut is gone.
-    result: Every context in Acme Mobility now uses No, and only an organization (or site) admin can unlock it.
+          Open Preference Management in E-Bike E1. The preference is visible with the lock icon and can't
+          be edited there. Create a test change request to confirm the Affected End Items table shows.
+    result: Every context in Acme Mobility uses Yes, and only an organization (or site) administrator can unlock it.
 
   - type: callout
     variant: version-note
-    versions: ["All releases", "Windchill+"]
+    versions: ["13.x"]
     md: |
-      Category names, the exact name of each preference and which levels a preference can be set at
-      vary by release - always read the preference's description in Preference Management. Users reach
-      their own preferences from their user menu (often called Preferences or My Settings). On
-      Windchill+, many site-level preferences are managed by PTC.
+      The course notes that some change preferences (for example *Change Notices without Change
+      Requests*) do nothing for flexible change items and remain only for non-flexible ones. Always read
+      a preference's description in Preference Management before relying on it.
 
   - type: simulation
     title: Who wins? Play the levels
     intro: |
-      The preference: *allow a change notice without a change request*. The site says **Yes**. Play
-      Jordan (organization), Kai's product admin (E-Bike E1) and the padlock - and watch the effective
-      value in E-Bike E1.
-    headline: "Effective in E-Bike E1: {effective}"
-    initial: { site: "Yes", organization: not set, eBikeE1: not set, locked: false, effective: "Yes (site default)" }
+      The preference: *Affected End Items Display*. The site says **Yes**. Play Jordan (organization) and
+      Kai's product admin (E-Bike E1), and watch the value in E-Bike E1.
+    headline: "E-Bike E1 sees: {effective} · organization lock: {locked}"
+    initial: { organization: not set, eBikeE1: not set, locked: "off", effective: "Yes (site)" }
     actions:
-      - id: set-org
-        label: "Jordan: set No at Acme Mobility"
-        when: { organization: not set }
-        do: [{ set: { organization: "No", effective: "No (from Acme Mobility)" } }]
-        log: Acme Mobility now says No. E-Bike E1 has no value of its own, so it inherits No.
-        blockedHint: The organization value is already set. Use Start over to replay.
       - id: set-product
-        label: "E-Bike E1 admin: set Yes for the pilot"
-        when: { organization: "No", locked: false, eBikeE1: not set }
-        do: [{ set: { eBikeE1: "Yes", effective: "Yes (E-Bike E1 overrides)" } }]
-        log: E-Bike E1 overrides with Yes. Closest level wins - for now.
-        blockedHint: Set the organization value first. If it's locked, E-Bike E1 can't override it.
+        label: "E-Bike E1 admin: set No for the pilot"
+        when: { locked: "off", eBikeE1: not set }
+        do: [{ set: { eBikeE1: "No", effective: "No (E-Bike E1's own value)" } }]
+        log: E-Bike E1 overrides with No. The lower level's own value applies there.
+        blockedHint: "Either E-Bike E1 already has a value, or the preference is locked above - visible but not editable."
+      - id: set-org
+        label: "Jordan: set Yes at Acme Mobility"
+        when: { organization: not set }
+        do: [{ set: { organization: "Yes" } }]
+        log: Acme Mobility now says Yes. Contexts without their own value get it.
+        blockedHint: The organization value is already set.
+      - id: delete-children
+        label: "Jordan: delete child instances"
+        when: { eBikeE1: "No" }
+        do: [{ set: { eBikeE1: not set, effective: "Yes (inherited)" } }]
+        log: E-Bike E1's own value is removed. It now gets the value from above.
+        blockedHint: There are no lower-level values to delete.
       - id: lock
-        label: "Jordan: lock it at Acme Mobility"
-        when: { organization: "No", locked: false, eBikeE1: "Yes" }
-        do: [{ set: { locked: true, eBikeE1: "Yes (ignored)", effective: "No (locked at Acme Mobility)" } }]
-        log: Padlock on. E-Bike E1's Yes is ignored - every Acme context now gets No.
-        blockedHint: Let E-Bike E1 override first, so you can see what the lock does to it.
+        label: "Jordan: Set Preference with Locked ticked"
+        when: { organization: "Yes", locked: "off", eBikeE1: not set }
+        do: [{ set: { locked: "on", effective: "Yes (locked at Acme Mobility)" } }]
+        log: Locked. The lock icon shows at every level below, and nobody below can change the value.
+        blockedHint: Set the organization value first, and delete child instances before locking, as PTC recommends.
       - id: unlock
         label: "Jordan: unlock"
-        when: { locked: true }
-        do: [{ set: { locked: false, eBikeE1: "Yes", effective: "Yes (E-Bike E1 overrides)" } }]
-        log: Unlocked. E-Bike E1's own value applies again - unlocking brings old overrides back to life.
+        when: { locked: "on" }
+        do: [{ set: { locked: "off", effective: "Yes (inherited)" } }]
+        log: Unlocked. Lower levels may set their own value again.
         blockedHint: Nothing is locked.
-      - id: clear-product
-        label: "E-Bike E1 admin: delete the override"
-        when: { eBikeE1: "Yes", locked: false }
-        do: [{ set: { eBikeE1: not set, effective: "No (from Acme Mobility)" } }]
-        log: Override removed. E-Bike E1 inherits No from Acme Mobility again.
-        blockedHint: There is no active product override to delete.
       - id: reset
         label: Start over
-        do: [{ set: { organization: not set, eBikeE1: not set, locked: false, effective: "Yes (site default)" } }]
+        do: [{ set: { organization: not set, eBikeE1: not set, locked: "off", effective: "Yes (site)" } }]
         log: Back to the site default.
     goals:
-      - label: See a product override beat the organization
-        when: { effective: "Yes (E-Bike E1 overrides)" }
-        message: Without a lock, the level closest to the work wins.
-      - label: Lock the policy so the override is ignored
-        when: { locked: true }
-        message: A lock makes the higher value apply everywhere below it.
-      - label: Unlock and notice the old override comes back
-        when: { locked: false, eBikeE1: "Yes", organization: "No" }
-        message: Before unlocking, check for old overrides lower down - or delete them first.
+      - label: See a product value override the level above
+        when: { eBikeE1: "No" }
+        message: Without a lock, a lower level can override the value it receives.
+      - label: Lock the policy the recommended way
+        when: { locked: "on" }
+        message: Clear child instances, set the value, tick Locked. Now nobody below can change it.
 
   - type: scenario
     variant: what-if
@@ -194,33 +206,33 @@ blocks:
     nodes:
       - id: s1
         md: |
-          Kai's product admin sets a display preference in E-Bike E1 so tables show 100 rows. Priya
-          says her tables still show 25. What's the most likely reason?
+          Kai's product admin changes a display preference in E-Bike E1. Priya says her screen still looks
+          the same. What's the most likely reason?
         choices:
-          - label: "Priya has set her own user-level value"
+          - label: "It's a personal preference and Priya has set her own value in My Settings"
             next: s2
             good: true
-            feedback: "Yes - a user value is closer to the work than the product value."
+            feedback: "Yes - some preferences are set per user, under Quick Links → My Settings → Preferences."
           - label: "Preferences need a server restart"
             next: s1-restart
-            feedback: "Most preference changes apply without a restart."
+            feedback: "Nothing in the course ties preference changes to a restart."
       - id: s1-restart
         md: |
-          Rosa checks: no restart needed. Priya opens her own preferences and finds she set 25 rows
-          months ago. What's the lesson?
+          Rosa checks: no restart needed. Priya opens **My Settings → Preferences** and finds she set her
+          own value months ago. What's the lesson?
         choices:
-          - label: "Check lower levels - user values win over context values"
+          - label: "Check the user level too, for personal preferences"
             next: s2
             good: true
       - id: s2
         md: |
-          Next, Kai's admin tries to set a preference in E-Bike E1, but the edit action is not
-          available. Everything else in Preference Management works. What's going on?
+          Next, Kai's admin tries to change a preference in E-Bike E1. It is **visible**, but Set Preference
+          isn't possible. Other preferences work. What's going on?
         choices:
           - label: "It is locked at the organization or site"
             next: s3
             good: true
-            feedback: "The lock icon gives it away."
+            feedback: "Visible but not editable means locked at a higher level."
           - label: "The admin lacks rights to the whole product"
             next: s2-rights
             feedback: "Then the other preferences wouldn't be editable either."
@@ -233,25 +245,26 @@ blocks:
             good: true
       - id: s3
         md: |
-          Kai asks Jordan to unlock the change notice preference "for one week" for the pilot. What does
-          Jordan do?
+          Kai asks Jordan to unlock Affected End Items Display at Acme Mobility "for one week" for the
+          pilot. What does Jordan do?
         choices:
-          - label: "Say no to unlocking org-wide. Discuss a proper exception with Maya instead"
+          - label: "Keep the lock and discuss a proper exception with Maya"
             next: win
             good: true
-            feedback: "An org-wide unlock affects every product, and old overrides wake up."
+            feedback: "An organization-wide unlock opens the door for every product, not just the pilot."
           - label: "Unlock it at Acme Mobility for a week"
             next: partial
             feedback: "Let's see who else notices."
       - id: win
         md: |
-          Maya agrees to a lighter change request template for the pilot instead. The policy stays
+          Maya agrees the pilot's change requests can list just the one pilot end item. The policy stays
           locked, and nothing changes for Scooter S2.
         outcome: success
       - id: partial
         md: |
-          During that week, an old override in Scooter S2 springs back to life and two scooter change
-          notices skip the request. Jordan re-locks it and cleans up. Unlocking is never just local.
+          During that week, Scooter S2's admin also switches the table off "to declutter". Two scooter
+          change requests go out with no end items. Jordan re-locks it, deletes the child instances and
+          cleans up. Unlocking is never just local.
         outcome: partial
 
   - type: example
@@ -259,10 +272,10 @@ blocks:
     title: The preference set at the wrong level
     industry: Micromobility
     md: |
-      A new admin at a company like Acme changed a part-structure display preference at **site**
-      level to fix one product's complaint. It changed the default for every organization on the server,
-      including a separate business unit with its own training material. The fix was a product-level
-      value - and a rule: start at the lowest level that solves the problem.
+      A new admin at a company like Acme changed a display preference at **site** level to fix one
+      product's complaint. It changed the default for every organization on the server, including a
+      separate business unit with its own training material. The fix was a product-level value - and a
+      rule: start at the lowest level that solves the problem.
     takeaway: Set preferences at the lowest level that solves the problem. Lock only real policy.
 
   - type: callout
@@ -282,19 +295,19 @@ blocks:
   - type: quiz
     questions:
       - kind: single
-        prompt: The site says Yes, Acme Mobility says No (not locked), E-Bike E1 says Yes. What applies in E-Bike E1?
-        options: ["Yes - the product's value", "No - the organization's value", "Yes - the site default"]
+        prompt: Acme Mobility says Yes (not locked) and E-Bike E1 has set No. What applies in E-Bike E1?
+        options: ["No - E-Bike E1's own value", "Yes - the organization's value", "Yes - the site default"]
         answer: 0
-        explanation: Without a lock, the level closest to the work wins. E-Bike E1's own value applies.
+        explanation: Values set at one level apply below, but a lower level may override them unless the preference is locked.
       - kind: single
-        prompt: Same values, but Jordan locks the organization's No. What applies in E-Bike E1 now?
-        options: ["Yes - the product's value", "No - the locked organization value", "It depends on the user"]
+        prompt: Jordan locks the organization's Yes. What does Kai's admin see in E-Bike E1?
+        options: ["The preference is hidden", "The preference is visible with a lock icon and can't be changed", "The preference can still be changed for E-Bike E1 only"]
         answer: 1
-        explanation: A lock makes the higher value apply to every level below it. The product's Yes is ignored.
+        explanation: A locked preference shows the lock icon at all levels and can't be changed at lower levels.
       - kind: truefalse
-        prompt: Unlocking a preference can make old lower-level overrides take effect again.
+        prompt: Before locking a preference at site or organization level, PTC recommends deleting existing child instances.
         answer: true
-        explanation: Overrides set before the lock may still be stored. Check for them, or delete them, before you unlock.
+        explanation: Clearing lower-level values first keeps the configuration clean before the lock takes over.
       - kind: multi
         prompt: Which belong to good preference practice at Acme? (Choose all that apply.)
         options:
@@ -307,8 +320,8 @@ blocks:
 
   - type: summary
     points:
-      - Preferences live at site, organization, context and sometimes user level.
-      - The closest level wins - unless a higher level has locked the preference.
+      - Preferences can be set at site, organization and context level, and some by each user in My Settings.
+      - A value applies to all lower levels, which may override it - unless it is locked above.
+      - Lock with Set Preference and the Locked checkbox; delete child instances first.
       - Set at the lowest level that solves the problem. Lock only real policy.
-      - Unlocking can wake up old overrides. Check lower levels first.
       - Keep a preference register so upgrades and audits are painless.

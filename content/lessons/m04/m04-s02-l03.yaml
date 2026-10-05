@@ -3,6 +3,9 @@ subtitle: One team list for many products, or one per product? Pick wrong and yo
 version: 1.0.0
 updated: "2026-10-05"
 tags: [business-admin, contexts, teams, shared-team]
+sources:
+  - id: ac
+    where: "Module 6, Identify team terminology; Describe the context team architecture; Describe shared teams; Determine the impact of modifying a shared team; Assign a shared team to an application context"
 
 blocks:
   - type: text
@@ -13,8 +16,9 @@ blocks:
       Jordan could maintain three identical teams - and update all three every time someone joins. Or Jordan could
       define the team **once** and let all three products share it. Windchill offers both:
 
-      - a [[context-team]] belongs to one product, library or project;
-      - a [[shared-team]] is defined once at organization level and used by several contexts.
+      - a [[context-team]] belongs to one product, library, project or program - each has exactly one;
+      - a [[shared-team]] is defined at organization level and used by several contexts. An organization can have
+        as many shared teams as it needs.
 
       This lesson is about *which to choose*. How roles themselves work is the next section's topic.
 
@@ -61,7 +65,7 @@ blocks:
           y: 220
           w: 120
           tone: accent
-          detail: Same shared team. If the shared team allows it, E1 Cargo can also add a few local members for cargo-only work.
+          detail: Same shared team. Because its creator allowed local additions, E1 Cargo's manager can add a few roles or members for cargo-only work - but can't remove anything that comes from the shared team.
         - id: p3
           label: E1 Kids
           sublabel: product
@@ -110,9 +114,11 @@ blocks:
       - label: Maintenance
         cells: [Change once and every user context updates, Change each context separately]
       - label: When it is chosen
-        cells: ["When the context is created (plan ahead)", Exists in every context automatically]
+        cells: ["When the context is created (plan ahead); a command-line utility can add one later", Exists in every context automatically]
       - label: Local additions
-        cells: ["Possible only if the shared team allows extension", Always - it's the context's own team]
+        cells: ["Only if the context's creator allowed it; shared roles and members can't be removed locally", Always - it's the context's own team]
+      - label: Who maintains it
+        cells: [Product or library creators (they create and edit shared teams), "The context's manager, e.g. the product manager"]
       - label: Best for
         cells: [A family of products run by the same people, Contexts with a unique or confidential team]
       - label: Main risk
@@ -135,36 +141,41 @@ blocks:
       admin added her to the shared **E-Bike Core Team**, so she could suddenly see E1 and E1 Cargo too, including
       the unreleased battery design from Voltra.
 
-      The fix: remove her from the shared team and add her **locally** to E1 Kids, which the shared team had been
-      set up to allow.
+      The fix: remove her from the shared team and add her **locally** to E1 Kids - possible because E1 Kids was
+      created with local additions allowed.
     takeaway: A shared team change reaches every context that uses it. Add one-off people locally.
 
   - type: walkthrough
     title: Use a shared team for a new product
-    who: Organization administrator, then a product creator
+    who: A product creator (members of the Product or Library Creators groups can create and edit shared teams)
     steps:
       - title: Create or check the shared team
-        where: [Organizations, "Acme Mobility", Teams]
+        where: [Navigator, Browse, Organizations, "Acme Mobility", Teams]
         md: |
-          Shared teams are kept at organization level (on a teams page or utility, depending on release). Create
-          **E-Bike Core Team**, decide whether contexts may extend it locally, and fill its roles with groups.
+          Shared teams live on the organization's **Teams** page and are managed exactly like a context team. Create
+          **E-Bike Core Team** and fill its roles with groups.
       - title: Choose it while creating the product
-        where: [Products, New Product]
+        where: [Products, View All, New Product]
         md: |
-          In the New Product wizard, select **E-Bike Core Team** as the shared team before you finish. Plan this
-          up front - it is part of creating the context.
+          In the **New Product** window, select **E-Bike Core Team** as the shared team. If the product's manager should be
+          able to add roles or people of their own, tick **Allow roles and members to be added locally in this context**.
       - title: Confirm the result
         where: [Products, "E1 Cargo", Team]
         md: The product's team page shows the shared roles and members, plus any local additions.
+      - title: Before changing the shared team, check who uses it
+        where: [Organizations, "Acme Mobility", Teams, "E-Bike Core Team", Show Team Uses]
+        md: |
+          On the shared team's details page, run **Show Team Uses** at the top of the Members table. It lists every context
+          your change will reach.
     result: E-Bike E1, E1 Cargo and E1 Kids all use one team definition that Jordan maintains in one place.
 
   - type: callout
-    variant: version-note
-    versions: ["Varies by release"]
+    variant: note
+    title: Forgot to pick the shared team?
     md: |
-      Where shared teams are managed, which context types can use them, and whether a shared team can be added or
-      swapped after a context is created differ between releases. Check your release's help before promising it -
-      the safe plan is to decide at creation time.
+      By default a shared team can only be attached when the context is created. For existing contexts, an administrator
+      can run the **AddSharedTeamToContexts** command-line utility, after which the context has both its local team and the
+      shared team. Plan at creation time; treat the utility as the exception.
 
   - type: scenario
     variant: what-if
@@ -194,7 +205,7 @@ blocks:
           - label: Add her to the shared team
             next: fail2
             feedback: Every product using the shared team now shows her as a member.
-          - label: Add her locally to E1 Kids (the shared team allows extension)
+          - label: Add her locally to E1 Kids (local additions were allowed at creation)
             next: win
             good: true
             feedback: Local additions affect only that one context.
@@ -276,11 +287,11 @@ blocks:
         prompt: When should Jordan decide whether E1 Cargo uses the shared team?
         options: [Before or while creating the product, After the first release, Whenever someone complains, It is decided automatically]
         answer: 0
-        explanation: The shared team is chosen as part of creating the context. Plan the team model before you click Finish.
+        explanation: By default the shared team is chosen as part of creating the context. Adding one later needs a command-line utility run by an administrator.
 
   - type: summary
     points:
       - Context teams belong to one context; shared teams are defined in the organization and used by many.
       - "Same people, many contexts → shared team. Unique or confidential people → context team."
-      - Decide on a shared team when you create the context.
-      - Add one-off people locally, never to the shared team.
+      - "Decide on a shared team when you create the context - and whether local additions are allowed."
+      - Check Show Team Uses before changing a shared team; add one-off people locally.

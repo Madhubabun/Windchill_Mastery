@@ -3,6 +3,29 @@ subtitle: "BAT-48V-13AH or EB-10050? One of them will still make sense in five y
 version: 1.0.0
 updated: "2026-10-05"
 tags: [business-admin, numbering, oir, sequences, smart-numbers]
+sources:
+  - id: ac
+    where: "Module 7: Describe object initialization rules (OIRs); Describe out-of-the-box object numbering scheme rules; Specify custom numbering scheme rules; Identify best practices for creating OIRs"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Numbering Scheme Examples"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/objrules/ObjRuleObjectNumberingExamples.html"
+    covers: "NumberGenerator class name, GEN SequenceGenerator argument (sequence name, total length, pad character); empty AttrConstraint turns off inherited autonumbering"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Syntax for Algorithm Arguments"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/objrules/ObjRuleAlgorithmArgsRef.html"
+    covers: "Arg, Attr, Value and VarRef argument tags; spaces in Arg ignored; VarDef with NumberGenerator"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "About Object Initialization Rules"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/objrules/ObjRuleAbout.html"
+    covers: "Constraints Immutable, Server assigned, Pregenerated, Hidden, Discrete set"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Persistence Datastore Sequence Customization"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/customization/WCCG_Serv_PersistenceMgmt_PersistDatastrSeqCustom.html"
+    covers: "New datastore sequences are added by developers (modeled class or SQL scripts) and run through the Windchill shell"
 
 blocks:
   - type: text
@@ -24,8 +47,8 @@ blocks:
       - "the rule for what numbers look like" → [[numbering-scheme]]
       - "a number that describes the part" → [[smart-number]] (significant number)
       - "a number that's just unique" → *non-significant* or "dumb" number
-      - "the counter in the database" → *sequence*
-      - "Windchill fills it, users can't type it" → *server-assigned* number, set in the [[object-initialization-rule]]
+      - "the counter in the database" → *sequence*, read by the *number generator*
+      - "Windchill fills it when the object is saved" → the *Server assigned* constraint in the [[object-initialization-rule]]
 
   - type: comparison
     title: Smart or dumb?
@@ -36,7 +59,7 @@ blocks:
       - label: When a property changes
         cells: ["Number lies or must change everywhere", "Nothing happens - update the attribute"]
       - label: Running out of codes
-        cells: ["Common - categories fill up or overlap", "Rare - 10,000 numbers per range, easy to extend"]
+        cells: ["Common - categories fill up or overlap", "Rare - a range of 10,000 numbers, easy to extend"]
       - label: Who assigns it
         cells: ["Often a person deciding the code", "The server, from a sequence"]
       - label: Searching and grouping
@@ -61,12 +84,12 @@ blocks:
         - { from: num, to: erp, dashed: true }
     chapters:
       - title: A create request
-        caption: Priya creates an E-Bike Part in E-Bike E1. The number field is greyed out - it's **server-assigned**.
+        caption: Priya creates an E-Bike Part in E-Bike E1. She doesn't type a number - the rule makes it **server assigned**.
         show: [create, oir]
         highlight: [create]
         flow: [create>oir]
       - title: Ask the sequence
-        caption: The OIR's number generator asks the database **sequence** `EBPART_seq` for its next value - **10050**. Sequences never hand out the same value twice, even with 50 people clicking at once.
+        caption: The OIR's number generator asks the database **sequence** `EBPART_seq` for its next value - **10050**. A sequence hands out each value once.
         show: [create, oir, seq]
         highlight: [seq]
         flow: [oir>seq]
@@ -82,59 +105,71 @@ blocks:
 
   - type: walkthrough
     title: Set up EB- auto-numbering
-    who: Jordan (business admin) with Rosa (system admin) for the database step
-    where: [Products, "E-Bike E1", Utilities, Object Initialization Rules Administration]
+    who: Jordan (organization administrator), with a developer or Rosa (system admin) for the sequence
+    where: [Browse, Organizations, "Acme Mobility", Utilities, Object Initialization Rules Administration]
     steps:
       - title: Decide the pattern and range
         where: [Whiteboard]
         md: |
           Agree with Kai, Ana (ERP) and Maya: prefix `EB-`, five digits, range **EB-10000 to EB-19999**.
           Check the ERP's maximum number length and allowed characters now, not after go-live.
-      - title: Create the sequence
-        where: [Database, "Rosa's task"]
+      - title: Get the sequence added
+        where: [Windchill shell, "developer's task"]
         md: |
-          Rosa creates the database sequence `EBPART_seq` using the scripts and steps PTC documents for
-          your database, starting **above** any EB number already typed by hand. On Windchill+ this
-          step goes through PTC support.
-      - title: Point the OIR at it
+          A new database sequence `EBPART_seq` is added by someone with datastore access. PTC documents
+          two ways: a modeled Java class that generates the DDL, or hand-written SQL scripts for Oracle
+          or SQL Server - both run through the Windchill shell. Start it **above** any EB number already
+          typed by hand.
+      - title: Point the organization's E-Bike Part rule at it
         where: [Object Initialization Rules Administration, "E-Bike Part defaults", Download]
         md: |
-          Download the E-Bike Part rule, set the number generator to the `EB-` prefix plus
-          `EBPART_seq` (see the snippet), and keep the out-of-the-box generator syntax from your system.
-      - title: Make the number server-assigned
+          Download Acme Mobility's E-Bike Part rule and set the number to the `EB-` prefix plus
+          `EBPART_seq` (see the snippet). The rule lives at **organization** level, not in E-Bike E1:
+          the course recommends organization or site level because product-level rules can restrict
+          moving objects between products.
+      - title: Make the number server assigned
         where: [Object Initialization Rules Administration, "E-Bike Part defaults"]
         md: |
-          In the same rule, add the **server-assigned** constraint for the number (copy it from an
-          existing rule that uses it), so users can't type their own. Upload the rule and keep it enabled.
+          In the same rule, add the **Server assigned** constraint for the number (copy its block from an
+          existing rule that uses it), so the value is generated when the part is saved. Upload the rule
+          and check it is enabled.
       - title: Test and record
-        where: [Products, "E-Bike E1", Folders, New, New Part]
+        where: [Browse, Products, "E-Bike E1", Folders, New Part]
         md: |
           Create two test E-Bike Parts and check the numbers follow each other. Write the scheme, the
           sequence name and the range in the admin handbook.
-    result: Every new E-Bike Part in E-Bike E1 gets the next EB- number automatically, and nobody can type one by hand.
+    result: Every new E-Bike Part in any Acme product gets the next EB- number automatically.
 
   - type: text
     md: |
-      The number part of the rule, simplified (copy the exact syntax from a working rule on your
-      system):
+      The number part of the rule. It uses only the element names, class names and generator syntax
+      shown in PTC's documentation; the sequence name is Acme's.
 
       ```xml
-      <AttrValue id="number" algorithm="...NumberGenerator">
+      <AttrValue id="number"
+        algorithm="com.ptc.windchill.enterprise.revisionControlled.server.impl.NumberGenerator">
         <Arg>EB-</Arg>
         <Arg>{GEN:wt.enterprise.SequenceGenerator:EBPART_seq:5:0}</Arg>
       </AttrValue>
       ```
 
-      Inside the curly brackets: the generator, the **sequence name**, the **length** (5) and the
-      **pad character** (0). With a sequence starting at 10050, the first number is `EB-10050`.
+      The first **Arg** is a constant. Inside the curly brackets: the generator, the **sequence name**,
+      the **length** of the generated part (5) and the **pad character** (0). With a sequence starting
+      at 10050, the first number is `EB-10050`. Constants, attribute values and default values can sit on
+      either side of the generated value - and spaces inside an Arg are ignored, so use a hyphen where you
+      want a separator.
+
+      **Out of the box**, parts, documents, CAD documents and end items get plain sequential numbers ten
+      digits long, and change objects five digits. An empty `AttrConstraint` for the number turns
+      autonumbering off in a context, so users type numbers by hand.
 
   - type: callout
     variant: version-note
-    versions: ["All releases"]
+    versions: ["13.x"]
     md: |
-      The number generator syntax has been stable for many releases, but always copy it from your own
-      system's working rules. CAD documents created from Creo may take their number from the file name,
-      depending on Workgroup Manager and CAD preferences - align those settings with the scheme.
+      **CAD documents:** the course notes that autonumbered CAD documents get the file extension added
+      to the number by default, and points to the **Auto Associate Truncate Number File Extension**
+      preference to change that. Check how your CAD numbers look before you promise the ERP a format.
 
   - type: scenario
     variant: challenge
@@ -190,7 +225,7 @@ blocks:
           Two weeks in, Maya notices gaps: EB-10057 and EB-10058 don't exist. She asks whether parts were
           deleted. What does Jordan answer?
         choices:
-          - label: "Gaps are normal - cancelled creates and sequence caching skip values. Numbers are unique, not gapless."
+          - label: "Gaps can happen - a sequence promises not to repeat, not to be gapless. Test creates use up numbers too."
             next: win
             good: true
             feedback: "Exactly. Never promise gapless numbers to auditors or ERP."
@@ -216,8 +251,9 @@ blocks:
   - type: callout
     variant: pitfall
     md: |
-      **Testing numbering in production.** Every test create consumes a real number, and a sequence
-      reset to "clean up" can cause duplicates. Test in a test system, and accept that gaps happen.
+      **Testing numbering in production.** Every test create consumes a real number, and moving a
+      sequence backwards to "clean up" sets up a collision with numbers already used. Test in a test
+      system, and accept that gaps happen.
 
   - type: callout
     variant: pro-tip
@@ -237,20 +273,20 @@ blocks:
         answer: 1
         explanation: Meaning belongs in attributes. When the capacity changes, you update an attribute - not a number used by BOMs, drawings and ERP.
       - kind: single
-        prompt: What makes the number field greyed out and filled by Windchill?
-        options: [A preference, A server-assigned constraint in the OIR, An access rule, The life cycle template]
+        prompt: What makes Windchill generate the number when the part is saved, instead of the user typing it?
+        options: [A preference, A Server assigned constraint in the OIR, An access rule, The life cycle template]
         answer: 1
-        explanation: The OIR both generates the value and can mark the number server-assigned, so users cannot type their own.
+        explanation: The OIR generates the value, and its Server assigned constraint has it generated when the object is saved.
       - kind: truefalse
-        prompt: Gaps in an auto-numbered sequence, such as a missing EB-10057, mean parts were deleted.
+        prompt: Gaps in an auto-numbered sequence, such as a missing EB-10057, prove parts were deleted.
         answer: false
-        explanation: Cancelled creates and database sequence caching can skip values. Sequences guarantee uniqueness, not gapless numbering.
+        explanation: A sequence promises unique values, not gapless ones - test creates, for example, use numbers up too.
       - kind: multi
         prompt: Which steps belong to setting up EB- auto-numbering? (Choose all that apply.)
         options:
           - Agree the prefix and range with ERP owners
-          - Create the database sequence above existing numbers
-          - Reference the sequence in the E-Bike Part OIR
+          - Have the database sequence added, starting above existing numbers
+          - Reference the sequence in the organization's E-Bike Part OIR
           - Reset the sequence monthly to fill gaps
         answers: [0, 1, 2]
         explanation: Agree the scheme, create the sequence in the right place and wire it into the OIR. Never move a sequence backwards.
@@ -259,6 +295,6 @@ blocks:
     points:
       - Smart numbers encode facts that change. Prefer dumb numbers plus attributes.
       - Auto-numbering is an OIR number generator reading a database sequence.
-      - A system admin creates the sequence - start it above existing numbers.
-      - Make the number server-assigned so users can't type their own.
+      - A developer or system admin adds the sequence - start it above existing numbers.
+      - Keep the rule at organization level and make the number Server assigned.
       - Numbers are unique, not gapless. Never reset a sequence backwards.

@@ -22,8 +22,8 @@
 - Android: daily reminder notifications, native print/share, back button, works in flight mode.
 
 **Content**: Module 1 (Fundamentals of Windchill & PLM) is complete: 19 lessons, 4 section
-checkpoints and a capstone. Module 4 (Business Administration) is complete: 28 lessons, 9 section
-checkpoints and a capstone. Both have cheat sheets; the glossary has 127 terms. The other
+checkpoints and a capstone. Module 4 (Business Administration) is complete: 38 lessons, 9 section
+checkpoints and a capstone. Both have cheat sheets; the glossary has 147 terms. The other
 modules are outlined.
 
 ## Not done yet / known limits

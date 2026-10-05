@@ -3,11 +3,23 @@ subtitle: Let the system do the boring steps - and pick the right path on its ow
 version: 1.0.0
 updated: "2026-10-05"
 tags: [business-admin, workflow, robots, expressions, conditional-routing]
+sources:
+  - id: ac
+    where: "Module 5: Describe workflow templates; Define workflow template properties (Routing tab); Add connectors and terminals to a workflow; Link nodes in a workflow; Set link properties; Use robots to automate tasks; Create a promotion scheme: example; Manage promotion preferences. Appendix B (Implement promotion and change processes): Implement business rules: conditionals and code"
+  - id: trn-wf-itc
+    where: "Module 4: Using conditional connectors (routing event emitted by a Java expression; exiting links name the event). Module 6: Using robots. Windchill 9.0 slides, used only where the 13.x course agrees"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Workflow Processes Table"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wfprocessadmin/WFProcessAdminWFProcessTblRef.html"
+    covers: "Workflow Process Administration utility; Terminate Process and View Workflow Template actions"
 
 blocks:
   - type: text
     md: |
-      Jordan's Quick Review workflow is live. Then Leo brings news from a safety audit:
+      E-Bike Parts are released through promotion requests. Jordan has made Acme's own copy of the
+      out-of-the-box promotion approval workflow (the course recommends starting a custom promotion
+      workflow with a save-as of the shipped one). Then Leo brings news from a safety audit:
 
       > "Battery packs at **48 V or more** need an extra **safety review**. Everything else can keep
       > the standard review."
@@ -15,8 +27,8 @@ blocks:
       Jordan could ask every requester to pick the right path. People would forget. Instead, the
       workflow should **look at the part and decide**. That takes two tools:
 
-      - **Robots** - steps the system runs by itself (you met Set State and Notify already).
-      - **Expressions** - a few lines of Java-like code that set the routing result.
+      - **Robots** - steps the system runs by itself (you met Set State and Notification already).
+      - **Expressions** - a few lines of Java code whose result picks the next path.
 
       The trick at expert level is not writing clever code. It is writing **as little code as
       possible**, and making it impossible for it to get stuck.
@@ -26,14 +38,14 @@ blocks:
     md: |
       **Plain words → official term**
       - "a step the system does alone" → [[workflow-robot|robot]]
-      - "a fork where the system picks the path" → *conditional routing* (a conditional router node, or conditional routing on an activity)
+      - "a fork where the system picks the path" → *Conditional router* (a connector node)
       - "the few lines of code that decide" → [[workflow-expression]]
       - "the value the code reads" → [[workflow-variable]], e.g. `batteryVoltage`
       - "the path name the code returns" → the routing *event*, set in `result`
 
   - type: diagram
     title: Routing by battery voltage
-    caption: The diamond-like router reads one variable and fires exactly one event. Click each box.
+    caption: The router reads one variable and emits exactly one routing event. Click each box.
     diagram:
       width: 840
       height: 400
@@ -47,19 +59,20 @@ blocks:
           w: 100
           tone: neutral
           shape: circle
-          detail: The process is launched on an E-Bike Part, for example EB-10021 Battery pack (Battery Voltage 48 V).
+          detail: A promotion request is started for an E-Bike Part, for example EB-10021 Battery pack (Battery Voltage 48 V).
         - id: copy
           label: Read voltage
-          sublabel: expression robot
+          sublabel: Expression robot
           x: 190
           y: 60
           w: 240
           tone: success
           shape: pill
           detail: |
-            An **Execute Expression** robot copies the part's *Battery Voltage* attribute into the
-            workflow variable `batteryVoltage`. Jordan doesn't hand-write this lookup: Acme's
-            developer provides a tested one-line helper call for reading attributes.
+            An **Expression** robot copies the part's *Battery Voltage* attribute into the workflow
+            variable `batteryVoltage`. Jordan doesn't hand-write this lookup: Acme's developer provides
+            a tested one-line helper call for reading attributes. (Expression is one of the *advanced*
+            robots - using it well takes Java and Windchill API knowledge.)
           real: Keep attribute lookups in one shared, tested helper. Copy-pasted lookup code in 20 templates is how upgrades break.
         - id: router
           label: Conditional router
@@ -69,19 +82,21 @@ blocks:
           w: 240
           tone: warning
           detail: |
-            The routing expression sets `result` to the **name of one event**: "Safety review" or
-            "Standard review". The link with that event name fires. The names must match exactly.
+            A **Conditional router** continues based on custom criteria written in Java. Jordan's code
+            sets `result` to the **name of one routing event**: "Safety review" or "Standard review".
+            Each outgoing link listens for one of those events, so the names must match exactly.
         - id: notify
           label: Timer + reminder
-          sublabel: timer robot
+          sublabel: Timer robot
           x: 190
           y: 290
           w: 240
           tone: success
           shape: pill
           detail: |
-            Optional: a **Timer** robot running in parallel waits 3 working days, then a
-            **Notification** robot nudges the reviewer. Robots are great at nagging politely.
+            Optional: a **Timer** robot on a parallel branch adds a time delay, then a
+            **Notification** robot nudges the reviewer. End that branch with a **Ground** terminal so
+            it doesn't stop the main process.
         - id: safety
           label: Safety review
           sublabel: role Safety Reviewer
@@ -92,12 +107,12 @@ blocks:
           detail: An assigned activity for the Safety Reviewer role (Leo's team). Only packs at 48 V or more come here.
         - id: standard
           label: Standard review
-          sublabel: role Reviewer
+          sublabel: role Quality Reviewer
           x: 520
           y: 250
           w: 200
           tone: primary
-          detail: The normal review from the previous lesson - and the **safe default** when the voltage is unknown.
+          detail: The normal quality review - and the **safe default** when the voltage is unknown.
         - id: done
           label: Release path
           x: 750
@@ -123,41 +138,46 @@ blocks:
       "we remind people" - Jordan shows the router and the process history.
 
   - type: comparison
-    title: Robots you'll actually use
-    columns: [Does what, Use it when, Watch out]
+    title: The eight robots
+    columns: [Kind, Does what, Watch out]
     rows:
-      - label: Set State
-        cells: ["Changes the object's life cycle state", "Freezing or releasing at a fixed point", "The target state must exist in the object's life cycle"]
       - label: Notification
-        cells: ["Sends an email to roles or participants", "Telling people something happened", "Too many emails train people to ignore them"]
+        cells: ["Basic", "Notifies users", "Too many messages train people to ignore them"]
+      - label: Checkpoint
+        cells: ["Basic", "Marks a point in the process (subscribers can be told when it is reached)", "Only useful if someone watches it"]
+      - label: Method
+        cells: ["Basic", "Runs a standard function on a Windchill object - most often Set State", "The target state must exist in the object's life cycle"]
       - label: Timer
-        cells: ["Waits for a duration or a date", "Reminders and escalations", "Pair it with a clear action when it fires"]
-      - label: Synchronize
-        cells: ["Waits until an event or condition happens", "Waiting for another object or process", "Can wait forever if the event never comes"]
-      - label: Launch Process
-        cells: ["Starts another workflow template", "Reusing a small sub-process", "Keep track of which process owns the object"]
-      - label: Execute Expression
-        cells: ["Runs a short piece of Java-like code", "Setting variables or calling a tested helper", "Exceptions stop the step - keep it tiny"]
-    takeaway: Reach for the no-code robots first. Execute Expression is the last tool in the box, not the first.
+        cells: ["Basic", "Adds a time delay", "Pair it with a clear action when it fires"]
+      - label: Synchronization
+        cells: ["Advanced", "Waits for a Windchill event or a Java expression", "Can wait forever if the event never comes"]
+      - label: Expression
+        cells: ["Advanced", "Runs a Java expression", "Errors stop the step - keep it tiny"]
+      - label: Application
+        cells: ["Advanced", "Launches an application on the server", "Needs a system admin to own what it launches"]
+      - label: URL
+        cells: ["Advanced", "Talks to another server through a URL", "The other server can be down"]
+    takeaway: The basic robots only need their properties filled in. The advanced ones need Java, Info*Engine or Windchill API know-how - reach for them last.
 
   - type: comparison
-    title: Three ways a step chooses its next link
-    columns: [Manual routing, Conditional routing, Automatic (all links)]
+    title: Three ways a process picks its next step
+    columns: [Manual routing, Conditional router, No routing events]
     rows:
       - label: Who decides
-        cells: ["The person doing the task", "An expression", "Nobody - every outgoing link fires"]
+        cells: ["The person doing the task picks a routing event", "Java code picks a routing event", "Nobody - the node emits Complete and every link listening for it fires"]
       - label: Example
-        cells: ["Leo clicks Approve or Reject", "48 V or more → Safety review", "Notify Quality and Manufacturing at the same time"]
+        cells: ["Leo picks Approve or Reject", "48 V or more → Safety review", "Notify Quality and Manufacturing in parallel"]
       - label: Risk
-        cells: ["People pick the wrong button", "A typo in an event name strands the process", "Paths must be joined later with an AND or OR connector"]
+        cells: ["People pick the wrong answer", "A typo in an event name strands the process", "Parallel paths must be joined again, for example with an And connector"]
     takeaway: Let humans decide judgement calls. Let expressions decide facts.
 
   - type: text
     md: |
       ### The whole expression
 
-      Here is everything Jordan writes in the router. The router lists two events: `Safety review`
-      and `Standard review`.
+      Here is everything Jordan writes in the router. Its two outgoing links listen for the routing
+      events `Safety review` and `Standard review`. This is a teaching sketch: plain Java, no Windchill
+      API calls.
 
       ```java
       // Safe default first: if nothing below matches, we still go somewhere sensible.
@@ -174,7 +194,7 @@ blocks:
       | Set a default `result` first | An unexpected value can never leave the process with no path. |
       | Event names copied, not retyped | `"Safety Review"` with a capital R is a different event - and a stuck process. |
       | Read a variable, not the database | The variable is filled once by a tested helper. The router stays trivial. |
-      | Use **Check Syntax** in the editor | It catches typos before the template is saved - not in production. |
+      | Validate, then test **every** branch | **Process → Validate All** checks the template; only a test run proves each event name. |
       | No loops, no waits, no writes | Anything bigger belongs in a developer's tested Java class, called in one line. |
 
   - type: scenario
@@ -184,7 +204,7 @@ blocks:
     nodes:
       - id: s1
         md: |
-          The router is live. Priya launches a review on **EB-10035 Display unit**. It has no battery,
+          The router is live. Priya creates a promotion request for **EB-10035 Display unit**. It has no battery,
           so *Battery Voltage* is empty and the helper puts **0** in `batteryVoltage`. What happens?
         choices:
           - label: "It goes to Standard review because of the default"
@@ -217,8 +237,8 @@ blocks:
             feedback: "Windchill doesn't guess. Event names must match exactly."
       - id: s2-guess
         md: |
-          There is no fuzzy matching. The process sits at the router until an admin finds it in
-          **Workflow Process Administration**. How should Jordan prevent this?
+          There is no fuzzy matching. The process sits at the router until an admin finds it in the
+          **Workflow Process Administration** utility. How should Jordan prevent this?
         choices:
           - label: "Copy event names from the router's event list and test every branch in a sandbox"
             next: s3
@@ -228,10 +248,10 @@ blocks:
         md: |
           Rosa (system admin) spots the stuck process. To unblock it today, which is the best move?
         choices:
-          - label: "Fix the template, check it in, and handle the stuck process from Workflow Process Administration"
+          - label: "Fix the template, check it in, and deal with the stuck process in Workflow Process Administration"
             next: win
             good: true
-            feedback: "Fix forward, then deal with the stranded process explicitly. Running processes keep their old template iteration, so they need handling."
+            feedback: "Fix forward, then deal with the stranded process explicitly. Running processes are unaffected by newer template iterations, so they need handling."
           - label: "Just fix the template - the running process will pick it up"
             next: partial
             feedback: "Running processes stay on the iteration they started with."
@@ -240,13 +260,14 @@ blocks:
             feedback: "That hides the bug and silently skips safety rules."
       - id: win
         md: |
-          New processes use the fixed template, and the stuck one is restarted or completed by hand
-          with a note in its history. Jordan adds "test every branch" to the release checklist.
+          New processes use the fixed template. Rosa terminates the stuck process (Terminate
+          Process cannot be undone, so she notes why) and Priya starts a fresh promotion request for
+          the 9 V pack. Jordan adds "test every branch" to the release checklist.
         outcome: success
       - id: partial
         md: |
-          New processes work, but the stuck one is still stuck - templates are **iterated** and a
-          running process follows the iteration it started on. Someone still has to handle it.
+          New processes work, but the stuck one is still stuck - templates are **iterated** and
+          running processes are unaffected by newer iterations. Someone still has to handle it.
         outcome: partial
       - id: fail
         md: |
@@ -259,7 +280,7 @@ blocks:
     title: The 400-line expression
     industry: Micromobility
     md: |
-      A previous contractor wrote a 400-line Execute Expression robot that read BOMs, calculated
+      A previous contractor wrote a 400-line Expression robot that read BOMs, calculated
       costs and emailed suppliers. It worked - until a Windchill upgrade changed one internal method,
       and every engineering change at Acme stopped at that robot. Jordan and Acme's developer replaced
       it with **one line** calling a tested Java class that lives in the code repository, with unit
@@ -270,8 +291,9 @@ blocks:
     variant: pitfall
     md: |
       **Hiding errors.** Wrapping an expression in `try { ... } catch (Exception e) { }` makes the
-      process "never fail" - and silently does the wrong thing. Let real errors stop the step so an
-      admin sees them in Workflow Process Administration.
+      process "never fail" - and silently does the wrong thing. Let real errors stop the step: the
+      template's **Responsible Role** is the one notified about errors, so make sure that role is
+      filled.
 
   - type: callout
     variant: pro-tip
@@ -291,14 +313,19 @@ blocks:
         answer: 1
         explanation: A default result means an unexpected value still leads to a defined, sensible path instead of a stuck process.
       - kind: truefalse
-        prompt: For "notify Quality and Manufacturing at the same time", automatic routing (fire all links) is a good fit.
+        prompt: For "notify Quality and Manufacturing at the same time", no routing decision is needed - several links listening for Complete can fire in parallel.
         answer: true
-        explanation: When every path should run, no decision is needed. Remember to join the paths later with an AND or OR connector if they meet again.
+        explanation: When every path should run, no decision is needed. If the paths meet again, join them with a connector such as And (wait for all).
+      - kind: multi
+        prompt: Which robots does the course class as basic - usable just by filling in properties? (Choose all that apply.)
+        options: [Notification, Method, Timer, Expression, URL]
+        answers: [0, 1, 2]
+        explanation: The basic robots are Notification, Checkpoint, Method and Timer. Application, Expression, Synchronization and URL are advanced and need Java, Info*Engine or API knowledge.
 
   - type: summary
     points:
-      - Robots automate steps. Prefer Set State, Notification, Timer and Synchronize over code.
-      - Conditional routing lets an expression pick one event by name.
+      - Robots automate steps. Prefer the basic robots (Notification, Checkpoint, Method, Timer) over code.
+      - A Conditional router lets Java code pick one routing event by name.
       - Safe expressions are tiny - default result first, exact event names, no hidden errors.
       - Bigger logic belongs in tested Java code called in one line.
-      - A stuck process stays stuck after a template fix. Handle it in Workflow Process Administration.
+      - A stuck process stays stuck after a template fix. Handle it in the Workflow Process Administration utility.

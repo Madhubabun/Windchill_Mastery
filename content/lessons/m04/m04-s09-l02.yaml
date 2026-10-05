@@ -3,14 +3,39 @@ subtitle: Put a part in the tree once, fill in four values - and it can be found
 version: 1.0.0
 updated: "2026-10-05"
 tags: [classification, search, reuse, parts]
+sources:
+  - id: pl
+    where: "PartsLink capabilities; Running a classification search; Faceted search results; Classification search and advanced search; Find Similar Objects; Classification structure; Classification attributes; Implementation strategy"
+  - id: ac
+    where: "Optional servers (Solr indexing required for Parts Classification and faceted search)"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Classifying Objects in Windchill"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wcclassreuse/WCClassAdminClassifyParts.html"
+    covers: "Classifying in the New Part wizard via the binding attribute; bulk classification through Export Importable Spreadsheet and Import from Spreadsheet"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Searching for Classified Objects"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wcclassreuse/WCClassSearchClassPartsOview.html"
+    covers: "Advanced Search, Classification Explorer and Find Similar Objects as the three search methods"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Classification Constraints"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wcclassreuse/WCClassReuseConstraintsAbout.html"
+    covers: "Required constraint"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Classification Nodes"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wcclassreuse/WCClassReuseClassNodeAbout.html"
+    covers: "Do not use the same attribute on a classification node and an object type"
 
 blocks:
   - type: text
     md: |
       A tree is only useful if parts are **in** it. This lesson does both halves:
 
-      1. **Classify** a part - Kai puts EB-10021, the E1's 36 V battery pack from Voltra Cells, into
-         the *Li-ion packs* node and fills in its attributes.
+      1. **Classify** a part - Kai creates EB-10130, a new 48 V pack from Voltra Cells, and puts it
+         into the *Li-ion packs* node with its attribute values.
       2. **Find** a part by classification - Priya, designing a cargo variant, looks for an existing
          36 V pack before asking Voltra for a new one.
 
@@ -20,7 +45,8 @@ blocks:
       **Plain words → official term**
       - "put a part in a node of the tree" → *classify* ([[classification]])
       - "the node's properties you fill in" → [[classification-attribute|classification attributes]]
-      - "walk the tree, then filter by properties" → [[classification-search]]
+      - "browse the tree, then narrow by values" → [[classification-search]], done in the *Classification Explorer*
+      - "show me parts like this one, but a bit different" → *Find Similar Objects*
       - "use what exists instead of making a new one" → [[part-reuse]]
 
   - type: animation
@@ -41,22 +67,22 @@ blocks:
         - { from: index, to: priya, label: filter match }
     chapters:
       - title: Pick the node
-        caption: Kai classifies EB-10021 into **Electrical → Battery packs → Li-ion packs** - a leaf, not a grouping node.
+        caption: When EB-10021 was created, it was classified into **Electrical → Battery packs → Li-ion packs** - an end node, not a grouping node.
         show: [part, node]
         highlight: [node]
         flow: [part>node]
       - title: Fill the attributes
-        caption: The node brings its own and inherited fields - Nominal voltage, Capacity, Chemistry. Kai picks values from the lists, with units.
+        caption: The node brings its own and inherited fields - Nominal voltage, Capacity, Chemistry. Values come from lists, with units.
         show: [part, node, attrs]
         highlight: [attrs]
         flow: [node>attrs]
       - title: Now it's findable
-        caption: Windchill can now match the part by node **and** by each value - no guessing names.
+        caption: The part can now be matched by node **and** by each value - no guessing names. (PartsLink relies on Windchill's search index for this.)
         show: [part, node, attrs, index]
         highlight: [index]
         flow: [attrs>index]
       - title: Months later...
-        caption: Priya filters Li-ion packs for 36 V and at least 14 Ah. EB-10021 comes up first. Reused - not re-bought.
+        caption: Priya narrows Li-ion packs to 36 V and at least 14 Ah. EB-10021 comes up. Reused - not re-bought.
         show: [part, node, attrs, index, priya]
         highlight: [priya]
         flow: [index>priya]
@@ -65,64 +91,76 @@ blocks:
     variant: why-it-matters
     md: |
       Classification only pays off when two people do their part: whoever **creates** the part classifies
-      it properly, and whoever **needs** a part searches the tree before creating one. Business admins
-      make both easy - clear node names, short attribute lists, and (where it fits) classification
-      required when a library part is created.
+      it properly, and whoever **needs** a part searches the tree before creating one. PTC's own
+      implementation advice is blunt: every object that should be classified must be classified **when
+      it is created**. Business admins make that easy - clear node names, short attribute lists, and the
+      important attributes set as *Required*.
 
   - type: walkthrough
-    title: Classify an existing part
-    who: Part owner with modify rights (Kai), or a librarian for library parts
-    where: ["<part>", Information page, Actions]
+    title: Create and classify a new part
+    who: Part creator with create rights in the library or product (Kai)
+    where: ["<library or product>", Folders, New Part]
     steps:
-      - title: Open the part
-        where: [Search, "EB-10021", Information page]
-        md: Find EB-10021 and open its [[information-page]].
-      - title: Start editing
-        where: [Information page, Actions, "Edit (or Check Out and Edit)"]
+      - title: Start a new part
+        where: [Acme Standard Parts, Folders, "<folder>", New Part]
         md: |
-          Classification values are part attributes, so changing them follows the normal edit rules - the
-          part is checked out (often automatically) and checked in afterwards, creating a new iteration.
+          Open the folder where the part belongs and click **New Part**. Choose the type and fill in the
+          usual fields - number EB-10130, name, and so on.
       - title: Choose the classification node
-        where: [Edit, Classification, "Electrical → Battery packs → Li-ion packs"]
+        where: [New Part, Part Classification, Find]
         md: |
-          In the classification field or step, browse or search the tree and select the **leaf** node.
-          Grouping nodes like *Electrical* are usually not selectable.
+          Next to the **Part Classification** field, click the find icon. In the classification tree,
+          open *Electrical → Battery packs* and select **Li-ion packs**. Only nodes set as instantiable
+          can be chosen.
       - title: Fill the classification attributes
-        where: [Edit, Classification attributes]
+        where: [New Part, Next, Set Classification Attributes]
         md: |
-          Enter Nominal voltage **36 V**, Capacity **14 Ah**, Chemistry **NMC**. Use the lists and
-          units provided. Required attributes must be filled before you can save.
-      - title: Save and check in
-        where: [Edit, Save / Check In]
-        md: Save and check in. The part's information page now shows its classification and values.
-    result: EB-10021 shows its classification path and attribute values, and appears in classification searches on Li-ion packs (and on Battery packs, the node above).
+          Choosing a node adds a **Set Classification Attributes** step. Enter Nominal voltage **48 V**,
+          Capacity **12 Ah**, Chemistry **NMC**. Attributes marked *Required* must have a value.
+      - title: Finish
+        where: [New Part, Finish]
+        md: Click **Finish**. The part's information page shows its classification and the values.
+    result: EB-10130 is classified in Li-ion packs and can be found by classification search - on Li-ion packs, and on Battery packs above it.
+
+  - type: callout
+    variant: note
+    title: What about parts that already exist?
+    md: |
+      PTC's documentation describes classifying many existing parts in bulk: export them with **Export
+      Importable Spreadsheet**, fill in the classification, and bring the changes back with **Import from
+      Spreadsheet**. The sources used for this course don't spell out the single-part action for
+      reclassifying an existing part, so check your system's part Actions menu rather than guessing.
 
   - type: walkthrough
     title: Find a reusable part by classification
     who: Any user who can read the parts (Priya)
-    where: [Navigator, Search, Classification]
+    where: [Navigator, Search, Classification Explorer]
     steps:
-      - title: Open classification search
-        where: [Navigator, Search, "Classification search"]
+      - title: Open the Classification Explorer
+        where: [Navigator, Search, Classification Explorer]
         md: |
-          Open the search area and choose the classification option (its name and position vary by
-          release). The classification tree appears.
+          In the **Classification** drop-down, make sure the part classification structure is shown.
+          Each node shows the number of objects under it in brackets - a quick sense of where the parts are.
       - title: Walk the tree
-        where: [Classification, Electrical, Battery packs]
+        where: [Classification Explorer, Electrical, Battery packs]
         md: |
-          Open nodes from general to specific. Searching on a node includes parts classified in the
-          nodes **below** it, so stop at *Battery packs* if you'd also accept other chemistries.
-      - title: Filter by attributes
-        where: [Battery packs, Attribute filters]
+          Open nodes from general to specific. Stop at *Battery packs* if you'd also accept other
+          chemistries; go down to *Li-ion packs* if you wouldn't.
+      - title: Narrow by attributes
+        where: [Search Results, Refine Results]
         md: |
-          Set Nominal voltage = 36 V and Capacity ≥ 14 Ah. The result count drops with every filter.
+          When search facets are enabled, the **Refine Results** pane lets you filter by attribute values,
+          including a minimum and maximum for numbers. Set Nominal voltage = 36 V and Capacity from 14 Ah
+          upwards.
       - title: Check before you reuse
         where: [Results, "<part>", Information page]
         md: |
           Prefer **Released** parts. Check [[where-used]] to see who already relies on it, and the
-          context - a part in the **Acme Standard Parts** library is meant for reuse.
+          context - a part in the **Acme Standard Parts** library is meant for reuse. If it's close but
+          not quite right, use **Find Similar Objects** from its Actions menu to look for siblings in the
+          same node with different values.
       - title: Reuse it
-        where: [Your structure, Insert existing part]
+        where: [Your structure, "<insert existing part>"]
         md: Add the found part to your structure instead of creating a new one.
     result: Priya reuses EB-10021 in the cargo variant. No new part number, no new supplier qualification.
 
@@ -130,16 +168,19 @@ blocks:
     variant: version-note
     versions: ["All releases"]
     md: |
-      Depending on release and configuration, you classify a part in the create or edit wizard, from a
-      dedicated classify action, or both. Classification search may be a separate search mode or a
-      filter inside advanced search. The ideas - pick a leaf node, fill constrained values, search by node
-      plus values - are the same everywhere.
+      You can also search by classification from **advanced search**: pick a node in the Classification
+      section (the search then covers that node **and its child nodes**) and add classification
+      attributes as criteria. Those searches can be saved. The Refine Results pane and Find Similar
+      Objects depend on configuration - search facets need Windchill index search (Solr) and the
+      *Enable Search Facets* preference, and text attributes only appear as facets when they have a
+      list of allowed values.
 
   - type: simulation
     title: Priya's battery hunt
     intro: |
       Priya needs a **36 V Li-ion pack with at least 14 Ah** for the cargo variant. Find a part she can
-      reuse. Try a wrong branch or the "create new" shortcut too, just to see what happens.
+      reuse in the Classification Explorer. Try a wrong branch or the "create new" shortcut too, just to
+      see what happens.
     headline: "Node: {node} · filters: {filters} · results: {results} · picked: {picked}"
     initial:
       node: Acme Parts
@@ -163,7 +204,7 @@ blocks:
         label: Open Battery packs
         when: { node: Electrical }
         do: [{ set: { node: Battery packs, results: "38" } }]
-        log: 38 battery packs across all chemistries. Filters here also cover Li-ion packs below.
+        log: 38 battery packs across all chemistries, including the Li-ion packs below.
         blockedHint: Battery packs is under Electrical.
       - id: open-lion
         label: Open Li-ion packs
@@ -172,13 +213,13 @@ blocks:
         log: 31 Li-ion packs.
         blockedHint: Li-ion packs is under Battery packs (clear filters before moving down).
       - id: filter-volt
-        label: "Filter: Nominal voltage = 36 V"
+        label: "Refine: Nominal voltage = 36 V"
         when: { node: [Battery packs, Li-ion packs], filters: none }
         do: [{ set: { filters: "36 V", results: "6" } }]
         log: 6 packs at 36 V.
         blockedHint: Open Battery packs or Li-ion packs - only those nodes have a voltage attribute.
       - id: filter-ah
-        label: "Filter: Capacity ≥ 14 Ah"
+        label: "Refine: Capacity min 14 Ah"
         when: { filters: "36 V" }
         do: [{ set: { filters: "36 V and ≥ 14 Ah", results: "2" } }]
         log: "2 results: EB-10021 (Released, Voltra Cells) and EB-10088 (In Work prototype)."
@@ -227,19 +268,19 @@ blocks:
     industry: Micromobility
     md: |
       Sam (field service) needed a replacement pack for an early E1 prototype and couldn't find it by
-      classification - because the engineer who created it had picked *Battery packs* without filling
-      Capacity, and searches filtered on capacity skip blanks. Jordan made Capacity **required** on
-      that node. Two weeks later every new pack had it.
+      filtering on capacity - because the engineer who created it had classified it without entering
+      Capacity, and a part with no value can't match a capacity filter. Jordan added the **Required**
+      constraint to Capacity on that node. From then on, every new pack had it.
     takeaway: An empty attribute is invisible to a filtered search. Make the important ones required.
 
   - type: callout
     variant: pitfall
     title: The same fact in two places
     md: |
-      The *E-Bike Part* subtype already has a **Battery Voltage** attribute, and the Li-ion packs node has
-      **Nominal voltage**. If people fill one and not the other, searches disagree. Decide which one is
-      the master for searching, document it, and keep the other in sync (or don't create it). The
-      same applies to anything that is both a type attribute and a classification attribute.
+      The *E-Bike Part* subtype already has a **Battery Voltage** attribute, and the Li-ion packs node
+      has **Nominal voltage**. If people fill one and not the other, searches disagree. PTC's guidance is
+      to use attributes that are unique to classification and not put the same attribute on both a
+      classification node and an object type. Decide which one is the master for searching and document it.
 
   - type: callout
     variant: pro-tip
@@ -251,32 +292,32 @@ blocks:
   - type: quiz
     questions:
       - kind: single
-        prompt: Kai classifies EB-10021 into a node. Which choice is best?
+        prompt: Kai classifies the new pack EB-10130. Which node should he pick?
         options: [Electrical, Battery packs, Li-ion packs, Acme Parts]
         answer: 2
-        explanation: Classify into the most specific (leaf) node that fits. It inherits all the attributes above and makes the part findable from every level.
+        explanation: Classify into the most specific instantiable node that fits. It inherits all the attributes above, and grouping nodes usually can't be picked at all.
       - kind: truefalse
-        prompt: A classification search on Battery packs also returns parts classified into Li-ion packs.
+        prompt: In advanced search, choosing the Battery packs node as classification criteria also finds parts classified in Li-ion packs.
         answer: true
-        explanation: Searching on a node includes the nodes below it. That's why starting one level higher is a useful trick.
+        explanation: Picking a node covers that node and its child nodes. That's why starting one level higher is a useful trick.
       - kind: single
         prompt: Priya's filtered search returns two matching packs - one Released, one In Work. Which should she reuse?
         options: [The In Work one - it's newer, The Released one, Either - they match the same values, Neither - create a new part]
         answer: 1
         explanation: Released parts are approved and stable. An In Work prototype can still change or be dropped.
       - kind: single
-        prompt: Sam can't find a pack he knows exists, even though it's classified in Battery packs. What's the most likely reason?
-        options: [The pack's Capacity attribute is empty, Classification search ignores libraries, The tree is too shallow, He searched the wrong product]
+        prompt: Priya found a pack that's almost right but too heavy. Which action looks for parts in the same node with different values?
+        options: [Find Similar Objects, Insert Node, Export Importable Spreadsheet, New Part]
         answer: 0
-        explanation: Filters skip parts with blank values. Make key attributes required on the node.
+        explanation: Find Similar Objects searches the same classification node, starting from the selected part's values, which you then adjust.
       - kind: order
         prompt: Order Priya's reuse steps.
-        items: [Open classification search, Walk to the right node, Filter by attribute values, Check state and where-used, Add the part to her structure]
+        items: [Open the Classification Explorer, Walk to the right node, Refine by attribute values, Check state and where-used, Add the part to her structure]
         explanation: Tree first, filters second, sanity checks third - then reuse.
 
   - type: summary
     points:
-      - Classify into the most specific node and fill its attributes with constrained values.
-      - Classification values are part attributes - editing them creates a new iteration.
-      - Classification search = pick a node (includes nodes below) + filter by values.
+      - Classify when you create - pick an instantiable node in the Part Classification field, then fill the Set Classification Attributes step.
+      - Existing parts can be classified in bulk through spreadsheet export and import.
+      - Search in the Classification Explorer (tree + Refine Results), in advanced search (node includes child nodes), or with Find Similar Objects.
       - Prefer released parts, check where-used, and make key attributes required.

@@ -3,6 +3,16 @@ subtitle: Teach Windchill what an e-bike part is - without writing a line of cod
 version: 1.0.0
 updated: "2026-10-05"
 tags: [business-admin, types, subtypes, type-and-attribute-management]
+sources:
+  - id: ac
+    where: "Module 4, What are Windchill objects; Extend Windchill object types; Describe object typing capabilities; Manage object subtypes; Activity: Create a subtype; Describe modeled object attributes. Module 11, Package business administration configurations; Deploy Windchill+ with the CCD utility"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Creating a New Subtype"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/typeattr/TypeMgrTypeCreate.html"
+    covers: "Internal name gets the organization's reverse domain prepended; Instantiable; who can create subtypes"
+  - id: trn-custsec9
+    where: "Customization section 9, use of the term soft type"
 
 blocks:
   - type: text
@@ -14,15 +24,15 @@ blocks:
       Jordan's fix: teach Windchill a new **kind** of part - an **E-Bike Part** - that carries proper
       fields for battery voltage, motor power and IP rating. Windchill calls a new kind of object a
       **subtype**, and Jordan builds it in **Type and Attribute Management**. No developer, no code,
-      no server rebuild.
+      no recompiling.
 
   - type: callout
     variant: terms
     md: |
       **Plain words → official term**
-      - "a kind of object" → *type* (Part, Document, CAD Document, Change Request...)
+      - "a kind of object" → *type* (Part, Document, Change Request...)
       - "your own flavour of a kind" → *[[subtype]]* (E-Bike Part under Part)
-      - "old nickname for a subtype" → *[[soft-type]]*
+      - "older nickname for a subtype" → *[[soft-type]]*
       - "a field on an object" → *attribute*
       - "the admin tool for all of this" → *[[type-and-attribute-management]]*
 
@@ -35,15 +45,15 @@ blocks:
       nodes:
         - id: part
           label: Part
-          sublabel: shipped by PTC
+          sublabel: shipped type
           x: 310
           y: 20
           w: 180
           tone: neutral
           detail: |
-            The out-of-the-box **[[part]]** type. It already has number, name, version, state,
-            source, default unit and more - plus all the behaviour: BOMs, views, life cycles.
-          real: The shipped types are defined in code. You don't edit them - you build underneath them.
+            The out-of-the-box **[[part]]** type (its Java class is `wt.part.WTPart`). It already
+            has attributes such as number and name, and all the part behaviour.
+          real: Shipped types are part of the Windchill object model. You build underneath them instead of changing them.
         - id: ebike
           label: E-Bike Part
           sublabel: your subtype
@@ -52,12 +62,12 @@ blocks:
           w: 180
           tone: primary
           detail: |
-            Jordan's **[[subtype]]**. It inherits everything from Part and adds three attributes:
+            Jordan's **[[subtype]]**. It inherits from Part and adds three attributes:
             - Battery Voltage (V)
             - Motor Power (W)
             - IP Rating (IP54 / IP65 / IP67)
           real: Every EB- part (EB-10000 to EB-19999) is created as an E-Bike Part.
-        - id: scooter
+        - id: std
           label: Standard Part
           sublabel: another subtype
           x: 500
@@ -73,8 +83,8 @@ blocks:
           w: 170
           tone: accent
           detail: |
-            Subtypes can have their own subtypes. A *Battery Pack* would inherit voltage, power and IP
-            rating from E-Bike Part and add *Capacity (Wh)*. EB-10021 could be one.
+            Subtypes can have their own subtypes, many levels deep. A *Battery Pack* would inherit
+            voltage, power and IP rating from E-Bike Part and add *Capacity (Wh)*. EB-10021 could be one.
           real: Two or three levels is plenty. Deep trees are hard to search and hard to maintain.
         - id: motor
           label: Motor
@@ -83,10 +93,10 @@ blocks:
           y: 290
           w: 170
           tone: accent
-          detail: A *Motor* subtype could add *Rated Torque (Nm)*. Ask first whether a classification or an attribute would do - more on that in the next lessons.
+          detail: A *Motor* subtype could add *Rated Torque (Nm)*. Ask first whether an attribute on E-Bike Part would do - more on that in the next lessons.
         - id: inherits
           label: What is inherited?
-          sublabel: attributes · constraints · layouts · rules
+          sublabel: unless you override it
           x: 450
           y: 300
           w: 300
@@ -94,36 +104,36 @@ blocks:
           tone: success
           shape: pill
           detail: |
-            A child type inherits its parent's attributes, constraints, layouts, and the rules
-            configured for the parent type (such as initialization rules and access rules) unless a
-            rule is set specifically for the child. Change the parent and every child follows.
+            If you don't override an administrative element, the subtype inherits it from its parent -
+            attributes, layouts and cascading attribute rules, for example. A subtype can also get its
+            **own** access control rules and object initialization rules, which is a big reason to
+            create one.
       edges:
         - { from: part, to: ebike, label: subtype of }
-        - { from: part, to: scooter, label: subtype of }
+        - { from: part, to: std, label: subtype of }
         - { from: ebike, to: battery }
         - { from: ebike, to: motor }
 
   - type: callout
     variant: why-it-matters
     md: |
-      Subtypes turn tribal knowledge into **data**. Once motor power is a real field, Ana can search
-      "all E-Bike Parts over 500 W", Leo can build a report of IP ratings for certification, and ERP
-      can receive the values automatically. A field in a description can do none of that.
+      Subtypes turn tribal knowledge into **data**, and give each kind of object its own rules. Once
+      motor power is a real field, Ana can search "all E-Bike Parts over 500 W" and Leo can report on
+      IP ratings for certification. And because E-Bike Part is its own type, Jordan can give it its
+      own numbering, life cycle and access rules.
 
   - type: comparison
-    title: Subtype (configuration) vs custom code
-    columns: [Subtype in Type and Attribute Management, Custom Java type]
+    title: Subtype (configuration) vs modeled customization (code)
+    columns: [Subtype in Type and Attribute Management, Modeled type or attribute in Java]
     rows:
       - label: Who builds it
-        cells: ["Business admin, in the browser", "Developer, with a build and deployment"]
-      - label: Time to first version
-        cells: ["Minutes to hours", "Days to weeks"]
+        cells: ["Site or organization admin, in the browser", "Developer, changing the object model"]
+      - label: Effect on running system
+        cells: ["No recompiling, no interruption", "Code change, build and deployment"]
       - label: Upgrades
-        cells: ["Carried forward as configuration", "Must be re-tested and often re-written"]
-      - label: Windchill+ (SaaS)
-        cells: ["Supported", "Very limited or not allowed"]
+        cells: ["Configuration", "Adds upgrade complexity and development cost"]
       - label: When it's the right call
-        cells: ["New fields, rules and layouts for a kind of object", "Genuinely new behaviour no configuration can give"]
+        cells: ["New fields, rules, layouts and administration for a kind of object", "Something configuration can't do - like validating against a third-party system"]
     takeaway: Configure first. Code only when configuration truly can't do it.
 
   - type: example
@@ -132,102 +142,119 @@ blocks:
     industry: Micromobility
     md: |
       Years ago, a sister company of Acme (fictional, like everyone here) hard-coded a custom part
-      class with forty fields. It worked - until the Windchill upgrade. The custom class had to be
-      re-compiled, re-tested and partly re-written. The upgrade slipped by six months.
+      class with forty fields. It worked - until the Windchill upgrade. The custom code had to be
+      rebuilt and re-tested, and the upgrade slipped by six months.
 
       For E-Bike E1, Jordan does the opposite: one **subtype**, built in Type and Attribute
-      Management, with three attributes. The next upgrade carries it forward as configuration.
+      Management, with three attributes. No code to carry through the next upgrade.
     takeaway: Every line of custom code is a line you pay for again at each upgrade.
 
   - type: walkthrough
     title: Create the E-Bike Part subtype
-    who: Business admin with type-management rights (Jordan)
-    where: [Site, Utilities, Type and Attribute Management]
+    who: Site or organization administrator (Jordan) - only they can create subtypes
+    where: [Browse, Site, Utilities, Type and Attribute Management]
     steps:
       - title: Open Type and Attribute Management
-        where: [Site, Utilities, Type and Attribute Management]
+        where: [Browse, Site, Utilities, Business Administration, Type and Attribute Management]
         md: |
-          Open the **Utilities** page of the site (some releases also offer the utility at organization
-          level) and choose **Type and Attribute Management**, then **Manage Types**.
+          In the Navigator click **Browse**, open the **Site** tab (or your organization), click
+          **Utilities** and, under **Business Administration**, choose **Type and Attribute
+          Management**. Make sure the **Manage Types** section is expanded.
       - title: Find the parent type
         where: [Manage Types, Part]
-        md: In the type tree, find **Part**. Select it to see its attributes, constraints and layouts.
+        md: In the type tree, find **Part**. Expand it to see the subtypes that already exist.
       - title: Create a new subtype
-        where: [Part, Actions, New Subtype]
+        where: [Manage Types, Part, right-click, New Subtype]
         md: |
-          Use the action to create a **new subtype** under Part. Fill in:
-          - **Internal name**: a unique, permanent name, usually with your company's reverse domain, for example `com.acmemobility.EBikePart`
-          - **Display name**: `E-Bike Part`
+          Right-click **Part** and choose **New Subtype**. Fill in:
+          - **Internal Name**: for example `EBikePart`. Windchill automatically puts your
+            organization's reverse domain name in front of it.
+          - **Display Name**: `E-Bike Part` (what users see; if empty, the internal name is shown)
           - **Description**: "Parts for the E-Bike E1 product line, EB-10000 to EB-19999"
-          - **Instantiable**: yes, so users can create objects of this type
+          - **Instantiable**: **Yes**, so users can pick E-Bike Part when they create a part
+          - **Subtypeable**: **Yes** if you may want Battery Pack or Motor underneath later
       - title: Save and check inheritance
-        where: [Manage Types, Part, E-Bike Part]
-        md: Save. Select the new type and open its **Attributes** tab. You see every attribute inherited from Part, marked as inherited.
-    result: E-Bike Part appears under Part in the type tree. When users create a new part, they can now pick E-Bike Part as its type.
+        where: [Manage Types, Part, E-Bike Part, Attributes]
+        md: Click **OK**. Select the new type and look at its **Attributes** tab - you see the attributes inherited from Part.
+    result: E-Bike Part appears under Part in the type tree. When users create a new part, E-Bike Part is in the list of types.
+
+  - type: callout
+    variant: note
+    title: Instantiable, explained
+    md: |
+      **Instantiable = No** hides the type from the create screens - useful for an abstract parent
+      such as "E-Bike Item" that only exists to share attributes with its children. Objects of that
+      type can still arrive through imports or supported APIs.
 
   - type: callout
     variant: version-note
-    versions: ["all"]
+    versions: ["Windchill+"]
     md: |
-      Menu and tab names inside Type and Attribute Management have shifted between releases (for
-      example the exact wording of **New Subtype** and the tab names). The flow - select the parent
-      type, create a subtype, add attributes - is the same. On Windchill+ (SaaS), type management is
-      available to administrators, but some site-level actions may be restricted.
+      On Windchill+ you configure types either by signing in to the QA server as organization
+      administrator, or by building them on a test server and deploying them with the **Code and
+      Configuration Deployment (CCD)** utility - since 12.1.2.0 the only supported tool for deploying
+      configurations and customizations to Windchill+.
 
   - type: callout
     variant: pitfall
-    title: The internal name is forever
+    title: Treat the internal name as permanent
     md: |
-      You can change the **display name** later, but the **internal name** is permanent once saved,
-      and data loads and integrations will refer to it. Agree on a naming convention
-      (`com.acmemobility.` + name, no spaces) before anyone creates the first type.
+      The **display name** is for people. The **internal name** is what load files, integrations
+      and formulas refer to, so treat it as permanent. Agree on a naming convention (no spaces,
+      clear words) before anyone creates the first type.
 
   - type: callout
     variant: pitfall
     title: A subtype for every opinion
     md: |
       Ten subtypes that differ by one field each make searching, reporting and access rules painful.
-      Create a subtype when the object needs **different behaviour or a different set of fields**,
-      not for every category. For "what family is this part", classification often fits better.
+      Create a subtype when the object needs **different administration or a different set of
+      fields** - not for every category. PTC's recommended pattern: shared attributes on a generic
+      parent type, individual attributes on its subtypes.
 
   - type: callout
     variant: pro-tip
     md: |
-      Build new types in a **test system first**, then move them to production with the export and
-      import tools your release offers. Rosa will thank you, and you get a repeatable change you can
-      review - not a hand-clicked surprise.
+      Build new types in a **test system first**. The **Business Administrative Change (BAC)**
+      utility on the Site or Organization Utilities page packages business administration changes
+      so you can import them into production - a repeatable change you can review, not a
+      hand-clicked surprise.
 
   - type: quiz
     passMark: 0.7
     questions:
       - kind: single
-        prompt: Jordan creates E-Bike Part under Part. What does E-Bike Part get automatically?
+        prompt: Jordan creates E-Bike Part under Part and changes nothing else. What does E-Bike Part use for its layouts and other administrative settings?
         options:
-          - "Everything Part has - attributes, constraints, layouts and behaviour"
-          - "Only the number and name"
+          - "Part's - a subtype inherits anything it doesn't override"
           - "Nothing until a developer maps it"
-          - "The attributes of every other Part subtype"
+          - "The settings of every other Part subtype"
+          - "Blank defaults that Jordan must fill in"
         answer: 0
-        explanation: Subtypes inherit from their parent. Siblings such as Standard Part don't share each other's additions.
+        explanation: If you don't override an administrative element, the subtype inherits it from its parent. Siblings don't share each other's additions.
       - kind: truefalse
-        prompt: A subtype created in Type and Attribute Management needs a Java build and server deployment before users can create it.
+        prompt: A subtype created in Type and Attribute Management needs recompiling and a server interruption before users can create it.
         answer: false
-        explanation: That's the point of a subtype - it's configuration stored in the database, created in the browser.
+        explanation: Subtypes are non-modeled. You don't change the object model or write code.
       - kind: single
-        prompt: Which value can you NOT change after saving a new subtype?
-        options: [The internal name, The display name, The description, The icon]
+        prompt: Jordan wants "E-Bike Item" as a parent for shared attributes, but nobody should create an E-Bike Item directly. Which property does he set?
+        options: ["Instantiable = No", "Subtypeable = No", "Display Name empty", "Description = abstract"]
         answer: 0
-        explanation: The internal name is permanent and referenced by loaders and integrations. Pick it carefully.
+        explanation: A non-instantiable type doesn't appear in the create screens. Subtypeable = No would stop him creating children under it.
       - kind: multi
         prompt: Why is a subtype better than putting "48 V, 500 W, IP65" in the description? (Choose all that apply.)
-        options: [Values become searchable and reportable, Rules can check the values, The values can flow to ERP field by field, It makes parts load faster]
+        options:
+          - "Values become searchable and reportable"
+          - "Constraints can check the values"
+          - "The type can get its own access rules and initialization rules"
+          - "It makes parts load faster"
         answers: [0, 1, 2]
-        explanation: Real attributes are data you can search, constrain and integrate. Performance isn't the reason.
+        explanation: Real attributes on their own type are data you can search and constrain, with administration of their own. Performance isn't the reason.
 
   - type: summary
     points:
       - A subtype is your own kind of object, built under a shipped type like Part.
-      - Subtypes inherit attributes, constraints, layouts and rules from their parent.
-      - Build them in Type and Attribute Management - configuration, not code.
-      - The internal name is permanent; agree a naming convention first.
-      - Create subtypes for real differences, not for every category.
+      - Subtypes inherit anything they don't override - and can have their own rules.
+      - Only site and organization admins create subtypes, in Type and Attribute Management.
+      - Treat the internal name as permanent; agree a naming convention first.
+      - Shared attributes on a parent, specific ones on subtypes; create subtypes for real differences.

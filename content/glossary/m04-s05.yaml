@@ -1,102 +1,165 @@
 # New glossary terms introduced in section m04-s05 (Access control).
 - id: domain
   term: Domain (administrative domain)
-  plain: A "rule zone". Everything stored in it follows the same access rules.
+  plain: A "rule zone". Everything stored in it follows the same access, notification and indexing rules.
   definition: |
-    An administrative area that holds access control policy rules, plus some other policies such as
-    notification and indexing rules. Each folder (and so every object in it) belongs to exactly one domain.
-    Domains form a tree: site, organization, then each product or library context. A domain inherits
-    the rules of all its parent domains.
+    An administrative area that holds policy rules: access control rules, notification rules and
+    indexing rules. Every access-controlled object belongs, directly or indirectly, to exactly one
+    domain, normally through its cabinet or, if an administrator linked one, its folder. Domains form
+    a tree under the /(Root) domain, and an object follows the rules of its own domain and of every
+    parent domain.
   aka: [Administrative domain, Policy domain]
-  related: [access-control-rule, policy-administration, folder, context]
+  related: [access-control-rule, policy-administration, cabinet, folder, context]
+
+- id: cabinet
+  term: Cabinet
+  plain: A hidden top-level storage box for a context's objects. You never browse it, but its domain matters.
+  definition: |
+    An administrative storage object that users cannot search for or browse to. A context has a
+    Default cabinet (its normal folders and data), a System cabinet (administrative objects such as
+    life cycle templates) and each user has a personal cabinet (for example for checked-out working
+    copies). A domain is usually linked to a cabinet and governs the objects in it.
+  related: [domain, folder, context]
 
 - id: access-control-rule
   term: Access control rule (policy rule)
-  plain: '"People in this group may do these things to this kind of object in this state."'
+  plain: '"People in this group may do these things to this kind of object in this state, in this zone."'
   definition: |
-    A rule stored in a domain that grants, denies or absolutely denies permissions (Read, Download,
-    Modify, Delete and so on). It applies to one object type and its subtypes, one life cycle state
-    (or all states) and one participant (a user, group, organization or context role). It covers every
-    matching object in that domain and its child domains.
-  aka: [Policy rule, Policy access control rule, ACL rule]
-  related: [domain, deny-rule, absolute-deny, ad-hoc-access, lifecycle-state]
+    A rule stored in a domain that answers five questions: where (the domain), what (an object type
+    and its subtypes), when (one life cycle state or all states), who (one participant: a user, group,
+    organization or role, or everyone except that participant) and how (each permission set to Grant,
+    Deny, Absolute Deny or None). It applies to matching objects in that domain and its child domains.
+  aka: [Policy rule, Policy access control rule, Domain rule]
+  related: [domain, access-control-list, deny-rule, absolute-deny, inverse-deny, ad-hoc-access, lifecycle-state]
+
+- id: access-control-list
+  term: Access control list (ACL)
+  plain: The combined set of rules that decides what each participant may do to one kind of object in one state.
+  definition: |
+    The result of combining every access control rule that applies to an object's domain (and its
+    parent domains), type (and its parent types) and life cycle state. For each participant, the rules
+    for the participant and for all its groups and roles are merged. A permission that one rule grants
+    and another denies is not granted, and a permission no rule grants is not available.
+  aka: [ACL]
+  related: [access-control-rule, effective-permissions, policy-administration]
 
 - id: policy-administration
   term: Policy Administration
-  plain: The admin tool where you see domains and write the access rules for each one.
+  plain: The admin tool where you see domains and write the access, indexing and notification rules for each one.
   definition: |
-    The utility, opened from a context's Utilities page (site, organization, product or library),
-    where administrators browse the domain tree and create, edit and delete access control rules
-    and other domain-based policies.
+    The utility, opened from a context's Utilities page, where administrators browse the domain tree
+    in one pane and manage the rules of the selected domain in the other: access control rules,
+    indexing rules and notification rules. It can also show the access control list for a chosen
+    object type and life cycle state. Policy rules can only be changed here.
   aka: [Policy Administrator]
-  related: [domain, access-control-rule]
+  related: [domain, access-control-rule, notification-policy, indexing-policy]
 
 - id: ad-hoc-access
   term: Ad hoc access control
-  plain: An extra permission stuck onto one single object, not a rule for a whole domain.
+  plain: An extra permission given on one single object, not a rule for a whole domain.
   definition: |
-    Permissions granted directly on an individual object to a participant, for example through the
-    object's Edit Access Control action or automatically by a workflow or team. Ad hoc rules only ever
-    grant, and they can override a regular policy deny but never an absolute deny.
+    Permissions granted on an individual object rather than by a domain rule. They come from the
+    object's life cycle (rules set for a particular state in the life cycle template) or are added by
+    hand with the object's Edit Access Control action by someone with the Change Permissions
+    permission. Ad hoc rules only grant. They rank above every policy rule except absolute deny, and
+    they cannot get past a security label.
   aka: [Ad hoc rule, Ad hoc permission]
-  related: [access-control-rule, absolute-deny, effective-permissions]
+  related: [access-control-rule, absolute-deny, security-label, effective-permissions]
 
 - id: deny-rule
   term: Deny (denied permission)
-  plain: A rule that says "no", and beats every policy "yes" for the same person and permission.
+  plain: A rule that says "no" to a permission for a participant.
   definition: |
-    A policy rule that denies a permission to a participant. A deny overrides grants from policy rules
-    at any level of the domain tree for that user. An ad hoc grant on a specific object can still
-    override a regular deny.
-  related: [access-control-rule, absolute-deny, ad-hoc-access]
+    A policy rule setting that denies a permission. When rules at the same level both grant and deny
+    the same permission, the permission is not granted. A deny can still be overridden by a rule that
+    ranks higher, such as an ad hoc grant, a grant to the Owner pseudo-role or a grant to the named
+    user when the deny was written for one of the user's groups.
+  related: [access-control-rule, absolute-deny, inverse-deny, ad-hoc-access]
 
 - id: absolute-deny
   term: Absolute deny
-  plain: The hardest "no". Not even a one-off permission on the object can undo it.
+  plain: The hardest "no". No grant of any kind can undo it.
   definition: |
-    A policy rule setting that denies a permission so that no grant can override it, including ad hoc
-    grants on individual objects. Use it for hard boundaries, such as "suppliers never modify Acme
-    data". Only administrators who bypass access control are unaffected.
-  related: [deny-rule, ad-hoc-access, access-control-rule]
+    A policy rule setting that denies a permission so that no other rule can override it: not a
+    grant to the named user, not a grant to the Owner pseudo-role and not an ad hoc grant. The only
+    way back is to remove the absolute deny rule. Absolute deny rules cannot be written for
+    pseudo-roles such as All or Owner, and selecting it does not auto-select other permissions.
+  related: [deny-rule, inverse-deny, ad-hoc-access, access-control-rule]
+
+- id: inverse-deny
+  term: Inverse deny
+  plain: '"Nobody may do this, except people in this group."'
+  definition: |
+    A deny rule whose participant is set to everyone except a chosen participant (a user, group,
+    role or organization). It removes a permission from all users who are not that participant and
+    leaves the participant's own access to other rules. For priority, an "everyone except" rule is
+    treated like a rule for a group.
+  aka: [Deny to all except]
+  related: [deny-rule, absolute-deny, access-control-rule]
 
 - id: security-label
   term: Security label
-  plain: A sticker such as "Export controlled" that hides an object from everyone not cleared for it.
+  plain: A marking such as "Export controlled" that hides an object from everyone not cleared for it.
   definition: |
-    An attribute-like marking on an object (for example an export-control or third-party-proprietary
-    label) whose values each have an authorized participant list. A user who is not authorized for
-    every restricted label value on an object is denied access, whatever the policy or ad hoc rules
-    grant. Being authorized does not grant anything by itself; normal rules must still grant access.
+    A marking set on an object (at creation, by an object initialization rule default, or later with
+    Edit Security Labels) whose values each have authorized participants: users, groups or
+    organizations. A user who is not authorized for a restricted label value on the object is denied
+    access, whatever the policy or ad hoc rules grant, unless an active agreement covers them.
+    Being authorized grants nothing by itself; normal rules must still grant access. Labels are
+    configured per site, normally by system administrators.
   aka: [Standard security label, Custom security label]
   related: [agreement, access-control-rule, effective-permissions]
 
 - id: agreement
-  term: Agreement (authorization agreement)
-  plain: A signed-off permission slip. It clears named people for labelled objects until a set end date.
+  term: Agreement
+  plain: A signed-off permission slip. It clears named people for labelled objects for a set period.
   definition: |
-    A Windchill object that authorizes participants to access objects carrying certain security label
-    values, for a defined period. It names the label values, the participants and the objects, and
-    is active only while approved and not expired. Typical uses are export licences and supplier
-    non-disclosure agreements.
+    A life-cycle-managed Windchill object that makes an exception to security labels. It names
+    authorized label values, participants and the objects (or, for a context-based agreement, the
+    context) it covers, and it only authorizes while it is in the right life cycle state and between
+    its start and end dates. Only members of an agreement managers group can create, change or delete
+    agreements. Covered participants still need normal access control permissions.
   related: [security-label, effective-permissions]
 
 - id: effective-permissions
   term: Effective permissions
   plain: What a person can actually do to one object once every rule has been counted.
   definition: |
-    The final set of permissions a participant holds on a specific object after Windchill combines
-    policy grants and denies from the object's domain and its parents, ad hoc grants, absolute denies
-    and security label authorization.
-  aka: [Effective access]
-  related: [access-control-rule, ad-hoc-access, security-label, access-information-tool]
+    The final set of permissions a participant holds on a specific object after Windchill applies
+    security labels and agreements, absolute denies, ad hoc grants and the policy rules from the
+    object's domain chain. The Access Information page shows which rules produced them.
+  aka: [Effective access, Permission set]
+  related: [access-control-list, ad-hoc-access, security-label, access-information-tool]
 
 - id: access-information-tool
-  term: Access information tool
-  plain: The admin "X-ray" that shows who can do what to an object, and why.
+  term: Access Information page
+  plain: The admin "X-ray" that shows which rules give, or take away, a person's access to one object.
   definition: |
-    The administrator tools that report a participant's effective permissions on an object and where
-    they come from (policy rules, ad hoc rules, security labels). Names differ by release, such as
-    access information or view access rights. They are the first stop when someone asks "why can't I
-    see it?".
-  aka: [View access rights, Access information]
-  related: [effective-permissions, policy-administration]
+    A read-only page, opened with the View Access Information icon next to a participant on an
+    object's Edit Access Control page. It lists every rule behind that participant's permissions on
+    the object and says whether each comes from a policy rule, a life cycle ad hoc rule, an ad hoc
+    rule added with Edit Access Control, or a security label denial. Rules are changed elsewhere.
+  aka: [View Access Information, Access information]
+  related: [effective-permissions, policy-administration, ad-hoc-access]
+
+- id: notification-policy
+  term: Notification policy
+  plain: The domain's list of "email these people when this happens to this kind of object" rules.
+  definition: |
+    All the notification rules in a domain. Each rule names the domain, an object type, an event (for
+    example check-in) and the participants to notify. Unlike a subscription, users cannot cancel a
+    policy notification; only an administrator can change the rule. Windchill does not send the
+    notification to a recipient who cannot read the object.
+  aka: [Notification rules, Domain-based notification]
+  related: [domain, policy-administration, subscription, notification]
+
+- id: indexing-policy
+  term: Indexing policy
+  plain: The domain's rules for which objects go into the search index, and when.
+  definition: |
+    All the indexing rules in a domain. Each rule names the domain, an object type, the life cycle
+    state in which indexing happens and the collections to fill. Out of the box a single rule at the
+    /(Root) domain indexes every object type in every state into a collection named wblib. Search
+    results are still filtered by access control.
+  aka: [Indexing rules]
+  related: [domain, policy-administration, index-search]

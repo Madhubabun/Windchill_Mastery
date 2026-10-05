@@ -3,110 +3,120 @@ subtitle: Can you keep Voltra on released battery drawings, and prove why?
 version: 1.0.0
 updated: "2026-10-05"
 tags: [access-control, checkpoint]
+sources:
+  - id: ac
+    where: "Module 8: Identify domain and cabinet administrative objects; Describe the Windchill data, private and folder domain architecture; Identify components of a domain access control rule; Identify access control list resolution principles; Create user-specific rules; Inversely deny access to data; Absolutely deny access to data; Review access control priorities; Implement ad hoc access control; Troubleshoot access control issues; Describe security labeled objects; Define a notification policy; Define an indexing policy"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Agreements"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/agreements/AgreementAbout.html"
+    covers: "Agreements have start and end dates and still require normal access control permissions"
 
 blocks:
   - type: text
     md: |
-      Ten questions on **access control**: domains and policy rules, how grants, denies, ad hoc rules and
-      labels combine, domain inheritance, troubleshooting "why can't I see it?", and security labels
-      with agreements. Score 80% to pass. Every answer explains itself.
+      Ten questions on **access control**: domains and policy rules, how the access control list is
+      built, domain inheritance, troubleshooting "why can't I see it?", security labels and agreements,
+      rule priorities, and notification and indexing policies. Score 80% to pass. Every answer explains
+      itself.
 
   - type: quiz
     title: Section checkpoint
     passMark: 0.8
     questions:
       - kind: multi
-        prompt: Jordan writes a policy rule. Which of these does it specify? (Choose all that apply.)
-        options: [Object type, Life cycle state or All, Participant, A specific object number, Permissions granted or denied]
+        prompt: Jordan writes a policy access control rule. Which of these does it specify? (Choose all that apply.)
+        options: [Object type, Life cycle state or all states, One participant, A specific object number, Grant / Deny / Absolute Deny / None per permission]
         answers: [0, 1, 2, 4]
-        explanation: Policy rules are stored in a domain and cover type (with subtypes), state, participant and permissions. Rules for one specific object are ad hoc rules.
+        explanation: "A rule answers where (its domain), what, when, who and how. Permissions for one specific object are ad hoc rules."
       - kind: single
-        prompt: A new battery drawing is checked in to E-Bike E1's Battery folder. Which rules control it?
+        prompt: A new battery drawing is checked in to E-Bike E1's Battery folder, which is linked to the Battery folder domain. Which rules control it?
         options:
           - Only rules written in the Battery domain
           - Rules in the Battery domain plus every parent domain
           - Only the rules of the user who created it
           - Rules in the E1 Default domain only
         answer: 1
-        explanation: The object uses its folder's domain (Battery) and that domain inherits all rules from E1 Default, PDM, the organization and the site.
+        explanation: The object uses the folder's domain, and an object follows the rules of its domain and all parent domains (E1 Default, PDM, Acme Default, /(Root)).
       - kind: single
-        prompt: Ana is in two groups. One grant gives her Download on Released CAD; a deny for her other group removes Download in a parent domain. Result?
+        prompt: Ana is in two groups. One group is granted Download on Released CAD; the other is denied Download in a parent domain. Result?
         options: [She can download, She can't download, It depends which domain is closer, It depends which group was added first]
         answer: 1
-        explanation: Policy grants add up across participants and domains, and any matching deny removes the permission. There is no "closest rule wins".
-      - kind: truefalse
-        prompt: An ad hoc Read grant on one object can override a regular policy Deny Read for the same user.
-        answer: true
-        explanation: Ad hoc grants beat regular policy denies. Only an absolute deny stops them.
+        explanation: Both rules are for groups, so they're on the same rung. Granted by one and denied by another means not granted. There's no "closest domain wins".
       - kind: single
-        prompt: Maya wants a guarantee that no supplier can ever delete Acme data, even if someone adds ad hoc grants later. What do you use?
+        prompt: Acme creates a new product as **private**. What changes about its rules?
         options:
-          - A regular deny in each supplier child domain
-          - An absolute deny for the supplier group high in the domain tree
-          - A security label on every object
-          - Removing suppliers from all teams
-        answer: 1
-        explanation: Absolute deny overrides every grant including ad hoc ones. Placing it high (e.g. Acme Default) also covers contexts created later.
-      - kind: single
-        prompt: Voltra suddenly sees In Work battery drawings. Battery only grants Released. Most likely cause?
-        options:
-          - A grant in a parent domain such as Acme Default that includes suppliers
-          - The drawings are Released by mistake
-          - Voltra's account is an administrator
-          - The search index is stale
+          - Its Default domain hangs under the Private domain, so Acme Default and PDM rules don't reach it
+          - Nobody outside the team can ever see it, whatever the rules say
+          - It gets no Default domain
+          - It inherits rules from every other product
         answer: 0
-        explanation: Inherited grants flow down. A broad rule like "ALL · CAD Document · All states · Read" at the organization reaches every domain below. (An admin account would also explain it, but it's far less likely.)
+        explanation: A private context's Default domain is a child of the organization's Private domain instead of PDM or Project, so it skips the organization's global rules.
       - kind: order
-        prompt: "Lin can't find EB-10021. Order Jordan's checks, cheapest first."
-        items: [Confirm the object's version and state, Confirm Lin's groups and team role, Check the folder and its domain, Read grants and inherited denies, Check security labels and agreements]
-        explanation: Facts that take seconds come first. Then the rule chain, then labels. The access information tool confirms the final theory.
-      - kind: multi
-        prompt: The EB-10021 drawing was misfiled in Electrics, so Voltra can't see it. Which fixes avoid over-granting? (Choose all that apply.)
+        prompt: Order these from highest priority to lowest.
+        items: [Security label denial, Absolute deny, Ad hoc grant, Rule for a named user, Rule for a group or role]
+        explanation: The highest applicable rule wins. Labels beat everything; absolute deny beats every grant; ad hoc (and Owner) grants beat policy rules; user rules beat group rules.
+      - kind: single
+        prompt: Maya wants a guarantee that no supplier can ever delete Acme data, even if someone adds ad hoc grants later. What do you write?
         options:
-          - Move the drawing to the Battery folder
-          - Copy the Supplier grant to E1 Default
-          - Add Lin to ACME-Engineering
-          - Find and move other misfiled battery drawings
-        answers: [0, 3]
-        explanation: Moving objects into the zone built for them keeps least privilege. The other two open whole products to a supplier.
+          - A regular deny for the Supplier role in each folder domain
+          - An absolute deny on Delete for a group containing all suppliers, at Acme Default
+          - An absolute deny on Delete for the All pseudo-role
+          - A grant of Delete to Acme employees only
+        answer: 1
+        explanation: Absolute deny can't be overridden by any grant, including ad hoc and Owner grants. It can't target pseudo-roles such as All, so use a real group; Acme Default covers every context.
+      - kind: single
+        prompt: Lin can't find EB-10021. You want to see exactly which rules give or take away her permissions on it. Where do you look?
+        options:
+          - "The drawing's Edit Access Control page → View Access Information icon on Lin's row"
+          - Preference Management → Security
+          - The drawing's life cycle template
+          - Participant Administration → Lin's groups
+        answer: 0
+        explanation: The Access Information page lists every rule behind a participant's permissions on the object and whether it's a policy rule, an ad hoc rule or a security label denial.
       - kind: truefalse
-        prompt: Being authorized for a security label value gives a user Read access to every object with that value.
+        prompt: Being authorized for a security label gives a user Read access to every object with that label.
         answer: false
-        explanation: Labels only restrict. Authorization gets you past the label gate, but a policy or ad hoc rule must still grant the permission.
+        explanation: Labels only restrict. Authorization gets you past the label; a policy or ad hoc rule must still grant the permission.
       - kind: single
         prompt: An outside test lab needs one labelled cell spec for 60 days. What's the cleanest set-up?
         options:
-          - An approved agreement naming the lab, the label value, the object and an expiry date
-          - Add the lab to the authorized group for the label value
+          - An agreement covering the lab, the label value and the object, with an end date, plus a normal grant for the lab's role
+          - Add the lab to the label's authorized group
           - Remove the label until the test is done
           - An ad hoc grant on the object
         answer: 0
-        explanation: Agreements clear specific participants for labelled objects for a period, with approval and automatic expiry. An ad hoc grant can't get past a label.
+        explanation: Agreements are the exception mechanism for labels and stop authorizing after their end date. An ad hoc grant can't get past a label denial.
+      - kind: single
+        prompt: Leo is on a notification rule for document check-ins in the Battery domain but never gets the email for one confidential document. What's the most likely business-admin cause?
+        options: [Leo can't read that document, The indexing rule is missing, Leo cancelled the rule, Notification rules only fire for parts]
+        answer: 0
+        explanation: Windchill doesn't send notifications to users without Read access to the object. Recipients can't cancel a policy notification; only an admin can change the rule.
 
   - type: flashcards
     title: Access control deck
     cards:
       - front: Domain
-        back: A rule zone. Each folder (and its objects) belongs to one domain; domains form a tree and inherit parents' rules.
+        back: A rule zone for access, notification and indexing. Every access-controlled object has exactly one, via its cabinet or folder.
       - front: Policy rule
-        back: Stored in a domain. Type (+ subtypes) · state or All · participant · permissions with Grant, Deny or Absolute Deny.
+        back: "Where (domain), what (type + subtypes), when (state or all), who (one participant), how (Grant, Deny, Absolute Deny or None per permission)."
       - front: Where is Policy Administration?
-        back: "The context's Utilities page (Site, Organization, Product or Library) → Policy Administration."
-      - front: Grants vs denies
-        back: Policy grants from all your participants and parent domains add up; any matching deny removes the permission.
-      - front: Ad hoc rule
-        back: A grant on one object. Can override a regular deny, never an absolute deny.
+        back: "A context's Utilities page → Business Administration → Policy Administration."
+      - front: How the ACL is built
+        back: Rules from the domain and its parents, for the type and its parents, in the current state, for the user and all their groups and roles.
+      - front: Grant plus deny on the same rung
+        back: Not granted. And if nothing grants a permission, the user doesn't have it.
+      - front: Priority ladder
+        back: "Label denial > absolute deny > ad hoc and Owner grants > named-user rules > group, role, org, All and everyone-except rules."
+      - front: Inverse deny
+        back: A deny for everyone except one participant. Ranks like a group rule.
       - front: Absolute deny
-        back: The red line. Overrides every grant, including ad hoc ones. Only the admin bypass is stronger.
-      - front: Administrator bypass
-        back: Site Administrators skip access checks. Never test a user's access with an admin account.
+        back: Nothing overrides it, not even ad hoc or Owner grants. Can't be written for pseudo-roles.
+      - front: Private context
+        back: Its Default domain sits under the Private domain, so it skips Acme Default, PDM and Project rules.
       - front: Security label
-        back: A per-object restriction. Unauthorized users are blocked whatever the rules grant; authorization alone grants nothing.
-      - front: Agreement
-        back: Clears named participants for labelled objects for a period, once approved and until it expires.
-      - front: "Grant low, deny high"
-        back: Put grants in the lowest domain that needs them and red-line denies high so they cover every context.
-      - front: "\"Can't find it\" usually means..."
-        back: The user can't Read it. Search hides unreadable objects; structures show Secured Information placeholders.
-      - front: Effective permissions
-        back: What a user can really do on one object after policy, denies, ad hoc rules, absolute denies and labels are combined.
+        back: Denies unauthorized users above every other rule; authorization alone grants nothing. Agreements are the only exception.
+      - front: Notification rule
+        back: Domain + type + event + recipients. No email to anyone who can't read the object.
+      - front: Indexing rule
+        back: Domain + type + state + collections. The shipped /(Root) rule indexes everything into wblib.

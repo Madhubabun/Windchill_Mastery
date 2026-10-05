@@ -1,14 +1,32 @@
 id: m04-s06-check
-subtitle: Prove you can lay the rails - life cycles, workflows, robots and the rules that hand them to every new object.
+subtitle: Prove you can lay the rails - life cycles, workflows, robots, versioning and the rules that hand them to every new object.
 version: 1.0.0
 updated: "2026-10-05"
-tags: [business-admin, lifecycle, workflow, oir, checkpoint]
+tags: [business-admin, lifecycle, workflow, oir, versioning, checkpoint]
+sources:
+  - id: ac
+    where: "Module 5: Identify life cycle types; Describe object life cycle resolution; Specify life cycle properties; Identify life cycle transition types; Create transitions; Define a version series; Identify life cycle best practices; Describe modular and single workflows; Identify characteristics of workflow designs; Add connectors and terminals to a workflow; Set link properties; Use robots to automate tasks; Associate workflow templates to advanced life cycles. Module 7: Describe object initialization rules (OIRs); Manage OIRs; Identify versioning scheme rules; Identify best practices for creating OIRs. Module 8: Identify permissions needed for set life cycle state operations"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Variables Tab"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/workflow/WFTabProcessPropVar.html"
+    covers: "Required option on activity variables"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Object Initialization Rules Table"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/objrules/ObjRuleRef.html"
+    covers: "Only enabled rules are used"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Creating Composite Rules"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/objrules/ObjRuleCompositeRuleCreateRef.html"
+    covers: "Rules merge; lowest level wins"
 
 blocks:
   - type: text
     md: |
-      Ten questions on **process automation** at Acme Mobility: designing life cycle templates,
-      building workflows, robots and safe routing expressions, and object initialization rules.
+      Ten questions on **process automation** at Acme Mobility: life cycle templates, workflows,
+      robots and routing, object initialization rules, state-based versioning and workflow strategy.
       Score 80% to pass. Every answer explains itself, so a miss still teaches you something.
 
   - type: quiz
@@ -16,100 +34,96 @@ blocks:
     passMark: 0.8
     questions:
       - kind: order
-        prompt: Put Jordan's steps for a new E-Bike Part life cycle template in a sensible order.
+        prompt: Put Jordan's steps for a new basic E-Bike Part life cycle template in order.
         items:
-          - Agree the states and moves with Kai, Maya and Leo
-          - Add the phases in order
-          - Define the Promote, Demote and Revise transitions
-          - Grant phase access to roles
-          - Save and test with a dummy part
-          - Point the OIR at the template
-        explanation: Agree first, then build phases, transitions and role access, test with a dummy part, and only then let the OIR hand the template to every new object.
+          - Open Life Cycle Template Administration from the organization's Utilities
+          - Click New Template, choose Basic and give it a unique name
+          - Add a phase per state and pick each state
+          - Tick the transitions on each phase's Transitions tab
+          - Save, then remove unwanted default transitions
+          - Check the template in
+        explanation: Create, add phases, tick transitions, save - then clean up the defaults the first save adds to states without transitions - and check in so others can use it.
       - kind: single
-        prompt: Jordan adds a Rework state to the live E-Bike Part life cycle. What happens to EB-10021, created last month?
+        prompt: An admin reassigns SC-2000, which sits in Prototype, to a life cycle template without a Prototype state. Where does SC-2000 end up?
         options:
-          - It moves to the new iteration automatically
-          - It keeps following the old iteration until an admin reassigns its life cycle
-          - It is locked until someone revises it
-          - It loses its current state
+          - It stays in Prototype
+          - In the first state of the new template
+          - The reassign is refused
+          - In the last state of the new template
         answer: 1
-        explanation: Saving an edit creates a new iteration. New objects use it. Existing objects keep their iteration until an admin deliberately reassigns them.
+        explanation: If the new template contains the current state, it can be kept. If not, the object assumes the first state of the new template.
       - kind: truefalse
-        prompt: In the Released phase, the best practice is to grant modify access to the named users who might need to fix typos.
+        prompt: The course recommends advanced life cycles for most objects because they perform better.
         answer: false
-        explanation: Grant phase access to roles, not named users - and Released usually has no modify at all. Changes to released data go through a new revision.
+        explanation: It's the other way round. Basic life cycles perform better during creation and revision and are recommended for most objects. Advanced ones are for company-specific processes or special access needs.
       - kind: single
-        prompt: In the Quick Review workflow, Leo must explain every rejection. How does Jordan enforce that?
+        prompt: In the Test Report Review workflow, Leo must explain every rejection. How does Jordan enforce that?
         options:
           - Add a Timer robot after the review
-          - Show the reviewComments variable on the Review task and make it required
-          - Send Leo a reminder email
-          - Add an AND connector
+          - Make the reviewComments variable visible and required on the Review report activity
+          - Add an And connector
+          - Make Leo the Responsible Role
         answer: 1
-        explanation: A required workflow variable on the task form blocks completion until it is filled, so the Reject path always carries a reason.
+        explanation: A required activity variable must have a value before the task can be completed, so the Reject path always carries a reason.
       - kind: multi
-        prompt: Which of these are robots, i.e. steps the system performs without a human task? (Choose all that apply.)
-        options: [Set State, Notification, Timer, Review part (role Reviewer)]
-        answers: [0, 1, 2]
-        explanation: Set State, Notification and Timer run automatically. Review part is an assigned activity - a task for people in the Reviewer role.
-      - kind: single
-        prompt: A router must send packs of 48 V or more to Safety review. Which expression is the safest?
-        options:
-          - "result = \"Standard review\"; if (batteryVoltage >= 48.0) { result = \"Safety review\"; }"
-          - "if (batteryVoltage >= 48.0) { result = \"Safety review\"; }"
-          - "try { if (batteryVoltage >= 48.0) { result = \"Safety review\"; } } catch (Exception e) { }"
-        answer: 0
-        explanation: Setting a default result first guarantees a valid path. The second can leave no result. The third also hides errors silently.
+        prompt: Which of these does the course class as basic robots? (Choose all that apply.)
+        options: [Notification, Method (for example Set State), Timer, Checkpoint, Expression]
+        answers: [0, 1, 2, 3]
+        explanation: Notification, Checkpoint, Method and Timer are basic robots. Expression - like Application, Synchronization and URL - is an advanced robot.
       - kind: truefalse
-        prompt: Fixing a typo in a routing event name and checking in the template also unblocks the process that is already stuck at that router.
+        prompt: Fixing a typo in a routing event name and checking in a new iteration also unblocks the process already stuck at that router.
         answer: false
-        explanation: Running processes stay on the template iteration they started with. The stuck process must be handled separately in Workflow Process Administration.
-      - kind: multi
-        prompt: Which values can the E-Bike Part object initialization rule set? (Choose all that apply.)
-        options: [The number from the EB sequence, The default folder, The life cycle template, Who approves the review task]
-        answers: [0, 1, 2]
-        explanation: An OIR sets starting values such as number, folder, life cycle and team template. Who approves comes from the workflow's roles and the context team.
+        explanation: Processes already running are unaffected by newer template iterations. The stuck process must be handled separately, for example in the Workflow Process Administration utility.
       - kind: single
-        prompt: Priya creates an E-Bike Part in Scooter S2 and gets no EB number. The E-Bike Part rule lives in E-Bike E1 and works there. Why?
+        prompt: Jordan's E-Bike Part rule (organization) and the site's Part rule both set a folder. Which folder does a new E-Bike Part get?
         options:
-          - The rule is disabled
-          - OIRs are looked up by context, so Scooter S2 used the organization's rule
-          - The sequence ran out of numbers
-          - Priya is not in the Designer role
+          - The site rule's folder
+          - Jordan's folder
+          - Whichever rule was enabled last
         answer: 1
-        explanation: The lookup starts in the current context and walks up. Scooter S2 has no E-Bike Part rule, so it fell back to the organization-level rule.
+        explanation: Applicable rules are merged and the lowest level wins - a subtype rule in the organization beats the site's Part rule. Values Jordan left out still come from the site rule.
       - kind: order
         prompt: Order Jordan's OIR debugging checklist.
         items:
-          - Which context was the user in?
-          - Is there a rule for this exact type?
+          - Did the user pick the type the rule is for?
           - Is the rule enabled?
-          - Do the folder, life cycle and sequence it names exist?
+          - Do the names it references (life cycle, folder, team template) really exist?
           - Create a test object and check its information page
-        explanation: Context and type are the lookup keys, then the rule's status, then the things it references - and finally a real test.
+        explanation: Type first, then the rule's status (only enabled rules are used), then the referenced names - the upload only checks syntax - and finally a real test.
+      - kind: single
+        prompt: EB-10021 is at version 2 in In Work (Numeric series) and is revised while Released (Mil Std series). What is the new version?
+        options: ["3", "A", "2.1", "B"]
+        answer: 1
+        explanation: With state-based versioning, the state in which the revision is made decides the series. Revising in Released starts Mil Std at A.
+      - kind: single
+        prompt: Thousands of long-lived E-Bike Parts need releasing in batches. Which workflow strategy fits best?
+        options:
+          - A single workflow on every part
+          - Modular workflows in every phase and gate
+          - A basic life cycle with releases driven by promotion requests and change objects
+        answer: 2
+        explanation: A per-object workflow on thousands of long-lived parts costs server resources. Letting a promotion request or change object drive the state keeps the parts on a fast basic life cycle.
 
   - type: flashcards
     title: Process automation deck
     cards:
-      - front: Phase
-        back: "One state in a life cycle template plus its rules: role access and, in advanced life cycles, a phase workflow."
+      - front: Basic vs advanced life cycle
+        back: "Basic: moves only through transitions; recommended for most objects. Advanced: adds workflows and per-state role access."
       - front: Transition
-        back: "An allowed move between states, such as Promote, Demote or Revise. Undefined moves are not offered."
+        back: "A named path from one state to another, such as Promote, Lock, Revise or Set State. Only defined moves are offered to users."
       - front: Revise transition
-        back: "Says which state a new revision starts in - for example Released → In Work."
-      - front: Editing a live life cycle
-        back: "Creates a new iteration. New objects use it; existing ones keep theirs until reassigned."
+        back: "Names the state a new version is created in - for example Released → In Work. One destination per source state."
+      - front: Reassign Life Cycle
+        back: "Replaces an object's life cycle template. The state is kept if the new template has it; otherwise the object goes to the first state."
       - front: Assigned activity
-        back: "A workflow step for people. Set participants by role and routing events such as Approve and Reject."
+        back: "A workflow step for people. Participants by role or actor; routing events such as Approve and Reject."
       - front: Robot
-        back: "An automatic workflow step - Set State, Notification, Timer, Synchronize, Launch Process, Execute Expression."
-      - front: Workflow variable
-        back: "A named value stored with each running process, such as reviewComments. Can be required on a task."
-      - front: Conditional routing
-        back: "An expression sets result to the name of one event. Default first, exact names, tiny code."
+        back: "An automatic workflow step. Basic: Notification, Checkpoint, Method, Timer. Advanced: Application, Expression, Synchronization, URL."
       - front: Loop link
-        back: "A link back to an earlier step so the steps after it reset for a fresh round."
+        back: "Marks the first link of a return loop so the loop's nodes are re-enabled and can run again."
       - front: Object initialization rule (OIR)
-        back: "XML rule per type per context that sets number, folder, life cycle and team defaults on create."
-      - front: OIR lookup order
-        back: "Current context, then organization, then site. Lower contexts override higher ones."
+        back: "XML rule per type and context that sets number, versioning, folder, life cycle and team template on create. Rules merge; lowest level wins."
+      - front: State-based versioning
+        back: "Each life cycle state names a series (Numeric or Mil Std). Needs wt.series.HarvardSeries.StateBased in the OIR."
+      - front: Single workflow approach
+        back: "One workflow in the first state's phase drives the whole life cycle. Recommended - but not for objects in large numbers or with long lives."

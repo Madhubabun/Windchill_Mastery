@@ -1,14 +1,27 @@
 id: m04-s02-check
-subtitle: Prove you can place settings on the right floor, build contexts from templates and pick the right team model.
+subtitle: Prove you can place settings on the right floor, build contexts from templates, pick a team model and plan where data lives.
 version: 1.0.0
 updated: "2026-10-05"
 tags: [business-admin, contexts, checkpoint]
+sources:
+  - id: ac
+    where: "Module 3, all sections (data strategy, context relationships, comparing contexts, context creators, creating products and libraries, folders, moving objects)"
+  - id: ac
+    where: "Module 6, Describe shared teams; Determine the impact of modifying a shared team; Assign a shared team to an application context"
+  - id: ac
+    where: "Module 7, Manage OIRs; Identify best practices for creating OIRs; Module 9, Describe context templates; Appendix A, Manage preferences"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Move Restrictions"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/commonactions/CommonMoveRestrictionsRef.html"
+    covers: "Move limited to products and libraries; checked-out objects can't move"
 
 blocks:
   - type: text
     md: |
       Ten questions on **contexts**: the site → organization → application context tree, how settings inherit,
-      creating products and libraries from templates, and shared vs context teams. Score 80% to pass.
+      creating products and libraries from templates, shared vs context teams, and context strategy and moves.
+      Score 80% to pass.
 
   - type: quiz
     title: Section checkpoint
@@ -17,78 +30,79 @@ blocks:
       - kind: order
         prompt: Order these from the top of the context tree down.
         items: [Site, Acme Mobility organization, Acme Standard Parts library]
-        explanation: The site holds organizations; organizations hold products, libraries and projects.
+        explanation: The site holds organizations; organizations hold products, libraries, projects and programs.
       - kind: single
-        prompt: Acme Mobility numbers parts SC-. E-Bike E1 has its own EB- rule. Scooter S2 has no rule. What number does a new Scooter S2 part get?
-        options: [An EB- number, An SC- number, The site default, No number until a rule is added]
+        prompt: Acme has an organization rule numbering Part as SC- and a site rule giving plain sequential numbers. Scooter S2 has no rules of its own. What does a new Scooter S2 part get?
+        options: [A plain sequential number from the site, An SC- number, No number until Scooter S2 gets a rule, An EB- number]
         answer: 1
-        explanation: Scooter S2 has no rule, so the lookup moves up to Acme Mobility and its SC- rule applies. E-Bike E1's rule only covers E-Bike E1.
-      - kind: truefalse
-        prompt: Access rules defined at organization level apply to products created later, too.
-        answer: true
-        explanation: New contexts inherit from their organization from the moment they are created.
+        explanation: Rules from all levels are merged, and the organization's rule overrides the site's for the same type. Scooter S2 inherits the result.
       - kind: single
         prompt: Jordan wants every Acme product to use the same preference value, with no product allowed to change it. What does Jordan do?
-        options: [Set it in every product, Set it at organization level and lock it, Set it in the product template only, Put it in the shared team]
+        options: [Set it in every product, Set it at organization level and make it non-overridable, Set it in the product template only, Put it in the shared team]
         answer: 1
-        explanation: Setting it at organization level makes it inherited; locking stops products from overriding it.
+        explanation: Preferences set at a level apply to all lower contexts, and a higher level can forbid lower levels from overriding them.
       - kind: single
         prompt: Kai can't find the New Product action. What is the most likely reason?
-        options: [He isn't in the organization's product creators group, The vault is full, The product template is locked, His directory entry is in the wrong branch]
+        options: [He isn't in the organization's Product Creators group, The vault is full, The product template is locked, His directory entry is in the wrong branch]
         answer: 0
-        explanation: Creating products is limited to the product creators group (and organization admins).
-      - kind: single
-        prompt: Which template should Jordan use for the real E-Bike E1 product?
-        options: [The out-of-the-box general template, Acme's reviewed product template, A copy of whatever product was created last, No template]
-        answer: 1
-        explanation: A reviewed company template gives every product the same folders, roles and rules. The general template is for trials.
-      - kind: truefalse
-        prompt: Improving Acme Product Template automatically updates Scooter S2, which was created from an older version of it.
-        answer: false
-        explanation: Templates are applied once, at creation. Existing contexts keep their setup until someone updates them.
+        explanation: Creating products is for members of the Product Creators group. The creator then becomes the product's manager.
       - kind: multi
-        prompt: What can a context template typically give a new product? (Choose all that apply.)
-        options: [A folder structure, Team roles, Context-level access rules, The parts and CAD of another product]
+        prompt: What can a context template give a new product? (Choose all that apply.)
+        options: [A folder structure, Context roles, Access control policies, The documents of the product it was saved from]
         answers: [0, 1, 2]
-        explanation: Templates carry configuration, not product data. Parts and CAD are never copied in by a template.
+        explanation: Templates carry configuration - folders, roles, policies, initialization rules, defaults. Documents of the original product are not copied.
+      - kind: truefalse
+        prompt: A product created with Private Access set to Yes inherits Acme's organization-level access rules as usual.
+        answer: false
+        explanation: A private context hangs under a more restrictive Private domain instead of the usual organization domains, so its access rules must be defined for it.
       - kind: single
         prompt: E-Bike E1, E1 Cargo and E1 Kids share the same engineers and reviewers. What team model fits best?
         options: [A shared team defined in the organization, Three separate context teams, One context team in E-Bike E1 only, No teams]
         answer: 0
         explanation: Same people across a product family is the textbook case for a shared team.
       - kind: single
-        prompt: A consultant must see E1 Kids only. E1 Kids uses the shared E-Bike Core Team, which allows local extension. What should Jordan do?
-        options: [Add her to the shared team, Add her locally to E1 Kids, Create a copy of E1 Kids for her, Add her to the Acme Mobility organization]
-        answer: 1
-        explanation: Local additions affect only that context. Adding her to the shared team would expose every product that uses it.
+        prompt: Before adding a reviewer to the shared E-Bike Core Team, Jordan wants to know which contexts will be affected. What does Jordan use?
+        options: [Show Team Uses on the shared team's details page, Search Disconnected Participants, The products list sorted by date, Object Initialization Rules Administration]
+        answer: 0
+        explanation: Show Team Uses, at the top of the shared team's Members table, lists the contexts that use it - all of them get the change.
+      - kind: single
+        prompt: Acme's planned rental business will share most parts with the scooters. How many organization contexts does PTC's guidance suggest?
+        options: [One for the whole company, One per business, One per product line, One per supplier]
+        answer: 0
+        explanation: Several organizations suit large, separate divisions that share little data. With significant sharing, one organization is generally better.
+      - kind: multi
+        prompt: Jordan wants to move SC-1042 from Scooter S2 to Acme Standard Parts. Which are true? (Choose all that apply.)
+        options: [It must be checked in first, All versions must be moved to change product or library, Its number and history stay the same, It keeps Scooter S2's access policies]
+        answers: [0, 1, 2]
+        explanation: Checked-out objects can't move, crossing contexts needs all versions, and identity and history are kept. Access follows the new location's policies.
 
   - type: flashcards
     title: Contexts checkpoint deck
     cards:
       - front: The context tree
-        back: "Site → organization → products, libraries and projects."
+        back: "Site → organization → products, libraries, projects and programs."
       - front: Site
-        back: "Top context; its settings reach every organization and context on the server."
+        back: "Root context; its policies, templates and preferences are defaults for everything below."
       - front: Organization context
-        back: "Company layer holding policies, numbering rules, templates and shared teams."
-      - front: "\"Nearest wins\""
-        back: "For rules like numbering and for preferences, the closest context with a value wins."
+        back: "Company layer holding groups, policies, initialization rules, templates and shared teams. Can't be deleted."
+      - front: Object initialization rules and levels
+        back: "Merged from all levels; a lower context's or a subtype's rule wins. Best kept at organization or site level."
       - front: Locked preference
-        back: "A value set higher up that lower contexts cannot override."
+        back: "A value set higher up that lower contexts can see but not override."
       - front: Access rules and inheritance
-        back: "Rules add up from every level above the context."
+        back: "An object inherits the rules of its domain and all parent domains - except private contexts."
       - front: Context template
-        back: "A recipe of folders, roles and rules used once when a product or library is created."
-      - front: Product creators group
-        back: "Organization group whose members may create new products."
+        back: "Initial configuration for a new product or library: folders, roles, policies, rules, defaults - no data."
+      - front: Product Creators group
+        back: "Its members may create products; the creator becomes the Product Manager."
       - front: Shared team
-        back: "Defined once in the organization; used by several contexts chosen at creation."
-      - front: Context team
-        back: "The team that belongs to a single product, library or project."
+        back: "Defined at organization level, chosen when a context is created; changes reach every user context."
+      - front: Move action
+        back: "Actions → Move. Products and libraries only; all versions to cross contexts; check in first."
 
   - type: summary
     points:
-      - Settings live on a floor of the context tree and flow down.
-      - Put each setting at the lowest level that covers everyone who needs it.
-      - Real contexts come from reviewed company templates.
-      - Shared teams for product families; context teams for unique or confidential groups.
+      - Settings live on a level of the context tree and become defaults below.
+      - Keep rules high and specific; lock preferences that must not change.
+      - Real contexts come from reviewed company templates; creators become managers.
+      - Shared teams for product families; plan the context strategy before data exists - moves have consequences.

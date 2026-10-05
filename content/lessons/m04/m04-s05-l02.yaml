@@ -1,19 +1,27 @@
 id: m04-s05-l02
-subtitle: Three kinds of rules, one answer. Learn to predict it before Windchill does.
+subtitle: Three kinds of control, one answer. Learn how Windchill builds it.
 version: 1.0.0
 updated: "2026-10-05"
-tags: [access-control, ad-hoc, deny, security-labels, effective-permissions]
+tags: [access-control, ad-hoc, acl, security-labels, effective-permissions]
+sources:
+  - id: ac
+    where: "Module 8: Plan access control strategies; Define an access control list (ACL); Identify access control list resolution principles; Identify participants of an access control rule; Explicitly grant access to data; Explicitly deny access to data; Identify available permissions; Implement ad hoc access control; Activity: Create an ad hoc rule"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Security Labels Overview"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/securitylabel/SecurityLabelSLAbout.html"
+    covers: "Labels set at creation, by object initialization rule default, or with Edit Security Labels"
 
 blocks:
   - type: text
     md: |
-      Last lesson Jordan wrote **policy rules**: zone-wide rules stored in domains. They're not
-      the only thing that decides access. Windchill weighs three kinds of control, plus a couple of
-      "hard no" settings:
+      Last lesson Jordan wrote **policy rules**: zone-wide rules stored in domains. They're the
+      backbone, but not the only thing that decides access. Windchill combines **three** kinds of
+      control:
 
-      - **Policy rules**: per domain, type, state and participant. The backbone.
-      - **Ad hoc rules**: extra grants stuck to *one object*.
-      - **Security labels**: stickers like *Export Controlled* that lock out anyone not cleared.
+      - **Domain policy rules**: per domain, type, state and participant. The default picture.
+      - **Ad hoc rules**: extra grants on *one object*, from its life cycle or added by hand.
+      - **Security labels**: markings like *Export Controlled* that shut out anyone not cleared.
 
       Your job as an admin is to predict the final answer, the **effective permissions**, before a
       supplier phones to say they can't open a drawing.
@@ -23,150 +31,128 @@ blocks:
     md: |
       **Plain words → official term**
       - "rule for a whole zone" → [[access-control-rule|policy rule]]
+      - "everything the rules add up to for one type and state" → [[access-control-list|access control list (ACL)]]
       - "one-off permission on one object" → [[ad-hoc-access|ad hoc access control]]
-      - "a 'no' that beats policy 'yes'" → [[deny-rule|deny]]
-      - "a 'no' that nothing beats" → [[absolute-deny|absolute deny]]
-      - "a clearance sticker on an object" → [[security-label|security label]]
+      - "a 'no' written into a rule" → [[deny-rule|deny]]
+      - "a marking that locks out anyone not cleared" → [[security-label|security label]]
       - "what someone can really do in the end" → [[effective-permissions|effective permissions]]
 
   - type: comparison
     title: The three kinds of access control
-    columns: [Policy rule, Ad hoc rule, Security label]
+    columns: [Domain policy rule, Ad hoc rule, Security label]
     rows:
       - label: Lives on
-        cells: [A domain, One object, One object (label value set on it)]
+        cells: [A domain, One object, One object (its label values)]
       - label: Reaches
-        cells: ["Every object of that type and state in the domain and its children", Only that object, Only that object]
+        cells: ["Every object of that type (and subtypes) and state in the domain and its children", Only that object, Only that object]
       - label: Can grant
         cells: [Yes, Yes, "No - it only restricts"]
       - label: Can deny
-        cells: ["Yes - Deny or Absolute Deny", "No - grants only", "Yes - everyone not authorized for the value"]
-      - label: Changes with life cycle state
-        cells: ["Yes - rules are per state", "No - stays until removed (unless a workflow or team manages it)", "No - stays until the label value changes"]
+        cells: ["Yes - Deny or Absolute Deny", "No - grants only", "Yes - everyone not authorized"]
+      - label: Set through
+        cells: [Policy Administration only, "The life cycle template (per state) or the object's Edit Access Control action", "At creation, by default, or with Edit Security Labels"]
       - label: Typical owner
-        cells: [Business admin, Object owner or a workflow or team, Security officer or business admin]
+        cells: [Business admin, "Life cycle designer, or anyone with Change Permissions on the object", System admin configures; users set values]
       - label: Acme example
-        cells: ["Supplier role may read Released CAD in Battery", "Leo gets Read on one In Work drawing for a review", "EB-10030 controller firmware marked Export Controlled"]
-    takeaway: Policy builds the default picture. Ad hoc adds exceptions on single objects. Labels draw a fence that only cleared people can cross.
+        cells: ["Supplier role may read Released CAD in Battery", "Lin gets Read on one In Work drawing for a review", "EB-10030 controller firmware marked Export Controlled"]
+    takeaway: Policy rules set the default for every object of a type. Ad hoc rules add exceptions on single objects. Labels fence off sensitive objects. PTC's advice is to lean on policy and use ad hoc sparingly.
 
   - type: diagram
-    title: How Windchill reaches one answer
-    caption: Follow the gates top to bottom for one user, one object and one permission. Click each gate.
+    title: How Windchill builds the access control list
+    caption: Three things are combined, then grants and denies are merged per participant. Click each box.
     diagram:
       width: 820
-      height: 470
+      height: 420
       nodes:
-        - id: ask
-          label: "Can Ana read EB-10021?"
-          sublabel: one user · one object · one right
-          x: 290
-          y: 10
-          w: 240
-          h: 52
-          tone: neutral
-          shape: pill
-          detail: Every access check is this small. One participant, one object, one permission. Windchill answers it on the server each time.
-        - id: admin
-          label: Administrator?
-          sublabel: bypass
-          x: 40
-          y: 95
-          w: 180
-          h: 52
-          tone: info
-          detail: |
-            Members of the site **Administrators** group bypass access checks entirely. That's why
-            admin accounts are useless for testing access.
-        - id: label
-          label: Security labels
-          sublabel: cleared for every value?
-          x: 290
-          y: 95
-          w: 240
-          h: 52
-          tone: danger
-          detail: |
-            If the object carries a restricted label value and the user isn't authorized for it (directly,
-            through a group, or through an active [[agreement]]), the answer is **no**. Nothing below can
-            change that.
-        - id: policy
-          label: Policy grants
-          sublabel: domain + all parents
-          x: 290
-          y: 180
-          w: 240
-          h: 52
+        - id: domains
+          label: Domain chain
+          sublabel: own domain + all parents
+          x: 20
+          y: 20
+          w: 220
+          h: 56
           tone: primary
           detail: |
-            Collect every policy rule that matches the object's **type** (or a parent type), **state** (or
-            *All*) and **any participant the user belongs to**, from the object's domain and every parent
-            domain. Grants add up.
-        - id: deny
-          label: Policy denies
-          sublabel: deny beats grant
-          x: 290
-          y: 265
-          w: 240
-          h: 52
-          tone: warning
+            Every rule in the object's domain **and** every ancestor domain is collected. For a drawing in
+            Battery: Battery, E1 Default, PDM, Acme Default and /(Root).
+        - id: types
+          label: Type chain
+          sublabel: own type + all parents
+          x: 300
+          y: 20
+          w: 220
+          h: 56
+          tone: primary
           detail: |
-            A matching **deny** anywhere in the domain chain removes the permission, even if another rule,
-            group or a lower domain grants it.
-        - id: adhoc
-          label: Ad hoc grants
-          sublabel: on this object
-          x: 290
-          y: 350
-          w: 240
-          h: 52
+            Rules written for the object's type **and** its parent types apply. A rule on Document also
+            covers every Document subtype; a rule on a subtype doesn't reach its parent type.
+        - id: state
+          label: Life cycle state
+          sublabel: this state, or All
+          x: 580
+          y: 20
+          w: 220
+          h: 56
+          tone: primary
+          detail: Only rules for the object's current state, or for all states, take part.
+        - id: who
+          label: The participant
+          sublabel: user + every group and role
+          x: 300
+          y: 130
+          w: 220
+          h: 56
+          tone: info
+          detail: |
+            Rules for the user **and** for every group, nested subgroup, role and organization they belong
+            to are merged. Ana gets the rules written for Ana, for `ACME-Manufacturing`, for the Members
+            role and so on.
+        - id: grants
+          label: Grants (+)
+          sublabel: combined
+          x: 120
+          y: 240
+          w: 220
+          h: 56
           tone: success
-          detail: |
-            Grants stuck on the object itself are added. They can win back a permission that a regular
-            policy deny removed.
-        - id: absolute
-          label: Absolute denies
-          sublabel: final word
-          x: 570
-          y: 350
+          detail: All matching grants add together.
+        - id: denies
+          label: Denies (−)
+          sublabel: combined
+          x: 480
+          y: 240
           w: 220
-          h: 52
-          tone: danger
-          detail: An **absolute deny** removes the permission no matter what, including ad hoc grants. Only the admin bypass is stronger.
-        - id: result
-          label: Effective permissions
-          sublabel: the real answer
-          x: 570
-          y: 425
+          h: 56
+          tone: warning
+          detail: All matching denies add together too.
+        - id: acl
+          label: Permission set
+          sublabel: the ACL result
+          x: 300
+          y: 345
           w: 220
-          h: 40
+          h: 56
           tone: accent
           shape: pill
-          detail: What the access information tools report, and what the user experiences.
+          detail: |
+            A permission that one rule grants and another denies is **not** granted. A permission no rule
+            grants is not available either. Ad hoc grants, absolute denies and labels then act on this
+            result; the priorities lesson ranks them.
       edges:
-        - { from: ask, to: admin }
-        - { from: ask, to: label }
-        - { from: label, to: policy, label: cleared }
-        - { from: policy, to: deny }
-        - { from: deny, to: adhoc }
-        - { from: adhoc, to: absolute }
-        - { from: absolute, to: result }
-        - { from: admin, to: result, label: everything, dashed: true }
-
-  - type: callout
-    variant: note
-    title: A mental model, not source code
-    md: |
-      The gates show the **precedence** Windchill applies: label restriction, then policy grants, then
-      denies, then ad hoc grants, then absolute denies. The real code is optimised differently, but if
-      you reason in this order you'll predict the right answer.
+        - { from: domains, to: who }
+        - { from: types, to: who }
+        - { from: state, to: who }
+        - { from: who, to: grants }
+        - { from: who, to: denies }
+        - { from: grants, to: acl }
+        - { from: denies, to: acl }
 
   - type: callout
     variant: why-it-matters
     md: |
-      Most access tickets aren't bugs. They're two rules meeting in a way nobody predicted. A deny
-      inherited from the organization, a forgotten label, a workflow that added an ad hoc grant years
-      ago. Admins who can trace the gates fix tickets in minutes and don't "fix" them by giving out
-      Full Control.
+      Most access tickets aren't bugs. They're two rules meeting in a way nobody predicted: a deny on one
+      of the user's groups, a rule on a parent type, a forgotten label. Admins who can rebuild the list in
+      their head fix tickets in minutes, and don't "fix" them by handing out Full Control.
 
   - type: text
     md: |
@@ -174,146 +160,171 @@ blocks:
       Ana (manufacturing) is in `ACME-Manufacturing` and holds the *Members* role in E-Bike E1.
       Windchill counts the rules for **all** of these participants together:
 
-      | Rule (all match EB-10021 drawing, Released) | Effect for Ana |
+      | Rule (all match the EB-10021 drawing, Released) | Effect for Ana |
       | --- | --- |
-      | Org Default · CAD Document · Released · `ACME-All` · Grant Read | + Read |
+      | Acme Default · CAD Document · Released · `ACME-All` · Grant Read | + Read |
       | E1 Default · CAD Document · All · Members role · Grant Read, Download | + Download |
       | E1 Default · CAD Document · All · `ACME-Manufacturing` · Deny Download | − Download |
-      | **Effective** | **Read only** |
+      | **Result** | **Read only** |
 
-      One deny from one of her groups was enough, even though the grant came from a different participant.
+      One deny on one of her groups was enough, even though the grant came through a different
+      participant. All three rules are written for groups and roles; when a rule names a **single user**
+      or the **Owner**, or when an ad hoc grant or absolute deny is involved, a ranking decides instead.
+      That ranking gets its own lesson: *Grant, deny and absolute deny*.
 
   - type: scenario
     variant: what-if
-    title: Predict the effective permissions
+    title: Predict the permission set
     start: q1
     nodes:
       - id: q1
         md: |
-          **EB-10021 battery drawing, state Released, in the Battery domain.** Rules: Battery grants the
+          **EB-10021 battery drawing, state Released, in the Battery domain.** Battery grants the
           Supplier role Read + Download on Released CAD Documents. Voltra's engineer Lin is in
           `SUP-Voltra`, which holds the Supplier role in E1. **What can Lin do?**
         choices:
           - label: Read and Download
             next: q2
             good: true
-            feedback: Yes. Type, state, domain and participant all match. Nothing denies.
-          - label: Nothing - suppliers are external
+            feedback: Yes. Domain, type, state and participant all match, and nothing denies.
+          - label: "Nothing - suppliers are external"
             next: q1-wrong
             feedback: Being external doesn't block anything by itself. Rules decide.
       - id: q1-wrong
-        md: Windchill doesn't treat external organizations differently unless rules or labels do. Here a rule grants the Supplier role exactly this. Try the next one with that in mind.
+        md: Windchill doesn't treat another organization's users differently unless rules or labels do. Here a rule grants the Supplier role exactly this. Try the next one with that in mind.
         choices:
           - { label: Next case, next: q2 }
       - id: q2
         md: |
-          **Same drawing, but Priya has started revision B. B is In Work.** Lin opens the drawing's
-          history. **Can Lin read B?**
+          **Priya starts revision B of the drawing. B is In Work.** **Can Lin read B?**
         choices:
           - label: "No - the rule only matches Released"
             next: q3
             good: true
-            feedback: Right. Rules are per state. Revision A stays visible because it's still Released; B is In Work and nothing grants Lin access to it.
+            feedback: Right. Rules are per state. A is still Released and visible; B is In Work and nothing grants Lin anything there.
           - label: "Yes - Lin could read revision A"
             next: q2-wrong
-            feedback: Each version is checked on its own state.
+            feedback: The rule looks at the state of the object being opened.
       - id: q2-wrong
-        md: Access is checked per version and its current state. A is Released (visible); B is In Work (no matching grant). Lin sees A and not B.
+        md: Access depends on the state of the version you're looking at. A is Released (visible); B is In Work (no matching grant). Lin sees A and not B.
         choices:
           - { label: Next case, next: q3 }
       - id: q3
         md: |
-          **Kai wants Lin to comment on In Work revision B now.** Jordan adds an **ad hoc** Read grant on
-          revision B for `SUP-Voltra`. But the organization has a regular **Deny Read** for the Supplier
-          role on In Work CAD Documents. **Can Lin read B?**
+          **Jordan adds a rule in E1 Default: Supplier role · Document · All · Grant Read.** Voltra
+          uploads a test report, a subtype *Test Report* of Document. **Does the new rule cover it?**
         choices:
-          - label: "Yes - the ad hoc grant overrides a regular deny"
+          - label: "Yes - a rule on a type covers its subtypes"
             next: q4
             good: true
-            feedback: Correct. Ad hoc grants on an object can override a regular policy deny.
-          - label: "No - deny always wins"
+            feedback: Correct. Rules for a type and its parent types are combined.
+          - label: "No - Jordan must write a rule for Test Report"
             next: q3-wrong
-            feedback: Deny beats policy grants, not ad hoc grants.
+            feedback: Only the other way round needs care; a rule on a subtype doesn't reach the parent type.
       - id: q3-wrong
-        md: A regular deny beats **policy** grants. An **ad hoc** grant on the specific object is stronger and wins it back. Only an absolute deny would stop it.
+        md: A rule on Document applies to Document and all of its subtypes. The Test Report is covered.
         choices:
           - { label: Next case, next: q4 }
       - id: q4
         md: |
-          **Now the org's rule is changed to Absolute Deny Read** for the Supplier role on In Work CAD
-          Documents. The ad hoc grant is still on revision B. **Can Lin read B?**
+          **Kai is in `ACME-Engineering` and `ACME-Battery-Core`.** One rule grants Engineering Modify on
+          In Work CAD; another, in the Battery domain, denies Battery-Core Modify on In Work CAD. **Can
+          Kai modify an In Work battery drawing?**
         choices:
-          - label: "No - absolute deny beats ad hoc"
+          - label: "No - granted by one rule, denied by another means not granted"
             next: q5
             good: true
-            feedback: Exactly. That's the whole point of absolute deny.
-          - label: "Yes - ad hoc is object-specific so it wins"
+            feedback: Exactly. Both rules are for groups, so the deny wins.
+          - label: "Yes - he's an engineer"
             next: q4-wrong
-            feedback: Not against an absolute deny.
+            feedback: Grants and denies from all his groups are merged.
       - id: q4-wrong
-        md: Absolute deny is the one rule that ad hoc grants can't override. Lin is locked out of B.
+        md: Kai's rules from both groups are combined. A permission granted by one and denied by another is not granted.
         choices:
           - { label: Next case, next: q5 }
       - id: q5
         md: |
           **Revision A (Released) gets the security label value _Export Controlled_.** Only
-          `ACME-ExportCleared` is authorized. Lin still has the Supplier policy grant. **Can Lin read A?**
+          `ACME-ExportCleared` is authorized. Lin still has the Supplier grant. **Can Lin read A?**
         choices:
           - label: "No - not authorized for the label"
             next: done
             good: true
-            feedback: Correct. Labels restrict regardless of grants.
+            feedback: Correct. A label denial overrides any read access the rules give.
           - label: "Yes - the policy rule grants Read"
             next: q5-wrong
-            feedback: The label gate comes first.
+            feedback: The label sits above every rule.
       - id: q5-wrong
-        md: An unauthorized user is blocked by the label whatever policy or ad hoc rules grant. Lin would need to be authorized, for example through an agreement.
+        md: A user who isn't authorized for the label is blocked whatever the rules grant. Lin would need authorization, or an agreement covering her.
         choices:
           - { label: See my result, next: done }
       - id: done
         md: |
-          You traced all five gates: policy match, state, ad hoc vs deny, absolute deny and labels. That's
-          the full mental model for every access ticket you'll ever handle.
+          You rebuilt the list five times: matching, state, subtypes, grant-plus-deny and labels. Next up
+          in the section: inheritance, troubleshooting, labels in depth, and the full priority ranking.
         outcome: success
+
+  - type: text
+    md: |
+      ### Two ways ad hoc access appears
+      - **From the life cycle.** A life cycle template can carry ad hoc rules for a state. Classic
+        example: reviewers get temporary Read while a document is *Under Review*.
+      - **By hand.** Anyone with **Change Permissions** on an object (business admins, context
+        managers, the document's creator) can grant permissions with **Edit Access Control**. They can
+        only hand out permissions they hold themselves.
+
+      In project and program contexts, Windchill also gives an object's creator ad hoc administrative
+      access automatically (a server property can switch this off). Other contexts don't do this.
 
   - type: walkthrough
     title: Add an ad hoc grant on one object
-    who: Someone with Change Permissions on the object (often its owner or a context admin)
+    who: Someone with Change Permissions on the object
     where: ["<object> information page", Actions, Edit Access Control]
     steps:
       - title: Open the object
         where: [Search, "EB-10021", "<drawing information page>"]
-        md: Open the information page of the exact version you want to share.
+        md: Open the information page of the exact object you want to share.
       - title: Edit its access
         where: ["<information page>", Actions, Edit Access Control]
         md: |
-          Choose the access control action (named **Edit Access Control** in many releases). You'll see
-          the participants that already have ad hoc rights on this object.
-      - title: Add the participant and permissions
-        where: [Edit Access Control, Add participant]
-        md: |
-          Add the user or group, tick only the permissions needed (usually **Read**), and save.
-    result: The participant now has those rights on this one object, on top of what policy gives, unless an absolute deny or a security label blocks it.
+          From the **Actions** menu choose **Edit Access Control**. The table lists participants and
+          their basic permissions on this object. Greyed-out boxes can't be changed here.
+      - title: Add the participant
+        where: [Edit Access Control, Add participants]
+        md: Click **Add participants**, search for the user or group (for example `SUP-Voltra`) and add them.
+      - title: Tick only what's needed
+        where: [Edit Access Control, "<participant row>"]
+        md: Select the permissions needed, usually **Read** and **Download**, and click **OK**.
+    result: The participant now has those rights on this one object, on top of what policy gives, unless a security label or an absolute deny blocks them.
+
+  - type: callout
+    variant: note
+    title: Which boxes can be ticked
+    md: |
+      Edit Access Control only offers a small set of basic permissions. Which ones can be seen and changed
+      in products and libraries is set by the **Access Permission Configuration (PDM)** preference, under
+      **Security** in Preference Management. The full permission set is available in life cycle ad hoc
+      rules and in Policy Administration.
 
   - type: callout
     variant: pitfall
     md: |
-      **Ad hoc sprawl.** Every ad hoc grant is invisible from Policy Administration. After a few years
-      nobody knows why `SUP-Voltra` can read 400 random In Work drawings. Use ad hoc grants for short,
-      documented exceptions, and remove them when the reason ends. Workflows and teams also add ad hoc
-      grants automatically, so check those before blaming a person.
+      **Ad hoc sprawl.** Ad hoc grants live on objects, not in domains, so reading Policy Administration
+      won't show them. After a few years nobody knows why `SUP-Voltra` can read 400 random In Work
+      drawings. Use them for short, documented exceptions and remove them when the reason ends. And
+      remember life cycles add them too, so check the life cycle before blaming a person.
 
   - type: callout
     variant: pro-tip
     md: |
-      Reach for **absolute deny** only for true red lines, such as "external organizations never get
-      Delete or Change Permissions". It stops *every* future exception, including ones you'll want
-      during an emergency.
+      Write policy rules for the **normal** case of every type and state first. Only when a real
+      exception remains, reach for ad hoc. That's PTC's own guidance, and it keeps the number of places
+      you have to look small.
 
   - type: summary
     points:
       - Three controls work together. Policy rules for zones, ad hoc rules on single objects, security labels as fences.
-      - Policy grants from every matching participant and parent domain add up; any matching deny cuts them.
-      - Ad hoc grants can override a regular deny; absolute deny overrides everything except the admin bypass.
-      - Security labels block unauthorized users no matter what any rule grants.
-      - Effective permissions are the result of all of this for one user and one object.
+      - The ACL combines rules from the domain chain, the type chain and the current state, for the user and all their groups and roles.
+      - Grants add up; a permission granted by one rule and denied by another is not granted; nothing granted means no.
+      - Ad hoc grants come from life cycle states or Edit Access Control, and only grant.
+      - Security labels deny unauthorized users whatever the rules say.

@@ -2,14 +2,28 @@
 - id: context-template
   term: Context template
   plain: A starter kit for a new product or library - folders, team roles and rules already set up.
-  definition: An XML-based template, usually stored at the organization or site level, used when creating a product, library or project. Depending on the release and what was exported, it can carry the folder structure, team roles, access policies, object initialization rules, preferences and templates. It does not carry the business data (parts, documents, CAD) of the context it was made from.
+  definition: An XML-based template that provides the initial business environment of a new product, library, project, program or organization. It can establish the folder structure, context roles and teams, access policies, data types and templates, object initialization rules, life cycle and workflow templates and default preferences. It does not carry the business data (parts, documents, CAD) of the context it was made from. Product and library templates can be made with Save as Template or Export as Template.
   aka: [Product template, Library template]
-  related: [context, product-context, library, object-initialization-rule]
+  related: [context, library, object-initialization-rule, organization-template]
+
+- id: organization-template
+  term: Organization template
+  plain: A starter kit for a whole new organization in Windchill.
+  definition: A context template picked from the Template list when a new organization context is created; it determines the organization's initial business rules, such as team roles, folder structure and access policies. Organization templates can only be created from a context template input file, not saved from a live context.
+  aka: [Organization context template]
+  related: [context-template, context]
+
+- id: cad-document-template
+  term: CAD document template
+  plain: A ready-made start part, assembly or drawing that new CAD files are created from.
+  definition: A template, created from a source CAD document authored in a CAD application such as Creo, that gives new CAD documents their initial settings. Templates created at site level are available everywhere, at organization level to all contexts in that organization, and in a product or library only to that context.
+  aka: [Start part, CAD template]
+  related: [cad-document, creo, context]
 
 - id: numbering-scheme
   term: Numbering scheme
   plain: The company rule for what an object's number looks like and where the next one comes from.
-  definition: The pattern and source of object numbers, such as a prefix plus a zero-padded value from a database sequence (EB-10021). In Windchill a numbering scheme is usually implemented with an object initialization rule that calls a number generator, so numbers are assigned by the server instead of typed by users.
+  definition: The pattern and source of object numbers, such as a prefix plus a zero-padded value from a database sequence (EB-10021). In Windchill a numbering scheme is set in an object initialization rule using the number generator; out of the box parts, documents, CAD documents and end items use ten-digit sequential numbers and change objects five-digit ones.
   aka: [Auto-numbering, Number generator]
   related: [object-initialization-rule, smart-number, part]
 
@@ -23,13 +37,13 @@
 - id: preference
   term: Preference
   plain: A setting that changes how Windchill behaves - for everyone, one company, one product or one person.
-  definition: A named configuration value managed in Preference Management. Preferences can be set at site, organization, context (product, library, project) and often user level. The value closest to where the user is working wins, unless a higher level has locked it.
+  definition: A named configuration value managed in Preference Management, opened from the Utilities page of the site, an organization or a context. A value set at one level applies to all lower levels, which may override it unless it is locked. Some preferences are personal and set by each user under My Settings.
   aka: [Preference Management]
   related: [context, preference-lock]
 
 - id: preference-lock
   term: Preference lock
   plain: A padlock that stops lower levels from changing a setting.
-  definition: A flag set on a preference at one level (for example the organization) that prevents contexts and users below it from overriding the value. The locked value then applies everywhere below that level until the lock is removed.
+  definition: Set by ticking Locked in the Set Preference window. The lock icon then shows at all levels and the value can't be changed at lower levels until the preference is unlocked. PTC recommends deleting existing child instances (values set lower down) before locking at site or organization level.
   aka: [Locked preference]
   related: [preference, context]

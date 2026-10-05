@@ -1,19 +1,36 @@
 # New glossary terms introduced in section m04-s03 (Teams and roles).
 - id: role
   term: Role
-  plain: A job title inside a context, like "Reviewer" or "Designer", that you fill with real people.
-  definition: A named responsibility (for example Product Manager, Designer, Reviewer or Promoter) that is filled with participants - users, groups or organizations - in a context team or an object's team. Workflows, access rules and notifications point at roles instead of named people, so the same process works in every context.
-  related: [team, team-template, workflow, context]
+  plain: A job title inside a context, like "Reviewer" or "Product Manager", that you fill with real people.
+  definition: A generic business responsibility (for example Product Manager, Promotion Approvers or Change Administrator I) that is mapped to participants - users, groups or organizations - in a team. Roles do two jobs - access control (through the context groups that mirror them) and workflow role resolution (deciding who gets an activity). Only resource bundle roles, kept in the site-wide Role enumeration, can be used in workflows, life cycles and team templates; custom organization roles serve access control only.
+  related: [team, team-template, role-resolution, context-group, workflow, context]
 
 - id: team
   term: Team (context team)
-  plain: The guest list of a product or library - who is in it, and in which role.
-  definition: The set of roles and their participants for a context such as a product, library or project. Membership in the team gives people access to the context, and the team's roles are what workflows and access rules resolve against.
-  aka: [Context team]
-  related: [role, team-template, context]
+  plain: The cast list of a product or library - who is in it, and in which role.
+  definition: The single team that every product, library, project or program has. It holds the context roles (shown in the Members table of the context's Team page) and their participants, and Windchill keeps a matching context group for each role. The context manager maintains it. Teams drive both access control and workflow role resolution.
+  related: [role, context-group, team-template, team-instance, context]
 
 - id: team-template
   term: Team template
-  plain: A reusable cast list that tells Windchill which roles an object's workflow needs and who fills them by default.
-  definition: An administrative template that defines roles and default participants for the team created for an object or process, typically referenced by a life cycle template. When an object starts its life cycle, its team is built from the team template and from the context team, and workflow tasks are assigned to those roles.
-  related: [role, team, life-cycle, workflow]
+  plain: A reusable list of roles (and optional default people) that Windchill uses when it builds the team for one object.
+  definition: An administrative template, created with Team Administration at site, organization or application context level, that lists resource bundle roles and can map them to users, groups, an organization or the creator actor. An object initialization rule names the team template an object type uses, and Windchill starts the object's team instance from it. Without custom workflows, the context team alone is usually enough.
+  related: [role, team, team-instance, role-resolution, life-cycle, workflow]
+
+- id: team-instance
+  term: Team instance
+  plain: The private, frozen cast list Windchill builds for one object when its process starts.
+  definition: The set of roles and participants that Windchill generates for a single business object when it starts a workflow-driven process. It is built from the team template, the roles of the current life cycle state, the context team and any workflow process roles. Once created, it does not change when those sources change; it is updated from the object's details page (with the right permissions) or by a Setup Participants task in a workflow.
+  related: [team-template, role-resolution, team, workflow, life-cycle]
+
+- id: role-resolution
+  term: Role resolution
+  plain: Turning a job title in a process ("Reviewer") into the actual people who get the work.
+  definition: The step in which Windchill maps the generic roles used by life cycles and workflows to participants. For workflow-driven objects it happens through the object's team instance. Roles can resolve to users, groups, organizations, the creator actor, or (rarely) another role through role-to-role mapping. A role missing from the team instance does not resolve, even if the context team has people in it.
+  related: [role, team-instance, team-template, team, workflow]
+
+- id: context-group
+  term: Context group
+  plain: A hidden group Windchill keeps in step with each role of a product or library team, so access rules can point at it.
+  definition: A system-generated group that matches a context role and holds that role's participants. Access control rules in Policy Administration are usually written to context groups. The special Team Members context group collects the participants of every role except Guest; Windchill maintains it, and it has no matching role on the Team page.
+  related: [role, team, context]

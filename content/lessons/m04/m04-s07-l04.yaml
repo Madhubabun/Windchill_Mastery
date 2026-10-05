@@ -1,0 +1,242 @@
+id: m04-s07-l04
+subtitle: Start parts that open in Creo already set up, and whole organizations that start life already furnished.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, templates, cad-document-templates, organization-templates]
+sources:
+  - id: ac
+    where: "Module 9: Describe Windchill templates; Describe CAD document templates; Describe context templates; Describe product, library, and organization templates. Module 1: Create a Windchill organization (template pick list, Subscriber). Module 3: Identify context creators"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Creating a CAD Document Template"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/objtemplates/TemplatesCADDocCreate.html"
+    covers: "Templates page, CAD Document Templates view, new CAD document template icon, CAD Source, required File Name, contexts where templates can be created"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Methods of Creating Additional Context Templates"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/templates_chp/TemplatesChp_MethodCreateAdditContextTemp.html"
+    covers: "Organization templates can only be created from a context template input file with the new template icon"
+
+blocks:
+  - type: text
+    md: |
+      Two template requests land on Jordan's desk in the same week.
+
+      Priya: "Every time I start a new e-bike part in Creo I spend ten minutes setting up units,
+      datums and parameters. Can't Windchill just hand me a ready-made start part?"
+
+      Rosa: "Acme is spinning up a sister business, **Acme Robotics**. I'll create its organization -
+      can it start with Acme's way of working instead of an empty shell?"
+
+      Both answers are **templates** - just at very different sizes. A [[cad-document-template]] is a
+      starter file. An [[organization-template]] is a starter kit for a whole organization.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a ready-made start part or drawing" → [[cad-document-template]]
+      - "a starter file for Word-style documents" → *document template*
+      - "a starter kit for a new organization" → [[organization-template]]
+      - "a starter kit for a product or library" → [[context-template]]
+      - "the page where all of these are listed" → the context's **Templates** page
+
+  - type: diagram
+    title: Where a CAD document template is visible
+    caption: The level you create it at decides who can use it. Click each level.
+    diagram:
+      width: 820
+      height: 340
+      nodes:
+        - id: site
+          label: Site
+          sublabel: all organizations
+          x: 300
+          y: 20
+          w: 220
+          tone: neutral
+          detail: A CAD document template created at site level is available to all organizations and everything inside them.
+        - id: org
+          label: Acme Mobility
+          sublabel: all Acme contexts
+          x: 300
+          y: 130
+          w: 220
+          tone: primary
+          detail: Created at organization level, it is available to every product and library in Acme Mobility. Jordan puts the e-bike start part here.
+        - id: e1
+          label: E-Bike E1
+          sublabel: this product only
+          x: 130
+          y: 240
+          w: 220
+          tone: accent
+          detail: Created inside a product or library, it is available only in that context.
+        - id: s2
+          label: Scooter S2
+          sublabel: can't see E1's
+          x: 470
+          y: 240
+          w: 220
+          tone: warning
+          detail: Scooter S2 sees the site and Acme Mobility templates, but not the ones created inside E-Bike E1.
+      edges:
+        - { from: site, to: org, label: available to }
+        - { from: org, to: e1, label: available to }
+        - { from: org, to: s2, label: available to }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Start parts are where CAD standards begin. If every designer sets up units and parameters by hand,
+      every model is slightly different - and BOM attributes, drawings and downstream tools inherit the
+      mess. A template fixes it once, at the source.
+
+  - type: walkthrough
+    title: Create the e-bike start part template
+    who: An organization administrator (product and library managers can create them in their own context)
+    where: [Browse, Organizations, "Acme Mobility", Templates]
+    steps:
+      - title: Build the source file in Creo
+        where: [Creo, Windchill workspace]
+        md: |
+          Priya builds the start part in the CAD application - units, datums, standard parameters - and
+          checks it in as an ordinary CAD document. This becomes the **source** for the template.
+      - title: Open the Templates page
+        where: [Browse, Organizations, "Acme Mobility", Templates]
+        md: |
+          On the organization's **Templates** page, pick **CAD Document Templates** from the view list at
+          the top. The table shows the templates available from this context.
+      - title: Create the template
+        where: [Templates, CAD Document Templates, New CAD Document Template]
+        md: |
+          Click the new CAD document template icon. Search for Priya's file as the **CAD Source** - the
+          authoring application, category and type fill in from it. Enter a name, a description and the
+          **File Name** for new files (required). Number, type and attributes are optional; autonumbering
+          may apply.
+      - title: Try it
+        where: [Browse, Products, "E-Bike E1", Folders, New CAD Document]
+        md: |
+          In E-Bike E1, create a new CAD document from the template and open it in Creo. It should arrive
+          with Priya's set-up already in place.
+    result: Every Acme product and library can start CAD parts from the same e-bike start part.
+
+  - type: callout
+    variant: note
+    title: Top-down design
+    md: |
+      CAD document templates for parts and assemblies are especially handy for **top-down** work, where
+      a designer creates the Windchill part and its CAD document in a single action. Note templates
+      (standard markup text) and document templates (style and boilerplate for documents) follow the same
+      idea for other content.
+
+  - type: text
+    md: |
+      ### Organization templates
+
+      When a site administrator creates a new organization, a **template pick list** decides the initial
+      business rules generated for the organization context. Product, library and organization templates
+      all provide a basic setup - team roles, folder structures, access policies - and the most significant
+      part is the set of **access control rules written for the context team roles**.
+
+  - type: comparison
+    title: Four kinds of template
+    columns: [Gives you, Created how, Who typically uses it]
+    rows:
+      - label: CAD document template
+        cells: ["Initial settings for a CAD authoring file", "From a source CAD document, on a Templates page", "Designers creating CAD documents"]
+      - label: Document template
+        cells: ["Style, structure, layout and boilerplate", "New Document Template on a Templates page", "Anyone who creates documents"]
+      - label: Product or library template
+        cells: ["Setup for a new product or library", "Save as Template, Export as Template, or an input file", "Product and library creators"]
+      - label: Organization template
+        cells: ["Initial business rules for a new organization", "Only from a context template input file", "Site administrators creating organizations"]
+    takeaway: Small templates standardize files. Big templates standardize whole contexts.
+
+  - type: walkthrough
+    title: Give Acme Robotics a head start
+    who: Rosa (site administrator), with Jordan reviewing the template
+    where: [Browse, Organizations, View All Organizations]
+    steps:
+      - title: Prepare the organization template
+        where: [Templates, New template]
+        md: |
+          Unlike product templates, an organization template can't be saved from a live context. It is
+          created from a **context template input file** with the new template icon. Jordan reviews the
+          XML with Rosa - especially the access rules for team roles. Import doesn't validate the XML
+          against its DTD, so they check it first.
+      - title: Create the organization
+        where: [Browse, Organizations, View All Organizations, Create New Organization]
+        md: |
+          Rosa clicks the create icon, enters **Acme Robotics**, ticks **Subscriber** so the organization
+          can host products and libraries, and picks the Acme organization template from the **Template**
+          list.
+      - title: Check what arrived
+        where: [Browse, Organizations, "Acme Robotics", Utilities]
+        md: |
+          Jordan checks the new organization's team roles, folders and access policies. Organization-level
+          templates, groups and types are then built on top.
+    result: Acme Robotics starts with Acme's access rules for team roles instead of an empty shell.
+
+  - type: example
+    variant: real-world
+    title: The start part nobody could find
+    industry: Micromobility
+    md: |
+      Jordan's first e-bike start part was created inside **E-Bike E1**. A month later, the scooter team
+      asked why their designers still built parts from scratch. They couldn't see it - templates created in
+      a product are only available in that product. Jordan recreated it at **Acme Mobility** level.
+    takeaway: Create shared templates at the level of everyone who needs them.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Editing the out-of-the-box templates.** The course's advice for context templates is to copy and
+      modify, keeping the originals as a reference. Keep that habit for every kind of template.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Name templates for **what** they are and **where** they belong - `E-Bike start part (mm)` beats
+      `Template 2`. Users only see templates that are enabled, so disable old ones instead of leaving
+      look-alikes in the list.
+
+  - type: flashcards
+    title: CAD and organization templates deck
+    cards:
+      - front: CAD document template
+        back: "A starter CAD file, created from a source CAD document, that gives new CAD documents their initial settings."
+      - front: Where a site-level CAD document template is available
+        back: "In all organizations and their contexts."
+      - front: Where a product-level CAD document template is available
+        back: "Only in that product."
+      - front: Required field when creating a CAD document template
+        back: "File Name - the file name used for new CAD documents."
+      - front: Organization template
+        back: "A template chosen from the Template list when a new organization is created; it sets the organization's initial business rules."
+      - front: How organization templates are created
+        back: "Only from a context template input file, with the new template icon."
+      - front: Most significant part of product, library and organization templates
+        back: "The access control rules written for the context team roles."
+      - front: Subscriber checkbox
+        back: "Lets a new organization host products and libraries. Cleared, only the organization participant is created."
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Jordan wants every Acme product and library to see the e-bike start part. Where should it be created?
+        options: [In E-Bike E1, At Acme Mobility (organization), In Priya's workspace]
+        answer: 1
+        explanation: A CAD document template created at organization level is available to all contexts in that organization.
+      - kind: truefalse
+        prompt: An organization template can be saved directly from an existing organization with Save as Template.
+        answer: false
+        explanation: Save as Template is for products, libraries, programs and projects. Organization templates are created from a context template input file.
+
+  - type: summary
+    points:
+      - CAD document templates give new CAD files their initial settings; the source comes from the CAD application.
+      - Site, organization or context level decides who can use a CAD document template.
+      - Organization templates set the initial business rules of a new organization, chosen from the Template list.
+      - They can only be created from a context template input file - review the XML before you import.
+      - Copy and modify; keep out-of-the-box templates as a reference.

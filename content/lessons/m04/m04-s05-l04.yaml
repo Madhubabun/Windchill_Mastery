@@ -3,6 +3,14 @@ subtitle: The most common admin ticket in PLM. Solve it like a detective, not wi
 version: 1.0.0
 updated: "2026-10-05"
 tags: [access-control, troubleshooting, effective-permissions, business-admin]
+sources:
+  - id: ac
+    where: "Module 8: Identify available permissions (troubleshooting example); Implement ad hoc access control; Troubleshoot access control issues; Describe security labeled objects; Identify permissions needed for move operations; Define an indexing policy (search results filtered by access control); Activity: Create an ad hoc rule"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Access Control Overview"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/accesscontrol_chp/AccessControlChp_Overview.html"
+    covers: "Fields that refer to an object the user cannot read show (Secured information)"
 
 blocks:
   - type: text
@@ -20,17 +28,17 @@ blocks:
     md: |
       **Plain words → official term**
       - "what Lin can actually do to that drawing" → [[effective-permissions|effective permissions]]
-      - "the admin X-ray for who can do what, and why" → [[access-information-tool|access information tool]]
-      - "a hidden item in a structure that you're not allowed to read" → *Secured Information* placeholder
+      - "the admin X-ray for who can do what, and why" → [[access-information-tool|Access Information page]]
       - "giving more access than needed" → *over-granting* (the opposite of *least privilege*)
 
   - type: callout
     variant: note
     title: Invisible is the default
     md: |
-      Windchill doesn't say "access denied" in search results. Objects you can't **Read** simply don't
-      appear. In a structure or a related-objects table, they may show as a **Secured Information**
-      placeholder. So "I can't find it" and "I'm not allowed to see it" look identical to the user.
+      Windchill doesn't say "access denied" in search results. Search results are filtered by access
+      control, so objects you can't **Read** simply don't appear. Where a field refers to an object you
+      can't read (say, a creator's user record), it shows **(Secured information)** instead of the value.
+      So "I can't find it" and "I'm not allowed to see it" look the same to the user.
 
   - type: diagram
     title: The seven usual suspects
@@ -41,15 +49,15 @@ blocks:
       nodes:
         - id: s1
           label: 1 · Right object?
-          sublabel: number · version · context
+          sublabel: number · version · state
           x: 20
           y: 20
           w: 240
           h: 56
           tone: neutral
           detail: |
-            Search for it yourself (as admin). Is EB-10021's drawing really Released, or still **Under
-            Review**? Is it in E-Bike E1, or was it checked in to another product by mistake?
+            First make sure there really is a problem. Is EB-10021's drawing really Released, or still
+            **Under Review**? Is it in E-Bike E1, or was it checked in to another product by mistake?
         - id: s2
           label: 2 · Right person?
           sublabel: account · groups · team role
@@ -81,8 +89,8 @@ blocks:
           h: 56
           tone: primary
           detail: |
-            Is there a grant for that **type** (CAD Document vs Document), that **state** (Released, not
-            Released for Production), and a participant Lin belongs to?
+            Is there a grant for that **type** (or a parent type), that **state**, and a participant Lin
+            belongs to? No grant means no access.
         - id: s5
           label: 5 · A deny somewhere?
           sublabel: whole domain chain
@@ -91,31 +99,31 @@ blocks:
           w: 240
           h: 56
           tone: warning
-          detail: Check denies in the object's domain **and every parent**. One deny for any of Lin's groups cancels every policy grant.
+          detail: Check denies in the object's domain **and every parent**. A deny on any of Lin's groups cancels a grant to another of her groups.
         - id: s6
           label: 6 · Security label?
-          sublabel: authorized · agreement expired?
+          sublabel: authorized · agreement active?
           x: 560
           y: 130
           w: 240
           h: 56
           tone: danger
           detail: |
-            A restricted label value blocks unauthorized users whatever the rules say. If access worked
-            last week and nothing else changed, check whether an [[agreement]] expired.
+            A label denies unauthorized users whatever the rules say. If access worked last week and nothing
+            else changed, check whether an [[agreement]] expired or became inactive.
         - id: s7
           label: 7 · Ad hoc changed?
-          sublabel: removed · absolute deny
+          sublabel: life cycle · removed · absolute deny
           x: 290
           y: 240
           w: 240
           h: 56
           tone: warning
           detail: |
-            Was a workflow or person granting this ad hoc and has since removed it? Or did someone add an
-            absolute deny that now beats the ad hoc grant?
+            Did the access come from a life cycle ad hoc rule for a state the object has now left? Did
+            someone remove a hand-added grant? Or did an absolute deny appear, which beats any ad hoc grant?
         - id: tool
-          label: Access information tool
+          label: Access Information page
           sublabel: shows 4 to 7 in one place
           x: 290
           y: 330
@@ -124,9 +132,8 @@ blocks:
           tone: success
           shape: pill
           detail: |
-            The [[access-information-tool|access information tool]] reports Lin's effective permissions on
-            the exact object and, in most releases, which source granted or denied each. Use it to
-            confirm your theory.
+            Lists every rule behind Lin's permissions on the exact object, and says whether each is a policy
+            rule, a life cycle ad hoc rule, a hand-added ad hoc rule or a security label denial.
       edges:
         - { from: s1, to: s2 }
         - { from: s2, to: s3 }
@@ -144,42 +151,39 @@ blocks:
       drawing was in the wrong folder, ten more probably are too.
 
   - type: walkthrough
-    title: Check someone's effective permissions on an object
-    who: Organization or context administrator (exact tools and who may use them vary by release)
-    where: ["<object> information page", Actions, "<access information action>"]
+    title: See why someone has (or lacks) a permission
+    who: An administrator, or anyone with Change Permissions on the object
+    where: ["<object> information page", Actions, Edit Access Control]
     steps:
-      - title: Find the exact version
+      - title: Open the exact object
         where: [Search, "EB-10021", "<drawing information page>"]
         md: |
-          Open the drawing's information page. Check its **context**, **folder** and **state** in the
-          details area. That already answers suspects 1 and 3.
-      - title: Open the access information
-        where: ["<information page>", Actions, "<access information action>"]
+          Open the drawing's information page. Check its **context**, **folder** and **state**. That
+          already answers suspects 1 and 3.
+      - title: Open Edit Access Control
+        where: ["<information page>", Actions, Edit Access Control]
         md: |
-          Use the object's access information action (named along the lines of *View Access Rights* or
-          *Access Information*, depending on release). Pick the participant: Lin's user account.
-      - title: Read the effective permissions
-        where: ["<access information>", "<participant>"]
+          From the **Actions** menu choose **Edit Access Control**. It lists participants and their basic
+          permissions on this object. If Lin isn't listed, add her account with **Add participants** so you
+          can examine her row.
+      - title: Open the Access Information page
+        where: [Edit Access Control, "<Lin's row>", View Access Information]
         md: |
-          You'll see what Lin can do (Read, Download and so on) and, in most releases, why: the policy
-          rule, ad hoc rule or security label behind each grant or denial.
-      - title: Cross-check the rules
-        where: ["E-Bike E1", Utilities, Policy Administration, "<object's domain>"]
-        md: Open Policy Administration on the object's domain and its parents to read the exact rule you found, including inherited denies.
+          Click the **View Access Information** icon on Lin's row. The **Access Information** page lists
+          every rule that produces her permissions on this object, with the rule details and where each
+          comes from: policy rule, life cycle ad hoc rule, ad hoc rule from Edit Access Control, or a
+          security label denial. You can't change rules here; it tells you where to go.
+      - title: Cross-check in Policy Administration
+        where: [Utilities, Policy Administration, "<object's domain>"]
+        md: |
+          Open Policy Administration for the context and find the rule the Access Information page
+          named, including rules inherited from parent domains. You can also display the access control
+          list for the drawing's type and state there.
       - title: Check team membership
-        where: ["E-Bike E1", Team]
+        where: [Browse, Products, "E-Bike E1", Team]
         md: Confirm the participant's group holds the expected role in the context team.
     result: |
       You can name the single cause, such as *"drawing sits in Electrics, not Battery"*, and show the evidence.
-
-  - type: callout
-    variant: version-note
-    versions: ["Varies by release"]
-    md: |
-      The name and location of the access information tool have changed across releases. Some put it on
-      the object's Actions menu, others in Policy Administration or Participant Administration, and some
-      need extra admin rights. If you can't find it, check your release's help for "access rights" or
-      "effective permissions". The diagnosis order above doesn't change.
 
   - type: scenario
     variant: troubleshooting
@@ -189,7 +193,7 @@ blocks:
       - id: t1
         md: Lin can't find the EB-10021 battery drawing. What do you check first?
         choices:
-          - label: "Search for it as admin: number, version, state, folder"
+          - label: "Look at the object itself: number, version, state, folder"
             next: t2
             good: true
             feedback: Cheapest check first. Confirm the object is what everyone thinks it is.
@@ -198,14 +202,14 @@ blocks:
             feedback: That's over-granting before you know the cause.
           - label: Ask Rosa to restart the server
             next: bad2
-            feedback: Access rules apply immediately; restarts don't fix rule logic.
+            feedback: Changes to policy rules take effect immediately; a restart doesn't change rule logic.
       - id: bad1
         md: |
-          Lin now sees the drawing, and also every In Work part, CAD model and change in E1 and Scooter S2.
+          Lin now sees the drawing, and also every In Work part, CAD model and change that engineers see.
           Kai finds out a week later. You remove Lin from the group and start again.
         outcome: fail
       - id: bad2
-        md: The restart takes 20 minutes, disrupts everyone, and Lin still can't see the drawing. Back to square one.
+        md: The restart disrupts everyone, and Lin still can't see the drawing. Back to square one.
         choices:
           - { label: Start the investigation properly, next: t2 }
       - id: t2
@@ -216,12 +220,12 @@ blocks:
           - label: It uses the E1 Default domain, so the Battery rules don't apply
             next: t3
             good: true
-            feedback: Exactly. A folder decides the domain.
+            feedback: Exactly. The folder decides the domain.
           - label: Nothing, the folder doesn't affect access
             next: t2-hint
             feedback: The folder decides the domain, and the domain decides which rules apply.
       - id: t2-hint
-        md: An object uses its folder's domain. Electrics uses E1 Default, which has no Supplier grant. Look again.
+        md: Electrics uses E1 Default, which has no Supplier grant for CAD. Battery is a separate folder domain. Look again.
         choices:
           - { label: Got it, next: t3 }
       - id: t3
@@ -247,8 +251,10 @@ blocks:
         outcome: partial
       - id: t4
         md: |
-          After the move, the access tool shows Lin has **Read** and **Download**. Lin confirms. One
-          last thing?
+          Priya tries the move and gets refused. Moving between folders in **different domains** needs
+          **Change Domain** on the object where it is now and **Create By Move** in the new domain (a move
+          within one domain only needs Modify). Jordan does the move. The Access Information page now
+          shows Lin has **Read** and **Download**. One last thing?
         choices:
           - label: Tell Priya, and check Electrics for other battery drawings
             next: win
@@ -262,9 +268,8 @@ blocks:
         outcome: partial
       - id: win
         md: |
-          Priya now saves battery CAD in Battery. You find two more misfiled drawings and move them. You
-          also ask whether a CAD workspace or initialization setting can default battery CAD to the right
-          folder. Least privilege kept, root cause fixed.
+          Priya now saves battery CAD in Battery. You find two more misfiled drawings and move them, and
+          you note the fix in the access log. Least privilege kept, root cause fixed.
         outcome: success
 
   - type: scenario
@@ -277,39 +282,38 @@ blocks:
         choices:
           - { label: Drawing is still Under Review, next: w-state }
           - { label: Org-level Deny Read for the Supplier role, next: w-deny }
-          - { label: "Label 'Voltra Proprietary' expired agreement", next: w-label }
-          - { label: Lin's account isn't in SUP-Voltra, next: w-group }
+          - { label: "Label 'Voltra Proprietary', agreement expired", next: w-label }
+          - { label: "Lin's account isn't in SUP-Voltra", next: w-group }
       - id: w-state
         md: |
           **Fix: nothing to fix.** The rule grants Released only, by design. Tell Lin it'll appear when
-          Maya's review completes. If Voltra genuinely must review it now, add a time-boxed ad hoc Read on
-          that one version, and remove it afterwards.
+          Maya's review completes. If Voltra genuinely must review it now, add an ad hoc Read on that one
+          object, and remove it afterwards.
         outcome: success
       - id: w-deny
         md: |
           **Fix: find out why the deny exists before touching it.** If it's an intentional red line, the
           answer is "no". If it's too broad, narrow its state or type at the organization level. Don't
-          add an ad hoc grant to work around a deny you don't understand.
+          paper over a deny you don't understand.
         outcome: success
       - id: w-label
         md: |
-          **Fix: renew the agreement**, through its approval process, if the business still wants Voltra
-          cleared. Don't remove the label from the object; that would expose it to everyone with a policy
-          grant.
+          **Fix: renew the coverage** through a new or updated agreement, if the business still wants
+          Voltra cleared. Don't remove the label from the object; that would expose it to everyone with a
+          policy grant.
         outcome: success
       - id: w-group
         md: |
-          **Fix: add Lin's account to `SUP-Voltra`** (in Participant Administration, or the supplier's
-          own admin if delegated). Never add Lin directly to rules; the group exists so people can come
-          and go.
+          **Fix: add Lin's account to `SUP-Voltra`** in Participant Administration. Don't add Lin to rules
+          by name; the group exists so people can come and go.
         outcome: success
 
   - type: callout
     variant: pitfall
     md: |
-      **"It works for me."** An admin account bypasses access control, so it proves nothing. Reproduce
-      with a test user who has the same groups and roles as the person reporting the problem, or use the
-      access information tool for their actual account.
+      **"It works for me."** An admin account has far more rights than Lin, so opening the drawing as
+      admin proves only that the drawing exists. Examine Lin's own row on the Access Information page,
+      or test with a user who has exactly her groups and roles.
 
   - type: callout
     variant: pro-tip
@@ -321,27 +325,33 @@ blocks:
   - type: quiz
     questions:
       - kind: single
-        prompt: Lin searches for EB-10021 and gets no result. As admin you find it immediately. What does this tell you?
+        prompt: Lin searches for EB-10021 and gets no result. As admin you find it immediately. What does this suggest?
         options: [Search is broken, Lin most likely lacks Read access to it, The drawing was deleted, Lin typed the number wrong]
         answer: 1
-        explanation: Search only returns objects the user can read. Admins bypass access, so you see it. Confirm with the access information tool.
-      - kind: order
-        prompt: Put Jordan's checks in a sensible order, cheapest first.
-        items: [Confirm object version and state, Confirm user's groups and team role, Check the object's folder and domain, Look for matching grants and inherited denies, Check security labels and agreements]
-        explanation: Start with facts you can check in seconds (the object, the person, the folder) before reading rules and label configuration.
+        explanation: Search results are filtered by access control, so unreadable objects don't appear. Confirm on the Access Information page.
+      - kind: single
+        prompt: How do you open the Access Information page for Lin on one drawing?
+        options:
+          - "Drawing's Actions → Edit Access Control → View Access Information icon on Lin's row"
+          - Policy Administration → Access Information tab
+          - Participant Administration → Lin → Access
+          - Preference Management → Security
+        answer: 0
+        explanation: The Access Information page is opened per participant from the object's Edit Access Control page. It's read-only; you change rules elsewhere.
       - kind: multi
         prompt: Which fixes avoid over-granting when a Released battery drawing is misfiled in Electrics? (Choose all that apply.)
-        options: [Move it to the Battery folder, Copy the Supplier rule into E1 Default, Add Lin to ACME-Engineering, Fix the folder default so new battery CAD lands in Battery]
+        options: [Move it to the Battery folder, Copy the Supplier rule into E1 Default, Add Lin to ACME-Engineering, Find and move other misfiled battery drawings]
         answers: [0, 3]
-        explanation: Moving the object and fixing the cause keep Voltra inside its zone. The other two open whole products to a supplier.
-      - kind: truefalse
-        prompt: Removing a security label from an object is a good quick fix when an agreement has expired.
-        answer: false
-        explanation: Removing the label exposes the object to everyone with a policy grant. Renew the agreement if the access is still wanted.
+        explanation: Moving objects into the zone built for them keeps Voltra inside its fence. The other two open large areas to a supplier.
+      - kind: single
+        prompt: The move from Electrics to Battery changes the drawing's domain. Which permissions does it need?
+        options: [Modify only, Change Domain on the object and Create By Move in the new domain, Change Context only, Administrative]
+        answer: 1
+        explanation: A move inside one domain needs Modify. When the domain changes, you need Change Domain (before) and Create By Move (after); Change Context is added when the context changes too.
 
   - type: summary
     points:
       - Unreadable objects are invisible in search, so "can't find" often means "can't read".
       - Check object, person, folder, grants, denies, labels and ad hoc changes, cheapest first.
-      - Use the access information tool to see effective permissions and their sources.
+      - The Access Information page, opened from Edit Access Control, shows every rule behind a participant's permissions and its source.
       - Fix the single real cause, then the pattern behind it; never fix with Full Control or a big group.
