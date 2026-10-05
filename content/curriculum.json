@@ -1,0 +1,6201 @@
+{
+  "schemaVersion": "1.0.0",
+  "product": "Windchill Mastery",
+  "targetRelease": "Windchill 13.x (latest; to confirm)",
+  "generated": "2026-10-05",
+  "stats": {
+    "modules": 7,
+    "sections": 43,
+    "lessons": 155,
+    "capstones": 7,
+    "paths": 7,
+    "totalMinutes": 1715
+  },
+  "levels": [
+    {
+      "id": "beginner",
+      "order": 1,
+      "name": "Beginner",
+      "description": "New to PLM or Windchill. Explain PLM, navigate Windchill, find and read product data."
+    },
+    {
+      "id": "intermediate",
+      "order": 2,
+      "name": "Intermediate",
+      "description": "Daily users. Create and revise data, build BOMs, run change and promotion processes."
+    },
+    {
+      "id": "advanced",
+      "order": 3,
+      "name": "Advanced",
+      "description": "Administrators and migration specialists. Configure, operate and migrate Windchill."
+    },
+    {
+      "id": "expert",
+      "order": 4,
+      "name": "Expert",
+      "description": "Architects and developers. Design enterprise solutions, integrations and upgrade-safe customizations."
+    }
+  ],
+  "roles": [
+    {
+      "id": "end-user",
+      "name": "End User / Engineer",
+      "description": "Designers and engineers who create and use product data every day."
+    },
+    {
+      "id": "change-manager",
+      "name": "Change Manager",
+      "description": "Owns change and configuration processes."
+    },
+    {
+      "id": "business-admin",
+      "name": "Business Administrator",
+      "description": "Configures contexts, types, access, lifecycles and workflows."
+    },
+    {
+      "id": "system-admin",
+      "name": "System Administrator",
+      "description": "Installs, runs, tunes and secures Windchill servers."
+    },
+    {
+      "id": "migration-specialist",
+      "name": "Migration Specialist",
+      "description": "Moves data into Windchill and through upgrades."
+    },
+    {
+      "id": "developer",
+      "name": "Developer (Customization)",
+      "description": "Extends Windchill with code and integrations."
+    },
+    {
+      "id": "architect",
+      "name": "Solution Architect",
+      "description": "Designs end-to-end PLM solutions across systems."
+    }
+  ],
+  "modalities": [
+    {
+      "id": "ill",
+      "name": "Illustration / diagram",
+      "description": "Static or click-to-expand diagram."
+    },
+    {
+      "id": "ani",
+      "name": "Animation",
+      "description": "Short 2D motion-graphics explainer, under 2 minutes."
+    },
+    {
+      "id": "sim",
+      "name": "Interactive simulation",
+      "description": "Sandboxed simulation of a Windchill screen or process."
+    },
+    {
+      "id": "walk",
+      "name": "Guided walkthrough",
+      "description": "Step-by-step annotated UI mockups."
+    },
+    {
+      "id": "case",
+      "name": "Real-world case",
+      "description": "Industry example or case study."
+    },
+    {
+      "id": "cmp",
+      "name": "Comparison table",
+      "description": "Side-by-side comparison of concepts or options."
+    },
+    {
+      "id": "scen",
+      "name": "Scenario challenge",
+      "description": "Learner makes decisions in a realistic situation."
+    },
+    {
+      "id": "whatif",
+      "name": "What-if / troubleshooting",
+      "description": "Explore what goes wrong and how to fix it."
+    },
+    {
+      "id": "quiz",
+      "name": "Quiz",
+      "description": "Questions with explanations for every answer."
+    },
+    {
+      "id": "flash",
+      "name": "Flashcards",
+      "description": "Spaced-repetition cards for terms."
+    },
+    {
+      "id": "cheat",
+      "name": "Cheat sheet",
+      "description": "Downloadable PDF summary."
+    }
+  ],
+  "modules": [
+    {
+      "id": "m01",
+      "order": 1,
+      "slug": "fundamentals",
+      "title": "Fundamentals of Windchill & PLM",
+      "summary": "What PLM is, how Windchill is built, how to get around it, and the objects you will meet every day.",
+      "levels": [
+        "beginner"
+      ],
+      "prerequisites": [],
+      "sections": [
+        {
+          "id": "m01-s01",
+          "title": "PLM in the real world",
+          "summary": "Why companies need PLM and where Windchill fits.",
+          "roles": [
+            "end-user",
+            "change-manager",
+            "business-admin",
+            "system-admin",
+            "migration-specialist",
+            "developer",
+            "architect"
+          ],
+          "prerequisites": [],
+          "lessons": [
+            {
+              "id": "m01-s01-l01",
+              "slug": "what-is-plm",
+              "title": "What is PLM? From napkin sketch to retired product",
+              "level": "beginner",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "system-admin",
+                "migration-specialist",
+                "developer",
+                "architect"
+              ],
+              "durationMinutes": 8,
+              "prerequisites": [],
+              "objectives": [
+                "Describe the stages of a product's lifecycle",
+                "Name three problems PLM solves in real companies"
+              ],
+              "modalities": [
+                "ill",
+                "ani",
+                "case",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m01-s01-l02",
+              "slug": "pdm-plm-erp-mes",
+              "title": "PDM, PLM, ERP and MES: who owns what",
+              "level": "beginner",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "system-admin",
+                "migration-specialist",
+                "developer",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m01-s01-l01"
+              ],
+              "objectives": [
+                "Tell PDM and PLM apart",
+                "Explain which system owns design, cost and shop-floor data"
+              ],
+              "modalities": [
+                "cmp",
+                "ill",
+                "case",
+                "flash"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m01-s01-l03",
+              "slug": "why-windchill",
+              "title": "Why Windchill? Its place in the PTC ecosystem",
+              "level": "beginner",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "system-admin",
+                "migration-specialist",
+                "developer",
+                "architect"
+              ],
+              "durationMinutes": 8,
+              "prerequisites": [
+                "m01-s01-l02"
+              ],
+              "objectives": [
+                "Explain what Windchill is used for",
+                "Place Windchill next to Creo, Creo View and ThingWorx"
+              ],
+              "modalities": [
+                "ill",
+                "case",
+                "cmp",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m01-s01-l04",
+              "slug": "day-in-the-life",
+              "title": "A day in the life of a product team using Windchill",
+              "level": "beginner",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "system-admin",
+                "migration-specialist",
+                "developer",
+                "architect"
+              ],
+              "durationMinutes": 8,
+              "prerequisites": [
+                "m01-s01-l03"
+              ],
+              "objectives": [
+                "Follow one design change from idea to release",
+                "Recognise who touches product data and when"
+              ],
+              "modalities": [
+                "ani",
+                "case",
+                "scen"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m01-s01-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "ani",
+            "case",
+            "cmp",
+            "flash",
+            "ill",
+            "quiz",
+            "scen"
+          ]
+        },
+        {
+          "id": "m01-s02",
+          "title": "Windchill architecture overview",
+          "summary": "How Windchill is built, explained with no prior IT knowledge.",
+          "roles": [
+            "end-user",
+            "change-manager",
+            "business-admin",
+            "system-admin",
+            "migration-specialist",
+            "developer",
+            "architect"
+          ],
+          "prerequisites": [
+            "m01-s01"
+          ],
+          "lessons": [
+            {
+              "id": "m01-s02-l01",
+              "slug": "big-picture",
+              "title": "The big picture: browser, server, database, vault",
+              "level": "beginner",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "system-admin",
+                "migration-specialist",
+                "developer",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m01-s01"
+              ],
+              "objectives": [
+                "Name the four main tiers of a Windchill system",
+                "Trace a request from the browser to the database and back"
+              ],
+              "modalities": [
+                "ill",
+                "ani",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m01-s02-l02",
+              "slug": "server-parts",
+              "title": "Web server, servlet engine and method servers in plain words",
+              "level": "beginner",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "system-admin",
+                "migration-specialist",
+                "developer",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m01-s02-l01"
+              ],
+              "objectives": [
+                "Explain the role of the method server",
+                "Describe what happens when you click Search"
+              ],
+              "modalities": [
+                "ill",
+                "ani",
+                "flash"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m01-s02-l03",
+              "slug": "metadata-vs-content",
+              "title": "Where your files live: metadata vs content",
+              "level": "beginner",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "system-admin",
+                "migration-specialist",
+                "developer",
+                "architect"
+              ],
+              "durationMinutes": 8,
+              "prerequisites": [
+                "m01-s02-l02"
+              ],
+              "objectives": [
+                "Distinguish metadata stored in the database from files stored in vaults",
+                "Predict what is lost if only one of them is backed up"
+              ],
+              "modalities": [
+                "ill",
+                "whatif",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m01-s02-l04",
+              "slug": "windchill-solutions",
+              "title": "Windchill solutions: PDMLink, ProjectLink, MPMLink, Quality and more",
+              "level": "beginner",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "system-admin",
+                "migration-specialist",
+                "developer",
+                "architect"
+              ],
+              "durationMinutes": 8,
+              "prerequisites": [
+                "m01-s02-l03"
+              ],
+              "objectives": [
+                "Match each Windchill solution to the problem it solves",
+                "Identify which solutions a given company needs"
+              ],
+              "modalities": [
+                "cmp",
+                "ill",
+                "flash"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m01-s02-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "ani",
+            "cmp",
+            "flash",
+            "ill",
+            "quiz",
+            "whatif"
+          ]
+        },
+        {
+          "id": "m01-s03",
+          "title": "Getting around Windchill",
+          "summary": "Hands-on navigation, search and information pages.",
+          "roles": [
+            "end-user",
+            "change-manager",
+            "business-admin",
+            "system-admin",
+            "migration-specialist",
+            "developer",
+            "architect"
+          ],
+          "prerequisites": [
+            "m01-s02"
+          ],
+          "lessons": [
+            {
+              "id": "m01-s03-l01",
+              "slug": "home-tour",
+              "title": "Logging in and touring the home page",
+              "level": "beginner",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "system-admin",
+                "migration-specialist",
+                "developer",
+                "architect"
+              ],
+              "durationMinutes": 6,
+              "prerequisites": [
+                "m01-s02"
+              ],
+              "objectives": [
+                "Log in and find your home page, tasks and recent items",
+                "Customise the home page layout"
+              ],
+              "modalities": [
+                "walk",
+                "sim",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m01-s03-l02",
+              "slug": "navigator-contexts",
+              "title": "The Navigator, contexts and folders",
+              "level": "beginner",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "system-admin",
+                "migration-specialist",
+                "developer",
+                "architect"
+              ],
+              "durationMinutes": 8,
+              "prerequisites": [
+                "m01-s03-l01"
+              ],
+              "objectives": [
+                "Browse products, libraries and projects",
+                "Explain why data lives inside a context"
+              ],
+              "modalities": [
+                "walk",
+                "sim",
+                "ill"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m01-s03-l03",
+              "slug": "search",
+              "title": "Searching: quick search, advanced search and saved searches",
+              "level": "beginner",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "system-admin",
+                "migration-specialist",
+                "developer",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m01-s03-l02"
+              ],
+              "objectives": [
+                "Find an object by number, name or attribute",
+                "Save and share a search",
+                "Fix a search that returns nothing"
+              ],
+              "modalities": [
+                "walk",
+                "sim",
+                "whatif",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m01-s03-l04",
+              "slug": "information-pages",
+              "title": "Information pages: reading an object's story",
+              "level": "beginner",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "system-admin",
+                "migration-specialist",
+                "developer",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m01-s03-l03"
+              ],
+              "objectives": [
+                "Read attributes, history, related objects and where-used on an information page",
+                "Find who changed an object and when"
+              ],
+              "modalities": [
+                "walk",
+                "ill",
+                "sim"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m01-s03-l05",
+              "slug": "tables-views",
+              "title": "Tables, views and filters: make the data yours",
+              "level": "beginner",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "system-admin",
+                "migration-specialist",
+                "developer",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m01-s03-l04"
+              ],
+              "objectives": [
+                "Create a custom table view",
+                "Filter and sort large tables quickly"
+              ],
+              "modalities": [
+                "walk",
+                "sim",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m01-s03-l06",
+              "slug": "favorites-subscriptions",
+              "title": "Favorites, subscriptions and notifications",
+              "level": "beginner",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "system-admin",
+                "migration-specialist",
+                "developer",
+                "architect"
+              ],
+              "durationMinutes": 6,
+              "prerequisites": [
+                "m01-s03-l05"
+              ],
+              "objectives": [
+                "Bookmark objects you use often",
+                "Subscribe to changes on an object"
+              ],
+              "modalities": [
+                "walk",
+                "sim",
+                "flash"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m01-s03-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "flash",
+            "ill",
+            "quiz",
+            "sim",
+            "walk",
+            "whatif"
+          ]
+        },
+        {
+          "id": "m01-s04",
+          "title": "Common Windchill objects",
+          "summary": "Parts, documents, CAD documents, change objects and how they connect.",
+          "roles": [
+            "end-user",
+            "change-manager",
+            "business-admin",
+            "system-admin",
+            "migration-specialist",
+            "developer",
+            "architect"
+          ],
+          "prerequisites": [
+            "m01-s03"
+          ],
+          "lessons": [
+            {
+              "id": "m01-s04-l01",
+              "slug": "parts",
+              "title": "Parts: the backbone of your product",
+              "level": "beginner",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "system-admin",
+                "migration-specialist",
+                "developer",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m01-s03"
+              ],
+              "objectives": [
+                "Explain what a WTPart represents",
+                "Distinguish a part from the CAD model that describes it"
+              ],
+              "modalities": [
+                "ill",
+                "case",
+                "flash",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m01-s04-l02",
+              "slug": "documents-cad",
+              "title": "Documents and CAD documents",
+              "level": "beginner",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "system-admin",
+                "migration-specialist",
+                "developer",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m01-s04-l01"
+              ],
+              "objectives": [
+                "Compare documents and CAD documents",
+                "Give examples of each from a real product"
+              ],
+              "modalities": [
+                "cmp",
+                "ill",
+                "walk"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m01-s04-l03",
+              "slug": "change-objects-glance",
+              "title": "Change objects at a glance",
+              "level": "beginner",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "system-admin",
+                "migration-specialist",
+                "developer",
+                "architect"
+              ],
+              "durationMinutes": 8,
+              "prerequisites": [
+                "m01-s04-l02"
+              ],
+              "objectives": [
+                "Name the main change objects",
+                "Explain in one sentence why each exists"
+              ],
+              "modalities": [
+                "ill",
+                "ani",
+                "flash"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m01-s04-l04",
+              "slug": "relationships",
+              "title": "How objects relate: uses, described by, references",
+              "level": "beginner",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "system-admin",
+                "migration-specialist",
+                "developer",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m01-s04-l03"
+              ],
+              "objectives": [
+                "Identify the main relationships between parts and documents",
+                "Navigate relationships from an information page"
+              ],
+              "modalities": [
+                "ill",
+                "sim",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m01-s04-l05",
+              "slug": "object-identity",
+              "title": "Object identity: number, name, version and state",
+              "level": "beginner",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "system-admin",
+                "migration-specialist",
+                "developer",
+                "architect"
+              ],
+              "durationMinutes": 8,
+              "prerequisites": [
+                "m01-s04-l04"
+              ],
+              "objectives": [
+                "Read an object's identity at a glance",
+                "Explain why numbers are unique and names are not"
+              ],
+              "modalities": [
+                "ill",
+                "flash",
+                "quiz"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m01-s04-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "ani",
+            "case",
+            "cmp",
+            "flash",
+            "ill",
+            "quiz",
+            "sim",
+            "walk"
+          ]
+        }
+      ],
+      "capstone": {
+        "id": "m01-cap",
+        "title": "First day at Acme Mobility",
+        "type": "scenario",
+        "durationMinutes": 15,
+        "brief": "You have just joined Acme Mobility's engineering team. Your lead asks you to find the current scooter frame assembly and brief the team on it.",
+        "tasks": [
+          "Find the frame assembly with a saved search",
+          "Read its version, state and owner from the information page",
+          "List its top-level parts and attached drawings",
+          "Explain where its CAD files actually live"
+        ],
+        "roles": [
+          "end-user",
+          "change-manager",
+          "business-admin",
+          "system-admin",
+          "migration-specialist",
+          "developer",
+          "architect"
+        ],
+        "prerequisites": [
+          "m01-s01",
+          "m01-s02",
+          "m01-s03",
+          "m01-s04"
+        ],
+        "status": "outlined"
+      },
+      "badge": {
+        "id": "badge-fundamentals",
+        "name": "Fundamentals of Windchill & PLM Complete",
+        "rule": "Pass every section checkpoint and the capstone"
+      }
+    },
+    {
+      "id": "m02",
+      "order": 2,
+      "slug": "pdm-core",
+      "title": "Product Data Management & Core Features",
+      "summary": "Create, edit, version and release documents, CAD data and product structures, and view them without CAD.",
+      "levels": [
+        "beginner",
+        "intermediate"
+      ],
+      "prerequisites": [
+        "m01"
+      ],
+      "sections": [
+        {
+          "id": "m02-s01",
+          "title": "Document and CAD data management",
+          "summary": "Everyday handling of documents and CAD data.",
+          "roles": [
+            "end-user",
+            "change-manager",
+            "business-admin",
+            "migration-specialist",
+            "architect"
+          ],
+          "prerequisites": [
+            "m01"
+          ],
+          "lessons": [
+            {
+              "id": "m02-s01-l01",
+              "slug": "create-document",
+              "title": "Creating and checking in a document",
+              "level": "beginner",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "migration-specialist",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m01"
+              ],
+              "objectives": [
+                "Create a document with primary content and attributes",
+                "Choose the right context and folder"
+              ],
+              "modalities": [
+                "walk",
+                "sim",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m02-s01-l02",
+              "slug": "edit-cycle",
+              "title": "Check out, edit, check in: the edit cycle",
+              "level": "beginner",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "migration-specialist",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m02-s01-l01"
+              ],
+              "objectives": [
+                "Run a full check-out and check-in cycle",
+                "Undo a check-out safely"
+              ],
+              "modalities": [
+                "ani",
+                "sim",
+                "whatif"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m02-s01-l03",
+              "slug": "content-attachments",
+              "title": "Primary content, attachments and representations",
+              "level": "beginner",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "migration-specialist",
+                "architect"
+              ],
+              "durationMinutes": 8,
+              "prerequisites": [
+                "m02-s01-l02"
+              ],
+              "objectives": [
+                "Tell primary content from attachments",
+                "Explain what a representation is"
+              ],
+              "modalities": [
+                "ill",
+                "walk",
+                "flash"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m02-s01-l04",
+              "slug": "cad-workgroup-managers",
+              "title": "CAD documents and Workgroup Managers",
+              "level": "intermediate",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "migration-specialist",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m02-s01-l03"
+              ],
+              "objectives": [
+                "Explain how CAD tools connect to Windchill",
+                "Compare Creo's embedded integration with Workgroup Managers for other CAD tools"
+              ],
+              "modalities": [
+                "ill",
+                "cmp",
+                "walk"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m02-s01-l05",
+              "slug": "cad-workspaces",
+              "title": "Workspaces: your local cache and the server",
+              "level": "intermediate",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "migration-specialist",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m02-s01-l04"
+              ],
+              "objectives": [
+                "Explain the workspace, local cache and commonspace",
+                "Recover from a corrupted local cache"
+              ],
+              "modalities": [
+                "ani",
+                "ill",
+                "whatif"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m02-s01-l06",
+              "slug": "conflicts",
+              "title": "Conflicts and collisions: resolving them calmly",
+              "level": "intermediate",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "migration-specialist",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m02-s01-l05"
+              ],
+              "objectives": [
+                "Diagnose common check-in conflicts",
+                "Choose the right resolution for each"
+              ],
+              "modalities": [
+                "whatif",
+                "scen",
+                "quiz"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m02-s01-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "ani",
+            "cmp",
+            "flash",
+            "ill",
+            "quiz",
+            "scen",
+            "sim",
+            "walk",
+            "whatif"
+          ]
+        },
+        {
+          "id": "m02-s02",
+          "title": "Versioning, iteration and lifecycle",
+          "summary": "How Windchill keeps history and controls maturity.",
+          "roles": [
+            "end-user",
+            "change-manager",
+            "business-admin",
+            "migration-specialist",
+            "architect"
+          ],
+          "prerequisites": [
+            "m02-s01"
+          ],
+          "lessons": [
+            {
+              "id": "m02-s02-l01",
+              "slug": "revision-iteration",
+              "title": "Revision vs iteration: A.1, A.2, B.1",
+              "level": "beginner",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "migration-specialist",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m02-s01"
+              ],
+              "objectives": [
+                "Read a version identifier",
+                "Explain when a new iteration or revision is created"
+              ],
+              "modalities": [
+                "ani",
+                "ill",
+                "flash",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m02-s02-l02",
+              "slug": "revise-saveas",
+              "title": "Revise, new view version or save as: when to use which",
+              "level": "intermediate",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "migration-specialist",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m02-s02-l01"
+              ],
+              "objectives": [
+                "Pick the right action for a given change",
+                "Avoid the save-as trap that breaks history"
+              ],
+              "modalities": [
+                "cmp",
+                "scen",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m02-s02-l03",
+              "slug": "lifecycle-states",
+              "title": "Lifecycle states: In Work, Under Review, Released",
+              "level": "beginner",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "migration-specialist",
+                "architect"
+              ],
+              "durationMinutes": 8,
+              "prerequisites": [
+                "m02-s02-l02"
+              ],
+              "objectives": [
+                "Explain what each common state means",
+                "Predict what you can and cannot do in each state"
+              ],
+              "modalities": [
+                "ani",
+                "ill",
+                "flash"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m02-s02-l04",
+              "slug": "set-state-vs-promotion",
+              "title": "Set state vs promotion: who moves an object forward",
+              "level": "intermediate",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "migration-specialist",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m02-s02-l03"
+              ],
+              "objectives": [
+                "Explain why most companies restrict set state",
+                "Choose between set state and a promotion request"
+              ],
+              "modalities": [
+                "cmp",
+                "whatif",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m02-s02-l05",
+              "slug": "config-specs",
+              "title": "Configuration specifications: latest, baseline, effectivity",
+              "level": "intermediate",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "migration-specialist",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m02-s02-l04"
+              ],
+              "objectives": [
+                "Explain why the same structure can show different versions",
+                "Switch configuration specs to answer a question"
+              ],
+              "modalities": [
+                "ill",
+                "sim",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m02-s02-l06",
+              "slug": "baselines",
+              "title": "Baselines: freezing a moment in time",
+              "level": "intermediate",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "migration-specialist",
+                "architect"
+              ],
+              "durationMinutes": 8,
+              "prerequisites": [
+                "m02-s02-l05"
+              ],
+              "objectives": [
+                "Create and use a managed baseline",
+                "Explain how baselines support audits"
+              ],
+              "modalities": [
+                "ill",
+                "walk",
+                "case"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m02-s02-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "ani",
+            "case",
+            "cmp",
+            "flash",
+            "ill",
+            "quiz",
+            "scen",
+            "sim",
+            "walk",
+            "whatif"
+          ]
+        },
+        {
+          "id": "m02-s03",
+          "title": "Product structure and the eBOM",
+          "summary": "eBOM concepts and hands-on structure editing.",
+          "roles": [
+            "end-user",
+            "change-manager",
+            "business-admin",
+            "migration-specialist",
+            "architect"
+          ],
+          "prerequisites": [
+            "m02-s02"
+          ],
+          "lessons": [
+            {
+              "id": "m02-s03-l01",
+              "slug": "what-is-bom",
+              "title": "What is a BOM?",
+              "level": "beginner",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "migration-specialist",
+                "architect"
+              ],
+              "durationMinutes": 8,
+              "prerequisites": [
+                "m02-s02"
+              ],
+              "objectives": [
+                "Explain a bill of materials with a real product",
+                "Read a multi-level BOM"
+              ],
+              "modalities": [
+                "ill",
+                "ani",
+                "case"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m02-s03-l02",
+              "slug": "build-structure",
+              "title": "Building a part structure",
+              "level": "intermediate",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "migration-specialist",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m02-s03-l01"
+              ],
+              "objectives": [
+                "Add, replace and remove parts in a structure",
+                "Check in a structure correctly"
+              ],
+              "modalities": [
+                "walk",
+                "sim",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m02-s03-l03",
+              "slug": "usage-details",
+              "title": "Quantities, units, find numbers and reference designators",
+              "level": "intermediate",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "migration-specialist",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m02-s03-l02"
+              ],
+              "objectives": [
+                "Fill in usage attributes correctly",
+                "Explain where reference designators matter"
+              ],
+              "modalities": [
+                "ill",
+                "flash",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m02-s03-l04",
+              "slug": "part-cad-association",
+              "title": "Linking parts and CAD: owner, contributing and image links",
+              "level": "intermediate",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "migration-specialist",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m02-s03-l03"
+              ],
+              "objectives": [
+                "Compare the association types",
+                "Predict how a CAD change flows into the BOM"
+              ],
+              "modalities": [
+                "ill",
+                "cmp",
+                "whatif"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m02-s03-l05",
+              "slug": "structure-compare",
+              "title": "Structure views, compare and reports",
+              "level": "intermediate",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "migration-specialist",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m02-s03-l04"
+              ],
+              "objectives": [
+                "Compare two structures and read the differences",
+                "Export a BOM report"
+              ],
+              "modalities": [
+                "walk",
+                "sim",
+                "scen"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m02-s03-l06",
+              "slug": "alternates-substitutes",
+              "title": "Alternates and substitutes",
+              "level": "intermediate",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "migration-specialist",
+                "architect"
+              ],
+              "durationMinutes": 8,
+              "prerequisites": [
+                "m02-s03-l05"
+              ],
+              "objectives": [
+                "Tell alternates from substitutes",
+                "Choose which one a scenario needs"
+              ],
+              "modalities": [
+                "cmp",
+                "ill",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m02-s03-l07",
+              "slug": "where-used",
+              "title": "Where-used and the cost of reuse",
+              "level": "intermediate",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "migration-specialist",
+                "architect"
+              ],
+              "durationMinutes": 8,
+              "prerequisites": [
+                "m02-s03-l06"
+              ],
+              "objectives": [
+                "Run a where-used query",
+                "Assess the impact of changing a shared part"
+              ],
+              "modalities": [
+                "walk",
+                "sim",
+                "case"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m02-s03-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "ani",
+            "case",
+            "cmp",
+            "flash",
+            "ill",
+            "quiz",
+            "scen",
+            "sim",
+            "walk",
+            "whatif"
+          ]
+        },
+        {
+          "id": "m02-s04",
+          "title": "Visualization",
+          "summary": "Viewing and reviewing designs with Creo View.",
+          "roles": [
+            "end-user",
+            "change-manager",
+            "business-admin",
+            "architect"
+          ],
+          "prerequisites": [
+            "m02-s01"
+          ],
+          "lessons": [
+            {
+              "id": "m02-s04-l01",
+              "slug": "creo-view-intro",
+              "title": "Creo View: seeing designs without CAD",
+              "level": "beginner",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 8,
+              "prerequisites": [
+                "m02-s01"
+              ],
+              "objectives": [
+                "Open a model and drawing in Creo View",
+                "Explain who benefits from viewing without CAD"
+              ],
+              "modalities": [
+                "walk",
+                "ill",
+                "ani"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m02-s04-l02",
+              "slug": "thumbnails-browser-viewing",
+              "title": "Thumbnails, representations and browser viewing",
+              "level": "beginner",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 8,
+              "prerequisites": [
+                "m02-s04-l01"
+              ],
+              "objectives": [
+                "Explain where thumbnails come from",
+                "View a representation in the browser"
+              ],
+              "modalities": [
+                "ill",
+                "walk",
+                "flash"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m02-s04-l03",
+              "slug": "markup",
+              "title": "Markup and annotation for design reviews",
+              "level": "intermediate",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m02-s04-l02"
+              ],
+              "objectives": [
+                "Create and save a markup",
+                "Use markups in a review"
+              ],
+              "modalities": [
+                "walk",
+                "sim",
+                "scen"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m02-s04-l04",
+              "slug": "measure-section",
+              "title": "Measure, section and compare in Creo View",
+              "level": "intermediate",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m02-s04-l03"
+              ],
+              "objectives": [
+                "Take measurements and cross-sections",
+                "Compare two versions visually"
+              ],
+              "modalities": [
+                "walk",
+                "sim",
+                "quiz"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m02-s04-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "ani",
+            "flash",
+            "ill",
+            "quiz",
+            "scen",
+            "sim",
+            "walk"
+          ]
+        }
+      ],
+      "capstone": {
+        "id": "m02-cap",
+        "title": "Release your first assembly",
+        "type": "mini-project",
+        "durationMinutes": 15,
+        "brief": "Acme's new scooter handlebar is ready for release. Build its eBOM, check versions and get it to Released.",
+        "tasks": [
+          "Create the handlebar part structure with correct quantities",
+          "Link each part to its CAD document",
+          "Mark up the drawing for one fix and revise",
+          "Create a baseline of the released structure"
+        ],
+        "roles": [
+          "end-user",
+          "change-manager",
+          "business-admin",
+          "migration-specialist",
+          "architect"
+        ],
+        "prerequisites": [
+          "m02-s01",
+          "m02-s02",
+          "m02-s03",
+          "m02-s04"
+        ],
+        "status": "outlined"
+      },
+      "badge": {
+        "id": "badge-pdm-core",
+        "name": "Product Data Management & Core Features Complete",
+        "rule": "Pass every section checkpoint and the capstone"
+      }
+    },
+    {
+      "id": "m03",
+      "order": 3,
+      "slug": "change-config",
+      "title": "Change & Configuration Management",
+      "summary": "Run controlled change from problem to release, promote data, and apply configuration management principles.",
+      "levels": [
+        "intermediate",
+        "advanced"
+      ],
+      "prerequisites": [
+        "m02-s02",
+        "m02-s03"
+      ],
+      "sections": [
+        {
+          "id": "m03-s01",
+          "title": "Why change management matters",
+          "summary": "The why and the shape of the change process.",
+          "roles": [
+            "end-user",
+            "change-manager",
+            "business-admin",
+            "architect"
+          ],
+          "prerequisites": [
+            "m02-s02",
+            "m02-s03"
+          ],
+          "lessons": [
+            {
+              "id": "m03-s01-l01",
+              "slug": "cost-of-change",
+              "title": "Why uncontrolled change costs millions",
+              "level": "intermediate",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 8,
+              "prerequisites": [
+                "m02-s02",
+                "m02-s03"
+              ],
+              "objectives": [
+                "Describe real consequences of uncontrolled change",
+                "Explain the cost of a late change"
+              ],
+              "modalities": [
+                "case",
+                "ill",
+                "ani"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m03-s01-l02",
+              "slug": "change-process",
+              "title": "The change process: problem report, change request, change notice",
+              "level": "intermediate",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m03-s01-l01"
+              ],
+              "objectives": [
+                "Order the change objects in the standard process",
+                "Explain what each stage decides"
+              ],
+              "modalities": [
+                "ani",
+                "ill",
+                "flash"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m03-s01-l03",
+              "slug": "fast-full-track",
+              "title": "Fast track vs full track change",
+              "level": "intermediate",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m03-s01-l02"
+              ],
+              "objectives": [
+                "Compare fast-track and full-track change",
+                "Choose the right track for a scenario"
+              ],
+              "modalities": [
+                "cmp",
+                "scen",
+                "quiz"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m03-s01-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "ani",
+            "case",
+            "cmp",
+            "flash",
+            "ill",
+            "quiz",
+            "scen"
+          ]
+        },
+        {
+          "id": "m03-s02",
+          "title": "Change objects in depth",
+          "summary": "Problem reports, change requests, change notices and variances.",
+          "roles": [
+            "end-user",
+            "change-manager",
+            "business-admin",
+            "architect"
+          ],
+          "prerequisites": [
+            "m03-s01"
+          ],
+          "lessons": [
+            {
+              "id": "m03-s02-l01",
+              "slug": "problem-reports",
+              "title": "Problem reports: capturing the issue",
+              "level": "intermediate",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m03-s01"
+              ],
+              "objectives": [
+                "Write a clear problem report",
+                "Attach evidence and affected objects"
+              ],
+              "modalities": [
+                "walk",
+                "sim",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m03-s02-l02",
+              "slug": "change-requests",
+              "title": "Change requests: analysis and the CCB decision",
+              "level": "intermediate",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m03-s02-l01"
+              ],
+              "objectives": [
+                "Analyse a change request's impact",
+                "Explain the change control board's role"
+              ],
+              "modalities": [
+                "walk",
+                "ill",
+                "scen"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m03-s02-l03",
+              "slug": "change-notices",
+              "title": "Change notices and change tasks: making it happen",
+              "level": "intermediate",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m03-s02-l02"
+              ],
+              "objectives": [
+                "Plan a change notice with tasks",
+                "Complete a change task"
+              ],
+              "modalities": [
+                "walk",
+                "sim",
+                "ani"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m03-s02-l04",
+              "slug": "affected-resulting",
+              "title": "Affected and resulting objects",
+              "level": "intermediate",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m03-s02-l03"
+              ],
+              "objectives": [
+                "Tell affected from resulting objects",
+                "Fix a change notice with missing resulting objects"
+              ],
+              "modalities": [
+                "ill",
+                "whatif",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m03-s02-l05",
+              "slug": "redlines-impact",
+              "title": "Redlines and change impact analysis",
+              "level": "advanced",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m03-s02-l04"
+              ],
+              "objectives": [
+                "Use redlining to propose BOM changes",
+                "Read a change impact report"
+              ],
+              "modalities": [
+                "walk",
+                "sim",
+                "whatif"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m03-s02-l06",
+              "slug": "variances",
+              "title": "Variances: approved one-time deviations",
+              "level": "intermediate",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 8,
+              "prerequisites": [
+                "m03-s02-l05"
+              ],
+              "objectives": [
+                "Explain when a variance is right instead of a change",
+                "Create a variance"
+              ],
+              "modalities": [
+                "cmp",
+                "case",
+                "quiz"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m03-s02-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "ani",
+            "case",
+            "cmp",
+            "ill",
+            "quiz",
+            "scen",
+            "sim",
+            "walk",
+            "whatif"
+          ]
+        },
+        {
+          "id": "m03-s03",
+          "title": "Promotion requests",
+          "summary": "Maturing data through review and approval.",
+          "roles": [
+            "end-user",
+            "change-manager",
+            "business-admin"
+          ],
+          "prerequisites": [
+            "m02-s02"
+          ],
+          "lessons": [
+            {
+              "id": "m03-s03-l01",
+              "slug": "promotion-basics",
+              "title": "Promotion requests: moving objects through states",
+              "level": "intermediate",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m02-s02"
+              ],
+              "objectives": [
+                "Create a promotion request",
+                "Explain what reviewers see"
+              ],
+              "modalities": [
+                "walk",
+                "ani",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m03-s03-l02",
+              "slug": "promotion-vs-change",
+              "title": "Promotion or change notice? Choosing the right tool",
+              "level": "intermediate",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin"
+              ],
+              "durationMinutes": 8,
+              "prerequisites": [
+                "m03-s03-l01"
+              ],
+              "objectives": [
+                "Choose between promotion and change",
+                "Explain the risks of the wrong choice"
+              ],
+              "modalities": [
+                "cmp",
+                "scen",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m03-s03-l03",
+              "slug": "review-tasks",
+              "title": "Reviewing and approving: your tasks",
+              "level": "intermediate",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin"
+              ],
+              "durationMinutes": 8,
+              "prerequisites": [
+                "m03-s03-l02"
+              ],
+              "objectives": [
+                "Complete review and approval tasks",
+                "Reject with a useful comment"
+              ],
+              "modalities": [
+                "walk",
+                "sim",
+                "flash"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m03-s03-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "ani",
+            "cmp",
+            "flash",
+            "quiz",
+            "scen",
+            "sim",
+            "walk"
+          ]
+        },
+        {
+          "id": "m03-s04",
+          "title": "Lifecycle and workflow fundamentals",
+          "summary": "How lifecycles and workflows drive processes.",
+          "roles": [
+            "end-user",
+            "change-manager",
+            "business-admin",
+            "architect"
+          ],
+          "prerequisites": [
+            "m02-s02"
+          ],
+          "lessons": [
+            {
+              "id": "m03-s04-l01",
+              "slug": "lifecycle-vs-workflow",
+              "title": "Lifecycles and workflows: the two engines",
+              "level": "intermediate",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m02-s02"
+              ],
+              "objectives": [
+                "Explain how lifecycles and workflows work together",
+                "Spot which one controls a given behaviour"
+              ],
+              "modalities": [
+                "cmp",
+                "ill",
+                "ani"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m03-s04-l02",
+              "slug": "work-items",
+              "title": "Tasks and work items in your inbox",
+              "level": "intermediate",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 8,
+              "prerequisites": [
+                "m03-s04-l01"
+              ],
+              "objectives": [
+                "Find, accept and complete tasks",
+                "Reassign a task"
+              ],
+              "modalities": [
+                "walk",
+                "sim",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m03-s04-l03",
+              "slug": "routing-delegation",
+              "title": "Voting, routing and delegation",
+              "level": "intermediate",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m03-s04-l02"
+              ],
+              "objectives": [
+                "Explain how votes route a workflow",
+                "Delegate tasks while away"
+              ],
+              "modalities": [
+                "walk",
+                "whatif",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m03-s04-l04",
+              "slug": "stuck-workflows",
+              "title": "What to do when a workflow gets stuck",
+              "level": "advanced",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m03-s04-l03"
+              ],
+              "objectives": [
+                "Diagnose common reasons a workflow stalls",
+                "Know when to call an administrator"
+              ],
+              "modalities": [
+                "whatif",
+                "scen",
+                "quiz"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m03-s04-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "ani",
+            "cmp",
+            "ill",
+            "quiz",
+            "scen",
+            "sim",
+            "walk",
+            "whatif"
+          ]
+        },
+        {
+          "id": "m03-s05",
+          "title": "Configuration management best practices",
+          "summary": "Principles and practices that keep configurations trustworthy.",
+          "roles": [
+            "change-manager",
+            "business-admin",
+            "architect"
+          ],
+          "prerequisites": [
+            "m03-s02"
+          ],
+          "lessons": [
+            {
+              "id": "m03-s05-l01",
+              "slug": "cm-principles",
+              "title": "CM principles: identify, control, account, audit",
+              "level": "advanced",
+              "roles": [
+                "change-manager",
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m03-s02"
+              ],
+              "objectives": [
+                "Explain the four CM functions",
+                "Map them to Windchill features"
+              ],
+              "modalities": [
+                "ill",
+                "case",
+                "flash"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m03-s05-l02",
+              "slug": "as-designed-as-built",
+              "title": "Effectivity and as-designed vs as-built",
+              "level": "advanced",
+              "roles": [
+                "change-manager",
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m03-s05-l01"
+              ],
+              "objectives": [
+                "Apply date, lot and serial effectivity",
+                "Explain as-designed vs as-built configurations"
+              ],
+              "modalities": [
+                "ill",
+                "cmp",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m03-s05-l03",
+              "slug": "interchangeability",
+              "title": "Interchangeability and form-fit-function rules",
+              "level": "advanced",
+              "roles": [
+                "change-manager",
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m03-s05-l02"
+              ],
+              "objectives": [
+                "Decide when a change needs a new part number",
+                "Apply form-fit-function rules"
+              ],
+              "modalities": [
+                "case",
+                "scen",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m03-s05-l04",
+              "slug": "change-kpis",
+              "title": "Change KPIs and configuration audits",
+              "level": "advanced",
+              "roles": [
+                "change-manager",
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 8,
+              "prerequisites": [
+                "m03-s05-l03"
+              ],
+              "objectives": [
+                "Choose meaningful change metrics",
+                "Prepare for a configuration audit"
+              ],
+              "modalities": [
+                "case",
+                "cheat",
+                "quiz"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m03-s05-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "case",
+            "cheat",
+            "cmp",
+            "flash",
+            "ill",
+            "quiz",
+            "scen"
+          ]
+        }
+      ],
+      "capstone": {
+        "id": "m03-cap",
+        "title": "The cracked bracket",
+        "type": "scenario",
+        "durationMinutes": 15,
+        "brief": "Field reports say Acme's scooter fold-lock bracket cracks after six months. Take it from complaint to a released fix.",
+        "tasks": [
+          "Raise a problem report with evidence",
+          "Run the change request through a CCB decision",
+          "Plan and complete the change notice with correct resulting objects",
+          "Decide whether the fix needs a new part number"
+        ],
+        "roles": [
+          "end-user",
+          "change-manager",
+          "business-admin",
+          "architect"
+        ],
+        "prerequisites": [
+          "m03-s01",
+          "m03-s02",
+          "m03-s03"
+        ],
+        "status": "outlined"
+      },
+      "badge": {
+        "id": "badge-change-config",
+        "name": "Change & Configuration Management Complete",
+        "rule": "Pass every section checkpoint and the capstone"
+      }
+    },
+    {
+      "id": "m04",
+      "order": 4,
+      "slug": "business-admin",
+      "title": "Business Administration",
+      "summary": "Configure participants, contexts, types, access, lifecycles, workflows, numbering, preferences, reports and classification.",
+      "levels": [
+        "advanced",
+        "expert"
+      ],
+      "prerequisites": [
+        "m01"
+      ],
+      "sections": [
+        {
+          "id": "m04-s01",
+          "title": "Participants",
+          "summary": "Who can use Windchill and how they are organised.",
+          "roles": [
+            "business-admin",
+            "system-admin",
+            "architect"
+          ],
+          "prerequisites": [
+            "m01"
+          ],
+          "lessons": [
+            {
+              "id": "m04-s01-l01",
+              "slug": "users-groups-orgs",
+              "title": "Users, groups and organizations",
+              "level": "advanced",
+              "roles": [
+                "business-admin",
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m01"
+              ],
+              "objectives": [
+                "Explain how users, groups and organizations relate",
+                "Plan a group structure"
+              ],
+              "modalities": [
+                "ill",
+                "walk",
+                "flash"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m04-s01-l02",
+              "slug": "participant-admin",
+              "title": "Participant administration hands-on",
+              "level": "advanced",
+              "roles": [
+                "business-admin",
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m04-s01-l01"
+              ],
+              "objectives": [
+                "Create users and groups",
+                "Find and fix disconnected participants"
+              ],
+              "modalities": [
+                "walk",
+                "sim",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m04-s01-l03",
+              "slug": "directory-services",
+              "title": "Directory services and LDAP for business admins",
+              "level": "advanced",
+              "roles": [
+                "business-admin",
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 8,
+              "prerequisites": [
+                "m04-s01-l02"
+              ],
+              "objectives": [
+                "Explain what LDAP provides to Windchill",
+                "Know what the business admin owns vs the system admin"
+              ],
+              "modalities": [
+                "ill",
+                "cmp",
+                "flash"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m04-s01-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "cmp",
+            "flash",
+            "ill",
+            "quiz",
+            "sim",
+            "walk"
+          ]
+        },
+        {
+          "id": "m04-s02",
+          "title": "Contexts",
+          "summary": "Where data lives and how settings inherit.",
+          "roles": [
+            "business-admin",
+            "architect"
+          ],
+          "prerequisites": [
+            "m01"
+          ],
+          "lessons": [
+            {
+              "id": "m04-s02-l01",
+              "slug": "context-hierarchy",
+              "title": "Site, organization, product, library, project: the context hierarchy",
+              "level": "advanced",
+              "roles": [
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m01"
+              ],
+              "objectives": [
+                "Draw the context hierarchy",
+                "Explain how settings inherit down it"
+              ],
+              "modalities": [
+                "ill",
+                "ani",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m04-s02-l02",
+              "slug": "create-contexts",
+              "title": "Creating products and libraries from templates",
+              "level": "advanced",
+              "roles": [
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m04-s02-l01"
+              ],
+              "objectives": [
+                "Create a product and a library",
+                "Choose the right template"
+              ],
+              "modalities": [
+                "walk",
+                "sim",
+                "cmp"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m04-s02-l03",
+              "slug": "shared-teams",
+              "title": "Shared teams vs context teams",
+              "level": "advanced",
+              "roles": [
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 8,
+              "prerequisites": [
+                "m04-s02-l02"
+              ],
+              "objectives": [
+                "Compare shared and context teams",
+                "Pick one for a scenario"
+              ],
+              "modalities": [
+                "cmp",
+                "scen",
+                "quiz"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m04-s02-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "ani",
+            "cmp",
+            "ill",
+            "quiz",
+            "scen",
+            "sim",
+            "walk"
+          ]
+        },
+        {
+          "id": "m04-s03",
+          "title": "Teams and roles",
+          "summary": "Roles that drive access and workflow assignments.",
+          "roles": [
+            "business-admin",
+            "architect"
+          ],
+          "prerequisites": [
+            "m04-s02"
+          ],
+          "lessons": [
+            {
+              "id": "m04-s03-l01",
+              "slug": "roles-team-templates",
+              "title": "Roles and team templates",
+              "level": "advanced",
+              "roles": [
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m04-s02"
+              ],
+              "objectives": [
+                "Define roles for a context",
+                "Create a team template"
+              ],
+              "modalities": [
+                "ill",
+                "walk",
+                "flash"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m04-s03-l02",
+              "slug": "roles-in-practice",
+              "title": "Roles in practice: access, tasks and notifications",
+              "level": "advanced",
+              "roles": [
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m04-s03-l01"
+              ],
+              "objectives": [
+                "Explain how roles drive tasks and access",
+                "Diagnose a missing task assignment"
+              ],
+              "modalities": [
+                "scen",
+                "sim",
+                "quiz"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m04-s03-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "flash",
+            "ill",
+            "quiz",
+            "scen",
+            "sim",
+            "walk"
+          ]
+        },
+        {
+          "id": "m04-s04",
+          "title": "Types and attributes",
+          "summary": "Modelling your company's data without code.",
+          "roles": [
+            "business-admin",
+            "migration-specialist",
+            "developer",
+            "architect"
+          ],
+          "prerequisites": [
+            "m01-s04"
+          ],
+          "lessons": [
+            {
+              "id": "m04-s04-l01",
+              "slug": "type-attribute-mgmt",
+              "title": "Type and Attribute Management: soft types",
+              "level": "advanced",
+              "roles": [
+                "business-admin",
+                "migration-specialist",
+                "developer",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m01-s04"
+              ],
+              "objectives": [
+                "Create a subtype",
+                "Explain why subtypes beat custom code"
+              ],
+              "modalities": [
+                "ill",
+                "walk",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m04-s04-l02",
+              "slug": "attributes-constraints",
+              "title": "Global and local attributes, constraints",
+              "level": "advanced",
+              "roles": [
+                "business-admin",
+                "migration-specialist",
+                "developer",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m04-s04-l01"
+              ],
+              "objectives": [
+                "Choose between global and local attributes",
+                "Add constraints that keep data clean"
+              ],
+              "modalities": [
+                "cmp",
+                "walk",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m04-s04-l03",
+              "slug": "enumerations-calculated",
+              "title": "Enumerations and calculated attributes",
+              "level": "advanced",
+              "roles": [
+                "business-admin",
+                "migration-specialist",
+                "developer",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m04-s04-l02"
+              ],
+              "objectives": [
+                "Build an enumeration",
+                "Create a calculated attribute"
+              ],
+              "modalities": [
+                "walk",
+                "sim",
+                "flash"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m04-s04-l04",
+              "slug": "layouts",
+              "title": "Layouts: controlling what users see",
+              "level": "advanced",
+              "roles": [
+                "business-admin",
+                "migration-specialist",
+                "developer",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m04-s04-l03"
+              ],
+              "objectives": [
+                "Edit create and information page layouts",
+                "Hide attributes users do not need"
+              ],
+              "modalities": [
+                "walk",
+                "sim",
+                "ill"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m04-s04-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "cmp",
+            "flash",
+            "ill",
+            "quiz",
+            "sim",
+            "walk"
+          ]
+        },
+        {
+          "id": "m04-s05",
+          "title": "Access control",
+          "summary": "Who can see and do what, and how to debug it.",
+          "roles": [
+            "business-admin",
+            "system-admin",
+            "architect"
+          ],
+          "prerequisites": [
+            "m04-s01",
+            "m04-s02"
+          ],
+          "lessons": [
+            {
+              "id": "m04-s05-l01",
+              "slug": "domains-policies",
+              "title": "Domains and policy administration",
+              "level": "advanced",
+              "roles": [
+                "business-admin",
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m04-s01",
+                "m04-s02"
+              ],
+              "objectives": [
+                "Explain domains and how policies attach to them",
+                "Read the policy administration UI"
+              ],
+              "modalities": [
+                "ill",
+                "ani",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m04-s05-l02",
+              "slug": "acl-types",
+              "title": "Access rules: policy, ad hoc and security labels",
+              "level": "advanced",
+              "roles": [
+                "business-admin",
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m04-s05-l01"
+              ],
+              "objectives": [
+                "Compare the types of access control",
+                "Predict effective permissions"
+              ],
+              "modalities": [
+                "cmp",
+                "ill",
+                "whatif"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m04-s05-l03",
+              "slug": "domain-inheritance",
+              "title": "Domain hierarchy and inheritance",
+              "level": "advanced",
+              "roles": [
+                "business-admin",
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m04-s05-l02"
+              ],
+              "objectives": [
+                "Design a domain hierarchy",
+                "Explain how rules inherit and when deny wins"
+              ],
+              "modalities": [
+                "ill",
+                "sim",
+                "scen"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m04-s05-l04",
+              "slug": "why-cant-i-see-it",
+              "title": "Troubleshooting: why can't I see it?",
+              "level": "advanced",
+              "roles": [
+                "business-admin",
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m04-s05-l03"
+              ],
+              "objectives": [
+                "Use access tools to diagnose a permission problem",
+                "Fix it without over-granting"
+              ],
+              "modalities": [
+                "whatif",
+                "scen",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m04-s05-l05",
+              "slug": "security-labels",
+              "title": "Security labels and agreements",
+              "level": "expert",
+              "roles": [
+                "business-admin",
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m04-s05-l04"
+              ],
+              "objectives": [
+                "Explain export-control style labels",
+                "Design label-based access for a regulated program"
+              ],
+              "modalities": [
+                "ill",
+                "case",
+                "cmp"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m04-s05-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "ani",
+            "case",
+            "cmp",
+            "ill",
+            "quiz",
+            "scen",
+            "sim",
+            "whatif"
+          ]
+        },
+        {
+          "id": "m04-s06",
+          "title": "Lifecycles, workflows and automation",
+          "summary": "Configuring process automation.",
+          "roles": [
+            "business-admin",
+            "architect",
+            "developer"
+          ],
+          "prerequisites": [
+            "m03-s04",
+            "m04-s03"
+          ],
+          "lessons": [
+            {
+              "id": "m04-s06-l01",
+              "slug": "design-lifecycle",
+              "title": "Designing a lifecycle template",
+              "level": "advanced",
+              "roles": [
+                "business-admin",
+                "architect",
+                "developer"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m03-s04",
+                "m04-s03"
+              ],
+              "objectives": [
+                "Create states, transitions and phase roles",
+                "Explain the impact of editing a live lifecycle"
+              ],
+              "modalities": [
+                "walk",
+                "sim",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m04-s06-l02",
+              "slug": "workflow-editor",
+              "title": "Workflow template editor basics",
+              "level": "advanced",
+              "roles": [
+                "business-admin",
+                "architect",
+                "developer"
+              ],
+              "durationMinutes": 15,
+              "prerequisites": [
+                "m04-s06-l01"
+              ],
+              "objectives": [
+                "Build a simple review workflow",
+                "Use activities, connectors and variables"
+              ],
+              "modalities": [
+                "walk",
+                "ill",
+                "sim"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m04-s06-l03",
+              "slug": "robots-expressions",
+              "title": "Robots, expressions and conditional routing",
+              "level": "expert",
+              "roles": [
+                "business-admin",
+                "architect",
+                "developer"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m04-s06-l02"
+              ],
+              "objectives": [
+                "Use robots to automate steps",
+                "Write a safe routing expression"
+              ],
+              "modalities": [
+                "ill",
+                "whatif",
+                "cmp"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m04-s06-l04",
+              "slug": "oir",
+              "title": "Object initialization rules",
+              "level": "advanced",
+              "roles": [
+                "business-admin",
+                "architect",
+                "developer"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m04-s06-l03"
+              ],
+              "objectives": [
+                "Explain what an OIR controls",
+                "Debug an OIR that does not apply"
+              ],
+              "modalities": [
+                "ill",
+                "walk",
+                "whatif"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m04-s06-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "cmp",
+            "ill",
+            "quiz",
+            "sim",
+            "walk",
+            "whatif"
+          ]
+        },
+        {
+          "id": "m04-s07",
+          "title": "Templates, numbering and preferences",
+          "summary": "Defaults that make every new context consistent.",
+          "roles": [
+            "business-admin",
+            "architect"
+          ],
+          "prerequisites": [
+            "m04-s02",
+            "m04-s06"
+          ],
+          "lessons": [
+            {
+              "id": "m04-s07-l01",
+              "slug": "context-templates",
+              "title": "Context templates and what they carry",
+              "level": "advanced",
+              "roles": [
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m04-s02",
+                "m04-s06"
+              ],
+              "objectives": [
+                "Export a context as a template",
+                "List what a template includes"
+              ],
+              "modalities": [
+                "walk",
+                "cmp",
+                "flash"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m04-s07-l02",
+              "slug": "numbering-schemes",
+              "title": "Numbering schemes with OIRs",
+              "level": "advanced",
+              "roles": [
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m04-s07-l01"
+              ],
+              "objectives": [
+                "Configure an auto-numbering scheme",
+                "Choose between smart and dumb numbers"
+              ],
+              "modalities": [
+                "walk",
+                "scen",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m04-s07-l03",
+              "slug": "preferences",
+              "title": "Preference management and locking",
+              "level": "advanced",
+              "roles": [
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m04-s07-l02"
+              ],
+              "objectives": [
+                "Set preferences at the right level",
+                "Lock a preference and explain the effect"
+              ],
+              "modalities": [
+                "walk",
+                "whatif",
+                "quiz"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m04-s07-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "cmp",
+            "flash",
+            "quiz",
+            "scen",
+            "walk",
+            "whatif"
+          ]
+        },
+        {
+          "id": "m04-s08",
+          "title": "Business reporting",
+          "summary": "Getting answers out of your data.",
+          "roles": [
+            "business-admin",
+            "change-manager",
+            "architect"
+          ],
+          "prerequisites": [
+            "m01"
+          ],
+          "lessons": [
+            {
+              "id": "m04-s08-l01",
+              "slug": "query-builder",
+              "title": "Report templates with Query Builder",
+              "level": "advanced",
+              "roles": [
+                "business-admin",
+                "change-manager",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m01"
+              ],
+              "objectives": [
+                "Build a report template",
+                "Join objects in a query"
+              ],
+              "modalities": [
+                "walk",
+                "sim",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m04-s08-l02",
+              "slug": "report-delivery",
+              "title": "Sharing reports and building simple dashboards",
+              "level": "advanced",
+              "roles": [
+                "business-admin",
+                "change-manager",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m04-s08-l01"
+              ],
+              "objectives": [
+                "Publish a report to users",
+                "Choose metrics a manager will use"
+              ],
+              "modalities": [
+                "walk",
+                "case",
+                "cheat"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m04-s08-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "case",
+            "cheat",
+            "quiz",
+            "sim",
+            "walk"
+          ]
+        },
+        {
+          "id": "m04-s09",
+          "title": "Part classification",
+          "summary": "Organising parts for reuse.",
+          "roles": [
+            "business-admin",
+            "end-user",
+            "architect"
+          ],
+          "prerequisites": [
+            "m01-s04"
+          ],
+          "lessons": [
+            {
+              "id": "m04-s09-l01",
+              "slug": "classification-structures",
+              "title": "Classification structures",
+              "level": "advanced",
+              "roles": [
+                "business-admin",
+                "end-user",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m01-s04"
+              ],
+              "objectives": [
+                "Explain why classification drives reuse",
+                "Design a simple classification tree"
+              ],
+              "modalities": [
+                "ill",
+                "case",
+                "flash"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m04-s09-l02",
+              "slug": "classification-search",
+              "title": "Classification attributes and search",
+              "level": "advanced",
+              "roles": [
+                "business-admin",
+                "end-user",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m04-s09-l01"
+              ],
+              "objectives": [
+                "Classify a part",
+                "Find a reusable part by classification"
+              ],
+              "modalities": [
+                "walk",
+                "sim",
+                "quiz"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m04-s09-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "case",
+            "flash",
+            "ill",
+            "quiz",
+            "sim",
+            "walk"
+          ]
+        }
+      ],
+      "capstone": {
+        "id": "m04-cap",
+        "title": "Stand up the e-bike division",
+        "type": "mini-project",
+        "durationMinutes": 15,
+        "brief": "Acme is launching an e-bike division. Configure Windchill so its engineers can start work on Monday.",
+        "tasks": [
+          "Create the product context from a template with a team",
+          "Add an e-bike part subtype with three attributes",
+          "Configure auto-numbering with an OIR",
+          "Set access so suppliers see only released drawings",
+          "Prove access works with the access tools"
+        ],
+        "roles": [
+          "business-admin",
+          "architect"
+        ],
+        "prerequisites": [
+          "m04-s01",
+          "m04-s02",
+          "m04-s03",
+          "m04-s04",
+          "m04-s05",
+          "m04-s06",
+          "m04-s07",
+          "m04-s08",
+          "m04-s09"
+        ],
+        "status": "outlined"
+      },
+      "badge": {
+        "id": "badge-business-admin",
+        "name": "Business Administration Complete",
+        "rule": "Pass every section checkpoint and the capstone"
+      }
+    },
+    {
+      "id": "m05",
+      "order": 5,
+      "slug": "system-admin",
+      "title": "System Administration",
+      "summary": "Install, configure, monitor, tune, back up, scale and secure Windchill servers.",
+      "levels": [
+        "advanced",
+        "expert"
+      ],
+      "prerequisites": [
+        "m01-s02"
+      ],
+      "sections": [
+        {
+          "id": "m05-s01",
+          "title": "Installation and configuration",
+          "summary": "Getting a working system.",
+          "roles": [
+            "system-admin",
+            "architect"
+          ],
+          "prerequisites": [
+            "m01-s02"
+          ],
+          "lessons": [
+            {
+              "id": "m05-s01-l01",
+              "slug": "topology-requirements",
+              "title": "Topologies and system requirements",
+              "level": "advanced",
+              "roles": [
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m01-s02"
+              ],
+              "objectives": [
+                "Choose a topology for a given company size",
+                "Read a platform support matrix"
+              ],
+              "modalities": [
+                "ill",
+                "cmp",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m05-s01-l02",
+              "slug": "psi-walkthrough",
+              "title": "Installing with PTC Solution Installer",
+              "level": "advanced",
+              "roles": [
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 15,
+              "prerequisites": [
+                "m05-s01-l01"
+              ],
+              "objectives": [
+                "Follow the installation sequence",
+                "Recover from a failed install step"
+              ],
+              "modalities": [
+                "walk",
+                "ill",
+                "whatif"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m05-s01-l03",
+              "slug": "post-install",
+              "title": "Post-installation checks",
+              "level": "advanced",
+              "roles": [
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m05-s01-l02"
+              ],
+              "objectives": [
+                "Verify a fresh installation",
+                "Run a smoke test"
+              ],
+              "modalities": [
+                "walk",
+                "whatif",
+                "cheat"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m05-s01-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "cheat",
+            "cmp",
+            "ill",
+            "quiz",
+            "walk",
+            "whatif"
+          ]
+        },
+        {
+          "id": "m05-s02",
+          "title": "Properties, monitoring and performance",
+          "summary": "Keeping the system healthy and fast.",
+          "roles": [
+            "system-admin",
+            "architect"
+          ],
+          "prerequisites": [
+            "m05-s01"
+          ],
+          "lessons": [
+            {
+              "id": "m05-s02-l01",
+              "slug": "properties-xconf",
+              "title": "Properties, site.xconf and xconfmanager",
+              "level": "advanced",
+              "roles": [
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m05-s01"
+              ],
+              "objectives": [
+                "Change a property the supported way",
+                "Explain why editing wt.properties directly is a mistake"
+              ],
+              "modalities": [
+                "ill",
+                "walk",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m05-s02-l02",
+              "slug": "monitoring",
+              "title": "Monitoring tools and server status",
+              "level": "advanced",
+              "roles": [
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m05-s02-l01"
+              ],
+              "objectives": [
+                "Read the server status page",
+                "Set up alerts that matter"
+              ],
+              "modalities": [
+                "walk",
+                "sim",
+                "flash"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m05-s02-l03",
+              "slug": "logs",
+              "title": "Reading logs: method server and more",
+              "level": "advanced",
+              "roles": [
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m05-s02-l02"
+              ],
+              "objectives": [
+                "Find the right log for a problem",
+                "Raise logging levels safely"
+              ],
+              "modalities": [
+                "walk",
+                "whatif",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m05-s02-l04",
+              "slug": "tuning",
+              "title": "JVM and database tuning basics",
+              "level": "expert",
+              "roles": [
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m05-s02-l03"
+              ],
+              "objectives": [
+                "Spot memory and connection bottlenecks",
+                "Plan a tuning change and measure it"
+              ],
+              "modalities": [
+                "ill",
+                "case",
+                "whatif"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m05-s02-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "case",
+            "flash",
+            "ill",
+            "quiz",
+            "sim",
+            "walk",
+            "whatif"
+          ]
+        },
+        {
+          "id": "m05-s03",
+          "title": "File vaulting and replication",
+          "summary": "Where content lives and how it reaches users.",
+          "roles": [
+            "system-admin",
+            "architect"
+          ],
+          "prerequisites": [
+            "m05-s01"
+          ],
+          "lessons": [
+            {
+              "id": "m05-s03-l01",
+              "slug": "vaults",
+              "title": "File vaults, folders and revaulting",
+              "level": "advanced",
+              "roles": [
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m05-s01"
+              ],
+              "objectives": [
+                "Explain vault and folder rules",
+                "Plan a revault"
+              ],
+              "modalities": [
+                "ill",
+                "ani",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m05-s03-l02",
+              "slug": "replication",
+              "title": "Replication sites and content caching",
+              "level": "advanced",
+              "roles": [
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m05-s03-l01"
+              ],
+              "objectives": [
+                "Design replication for remote offices",
+                "Compare replication with caching"
+              ],
+              "modalities": [
+                "ill",
+                "case",
+                "cmp"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m05-s03-l03",
+              "slug": "vault-maintenance",
+              "title": "Vault maintenance and cleanup",
+              "level": "advanced",
+              "roles": [
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m05-s03-l02"
+              ],
+              "objectives": [
+                "Remove unreferenced files safely",
+                "Handle a full vault"
+              ],
+              "modalities": [
+                "walk",
+                "whatif",
+                "cheat"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m05-s03-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "ani",
+            "case",
+            "cheat",
+            "cmp",
+            "ill",
+            "quiz",
+            "walk",
+            "whatif"
+          ]
+        },
+        {
+          "id": "m05-s04",
+          "title": "Queues and visualization services",
+          "summary": "Background processing and visualization publishing.",
+          "roles": [
+            "system-admin",
+            "architect"
+          ],
+          "prerequisites": [
+            "m05-s02"
+          ],
+          "lessons": [
+            {
+              "id": "m05-s04-l01",
+              "slug": "queues",
+              "title": "Background queues",
+              "level": "advanced",
+              "roles": [
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m05-s02"
+              ],
+              "objectives": [
+                "Read queue status",
+                "Restart a stuck queue entry"
+              ],
+              "modalities": [
+                "ill",
+                "walk",
+                "whatif"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m05-s04-l02",
+              "slug": "worker-agent",
+              "title": "Worker Agent and CAD workers",
+              "level": "advanced",
+              "roles": [
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m05-s04-l01"
+              ],
+              "objectives": [
+                "Explain how publishing jobs reach CAD workers",
+                "Fix a worker that will not start"
+              ],
+              "modalities": [
+                "ill",
+                "ani",
+                "whatif"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m05-s04-l03",
+              "slug": "publishing-rules",
+              "title": "Publishing rules and automated publishing",
+              "level": "advanced",
+              "roles": [
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m05-s04-l02"
+              ],
+              "objectives": [
+                "Configure when representations are published",
+                "Write a publish rule for a scenario"
+              ],
+              "modalities": [
+                "walk",
+                "sim",
+                "quiz"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m05-s04-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "ani",
+            "ill",
+            "quiz",
+            "sim",
+            "walk",
+            "whatif"
+          ]
+        },
+        {
+          "id": "m05-s05",
+          "title": "Maintenance, backup and recovery",
+          "summary": "Protecting the data.",
+          "roles": [
+            "system-admin",
+            "architect"
+          ],
+          "prerequisites": [
+            "m05-s03"
+          ],
+          "lessons": [
+            {
+              "id": "m05-s05-l01",
+              "slug": "maintenance-checklist",
+              "title": "Routine maintenance checklist",
+              "level": "advanced",
+              "roles": [
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m05-s03"
+              ],
+              "objectives": [
+                "Run daily, weekly and monthly checks",
+                "Plan maintenance windows"
+              ],
+              "modalities": [
+                "cheat",
+                "walk",
+                "flash"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m05-s05-l02",
+              "slug": "backup-strategy",
+              "title": "Backup strategy: keeping database and vaults in sync",
+              "level": "advanced",
+              "roles": [
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m05-s05-l01"
+              ],
+              "objectives": [
+                "Design a consistent backup",
+                "Explain recovery point and recovery time objectives"
+              ],
+              "modalities": [
+                "ill",
+                "case",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m05-s05-l03",
+              "slug": "dr-drill",
+              "title": "Disaster recovery drill",
+              "level": "expert",
+              "roles": [
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m05-s05-l02"
+              ],
+              "objectives": [
+                "Restore a system in a drill",
+                "Write a recovery runbook"
+              ],
+              "modalities": [
+                "scen",
+                "whatif",
+                "ill"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m05-s05-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "case",
+            "cheat",
+            "flash",
+            "ill",
+            "quiz",
+            "scen",
+            "walk",
+            "whatif"
+          ]
+        },
+        {
+          "id": "m05-s06",
+          "title": "Clustering and high availability",
+          "summary": "Scaling and staying up.",
+          "roles": [
+            "system-admin",
+            "architect"
+          ],
+          "prerequisites": [
+            "m05-s01"
+          ],
+          "lessons": [
+            {
+              "id": "m05-s06-l01",
+              "slug": "cluster-architecture",
+              "title": "Clustered architecture",
+              "level": "expert",
+              "roles": [
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m05-s01"
+              ],
+              "objectives": [
+                "Explain the roles of nodes in a Windchill cluster",
+                "Choose when to cluster"
+              ],
+              "modalities": [
+                "ill",
+                "ani",
+                "cmp"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m05-s06-l02",
+              "slug": "load-balancing",
+              "title": "Load balancing and failover",
+              "level": "expert",
+              "roles": [
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m05-s06-l01"
+              ],
+              "objectives": [
+                "Describe how requests are balanced",
+                "Predict behaviour when a node fails"
+              ],
+              "modalities": [
+                "ill",
+                "whatif",
+                "quiz"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m05-s06-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "ani",
+            "cmp",
+            "ill",
+            "quiz",
+            "whatif"
+          ]
+        },
+        {
+          "id": "m05-s07",
+          "title": "Security and licensing",
+          "summary": "Keeping the system secure and compliant.",
+          "roles": [
+            "system-admin",
+            "architect"
+          ],
+          "prerequisites": [
+            "m05-s01"
+          ],
+          "lessons": [
+            {
+              "id": "m05-s07-l01",
+              "slug": "authentication-sso",
+              "title": "Authentication and single sign-on",
+              "level": "advanced",
+              "roles": [
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m05-s01"
+              ],
+              "objectives": [
+                "Compare authentication options",
+                "Explain how SSO reaches Windchill"
+              ],
+              "modalities": [
+                "ill",
+                "cmp",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m05-s07-l02",
+              "slug": "hardening",
+              "title": "Hardening and secure configuration",
+              "level": "expert",
+              "roles": [
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m05-s07-l01"
+              ],
+              "objectives": [
+                "Apply a hardening checklist",
+                "Respond to a security advisory"
+              ],
+              "modalities": [
+                "case",
+                "whatif",
+                "cheat"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m05-s07-l03",
+              "slug": "license-management",
+              "title": "License management",
+              "level": "advanced",
+              "roles": [
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m05-s07-l02"
+              ],
+              "objectives": [
+                "Assign and audit licenses",
+                "Explain license groups"
+              ],
+              "modalities": [
+                "walk",
+                "quiz",
+                "flash"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m05-s07-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "case",
+            "cheat",
+            "cmp",
+            "flash",
+            "ill",
+            "quiz",
+            "walk",
+            "whatif"
+          ]
+        }
+      ],
+      "capstone": {
+        "id": "m05-cap",
+        "title": "Monday-morning meltdown",
+        "type": "scenario",
+        "durationMinutes": 15,
+        "brief": "Users at Acme's remote plant say Windchill is slow and thumbnails are missing after the weekend. Find and fix the causes.",
+        "tasks": [
+          "Read monitoring and logs to find the bottleneck",
+          "Clear the stuck publishing queue",
+          "Check replication to the remote site",
+          "Write a short incident report with prevention steps"
+        ],
+        "roles": [
+          "system-admin",
+          "architect"
+        ],
+        "prerequisites": [
+          "m05-s01",
+          "m05-s02",
+          "m05-s03",
+          "m05-s04",
+          "m05-s05",
+          "m05-s06",
+          "m05-s07"
+        ],
+        "status": "outlined"
+      },
+      "badge": {
+        "id": "badge-system-admin",
+        "name": "System Administration Complete",
+        "rule": "Pass every section checkpoint and the capstone"
+      }
+    },
+    {
+      "id": "m06",
+      "order": 6,
+      "slug": "migration",
+      "title": "Migration & Data Management",
+      "summary": "Plan and run data migrations, move data with import, export and packages, map attributes, and upgrade safely.",
+      "levels": [
+        "advanced",
+        "expert"
+      ],
+      "prerequisites": [
+        "m02-s01",
+        "m02-s02",
+        "m02-s03"
+      ],
+      "sections": [
+        {
+          "id": "m06-s01",
+          "title": "Migration strategy",
+          "summary": "Deciding what to move, how and when.",
+          "roles": [
+            "migration-specialist",
+            "architect",
+            "system-admin"
+          ],
+          "prerequisites": [
+            "m02-s01",
+            "m02-s02",
+            "m02-s03"
+          ],
+          "lessons": [
+            {
+              "id": "m06-s01-l01",
+              "slug": "why-migrations-fail",
+              "title": "Why migrations fail",
+              "level": "advanced",
+              "roles": [
+                "migration-specialist",
+                "architect",
+                "system-admin"
+              ],
+              "durationMinutes": 8,
+              "prerequisites": [
+                "m02-s01",
+                "m02-s02",
+                "m02-s03"
+              ],
+              "objectives": [
+                "Name the most common causes of failed migrations",
+                "Spot warning signs early"
+              ],
+              "modalities": [
+                "case",
+                "ill",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m06-s01-l02",
+              "slug": "strategy-options",
+              "title": "Big bang, phased or coexistence?",
+              "level": "advanced",
+              "roles": [
+                "migration-specialist",
+                "architect",
+                "system-admin"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m06-s01-l01"
+              ],
+              "objectives": [
+                "Compare migration approaches",
+                "Recommend one for a scenario"
+              ],
+              "modalities": [
+                "cmp",
+                "scen",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m06-s01-l03",
+              "slug": "data-assessment",
+              "title": "Data assessment and cleansing",
+              "level": "advanced",
+              "roles": [
+                "migration-specialist",
+                "architect",
+                "system-admin"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m06-s01-l02"
+              ],
+              "objectives": [
+                "Profile legacy data",
+                "Decide what to clean, migrate or archive"
+              ],
+              "modalities": [
+                "case",
+                "scen",
+                "whatif"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m06-s01-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "case",
+            "cmp",
+            "ill",
+            "quiz",
+            "scen",
+            "whatif"
+          ]
+        },
+        {
+          "id": "m06-s02",
+          "title": "Migration and loading tools",
+          "summary": "The tools that move data.",
+          "roles": [
+            "migration-specialist",
+            "system-admin",
+            "developer"
+          ],
+          "prerequisites": [
+            "m06-s01",
+            "m04-s04"
+          ],
+          "lessons": [
+            {
+              "id": "m06-s02-l01",
+              "slug": "wbm-overview",
+              "title": "Windchill Bulk Migrator overview",
+              "level": "advanced",
+              "roles": [
+                "migration-specialist",
+                "system-admin",
+                "developer"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m06-s01",
+                "m04-s04"
+              ],
+              "objectives": [
+                "Explain when to use the bulk migrator",
+                "Outline its extract, transform and load stages"
+              ],
+              "modalities": [
+                "ill",
+                "cmp",
+                "flash"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m06-s02-l02",
+              "slug": "load-from-file",
+              "title": "Load files and LoadFromFile",
+              "level": "advanced",
+              "roles": [
+                "migration-specialist",
+                "system-admin",
+                "developer"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m06-s02-l01"
+              ],
+              "objectives": [
+                "Write a load file",
+                "Fix common load errors"
+              ],
+              "modalities": [
+                "walk",
+                "whatif",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m06-s02-l03",
+              "slug": "import-export",
+              "title": "The import and export framework",
+              "level": "advanced",
+              "roles": [
+                "migration-specialist",
+                "system-admin",
+                "developer"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m06-s02-l02"
+              ],
+              "objectives": [
+                "Export and import objects between systems",
+                "Explain conflict handling"
+              ],
+              "modalities": [
+                "ill",
+                "walk",
+                "quiz"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m06-s02-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "cmp",
+            "flash",
+            "ill",
+            "quiz",
+            "walk",
+            "whatif"
+          ]
+        },
+        {
+          "id": "m06-s03",
+          "title": "Packages and mapping",
+          "summary": "Exchanging data with partners and mapping it right.",
+          "roles": [
+            "migration-specialist",
+            "architect"
+          ],
+          "prerequisites": [
+            "m06-s02"
+          ],
+          "lessons": [
+            {
+              "id": "m06-s03-l01",
+              "slug": "package-delivery",
+              "title": "Packages and deliveries",
+              "level": "advanced",
+              "roles": [
+                "migration-specialist",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m06-s02"
+              ],
+              "objectives": [
+                "Create and send a package",
+                "Receive a delivery"
+              ],
+              "modalities": [
+                "walk",
+                "ani",
+                "cmp"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m06-s03-l02",
+              "slug": "mapping",
+              "title": "Mapping management: types, attributes and values",
+              "level": "advanced",
+              "roles": [
+                "migration-specialist",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m06-s03-l01"
+              ],
+              "objectives": [
+                "Build a mapping specification",
+                "Handle values with no match"
+              ],
+              "modalities": [
+                "ill",
+                "sim",
+                "scen"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m06-s03-l03",
+              "slug": "validation",
+              "title": "Validation and reconciliation",
+              "level": "advanced",
+              "roles": [
+                "migration-specialist",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m06-s03-l02"
+              ],
+              "objectives": [
+                "Reconcile counts and content after a load",
+                "Sign off a migration batch"
+              ],
+              "modalities": [
+                "scen",
+                "whatif",
+                "quiz"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m06-s03-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "ani",
+            "cmp",
+            "ill",
+            "quiz",
+            "scen",
+            "sim",
+            "walk",
+            "whatif"
+          ]
+        },
+        {
+          "id": "m06-s04",
+          "title": "Migrating from other systems",
+          "summary": "Source-specific playbooks.",
+          "roles": [
+            "migration-specialist",
+            "architect"
+          ],
+          "prerequisites": [
+            "m06-s03"
+          ],
+          "lessons": [
+            {
+              "id": "m06-s04-l01",
+              "slug": "from-file-shares",
+              "title": "From file shares and legacy PDM",
+              "level": "advanced",
+              "roles": [
+                "migration-specialist",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m06-s03"
+              ],
+              "objectives": [
+                "Rebuild structure and history from loose files",
+                "Handle duplicate and orphan files"
+              ],
+              "modalities": [
+                "case",
+                "whatif",
+                "ill"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m06-s04-l02",
+              "slug": "from-other-plm",
+              "title": "From other PLM systems",
+              "level": "expert",
+              "roles": [
+                "migration-specialist",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m06-s04-l01"
+              ],
+              "objectives": [
+                "Map another PLM's data model to Windchill",
+                "Plan for history and workflow in flight"
+              ],
+              "modalities": [
+                "cmp",
+                "case",
+                "scen"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m06-s04-l03",
+              "slug": "cad-migration",
+              "title": "CAD data migration specifics",
+              "level": "expert",
+              "roles": [
+                "migration-specialist",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m06-s04-l02"
+              ],
+              "objectives": [
+                "Plan a CAD migration including references",
+                "Validate CAD after load"
+              ],
+              "modalities": [
+                "whatif",
+                "case",
+                "cmp"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m06-s04-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "case",
+            "cmp",
+            "ill",
+            "scen",
+            "whatif"
+          ]
+        },
+        {
+          "id": "m06-s05",
+          "title": "Rehosting and upgrades",
+          "summary": "Moving Windchill itself forward.",
+          "roles": [
+            "migration-specialist",
+            "system-admin",
+            "architect",
+            "developer"
+          ],
+          "prerequisites": [
+            "m01-s02"
+          ],
+          "lessons": [
+            {
+              "id": "m06-s05-l01",
+              "slug": "upgrade-vs-rehost",
+              "title": "Upgrade vs rehost",
+              "level": "advanced",
+              "roles": [
+                "migration-specialist",
+                "system-admin",
+                "architect",
+                "developer"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m01-s02"
+              ],
+              "objectives": [
+                "Explain the difference",
+                "Choose for a scenario"
+              ],
+              "modalities": [
+                "cmp",
+                "ill",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m06-s05-l02",
+              "slug": "upgrade-process",
+              "title": "The upgrade process step by step",
+              "level": "advanced",
+              "roles": [
+                "migration-specialist",
+                "system-admin",
+                "architect",
+                "developer"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m06-s05-l01"
+              ],
+              "objectives": [
+                "Outline the upgrade phases",
+                "Plan test upgrades"
+              ],
+              "modalities": [
+                "walk",
+                "ill",
+                "whatif"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m06-s05-l03",
+              "slug": "customization-impact",
+              "title": "Customization impact on upgrades",
+              "level": "expert",
+              "roles": [
+                "migration-specialist",
+                "system-admin",
+                "architect",
+                "developer"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m06-s05-l02"
+              ],
+              "objectives": [
+                "Inventory customizations before an upgrade",
+                "Estimate rework"
+              ],
+              "modalities": [
+                "whatif",
+                "case",
+                "cheat"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m06-s05-l04",
+              "slug": "cutover",
+              "title": "Testing and cutover planning",
+              "level": "advanced",
+              "roles": [
+                "migration-specialist",
+                "system-admin",
+                "architect",
+                "developer"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m06-s05-l03"
+              ],
+              "objectives": [
+                "Write a cutover plan",
+                "Define go and no-go criteria"
+              ],
+              "modalities": [
+                "scen",
+                "cheat",
+                "quiz"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m06-s05-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "case",
+            "cheat",
+            "cmp",
+            "ill",
+            "quiz",
+            "scen",
+            "walk",
+            "whatif"
+          ]
+        }
+      ],
+      "capstone": {
+        "id": "m06-cap",
+        "title": "Legacy PDM to Windchill in a weekend",
+        "type": "mini-project",
+        "durationMinutes": 15,
+        "brief": "Acme bought a smaller company whose designs live in an old PDM system and on file shares. Plan and dry-run the move.",
+        "tasks": [
+          "Assess a sample of the legacy data",
+          "Choose a strategy and justify it",
+          "Write the attribute mapping",
+          "Run a validation checklist on the dry-run results"
+        ],
+        "roles": [
+          "migration-specialist",
+          "architect"
+        ],
+        "prerequisites": [
+          "m06-s01",
+          "m06-s02",
+          "m06-s03",
+          "m06-s04",
+          "m06-s05"
+        ],
+        "status": "outlined"
+      },
+      "badge": {
+        "id": "badge-migration",
+        "name": "Migration & Data Management Complete",
+        "rule": "Pass every section checkpoint and the capstone"
+      }
+    },
+    {
+      "id": "m07",
+      "order": 7,
+      "slug": "advanced",
+      "title": "Advanced Topics",
+      "summary": "Manufacturing, variants, deep CAD integration, quality, projects, classification, integrations, cloud and customization.",
+      "levels": [
+        "advanced",
+        "expert"
+      ],
+      "prerequisites": [
+        "m02-s01"
+      ],
+      "sections": [
+        {
+          "id": "m07-s01",
+          "title": "Manufacturing process management (MPMLink)",
+          "summary": "From what we design to how we build it.",
+          "roles": [
+            "end-user",
+            "change-manager",
+            "business-admin",
+            "architect"
+          ],
+          "prerequisites": [
+            "m02-s03"
+          ],
+          "lessons": [
+            {
+              "id": "m07-s01-l01",
+              "slug": "ebom-vs-mbom",
+              "title": "eBOM vs mBOM",
+              "level": "advanced",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m02-s03"
+              ],
+              "objectives": [
+                "Explain why manufacturing needs its own BOM",
+                "Spot typical eBOM to mBOM differences"
+              ],
+              "modalities": [
+                "cmp",
+                "ill",
+                "ani"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m07-s01-l02",
+              "slug": "bom-transformation",
+              "title": "Transforming an eBOM into an mBOM",
+              "level": "advanced",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m07-s01-l01"
+              ],
+              "objectives": [
+                "Create an associative mBOM",
+                "Keep eBOM and mBOM in sync after a change"
+              ],
+              "modalities": [
+                "walk",
+                "sim",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m07-s01-l03",
+              "slug": "process-plans",
+              "title": "Process plans, operations and resources",
+              "level": "advanced",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m07-s01-l02"
+              ],
+              "objectives": [
+                "Build a simple process plan",
+                "Assign parts and resources to operations"
+              ],
+              "modalities": [
+                "ill",
+                "walk",
+                "flash"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m07-s01-l04",
+              "slug": "plant-mboms",
+              "title": "Plant-specific mBOMs",
+              "level": "expert",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m07-s01-l03"
+              ],
+              "objectives": [
+                "Manage different mBOMs per plant",
+                "Explain view-based versions"
+              ],
+              "modalities": [
+                "case",
+                "cmp",
+                "scen"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m07-s01-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "ani",
+            "case",
+            "cmp",
+            "flash",
+            "ill",
+            "quiz",
+            "scen",
+            "sim",
+            "walk"
+          ]
+        },
+        {
+          "id": "m07-s02",
+          "title": "Options and variants",
+          "summary": "Managing configurable products.",
+          "roles": [
+            "end-user",
+            "business-admin",
+            "architect"
+          ],
+          "prerequisites": [
+            "m02-s03"
+          ],
+          "lessons": [
+            {
+              "id": "m07-s02-l01",
+              "slug": "options-choices",
+              "title": "Options and choices",
+              "level": "advanced",
+              "roles": [
+                "end-user",
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m02-s03"
+              ],
+              "objectives": [
+                "Model options and choices",
+                "Explain option rules"
+              ],
+              "modalities": [
+                "ill",
+                "ani",
+                "flash"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m07-s02-l02",
+              "slug": "overloaded-bom",
+              "title": "Overloaded BOMs and variant specifications",
+              "level": "expert",
+              "roles": [
+                "end-user",
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m07-s02-l01"
+              ],
+              "objectives": [
+                "Read an overloaded (150%) BOM",
+                "Create a variant specification"
+              ],
+              "modalities": [
+                "ill",
+                "sim",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m07-s02-l03",
+              "slug": "configure-variant",
+              "title": "Configuring a variant",
+              "level": "expert",
+              "roles": [
+                "end-user",
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m07-s02-l02"
+              ],
+              "objectives": [
+                "Configure a customer variant",
+                "Resolve an invalid choice combination"
+              ],
+              "modalities": [
+                "walk",
+                "scen",
+                "whatif"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m07-s02-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "ani",
+            "flash",
+            "ill",
+            "quiz",
+            "scen",
+            "sim",
+            "walk",
+            "whatif"
+          ]
+        },
+        {
+          "id": "m07-s03",
+          "title": "CAD integration: Creo Parametric deep dive",
+          "summary": "Getting the most from Creo with Windchill.",
+          "roles": [
+            "end-user",
+            "system-admin",
+            "architect"
+          ],
+          "prerequisites": [
+            "m02-s01"
+          ],
+          "lessons": [
+            {
+              "id": "m07-s03-l01",
+              "slug": "creo-workspace",
+              "title": "Creo Parametric and the Windchill workspace",
+              "level": "intermediate",
+              "roles": [
+                "end-user",
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m02-s01"
+              ],
+              "objectives": [
+                "Connect Creo to Windchill",
+                "Work with the embedded browser"
+              ],
+              "modalities": [
+                "walk",
+                "sim",
+                "ani"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m07-s03-l02",
+              "slug": "creo-checkin",
+              "title": "Check-in options, dependencies and collect rules",
+              "level": "advanced",
+              "roles": [
+                "end-user",
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m07-s03-l01"
+              ],
+              "objectives": [
+                "Choose collection rules for check-in",
+                "Avoid missing dependents"
+              ],
+              "modalities": [
+                "ill",
+                "whatif",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m07-s03-l03",
+              "slug": "family-tables",
+              "title": "Family tables, generics and instances",
+              "level": "advanced",
+              "roles": [
+                "end-user",
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m07-s03-l02"
+              ],
+              "objectives": [
+                "Manage family tables in Windchill",
+                "Fix a broken instance"
+              ],
+              "modalities": [
+                "ill",
+                "whatif",
+                "cmp"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m07-s03-l04",
+              "slug": "mcad-ecad",
+              "title": "Working across CAD tools: MCAD and ECAD",
+              "level": "expert",
+              "roles": [
+                "end-user",
+                "system-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m07-s03-l03"
+              ],
+              "objectives": [
+                "Explain multi-CAD collaboration",
+                "Plan ECAD-MCAD exchange"
+              ],
+              "modalities": [
+                "cmp",
+                "case",
+                "ill"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m07-s03-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "ani",
+            "case",
+            "cmp",
+            "ill",
+            "quiz",
+            "sim",
+            "walk",
+            "whatif"
+          ]
+        },
+        {
+          "id": "m07-s04",
+          "title": "Quality management and closed-loop quality",
+          "summary": "Connecting quality processes to product data.",
+          "roles": [
+            "end-user",
+            "change-manager",
+            "architect"
+          ],
+          "prerequisites": [
+            "m03-s02"
+          ],
+          "lessons": [
+            {
+              "id": "m07-s04-l01",
+              "slug": "closed-loop-quality",
+              "title": "Closed-loop quality explained",
+              "level": "advanced",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m03-s02"
+              ],
+              "objectives": [
+                "Explain closed-loop quality",
+                "Trace a field issue back to design"
+              ],
+              "modalities": [
+                "ill",
+                "case",
+                "ani"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m07-s04-l02",
+              "slug": "capa-nc",
+              "title": "CAPA, nonconformance and customer experience",
+              "level": "advanced",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m07-s04-l01"
+              ],
+              "objectives": [
+                "Compare CAPA and nonconformance",
+                "Link a quality record to a change"
+              ],
+              "modalities": [
+                "cmp",
+                "walk",
+                "scen"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m07-s04-l03",
+              "slug": "risk-reliability",
+              "title": "Risk and reliability: FMEA basics",
+              "level": "expert",
+              "roles": [
+                "end-user",
+                "change-manager",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m07-s04-l02"
+              ],
+              "objectives": [
+                "Read an FMEA",
+                "Explain how risk links to design data"
+              ],
+              "modalities": [
+                "ill",
+                "case",
+                "quiz"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m07-s04-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "ani",
+            "case",
+            "cmp",
+            "ill",
+            "quiz",
+            "scen",
+            "walk"
+          ]
+        },
+        {
+          "id": "m07-s05",
+          "title": "ProjectLink collaboration",
+          "summary": "Project collaboration inside and outside the company.",
+          "roles": [
+            "end-user",
+            "business-admin",
+            "architect"
+          ],
+          "prerequisites": [
+            "m02-s01"
+          ],
+          "lessons": [
+            {
+              "id": "m07-s05-l01",
+              "slug": "projects-plans",
+              "title": "Projects, plans and deliverables",
+              "level": "intermediate",
+              "roles": [
+                "end-user",
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m02-s01"
+              ],
+              "objectives": [
+                "Set up a project with a plan",
+                "Track deliverables"
+              ],
+              "modalities": [
+                "walk",
+                "sim",
+                "ill"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m07-s05-l02",
+              "slug": "supplier-collab",
+              "title": "Collaborating with suppliers",
+              "level": "advanced",
+              "roles": [
+                "end-user",
+                "business-admin",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m07-s05-l01"
+              ],
+              "objectives": [
+                "Share data safely with a supplier",
+                "Bring supplier work back into PDM"
+              ],
+              "modalities": [
+                "case",
+                "scen",
+                "cmp"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m07-s05-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "case",
+            "cmp",
+            "ill",
+            "scen",
+            "sim",
+            "walk"
+          ]
+        },
+        {
+          "id": "m07-s06",
+          "title": "PartsLink and classification at scale",
+          "summary": "Scaling classification across the enterprise.",
+          "roles": [
+            "business-admin",
+            "end-user",
+            "architect"
+          ],
+          "prerequisites": [
+            "m04-s09"
+          ],
+          "lessons": [
+            {
+              "id": "m07-s06-l01",
+              "slug": "partslink-reuse",
+              "title": "Classification-driven reuse at scale",
+              "level": "advanced",
+              "roles": [
+                "business-admin",
+                "end-user",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m04-s09"
+              ],
+              "objectives": [
+                "Run a classification-based reuse search",
+                "Measure reuse"
+              ],
+              "modalities": [
+                "case",
+                "sim",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m07-s06-l02",
+              "slug": "classification-governance",
+              "title": "Governing a classification library",
+              "level": "expert",
+              "roles": [
+                "business-admin",
+                "end-user",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m07-s06-l01"
+              ],
+              "objectives": [
+                "Set rules for new classes",
+                "Clean up a messy library"
+              ],
+              "modalities": [
+                "case",
+                "cheat",
+                "scen"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m07-s06-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "case",
+            "cheat",
+            "quiz",
+            "scen",
+            "sim"
+          ]
+        },
+        {
+          "id": "m07-s07",
+          "title": "Integrations",
+          "summary": "Connecting Windchill to the rest of the business.",
+          "roles": [
+            "developer",
+            "architect",
+            "system-admin"
+          ],
+          "prerequisites": [
+            "m01-s02"
+          ],
+          "lessons": [
+            {
+              "id": "m07-s07-l01",
+              "slug": "erp-integration",
+              "title": "ERP integration patterns",
+              "level": "expert",
+              "roles": [
+                "developer",
+                "architect",
+                "system-admin"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m01-s02"
+              ],
+              "objectives": [
+                "Compare point-to-point and middleware patterns",
+                "Decide what data goes to ERP and when"
+              ],
+              "modalities": [
+                "ill",
+                "cmp",
+                "case"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m07-s07-l02",
+              "slug": "mes-thingworx",
+              "title": "MES, ThingWorx and the digital thread",
+              "level": "expert",
+              "roles": [
+                "developer",
+                "architect",
+                "system-admin"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m07-s07-l01"
+              ],
+              "objectives": [
+                "Explain the digital thread",
+                "Place MES and IoT data next to PLM"
+              ],
+              "modalities": [
+                "ill",
+                "case",
+                "flash"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m07-s07-l03",
+              "slug": "rest-odata",
+              "title": "Windchill REST Services and OData",
+              "level": "expert",
+              "roles": [
+                "developer",
+                "architect",
+                "system-admin"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m07-s07-l02"
+              ],
+              "objectives": [
+                "Call a REST endpoint to read parts",
+                "Explain domains in the REST API"
+              ],
+              "modalities": [
+                "ill",
+                "walk",
+                "quiz"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m07-s07-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "case",
+            "cmp",
+            "flash",
+            "ill",
+            "quiz",
+            "walk"
+          ]
+        },
+        {
+          "id": "m07-s08",
+          "title": "Windchill+ and the cloud",
+          "summary": "What changes in the cloud.",
+          "roles": [
+            "system-admin",
+            "architect",
+            "developer",
+            "business-admin"
+          ],
+          "prerequisites": [
+            "m01-s02"
+          ],
+          "lessons": [
+            {
+              "id": "m07-s08-l01",
+              "slug": "saas-vs-onprem",
+              "title": "Windchill+ SaaS vs on-premises",
+              "level": "advanced",
+              "roles": [
+                "system-admin",
+                "architect",
+                "developer",
+                "business-admin"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m01-s02"
+              ],
+              "objectives": [
+                "Compare SaaS and on-premises responsibilities",
+                "Explain the upgrade model"
+              ],
+              "modalities": [
+                "cmp",
+                "ill",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m07-s08-l02",
+              "slug": "cloud-readiness",
+              "title": "Cloud readiness and customization limits",
+              "level": "expert",
+              "roles": [
+                "system-admin",
+                "architect",
+                "developer",
+                "business-admin"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m07-s08-l01"
+              ],
+              "objectives": [
+                "Assess readiness for Windchill+",
+                "Replace customizations with configuration"
+              ],
+              "modalities": [
+                "case",
+                "whatif",
+                "cmp"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m07-s08-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "case",
+            "cmp",
+            "ill",
+            "quiz",
+            "whatif"
+          ]
+        },
+        {
+          "id": "m07-s09",
+          "title": "Customization and extension points",
+          "summary": "Extending Windchill safely, at a high level.",
+          "roles": [
+            "developer",
+            "architect"
+          ],
+          "prerequisites": [
+            "m04-s04"
+          ],
+          "lessons": [
+            {
+              "id": "m07-s09-l01",
+              "slug": "configure-first",
+              "title": "Configure before you customize",
+              "level": "advanced",
+              "roles": [
+                "developer",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m04-s04"
+              ],
+              "objectives": [
+                "Decide whether a need requires code",
+                "Estimate the lifetime cost of customization"
+              ],
+              "modalities": [
+                "ill",
+                "cmp",
+                "case"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m07-s09-l02",
+              "slug": "information-model",
+              "title": "The information model and persistence for developers",
+              "level": "expert",
+              "roles": [
+                "developer",
+                "architect"
+              ],
+              "durationMinutes": 15,
+              "prerequisites": [
+                "m07-s09-l01"
+              ],
+              "objectives": [
+                "Explain persistable objects and links",
+                "Navigate the information model"
+              ],
+              "modalities": [
+                "ill",
+                "ani",
+                "quiz"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m07-s09-l03",
+              "slug": "extension-points",
+              "title": "Extension points: UI, listeners and services",
+              "level": "expert",
+              "roles": [
+                "developer",
+                "architect"
+              ],
+              "durationMinutes": 15,
+              "prerequisites": [
+                "m07-s09-l02"
+              ],
+              "objectives": [
+                "Choose the right extension point",
+                "Explain event listeners and services"
+              ],
+              "modalities": [
+                "ill",
+                "walk",
+                "cmp"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m07-s09-l04",
+              "slug": "dev-environment",
+              "title": "Development environment and practices",
+              "level": "expert",
+              "roles": [
+                "developer",
+                "architect"
+              ],
+              "durationMinutes": 12,
+              "prerequisites": [
+                "m07-s09-l03"
+              ],
+              "objectives": [
+                "Set up a development environment",
+                "Package and deploy a customization"
+              ],
+              "modalities": [
+                "walk",
+                "cheat",
+                "whatif"
+              ],
+              "status": "outlined"
+            },
+            {
+              "id": "m07-s09-l05",
+              "slug": "upgrade-safe",
+              "title": "Upgrade-safe customization",
+              "level": "expert",
+              "roles": [
+                "developer",
+                "architect"
+              ],
+              "durationMinutes": 10,
+              "prerequisites": [
+                "m07-s09-l04"
+              ],
+              "objectives": [
+                "Apply upgrade-safe rules",
+                "Review code for upgrade risk"
+              ],
+              "modalities": [
+                "whatif",
+                "case",
+                "cheat"
+              ],
+              "status": "outlined"
+            }
+          ],
+          "checkpoint": {
+            "id": "m07-s09-check",
+            "type": "quiz+flashcards",
+            "questions": 10,
+            "passMark": 0.8,
+            "durationMinutes": 10
+          },
+          "modalitiesCovered": [
+            "ani",
+            "case",
+            "cheat",
+            "cmp",
+            "ill",
+            "quiz",
+            "walk",
+            "whatif"
+          ]
+        }
+      ],
+      "capstone": {
+        "id": "m07-cap",
+        "title": "Launch the configurable e-bike",
+        "type": "mini-project",
+        "durationMinutes": 15,
+        "brief": "Acme's e-bike comes in three battery sizes and two frame colours and will be built in two plants. Make it buildable.",
+        "tasks": [
+          "Model options and choices for battery and colour",
+          "Configure a customer variant",
+          "Transform the eBOM into a plant-specific mBOM",
+          "Write a one-page integration note: what goes to ERP and when"
+        ],
+        "roles": [
+          "end-user",
+          "business-admin",
+          "architect",
+          "developer"
+        ],
+        "prerequisites": [
+          "m07-s01",
+          "m07-s02",
+          "m07-s07"
+        ],
+        "status": "outlined"
+      },
+      "badge": {
+        "id": "badge-advanced",
+        "name": "Advanced Topics Complete",
+        "rule": "Pass every section checkpoint and the capstone"
+      }
+    }
+  ],
+  "paths": [
+    {
+      "id": "path-end-user",
+      "role": "end-user",
+      "title": "End User / Engineer",
+      "targetLevel": "intermediate",
+      "summary": "Create, revise, release and view product data with confidence.",
+      "requiredUnits": [
+        "m01",
+        "m02",
+        "m03-s01",
+        "m03-s02",
+        "m03-s03",
+        "m03-s04",
+        "m03-cap"
+      ],
+      "prerequisiteUnits": [],
+      "optionalUnits": [
+        "m07-s01",
+        "m07-s03",
+        "m07-s05"
+      ],
+      "orderedSections": [
+        "m01-s01",
+        "m01-s02",
+        "m01-s03",
+        "m01-s04",
+        "m02-s01",
+        "m02-s02",
+        "m02-s03",
+        "m02-s04",
+        "m03-s01",
+        "m03-s02",
+        "m03-s03",
+        "m03-s04"
+      ],
+      "requiredLessonCount": 58,
+      "requiredCapstones": [
+        "m01-cap",
+        "m02-cap",
+        "m03-cap"
+      ],
+      "estimatedMinutes": 593,
+      "certificate": {
+        "id": "cert-end-user",
+        "name": "Windchill Mastery: End User / Engineer",
+        "rule": "Complete all required units, pass every checkpoint at 80% and a 30-question final assessment at 80%"
+      }
+    },
+    {
+      "id": "path-change-manager",
+      "role": "change-manager",
+      "title": "Change Manager",
+      "targetLevel": "advanced",
+      "summary": "Run change and configuration management end to end.",
+      "requiredUnits": [
+        "m01",
+        "m02-s02",
+        "m02-s03",
+        "m03",
+        "m04-s08"
+      ],
+      "prerequisiteUnits": [
+        "m02-s01"
+      ],
+      "optionalUnits": [
+        "m07-s01",
+        "m07-s04"
+      ],
+      "orderedSections": [
+        "m01-s01",
+        "m01-s02",
+        "m01-s03",
+        "m01-s04",
+        "m02-s01",
+        "m02-s02",
+        "m02-s03",
+        "m03-s01",
+        "m03-s02",
+        "m03-s03",
+        "m03-s04",
+        "m03-s05",
+        "m04-s08"
+      ],
+      "requiredLessonCount": 60,
+      "requiredCapstones": [
+        "m01-cap",
+        "m03-cap"
+      ],
+      "estimatedMinutes": 604,
+      "certificate": {
+        "id": "cert-change-manager",
+        "name": "Windchill Mastery: Change Manager",
+        "rule": "Complete all required units, pass every checkpoint at 80% and a 30-question final assessment at 80%"
+      }
+    },
+    {
+      "id": "path-business-admin",
+      "role": "business-admin",
+      "title": "Business Administrator",
+      "targetLevel": "advanced",
+      "summary": "Configure Windchill for how your company works.",
+      "requiredUnits": [
+        "m01",
+        "m02-s01",
+        "m02-s02",
+        "m03-s04",
+        "m04"
+      ],
+      "prerequisiteUnits": [],
+      "optionalUnits": [
+        "m07-s02",
+        "m07-s06",
+        "m07-s08"
+      ],
+      "orderedSections": [
+        "m01-s01",
+        "m01-s02",
+        "m01-s03",
+        "m01-s04",
+        "m02-s01",
+        "m02-s02",
+        "m03-s04",
+        "m04-s01",
+        "m04-s02",
+        "m04-s03",
+        "m04-s04",
+        "m04-s05",
+        "m04-s06",
+        "m04-s07",
+        "m04-s08",
+        "m04-s09"
+      ],
+      "requiredLessonCount": 63,
+      "requiredCapstones": [
+        "m01-cap",
+        "m04-cap"
+      ],
+      "estimatedMinutes": 655,
+      "certificate": {
+        "id": "cert-business-admin",
+        "name": "Windchill Mastery: Business Administrator",
+        "rule": "Complete all required units, pass every checkpoint at 80% and a 30-question final assessment at 80%"
+      }
+    },
+    {
+      "id": "path-system-admin",
+      "role": "system-admin",
+      "title": "System Administrator",
+      "targetLevel": "advanced",
+      "summary": "Install, run, tune, protect and scale Windchill.",
+      "requiredUnits": [
+        "m01",
+        "m04-s01",
+        "m04-s05",
+        "m05"
+      ],
+      "prerequisiteUnits": [
+        "m04-s02"
+      ],
+      "optionalUnits": [
+        "m06-s05",
+        "m07-s03",
+        "m07-s08"
+      ],
+      "orderedSections": [
+        "m01-s01",
+        "m01-s02",
+        "m01-s03",
+        "m01-s04",
+        "m04-s01",
+        "m04-s02",
+        "m04-s05",
+        "m05-s01",
+        "m05-s02",
+        "m05-s03",
+        "m05-s04",
+        "m05-s05",
+        "m05-s06",
+        "m05-s07"
+      ],
+      "requiredLessonCount": 51,
+      "requiredCapstones": [
+        "m01-cap",
+        "m05-cap"
+      ],
+      "estimatedMinutes": 549,
+      "certificate": {
+        "id": "cert-system-admin",
+        "name": "Windchill Mastery: System Administrator",
+        "rule": "Complete all required units, pass every checkpoint at 80% and a 30-question final assessment at 80%"
+      }
+    },
+    {
+      "id": "path-migration",
+      "role": "migration-specialist",
+      "title": "Migration Specialist",
+      "targetLevel": "advanced",
+      "summary": "Move data into Windchill and through upgrades without losing anything.",
+      "requiredUnits": [
+        "m01",
+        "m02",
+        "m04-s04",
+        "m06"
+      ],
+      "prerequisiteUnits": [],
+      "optionalUnits": [
+        "m05-s03",
+        "m07-s03"
+      ],
+      "orderedSections": [
+        "m01-s01",
+        "m01-s02",
+        "m01-s03",
+        "m01-s04",
+        "m02-s01",
+        "m02-s02",
+        "m02-s03",
+        "m02-s04",
+        "m04-s04",
+        "m06-s01",
+        "m06-s02",
+        "m06-s03",
+        "m06-s04",
+        "m06-s05"
+      ],
+      "requiredLessonCount": 62,
+      "requiredCapstones": [
+        "m01-cap",
+        "m02-cap",
+        "m06-cap"
+      ],
+      "estimatedMinutes": 655,
+      "certificate": {
+        "id": "cert-migration",
+        "name": "Windchill Mastery: Migration Specialist",
+        "rule": "Complete all required units, pass every checkpoint at 80% and a 30-question final assessment at 80%"
+      }
+    },
+    {
+      "id": "path-developer",
+      "role": "developer",
+      "title": "Developer (Customization)",
+      "targetLevel": "expert",
+      "summary": "Extend and integrate Windchill the upgrade-safe way.",
+      "requiredUnits": [
+        "m01",
+        "m02-s01",
+        "m02-s02",
+        "m04-s04",
+        "m04-s06",
+        "m07-s07",
+        "m07-s08",
+        "m07-s09"
+      ],
+      "prerequisiteUnits": [
+        "m03-s04",
+        "m04-s02",
+        "m04-s03"
+      ],
+      "optionalUnits": [
+        "m06-s02",
+        "m06-s05"
+      ],
+      "orderedSections": [
+        "m01-s01",
+        "m01-s02",
+        "m01-s03",
+        "m01-s04",
+        "m02-s01",
+        "m02-s02",
+        "m03-s04",
+        "m04-s02",
+        "m04-s03",
+        "m04-s04",
+        "m04-s06",
+        "m07-s07",
+        "m07-s08",
+        "m07-s09"
+      ],
+      "requiredLessonCount": 58,
+      "requiredCapstones": [
+        "m01-cap"
+      ],
+      "estimatedMinutes": 600,
+      "certificate": {
+        "id": "cert-developer",
+        "name": "Windchill Mastery: Developer (Customization)",
+        "rule": "Complete all required units, pass every checkpoint at 80% and a 30-question final assessment at 80%"
+      }
+    },
+    {
+      "id": "path-architect",
+      "role": "architect",
+      "title": "Solution Architect",
+      "targetLevel": "expert",
+      "summary": "Design end-to-end PLM solutions across modules and systems.",
+      "requiredUnits": [
+        "m01",
+        "m02",
+        "m03-s05",
+        "m04-s02",
+        "m04-s05",
+        "m05-s06",
+        "m06-s01",
+        "m07-s01",
+        "m07-s02",
+        "m07-s07",
+        "m07-s08",
+        "m07-cap"
+      ],
+      "prerequisiteUnits": [
+        "m03-s01",
+        "m03-s02",
+        "m04-s01",
+        "m05-s01"
+      ],
+      "optionalUnits": [
+        "m07-s09"
+      ],
+      "orderedSections": [
+        "m01-s01",
+        "m01-s02",
+        "m01-s03",
+        "m01-s04",
+        "m02-s01",
+        "m02-s02",
+        "m02-s03",
+        "m02-s04",
+        "m03-s01",
+        "m03-s02",
+        "m03-s05",
+        "m04-s01",
+        "m04-s02",
+        "m04-s05",
+        "m05-s01",
+        "m05-s06",
+        "m06-s01",
+        "m07-s01",
+        "m07-s02",
+        "m07-s07",
+        "m07-s08"
+      ],
+      "requiredLessonCount": 86,
+      "requiredCapstones": [
+        "m01-cap",
+        "m02-cap",
+        "m07-cap"
+      ],
+      "estimatedMinutes": 902,
+      "certificate": {
+        "id": "cert-architect",
+        "name": "Windchill Mastery: Solution Architect",
+        "rule": "Complete all required units, pass every checkpoint at 80% and a 30-question final assessment at 80%"
+      }
+    }
+  ],
+  "badges": [
+    {
+      "id": "badge-first-lesson",
+      "name": "First Click",
+      "rule": "Complete any lesson"
+    },
+    {
+      "id": "badge-streak-7",
+      "name": "Week Streak",
+      "rule": "Learn on 7 days in a row"
+    },
+    {
+      "id": "badge-streak-30",
+      "name": "Month Streak",
+      "rule": "Learn on 30 days in a row"
+    },
+    {
+      "id": "badge-quiz-perfect",
+      "name": "Flawless",
+      "rule": "Score 100% on a section checkpoint first try"
+    },
+    {
+      "id": "badge-capstone",
+      "name": "Scenario Solver",
+      "rule": "Complete any capstone"
+    }
+  ]
+}

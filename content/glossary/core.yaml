@@ -1,0 +1,332 @@
+# Core Windchill & PLM terms. `plain` is the simple-language version shown first.
+# Link to a term from any lesson markdown with [[id]] or [[id|custom text]].
+
+- id: plm
+  term: PLM (Product Lifecycle Management)
+  plain: Keeping every piece of product information and every decision in one place, from idea to retirement.
+  definition: The business approach and software that manage a product's data, processes and people across its whole life - concept, design, manufacture, service and retirement.
+  related: [pdm, erp, mes, windchill]
+
+- id: pdm
+  term: PDM (Product Data Management)
+  plain: The engineering filing cabinet - CAD files, parts and documents with version control.
+  definition: The engineering-data core of PLM. Controls CAD files, parts, documents, versions and access. In Windchill this is mainly delivered by Windchill PDMLink.
+  related: [plm, pdmlink]
+
+- id: erp
+  term: ERP (Enterprise Resource Planning)
+  plain: The system that runs the business side - costs, stock, purchasing, orders.
+  definition: Enterprise software (for example SAP or Oracle) that owns cost, inventory, purchasing, sales orders and production planning. Released parts and BOMs usually flow from PLM into ERP.
+  related: [plm, mes]
+
+- id: mes
+  term: MES (Manufacturing Execution System)
+  plain: The system that tells the shop floor what to build right now and records what happened.
+  definition: Software that runs and tracks production on the shop floor - work orders, operations, machine data and as-built records.
+  related: [erp, plm]
+
+- id: windchill
+  term: Windchill
+  plain: PTC's PLM software, used through a web browser and CAD tools.
+  definition: PTC's web-based PLM platform. It provides product data management, change and configuration management, BOM management, manufacturing process planning, quality and collaboration capabilities.
+  related: [plm, pdmlink, creo]
+
+- id: pdmlink
+  term: Windchill PDMLink
+  plain: The part of Windchill that manages product data and changes.
+  definition: The core Windchill solution for managing CAD data, parts, documents, BOMs, lifecycles and change processes inside product and library contexts.
+  related: [windchill, projectlink, mpmlink]
+
+- id: projectlink
+  term: Windchill ProjectLink
+  plain: Shared project spaces for teams, including outside partners.
+  definition: The Windchill solution for project collaboration - project contexts with plans, deliverables and shared data, often used with suppliers and partners.
+  related: [pdmlink, context]
+
+- id: mpmlink
+  term: Windchill MPMLink
+  plain: Plans how the product is built in the factory.
+  definition: The Windchill solution for manufacturing process management - transforming the engineering BOM (eBOM) into manufacturing BOMs (mBOMs) and defining process plans, operations and resources.
+  related: [ebom, mbom]
+
+- id: creo
+  term: Creo Parametric
+  plain: PTC's 3D CAD tool that engineers design in.
+  definition: PTC's 3D CAD application. It connects to Windchill through an embedded browser and workspace so CAD models and drawings are checked in and out of Windchill.
+  related: [cad-document, workspace]
+
+- id: creo-view
+  term: Creo View
+  plain: A viewer that lets anyone look at 3D models and drawings without a CAD license.
+  definition: PTC's visualization tool for viewing, measuring and marking up 3D models and drawings that Windchill publishes as lightweight representations.
+  related: [representation, creo]
+
+- id: part
+  term: Part (WTPart)
+  plain: A "thing" in your product - a screw, a motor, a whole bike.
+  definition: The Windchill object that represents a physical item or assembly. Parts carry attributes, form product structures (BOMs) and link to the documents and CAD files that describe them.
+  aka: [WTPart]
+  related: [bom, document, cad-document]
+
+- id: document
+  term: Document (WTDocument)
+  plain: A file that describes something - a spec, test report or manual.
+  definition: The Windchill object for non-CAD content such as specifications, test reports and procedures. It holds a primary file and optional attachments, and has its own versions and lifecycle.
+  aka: [WTDocument]
+  related: [part, cad-document]
+
+- id: cad-document
+  term: CAD Document (EPMDocument)
+  plain: A 3D model or drawing file from a CAD tool, managed in Windchill.
+  definition: The Windchill object that manages a CAD file (model, assembly or drawing) and its dependencies on other CAD files. Usually associated with a part.
+  aka: [EPMDocument, EPM Document]
+  related: [part, creo, workspace]
+
+- id: bom
+  term: BOM (Bill of Materials)
+  plain: The shopping list of what goes into a product, and how many.
+  definition: A structured list of the parts and quantities that make up a product. In Windchill a BOM is formed by parts and their "uses" relationships.
+  related: [ebom, mbom, part, uses-link]
+
+- id: ebom
+  term: eBOM (engineering BOM)
+  plain: The product structure as engineers designed it.
+  definition: The product structure organised by design function, authored by engineering.
+  related: [bom, mbom]
+
+- id: mbom
+  term: mBOM (manufacturing BOM)
+  plain: The product structure as the factory builds it.
+  definition: The product structure organised by how it is manufactured and assembled, often derived from the eBOM in MPMLink.
+  related: [bom, ebom, mpmlink]
+
+- id: context
+  term: Context
+  plain: The "home" an object lives in, which decides who can see and change it.
+  definition: A container that holds data and defines teams, access rules and settings. Application contexts are products, libraries and projects; they sit inside an organization, which sits inside the site.
+  related: [product-context, library, folder]
+
+- id: product-context
+  term: Product (context)
+  plain: The home for everything about one product line.
+  definition: An application context for the data of a product or product line - parts, CAD, documents and changes - with its own team and folders.
+  related: [context, library]
+
+- id: library
+  term: Library
+  plain: A shared shelf of reusable things, like standard screws.
+  definition: An application context for data reused across products, such as standard parts, templates or reference documents.
+  related: [context, product-context]
+
+- id: folder
+  term: Folder
+  plain: A place inside a context to organise objects, like folders on your laptop.
+  definition: An organisational location within a context. Each object lives in exactly one folder of one context.
+  related: [context]
+
+- id: navigator
+  term: Navigator
+  plain: The side panel you use to jump between your products, libraries and projects.
+  definition: The navigation panel in the Windchill user interface for browsing contexts, recent items and folders, and for launching searches.
+  related: [context, quick-search]
+
+- id: quick-search
+  term: Quick search
+  plain: The search box for when you already know a number or name.
+  definition: The always-available search field that looks for objects by keyword, number or name across the contexts you can access.
+  related: [advanced-search, saved-search]
+
+- id: advanced-search
+  term: Advanced search
+  plain: Search with filters - type, state, dates, attributes.
+  definition: The search page where you choose object types, contexts and attribute criteria to find exactly the objects you need.
+  related: [quick-search, saved-search]
+
+- id: saved-search
+  term: Saved search
+  plain: A search you keep so you can run it again with one click.
+  definition: Search criteria stored under a name so they can be rerun, and optionally shared with others.
+  related: [advanced-search]
+
+- id: information-page
+  term: Information page
+  plain: An object's profile page - everything about it in one place.
+  definition: The page that shows an object's attributes, related objects, structure, history, changes and actions, organised in tabs.
+  related: [table-view]
+
+- id: table-view
+  term: Table view
+  plain: A saved way of looking at a list - which columns, sorting and filters.
+  definition: A named configuration of a Windchill table that controls its columns, sorting and filtering. Users can create their own views.
+  related: [information-page]
+
+- id: version
+  term: Version
+  plain: The label that tells you which edition of an object you are looking at, like B.3.
+  definition: The identifier of an object's state of evolution, written as revision.iteration, for example B.3.
+  related: [revision, iteration]
+
+- id: revision
+  term: Revision
+  plain: The letter in a version - a new letter means a new formal edition.
+  definition: The major part of a version (A, B, C...). A new revision is created by the Revise action, usually after release, to start controlled changes.
+  related: [version, iteration]
+
+- id: iteration
+  term: Iteration
+  plain: The number in a version - it goes up every time someone checks in a change.
+  definition: The minor part of a version (1, 2, 3...). Each check-in creates a new iteration within the same revision.
+  related: [version, revision, check-out]
+
+- id: check-out
+  term: Check out / check in
+  plain: Borrow an object to change it so nobody else edits it at the same time, then give it back.
+  definition: Check out reserves an object for editing and creates a working copy; check in stores the changes as a new iteration and releases the reservation.
+  related: [iteration, workspace]
+
+- id: lifecycle-state
+  term: Lifecycle state
+  plain: Where an object is in its journey - for example In Work, Under Review or Released.
+  definition: The current stage of an object in its life cycle template, such as In Work, Under Review, Released or Obsolete. States drive what can be done and who can do it.
+  related: [life-cycle, promotion-request]
+
+- id: life-cycle
+  term: Life cycle (template)
+  plain: The map of stages an object can move through.
+  definition: An administrator-defined template that lists the states an object can be in, the allowed transitions between them, and the roles involved at each stage.
+  related: [lifecycle-state, workflow]
+
+- id: workflow
+  term: Workflow
+  plain: An automated to-do process that routes tasks to the right people.
+  definition: An administrator-defined process that assigns tasks, collects approvals and runs automated steps, for example to review and release a change.
+  related: [life-cycle, task]
+
+- id: task
+  term: Task (work item)
+  plain: Something Windchill is asking you to do, like review or approve.
+  definition: An assignment created by a workflow for a user or role, listed on the user's home page until it is completed.
+  related: [workflow]
+
+- id: problem-report
+  term: Problem Report (PR)
+  plain: '"Something''s wrong" - a report of an issue that may need a change.'
+  definition: The change object used to capture and describe a problem, with the affected objects. It can lead to a change request.
+  related: [change-request, change-notice]
+
+- id: change-request
+  term: Change Request (CR / ECR)
+  plain: '"Let''s fix it this way" - the proposal to change something, which gets reviewed.'
+  definition: The change object that proposes a change, captures its business case and impact, and is reviewed by a change board before work is authorised.
+  aka: [ECR]
+  related: [problem-report, change-notice]
+
+- id: change-notice
+  term: Change Notice (CN / ECN)
+  plain: '"Approved - go do it" - the work order that carries out the change.'
+  definition: The change object that implements an approved change through change tasks, listing the objects affected and the new versions that result.
+  aka: [ECN]
+  related: [change-request, change-task]
+
+- id: change-task
+  term: Change Task
+  plain: One piece of the work needed to complete a change notice.
+  definition: A unit of work within a change notice, assigned to a person, that lists the affected objects to revise and the resulting objects.
+  related: [change-notice]
+
+- id: promotion-request
+  term: Promotion Request
+  plain: A simple request to move objects to the next state, like from In Work to Released.
+  definition: The Windchill object used to review and move a set of objects to a new lifecycle state, often used for releasing new data before formal change control applies.
+  related: [lifecycle-state, change-notice]
+
+- id: method-server
+  term: Method server
+  plain: The worker engine that does the actual thinking for Windchill.
+  definition: A Java process that runs Windchill business logic - queries, check-ins, workflow steps. A system usually runs several, coordinated by the server manager. Background method servers handle queued work.
+  related: [server-manager, servlet-engine]
+
+- id: server-manager
+  term: Server manager
+  plain: The supervisor that starts the worker engines and shares the work between them.
+  definition: The Windchill process that starts, monitors and load-balances method servers and manages shared caches.
+  related: [method-server]
+
+- id: servlet-engine
+  term: Servlet engine (Tomcat)
+  plain: The traffic controller that turns web requests into work for Windchill.
+  definition: The Java web container (Apache Tomcat, embedded in Windchill) that runs the web application and passes requests to method servers.
+  related: [web-server, method-server]
+
+- id: web-server
+  term: Web server (HTTP server)
+  plain: The front door every browser request comes through.
+  definition: The PTC HTTP Server (based on Apache) that receives browser and client requests, handles authentication and forwards them to the servlet engine.
+  related: [servlet-engine]
+
+- id: vault
+  term: File vault
+  plain: The storeroom where Windchill keeps the actual files.
+  definition: A file-system location managed by Windchill where file content (CAD files, documents) is stored. The database stores only the metadata and a pointer to the file.
+  related: [metadata, replica]
+
+- id: replica
+  term: Replica site
+  plain: A copy of files kept closer to users in another location so downloads are fast.
+  definition: A remote file server that holds replicated copies of vault content near distant users to speed up downloads.
+  related: [vault]
+
+- id: metadata
+  term: Metadata
+  plain: Information about a thing - its number, name, version, owner - rather than the file itself.
+  definition: The attribute data Windchill stores in its relational database, such as number, name, version, state, owner and relationships.
+  related: [vault]
+
+- id: directory-server
+  term: Directory server (LDAP)
+  plain: The address book of users and groups.
+  definition: An LDAP directory, such as Windchill Directory Server or a corporate directory, that stores user and group information used for login and team membership.
+  related: [web-server]
+
+- id: workspace
+  term: Workspace
+  plain: Your personal desk where CAD files are checked out and edited before they go back in.
+  definition: A user's working area used with CAD tools such as Creo to download, modify and check in CAD documents, with a local cache on the user's machine.
+  related: [cad-document, check-out]
+
+- id: representation
+  term: Representation (viewable)
+  plain: A lightweight picture-file of a model that anyone can view.
+  definition: A visualization file set published from CAD data by visualization services, viewable in Creo View or the browser.
+  related: [creo-view]
+
+- id: uses-link
+  term: Uses relationship
+  plain: '"This assembly is made of these parts."'
+  definition: The parent-child link between parts that forms a BOM, carrying quantity and other usage information.
+  related: [bom, part]
+
+- id: described-by
+  term: Described-by relationship
+  plain: '"This document explains this part" - tied to one version.'
+  definition: A link from a specific part version to a specific document version that describes it. It does not automatically follow newer document versions.
+  related: [references-link, part, document]
+
+- id: references-link
+  term: References relationship
+  plain: '"This part points at that document" - always the latest.'
+  definition: A link from a part to a document master, so it always resolves to the latest version of the document.
+  related: [described-by]
+
+- id: build-link
+  term: Content (build) association
+  plain: 'The link that says "this CAD model defines this part."'
+  definition: An association between a CAD document and a part (for example Owner, Contributing or Image) that controls whether the part's structure and attributes are built from the CAD data.
+  aka: [Owner association]
+  related: [cad-document, part]
+
+- id: master
+  term: Master
+  plain: The "identity card" shared by every version of an object.
+  definition: The persistent identity of an object - number and name - shared by all its versions. Each version (B.3, C.1...) is a separate record linked to the same master.
+  related: [version]

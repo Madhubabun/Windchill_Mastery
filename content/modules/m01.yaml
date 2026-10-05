@@ -1,0 +1,26 @@
+id: m01
+theme: violet
+icon: rocket
+tagline: Start here. What PLM is, how Windchill works and how to find your way around.
+cheatsheet:
+  sections:
+    - title: PLM in one breath
+      points:
+        - PLM manages a product's data and processes from idea to retirement.
+        - PDM is the engineering-data core of PLM; ERP owns cost, stock and orders; MES runs the shop floor.
+        - Windchill is PTC's PLM platform; PDMLink is its core product data management solution.
+    - title: How Windchill is built
+      points:
+        - Browser or CAD client → web server → servlet engine → method servers → database.
+        - Metadata (number, name, version, state) lives in the database; files live in vaults.
+        - Back up the database and the vaults together, or you lose consistency.
+    - title: Getting around
+      points:
+        - Every object lives in a context (product, library or project) and a folder inside it.
+        - Quick search for numbers and names; advanced search for attributes; save searches you reuse.
+        - An information page tells an object's whole story; tables and views let you shape lists.
+    - title: Objects you'll meet
+      points:
+        - Part (WTPart) = the "thing"; Document = specs and reports; CAD Document = model or drawing file.
+        - Identity = number + name + version (revision.iteration, e.g. B.3) + lifecycle state.
+        - Change objects - Problem Report, Change Request, Change Notice - drive controlled change.

@@ -1,0 +1,202 @@
+# Reference lesson: copy this file's shape when writing new lessons.
+id: m01-s01-l01
+subtitle: Every product has a life story. PLM is how companies keep it straight.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [plm, lifecycle, basics]
+
+blocks:
+  - type: text
+    md: |
+      Think about a scooter. Before anyone rides it, someone sketched it, engineers modelled it in CAD,
+      suppliers quoted the parts, testers broke a few prototypes, and the factory figured out how to build
+      thousands. After launch, customers report issues, engineers improve the design, and one day
+      the model is retired.
+
+      That whole journey is the **product lifecycle**. **[[plm]]** is how a company keeps every file,
+      decision and person on that journey connected, so everybody works from the same truth.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the product's whole life story" → *product lifecycle*
+      - "one shared place for all product info" → *single source of truth*
+      - "the software that does this" → *PLM system* (Windchill is one)
+
+  - type: animation
+    title: A scooter's life, in 6 stages
+    diagram:
+      width: 820
+      height: 300
+      nodes:
+        - { id: idea, label: Idea, sublabel: napkin sketch, x: 20, y: 120, w: 110, tone: accent, shape: pill }
+        - { id: design, label: Design, sublabel: CAD + specs, x: 155, y: 120, w: 110, tone: primary, shape: pill }
+        - { id: validate, label: Validate, sublabel: prototypes + tests, x: 290, y: 120, w: 120, tone: info, shape: pill }
+        - { id: make, label: Manufacture, sublabel: factory builds, x: 435, y: 120, w: 120, tone: warning, shape: pill }
+        - { id: service, label: Service, sublabel: repairs + updates, x: 580, y: 120, w: 110, tone: success, shape: pill }
+        - { id: retire, label: Retire, sublabel: end of life, x: 715, y: 120, w: 95, tone: neutral, shape: pill }
+        - { id: hub, label: PLM, sublabel: single source of truth, x: 330, y: 230, w: 160, h: 56, tone: primary, shape: cylinder }
+      edges:
+        - { from: idea, to: design }
+        - { from: design, to: validate }
+        - { from: validate, to: make }
+        - { from: make, to: service }
+        - { from: service, to: retire }
+        - { from: service, to: design, label: feedback, dashed: true }
+        - { from: hub, to: design, dashed: true, bidirectional: true }
+        - { from: hub, to: make, dashed: true, bidirectional: true }
+    chapters:
+      - title: It starts with an idea
+        caption: A product manager sketches a lighter, foldable scooter. Requirements are written down - weight, range, price.
+        show: [idea]
+        highlight: [idea]
+      - title: Engineers design it
+        caption: Designers build 3D CAD models, drawings and specs. Every file goes through many versions.
+        show: [idea, design]
+        highlight: [design]
+        flow: [idea>design]
+      - title: Prototypes get tested
+        caption: Test teams try to break it. Results feed back into the design, creating even more versions.
+        show: [idea, design, validate]
+        highlight: [validate]
+        flow: [design>validate]
+      - title: The factory builds it
+        caption: Manufacturing needs the **released** design - not last Tuesday's draft. Getting this wrong is expensive.
+        show: [idea, design, validate, make]
+        highlight: [make]
+        flow: [validate>make]
+      - title: Customers use it, issues appear
+        caption: A hinge cracks in cold weather. Service reports it, and engineering changes the design. The loop starts again.
+        show: [idea, design, validate, make, service]
+        highlight: [service]
+        flow: [make>service, service>design]
+      - title: One day, it retires
+        caption: The model is discontinued, but its data must still be kept for spare parts and regulations.
+        show: [idea, design, validate, make, service, retire]
+        highlight: [retire]
+        flow: [service>retire]
+      - title: PLM connects every stage
+        caption: PLM sits underneath the whole journey, so each stage reads and writes the **same** product data.
+        highlight: [hub]
+        flow: [hub>design, hub>make]
+        seconds: 8
+
+  - type: diagram
+    title: Three problems PLM solves
+    caption: Click each problem to see what it costs a real company.
+    diagram:
+      width: 760
+      height: 260
+      nodes:
+        - id: wrong-version
+          label: "Which file is right?"
+          sublabel: version chaos
+          x: 20
+          y: 40
+          w: 220
+          h: 70
+          tone: danger
+          detail: |
+            Without PLM, files get emailed and copied. The factory builds from `bracket_final_v3_REAL.step`
+            while engineering already moved on. Result: scrapped parts and rework.
+        - id: silent-change
+          label: "Who changed this?"
+          sublabel: uncontrolled change
+          x: 270
+          y: 40
+          w: 220
+          h: 70
+          tone: warning
+          detail: |
+            A dimension changes with no review. Nobody checks that the supplier, the manual and the
+            spare-parts list also need updating. PLM routes changes through review so impacts are checked.
+        - id: lost-knowledge
+          label: "Why was it built this way?"
+          sublabel: lost history
+          x: 520
+          y: 40
+          w: 220
+          h: 70
+          tone: info
+          detail: |
+            Years later, an auditor or a new engineer asks why a material was chosen. PLM keeps the full
+            history - versions, approvals and the reason for each change.
+        - id: plm-fix
+          label: PLM keeps one controlled, traceable truth
+          x: 170
+          y: 170
+          w: 420
+          h: 60
+          tone: success
+          shape: cylinder
+          detail: Version control, controlled change processes and full history - in one system everybody uses.
+      edges:
+        - { from: wrong-version, to: plm-fix }
+        - { from: silent-change, to: plm-fix }
+        - { from: lost-knowledge, to: plm-fix }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Industry studies regularly find engineers spend a large share of their week **searching for
+      or recreating information**. In regulated industries (medical devices, aerospace, automotive),
+      being unable to prove *which* design was built, and *why*, can stop a product from shipping.
+
+  - type: example
+    variant: case-study
+    title: The cold-weather hinge
+    industry: Micromobility
+    md: |
+      **Acme Mobility** (a fictional scooter maker used across this course) sold 20,000 folding scooters.
+      In winter, service centres reported cracked hinges.
+
+      **Without PLM:** engineering fixed the CAD model, but the factory kept building from an old
+      drawing for three weeks, and the spare-parts team kept shipping the old hinge.
+
+      **With PLM:** a *problem report* captured the issue, a *change request* was reviewed by
+      engineering, manufacturing and service together, and a *change notice* released the new hinge.
+      The factory, the supplier and the spare-parts catalogue all switched to the same new revision on
+      the same day.
+    takeaway: PLM doesn't just store files. It makes sure everyone acts on the same approved version at the same time.
+
+  - type: callout
+    variant: pro-tip
+    md: When you join a company that uses Windchill, ask "where does a design change start here?" The answer tells you a lot about how they use PLM.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: order
+        prompt: Put the product lifecycle stages in order.
+        items: [Idea, Design, Validate, Manufacture, Service, Retire]
+        explanation: Products move from idea to design, get validated, are manufactured, then serviced until they retire. Service feedback often loops back into design.
+      - kind: single
+        prompt: The factory built 500 brackets from an outdated drawing. Which PLM capability would have prevented this?
+        options:
+          - Faster CAD software
+          - Version control with released states, so the factory only uses released data
+          - A bigger file server
+          - More email reminders
+        answer: 1
+        explanation: PLM controls versions and lifecycle states, so manufacturing works from the released version, not whatever file was last emailed.
+      - kind: multi
+        prompt: Which of these are typical problems PLM solves? (Choose all that apply.)
+        options:
+          - Not knowing which file version is correct
+          - Changes made without review of their impact
+          - Losing the history of why a decision was made
+          - Paying employees' salaries
+        answers: [0, 1, 2]
+        explanation: Payroll belongs to HR/ERP systems. PLM handles versions, controlled change and history of product data.
+      - kind: truefalse
+        prompt: Once a product is retired, its PLM data can safely be deleted.
+        answer: false
+        explanation: Retired products still need data for spare parts, service, warranty and regulatory audits - often for many years.
+
+  - type: summary
+    points:
+      - A product's lifecycle runs from idea through design, validation, manufacture and service to retirement.
+      - PLM keeps one controlled, traceable source of truth for all of it.
+      - It solves version chaos, uncontrolled change and lost history.
+      - Windchill is the PLM system you'll learn in this course.

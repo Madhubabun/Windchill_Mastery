@@ -1,0 +1,34 @@
+{
+  "name": "windchill-mastery",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Windchill Mastery – interactive learning platform for PTC Windchill (web + Android)",
+  "workspaces": [
+    "packages/*",
+    "apps/web"
+  ],
+  "scripts": {
+    "content": "tsx scripts/build-content.ts",
+    "content:check": "tsx scripts/build-content.ts --check",
+    "dev": "npm run content && npm run dev -w apps/web",
+    "build:web": "npm run content && npm run build -w apps/web && tsx scripts/postbuild-web.ts",
+    "build:pdf": "tsx scripts/build-pdfs.ts",
+    "build:android": "bash apps/android/build.sh",
+    "build": "npm run build:web && npm run build:pdf && npm run build:android",
+    "test": "vitest run",
+    "typecheck": "tsc -p packages/core --noEmit && tsc -p apps/web --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "marked": "^18.0.14",
+    "playwright-core": "^1.51.1",
+    "tsx": "^4.23.15",
+    "typescript": "5.9.3",
+    "vitest": "^5.0.3",
+    "yaml": "^2.9.1",
+    "zod": "^4.6.5"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
