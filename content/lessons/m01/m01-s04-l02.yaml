@@ -1,0 +1,240 @@
+id: m01-s04-l02
+subtitle: Specs, test reports and manuals on one side. 3D models and drawings on the other.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [documents, wtdocument, cad, epmdocument]
+
+blocks:
+  - type: text
+    md: |
+      A part says *what* the thing is. But somebody still has to write down how strong it must be,
+      prove it passed the drop test, and draw exactly how to machine it. Those are files - and
+      Windchill sorts them into two families:
+
+      - **Documents** for everyday files: specs, test reports, work instructions, manuals, datasheets.
+      - **CAD documents** for files that come out of a CAD tool: 3D models, assemblies and drawings.
+
+      They look similar in a search list, but they behave very differently.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a spec, report or manual" → *[[document]]* (type **WTDocument**)
+      - "the main file of a document" → *[[primary-content]]*
+      - "extra files clipped on" → *[[attachment|attachments]]* (secondary content)
+      - "a 3D model or drawing" → *[[cad-document]]* (type **EPMDocument**)
+      - "this assembly needs those models to open" → *[[cad-dependency|CAD dependencies]]*
+
+  - type: diagram
+    title: Two kinds of document, side by side
+    caption: Left, a WTDocument with its files. Right, CAD documents that depend on each other and link to a part. Click to explore.
+    diagram:
+      width: 800
+      height: 400
+      groups:
+        - { label: Document (WTDocument), x: 10, y: 10, w: 330, h: 380, tone: info }
+        - { label: CAD documents (EPMDocument), x: 370, y: 10, w: 420, h: 380, tone: accent }
+      nodes:
+        - id: spec
+          label: Hinge test report
+          sublabel: "DOC-0815 · A.2"
+          x: 60
+          y: 60
+          w: 230
+          tone: info
+          detail: |
+            A **WTDocument**. It has a number, name, version and state, just like a part. Companies
+            usually define document *types* (Specification, Test Report, Work Instruction...) so each
+            kind gets the right attributes and approval process.
+        - id: primary
+          label: Primary content
+          sublabel: report.pdf
+          x: 30
+          y: 200
+          w: 140
+          h: 64
+          tone: neutral
+          shape: doc
+          detail: The **one main file** of the document - here the signed PDF. It can also be a URL link, or a document can hold no file at all.
+        - id: attach
+          label: Attachments
+          sublabel: raw-data.xlsx
+          x: 190
+          y: 200
+          w: 130
+          h: 64
+          tone: neutral
+          shape: doc
+          detail: Supporting files clipped on - raw measurements, photos, the original Word source. They version together with the document.
+        - id: asm
+          label: frame.asm
+          sublabel: CAD assembly
+          x: 420
+          y: 60
+          w: 150
+          tone: accent
+          detail: An assembly model. It **depends on** its component models - without them it can't open. Windchill tracks these CAD dependencies for you.
+        - id: drw
+          label: hinge.drw
+          sublabel: 2D drawing
+          x: 610
+          y: 60
+          w: 150
+          tone: accent
+          detail: A drawing references the 3D model it shows. When the model changes, the drawing needs updating too - the dependency makes that visible.
+        - id: prt
+          label: hinge.prt
+          sublabel: CAD part model
+          x: 520
+          y: 190
+          w: 150
+          tone: accent
+          detail: A single-part model. Used by the assembly and shown by the drawing.
+        - id: wtpart
+          label: Folding hinge
+          sublabel: "part SC-1042"
+          x: 520
+          y: 310
+          w: 150
+          tone: primary
+          detail: |
+            The **part**. The CAD model is associated to it - usually as the *Owner*, meaning the CAD
+            data defines the part. Other association types (for example Contributing, Image, or a
+            drawing's content association) say how strongly the CAD drives the part.
+      edges:
+        - { from: spec, to: primary, label: primary }
+        - { from: spec, to: attach, label: attached }
+        - { from: asm, to: prt, label: depends on }
+        - { from: drw, to: prt, label: references }
+        - { from: prt, to: wtpart, label: Owner }
+
+  - type: comparison
+    title: Part vs Document vs CAD document
+    columns: [Part, Document, CAD document]
+    rows:
+      - { label: Windchill type, cells: [WTPart, WTDocument, EPMDocument] }
+      - { label: Represents, cells: [A physical item, Information about something, A CAD model or drawing] }
+      - { label: Files, cells: [None required, Primary content + attachments, The CAD file(s)] }
+      - { label: Links to its own kind, cells: [Uses (the BOM), Optional document structure, CAD dependencies] }
+      - { label: Created mostly, cells: [In the browser or from CAD, In the browser, From the CAD tool via a workspace] }
+      - { label: Acme example, cells: [Folding hinge SC-1042, Hinge test report, "hinge.prt, hinge.drw"] }
+    takeaway: Same identity rules (number, name, version, state) - different jobs.
+
+  - type: example
+    variant: real-world
+    title: One hinge, many files
+    industry: Micromobility
+    md: |
+      For Acme's folding hinge, Windchill holds:
+
+      - **CAD documents:** `hinge.prt` (the 3D model) and `hinge.drw` (the machining drawing).
+      - **Documents:** the material specification, the cold-weather test report, and the
+        supplier's datasheet.
+      - **The part** SC-1042 that ties it all together.
+
+      An engineer opens the part and sees everything that describes it in one place - no hunting
+      through shared drives.
+    takeaway: Real products need both families. The part is where they meet.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      A quality auditor won't ask for "the hinge folder". They'll ask: *which test report proved
+      version B of this hinge was safe?* Because documents have their own versions and states, and
+      link to parts, Windchill can answer that in seconds.
+
+  - type: walkthrough
+    title: Create a document in a product
+    who: A product team member with permission to create documents
+    steps:
+      - title: Go to the right folder
+        where: [Navigator, Browse, Products, "<your product>", Folders]
+        md: Open the folder where this kind of document belongs. Folder rules differ by company, so follow your team's structure.
+      - title: Start a new document
+        where: [Folder toolbar, New, New Document]
+        md: Choose **New Document** from the folder's New actions.
+      - title: Pick the type and fill in attributes
+        where: [New Document window, type and attributes step]
+        md: Choose the document type (for example *Test Report*), then enter the name and any required attributes. The number is often generated automatically.
+      - title: Add the files
+        where: [New Document window, content step]
+        md: Upload the **primary content** (the main file). Add **attachments** if you have supporting files. Finish to create version A.1.
+    result: A new document at A.1, usually in the In Work state, in the folder you chose.
+
+  - type: walkthrough
+    title: See a CAD document's dependencies
+    who: Any user who can read the product
+    steps:
+      - title: Open the CAD document
+        where: [Search box, CAD document number or file name]
+        md: Search for the CAD document (for example `frame.asm`) and open its information page.
+      - title: Look at its structure
+        where: [CAD document information page, Structure tab]
+        md: The structure shows the components the assembly depends on. For a drawing, look at its references to see which model it shows.
+      - title: Find the associated part
+        where: [CAD document information page, related parts area]
+        md: The related parts table shows which part this CAD document is associated with, and the association type, such as Owner.
+    result: You can tell what this CAD file needs to open and which part it defines.
+
+  - type: callout
+    variant: note
+    md: |
+      CAD documents are normally created and checked in **from the CAD tool** (for example Creo,
+      through its Windchill connection and a [[workspace]]), not by uploading files in the browser.
+      That's how Windchill captures the dependencies correctly. Other CAD tools connect through
+      their own integrations.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Storing a drawing as a plain document.** If someone exports a PDF of the drawing and uploads
+      it as a WTDocument *instead of* checking in the real drawing, Windchill loses the link to the
+      model. Nobody gets warned when the model changes. PDFs of drawings are fine - as an extra, not
+      as the master.
+
+  - type: callout
+    variant: pro-tip
+    md: Before attaching ten files to one document, ask whether some deserve to be **separate documents**. If a file needs its own approval or version history, it should be its own document.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Acme writes a cold-weather test report as a PDF. What should it be in Windchill?
+        options:
+          - A CAD document
+          - A document, with the PDF as primary content
+          - An attachment on a part's uses link
+          - A part
+        answer: 1
+        explanation: Test reports are information about the product, so they're WTDocuments. The PDF is the primary content; raw data can be an attachment.
+      - kind: multi
+        prompt: Which of these are CAD documents? (Choose all that apply.)
+        options:
+          - hinge.prt (3D part model)
+          - frame.asm (assembly model)
+          - hinge.drw (2D drawing)
+          - Material specification PDF
+        answers: [0, 1, 2]
+        explanation: Models, assemblies and drawings from a CAD tool are EPMDocuments. A specification PDF is a regular document.
+      - kind: truefalse
+        prompt: A WTDocument can have only one file in total.
+        answer: false
+        explanation: It has one primary content, plus any number of attachments (secondary content).
+      - kind: single
+        prompt: Why does Windchill track CAD dependencies?
+        options:
+          - To make files smaller
+          - So an assembly or drawing opens with exactly the models it needs, and changes show up where they matter
+          - To create parts automatically every time
+          - To replace the BOM
+        answer: 1
+        explanation: Assemblies need their components and drawings need their models. Tracking dependencies keeps CAD data consistent when it is opened, changed and checked in.
+
+  - type: summary
+    points:
+      - Documents (WTDocument) hold everyday files - one primary content plus attachments.
+      - CAD documents (EPMDocument) hold CAD models and drawings, linked by CAD dependencies.
+      - CAD documents are associated to parts, usually with the CAD model as Owner.
+      - Both have their own number, name, version and state, and both meet at the part.

@@ -1,0 +1,252 @@
+id: m01-s03-l01
+subtitle: Your first five minutes in Windchill - where everything is and what's waiting for you.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [navigation, home-page, tasks, login]
+versionNotes:
+  - versions: ["All releases"]
+    md: |
+      The home page layout, icons and some labels have been refreshed several times across releases.
+      The ideas in this lesson - a header with search, a Navigator on the left, a Home area with your
+      tasks and checked-out work - hold broadly. If a label on your system differs, look for the same idea.
+
+blocks:
+  - type: text
+    md: |
+      Day one at **Acme Mobility**. Your manager says "it's all in Windchill" and sends you a link.
+      Here's the good news: Windchill is just a website. You open it in a browser, sign in, and land on
+      a page built around **you** - the jobs waiting for you, the files you're editing and the places
+      you visited last.
+
+      Once you know the four zones of the screen, every page in Windchill feels familiar.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "my start page" → *Home* page (often its *Overview*)
+      - "the panel on the left" → [[navigator]]
+      - "jobs someone needs me to do" → [[task|tasks]] (also called *assignments* or *work items*)
+      - "files I'm currently editing" → *checked-out work* (see [[check-out]])
+      - "the search box at the top" → [[quick-search]]
+
+  - type: diagram
+    title: The four zones of every Windchill page
+    caption: This is a schematic, not a screenshot. Click each zone to see what lives there.
+    diagram:
+      width: 800
+      height: 330
+      nodes:
+        - id: header
+          label: Header bar
+          sublabel: search · you · help
+          x: 20
+          y: 20
+          w: 760
+          h: 56
+          tone: primary
+          detail: |
+            The strip across the top. It holds the **quick search** field, a link to your user
+            preferences / profile, help, and sign-out. It stays put on every page, so search is always
+            one click away.
+        - id: nav
+          label: Navigator
+          sublabel: browse + search
+          x: 20
+          y: 100
+          w: 200
+          h: 210
+          tone: accent
+          detail: |
+            The collapsible panel on the left. From here you jump to **Home**, your **Products**,
+            **Libraries** and **Projects**, and recently visited places. You'll explore it in the next lesson.
+        - id: title
+          label: Page title + path
+          sublabel: where am I?
+          x: 240
+          y: 100
+          w: 540
+          h: 56
+          tone: info
+          detail: |
+            Shows which page you are on and, for most pages, the trail of contexts and folders above it.
+            Use it to step back up to the product or folder you came from.
+        - id: content
+          label: Content area
+          sublabel: tables, tabs, actions
+          x: 240
+          y: 176
+          w: 540
+          h: 134
+          tone: success
+          detail: |
+            The big area where the real work happens: tables of objects (tasks, parts, documents),
+            tabs on an object's page, and the **Actions** menus that let you do things.
+      edges: []
+
+  - type: walkthrough
+    title: Log in and see what's waiting for you
+    who: Any Windchill user with an account
+    steps:
+      - title: Open your company's Windchill address
+        where: [Browser, "<your company's Windchill URL>"]
+        md: |
+          Your company gives you the address, something like `https://plm.acme.example/Windchill`.
+          **Bookmark it.** There is no app to install for everyday browsing.
+      - title: Sign in
+        where: [Sign-in page]
+        md: |
+          Enter your company username and password. Many companies use **single sign-on**, so you may
+          go straight in with your normal work login.
+      - title: Land on Home
+        where: [Navigator, Home]
+        md: |
+          You land on your **Home** page (if not, open the Navigator and choose **Home**). Its overview
+          gathers tables about *you*: your tasks, your checked-out work and recent activity.
+      - title: Check your tasks
+        where: [Navigator, Home, "Assignments / My Tasks"]
+        md: |
+          Open your assignments (the exact name varies by release). Each row is a [[task]] from a
+          [[workflow]] - "review this drawing", "approve this change". Click the task name to open it.
+      - title: Check your checked-out work
+        where: [Navigator, Home, Checked-Out Work]
+        md: |
+          This lists everything **you** have checked out. Other people can't edit these until you check
+          them back in, so keep this list short.
+    result: You know where your tasks and your checked-out objects are, and how to get back Home from anywhere.
+
+  - type: walkthrough
+    title: Make the home page yours
+    who: Any user (changes only affect your own home page)
+    steps:
+      - title: Open the home overview
+        where: [Navigator, Home, Overview]
+        md: Go to the overview part of your Home area - the page with several tables stacked on it.
+      - title: Open the customise option
+        where: [Home overview, Customize]
+        md: |
+          Look for the page's **customise** control (often an icon or link near the top of the page or
+          on each table's title bar).
+      - title: Add, remove or move tables
+        where: [Customize, "Add / Remove tables"]
+        md: |
+          Add the tables you check daily (for example *checked-out work* or a [[saved-search]]), remove
+          ones you never use, and drag or reorder them so the most important is on top.
+    result: Your home page now shows your most important tables first, every time you sign in.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Workflows only move when people complete their tasks. At real companies a single forgotten review
+      task can hold up a release for days, and the change manager ends up chasing people by email. People
+      who check their **Home → tasks** every morning are the ones whose changes ship on time.
+
+  - type: simulation
+    title: Your first morning at Acme Mobility
+    intro: |
+      Drive the buttons to do the morning routine of an Acme Mobility design engineer. Some buttons only
+      work once you're in the right place - read the hint if one is greyed out.
+    headline: "Page: {page} · Tasks open: {tasks} · Checked out: {checkedOut}"
+    initial: { signedIn: false, page: Sign-in, tasks: 2, checkedOut: 1, homeCustomised: false }
+    actions:
+      - id: sign-in
+        label: Sign in
+        when: { signedIn: false }
+        do: [{ set: { signedIn: true, page: Home } }]
+        log: Signed in. Windchill opens your Home page with your tasks and checked-out work.
+        blockedHint: You're already signed in.
+      - id: open-task
+        label: Complete the hinge drawing review task
+        when: { signedIn: true, tasks: 2 }
+        do: [{ set: { tasks: 1, page: Task } }]
+        log: You opened the task, reviewed the drawing and completed it. The workflow moves to the next person.
+        blockedHint: Sign in first, or you already completed this task.
+      - id: open-task-2
+        label: Complete the BOM check task
+        when: { signedIn: true, tasks: 1 }
+        do: [{ set: { tasks: 0, page: Task } }]
+        log: Second task done. Your task list is empty - nobody is waiting on you.
+        blockedHint: Do the tasks in order, starting with the hinge drawing review.
+      - id: go-home
+        label: Go back to Home
+        when: { signedIn: true, page: [Task, Customize] }
+        do: [{ set: { page: Home } }]
+        log: Back on Home. The Navigator's Home link gets you here from anywhere.
+        blockedHint: You're already on Home (or not signed in).
+      - id: checkin
+        label: Check in the battery cover you left checked out
+        when: { signedIn: true, checkedOut: 1 }
+        do: [{ set: { checkedOut: 0 } }]
+        log: Checked in. Teammates can edit the battery cover again.
+        blockedHint: Nothing left in your checked-out work.
+      - id: customise
+        label: Customise Home - put Checked-Out Work on top
+        when: { signedIn: true, page: Home, homeCustomised: false }
+        do: [{ set: { homeCustomised: true, page: Customize } }]
+        log: Home now shows Checked-Out Work first, so you can't forget to check things in.
+        blockedHint: Be on the Home page to customise it (and you only need to do it once).
+    goals:
+      - label: Clear all your tasks
+        when: { tasks: 0 }
+        message: Tasks done means workflows keep moving.
+      - label: Leave nothing checked out
+        when: { checkedOut: 0 }
+        message: Clean checked-out list = happy teammates.
+      - label: Customise your Home page
+        when: { homeCustomised: true }
+
+  - type: example
+    variant: real-world
+    title: The review that sat for nine days
+    industry: Micromobility
+    md: |
+      At Acme Mobility, a new e-bike motor mount couldn't be released because one reviewer had a
+      task waiting on their Home page - and they never opened Windchill except to download files.
+      After the team added "check your tasks every morning" to onboarding, average review time dropped
+      from days to hours.
+    takeaway: Your Home page is your to-do list. Open it daily.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Only reading the email.** Many companies email you when a task arrives, but the email is just
+      a pointer. The task is completed **in Windchill**. Also, don't share your login with a colleague
+      "just to approve something" - approvals are signed with your identity and audited.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Before you log off on a Friday, glance at **Checked-Out Work**. Anything you've checked out is
+      locked for everyone else - including the teammate who needs it on Monday while you're away.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: A colleague says "I sent you a review task". Where do you go first?
+        options:
+          - The search box, to search for the word "review"
+          - Home → your assignments/tasks list
+          - The product's folders
+          - Your email inbox only
+        answer: 1
+        explanation: Tasks created by workflows are listed under your Home area. The email (if your company sends one) only points you there; you complete the task in Windchill.
+      - kind: multi
+        prompt: Which of these can you usually find from your Home area? (Choose all that apply.)
+        options:
+          - Your tasks / assignments
+          - Objects you have checked out
+          - Every part in every product
+          - Tables you chose when customising the overview
+        answers: [0, 1, 3]
+        explanation: Home is about *you* - your tasks, your checked-out work and the tables you added. To see every part in a product you browse the product or search.
+      - kind: truefalse
+        prompt: Customising your home page changes it for everyone in your team.
+        answer: false
+        explanation: Home page customisations are personal. Admins can set defaults, but your changes only affect your own view.
+
+  - type: summary
+    points:
+      - Windchill runs in the browser. Bookmark your company's URL and sign in (often with single sign-on).
+      - Every page has four zones - header with quick search, Navigator, page title, content area.
+      - Home shows what's about you - tasks and checked-out work. Check it daily.
+      - Customise the home overview so the tables you need most come first.

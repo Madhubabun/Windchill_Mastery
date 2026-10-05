@@ -1,0 +1,261 @@
+id: m01-s03-l04
+subtitle: Every object has a profile page. Learn to read it like a detective.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [information-page, history, where-used, attributes]
+
+blocks:
+  - type: text
+    md: |
+      Click any part, document or change in Windchill and you land on its **information page** - its
+      profile. Who made it? What version is it? Is it released? What is it used in? What changed, when,
+      and by whom? It's all there, if you know where to look.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the object's profile page" → [[information-page]]
+      - "its facts: number, name, state, owner" → *attributes* (see [[metadata]])
+      - "every save in order" → *iteration history* (see [[iteration]])
+      - "when it moved from In Work to Released" → *life cycle history* (often called *maturity history*)
+      - "what assemblies use this part" → [[where-used]]
+
+  - type: diagram
+    title: Anatomy of an information page
+    caption: A schematic of the page regions, not a screenshot. Click each region.
+    diagram:
+      width: 800
+      height: 360
+      nodes:
+        - id: identity
+          label: Identity strip
+          sublabel: type · number · name · version
+          x: 20
+          y: 20
+          w: 560
+          h: 60
+          tone: primary
+          detail: |
+            The top of the page reads like a name badge, e.g. **Part - 1000-0423, Hinge bracket, A.3
+            (In Work)**. Type, number, name, [[version]] and [[lifecycle-state|state]] at a glance.
+        - id: actions
+          label: Actions menu
+          sublabel: what you can do
+          x: 600
+          y: 20
+          w: 180
+          h: 60
+          tone: accent
+          detail: |
+            Check out, revise, subscribe, add to favorites, start a change... The menu only shows the
+            actions **you** are allowed to do on this object in its current state.
+        - id: thumb
+          label: Thumbnail
+          sublabel: 3D / preview
+          x: 20
+          y: 100
+          w: 170
+          h: 110
+          tone: info
+          detail: For CAD-related objects you often see a thumbnail; open it in [[creo-view]] to rotate and measure without CAD.
+        - id: tabs
+          label: Tabs
+          sublabel: Details · Structure · History...
+          x: 210
+          y: 100
+          w: 570
+          h: 56
+          tone: warning
+          detail: |
+            Each tab is a chapter of the object's story. Typical tabs include **Details** (attributes),
+            **Structure** (for parts), related objects, **Changes**, **History** and **Where Used**. You can
+            often add or rearrange tabs.
+        - id: body
+          label: Tab content
+          sublabel: attributes + tables
+          x: 210
+          y: 176
+          w: 570
+          h: 164
+          tone: success
+          detail: |
+            The selected tab's content: attribute panels and tables of related things. Tables can be
+            sorted, filtered and given views - next lesson.
+        - id: related
+          label: Related objects
+          sublabel: CAD · docs · changes
+          x: 20
+          y: 230
+          w: 170
+          h: 110
+          tone: neutral
+          detail: "A part is connected to its CAD models, documents that describe it, and the changes that touched it. These links are how you navigate the object's network."
+      edges: []
+
+  - type: animation
+    title: One part's story, as the History tab tells it
+    diagram:
+      width: 820
+      height: 260
+      nodes:
+        - { id: a1, label: A.1 · In Work, sublabel: created by Sam, x: 20, y: 40, w: 140, tone: neutral }
+        - { id: a2, label: A.2 · In Work, sublabel: Priya edits hole, x: 185, y: 40, w: 140, tone: neutral }
+        - { id: a3, label: A.3 · In Work, sublabel: Priya fixes radius, x: 350, y: 40, w: 145, tone: neutral }
+        - { id: rel, label: A.3 · Released, sublabel: via promotion, x: 520, y: 40, w: 140, tone: success }
+        - { id: b1, label: B.1 · In Work, sublabel: revised for CN-0042, x: 685, y: 40, w: 130, tone: accent }
+        - { id: iter, label: Iteration history, sublabel: who saved what, x: 160, y: 170, w: 170, tone: info }
+        - { id: life, label: Life cycle history, sublabel: state changes, x: 500, y: 170, w: 170, tone: warning }
+      edges:
+        - { from: a1, to: a2 }
+        - { from: a2, to: a3 }
+        - { from: a3, to: rel, label: promote }
+        - { from: rel, to: b1, label: revise }
+        - { from: a2, to: iter, dashed: true }
+        - { from: rel, to: life, dashed: true }
+    chapters:
+      - title: Born as A.1
+        caption: Sam creates the hinge bracket. Windchill records **who** and **when** - forever.
+        show: [a1]
+        highlight: [a1]
+      - title: Every check-in is a new iteration
+        caption: Priya checks it in twice, each time with a comment. A.1 → A.2 → A.3. Each row in the **iteration history** shows the modifier, date and comment.
+        show: [a1, a2, a3, iter]
+        highlight: [a2, a3, iter]
+        flow: [a1>a2, a2>a3, a2>iter]
+      - title: Released
+        caption: A promotion moves A.3 to **Released**. The **life cycle history** records the state change and who approved it.
+        show: [a1, a2, a3, rel, iter, life]
+        highlight: [rel, life]
+        flow: [a3>rel, rel>life]
+      - title: Revised for a change
+        caption: Change notice CN-0042 needs a stronger bracket. A new revision **B.1** starts, and the Changes tab links it to CN-0042.
+        highlight: [b1]
+        flow: [rel>b1]
+        seconds: 7
+
+  - type: walkthrough
+    title: Read an object's story
+    steps:
+      - title: Open the information page
+        where: [Search or Folders, "<object name>"]
+        md: Click the object's name (or number) in any table or search result.
+      - title: Read the identity strip and attributes
+        where: [Information page, Details]
+        md: |
+          Check type, number, name, version and state at the top. The **Details** tab shows attributes
+          such as created by/on, last modified by/on, and any company-specific attributes.
+      - title: See what it's connected to
+        where: [Information page, "Related objects / Structure"]
+        md: For a part, open **Structure** to see its children, and the related-objects area to see its CAD models, documents and changes.
+      - title: See where it's used
+        where: [Information page, Where Used]
+        md: |
+          Open **Where Used** to list the assemblies that use this part. Essential before you change it.
+      - title: Check the history
+        where: [Information page, History]
+        md: |
+          Open **History**. The iteration history lists every check-in with who, when and the comment;
+          the life cycle (maturity) history lists state changes.
+    result: You can tell what the object is, where it's used, and who changed it and when.
+
+  - type: callout
+    variant: version-note
+    versions: ["10.x and later"]
+    md: |
+      Modern releases show information pages as **tabs** that you can personalise - add a tab, choose
+      which tables it shows, or reorder. Tab names vary by release and object type (e.g. "Related
+      Objects" vs. related items shown on other tabs), so if you don't see a tab, look at the others or
+      add one. Some history views (like audit events) only appear if your admin enabled them.
+
+  - type: simulation
+    title: "Detective mode: who changed the hinge?"
+    intro: |
+      The factory says the hinge bracket's bend radius changed last week. Your boss wants to know **who
+      changed it, when, and what it affects**. Open the right tabs to collect the clues.
+    headline: "Tab: {tab} · Clues: {clues}/3"
+    initial: { tab: Details, clues: 0, who: false, used: false, change: false }
+    actions:
+      - id: details
+        label: Open Details tab
+        when: { tab: [History, Where Used, Changes, Structure] }
+        do: [{ set: { tab: Details } }]
+        log: "Details: last modified by Priya Shah on 12 May. Useful - but which change was the radius?"
+        blockedHint: You're already on Details.
+      - id: structure
+        label: Open Structure tab
+        when: { tab: [Details, History, Where Used, Changes] }
+        do: [{ set: { tab: Structure } }]
+        log: The hinge bracket is a single part with no children. No clue here.
+        blockedHint: You're already on Structure.
+      - id: history
+        label: Open History tab
+        when: { tab: [Details, Where Used, Changes, Structure], who: false }
+        do: [{ set: { tab: History, who: true } }, { inc: clues }]
+        log: "Clue! Iteration A.3 by Priya Shah, 12 May, comment: 'bend radius 4 → 5 mm per test report'."
+        blockedHint: You already found this clue (or you're on this tab).
+      - id: where
+        label: Open Where Used tab
+        when: { tab: [Details, History, Changes, Structure], used: false }
+        do: [{ set: { tab: Where Used, used: true } }, { inc: clues }]
+        log: "Clue! Used in the S2 Frame assembly and the S2 Service kit. Both are affected."
+        blockedHint: You already found this clue (or you're on this tab).
+      - id: changes
+        label: Open Changes tab
+        when: { tab: [Details, History, Where Used, Structure], change: false }
+        do: [{ set: { tab: Changes, change: true } }, { inc: clues }]
+        log: "Clue! Linked to change request CR-0118 'Hinge cracks in cold weather'. So it was a planned change."
+        blockedHint: You already found this clue (or you're on this tab).
+    goals:
+      - label: Find who changed it and when
+        when: { who: true }
+        message: The iteration history records every check-in with user, date and comment.
+      - label: Find what it affects
+        when: { used: true }
+      - label: Collect all three clues
+        when: { clues: 3 }
+        message: "Case closed: Priya changed it on 12 May under CR-0118, and it affects two assemblies."
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Auditors, quality teams and new engineers ask "who changed this, when, and why?" constantly. In
+      regulated industries you must be able to prove it. The information page answers in a minute what
+      used to take a week of digging through emails.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Reading the wrong version.** Search results and links may take you to the latest iteration you can
+      see, which might be **In Work**, not the released one the factory builds. Always read the version and
+      state in the identity strip before you quote a number to anyone.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Write useful **check-in comments** ("bend radius 4 → 5 mm per test report TR-77"), not "update".
+      Future you, reading the History tab, will be grateful.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: You want to know which assemblies would be affected if you change a bracket. Which tab?
+        options: [Details, History, Where Used, Structure]
+        answer: 2
+        explanation: Where Used lists the parents that use this part. Structure goes the other way - it lists the part's own children.
+      - kind: single
+        prompt: Where do you find who checked in iteration A.3 and their comment?
+        options: [The identity strip, The iteration history on the History tab, The Actions menu, Where Used]
+        answer: 1
+        explanation: The iteration history records each check-in with the user, date and comment.
+      - kind: truefalse
+        prompt: The Actions menu on an information page shows the same actions to every user.
+        answer: false
+        explanation: Actions depend on your permissions and the object's state. A released part, for example, can't simply be checked out and edited by anyone.
+
+  - type: summary
+    points:
+      - The information page is an object's profile - identity strip, actions, tabs.
+      - Details holds attributes; Structure shows children; Where Used shows parents.
+      - History tells the story - iterations (who saved what) and life cycle state changes.
+      - Always check the version and state before you trust what you're reading.

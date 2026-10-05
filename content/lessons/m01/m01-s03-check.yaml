@@ -1,0 +1,103 @@
+id: m01-s03-check
+subtitle: Prove you can find your way around Windchill.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [checkpoint, navigation, search]
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on home pages, contexts, searching, information pages, table views and
+      subscriptions. Aim for 80%. Every answer comes with an explanation, so a wrong answer is still a win.
+
+  - type: quiz
+    title: Getting around Windchill - checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: A workflow assigned you a review. Where do you complete it?
+        options:
+          - In the notification email
+          - In your task list under Home, in Windchill
+          - On the part's Where Used tab
+          - In your favorites
+        answer: 1
+        explanation: Workflow tasks are listed under your Home area and completed in Windchill. The email, if any, only points you there.
+      - kind: truefalse
+        prompt: Every object in Windchill lives in exactly one folder of one context.
+        answer: true
+        explanation: That's an object's home address - its context (product, library or project) and a folder inside it. The context decides team, access and rules.
+      - kind: single
+        prompt: Acme wants a supplier to see only the hinge drawings, not the whole scooter. What's the best home for the shared data?
+        options:
+          - The Scooter S2 product, with the supplier added to the product team
+          - A project context for that collaboration
+          - The Standard Fasteners library
+          - Email attachments
+        answer: 1
+        explanation: Projects are collaboration spaces with their own team. Adding the supplier to the product team would expose everything in the product.
+      - kind: order
+        prompt: Put the path to a part in a product folder in order.
+        items: [Navigator, Products, Scooter S2, Folders, Frame, "1000-0423 Hinge bracket"]
+        explanation: Open the Navigator, pick Products, choose the product, open its Folders, then the folder, then click the object.
+      - kind: single
+        prompt: Which quick search text finds every part number that starts with 1000-04?
+        options: ["1000-04", "1000-04*", "*1000", "1000-04?"]
+        answer: 1
+        explanation: "`*` is the wildcard for \"anything here\", so `1000-04*` matches 1000-0423, 1000-0431 and so on. Without it you search for an exact \"1000-04\"."
+      - kind: multi
+        prompt: Your colleague can find part 1000-0587 but your search returns nothing. Which could explain it? (Choose all that apply.)
+        options:
+          - Your type picker is set to Documents
+          - You don't have access to the part's context
+          - The part was just created and isn't in the search index yet
+          - Your colleague has it in their favorites
+        answers: [0, 1, 2]
+        explanation: Type filter, access and index delay are the classic causes. Favorites are personal shortcuts and don't affect what search finds.
+      - kind: truefalse
+        prompt: A saved search keeps a snapshot of the results from the day you saved it.
+        answer: false
+        explanation: It saves the criteria. Each run searches again, so results are always current.
+      - kind: single
+        prompt: You need to know who checked in iteration A.3 of a bracket and why. Where do you look?
+        options:
+          - The Details tab's Created By field
+          - The iteration history on the History tab
+          - Where Used
+          - The Actions menu
+        answer: 1
+        explanation: The iteration history lists every check-in with the user, date and check-in comment. Created By only tells you who made the first iteration.
+      - kind: single
+        prompt: A folder table shows 820 rows, but you only ever need In Work parts with a State column. What's the lasting fix?
+        options:
+          - Type "In Work" in find in table every morning
+          - Create and save a table view with the filter and the column
+          - Export the table to a spreadsheet
+          - Sort by name
+        answer: 1
+        explanation: A view saves filters, columns and sorting under a name. Find in table is temporary and isn't saved.
+      - kind: multi
+        prompt: Which are good subscription habits? (Choose all that apply.)
+        options:
+          - Subscribe only to events you will act on, like a state change
+          - Set an expiration date when offered
+          - Subscribe to every event on every part you've ever opened
+          - Clean up subscriptions when you change projects
+        answers: [0, 1, 3]
+        explanation: Focused subscriptions keep the important notifications visible. Subscribing to everything trains you to ignore Windchill emails.
+
+  - type: flashcards
+    title: Getting around Windchill
+    cards:
+      - { front: Navigator, back: "The panel on the left for jumping to Home, Products, Libraries, Projects and recent places." }
+      - { front: Context, back: "An object's home - product, library or project - which sets its team, access and rules." }
+      - { front: Library vs product, back: "A library holds reusable things (standard screws); a product holds one product line's data." }
+      - { front: Quick search, back: "The header search field - for when you know a number or name." }
+      - { front: Advanced search, back: "Search by type, context and attributes such as state or modified date." }
+      - { front: Wildcard, back: "`*` - matches anything. `1000-04*` finds numbers starting with 1000-04." }
+      - { front: Empty-search checklist, back: "Type → context → access → wildcard/spelling → index delay → then ask your admin." }
+      - { front: Information page, back: "An object's profile - identity strip, Actions menu and tabs like Details, History and Where Used." }
+      - { front: Where Used, back: "Lists the parent assemblies that use a part. Check it before changing the part." }
+      - { front: Table view, back: "A saved setup of a table's columns, filters and sorting. Personal unless an admin shares it." }
+      - { front: Subscription, back: "Ask Windchill to notify you (usually by email) when chosen events happen to an object." }
+      - { front: Favorite vs subscription, back: "A favorite saves clicks; a subscription sends you notifications." }

@@ -63,6 +63,8 @@ const DiagramNode = z.object({
   shape: z.enum(["rect", "pill", "cylinder", "circle", "doc"]).default("rect"),
   /** Shown in the detail panel when the node is clicked or hovered. */
   detail: Md.optional(),
+  /** Optional "In real companies" line shown under the detail. */
+  real: Md.optional(),
 });
 
 const DiagramEdge = z.object({
@@ -130,6 +132,8 @@ const WalkthroughBlock = z.object({
   title: z.string(),
   /** Who can normally do this (e.g. "Any user with Modify access"). */
   who: z.string().optional(),
+  /** Overall navigation path shown above the steps. Defaults to the first step's `where`. */
+  where: z.array(z.string()).default([]),
   steps: z
     .array(
       z.object({

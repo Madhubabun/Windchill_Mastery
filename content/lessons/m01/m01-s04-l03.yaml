@@ -1,0 +1,223 @@
+id: m01-s04-l03
+subtitle: "Something's wrong → should we fix it? → do the fix. Windchill has an object for each step."
+version: 1.0.0
+updated: "2026-10-05"
+tags: [change, problem-report, change-request, change-notice, promotion-request]
+
+blocks:
+  - type: text
+    md: |
+      Once a design is **Released**, the factory and suppliers are building from it. You can't just
+      open the file and tweak it - everyone downstream would be building something different from
+      what's on record.
+
+      So when something needs to change, Windchill gives you a paper trail made of **change
+      objects**. Each one answers a different question:
+
+      1. *What's wrong?* → **Problem Report**
+      2. *Should we change it, and is it worth it?* → **Change Request**
+      3. *How exactly do we do it, and who does what?* → **Change Notice** with **Change Tasks**
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "I found an issue" → *[[problem-report]]* (PR)
+      - "I propose we change this" → *[[change-request]]* (CR)
+      - "Approved - here's the plan" → *[[change-notice]]* (CN)
+      - "Your piece of the plan" → *[[change-task]]*
+      - "Please release this new stuff" → *[[promotion-request]]*
+      - "the things being changed" → *[[affected-object|affected objects]]*; "the new versions made" → *[[resulting-object|resulting objects]]*
+
+  - type: animation
+    title: The cracked hinge, from complaint to fix
+    diagram:
+      width: 820
+      height: 300
+      nodes:
+        - { id: pr, label: Problem Report, sublabel: "hinge cracks in cold", x: 20, y: 60, w: 160, tone: danger }
+        - { id: cr, label: Change Request, sublabel: "use tougher alloy?", x: 210, y: 60, w: 160, tone: warning }
+        - { id: cn, label: Change Notice, sublabel: the approved plan, x: 400, y: 60, w: 160, tone: info }
+        - { id: task1, label: Change Task 1, sublabel: update hinge model, x: 330, y: 200, w: 150, tone: neutral }
+        - { id: task2, label: Change Task 2, sublabel: update drawing, x: 500, y: 200, w: 150, tone: neutral }
+        - { id: rel, label: Released B.1, sublabel: new hinge revision, x: 640, y: 60, w: 160, tone: success, shape: pill }
+      edges:
+        - { from: pr, to: cr, label: escalate }
+        - { from: cr, to: cn, label: approved }
+        - { from: cn, to: task1 }
+        - { from: cn, to: task2 }
+        - { from: task1, to: rel }
+        - { from: task2, to: rel }
+    chapters:
+      - title: Someone spots a problem
+        caption: A service centre reports cracked hinges in winter. They create a **Problem Report** and list the hinge part as an affected object.
+        show: [pr]
+        highlight: [pr]
+      - title: Engineering proposes a change
+        caption: An engineer creates a **Change Request** - switch to a tougher alloy. A review board weighs cost, risk and impact on stock.
+        show: [pr, cr]
+        highlight: [cr]
+        flow: [pr>cr]
+      - title: The change is approved
+        caption: Approval leads to a **Change Notice** - the plan for *how* to implement the change.
+        show: [pr, cr, cn]
+        highlight: [cn]
+        flow: [cr>cn]
+      - title: The work is split into tasks
+        caption: The CN holds **Change Tasks**. One designer updates the model, another the drawing. Each task produces resulting objects - the new versions.
+        show: [pr, cr, cn, task1, task2]
+        highlight: [task1, task2]
+        flow: [cn>task1, cn>task2]
+      - title: Everything releases together
+        caption: When all tasks are done, the new hinge revision is **Released** in one go. The factory, supplier and service switch together.
+        highlight: [rel]
+        flow: [task1>rel, task2>rel]
+        seconds: 8
+
+  - type: diagram
+    title: Two roads to Released
+    caption: Brand-new data usually goes through a Promotion Request. Changing already-released data goes through the change process. Click to compare.
+    diagram:
+      width: 780
+      height: 280
+      groups:
+        - { label: First release, x: 10, y: 10, w: 370, h: 260, tone: success }
+        - { label: Changing released data, x: 400, y: 10, w: 370, h: 260, tone: warning }
+      nodes:
+        - id: newdata
+          label: New part A.4
+          sublabel: In Work
+          x: 40
+          y: 60
+          w: 150
+          tone: neutral
+          detail: A new design that has never been released. Nothing downstream depends on it yet.
+        - id: promo
+          label: Promotion Request
+          sublabel: review + approve
+          x: 200
+          y: 150
+          w: 160
+          tone: info
+          detail: |
+            A **Promotion Request** collects objects and moves them to a new state - for example
+            In Work → Released - after a review. It's lighter than the full change process because
+            there's no released version to protect yet.
+        - id: rel-a
+          label: Released A
+          x: 40
+          y: 190
+          w: 140
+          tone: success
+          shape: pill
+          detail: The first released revision. From now on, changes usually go through formal change control.
+        - id: oldrel
+          label: Released A
+          sublabel: in production
+          x: 430
+          y: 60
+          w: 150
+          tone: success
+          detail: The factory is building from this. Changing it needs review of the impact.
+        - id: change
+          label: PR → CR → CN
+          sublabel: change process
+          x: 590
+          y: 150
+          w: 160
+          tone: warning
+          detail: The formal process from the animation above. Your company may skip or merge steps - the configuration differs.
+        - id: rel-b
+          label: Released B
+          x: 430
+          y: 190
+          w: 140
+          tone: success
+          shape: pill
+          detail: The new revision. Revision A stays in history, so you can always see what was built before.
+      edges:
+        - { from: newdata, to: promo }
+        - { from: promo, to: rel-a }
+        - { from: oldrel, to: change }
+        - { from: change, to: rel-b }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      In regulated industries, a change without a record is a finding in an audit - or a recall
+      you can't trace. Change objects prove **who** asked for the change, **who** approved it,
+      **what** was changed and **when** it became effective.
+
+  - type: example
+    variant: real-world
+    title: Not every problem becomes a change
+    industry: Micromobility
+    md: |
+      Acme receives a Problem Report: "kickstand squeaks". The review finds it's a lubrication issue
+      in assembly, not a design flaw. The Problem Report is closed with a note to update the work
+      instruction - **no Change Request is needed**. The PR still records that the issue was looked
+      at and why it was closed.
+    takeaway: Problem Reports capture issues. Only some of them justify a design change.
+
+  - type: walkthrough
+    title: Where change objects live
+    who: Any product team member
+    steps:
+      - title: See all changes for a product
+        where: [Navigator, Browse, Products, "<your product>", Changes]
+        md: The product's **Changes** page lists its problem reports, change requests and change notices, with their states.
+      - title: Report a problem on an object
+        where: ["<object> information page", Actions, New, New Problem Report]
+        md: Starting from the object puts it straight onto the Problem Report as an affected object. Menu wording can vary slightly by release.
+      - title: Check if an object is already being changed
+        where: ["<object> information page", Changes tab]
+        md: The information page shows change objects connected to this object. Check here before raising a duplicate.
+    result: You know where to look for existing changes and how to start a new one.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Raising a Change Request for brand-new data.** If version A was never released, there's
+      usually nothing to protect yet - a Promotion Request (or simply continuing to iterate) is
+      often enough. Ask your change manager how your company draws the line.
+
+  - type: callout
+    variant: pro-tip
+    md: Write Problem Reports like bug reports - **what**, **where**, **how often**, and a photo. A vague PR ("hinge bad") wastes a review board meeting.
+
+  - type: callout
+    variant: note
+    md: The exact process - which objects are used, who approves, and how many steps - is set by each company's configuration. Some also use **variances** (approved, temporary deviations) alongside changes.
+
+  - type: flashcards
+    cards:
+      - { front: Problem Report, back: Captures an issue - what's wrong. Not every PR leads to a change. }
+      - { front: Change Request, back: Proposes a change and gets it reviewed and approved. }
+      - { front: Change Notice, back: The approved plan for implementing a change. It contains Change Tasks. }
+      - { front: Change Task, back: One assigned piece of work in a Change Notice. It produces resulting objects. }
+      - { front: Promotion Request, back: Moves a set of objects to a new state (for example to Released) after a review. }
+      - { front: Affected vs resulting objects, back: "Affected: the existing versions being changed. Resulting: the new versions the change produces." }
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: order
+        prompt: Put the typical change objects in order.
+        items: [Problem Report, Change Request, Change Notice, Change Task]
+        explanation: An issue is reported (PR), a change is proposed and approved (CR), the plan is created (CN) and split into work (Change Tasks).
+      - kind: single
+        prompt: A brand-new e-bike motor mount, never released, is ready for release. What's typically used?
+        options: [A Problem Report, A Promotion Request, A Change Notice with no tasks, Nothing - just edit the state]
+        answer: 1
+        explanation: Promotion Requests move objects to a new state after review. The full change process is usually for data that's already released.
+      - kind: truefalse
+        prompt: Every Problem Report must result in a Change Request.
+        answer: false
+        explanation: Some problems turn out to be process, training or supplier issues. The PR is closed with its reasoning recorded.
+
+  - type: summary
+    points:
+      - Problem Report = what's wrong. Change Request = should we change it. Change Notice = how we'll do it.
+      - Change Tasks split the work and produce the new (resulting) versions.
+      - Promotion Requests move objects, often new ones, to a new state like Released.
+      - The exact process is configured by each company.

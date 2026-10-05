@@ -1,0 +1,88 @@
+id: m01-s04-check
+subtitle: Parts, documents, CAD, changes, links and identity - prove you've got them.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [checkpoint, objects]
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on everything in **Common Windchill objects**: parts, documents and CAD
+      documents, change objects, the links between them, and how to read an object's identity.
+      Score 80% to pass. The flashcards below go straight into your review deck.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: Acme buys a battery pack from a supplier and never models it in CAD. How should it appear in Windchill?
+        options:
+          - It doesn't need to - it has no CAD
+          - As a part, used in the scooter structure with a quantity
+          - As an attachment on the scooter CAD model
+          - As a Problem Report
+        answer: 1
+        explanation: Anything you buy, build or count belongs in the BOM as a part, whether or not it has CAD. The uses link records how many the scooter needs.
+      - kind: multi
+        prompt: Which statements about documents (WTDocument) are true? (Choose all that apply.)
+        options:
+          - They have one primary content plus optional attachments
+          - They have their own number, name, version and state
+          - They are normally created by checking in from a CAD tool
+          - They can be linked to parts
+        answers: [0, 1, 3]
+        explanation: Documents hold a primary file and attachments, have full identity and versioning, and link to parts by described-by or references. Checking in from a CAD tool is how CAD documents are usually created.
+      - kind: single
+        prompt: Which Windchill object type manages a Creo drawing file?
+        options: [WTPart, WTDocument, EPMDocument, Change Task]
+        answer: 2
+        explanation: CAD models, assemblies and drawings are CAD documents (EPMDocument). They track CAD dependencies, such as a drawing referencing its model.
+      - kind: order
+        prompt: Put the typical change process objects in order.
+        items: [Problem Report, Change Request, Change Notice, Change Task]
+        explanation: Report the issue, propose and approve a change, plan the implementation, then do the assigned work in tasks.
+      - kind: single
+        prompt: A brand-new part has never been released and is ready to go. Which object typically moves it to Released?
+        options: [Change Notice, Promotion Request, Problem Report, Variance]
+        answer: 1
+        explanation: A Promotion Request reviews and moves objects to a new state. The full change process is usually reserved for changing data that's already released.
+      - kind: single
+        prompt: A part is linked to test report B with **described by**. The report is revised to C. What does the part show?
+        options: [Report C, Report B, Nothing, An error]
+        answer: 1
+        explanation: Described-by links a part version to a specific document version. It stays on B until someone checks out the part and updates the link - which is exactly what you want for evidence.
+      - kind: truefalse
+        prompt: A references link always resolves to the latest version of the document.
+        answer: true
+        explanation: References points at the document master, so it shows whatever the latest version is.
+      - kind: single
+        prompt: Hinge SC-1042 is at A.3, Released. Someone revises it. What's the new version?
+        options: [A.4, B.1, B.3, A.3 again]
+        answer: 1
+        explanation: Revise starts a new revision letter with iteration 1. A.3 stays Released in history.
+      - kind: multi
+        prompt: Which of these belong to the **master** and are shared by every version? (Choose all that apply.)
+        options: [Number, Name, Lifecycle state, Iteration]
+        answers: [0, 1]
+        explanation: Number and name live on the master. State and iteration belong to each individual version.
+      - kind: truefalse
+        prompt: You should search and order by name, because names are unique.
+        answer: false
+        explanation: Names are not unique - two teams can both create a "Folding hinge". Numbers are unique for their object type, so use the number.
+
+  - type: flashcards
+    title: Common objects deck
+    cards:
+      - { front: WTPart, back: A part - a physical item or assembly. The backbone of the BOM. }
+      - { front: Uses link, back: Parent part → child part. Carries quantity and unit. }
+      - { front: WTDocument, back: "A document: specs, reports, manuals. Primary content plus attachments." }
+      - { front: EPMDocument, back: "A CAD document: model, assembly or drawing, with CAD dependencies." }
+      - { front: Owner association, back: The CAD model that defines a part's structure and attributes. }
+      - { front: Described by, back: Part version → a specific document version. Frozen in time. }
+      - { front: References, back: Part → document master. Always resolves to the latest. }
+      - { front: Problem Report → Change Request → Change Notice, back: "What's wrong → should we change it → how we'll do it (with Change Tasks)." }
+      - { front: Promotion Request, back: Moves a set of objects to a new state after a review. }
+      - { front: Master, back: Number and name shared by every version. }
+      - { front: Check in vs Revise, back: "Check in: A.1 → A.2. Revise: A.3 → B.1." }
+      - { front: Latest vs latest Released, back: Latest may be work in progress. Build and buy from latest Released. }

@@ -1,7 +1,11 @@
 {
   "schemaVersion": "1.0.0",
   "product": "Windchill Mastery",
-  "targetRelease": "Windchill 13.x (latest; to confirm)",
+  "versionPolicy": {
+    "mode": "version-neutral",
+    "uiStyle": "no Windchill screens; tasks given as navigation paths",
+    "note": "Lessons avoid release-specific steps; use versionNotes and appliesTo for differences."
+  },
   "generated": "2026-10-05",
   "stats": {
     "modules": 7,
@@ -88,12 +92,12 @@
     {
       "id": "sim",
       "name": "Interactive simulation",
-      "description": "Sandboxed simulation of a Windchill screen or process."
+      "description": "Hands-on simulation of a concept or process (for example dragging parts into a BOM or stepping through a workflow). Never a copy of a Windchill screen."
     },
     {
       "id": "walk",
-      "name": "Guided walkthrough",
-      "description": "Step-by-step annotated UI mockups."
+      "name": "Navigation path",
+      "description": "Where in Windchill to go and what to do there: a menu path plus numbered steps, no screenshots or mockups."
     },
     {
       "id": "case",
@@ -184,7 +188,15 @@
                 "case",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m01-s01-l02",
@@ -214,7 +226,15 @@
                 "case",
                 "flash"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m01-s01-l03",
@@ -244,7 +264,15 @@
                 "cmp",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m01-s01-l04",
@@ -273,7 +301,15 @@
                 "case",
                 "scen"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -337,7 +373,15 @@
                 "ani",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m01-s02-l02",
@@ -366,7 +410,15 @@
                 "ani",
                 "flash"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m01-s02-l03",
@@ -395,7 +447,15 @@
                 "whatif",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m01-s02-l04",
@@ -424,7 +484,15 @@
                 "ill",
                 "flash"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -487,7 +555,15 @@
                 "sim",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m01-s03-l02",
@@ -516,7 +592,15 @@
                 "sim",
                 "ill"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m01-s03-l03",
@@ -547,7 +631,15 @@
                 "whatif",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m01-s03-l04",
@@ -576,7 +668,15 @@
                 "ill",
                 "sim"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m01-s03-l05",
@@ -605,7 +705,15 @@
                 "sim",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m01-s03-l06",
@@ -634,7 +742,15 @@
                 "sim",
                 "flash"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -698,7 +814,15 @@
                 "flash",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m01-s04-l02",
@@ -727,7 +851,15 @@
                 "ill",
                 "walk"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m01-s04-l03",
@@ -756,7 +888,15 @@
                 "ani",
                 "flash"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m01-s04-l04",
@@ -785,7 +925,15 @@
                 "sim",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m01-s04-l05",
@@ -814,7 +962,15 @@
                 "flash",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -925,7 +1081,15 @@
                 "sim",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m02-s01-l02",
@@ -952,7 +1116,15 @@
                 "sim",
                 "whatif"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m02-s01-l03",
@@ -979,7 +1151,15 @@
                 "walk",
                 "flash"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m02-s01-l04",
@@ -1006,7 +1186,15 @@
                 "cmp",
                 "walk"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m02-s01-l05",
@@ -1033,7 +1221,15 @@
                 "ill",
                 "whatif"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m02-s01-l06",
@@ -1060,7 +1256,15 @@
                 "scen",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -1123,7 +1327,15 @@
                 "flash",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m02-s02-l02",
@@ -1150,7 +1362,15 @@
                 "scen",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m02-s02-l03",
@@ -1177,7 +1397,15 @@
                 "ill",
                 "flash"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m02-s02-l04",
@@ -1204,7 +1432,15 @@
                 "whatif",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m02-s02-l05",
@@ -1231,7 +1467,15 @@
                 "sim",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m02-s02-l06",
@@ -1258,7 +1502,15 @@
                 "walk",
                 "case"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -1321,7 +1573,15 @@
                 "ani",
                 "case"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m02-s03-l02",
@@ -1348,7 +1608,15 @@
                 "sim",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m02-s03-l03",
@@ -1375,7 +1643,15 @@
                 "flash",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m02-s03-l04",
@@ -1402,7 +1678,15 @@
                 "cmp",
                 "whatif"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m02-s03-l05",
@@ -1429,7 +1713,15 @@
                 "sim",
                 "scen"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m02-s03-l06",
@@ -1456,7 +1748,15 @@
                 "ill",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m02-s03-l07",
@@ -1483,7 +1783,15 @@
                 "sim",
                 "case"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -1544,7 +1852,15 @@
                 "ill",
                 "ani"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m02-s04-l02",
@@ -1570,7 +1886,15 @@
                 "walk",
                 "flash"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m02-s04-l03",
@@ -1596,7 +1920,15 @@
                 "sim",
                 "scen"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m02-s04-l04",
@@ -1622,7 +1954,15 @@
                 "sim",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -1731,7 +2071,15 @@
                 "ill",
                 "ani"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m03-s01-l02",
@@ -1757,7 +2105,15 @@
                 "ill",
                 "flash"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m03-s01-l03",
@@ -1783,7 +2139,15 @@
                 "scen",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -1841,7 +2205,15 @@
                 "sim",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m03-s02-l02",
@@ -1867,7 +2239,15 @@
                 "ill",
                 "scen"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m03-s02-l03",
@@ -1893,7 +2273,15 @@
                 "sim",
                 "ani"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m03-s02-l04",
@@ -1919,7 +2307,15 @@
                 "whatif",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m03-s02-l05",
@@ -1945,7 +2341,15 @@
                 "sim",
                 "whatif"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m03-s02-l06",
@@ -1971,7 +2375,15 @@
                 "case",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -2029,7 +2441,15 @@
                 "ani",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m03-s03-l02",
@@ -2054,7 +2474,15 @@
                 "scen",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m03-s03-l03",
@@ -2079,7 +2507,15 @@
                 "sim",
                 "flash"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -2137,7 +2573,15 @@
                 "ill",
                 "ani"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m03-s04-l02",
@@ -2163,7 +2607,15 @@
                 "sim",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m03-s04-l03",
@@ -2189,7 +2641,15 @@
                 "whatif",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m03-s04-l04",
@@ -2215,7 +2675,15 @@
                 "scen",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -2272,7 +2740,15 @@
                 "case",
                 "flash"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m03-s05-l02",
@@ -2297,7 +2773,15 @@
                 "cmp",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m03-s05-l03",
@@ -2322,7 +2806,15 @@
                 "scen",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m03-s05-l04",
@@ -2347,7 +2839,15 @@
                 "cheat",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -2449,7 +2949,15 @@
                 "walk",
                 "flash"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m04-s01-l02",
@@ -2474,7 +2982,15 @@
                 "sim",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m04-s01-l03",
@@ -2499,7 +3015,15 @@
                 "cmp",
                 "flash"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -2552,7 +3076,15 @@
                 "ani",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m04-s02-l02",
@@ -2576,7 +3108,15 @@
                 "sim",
                 "cmp"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m04-s02-l03",
@@ -2600,7 +3140,15 @@
                 "scen",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -2654,7 +3202,15 @@
                 "walk",
                 "flash"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m04-s03-l02",
@@ -2678,7 +3234,15 @@
                 "sim",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -2735,7 +3299,15 @@
                 "walk",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m04-s04-l02",
@@ -2761,7 +3333,15 @@
                 "walk",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m04-s04-l03",
@@ -2787,7 +3367,15 @@
                 "sim",
                 "flash"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m04-s04-l04",
@@ -2813,7 +3401,15 @@
                 "sim",
                 "ill"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -2870,7 +3466,15 @@
                 "ani",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m04-s05-l02",
@@ -2895,7 +3499,15 @@
                 "ill",
                 "whatif"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m04-s05-l03",
@@ -2920,7 +3532,15 @@
                 "sim",
                 "scen"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m04-s05-l04",
@@ -2945,7 +3565,15 @@
                 "scen",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m04-s05-l05",
@@ -2970,7 +3598,15 @@
                 "case",
                 "cmp"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -3029,7 +3665,15 @@
                 "sim",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m04-s06-l02",
@@ -3054,7 +3698,15 @@
                 "ill",
                 "sim"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m04-s06-l03",
@@ -3079,7 +3731,15 @@
                 "whatif",
                 "cmp"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m04-s06-l04",
@@ -3104,7 +3764,15 @@
                 "walk",
                 "whatif"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -3159,7 +3827,15 @@
                 "cmp",
                 "flash"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m04-s07-l02",
@@ -3183,7 +3859,15 @@
                 "scen",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m04-s07-l03",
@@ -3207,7 +3891,15 @@
                 "whatif",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -3262,7 +3954,15 @@
                 "sim",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m04-s08-l02",
@@ -3287,7 +3987,15 @@
                 "case",
                 "cheat"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -3341,7 +4049,15 @@
                 "case",
                 "flash"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m04-s09-l02",
@@ -3366,7 +4082,15 @@
                 "sim",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -3470,7 +4194,15 @@
                 "cmp",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m05-s01-l02",
@@ -3494,7 +4226,15 @@
                 "ill",
                 "whatif"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m05-s01-l03",
@@ -3518,7 +4258,15 @@
                 "whatif",
                 "cheat"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -3571,7 +4319,15 @@
                 "walk",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m05-s02-l02",
@@ -3595,7 +4351,15 @@
                 "sim",
                 "flash"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m05-s02-l03",
@@ -3619,7 +4383,15 @@
                 "whatif",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m05-s02-l04",
@@ -3643,7 +4415,15 @@
                 "case",
                 "whatif"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -3697,7 +4477,15 @@
                 "ani",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m05-s03-l02",
@@ -3721,7 +4509,15 @@
                 "case",
                 "cmp"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m05-s03-l03",
@@ -3745,7 +4541,15 @@
                 "whatif",
                 "cheat"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -3800,7 +4604,15 @@
                 "walk",
                 "whatif"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m05-s04-l02",
@@ -3824,7 +4636,15 @@
                 "ani",
                 "whatif"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m05-s04-l03",
@@ -3848,7 +4668,15 @@
                 "sim",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -3901,7 +4729,15 @@
                 "walk",
                 "flash"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m05-s05-l02",
@@ -3925,7 +4761,15 @@
                 "case",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m05-s05-l03",
@@ -3949,7 +4793,15 @@
                 "whatif",
                 "ill"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -4004,7 +4856,15 @@
                 "ani",
                 "cmp"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m05-s06-l02",
@@ -4028,7 +4888,15 @@
                 "whatif",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -4080,7 +4948,15 @@
                 "cmp",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m05-s07-l02",
@@ -4104,7 +4980,15 @@
                 "whatif",
                 "cheat"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m05-s07-l03",
@@ -4128,7 +5012,15 @@
                 "quiz",
                 "flash"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -4239,7 +5131,15 @@
                 "ill",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m06-s01-l02",
@@ -4264,7 +5164,15 @@
                 "scen",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m06-s01-l03",
@@ -4289,7 +5197,15 @@
                 "scen",
                 "whatif"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -4346,7 +5262,15 @@
                 "cmp",
                 "flash"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m06-s02-l02",
@@ -4371,7 +5295,15 @@
                 "whatif",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m06-s02-l03",
@@ -4396,7 +5328,15 @@
                 "walk",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -4449,7 +5389,15 @@
                 "ani",
                 "cmp"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m06-s03-l02",
@@ -4473,7 +5421,15 @@
                 "sim",
                 "scen"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m06-s03-l03",
@@ -4497,7 +5453,15 @@
                 "whatif",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -4552,7 +5516,15 @@
                 "whatif",
                 "ill"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m06-s04-l02",
@@ -4576,7 +5548,15 @@
                 "case",
                 "scen"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m06-s04-l03",
@@ -4600,7 +5580,15 @@
                 "case",
                 "cmp"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -4656,7 +5644,15 @@
                 "ill",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m06-s05-l02",
@@ -4682,7 +5678,15 @@
                 "ill",
                 "whatif"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m06-s05-l03",
@@ -4708,7 +5712,15 @@
                 "case",
                 "cheat"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m06-s05-l04",
@@ -4734,7 +5746,15 @@
                 "cheat",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -4839,7 +5859,15 @@
                 "ill",
                 "ani"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m07-s01-l02",
@@ -4865,7 +5893,15 @@
                 "sim",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m07-s01-l03",
@@ -4891,7 +5927,15 @@
                 "walk",
                 "flash"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m07-s01-l04",
@@ -4917,7 +5961,15 @@
                 "cmp",
                 "scen"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -4975,7 +6027,15 @@
                 "ani",
                 "flash"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m07-s02-l02",
@@ -5000,7 +6060,15 @@
                 "sim",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m07-s02-l03",
@@ -5025,7 +6093,15 @@
                 "scen",
                 "whatif"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -5082,7 +6158,15 @@
                 "sim",
                 "ani"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m07-s03-l02",
@@ -5107,7 +6191,15 @@
                 "whatif",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m07-s03-l03",
@@ -5132,7 +6224,15 @@
                 "whatif",
                 "cmp"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m07-s03-l04",
@@ -5157,7 +6257,15 @@
                 "case",
                 "ill"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -5214,7 +6322,15 @@
                 "case",
                 "ani"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m07-s04-l02",
@@ -5239,7 +6355,15 @@
                 "walk",
                 "scen"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m07-s04-l03",
@@ -5264,7 +6388,15 @@
                 "case",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -5320,7 +6452,15 @@
                 "sim",
                 "ill"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m07-s05-l02",
@@ -5345,7 +6485,15 @@
                 "scen",
                 "cmp"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -5400,7 +6548,15 @@
                 "sim",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m07-s06-l02",
@@ -5425,7 +6581,15 @@
                 "cheat",
                 "scen"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -5479,7 +6643,15 @@
                 "cmp",
                 "case"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m07-s07-l02",
@@ -5504,7 +6676,15 @@
                 "case",
                 "flash"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m07-s07-l03",
@@ -5529,7 +6709,15 @@
                 "walk",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -5586,7 +6774,15 @@
                 "ill",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m07-s08-l02",
@@ -5612,7 +6808,15 @@
                 "whatif",
                 "cmp"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {
@@ -5664,7 +6868,15 @@
                 "cmp",
                 "case"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m07-s09-l02",
@@ -5688,7 +6900,15 @@
                 "ani",
                 "quiz"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m07-s09-l03",
@@ -5712,7 +6932,15 @@
                 "walk",
                 "cmp"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m07-s09-l04",
@@ -5736,7 +6964,15 @@
                 "cheat",
                 "whatif"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             },
             {
               "id": "m07-s09-l05",
@@ -5760,7 +6996,15 @@
                 "case",
                 "cheat"
               ],
-              "status": "outlined"
+              "status": "outlined",
+              "contentVersion": 1,
+              "appliesTo": {
+                "windchill": "all",
+                "deployment": [
+                  "on-premises",
+                  "windchill-plus"
+                ]
+              }
             }
           ],
           "checkpoint": {

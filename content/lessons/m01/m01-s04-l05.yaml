@@ -1,0 +1,251 @@
+id: m01-s04-l05
+subtitle: "SC-1042 · Folding hinge · B.2 · Released. Learn to read that line like a pro."
+version: 1.0.0
+updated: "2026-10-05"
+tags: [identity, number, version, revision, iteration, lifecycle-state, master]
+
+blocks:
+  - type: text
+    md: |
+      Every object in Windchill introduces itself the same way, like a gamer tag plus a level and
+      a status:
+
+      > **SC-1042** · Folding hinge · **B.2** · **Released**
+
+      Four facts, read left to right: *who* it is (number), *what* it's called (name), *which
+      edition* you're looking at (version) and *where it is in its journey* (state). Get fluent at
+      reading this line and you'll never build, buy or approve the wrong thing.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "its unique ID" → *number*
+      - "what people call it" → *name*
+      - "the ID card shared by every edition" → *[[master]]* (number + name)
+      - "big edition letter" → *[[revision]]*; "small save counter" → *[[iteration]]*; together → *[[version]]* (B.2)
+      - "where it is in its journey" → *[[lifecycle-state]]*
+
+  - type: diagram
+    title: One master, many versions
+    caption: The master holds the identity. Each version is its own record with its own state. Click to explore.
+    diagram:
+      width: 800
+      height: 350
+      nodes:
+        - id: master
+          label: "SC-1042 · Folding hinge"
+          sublabel: master (number + name)
+          x: 250
+          y: 20
+          w: 300
+          h: 64
+          tone: primary
+          shape: cylinder
+          detail: |
+            The **master** is the identity card. It holds the number and name, shared by every version.
+            Rename or renumber it (with the right permissions) and every version shows the new value.
+        - id: a1
+          label: A.1
+          sublabel: first save
+          x: 40
+          y: 150
+          w: 140
+          tone: neutral
+          detail: Created. Revision **A**, iteration **1**. State In Work.
+        - id: a2
+          label: A.2
+          sublabel: checked in again
+          x: 240
+          y: 150
+          w: 140
+          tone: neutral
+          detail: Each check-in adds one to the iteration. Older iterations stay in history.
+        - id: a3
+          label: A.3
+          sublabel: Released
+          x: 440
+          y: 150
+          w: 140
+          tone: success
+          detail: The final iteration of revision A was released. The factory built the first scooters from this.
+        - id: b1
+          label: B.1
+          sublabel: after Revise
+          x: 440
+          y: 270
+          w: 140
+          tone: warning
+          detail: |
+            **[[revise|Revise]]** created revision B, starting at iteration 1 and usually back in the first
+            state of the life cycle, such as In Work. A.3 stays Released and untouched.
+        - id: b2
+          label: B.2
+          sublabel: Released
+          x: 640
+          y: 270
+          w: 140
+          tone: success
+          detail: The current released version. If you see "latest released" in a search, this is it.
+      edges:
+        - { from: master, to: a1, dashed: true }
+        - { from: master, to: b2, dashed: true }
+        - { from: a1, to: a2, label: check in }
+        - { from: a2, to: a3, label: check in }
+        - { from: a3, to: b1, label: revise }
+        - { from: b1, to: b2, label: check in }
+
+  - type: comparison
+    title: Number vs name
+    columns: [Number, Name]
+    rows:
+      - { label: Unique?, cells: [Yes - for that kind of object, "No - many parts can be called 'Bracket'"] }
+      - { label: Who sets it, cells: [Usually generated automatically, The person creating it] }
+      - { label: Use it for, cells: [Searching and talking precisely, Understanding what it is] }
+      - { label: Acme example, cells: [SC-1042, Folding hinge] }
+    takeaway: Search and talk by number. Names are for humans; numbers are for certainty.
+
+  - type: simulation
+    title: Check out, check in, release, revise
+    intro: |
+      Drive the folding hinge through its life. Check-in adds an **iteration**; Revise starts a new
+      **revision**. In most configurations you can't check out a Released version - you revise it.
+      Life cycle states differ by company; this sandbox uses a simple In Work → Under Review → Released
+      cycle.
+    headline: "SC-1042 · Folding hinge · {revision}.{iteration} · {state}"
+    initial: { revision: A, iteration: 1, state: In Work, checkedOut: false }
+    actions:
+      - id: checkout
+        label: Check out
+        when: { checkedOut: false, state: In Work }
+        do: [{ set: { checkedOut: true } }]
+        log: Checked out {revision}.{iteration}. Only you can edit it now.
+        blockedHint: You can only check out an In Work version that isn't already checked out.
+      - id: checkin
+        label: Check in
+        when: { checkedOut: true }
+        do: [{ inc: iteration }, { set: { checkedOut: false } }]
+        log: Checked in - new iteration {revision}.{iteration}.
+        blockedHint: Check it out first.
+      - id: submit
+        label: Submit for review
+        when: { checkedOut: false, state: In Work }
+        do: [{ set: { state: Under Review } }]
+        log: "{revision}.{iteration} is now Under Review. It's locked while reviewers decide."
+        blockedHint: Only an In Work version that's checked in can be submitted.
+      - id: approve
+        label: Approve
+        when: { state: Under Review }
+        do: [{ set: { state: Released } }]
+        log: "{revision}.{iteration} is Released. The factory can build from it."
+        blockedHint: Nothing is under review.
+      - id: reject
+        label: Reject
+        when: { state: Under Review }
+        do: [{ set: { state: In Work } }]
+        log: Sent back to In Work for more changes.
+        blockedHint: Nothing is under review.
+      - id: revise
+        label: Revise
+        when: { state: Released, checkedOut: false }
+        do: [{ nextLetter: revision }, { set: { iteration: 1, state: In Work } }]
+        log: Revised - new revision {revision}.{iteration} in In Work. The previous revision stays Released.
+        blockedHint: In this sandbox you revise a Released version.
+    goals:
+      - label: Reach A.3
+        when: { revision: A, iteration: 3 }
+        message: Each check-in adds one to the iteration.
+      - label: Release revision A
+        when: { revision: A, state: Released }
+        message: Released data is what downstream teams trust.
+      - label: Start revision B (B.1)
+        when: { revision: B, iteration: 1 }
+        message: Revise restarts the iteration at 1 and goes back to In Work.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      "Send me the hinge" is how mistakes happen. "Send me **SC-1042 B.2, Released**" is how
+      factories, suppliers and auditors stay in sync. Companies often put this exact line on
+      purchase orders, work orders and drawings.
+
+  - type: example
+    variant: real-world
+    title: Two hinges, one name
+    industry: Micromobility
+    md: |
+      Acme's scooter team and e-bike team both created a part called **"Folding hinge"**. A buyer
+      searched by name, picked the first result and ordered 2,000 of the e-bike hinge for the
+      scooter line. Searching by **number** (SC-1042) would have found exactly one.
+    takeaway: Names are for humans. Numbers are for orders.
+
+  - type: walkthrough
+    title: Read an object's identity
+    who: Any user
+    steps:
+      - title: Look at the header
+        where: ["<object> information page", header]
+        md: The page header shows the number, name and version (for example `SC-1042, Folding hinge, B.2`).
+      - title: Check the state
+        where: ["<object> information page", Details or Attributes]
+        md: Find **State** (Released, In Work...). Also note who created and last modified it, and which context it lives in.
+      - title: See every version
+        where: ["<object> information page", History]
+        md: Open the version or iteration history to see A.1 through to the latest, each with its state.
+    result: You can read the identity line out loud - and know whether it's the version you should use.
+
+  - type: callout
+    variant: note
+    md: |
+      Numbering is often **automatic** but configurable - some companies type numbers by hand or use
+      smart prefixes. Revision letters are configurable too (some skip I and O, some use numbers).
+      Parts with views can also show the view next to the version, for example *B.2 (Design)*.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Assuming the highest version is the right one.** B.3 In Work may be someone's half-finished
+      edit. If you're building or ordering, you usually want the **latest Released** version, not
+      simply the latest.
+
+  - type: callout
+    variant: pro-tip
+    md: Read the version as two signals. The **letter** changed? A formal new edition, usually through review. Only the **number** changed? Just more saves while work continues.
+
+  - type: flashcards
+    cards:
+      - { front: Master, back: "The identity shared by every version: number and name." }
+      - { front: Version B.2, back: "Revision B, iteration 2." }
+      - { front: Check in, back: Saves your changes as a new iteration (A.1 → A.2). }
+      - { front: Revise, back: Starts a new revision (A.3 → B.1), usually back in the first life cycle state. }
+      - { front: Why search by number?, back: Numbers are unique for an object type. Names are not. }
+      - { front: Latest vs latest Released, back: "Latest may be work in progress. Latest Released is what downstream teams should use." }
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: You check in a hinge at A.2. What version do you get?
+        options: [A.3, B.1, B.2, A.2 again]
+        answer: 0
+        explanation: Check-in adds one to the iteration within the same revision.
+      - kind: order
+        prompt: Put these versions of one part in the order they were created.
+        items: [A.1, A.2, A.3, B.1, B.2]
+        explanation: Iterations count up with each check-in; Revise starts a new revision letter at iteration 1.
+      - kind: truefalse
+        prompt: Two different parts can have the same name.
+        answer: true
+        explanation: Names don't have to be unique, which is why you search and order by number.
+      - kind: single
+        prompt: The factory asks which hinge to build. The history shows B.2 Released and B.3 In Work. What do you send?
+        options: [B.3 because it's newest, B.2 because it's the latest Released, A.1 because it's the original, Whatever the name search shows first]
+        answer: 1
+        explanation: In Work versions can still change. Production works from the latest Released version unless a change says otherwise.
+
+  - type: summary
+    points:
+      - Read identity left to right - number, name, version, state.
+      - The master holds number and name; each version is its own record.
+      - Version = revision.iteration. Check-in adds an iteration; Revise adds a revision.
+      - Numbers are unique, names are not. Use the latest Released for building and buying.

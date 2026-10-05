@@ -1,0 +1,297 @@
+id: m01-s03-l03
+subtitle: Find any part in seconds - and fix the search that finds nothing.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [search, quick-search, advanced-search, saved-search, troubleshooting]
+
+blocks:
+  - type: text
+    md: |
+      Acme Mobility has hundreds of thousands of objects. Browsing folders to find one is like scrolling
+      your whole camera roll for one photo. Searching is how pros move.
+
+      Windchill gives you three levels:
+      1. **Quick search** - you know the number or name. Type it, go.
+      2. **Advanced search** - you know *things about it*: type, state, who created it, when.
+      3. **Saved search** - a search you run often, kept under a name, one click away.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the box at the top" → [[quick-search]]
+      - "search with filters" → [[advanced-search]]
+      - "a search I keep" → [[saved-search]]
+      - "the star that means 'anything here'" → [[wildcard]] (`*`)
+      - "the kind of thing I'm looking for" → *object type* (part, document, CAD document, change...)
+      - "the fast word lookup behind the scenes" → [[index-search]]
+
+  - type: animation
+    title: What happens when you press Search
+    diagram:
+      width: 820
+      height: 300
+      nodes:
+        - { id: you, label: You, sublabel: "types 1000-04*", x: 20, y: 120, w: 130, tone: accent, shape: pill }
+        - { id: criteria, label: Your criteria, sublabel: type + context, x: 180, y: 120, w: 140, tone: primary }
+        - { id: index, label: Search index, sublabel: keywords, x: 360, y: 30, w: 140, tone: info, shape: cylinder }
+        - { id: db, label: Database, sublabel: attributes, x: 360, y: 210, w: 140, tone: info, shape: cylinder }
+        - { id: access, label: Access check, sublabel: can you see it?, x: 540, y: 120, w: 140, tone: warning }
+        - { id: results, label: Results, sublabel: table, x: 710, y: 120, w: 90, tone: success, shape: pill }
+      edges:
+        - { from: you, to: criteria }
+        - { from: criteria, to: index, label: keyword }
+        - { from: criteria, to: db, label: attributes }
+        - { from: index, to: access }
+        - { from: db, to: access }
+        - { from: access, to: results }
+    chapters:
+      - title: You type
+        caption: You type a number, a name or a keyword. `*` stands for "anything", so `1000-04*` matches every number starting with 1000-04.
+        show: [you]
+        highlight: [you]
+      - title: Your filters shape the question
+        caption: The **object type** (part? document?) and the **context** (all contexts or one product) narrow what Windchill looks for. Wrong type = zero results.
+        show: [you, criteria]
+        highlight: [criteria]
+        flow: [you>criteria]
+      - title: Keywords hit the index
+        caption: Keyword searches go to the **search index** - a fast word list. Brand-new objects can take a short time to appear there.
+        show: [you, criteria, index, db]
+        highlight: [index]
+        flow: [criteria>index]
+      - title: Attribute criteria hit the database
+        caption: Criteria like **state = Released** or **modified after 1 May** are matched against stored attributes.
+        show: [you, criteria, index, db]
+        highlight: [db]
+        flow: [criteria>db]
+      - title: The access check
+        caption: Every hit is checked against **your** permissions. If you can't read an object, it is silently left out - it doesn't say "access denied".
+        show: [you, criteria, index, db, access]
+        highlight: [access]
+        flow: [index>access, db>access]
+      - title: Results arrive
+        caption: You get a table of matches. Click a name to open its information page.
+        highlight: [results]
+        flow: [access>results]
+        seconds: 5
+
+  - type: comparison
+    title: Which search should I use?
+    columns: [Quick search, Advanced search, Saved search]
+    rows:
+      - { label: Use when, cells: [You know the number or name, You know properties (type, state, date, creator), You run the same search again and again] }
+      - { label: Where, cells: [Search field in the header, "Advanced search page (link next to quick search, or the Navigator's search view)", Your saved searches list] }
+      - { label: Speed, cells: [Seconds, A minute to set up, One click] }
+      - { label: Example, cells: ["1000-0423", "All parts in Scooter S2 in state In Work, modified this week", "My team's open change requests"] }
+    takeaway: Start with quick search. Move to advanced when quick search gives too many or zero results.
+
+  - type: walkthrough
+    title: Quick search by number or name
+    steps:
+      - title: Click the search field
+        where: [Header, Search field]
+        md: |
+          The search field sits in the header on every page. Many releases show a **type picker** next
+          to it (e.g. *All*, *Parts*, *Documents*) - check it's set to what you want.
+      - title: Type and go
+        where: [Header, Search field]
+        md: |
+          Type the number (`1000-0423`), a name (`hinge`) or use a wildcard (`1000-04*`, `*hinge*`).
+          Press **Enter**.
+      - title: Open the result
+        where: [Search results, "<object name>"]
+        md: If there's exactly one match, some releases jump straight to its information page. Otherwise click the name in the results table.
+
+  - type: walkthrough
+    title: Advanced search by attributes
+    steps:
+      - title: Open advanced search
+        where: [Header, Advanced search]
+        md: |
+          Use the advanced search link/icon beside the quick search field, or open the Navigator's
+          search view.
+      - title: Choose the object type
+        where: [Advanced search, Type]
+        md: Pick the type, e.g. **Part**. The type decides which attributes you can filter on.
+      - title: Choose where to look
+        where: [Advanced search, Context]
+        md: Leave it on all your contexts, or narrow it to e.g. *Scooter S2*.
+      - title: Add criteria
+        where: [Advanced search, Criteria]
+        md: |
+          Add attribute criteria - for example **State = In Work** and **Last Modified after** a date.
+          Each criterion narrows the results.
+      - title: Search
+        where: [Advanced search, Search]
+        md: Run the search. Results appear in a table below or on a results page.
+
+  - type: walkthrough
+    title: Save and share a search
+    steps:
+      - title: Run your advanced search
+        where: [Advanced search]
+        md: Get the criteria right first - check that the results are what you want.
+      - title: Save it
+        where: [Advanced search, Save Search]
+        md: |
+          Use the **save search** option and give it a clear name, e.g. `S2 - parts in work - this week`.
+      - title: Rerun or share it
+        where: [Saved searches list, "<your search>"]
+        md: |
+          Pick it from your saved searches list (on the search page or the Navigator's search view),
+          or add it to your Home page as a table. Depending on your role and site settings, you can share
+          it with others; in many companies only admins can publish a saved search to everyone.
+    result: One click reruns your criteria - and the results are always fresh, because the search runs again each time.
+
+  - type: simulation
+    title: Build the search
+    intro: |
+      Your lead asks: "Find the **hinge parts** - numbers start with **1000-04** - across **all** our
+      products." Set the criteria, then run the search. The Search button only works when the criteria
+      are right.
+    headline: "Type: {type} · Context: {context} · Keyword: {keyword}"
+    initial: { type: Document, context: E-bike E1, keyword: "1000-04", results: not run yet }
+    actions:
+      - id: type-part
+        label: "Type → Part"
+        when: { type: [Document, All types] }
+        do: [{ set: { type: Part } }]
+        log: Type set to Part. Hinge brackets are parts, not documents.
+        blockedHint: Already searching parts.
+      - id: type-all
+        label: "Type → All types"
+        when: { type: [Document, Part] }
+        do: [{ set: { type: All types } }]
+        log: All types finds the hinge parts, but also every drawing and document that mentions them. Noisy!
+        blockedHint: Already on All types.
+      - id: ctx-all
+        label: "Context → All my contexts"
+        when: { context: E-bike E1 }
+        do: [{ set: { context: All my contexts } }]
+        log: Now looking in every product and library you can access.
+        blockedHint: Already searching all your contexts.
+      - id: wildcard
+        label: "Keyword → 1000-04*"
+        when: { keyword: "1000-04" }
+        do: [{ set: { keyword: "1000-04*" } }]
+        log: Added a wildcard. Now any number starting with 1000-04 matches, not only an exact "1000-04".
+        blockedHint: Wildcard already added.
+      - id: run
+        label: Search
+        when: { type: Part, context: All my contexts, keyword: "1000-04*" }
+        do: [{ set: { results: "3 parts found" } }]
+        log: "3 parts found: 1000-0423 Hinge bracket, 1000-0424 Hinge pin, 1000-0431 Hinge spring."
+        blockedHint: "This would return 0 or far too many results. Check the type (parts?), the context (all products?) and the keyword (does it need a *?)."
+    goals:
+      - label: Find the three hinge parts
+        when: { results: "3 parts found" }
+        message: Right type, right context, right keyword. That's 90% of search troubleshooting.
+
+  - type: scenario
+    variant: troubleshooting
+    title: The search that finds nothing
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          A colleague says: "Part **1000-0587 Kickstand plate** exists, I made it this morning!" You type
+          `1000-0587` in quick search and get **zero results**. What do you check first?
+        choices:
+          - { label: The type picker next to the search field, next: s2, good: true, feedback: "Cheapest check first. It's set to Documents - and a kickstand plate is a part." }
+          - { label: Raise a ticket with IT, next: f1, feedback: Too early. Most empty searches are caused by the criteria, not the system. }
+          - { label: Search again for just "kickstand", next: s2, feedback: "Fair try, but the type picker still says Documents, so that returns nothing too." }
+      - id: s2
+        md: |
+          You switch the type to **Parts** (or All). Still nothing. Your colleague says they created it in
+          the new **Scooter S3** product. What next?
+        choices:
+          - { label: Check whether you can access Scooter S3, next: s3, good: true, feedback: "Good. Search silently hides objects you can't read. You aren't on the S3 team yet." }
+          - { label: Add a wildcard, next: s3b, feedback: "Wildcards help with partial numbers, but you typed the full number. Try something else." }
+      - id: s3b
+        md: |
+          `*1000-0587*` - still zero. Your colleague now mentions Scooter S3, a product you've never opened.
+        choices:
+          - { label: Check whether you can access Scooter S3, next: s3, good: true }
+      - id: s3
+        md: |
+          You weren't on the S3 team. The product manager adds you. You search again... and it **still**
+          says zero, but the colleague can see it. The part was created 10 minutes ago. What's going on?
+        choices:
+          - { label: "The new object may not be in the search index yet - wait a little, or browse the folder", next: win, good: true, feedback: Keyword search uses an index that updates shortly after objects are created or changed. }
+          - { label: The part must have been deleted, next: f2, feedback: Your colleague is looking at it right now. Deleted objects don't show up for anyone. }
+      - id: win
+        md: |
+          You browse **Scooter S3 → Folders → Frame** and there it is. A few minutes later, quick search
+          finds it too. Checklist for empty searches: **type → context → access → wildcard/spelling → index delay**.
+          If all five are fine, *then* talk to your admin.
+        outcome: success
+      - id: f1
+        md: IT checks the logs and finds nothing wrong - the type picker was set to Documents. Ten minutes lost and an awkward ticket closed as "user error".
+        outcome: fail
+      - id: f2
+        md: Nothing was deleted. You were seeing the effect of the search index catching up. Try the path again and check each cause in order.
+        outcome: partial
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      If you can't find the existing part, you create a duplicate. Duplicate parts are one of the most
+      expensive data problems in real companies: two numbers for the same bracket mean double the stock,
+      split purchase volumes and confused service teams. Good searching is good data hygiene.
+
+  - type: example
+    variant: real-world
+    title: Saved search, saved Monday mornings
+    industry: Micromobility
+    md: |
+      Acme's change manager used to build the same advanced search every Monday: "all change requests in
+      state *Under Review* for Scooter S2". She saved it and added it to her Home page as a table. The
+      weekly review prep went from 15 minutes to zero - the table is simply there, always up to date.
+    takeaway: If you run a search twice, save it.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Searching only by name.** Names are free text: "Hinge Bracket", "BRACKET, HINGE" and "hinge brkt"
+      can all exist. Numbers are unique. Search by number when you have it, and use wildcards
+      (`*hinge*`) when you only have part of a name.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      A search can only find what **you** are allowed to see. When a colleague can find something and you
+      can't, compare your context access before anything else.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: You need every part in Scooter S2 that is **In Work** and was modified this week. Which search?
+        options: [Quick search, Advanced search, Browse the folders]
+        answer: 1
+        explanation: Type, context, state and a date range are attribute criteria - that is exactly what advanced search is for. Then save it if you'll need it again.
+      - kind: multi
+        prompt: A search returns zero results for a part you know exists. Which are likely causes? (Choose all that apply.)
+        options:
+          - The type filter is set to Documents
+          - You don't have access to the part's context
+          - The part was created moments ago and isn't indexed yet
+          - Your browser window is too small
+        answers: [0, 1, 2]
+        explanation: Wrong type, no access (results are silently hidden) and index delay are classic causes. Window size has nothing to do with it.
+      - kind: truefalse
+        prompt: A saved search stores the results, so they never change.
+        answer: false
+        explanation: A saved search stores the **criteria**. Each time you run it, it searches again and returns the current matches.
+      - kind: order
+        prompt: Put the empty-search checklist in a sensible order (quickest checks first).
+        items: [Object type filter, Context, Your access, Wildcard or spelling, Index delay, Ask your admin]
+        explanation: Start with the criteria you control and can check in seconds, then access, then timing. Only escalate when all of these are ruled out.
+
+  - type: summary
+    points:
+      - Quick search for numbers and names, advanced search for properties, saved search for repeats.
+      - "`*` is the wildcard: `1000-04*` matches every number starting with 1000-04."
+      - Results are filtered by your access - hidden objects don't say "access denied".
+      - "Empty search? Check type → context → access → wildcard/spelling → index delay."
+      - A saved search keeps criteria, not results, so it's always fresh.

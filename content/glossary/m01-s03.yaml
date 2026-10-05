@@ -1,0 +1,34 @@
+# Terms introduced in section m01-s03 (Getting around Windchill).
+
+- id: wildcard
+  term: Wildcard
+  plain: A star (*) in a search that means "anything can go here".
+  definition: A character in search text that matches any sequence of characters. In Windchill searches `*` is the wildcard, so `1000-04*` finds every number starting with 1000-04 and `*hinge*` finds names containing "hinge".
+  aka: ["*", asterisk]
+  related: [quick-search, advanced-search]
+
+- id: where-used
+  term: Where used
+  plain: The list of assemblies (parents) that use a part.
+  definition: A view of the parent objects that use an object - for a part, the assemblies whose structures contain it. Checked before changing a part to see what the change affects.
+  aka: [where-used report]
+  related: [bom, uses-link, information-page]
+
+- id: favorite
+  term: Favorite
+  plain: A bookmark inside Windchill for an object or place you open often.
+  definition: A personal shortcut to an object or context, kept in a favorites list so you can reopen it without searching or browsing. Availability and placement of favorites vary by release.
+  aka: [favorites, bookmark]
+  related: [subscription, navigator]
+
+- id: subscription
+  term: Subscription
+  plain: Asking Windchill to tell you when something happens to an object.
+  definition: A personal (or, with rights, group) request to be notified when chosen events happen to an object, folder or context - for example a state change, a check-in or a new revision. Notifications are usually sent by email.
+  related: [notification, favorite]
+
+- id: notification
+  term: Notification
+  plain: A message from Windchill telling you something happened or something needs you.
+  definition: A message, usually an email, sent by Windchill because of a subscription event or a workflow (for example a new task). It points you to the object or task in Windchill, where you act.
+  related: [subscription, task, workflow]

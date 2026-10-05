@@ -1,0 +1,275 @@
+id: m01-s02-l01
+subtitle: Four tiers, one click. See what really happens when you use Windchill.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [architecture, tiers, basics]
+
+blocks:
+  - type: text
+    md: |
+      When you open Windchill, it *feels* like one website. It's actually a team of machines and
+      programs passing your request along like a relay race.
+
+      The good news: you only need **four boxes** to understand it.
+
+      1. **Your screen** - a web browser, or a CAD tool like [[creo|Creo]].
+      2. **The Windchill server** - the brain that runs the rules.
+      3. **The database** - where all the *facts* live (number, name, version, state).
+      4. **The file vault** - where the actual *files* live (CAD models, PDFs, drawings).
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "your screen" → *client tier* (browser, Creo + [[workgroup-manager|Workgroup Manager]])
+      - "the brain" → *server tier* ([[web-server]], [[servlet-engine]], [[method-server|method servers]])
+      - "the facts" → *[[metadata]]* in a relational [[database]] (Oracle or SQL Server)
+      - "the files" → *content* in a [[vault|file vault]]
+
+  - type: diagram
+    title: Windchill's four tiers (plus helpers)
+    caption: Click each box to see what it does. The bottom row are helper services the server calls on.
+    diagram:
+      width: 760
+      height: 420
+      groups:
+        - { label: Clients, x: 10, y: 20, w: 190, h: 270, tone: accent }
+        - { label: Server, x: 220, y: 20, w: 260, h: 270, tone: primary }
+        - { label: Data, x: 500, y: 20, w: 250, h: 270, tone: success }
+        - { label: Helper services, x: 10, y: 310, w: 740, h: 100, tone: neutral }
+      nodes:
+        - id: browser
+          label: Web browser
+          sublabel: Chrome, Edge...
+          x: 30
+          y: 70
+          w: 150
+          h: 60
+          tone: accent
+          detail: |
+            Most people use Windchill in a normal web browser. Nothing to install - the browser just
+            sends requests and shows the pages that come back.
+        - id: cad
+          label: CAD tool
+          sublabel: Creo + Workgroup Mgr
+          x: 30
+          y: 190
+          w: 150
+          h: 60
+          tone: accent
+          detail: |
+            Designers work inside a CAD tool such as Creo. A connector called **Workgroup Manager**
+            (built into Creo, separate for other CAD tools) talks to the same Windchill server.
+        - id: server
+          label: Windchill server
+          sublabel: web + app + logic
+          x: 250
+          y: 120
+          w: 200
+          h: 76
+          tone: primary
+          detail: |
+            The brain. It receives every request, checks **who you are and what you're allowed to do**,
+            runs the business rules (versions, life cycles, workflows) and talks to the data tier.
+            Inside it are several parts - the next lesson opens this box up.
+        - id: db
+          label: Database
+          sublabel: the facts
+          x: 540
+          y: 60
+          w: 180
+          h: 76
+          tone: success
+          shape: cylinder
+          detail: |
+            A relational database (**Oracle** or **Microsoft SQL Server**). It stores the metadata:
+            numbers, names, versions, states, owners, links between parts, access rules - and a
+            *pointer* to each file.
+        - id: vault
+          label: File vault
+          sublabel: the files
+          x: 540
+          y: 190
+          w: 180
+          h: 76
+          tone: success
+          shape: cylinder
+          detail: |
+            Folders on disk that Windchill manages. The heavy stuff lives here: CAD models, drawings,
+            PDFs, spreadsheets. Remote sites can get **replica** copies for faster downloads.
+        - id: ldap
+          label: Directory (LDAP)
+          sublabel: users + groups
+          x: 40
+          y: 340
+          w: 200
+          h: 56
+          tone: neutral
+          detail: |
+            The address book of users and groups - either the Windchill Directory Server or your
+            company's own LDAP directory. Used when you log in and when teams are built.
+        - id: index
+          label: Search index
+          sublabel: Solr
+          x: 280
+          y: 340
+          w: 200
+          h: 56
+          tone: neutral
+          detail: |
+            A pre-built keyword index (based on Apache Solr) that makes keyword searches fast instead of
+            scanning the whole database.
+        - id: viz
+          label: Visualization
+          sublabel: CAD workers
+          x: 520
+          y: 340
+          w: 200
+          h: 56
+          tone: neutral
+          detail: |
+            Helper machines that turn heavy CAD files into lightweight viewables you can open in
+            **Creo View** - no CAD licence needed.
+      edges:
+        - { from: browser, to: server, label: HTTPS, bidirectional: true }
+        - { from: cad, to: server, bidirectional: true }
+        - { from: server, to: db, bidirectional: true }
+        - { from: server, to: vault, bidirectional: true }
+        - { from: server, to: ldap, dashed: true }
+        - { from: server, to: index, dashed: true }
+        - { from: server, to: viz, dashed: true }
+
+  - type: animation
+    title: "Trace a click: search, then open a file"
+    diagram:
+      width: 720
+      height: 340
+      nodes:
+        - { id: you, label: You, sublabel: Acme engineer, x: 20, y: 140, w: 110, h: 56, tone: accent, shape: circle }
+        - { id: browser, label: Web browser, x: 160, y: 140, w: 140, h: 56, tone: accent }
+        - { id: server, label: Windchill server, x: 330, y: 140, w: 160, h: 56, tone: primary }
+        - { id: db, label: Database, sublabel: metadata, x: 530, y: 40, w: 160, h: 70, tone: success, shape: cylinder }
+        - { id: vault, label: File vault, sublabel: content, x: 530, y: 230, w: 160, h: 70, tone: success, shape: cylinder }
+      edges:
+        - { from: you, to: browser }
+        - { from: browser, to: server, label: request, bidirectional: true }
+        - { from: server, to: db, bidirectional: true }
+        - { from: server, to: vault, bidirectional: true }
+    chapters:
+      - title: You type a part number
+        caption: At Acme Mobility, you search for the scooter's folding hinge, **SC-1042**, and press Enter.
+        show: [you, browser]
+        highlight: [you]
+        flow: [you>browser]
+        seconds: 5
+      - title: The browser sends a request
+        caption: The browser packs your search into an HTTPS request and sends it to the Windchill server.
+        show: [you, browser, server]
+        highlight: [browser]
+        flow: [browser>server]
+      - title: The server checks and asks
+        caption: The server checks **who you are**, then asks the database for objects matching SC-1042.
+        show: [you, browser, server, db]
+        highlight: [server]
+        flow: [server>db]
+      - title: The database answers with facts
+        caption: Back come the **metadata** rows - number, name, version, state. The server removes anything you aren't allowed to see.
+        show: [you, browser, server, db]
+        highlight: [db]
+        flow: [db>server]
+      - title: Results appear on screen
+        caption: The server builds the results page and sends it back. Notice - **no file has moved yet**. Search only touches the facts.
+        show: [you, browser, server, db]
+        highlight: [browser]
+        flow: [server>browser]
+      - title: You click Download
+        caption: Now you want the actual CAD file. The server looks up the file's pointer and fetches the content from the **vault**.
+        highlight: [vault]
+        flow: [browser>server, server>vault]
+      - title: The file comes back
+        caption: The file streams back through the server to your browser. Facts from the database, files from the vault - **two places, one object**.
+        highlight: [vault, browser]
+        flow: [vault>server, server>browser]
+        seconds: 8
+
+  - type: comparison
+    title: Windchill is a restaurant
+    columns: [Restaurant, Windchill]
+    rows:
+      - { label: You, cells: [Guest at the table, User in a browser or Creo] }
+      - { label: Order, cells: ["\"One burger, please\"", A click - Search, Check in, Download] }
+      - { label: Who handles it, cells: [Front door + waiters + kitchen, Windchill server] }
+      - { label: Order book, cells: [What was ordered and by whom, Database (metadata)] }
+      - { label: Storeroom, cells: [Where the ingredients sit, File vault (content)] }
+      - { label: Guest list, cells: [Who has a reservation, Directory (LDAP)] }
+    takeaway: You never walk into the kitchen. You order, and the server does the running around.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Knowing the tiers turns "Windchill is broken" into a useful report. **Search slow but downloads
+      fine?** Probably the server or database. **Search fine but files crawl?** Probably the vault or
+      the network to it. Admins fix things much faster when users can say *which* part feels wrong -
+      and architects size each tier differently when planning for thousands of users.
+
+  - type: example
+    variant: real-world
+    title: Acme's two offices
+    industry: Micromobility
+    md: |
+      Acme Mobility designs scooters in Berlin and builds them in Ho Chi Minh City. Both offices use
+      the **same** Windchill server and database, so everyone sees the same versions and states.
+
+      But big CAD files downloaded slowly in Vietnam. The fix wasn't a second Windchill - it was a
+      **[[replica|replica vault]]** in the factory: a local copy of the files, while the facts still
+      come from the one central database.
+    takeaway: One source of truth for facts; files can be copied closer to the people who need them.
+
+  - type: callout
+    variant: version-note
+    versions: ["Windchill+"]
+    md: |
+      On **Windchill+** (PTC's cloud/SaaS offering), the same tiers exist, but PTC hosts and runs the
+      server, database and vaults. You still use a browser and CAD tools exactly as described here.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      "The file is in Windchill, so I can grab it from the server's disk." No - vault files are stored
+      with system-generated names, and only the database knows which file is which. Always get files
+      **through** Windchill.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      When reporting a problem, say **what you clicked, when, and whether it was searching (facts) or
+      opening a file (content)**. That one detail points the admin to the right tier.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: order
+        prompt: Put the path of a Search request in order, from your click to the data.
+        items: [You click Search, Web browser, Windchill server, Database]
+        explanation: The browser sends the request to the Windchill server, which queries the database for metadata. The answer travels back the same way.
+      - kind: single
+        prompt: Where does Windchill store the actual CAD model file of the scooter frame?
+        options: [In the database, In a file vault, In the web browser, In the LDAP directory]
+        answer: 1
+        explanation: Files (content) live in file vaults. The database holds the facts about the file plus a pointer to it. LDAP holds users and groups, not files.
+      - kind: multi
+        prompt: Which of these are stored in the database? (Choose all that apply.)
+        options: [Part number and name, Lifecycle state, The PDF of a drawing, Which version is latest]
+        answers: [0, 1, 3]
+        explanation: Numbers, names, states and version history are metadata in the database. The PDF itself is content, stored in a vault.
+      - kind: truefalse
+        prompt: When you run a search, Windchill downloads all matching files to your browser.
+        answer: false
+        explanation: Search only reads metadata. Files move only when you actually download, view or check out something.
+
+  - type: summary
+    points:
+      - "Windchill has four main tiers: client (browser/CAD), server, database and file vault."
+      - The database stores the facts (metadata); the vault stores the files (content).
+      - Every request goes through the server, which checks who you are and what you may do.
+      - Helpers like LDAP, the search index and visualization workers support the server.

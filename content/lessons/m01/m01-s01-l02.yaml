@@ -1,0 +1,212 @@
+id: m01-s01-l02
+subtitle: Four systems, one product. Learn who is the boss of which data.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [plm, pdm, erp, mes, integration, basics]
+
+blocks:
+  - type: text
+    md: |
+      Picture Acme Mobility's best-selling e-bike. Four different systems know something about it:
+
+      - One knows **what it looks like** and how it's designed.
+      - One knows **how the whole product evolves**, change by change.
+      - One knows **what it costs** and how many are in stock.
+      - One knows **what's being built on line 3 right now**.
+
+      Each system is the *boss* of its own data. When companies mix that up, they get two "truths" that
+      disagree. This lesson shows you who owns what, so you always know where to look and where to fix.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the engineering filing cabinet" → *[[pdm]]*
+      - "the product's whole life story, managed" → *[[plm]]*
+      - "the money, stock and orders system" → *[[erp]]*
+      - "the shop-floor system" → *[[mes]]*
+      - "the one system allowed to change a piece of data" → *system of record* (or *data owner*)
+
+  - type: diagram
+    title: Who owns what at Acme Mobility
+    caption: Click each box. Arrows show where data flows once it is released.
+    diagram:
+      width: 800
+      height: 300
+      groups:
+        - { label: PLM - whole lifecycle, x: 20, y: 20, w: 360, h: 260, tone: primary }
+      nodes:
+        - id: change
+          label: Change control
+          sublabel: PR, CR, CN
+          x: 40
+          y: 70
+          w: 150
+          h: 70
+          tone: warning
+          detail: |
+            How a design is allowed to change: [[problem-report|problem reports]], [[change-request|change requests]]
+            and [[change-notice|change notices]], with reviews and approvals. This is PLM, not just PDM.
+        - id: pdm
+          label: PDM core
+          sublabel: CAD, parts, docs
+          x: 210
+          y: 70
+          w: 150
+          h: 70
+          tone: primary
+          shape: cylinder
+          detail: |
+            The heart of PLM. Owns CAD models, drawings, [[part|parts]], [[document|documents]], versions and
+            the engineering [[bom]]. In Windchill this is mainly [[pdmlink]].
+        - id: collab
+          label: Collaboration
+          sublabel: projects, suppliers
+          x: 40
+          y: 180
+          w: 150
+          h: 70
+          tone: info
+          detail: Sharing controlled data with suppliers and partners, and running project work. In Windchill, [[projectlink]] covers much of this.
+        - id: mpp
+          label: Process planning
+          sublabel: eBOM to mBOM
+          x: 210
+          y: 180
+          w: 150
+          h: 70
+          tone: accent
+          detail: |
+            Turning the [[ebom|engineering BOM]] into the [[mbom|manufacturing BOM]] and defining how it is built.
+            In Windchill this is [[mpmlink]].
+        - id: erp
+          label: ERP
+          sublabel: cost, stock, orders
+          x: 460
+          y: 60
+          w: 150
+          h: 80
+          tone: success
+          shape: cylinder
+          detail: |
+            Owns cost, inventory, purchasing, sales orders and production planning. It receives **released**
+            part and BOM data from PLM and adds the business side (price, supplier, lead time).
+        - id: mes
+          label: MES
+          sublabel: what's built now
+          x: 460
+          y: 200
+          w: 150
+          h: 80
+          tone: danger
+          shape: cylinder
+          detail: |
+            Runs production on the shop floor: work orders, operations, machine data and **as-built** records
+            (which serial number got which battery).
+        - id: shop
+          label: Shop floor
+          sublabel: line 3, Lisbon
+          x: 650
+          y: 200
+          w: 130
+          h: 80
+          tone: neutral
+          detail: The real machines and people. They follow MES instructions and report back what actually happened.
+      edges:
+        - { from: change, to: pdm, label: controls }
+        - { from: pdm, to: erp, label: released BOM }
+        - { from: mpp, to: erp, label: mBOM }
+        - { from: erp, to: mes, label: work orders }
+        - { from: mes, to: shop, bidirectional: true }
+        - { from: mes, to: mpp, label: feedback, dashed: true }
+
+  - type: text
+    md: |
+      **PDM vs PLM, in one sentence:** PDM is the *filing cabinet* for engineering data. PLM is the
+      *whole office* around it: the cabinet **plus** change processes, manufacturing planning, quality,
+      supplier collaboration and everything else that happens across the product's life.
+
+      Every PLM system has PDM at its core. Not every PDM tool is a full PLM system.
+
+  - type: comparison
+    title: Who is the boss of which data?
+    columns: [PDM, PLM, ERP, MES]
+    rows:
+      - { label: Main question, cells: ["Which file is current?", "How does the product evolve?", "What does it cost and do we have it?", "What is being built right now?"] }
+      - { label: Typical users, cells: [Design engineers, "Engineering, change, quality, suppliers", "Finance, purchasing, planning", "Operators, supervisors"] }
+      - { label: Owns, cells: ["CAD, drawings, versions", "Parts, BOMs, changes, lifecycle", "Cost, stock, orders, schedules", "Work orders, as-built, machine data"] }
+      - { label: "Acme e-bike example", cells: [Frame CAD model rev C, Frame part + change history, "Frame costs EUR 84, 312 in stock", "Serial 0457 got frame rev C"] }
+      - { label: Time horizon, cells: [Design phase, Idea to retirement, Daily business, Minutes to shifts] }
+    takeaway: Engineering truth lives in PLM. Business truth lives in ERP. Shop-floor truth lives in MES.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Most companies connect PLM and ERP so that **released** parts and BOMs flow automatically into ERP.
+      The golden rule of those integrations is **one owner per field**. The part's description and material
+      are changed in PLM; the cost and supplier are changed in ERP. If both systems let people edit the
+      same field, the two copies drift apart, and someone orders the wrong thing.
+
+  - type: example
+    variant: case-study
+    title: The battery that existed twice
+    industry: Micromobility
+    md: |
+      Acme Mobility's planners were in a hurry. An engineer had a new 48V battery in Windchill, still
+      **In Work**. Purchasing typed a matching part straight into ERP so they could ask suppliers for prices.
+
+      Two weeks later engineering released the battery with a **different** connector. The integration
+      sent the released part to ERP, which now held two batteries with almost identical names. Purchasing
+      ordered 2,000 of the old one.
+
+      **The fix Acme put in place:**
+      1. Engineering parts are created only in PLM. ERP receives them when they are released.
+      2. Purchasing can see early (not yet released) designs through PLM, read-only, to start quoting.
+      3. Cost and supplier fields stay owned by ERP, and PLM never overwrites them.
+    takeaway: Decide which system creates and owns each piece of data, then let the integration copy it, never retype it.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      "We'll just put the BOM in ERP too, it's quicker." Maintaining the same BOM by hand in two systems
+      is the most common source of build errors in a PLM rollout. Copy it by integration, after release.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      On a new project, ask for the company's **data ownership matrix**: a simple table of each field and
+      the system that owns it. If nobody has one, building it is one of the most valuable things you can do.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Acme needs to know the **unit cost** of the e-bike frame. Which system owns that?
+        options: [PDM, PLM, ERP, MES]
+        answer: 2
+        explanation: Cost, purchasing and stock are business data owned by ERP. PLM may display it, but ERP is the system of record.
+      - kind: single
+        prompt: A supervisor wants to know **which frame revision went into serial number 0457**. Where is the best place to look?
+        options: [The CAD model, MES as-built records, The ERP price list, An email from engineering]
+        answer: 1
+        explanation: MES records what was actually built, unit by unit. PLM knows what was *designed*; MES knows what was *built*.
+      - kind: truefalse
+        prompt: Every PLM system includes PDM capabilities, but a PDM tool alone is not a full PLM system.
+        answer: true
+        explanation: PDM (controlling engineering data and versions) is the core of PLM. PLM adds processes like change, manufacturing planning, quality and collaboration across the whole life.
+
+  - type: flashcards
+    cards:
+      - { front: PDM, back: "Product Data Management - the engineering filing cabinet: CAD, parts, documents, versions." }
+      - { front: PLM, back: "Product Lifecycle Management - PDM plus the processes around the product's whole life: change, manufacturing planning, quality, collaboration." }
+      - { front: ERP, back: "Enterprise Resource Planning - owns cost, stock, purchasing, orders and production planning." }
+      - { front: MES, back: "Manufacturing Execution System - runs the shop floor and records what was actually built." }
+      - { front: System of record, back: The one system allowed to create or change a given piece of data. Others only receive copies. }
+      - { front: What usually flows PLM to ERP?, back: Released parts and BOMs - only after release, never drafts. }
+
+  - type: summary
+    points:
+      - PDM is the engineering-data core. PLM wraps it with lifecycle processes like change and manufacturing planning.
+      - ERP owns business data (cost, stock, orders). MES owns shop-floor data (work orders, as-built).
+      - Each piece of data should have exactly one owner, the system of record.
+      - Released parts and BOMs flow from PLM to ERP by integration, not by retyping.

@@ -1,0 +1,223 @@
+id: m01-s01-l03
+subtitle: Windchill is the hub. Meet the tools that plug into it.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [windchill, ptc, ecosystem, creo, thingworx, basics]
+
+blocks:
+  - type: text
+    md: |
+      You now know what PLM does. **[[windchill]]** is PTC's PLM system, and it's used by companies
+      that build complex products: vehicles, machines, medical devices, electronics, aircraft parts.
+
+      You use Windchill mostly through a **web browser**. Engineers also reach it from inside their CAD
+      tool. Around it sits a family of PTC tools, each with a clear job. Think of Windchill as the
+      **hub**, and the others as spokes that create, show or use its data.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "PTC's 3D design tool" → *[[creo]]*
+      - "the viewer anyone can use, no CAD licence needed" → *[[creo-view]]*
+      - "plug-in for other CAD tools" → *[[workgroup-manager]]*
+      - "PTC's connect-the-machines platform" → *[[thingworx]]*
+      - "the core data and change part of Windchill" → *[[pdmlink]]*
+
+  - type: diagram
+    title: Windchill and its neighbours
+    caption: Click each tool to see what it does and what it exchanges with Windchill.
+    diagram:
+      width: 800
+      height: 380
+      nodes:
+        - id: creo
+          label: Creo
+          sublabel: 3D CAD authoring
+          x: 40
+          y: 40
+          w: 150
+          h: 60
+          tone: accent
+          detail: |
+            PTC's 3D CAD tool. Engineers design in Creo and **check in** models and drawings to Windchill
+            through an embedded browser and a [[workspace]]. Windchill stores them as [[cad-document|CAD documents]].
+        - id: wgm
+          label: Other CAD tools
+          sublabel: via Workgroup Mgr
+          x: 40
+          y: 170
+          w: 150
+          h: 60
+          tone: accent
+          detail: |
+            Not every team uses Creo. [[workgroup-manager|Workgroup Managers]] connect other CAD tools
+            (for example SOLIDWORKS, NX, CATIA or AutoCAD) so their files are managed in Windchill too.
+        - id: alm
+          label: Requirements/ALM
+          sublabel: e.g. Codebeamer
+          x: 40
+          y: 300
+          w: 150
+          h: 60
+          tone: info
+          detail: |
+            Requirements and software lifecycle tools (PTC's is Codebeamer) can be linked to Windchill so
+            requirements trace to the parts and documents that meet them. Optional, and set up per company.
+        - id: windchill
+          label: Windchill
+          sublabel: PLM hub
+          x: 315
+          y: 160
+          w: 180
+          h: 80
+          tone: primary
+          shape: cylinder
+          detail: |
+            The single source of truth for product data: parts, BOMs, CAD, documents, versions, lifecycles
+            and change processes. Main capabilities include [[pdmlink]] (data + change), [[projectlink]]
+            (project collaboration) and [[mpmlink]] (manufacturing planning).
+        - id: viewer
+          label: Creo View
+          sublabel: view + mark up
+          x: 325
+          y: 40
+          w: 160
+          h: 60
+          tone: success
+          detail: |
+            Windchill publishes lightweight viewable files ([[representation|representations]]) of CAD data.
+            [[creo-view]] lets anyone, from buyer to service tech, open, measure and mark them up without CAD.
+        - id: navigate
+          label: Role-based apps
+          sublabel: simple views
+          x: 325
+          y: 300
+          w: 160
+          h: 60
+          tone: success
+          detail: |
+            Simplified apps for occasional users ("just show me the part and its drawing"). PTC offers these as
+            *Navigate*, originally built on [[thingworx]].
+        - id: erp
+          label: ERP
+          sublabel: cost, stock, orders
+          x: 620
+          y: 40
+          w: 150
+          h: 60
+          tone: warning
+          shape: cylinder
+          detail: Receives released parts and BOMs from Windchill through an integration (remember the last lesson).
+        - id: iot
+          label: ThingWorx
+          sublabel: Industrial IoT
+          x: 620
+          y: 170
+          w: 150
+          h: 60
+          tone: info
+          detail: |
+            PTC's IIoT platform. It connects factory machines and products in the field, and combines that live
+            data with Windchill data in apps, for example showing a technician the right service parts.
+        - id: field
+          label: Factory + field
+          sublabel: machines, e-bikes
+          x: 620
+          y: 300
+          w: 150
+          h: 60
+          tone: neutral
+          detail: Real machines and connected products sending data (temperatures, error codes, usage).
+      edges:
+        - { from: creo, to: windchill, label: check in/out, bidirectional: true }
+        - { from: wgm, to: windchill, bidirectional: true }
+        - { from: alm, to: windchill, dashed: true, bidirectional: true }
+        - { from: windchill, to: viewer, label: viewables }
+        - { from: windchill, to: navigate, dashed: true, bidirectional: true }
+        - { from: windchill, to: erp, label: released BOM }
+        - { from: iot, to: windchill, dashed: true, bidirectional: true }
+        - { from: field, to: iot, label: live data }
+
+  - type: callout
+    variant: note
+    title: Windchill in the cloud
+    md: |
+      Windchill can run on a company's own servers or be hosted by PTC as a SaaS offering
+      (*Windchill+*). The concepts in this course (parts, versions, lifecycles, changes) are the same either way.
+
+  - type: comparison
+    title: Shared drive vs Windchill
+    columns: [Shared drive + email, Windchill]
+    rows:
+      - { label: Which version is right?, cells: ["Guess from the file name", "Revision and iteration on every object"] }
+      - { label: Who is editing?, cells: [Nobody knows, Check-out shows who has it] }
+      - { label: Approvals, cells: [Email thread, "Workflow tasks with a record of who approved"] }
+      - { label: Product structure, cells: [A spreadsheet somewhere, "Parts linked into a BOM, tied to CAD"] }
+      - { label: "Can a buyer see the 3D model?", cells: ["Only with a CAD licence", "Yes, in Creo View"] }
+      - { label: Audit trail, cells: [None, "Full history of every change"] }
+    takeaway: Windchill is not a smarter folder. It understands what your data *is* and how it's allowed to change.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Companies choose a PLM system for years, often decades. Many pick Windchill because it handles
+      **large, multi-CAD product structures** and **formal change and configuration management**, which
+      regulated and complex-product industries depend on. Knowing Windchill is a long-lived career skill.
+
+  - type: example
+    variant: real-world
+    title: One hub, five teams
+    industry: Micromobility
+    md: |
+      At **Acme Mobility**, the frame team designs in Creo, while the electronics supplier sends motor
+      controller models from a different CAD tool through a Workgroup Manager. Both end up as CAD documents
+      in the same Windchill product. Purchasing reviews the frame in Creo View before quoting, the service
+      team uses a simple role-based app to look up spare parts, and released BOMs flow on to ERP.
+    takeaway: Different tools, different people, one shared set of product data.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      Don't treat Windchill as "just a CAD vault". Teams that only check files in and out, and run changes by
+      email, pay for PLM but keep all the old problems. The value is in parts, BOMs, lifecycles and change processes.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      On day one, ask which **Windchill release** your company runs and which **CAD tools** connect to it.
+      Those two answers explain most of the differences between what you see and what a tutorial shows.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: A buyer needs to look at and measure a 3D bracket but has no CAD licence. Which PTC tool fits?
+        options: [Creo Parametric, Creo View, ThingWorx, A Workgroup Manager]
+        answer: 1
+        explanation: Creo View opens the lightweight viewables Windchill publishes, so anyone can view, measure and mark up without a CAD licence.
+      - kind: single
+        prompt: Acme's motor supplier designs in a non-PTC CAD tool. How do their files get managed in Windchill?
+        options: [They must be redrawn in Creo, Through a Workgroup Manager for that CAD tool, By emailing PDFs, They can't be]
+        answer: 1
+        explanation: Workgroup Managers integrate third-party CAD tools with Windchill, so their models are managed as CAD documents alongside Creo data.
+      - kind: multi
+        prompt: Which of these are core jobs of Windchill? (Choose all that apply.)
+        options:
+          - Managing versions of parts, documents and CAD
+          - Running change processes with reviews and approvals
+          - Collecting live sensor data from factory machines
+          - Holding the product structure (BOM)
+        answers: [0, 1, 3]
+        explanation: Live machine data is ThingWorx's job. Windchill manages product data, BOMs and controlled change, and can share data with ThingWorx apps.
+      - kind: truefalse
+        prompt: Windchill is used only by design engineers.
+        answer: false
+        explanation: Engineers, change managers, manufacturing, quality, purchasing, service and suppliers all use Windchill data, often through simpler views like Creo View or role-based apps.
+
+  - type: summary
+    points:
+      - Windchill is PTC's web-based PLM hub for parts, BOMs, CAD, documents, lifecycles and changes.
+      - Creo and Workgroup Managers put CAD data in; Creo View lets anyone see it.
+      - ThingWorx and role-based apps connect Windchill data with machines, products and occasional users.
+      - Released data flows on to ERP. The real value is controlled change, not file storage.

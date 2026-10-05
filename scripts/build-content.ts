@@ -83,7 +83,7 @@ function glossaryLinks(src: string): string {
 const md = (s: string) => (marked.parse(glossaryLinks(s)) as string).trim();
 const mdInline = (s: string) => (marked.parseInline(glossaryLinks(s)) as string).trim();
 
-const BLOCK_MD = new Set(["md", "detail", "definition", "goal", "intro", "expected", "explanation", "result", "description"]);
+const BLOCK_MD = new Set(["md", "detail", "real", "definition", "goal", "intro", "expected", "explanation", "result", "description"]);
 const INLINE_MD = new Set(["prompt", "caption"]);
 
 /** Recursively renders markdown fields to HTML. `steps` of an exercise are inline markdown strings. */

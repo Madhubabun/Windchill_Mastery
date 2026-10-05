@@ -1,0 +1,233 @@
+id: m01-s04-l04
+subtitle: Objects on their own are just records. The links between them are where the product story lives.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [relationships, uses, described-by, references, associations]
+
+blocks:
+  - type: text
+    md: |
+      You've met parts, documents and CAD documents. Alone, each is just a record. What makes
+      Windchill powerful is how they **link up**: this scooter is made of these parts, this hinge is
+      explained by that test report, this CAD model defines that part.
+
+      There are four links you'll meet every day. The tricky part: two of them look almost
+      identical but behave very differently when a document gets a new version.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "is made of" (part → part) → *[[uses-link|uses]]*
+      - "is explained by *exactly this version* of" (part → document) → *[[described-by|described by]]*
+      - "points at *the latest* of" (part → document) → *[[references-link|references]]*
+      - "this CAD model defines this part" (CAD → part) → *[[build-link|build or content association]]*
+
+  - type: diagram
+    title: The four everyday links
+    caption: Click each object to see which links it has.
+    diagram:
+      width: 800
+      height: 400
+      nodes:
+        - id: frame
+          label: Frame assembly
+          sublabel: "part SC-2000 · B.1"
+          x: 300
+          y: 20
+          w: 200
+          tone: primary
+          detail: The parent part. Its **uses** links make up its structure (BOM).
+        - id: hinge
+          label: Folding hinge
+          sublabel: "part SC-1042 · B.2"
+          x: 300
+          y: 170
+          w: 200
+          tone: primary
+          detail: |
+            The hub of this example. It is **used by** the frame, **described by** a specific version
+            of the test report, **references** the latest corrosion standard and is **built from** its
+            CAD model.
+        - id: report
+          label: Hinge test report
+          sublabel: "doc · version B"
+          x: 20
+          y: 170
+          w: 200
+          tone: info
+          shape: doc
+          detail: |
+            **Described by** links the hinge *version* to *this* report version. If the report is
+            revised to C, the hinge still points at B until someone updates the link. Perfect for
+            evidence: "this exact version was tested by this exact report".
+        - id: standard
+          label: Corrosion standard
+          sublabel: "doc · always latest"
+          x: 20
+          y: 310
+          w: 200
+          tone: info
+          shape: doc
+          detail: |
+            **References** links the hinge to the document's *master*, so it always resolves to the
+            **latest** version. Perfect for general guidance that should stay current.
+        - id: cad
+          label: hinge.prt
+          sublabel: CAD document
+          x: 580
+          y: 170
+          w: 200
+          tone: accent
+          detail: The CAD model, associated to the part - typically as **Owner**, meaning the part's structure and attributes are built from the CAD data.
+        - id: drawing
+          label: hinge.drw
+          sublabel: CAD drawing
+          x: 580
+          y: 310
+          w: 200
+          tone: accent
+          detail: The drawing depends on the model (a CAD dependency) and is usually associated with the part too, as content rather than as the owner.
+      edges:
+        - { from: frame, to: hinge, label: "uses ×1" }
+        - { from: hinge, to: report, label: described by }
+        - { from: hinge, to: standard, label: references, dashed: true }
+        - { from: cad, to: hinge, label: Owner }
+        - { from: drawing, to: cad, label: depends on }
+
+  - type: comparison
+    title: Described by vs references
+    columns: [Described by, References]
+    rows:
+      - { label: Links part to, cells: [A specific document version, The document master] }
+      - { label: When the document is revised, cells: [Still shows the old version, Shows the new latest version] }
+      - { label: Best for, cells: ["Evidence: test reports, specs for this design", "General guidance: standards, procedures"] }
+      - { label: Acme example, cells: [Hinge B tested by report B, Hinge follows the latest corrosion standard] }
+    takeaway: "Described by = frozen in time. References = always current."
+
+  - type: simulation
+    title: Watch the links when a document is revised
+    intro: |
+      The hinge part is linked to its test report **twice** for this demo: once by *described by*
+      and once by *references*. Revise the report and watch what each link shows. To move the
+      described-by link, you must check out the part, update the link and check it in.
+    headline: "Report latest: {report} · described by shows {describedBy} · references shows {report}"
+    initial: { report: A, describedBy: A, partIteration: 1, partCheckedOut: false }
+    actions:
+      - id: revise-report
+        label: Revise the report
+        when: { report: [A, B] }
+        do: [{ nextLetter: report }]
+        log: Report revised to {report}. References follows automatically. Described by still shows {describedBy}.
+        blockedHint: Enough revisions for this demo - now update the described-by link.
+      - id: checkout-part
+        label: Check out the hinge part
+        when: { partCheckedOut: false }
+        do: [{ set: { partCheckedOut: true } }]
+        log: Hinge checked out. You can now edit its links.
+        blockedHint: The part is already checked out.
+      - id: link-b
+        label: Point described by at B
+        when: { partCheckedOut: true, report: B }
+        do: [{ set: { describedBy: B } }]
+        log: Described-by link now points at report B.
+        blockedHint: Needs the part checked out and the latest report at B.
+      - id: link-c
+        label: Point described by at C
+        when: { partCheckedOut: true, report: C }
+        do: [{ set: { describedBy: C } }]
+        log: Described-by link now points at report C.
+        blockedHint: Needs the part checked out and the latest report at C.
+      - id: checkin-part
+        label: Check in the hinge part
+        when: { partCheckedOut: true }
+        do: [{ inc: partIteration }, { set: { partCheckedOut: false } }]
+        log: Hinge checked in as a new iteration ({partIteration}). The link change is now saved in history.
+        blockedHint: Check the part out first.
+    goals:
+      - label: See references follow a revision on its own
+        when: { report: B }
+        message: References resolves to the master, so it always shows the latest version - no edit needed.
+      - label: Make the hinge described by report C, checked in
+        when: { report: C, describedBy: C, partCheckedOut: false }
+        message: Described-by links are deliberate. Changing them creates a new part iteration, so the history shows when the evidence changed.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      When an auditor asks "which test proved hinge revision B was safe?", a **described-by** link
+      answers instantly - even if the report has since moved on to revision D. Use a **references**
+      link there and the evidence silently drifts to whatever is latest.
+
+  - type: example
+    variant: real-world
+    title: Where-used saves a weekend
+    industry: Micromobility
+    md: |
+      Acme's supplier discontinues a battery connector. Because every product structure uses
+      the connector part through **uses** links, one *where used* lookup lists every e-bike and
+      scooter assembly affected - in seconds, not a weekend of spreadsheet digging.
+    takeaway: Links work in both directions. "What's in this?" and "where is this used?" are the same data.
+
+  - type: walkthrough
+    title: Follow links from an information page
+    who: Any user who can read the product
+    steps:
+      - title: Open the part
+        where: [Search box, part number]
+        md: Search for the part (for example `SC-1042`) and open its information page.
+      - title: Go down the structure
+        where: [Part information page, Structure tab]
+        md: Expand to see the child parts this part **uses**, with quantities.
+      - title: Go up - where used
+        where: [Part information page, where-used view]
+        md: Look for the **Where Used** option to see every parent assembly that uses this part. Its exact place differs by release.
+      - title: See documents and CAD
+        where: [Part information page, related objects area]
+        md: Find the tables for described-by documents, referenced documents and associated CAD documents. Click any of them to jump to its own information page - and keep following the chain.
+    result: You can travel from any object to everything linked to it.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Using references for test evidence.** It looks tidy because it always shows the newest
+      report, but it breaks traceability: you can no longer prove which report went with which part
+      version.
+
+  - type: callout
+    variant: pro-tip
+    md: Before changing a part, check **where used** first. A "small" change to a part used in twelve assemblies is not small.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Hinge B.2 is linked to test report B by **described by**. The report is revised to C. What does the hinge show?
+        options: [Report C, Report B, No report - the link breaks, Both B and C]
+        answer: 1
+        explanation: Described-by links a part version to a specific document version. It stays on B until someone deliberately updates the link.
+      - kind: single
+        prompt: Which link should connect a part to a company-wide design standard that must always be current?
+        options: [Uses, Described by, References, Owner association]
+        answer: 2
+        explanation: References links to the document master, so it always resolves to the latest version.
+      - kind: multi
+        prompt: Which statements about the uses link are true? (Choose all that apply.)
+        options:
+          - It connects a parent part to a child part
+          - It carries quantity and unit
+          - It connects a part to a CAD drawing
+          - It lets you find where a part is used
+        answers: [0, 1, 3]
+        explanation: Uses links build the BOM between parts, carry quantities, and can be read upwards for where-used. CAD documents connect through associations, not uses links.
+      - kind: truefalse
+        prompt: Changing a part's described-by links normally requires checking out the part.
+        answer: true
+        explanation: The links belong to the part version. Editing them means checking out the part, and checking in creates a new iteration that records the change.
+
+  - type: summary
+    points:
+      - Uses links connect parts into a BOM, with quantity and unit, and work for where-used too.
+      - Described by ties a part version to a specific document version - frozen, ideal for evidence.
+      - References ties a part to a document master - always the latest.
+      - CAD documents connect to parts through associations, such as Owner.

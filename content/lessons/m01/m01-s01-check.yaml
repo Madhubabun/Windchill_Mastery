@@ -1,0 +1,90 @@
+id: m01-s01-check
+subtitle: Show what you know about PLM, its neighbours and where Windchill fits.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [checkpoint, plm, pdm, erp, mes, windchill, change]
+
+blocks:
+  - type: quiz
+    title: "Checkpoint: PLM in the real world"
+    passMark: 0.8
+    questions:
+      - kind: order
+        prompt: Put a product's lifecycle stages in order.
+        items: [Idea, Design, Validate, Manufacture, Service, Retire]
+        explanation: Products go from idea to design, are validated with prototypes and tests, manufactured, serviced in the field and finally retired. Service feedback often loops back into design.
+      - kind: multi
+        prompt: Which problems does PLM solve in real companies? (Choose all that apply.)
+        options:
+          - Nobody knows which file version is correct
+          - Designs change without anyone checking the impact
+          - The reason for a design decision gets lost
+          - Monthly payroll is calculated wrongly
+        answers: [0, 1, 2]
+        explanation: PLM tackles version chaos, uncontrolled change and lost history. Payroll is an HR/ERP matter.
+      - kind: single
+        prompt: What's the best way to describe the difference between PDM and PLM?
+        options:
+          - They are two names for the same thing
+          - PDM manages engineering data and versions; PLM adds the processes across the whole product life
+          - PLM is only for software products
+          - PDM is for manufacturing, PLM is for finance
+        answer: 1
+        explanation: PDM is the engineering-data core (CAD, parts, documents, versions). PLM wraps it with lifecycle processes such as change, manufacturing planning, quality and collaboration.
+      - kind: single
+        prompt: Acme's planner asks how many e-bike frames are **in stock** and what they **cost**. Which system owns that answer?
+        options: [PLM, ERP, MES, CAD]
+        answer: 1
+        explanation: Stock and cost are business data owned by ERP. PLM owns the design; MES owns what's happening on the shop floor.
+      - kind: truefalse
+        prompt: To save time, it's good practice to let people edit the same BOM by hand in both PLM and ERP.
+        answer: false
+        explanation: Two hand-maintained copies drift apart and cause build errors. Each field should have one owner; released BOMs flow from PLM to ERP by integration.
+      - kind: single
+        prompt: Which system records that scooter serial 0457 was built with kickstand revision B?
+        options: [ERP price list, MES as-built records, Creo, Creo View]
+        answer: 1
+        explanation: MES runs and records shop-floor production, including as-built data per unit. PLM knows what was designed; MES knows what was actually built.
+      - kind: single
+        prompt: Which PTC tool lets a buyer view and measure a 3D model **without a CAD licence**?
+        options: [Creo Parametric, Creo View, ThingWorx, A Workgroup Manager]
+        answer: 1
+        explanation: Creo View opens the lightweight viewables Windchill publishes. Creo is for authoring; ThingWorx is for IoT; Workgroup Managers connect non-PTC CAD tools.
+      - kind: multi
+        prompt: Which statements about the PTC ecosystem are true? (Choose all that apply.)
+        options:
+          - Workgroup Managers connect non-PTC CAD tools to Windchill
+          - ThingWorx is PTC's Industrial IoT platform
+          - Windchill can only manage Creo files
+          - Creo designers check models in and out of Windchill
+        answers: [0, 1, 3]
+        explanation: Windchill is multi-CAD - Workgroup Managers bring in tools like SOLIDWORKS or NX. ThingWorx connects machines and products. Creo integrates with Windchill through a workspace.
+      - kind: order
+        prompt: Put the steps of a typical design change in order.
+        items: [Problem report, Change request, Change board approval, Change notice and tasks, Released revision]
+        explanation: An issue is reported, a fix is proposed and reviewed, approved work is done through change tasks on a change notice, and the result is released.
+      - kind: single
+        prompt: The factory asks you to email an unapproved drawing "to save time". What's the right response?
+        options:
+          - Email it - speed matters most
+          - Release it yourself
+          - Explain it isn't released, help get the review done, then share a link to the released object
+          - Print it and walk it over
+        answer: 2
+        explanation: Only released data should be built from. Helping the review along keeps the team moving without bypassing control, and a link always points to the current, approved version.
+
+  - type: flashcards
+    title: "PLM in the real world"
+    cards:
+      - { front: Product lifecycle, back: "Idea, design, validate, manufacture, service, retire - a product's whole life story." }
+      - { front: Single source of truth, back: One controlled place where everybody finds the same current product data. }
+      - { front: PDM, back: "Product Data Management - the engineering filing cabinet: CAD, parts, documents, versions." }
+      - { front: PLM, back: "PDM plus the processes across the product's life: change, manufacturing planning, quality, collaboration." }
+      - { front: ERP, back: "Owns business data: cost, stock, purchasing, orders, production planning." }
+      - { front: MES, back: Runs the shop floor and records what was actually built (as-built). }
+      - { front: System of record, back: The one system allowed to create or change a piece of data. }
+      - { front: Windchill, back: "PTC's web-based PLM hub for parts, BOMs, CAD, documents, lifecycles and changes." }
+      - { front: Creo View, back: Viewer to see and mark up 3D models and drawings without a CAD licence. }
+      - { front: Workgroup Manager, back: "Plug-in that connects a non-PTC CAD tool (e.g. SOLIDWORKS, NX) to Windchill." }
+      - { front: Change review board, back: The cross-functional group that approves or rejects a change request. }
+      - { front: Change notice, back: "\"Approved - go do it\": the object that carries out a change through change tasks." }

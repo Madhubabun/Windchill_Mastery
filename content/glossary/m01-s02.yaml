@@ -1,0 +1,50 @@
+# Glossary terms introduced in section m01-s02 (Windchill architecture overview).
+
+- id: database
+  term: Database (relational)
+  plain: The giant, super-organised spreadsheet where Windchill keeps all the facts about every object.
+  definition: The relational database (Oracle or Microsoft SQL Server) that stores Windchill metadata - numbers, names, versions, states, relationships, access rules and pointers to file content.
+  aka: [RDBMS, Oracle, SQL Server]
+  related: [metadata, vault, method-server]
+
+- id: index-search
+  term: Index search (Solr)
+  plain: A pre-built word index, like the index at the back of a book, that makes keyword searches fast.
+  definition: Windchill's full-text and keyword search service, based on Apache Solr. It keeps an index of object attributes (and optionally file text) so keyword searches don't have to scan the database.
+  aka: [Solr, full-text search]
+  related: [quick-search, database]
+
+- id: background-queue
+  term: Background queue
+  plain: A to-do list of jobs Windchill works through behind the scenes, so you don't have to wait.
+  definition: A Windchill processing queue holding entries (for example publishing, workflow robots or scheduled jobs) that background method servers pick up and run asynchronously.
+  aka: [queue]
+  related: [method-server, cad-worker]
+
+- id: cad-worker
+  term: CAD worker (visualization adapter)
+  plain: A helper machine that turns heavy CAD files into lightweight 3D pictures anyone can open.
+  definition: A process, usually on a separate machine, that runs a CAD tool's adapter to publish representations (viewables) from CAD data, for viewing in Creo View or the browser.
+  aka: [worker, publishing adapter]
+  related: [representation, creo-view, background-queue]
+
+- id: primary-content
+  term: Primary content
+  plain: The main file of a document - the PDF or Word file the document is really about.
+  definition: The main content file attached to a Windchill document (or the model file of a CAD document). Extra files are stored as attachments (secondary content). The content itself lives in a vault or the database; the object only references it.
+  aka: [primary file]
+  related: [document, vault, metadata]
+
+- id: windchill-plus
+  term: Windchill+
+  plain: Windchill as a cloud service - PTC runs the servers, you just log in.
+  definition: PTC's software-as-a-service (SaaS) offering of Windchill. The same tiers exist, but PTC hosts, operates and upgrades the servers, database and vaults.
+  aka: [Windchill SaaS]
+  related: [windchill]
+
+- id: windchill-quality
+  term: Windchill quality capabilities
+  plain: The part of Windchill that tracks things going wrong - complaints, defects, root causes and fixes.
+  definition: Windchill capabilities for quality management such as nonconformances, CAPA (corrective and preventive action), customer complaints and risk/reliability analysis (for example FMEA). Exact packaging and names depend on the release and licence.
+  aka: [Windchill Quality, CAPA, nonconformance]
+  related: [problem-report, pdmlink]

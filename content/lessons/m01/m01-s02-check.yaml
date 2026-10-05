@@ -1,0 +1,90 @@
+id: m01-s02-check
+subtitle: Prove you can trace a click through Windchill - from browser to database and back.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [architecture, checkpoint]
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **Windchill architecture**: the four tiers, the parts inside the server,
+      metadata vs content, and the Windchill solutions. Score 80% to pass. Every answer explains
+      itself, so a miss is still a win.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: order
+        prompt: Order the hops a Search request takes on its way **in**.
+        items: [Web browser, Web server (PTC HTTP Server), Servlet engine (Tomcat), Method server, Database]
+        explanation: The web server is the front door, Tomcat runs the web app and hands the work to a method server, and the method server queries the database (and the Solr index for keywords).
+      - kind: single
+        prompt: In the restaurant analogy, the method servers are the...
+        options: [Host at the front door, Waiters, Cooks, Storeroom]
+        answer: 2
+        explanation: Method servers do the real work - business logic, rules and access checks - like cooks. The web server is the host, Tomcat the waiters, the vault the storeroom.
+      - kind: single
+        prompt: Which component starts, monitors and load-balances the method servers?
+        options: [The server manager, The web server, The LDAP directory, The file vault]
+        answer: 0
+        explanation: The server manager is the supervisor. It starts method servers, restarts failed ones, spreads work between them and coordinates caches.
+      - kind: truefalse
+        prompt: Background method servers handle queued jobs such as visualization publishing, so users don't have to wait for them.
+        answer: true
+        explanation: Work that can happen later goes onto queues processed by background method servers, keeping foreground method servers free for users.
+      - kind: multi
+        prompt: Which of these live in the **database**? (Choose all that apply.)
+        options: [Part numbers and names, Lifecycle states, The CAD model file, References pointing to vault files]
+        answers: [0, 1, 3]
+        explanation: The database holds metadata, including the reference to each file. The CAD file itself is content in a vault.
+      - kind: single
+        prompt: After a restore, Acme's users can find every object, but no file will open. What was most likely missing from the backup?
+        options: [The database, The file vault, The LDAP directory, The search index]
+        answer: 1
+        explanation: Finding objects means the metadata is back. Files failing to open means the vault content is missing.
+      - kind: single
+        prompt: Acme's factory says search is instant but opening big assemblies is painfully slow. What is the best fit?
+        options: [Add a replica vault near the factory, Upgrade the database, Add a second Windchill system, Rebuild the search index]
+        answer: 0
+        explanation: Fast search means metadata is fine. Slow downloads point to content and the network - a replica keeps file copies near the users while facts stay central.
+      - kind: single
+        prompt: Where are users and groups usually stored for login?
+        options: [In the file vault, In an LDAP directory, In the servlet engine, In Creo]
+        answer: 1
+        explanation: The directory server - Windchill Directory Server or a corporate LDAP - is the address book Windchill checks for users and groups.
+      - kind: multi
+        prompt: Match problems to solutions. Which pairs are correct? (Choose all that apply.)
+        options:
+          - "Releasing a new part revision → PDMLink"
+          - "Sharing a project with a supplier → ProjectLink"
+          - "Planning how two plants build the e-bike → MPMLink"
+          - "Tracking customer complaints to a CAPA → MPMLink"
+        answers: [0, 1, 2]
+        explanation: Complaints and CAPA belong to Windchill's quality capabilities, not MPMLink, which plans manufacturing.
+      - kind: truefalse
+        prompt: Each Windchill solution keeps its own separate database, so data must be copied between them.
+        answer: false
+        explanation: All solutions run on the same platform and database. That's what lets a complaint link to the exact part revision and its process plan.
+
+  - type: flashcards
+    title: Architecture deck
+    cards:
+      - { front: The four main tiers, back: "Client (browser/CAD), server, database, file vault." }
+      - { front: Web server, back: "PTC HTTP Server (Apache-based): the front door for every request." }
+      - { front: Servlet engine, back: "Tomcat, embedded in Windchill: runs the web app, hands work to method servers." }
+      - { front: Method server, back: "Java process running business logic and access checks." }
+      - { front: Server manager, back: "Starts, watches and load-balances method servers." }
+      - { front: Background method server, back: "Processes queues like publishing and workflow robots." }
+      - { front: Metadata, back: "Facts about an object, stored in the database (Oracle or SQL Server)." }
+      - { front: Content, back: "The files themselves, stored in file vaults or replicas." }
+      - { front: Replica site, back: "Copies of vault files near remote users for faster downloads." }
+      - { front: Search index, back: "Solr-based index that makes keyword search fast." }
+      - { front: PDMLink vs ProjectLink, back: "PDMLink: engineering data and change. ProjectLink: project collaboration." }
+      - { front: MPMLink, back: "Manufacturing planning: mBOMs, process plans, plants." }
+
+  - type: summary
+    points:
+      - Trace any request through browser → web server → Tomcat → method server → database.
+      - Metadata in the database, content in vaults - back up both together.
+      - Solutions like PDMLink, ProjectLink, MPMLink and Quality share one platform.

@@ -1,0 +1,225 @@
+id: m01-s02-l03
+subtitle: Every object has two halves. Lose one, and the other is almost useless.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [architecture, metadata, vault, backup]
+
+blocks:
+  - type: text
+    md: |
+      Think of a library. The **catalogue card** says: title, author, shelf number, who borrowed it.
+      The **book** sits on the shelf. The card is tiny; the book is heavy. You need both.
+
+      Windchill splits every document and CAD model the same way:
+
+      - The **card** = facts about the object, kept in the [[database]].
+      - The **book** = the actual file, kept in a [[vault|file vault]].
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the catalogue card" → *[[metadata]]* (number, name, version, state, owner, links)
+      - "the book" → *content* - the [[primary-content|primary content]] file plus any attachments
+      - "the shelf" → *file vault* (or a [[replica|replica]] at a remote site)
+      - "the shelf number on the card" → the content *reference* the database keeps for each file
+
+  - type: diagram
+    title: One drawing, two homes
+    caption: Click each half of Acme's hinge drawing to see where it lives.
+    diagram:
+      width: 780
+      height: 360
+      nodes:
+        - id: object
+          label: SC-1042.drw
+          sublabel: hinge drawing, B.3
+          x: 290
+          y: 20
+          w: 200
+          h: 64
+          tone: accent
+          shape: doc
+          detail: |
+            What you see in Windchill is **one** object: the hinge drawing, revision B, iteration 3.
+            Behind the scenes it is stored in two places.
+        - id: meta
+          label: Metadata
+          sublabel: small, structured
+          x: 60
+          y: 140
+          w: 220
+          h: 64
+          tone: primary
+          detail: |
+            Number SC-1042, name "Folding hinge", version B.3, state **In Work**, owner Priya, context
+            "E-Scooter S2", links to the part it describes, access rules - and a **reference** to the
+            file in the vault.
+        - id: content
+          label: Content
+          sublabel: big file
+          x: 500
+          y: 140
+          w: 220
+          h: 64
+          tone: warning
+          detail: |
+            The drawing file itself (plus attachments like a PDF). Often megabytes or gigabytes for
+            big CAD assemblies.
+        - id: db
+          label: Database
+          sublabel: Oracle / SQL Server
+          x: 60
+          y: 260
+          w: 220
+          h: 80
+          tone: success
+          shape: cylinder
+          detail: Rows in tables. Fast to search, sort and filter - that's why search is quick.
+        - id: vault
+          label: File vault
+          sublabel: managed folders
+          x: 500
+          y: 260
+          w: 220
+          h: 80
+          tone: success
+          shape: cylinder
+          detail: |
+            Folders on disk managed by Windchill. Files are stored under **system-generated names**,
+            so you can't recognise them by browsing the disk. (Windchill can also be set up to keep
+            content in the database, but production systems typically use vaults.)
+      edges:
+        - { from: object, to: meta }
+        - { from: object, to: content }
+        - { from: meta, to: db, label: stored in }
+        - { from: content, to: vault, label: stored in }
+        - { from: meta, to: content, label: points to, dashed: true }
+
+  - type: comparison
+    title: Metadata vs content
+    columns: [Metadata, Content]
+    rows:
+      - { label: What, cells: [Facts about the object, The file itself] }
+      - { label: Examples, cells: ["Number, version, state, owner", "CAD model, drawing, PDF"] }
+      - { label: Size, cells: [Tiny (kilobytes), Big (MB to GB)] }
+      - { label: Lives in, cells: [Database, File vault (or replica)] }
+      - { label: Used by, cells: [Search, reports, workflows, Download, view, check out] }
+    takeaway: Search reads metadata; opening a file reads content.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Backups, migrations and disaster recovery all hinge on this split. The database and the vaults
+      must be backed up **together, at the same moment** (or in a coordinated way). Migration
+      specialists move both halves and then check that every reference still finds its file.
+
+  - type: scenario
+    variant: what-if
+    title: The server room flood
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          A pipe bursts in Acme Mobility's server room. Both disks are damaged. IT has last night's
+          backup of the **database only** - nobody remembered the vault. What happens after restore?
+        choices:
+          - { label: Everything works - the database has it all, next: w1, feedback: "Nope. The database only holds pointers to files." }
+          - { label: Users can find every object, but files won't open, next: s2, good: true, feedback: "Exactly. The cards are back, the books are gone." }
+      - id: s2
+        md: |
+          Right. Search shows SC-1042 B.3 with all its attributes, but downloading the drawing fails -
+          the vault file it points to is missing. Now flip it: what if **only the vault** had been backed up?
+        choices:
+          - { label: Thousands of files with meaningless names, next: s3, good: true, feedback: "Yes - without the database, nobody knows which file is which version of what." }
+          - { label: Windchill rebuilds the database from the files, next: w2, feedback: "Windchill can't rebuild versions, states, links and history from loose files." }
+      - id: s3
+        md: |
+          Last question: the backups exist, but the database copy is from **midnight** and the vault copy
+          from **6 a.m.** What's the risk?
+        choices:
+          - { label: Files checked in after midnight have no matching metadata, next: win, good: true, feedback: "Right - the halves are out of sync. That's why backups are coordinated." }
+          - { label: No risk, a few hours don't matter, next: w3, feedback: "Even minutes matter: references and files can disagree." }
+      - id: win
+        md: |
+          You get it. **Back up both halves, in a coordinated way, and test restores.** Acme's admins
+          now schedule database and vault backups together and practise a restore every quarter.
+        outcome: success
+      - id: w1
+        md: The objects appear, but every download fails with missing-content errors. Engineers can see their work but can't open any of it.
+        outcome: fail
+      - id: w2
+        md: There is no magic rebuild. Without metadata the files are anonymous, and the version history is lost.
+        outcome: fail
+      - id: w3
+        md: After restore, some objects point to files that don't exist and some files have no object. Cleaning that up takes days.
+        outcome: partial
+
+  - type: example
+    variant: real-world
+    title: Fast search, slow download
+    industry: Micromobility
+    md: |
+      Acme's factory team says: "Search is instant, but opening the frame assembly takes ages." That
+      single sentence tells the admin a lot: **metadata** (database) is fine, **content** (vault and
+      network) is the slow part. The fix was a replica vault at the factory, not a database upgrade.
+    takeaway: Knowing which half is slow points you straight to the right fix.
+
+  - type: walkthrough
+    title: See both halves of an object
+    who: Any user with read access (step 3 needs a site administrator)
+    steps:
+      - title: Find the object
+        where: [Search, "<number or name>"]
+        md: Search for a document or CAD document, for example the hinge drawing, and open its **information page**.
+      - title: Read the metadata
+        where: [Information page, Details]
+        md: The attributes you see - number, name, version, state, context, dates - all come from the **database**.
+      - title: Look at the content
+        where: [Information page, Content / Attachments]
+        md: The **primary content** and attachments listed here are the files stored in a **vault**. Downloading one fetches it from the vault (or a nearby replica).
+      - title: "Admins only: view the vaults"
+        where: [Site, Utilities, File Server Administration]
+        md: Site administrators can see the configured vaults, file servers and replica sites here. Look, don't change, unless it's your job.
+    result: You can point at any object and say which parts live in the database and which live in a vault.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      Never copy, rename or delete files directly in a vault folder "to tidy up". Windchill still
+      points to them, and you'll create broken objects that are hard to find later.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      When planning a migration or a disk, size the two halves separately: the database grows with the
+      **number of objects**, while vaults grow with the **size of files** - and CAD vaults grow fast.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: multi
+        prompt: Which of these are metadata? (Choose all that apply.)
+        options: [Lifecycle state, The STEP file of a part, Owner, Revision letter]
+        answers: [0, 2, 3]
+        explanation: State, owner and revision are facts stored in the database. The STEP file is content stored in a vault.
+      - kind: single
+        prompt: Only the vault was restored after a crash. What's the main problem?
+        options:
+          - Files are missing
+          - Files exist, but nothing says which object, version or state they belong to
+          - Search works but downloads fail
+          - Nothing - vaults hold everything
+        answer: 1
+        explanation: Vault files have system-generated names. Without the database, there's no map from file to object, version and history.
+      - kind: truefalse
+        prompt: Database and vault backups should be coordinated so they match the same point in time.
+        answer: true
+        explanation: If the halves come from different times, some references point to missing files and some files have no owner object.
+
+  - type: summary
+    points:
+      - Every object has metadata (facts, in the database) and content (files, in a vault).
+      - The database keeps a reference that points each object to its files.
+      - Losing either half breaks the object - back up both together and test restores.
+      - Never edit vault folders directly; always go through Windchill.

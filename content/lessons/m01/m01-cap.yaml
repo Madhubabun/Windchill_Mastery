@@ -1,0 +1,358 @@
+id: m01-cap
+subtitle: Your first real mission. Find the frame, read its story, brief the team - no hand-holding.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [capstone, search, information-page, structure, vault, objects]
+
+blocks:
+  - type: text
+    md: |
+      It's your first morning on Acme Mobility's engineering team. Coffee in hand, laptop open, and
+      a message from your lead, Kai:
+
+      > "Hey! Stand-up is at 10. Can you find the **current frame assembly** for the Scooter S2 and
+      > give the team a 2-minute brief? Version, state, who's working on it, what's in it, and which
+      > drawings go with it. Oh - and the new intern keeps asking where the CAD files actually live.
+      > Explain that too."
+
+      Everything you need is from Module 1: PLM basics, the architecture, getting around, and common
+      objects. Let's go.
+
+  - type: callout
+    variant: note
+    title: Your mission checklist
+    md: |
+      1. Find the frame assembly with a **[[saved-search|saved search]]**.
+      2. Read its **version, state and owner** from the [[information-page]].
+      3. List its **top-level parts** and **attached drawings**.
+      4. Explain **where its CAD files actually live**.
+
+  - type: walkthrough
+    title: Your route through Windchill
+    who: Any member of the Scooter S2 product team
+    steps:
+      - title: Build the search
+        where: [Header, Advanced search]
+        md: |
+          Set **Type** to *Part*, limit the **Context** to *Scooter S2*, and add criteria such as
+          name contains `frame`. Run it and check the results make sense.
+      - title: Save it for next time
+        where: [Advanced search, Save Search]
+        md: Save it with a clear name like `S2 - frame assemblies`. Next week it's one click away in your saved searches list.
+      - title: Run the saved search
+        where: [Saved searches list, "S2 - frame assemblies"]
+        md: Pick it from your saved searches. The search runs fresh every time, so results are always current.
+      - title: Open the right version
+        where: [Search results, "SC-2000 Frame assembly"]
+        md: |
+          Open the frame assembly's information page. Look at its version and state - and check
+          the history to see whether a newer version is still In Work.
+      - title: Read identity and owner
+        where: [Information page, Details]
+        md: |
+          Note the **number, name, version and state**. For "who owns it", read **Created By**,
+          **Modified By** and the **context**; many companies also name a responsible person or team
+          role in attributes or on the team.
+      - title: List the top-level parts
+        where: [Information page, Structure]
+        md: Expand **one level** only. Those children are the top-level parts, each with its quantity.
+      - title: Find the drawings
+        where: [Information page, related CAD and documents]
+        md: |
+          Look at the associated CAD documents (the assembly model as Owner, drawings usually as
+          content) and any described-by documents. Tab names vary by release.
+    result: You have everything for the brief - and a saved search you'll reuse all year.
+
+  - type: diagram
+    title: What you'll find on the frame
+    caption: The frame assembly and what hangs off it. Click each box for the briefing note.
+    diagram:
+      width: 820
+      height: 270
+      nodes:
+        - id: drw
+          label: frame.drw
+          sublabel: drawing
+          x: 20
+          y: 20
+          w: 140
+          h: 60
+          tone: accent
+          shape: doc
+          detail: The frame drawing - the "attached drawing" Kai asked about. It depends on frame.asm and is usually associated with the part as content.
+        - id: asm
+          label: frame.asm
+          sublabel: CAD model · Owner
+          x: 185
+          y: 20
+          w: 140
+          h: 60
+          tone: accent
+          detail: The CAD assembly that defines the frame part (Owner association). Its file content sits in a vault, not in the database.
+        - id: frame
+          label: SC-2000 Frame assy
+          sublabel: "B.2 · Released"
+          x: 355
+          y: 20
+          w: 190
+          h: 60
+          tone: primary
+          detail: |
+            Your briefing headline: **SC-2000 · Frame assembly · B.2 · Released**. There's also a
+            B.3 In Work - that's work in progress, not what the factory builds today.
+        - id: spec
+          label: Weld spec
+          sublabel: described by
+          x: 640
+          y: 20
+          w: 160
+          h: 60
+          tone: info
+          shape: doc
+          detail: A document that describes this exact version of the frame.
+        - id: tube
+          label: Main tube
+          sublabel: "part ×1"
+          x: 20
+          y: 180
+          w: 170
+          tone: info
+          detail: A top-level part (first level of the Structure tab).
+        - id: hinge
+          label: Folding hinge
+          sublabel: "SC-1042 · part ×1"
+          x: 220
+          y: 180
+          w: 170
+          tone: info
+          detail: Another top-level part - the hinge that had cold-weather issues. Its own structure has more levels, but your brief only needs the first.
+        - id: deck
+          label: Deck plate
+          sublabel: "part ×1"
+          x: 420
+          y: 180
+          w: 170
+          tone: info
+          detail: A top-level part. Quantity 1, unit each.
+        - id: bolts
+          label: M6 bolt
+          sublabel: "library part ×8"
+          x: 620
+          y: 180
+          w: 180
+          tone: neutral
+          detail: A standard part reused from a library. Quantity 8 on the uses link - one part, used eight times. It isn't in the CAD assembly at all.
+      edges:
+        - { from: frame, to: tube }
+        - { from: frame, to: hinge }
+        - { from: frame, to: deck }
+        - { from: frame, to: bolts, label: "×8" }
+        - { from: asm, to: frame, dashed: true }
+        - { from: drw, to: asm }
+        - { from: frame, to: spec, dashed: true }
+
+  - type: animation
+    title: Where the frame's CAD file really lives
+    diagram:
+      width: 800
+      height: 320
+      nodes:
+        - { id: you, label: You, sublabel: browser or Creo, x: 20, y: 130, w: 140, tone: accent, shape: pill }
+        - { id: server, label: Windchill server, sublabel: method servers, x: 230, y: 130, w: 170, tone: primary }
+        - { id: db, label: Database, sublabel: metadata, x: 500, y: 30, w: 170, h: 70, tone: info, shape: cylinder }
+        - { id: vault, label: File vault, sublabel: frame.asm content, x: 500, y: 220, w: 170, h: 70, tone: warning, shape: cylinder }
+      edges:
+        - { from: you, to: server, label: request / reply, bidirectional: true }
+        - { from: server, to: db, label: who / what / where }
+        - { from: server, to: vault, label: get file }
+    chapters:
+      - title: You ask for the frame
+        caption: You open the frame's CAD document. Your request goes to the Windchill server.
+        show: [you, server]
+        highlight: [you]
+        flow: [you>server]
+      - title: The database knows about it
+        caption: The **database** holds the [[metadata]] - number, version, state, links, permissions - plus a pointer to where the file content sits.
+        show: [you, server, db]
+        highlight: [db]
+        flow: [server>db]
+      - title: The vault holds the file
+        caption: The actual `frame.asm` bytes live in a **[[vault]]** on file storage. Remote sites may read a nearby **replica** for speed.
+        highlight: [vault]
+        flow: [server>vault]
+      - title: Back to you
+        caption: The server sends the data and the file back. In a CAD tool, it lands in your **workspace** cache - a local copy, not the master.
+        highlight: [you]
+        flow: [server>you]
+        seconds: 7
+
+  - type: scenario
+    variant: challenge
+    title: "Stand-up in 30 minutes: brief the frame"
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          You need the current Scooter S2 frame assembly. You remember it's called something like
+          "frame". What's your first move?
+        choices:
+          - { label: Advanced search - type Part, context Scooter S2, name contains frame, next: s3, good: true, feedback: "Precise from the start: right type, right context." }
+          - { label: Quick search for "frame", next: s2, feedback: "Fast, but broad. Let's see what comes back." }
+          - { label: Ask in team chat for the frame file from the shared drive, next: fail-drive, feedback: That's how version chaos starts. }
+      - id: s2
+        md: |
+          312 results: parts, CAD documents, documents, and frames from the **E-bike E1** product too.
+          The first hit is "Frame assembly" EB-2000. What now?
+        choices:
+          - { label: Narrow it down with an advanced search (type, context), next: s3, good: true, feedback: Exactly - quick search to explore, advanced search to pin it down. }
+          - { label: Take the first result - it says Frame assembly, next: fail-ebike, feedback: Names aren't unique. Check the number and context. }
+      - id: s3
+        md: |
+          Now you get a clean list with **SC-2000 Frame assembly**. Kai mentions you'll need this
+          every week. What do you do with the search?
+        choices:
+          - { label: Save it as "S2 - frame assemblies", next: s4, good: true, feedback: One click next week - and it always runs fresh. }
+          - { label: Bookmark today's results page in the browser, next: s3-bookmark, feedback: Hmm - is a bookmark really the same thing? }
+      - id: s3-bookmark
+        md: |
+          A browser bookmark may not reopen your criteria reliably, and teammates can't reuse it. A
+          **saved search** stores the criteria inside Windchill and reruns them fresh. Want to fix it?
+        choices:
+          - { label: Save the search in Windchill instead, next: s4, good: true, feedback: Good call. }
+      - id: s4
+        md: |
+          On the information page and its history you see **B.2 · Released** and **B.3 · In Work**
+          (checked in yesterday by Priya). Which version goes in your brief as "current"?
+        choices:
+          - { label: "B.2 Released - and mention B.3 is in progress", next: s5, good: true, feedback: "Spot on. Released is what the factory builds; In Work can still change." }
+          - { label: B.3 - it's the newest, next: s4-latest, feedback: Newest isn't always current for production. }
+      - id: s4-latest
+        md: |
+          Kai replies: "B.3 is Priya's work in progress - it hasn't been reviewed. The factory is
+          building B.2." In Work versions can change any time. What do you do?
+        choices:
+          - { label: Brief B.2 as current and flag B.3 as upcoming, next: s5, good: true, feedback: Recovered nicely. }
+      - id: s5
+        md: |
+          The team will ask who owns the frame. Where do you look?
+        choices:
+          - { label: "Information page details: Created By, Modified By, context and team", next: s6, good: true, feedback: "That's where Windchill records who did what - and the context tells you which team is responsible." }
+          - { label: The file properties of frame.asm on your laptop, next: fail-laptop, feedback: That's a local copy - not the record. }
+      - id: s6
+        md: |
+          Next: the top-level parts and drawings. How do you get them?
+        choices:
+          - { label: "Structure tab, one level - then the related CAD documents and documents", next: s7, good: true, feedback: "The BOM shows every part, including ones with no CAD, like library bolts." }
+          - { label: Open frame.asm in Creo and count the components, next: s6-cad, feedback: Close - but the CAD tree isn't always the BOM. }
+      - id: s6-cad
+        md: |
+          The CAD assembly shows tube, hinge and deck - but the 8 M6 bolts were added only in the
+          Windchill part structure, not in CAD. The **part structure** is the BOM the factory uses.
+        choices:
+          - { label: Check the Structure tab on the part instead, next: s7, good: true, feedback: Now nothing's missing. }
+      - id: s7
+        md: |
+          Final question, from the intern: "So is the frame CAD file stored *in* the database?"
+          What do you say?
+        choices:
+          - { label: "The database holds the metadata and a pointer; the file content lives in a vault (or a nearby replica)", next: win, good: true, feedback: Textbook. }
+          - { label: Yes - everything is in the database, next: partial-db, feedback: Not quite how most sites are set up. }
+          - { label: "It's on Priya's laptop, she modelled it", next: fail-laptop2, feedback: Her workspace has a local copy, not the master. }
+      - id: win
+        md: |
+          **Stand-up nailed.** Your brief: *"SC-2000 Frame assembly, B.2 Released, B.3 In Work by
+          Priya. Top level: main tube, folding hinge SC-1042, deck plate, 8 × M6 bolts. Drawing
+          frame.drw, weld spec attached. Metadata in the database, CAD files in the vault."*
+          Kai: "Welcome aboard - you'll fit right in."
+        outcome: success
+      - id: partial-db
+        md: |
+          Windchill *can* be set up to keep file content in the database, but most production sites
+          use **file vaults** - the database keeps the metadata and a pointer to the file. Your brief
+          was good; just tighten that last answer.
+        outcome: partial
+      - id: fail-drive
+        md: |
+          Someone sends `frame_final_v2.asm` from a shared drive. It's two revisions old. The team
+          plans the week around the wrong design. **The single source of truth is Windchill** - search there.
+        outcome: fail
+      - id: fail-ebike
+        md: |
+          You brief the team on **EB-2000** - the e-bike frame. Awkward silence. Names aren't unique;
+          the **number** and **context** tell you which object it really is.
+        outcome: fail
+      - id: fail-laptop
+        md: |
+          Local file properties show whoever saved the file last on that machine - not who's
+          responsible. The **information page** is the record.
+        outcome: fail
+      - id: fail-laptop2
+        md: |
+          Priya's [[workspace]] has a local cached copy. The master file is checked in to Windchill
+          and stored in a **vault**; its metadata is in the **database**.
+        outcome: fail
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      This exact routine - find, check the version and state, read the structure, know where the
+      data lives - is what engineers, buyers and change managers do many times a day. Doing it fast
+      and correctly is what makes new team members trusted quickly.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Briefing the latest instead of the latest Released.** Always say both: "B.2 is Released,
+      B.3 is in progress." It saves the factory from preparing for a design that might still change.
+
+  - type: callout
+    variant: pro-tip
+    md: Add your saved search to your Home page or favourites. On busy weeks, the fastest route to the frame is the one you don't have to rebuild.
+
+  - type: quiz
+    title: Capstone check
+    passMark: 0.7
+    questions:
+      - kind: order
+        prompt: Put your mission steps in a sensible order.
+        items:
+          - Run the saved search for the frame
+          - Open the frame's information page
+          - Read version, state and owner
+          - Expand the structure one level
+          - Explain where the CAD files live
+        explanation: Find it, open it, read its identity, look at what's in it, then explain the architecture behind it.
+      - kind: single
+        prompt: The frame's history shows B.2 Released and B.3 In Work. What's the "current" design for production?
+        options: [B.3, B.2, A.1, Both equally]
+        answer: 1
+        explanation: Production uses the latest Released version. B.3 is still work in progress and can change.
+      - kind: multi
+        prompt: Where does Windchill keep things? (Choose all that apply.)
+        options:
+          - Number, version and state in the database
+          - CAD file content usually in a file vault
+          - The master CAD file on the designer's laptop
+          - A pointer from the metadata to the file content
+        answers: [0, 1, 3]
+        explanation: Metadata lives in the database with a pointer to the content, which most sites store in vaults. The designer's workspace only holds a local copy.
+      - kind: truefalse
+        prompt: The CAD assembly tree always shows exactly the same items as the part BOM.
+        answer: false
+        explanation: Parts like bolts, glue or labels can be added only in the part structure. The Structure tab on the part is the BOM downstream teams use.
+      - kind: single
+        prompt: Why use a saved search instead of a browser bookmark of results?
+        options:
+          - It stores the criteria in Windchill and reruns them fresh, and can be reused
+          - It's the only way to search parts
+          - It copies the files to your laptop
+          - Bookmarks are forbidden in Windchill
+        answer: 0
+        explanation: Saved searches keep the criteria, rerun them each time so results are current, and can be added to your Home page or shared depending on settings.
+
+  - type: summary
+    points:
+      - Search precisely (type and context), then save searches you'll reuse.
+      - Read identity from the information page - and use the latest Released version for production.
+      - The Structure tab is the BOM; CAD and documents hang off the part through links.
+      - Metadata lives in the database; CAD file content lives in vaults (or nearby replicas).

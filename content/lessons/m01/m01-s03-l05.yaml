@@ -1,0 +1,249 @@
+id: m01-s03-l05
+subtitle: Hundreds of rows, zero scrolling. Columns, sorts, filters and views that work for you.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [tables, table-views, filters, sorting]
+
+blocks:
+  - type: text
+    md: |
+      Almost everything in Windchill shows up as a **table**: folder contents, search results, your tasks,
+      a product's changes, an assembly's structure. The default columns are rarely the ones *you* need.
+
+      Good news: you can choose the columns, sort and filter, and **save** that setup under a name. Next
+      time, one click and the table looks exactly how you like it.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "my saved way of looking at a table" → [[table-view]] (or just *view*)
+      - "quickly narrow what's on screen" → *find in table* / *filter*
+      - "order the rows" → *sort*
+      - "the list of views at the top of a table" → *view picker* (often shows the *Current View*)
+
+  - type: diagram
+    title: Anatomy of a Windchill table
+    caption: A schematic of the parts of any table. Click each part.
+    diagram:
+      width: 800
+      height: 330
+      nodes:
+        - id: toolbar
+          label: Table actions
+          sublabel: icons + Actions menu
+          x: 20
+          y: 20
+          w: 250
+          h: 56
+          tone: accent
+          detail: Actions that apply to selected rows - e.g. check out, add to a change, export the list. Select rows with the checkboxes first.
+        - id: views
+          label: View picker
+          sublabel: Current View ▾
+          x: 290
+          y: 20
+          w: 230
+          h: 56
+          tone: primary
+          detail: |
+            Switch between saved views, or open the option to **customise/create** a view. Each view stores
+            columns, sort order and filter criteria.
+        - id: find
+          label: Find in table
+          sublabel: quick text filter
+          x: 540
+          y: 20
+          w: 240
+          h: 56
+          tone: info
+          detail: Type a few letters to hide rows that don't match. Fast, but temporary - it isn't saved.
+        - id: headers
+          label: Column headers
+          sublabel: click to sort
+          x: 20
+          y: 100
+          w: 760
+          h: 50
+          tone: warning
+          detail: Click a header to sort by that column; click again to reverse. Many tables also let you resize or drag columns.
+        - id: rows
+          label: Rows
+          sublabel: one object per row
+          x: 20
+          y: 170
+          w: 760
+          h: 80
+          tone: success
+          detail: Click a name or number to open the object's information page. Icons in the row often show type and status (e.g. checked out).
+        - id: paging
+          label: Row count + paging
+          sublabel: "e.g. 1-50 of 820"
+          x: 20
+          y: 270
+          w: 300
+          h: 50
+          tone: neutral
+          detail: Big tables are split into pages. If the number is huge, filter with a view instead of paging through.
+      edges: []
+
+  - type: comparison
+    title: Sort, find, view filter or search?
+    columns: [Sort, Find in table, View filter, Search]
+    rows:
+      - { label: What it does, cells: [Reorders rows, Hides rows not matching some text, Shows only rows meeting criteria, Finds objects across contexts] }
+      - { label: Saved?, cells: [In a view, No - temporary, Yes - in the view, Yes - as a saved search] }
+      - { label: Scope, cells: [This table, Rows already loaded, This table, Everything you can access] }
+      - { label: Best for, cells: [Newest first, "Quick 'where is it?'", Your daily work list, Finding things anywhere] }
+    takeaway: Find in table for right now; a view for every day; a search for anywhere.
+
+  - type: walkthrough
+    title: Create your own table view
+    who: Any user (personal views are only visible to you)
+    steps:
+      - title: Go to the table
+        where: [Products, "Scooter S2", Folders, Frame]
+        md: Open any table - here, the Frame folder of Scooter S2.
+      - title: Open the view picker
+        where: [Table, View picker, "Customize / Create view"]
+        md: |
+          Open the view list at the top of the table and choose the option to customise or create a
+          new view. A view editor opens.
+      - title: Name it
+        where: [View editor, Name]
+        md: Give it a name you'll recognise, e.g. `My in-work parts`.
+      - title: Set filters
+        where: [View editor, Filters]
+        md: Add criteria, e.g. **Type = Part** and **State = In Work**.
+      - title: Choose columns
+        where: [View editor, Columns]
+        md: |
+          Add the columns you need (e.g. *State*, *Last Modified By*, *Last Modified*) and remove the ones
+          you don't. Put the most important first.
+      - title: Set sorting
+        where: [View editor, Sorting]
+        md: Sort by **Last Modified**, newest first.
+      - title: Save and use it
+        where: [View editor, OK / Save]
+        md: Save. The table switches to your view. Pick it from the view list any time; on many tables you can also make it your default.
+    result: A table that shows only in-work parts, with the columns you care about, newest first.
+
+  - type: simulation
+    title: Build the change manager's view
+    intro: |
+      Lin, Acme's change manager, wants a view of the Frame folder that shows **only In Work parts**,
+      with **State** and **Last Modified By** columns, sorted **newest first**. Build it, then save it.
+    headline: "Columns: {columns} · Filter: {filter} · Sort: {sort} · Rows: {rows}"
+    initial: { columns: Number + Name, filter: none, sort: Name A-Z, rows: 820, saved: false }
+    actions:
+      - id: add-state
+        label: Add column State
+        when: { columns: Number + Name, saved: false }
+        do: [{ set: { columns: Number + Name + State } }]
+        log: State column added. Now you can see In Work vs Released at a glance.
+        blockedHint: State is already shown (or the view is already saved).
+      - id: add-modby
+        label: Add column Last Modified By
+        when: { columns: Number + Name + State, saved: false }
+        do: [{ set: { columns: Number + Name + State + Modified By } }]
+        log: Last Modified By added. You see who touched each part last.
+        blockedHint: Add State first (keep important columns first), or it's already there.
+      - id: filter
+        label: "Filter: State = In Work"
+        when: { filter: none, saved: false }
+        do: [{ set: { filter: In Work, rows: 37 } }]
+        log: "Filter applied in the view: 820 rows → 37. Only the work in progress is left."
+        blockedHint: The filter is already set.
+      - id: sort
+        label: Sort by Last Modified, newest first
+        when: { sort: Name A-Z, saved: false }
+        do: [{ set: { sort: Newest first } }]
+        log: The most recently changed parts float to the top.
+        blockedHint: Already sorted newest first.
+      - id: find
+        label: Find in table "hinge"
+        when: { rows: 37 }
+        do: [{ set: { rows: 3 } }]
+        log: "Find in table shows 3 matching rows - handy, but it's temporary and won't be saved in the view."
+        blockedHint: Apply the In Work filter first, or clear the current find text.
+      - id: clear-find
+        label: Clear find in table
+        when: { rows: 3 }
+        do: [{ set: { rows: 37 } }]
+        log: Find text cleared - all 37 in-work rows are back.
+        blockedHint: There's no find text to clear.
+      - id: save
+        label: Save view as "In work - newest"
+        when: { columns: Number + Name + State + Modified By, filter: In Work, sort: Newest first, saved: false }
+        do: [{ set: { saved: true, rows: 37 } }]
+        log: Saved! Next time it's one click from the view picker - and it always shows today's data.
+        blockedHint: "Not ready yet: Lin needs the State and Modified By columns, the In Work filter and newest-first sorting."
+    goals:
+      - label: Filter the table down to In Work parts
+        when: { filter: In Work }
+      - label: Save the finished view
+        when: { saved: true }
+        message: Views store columns, filters and sorting - not the rows - so the data is always current.
+
+  - type: example
+    variant: real-world
+    title: The Friday release check
+    industry: Micromobility
+    md: |
+      Before every production release, Acme's manufacturing engineer opens the S2 top assembly's
+      structure and switches to a view she made with the columns **State** and **Version**, filtered to
+      anything not *Released*. If the table is empty, the build is clean. If not, she knows exactly which
+      parts to chase - in seconds, not after scrolling through 400 lines.
+    takeaway: A good view turns a big table into a yes/no answer.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Engineers and change managers live in tables. A view that hides the noise saves minutes every time
+      you open a folder, a structure or a task list - that's hours a month, and fewer mistakes, because
+      the thing you need to notice is no longer buried on page 7.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Forgetting a view is active.** You filtered to *In Work* last week, and today you think half the
+      folder is missing. If a table looks wrong, check which view is selected and clear any
+      find-in-table text before you panic.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Ask your admin whether shared views exist for your team. Admins can often publish views to
+      everyone, so the whole change board looks at the same columns in a meeting.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: You want a table to show only Released parts every time you open it. What do you do?
+        options:
+          - Type "Released" in find in table each time
+          - Create a view with the filter State = Released
+          - Sort by state
+          - Run a quick search
+        answer: 1
+        explanation: A view saves the filter so it applies every time. Find in table is temporary, and sorting only reorders rows.
+      - kind: multi
+        prompt: What does a table view store? (Choose all that apply.)
+        options: [Which columns are shown, Sort order, Filter criteria, A frozen copy of the rows]
+        answers: [0, 1, 2]
+        explanation: A view stores how to show the table - columns, sorting and filters. The rows are always read fresh.
+      - kind: truefalse
+        prompt: A personal view you create changes the table for all your teammates.
+        answer: false
+        explanation: Personal views are yours alone. Admins can create shared views for everyone.
+      - kind: order
+        prompt: Put the steps for creating a view in order.
+        items: [Open the view picker, Name the view, Set filters and columns, Set sorting, Save and select it]
+        explanation: Name it, define what rows (filters) and what columns, decide the order, then save and use it.
+
+  - type: summary
+    points:
+      - Most Windchill pages are tables, and tables are customisable.
+      - Sort by clicking headers; find in table for quick, temporary filtering.
+      - A view saves columns, filters and sorting under a name - personal unless an admin shares it.
+      - If a table looks "wrong", check the active view first.

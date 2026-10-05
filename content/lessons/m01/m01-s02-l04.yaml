@@ -1,0 +1,199 @@
+id: m01-s02-l04
+subtitle: One platform, many apps. Pick the ones that fit the problem.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [solutions, pdmlink, projectlink, mpmlink, quality]
+
+blocks:
+  - type: text
+    md: |
+      Windchill isn't one giant app that everyone uses the same way. It's a **platform** - the same
+      server, database and vaults you just learned about - with **solutions** plugged on top, each
+      aimed at a different team's problem.
+
+      Think of a phone: one operating system, different apps for photos, maps and banking. They all
+      share your contacts and storage.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the core filing cabinet + change control" → *[[pdmlink|Windchill PDMLink]]*
+      - "shared project rooms with partners" → *[[projectlink|Windchill ProjectLink]]*
+      - "how the factory will build it" → *[[mpmlink|Windchill MPMLink]]*
+      - "tracking defects, complaints and risks" → *[[windchill-quality|Windchill quality capabilities]]*
+
+  - type: diagram
+    title: Solutions around one platform
+    caption: Click each solution to see whose problem it solves.
+    diagram:
+      width: 780
+      height: 400
+      nodes:
+        - id: core
+          label: Windchill platform
+          sublabel: one database + vaults
+          x: 280
+          y: 165
+          w: 220
+          h: 76
+          tone: primary
+          shape: cylinder
+          detail: |
+            Every solution shares the same objects, users, access rules and history. A part released in
+            PDMLink is the *same* part MPMLink plans to build - no copying between systems.
+        - id: pdm
+          label: PDMLink
+          sublabel: engineering data
+          x: 40
+          y: 40
+          w: 200
+          h: 64
+          tone: info
+          detail: |
+            **The core.** Parts, CAD documents, documents, BOMs, versions, life cycles and the formal
+            change process (problem reports, change requests, change notices). Almost every Windchill
+            customer has it. Work happens in **Products** and **Libraries**.
+        - id: proj
+          label: ProjectLink
+          sublabel: project collaboration
+          x: 540
+          y: 40
+          w: 200
+          h: 64
+          tone: accent
+          detail: |
+            **Shared project rooms.** Project contexts with plans, deliverables and documents, handy
+            for working with suppliers and partners on a specific project. Work happens in
+            **Projects** (and Programs).
+        - id: mpm
+          label: MPMLink
+          sublabel: manufacturing planning
+          x: 40
+          y: 300
+          w: 200
+          h: 64
+          tone: warning
+          detail: |
+            **How the factory builds it.** Turns the engineering BOM into a manufacturing BOM, defines
+            process plans, operations, plants and resources.
+        - id: qual
+          label: Quality
+          sublabel: CAPA, NC, complaints
+          x: 540
+          y: 300
+          w: 200
+          h: 64
+          tone: danger
+          detail: |
+            **When things go wrong.** Capabilities such as nonconformances, CAPA (corrective and
+            preventive action), customer complaints and risk/reliability analysis like FMEA. Names and
+            packaging vary by release and licence.
+        - id: more
+          label: And more
+          sublabel: service, suppliers...
+          x: 290
+          y: 20
+          w: 200
+          h: 64
+          tone: neutral
+          detail: |
+            PTC offers further capabilities around the same platform - for example managing supplier
+            and manufacturer parts, service information and service parts, and requirements. Which
+            ones a company has depends on its licences.
+      edges:
+        - { from: pdm, to: core, bidirectional: true }
+        - { from: proj, to: core, bidirectional: true }
+        - { from: mpm, to: core, bidirectional: true }
+        - { from: qual, to: core, bidirectional: true }
+        - { from: more, to: core, dashed: true, bidirectional: true }
+
+  - type: comparison
+    title: Which solution solves which problem?
+    columns: [Main users, Solves, Acme example]
+    rows:
+      - { label: PDMLink, cells: ["Engineers, change managers", "Version chaos, uncontrolled change", Releasing the new hinge revision] }
+      - { label: ProjectLink, cells: ["Project managers, partners", Scattered project files and plans, Co-developing a battery with a supplier] }
+      - { label: MPMLink, cells: ["Manufacturing engineers", "Engineering BOM ≠ how it's built", Planning the e-bike line in two plants] }
+      - { label: Quality, cells: ["Quality engineers", "Defects and complaints with no trail", Tracking cracked-hinge complaints to a CAPA] }
+    takeaway: Start from the problem, then pick the solution - not the other way round.
+
+  - type: example
+    variant: case-study
+    title: Acme grows up, one solution at a time
+    industry: Micromobility
+    md: |
+      **Year 1:** Acme Mobility has 15 engineers drowning in CAD file versions. They start with
+      **PDMLink** - parts, CAD, BOMs and change control.
+
+      **Year 2:** A battery supplier co-develops a new pack. Acme opens a **ProjectLink** project so
+      the supplier sees only that project's documents and tasks.
+
+      **Year 3:** A second factory opens. Each plant builds the e-bike slightly differently, so
+      **MPMLink** creates plant-specific manufacturing BOMs from the same engineering BOM.
+
+      **Year 4:** Scooters ship to more countries, and complaints need a formal trail. Acme adds
+      **quality** capabilities so a complaint can lead to a CAPA and, if needed, a design change.
+    takeaway: Companies rarely buy everything at once - they add solutions as new problems appear.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Because all solutions share one database, a complaint in Quality can link to the exact part
+      revision in PDMLink, which links to the process plan in MPMLink. That **digital thread** is the
+      big win over separate tools - and it's why job ads often ask for "Windchill PDMLink + MPMLink"
+      experience, not just "Windchill".
+
+  - type: walkthrough
+    title: Spot which solutions your site uses
+    who: Any user
+    steps:
+      - title: Open the Navigator
+        where: [Navigator, Browse]
+        md: Expand the **Navigator** on the left and choose **Browse**.
+      - title: Look at the context types
+        where: [Browse]
+        md: |
+          **Products** and **Libraries** are PDMLink contexts. **Projects** (and **Programs**, if
+          shown) come from ProjectLink. You only see entries your site has licensed and you have
+          access to.
+      - title: Check a part's actions
+        where: [Search, "<a part number>", Actions]
+        md: If manufacturing planning actions (for example opening a BOM in a manufacturing editor or BOM Transformer) appear, your site uses MPMLink.
+    result: You can tell a colleague which Windchill solutions your company actually uses.
+
+  - type: callout
+    variant: version-note
+    versions: ["all releases"]
+    md: |
+      PTC has renamed and repackaged these solutions over the years (for example as licence bundles,
+      and as **[[windchill-plus|Windchill+]]** in the cloud). The *jobs* they do stay the same - ask
+      your admin which ones your licence includes.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      Don't run a supplier collaboration out of a PDMLink product by handing the supplier access to
+      everything. Use a project (or tightly controlled access) so partners see only what they need.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      On a new job, ask "which Windchill solutions are we licensed for, and which do we actually
+      use?" The gap between the two answers is often where the next project is.
+
+  - type: flashcards
+    cards:
+      - { front: Windchill PDMLink, back: "The core: parts, CAD, documents, BOMs, versions, life cycles and change control." }
+      - { front: Windchill ProjectLink, back: "Project collaboration: project rooms with plans and deliverables, great for partners." }
+      - { front: Windchill MPMLink, back: "Manufacturing planning: manufacturing BOMs, process plans, plants and resources." }
+      - { front: Windchill quality capabilities, back: "Nonconformances, CAPA, complaints and risk/reliability analysis." }
+      - { front: Why one platform matters, back: "All solutions share one database, so data links end to end - the digital thread." }
+      - { front: Products and Libraries vs Projects, back: "Products/Libraries are PDMLink contexts; Projects come from ProjectLink." }
+
+  - type: summary
+    points:
+      - Windchill is one platform with several solutions on top, sharing the same data.
+      - PDMLink = engineering data and change; ProjectLink = project collaboration; MPMLink = manufacturing planning; Quality = defects, complaints and CAPA.
+      - Companies add solutions as new problems appear.
+      - The shared data creates a digital thread from complaint to part to process plan.

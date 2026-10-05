@@ -26,7 +26,8 @@ export interface Profile {
   role: Role;
   level: Level;
   pathId: string;
-  dailyGoalMinutes: number;
+  /** Lessons per day. */
+  dailyGoal: number;
   createdAt: string;
 }
 
@@ -66,6 +67,8 @@ export interface LearnerState {
   activityDays: string[];
   minutesByDay: Record<string, number>;
   badges: Record<string, string>;
+  /** Days on which the daily goal bonus was awarded. */
+  goalDays: string[];
   bookmarks: string[];
   notes: Record<string, { text: string; updatedAt: string }>;
   cards: Record<string, CardState>;
@@ -85,6 +88,7 @@ export function emptyState(now = new Date()): LearnerState {
     activityDays: [],
     minutesByDay: {},
     badges: {},
+    goalDays: [],
     bookmarks: [],
     notes: {},
     cards: {},
@@ -109,6 +113,7 @@ export function migrateState(raw: unknown): LearnerState {
     activityDays: r.activityDays ?? [],
     minutesByDay: r.minutesByDay ?? {},
     badges: r.badges ?? {},
+    goalDays: r.goalDays ?? [],
     bookmarks: r.bookmarks ?? [],
     notes: r.notes ?? {},
     cards: r.cards ?? {},
@@ -140,30 +145,37 @@ export function logEvent(s: LearnerState, e: Omit<AnalyticsEvent, "t">, now = ne
 // XP and levels
 // ---------------------------------------------------------------------------
 
+/** XP values follow the design system: lesson 10–40, quiz answer ~10, daily goal 50. */
 export const XP = {
-  lesson: (minutes: number) => 40 + minutes * 4,
-  capstone: 120,
-  quiz: (score: number) => Math.round(10 + 40 * score),
-  perfectQuiz: 25,
+  lesson: (minutes: number) => Math.min(40, Math.max(10, 10 + 2 * minutes)),
+  capstone: 60,
+  /** Per correct answer; only improvements over the best previous score earn XP. */
+  answer: 10,
+  perfectQuiz: 20,
+  dailyGoal: 50,
   card: 2,
   scenario: 15,
   simulation: 15,
 };
 
-export const LEVEL_TITLES = [
-  "PLM Rookie",
-  "Part Wrangler",
-  "BOM Builder",
-  "Change Champion",
-  "Lifecycle Legend",
-  "Config Guru",
-  "Windchill Wizard",
-  "PLM Grandmaster",
-];
+/**
+ * Ranks follow a Windchill life cycle, so the game teaches the vocabulary too:
+ * In Work (L1–4), Under Review (L5–9), Released (L10–14), Baseline (L15+).
+ */
+export const RANKS = [
+  { name: "In Work", from: 1 },
+  { name: "Under Review", from: 5 },
+  { name: "Released", from: 10 },
+  { name: "Baseline", from: 15 },
+] as const;
 
-/** XP needed to *reach* level n (1-based): 0, 150, 400, 750, ... */
+export function rankFor(level: number) {
+  return [...RANKS].reverse().find((r) => level >= r.from) ?? RANKS[0];
+}
+
+/** XP needed to *reach* level n (1-based): 0, 100, 250, 450, 700, ... */
 export function xpForLevel(n: number) {
-  return n <= 1 ? 0 : 50 * (n - 1) * (n + 2);
+  return n <= 1 ? 0 : 25 * (n - 1) * (n + 2);
 }
 
 export function levelInfo(xp: number) {
@@ -171,9 +183,15 @@ export function levelInfo(xp: number) {
   while (xp >= xpForLevel(level + 1)) level++;
   const floor = xpForLevel(level);
   const next = xpForLevel(level + 1);
+  const rank = rankFor(level);
+  const nextRank = RANKS.find((r) => r.from > level);
   return {
     level,
-    title: LEVEL_TITLES[Math.min(level - 1, LEVEL_TITLES.length - 1)],
+    rank: rank.name,
+    /** Kept for older UI code: same as rank. */
+    title: rank.name,
+    nextRank: nextRank?.name,
+    xpToNextRank: nextRank ? xpForLevel(nextRank.from) - xp : 0,
     into: xp - floor,
     span: next - floor,
     progress: (xp - floor) / (next - floor),
@@ -242,15 +260,32 @@ export function completeLesson(s: LearnerState, lesson: LessonSummary, now = new
       [lesson.key]: { ...lp, status: "completed", completedAt: now.toISOString(), completedVersion: lesson.version },
     },
   };
-  return logEvent(touch(next, now), { type: "lesson_complete", key: lesson.key, value: gained }, now);
+  return checkDailyGoal(logEvent(touch(next, now), { type: "lesson_complete", key: lesson.key, value: gained }, now), now);
 }
 
-export function recordQuiz(s: LearnerState, key: string, score: number, now = new Date()): { state: LearnerState; xpGained: number } {
+export function lessonsDoneOn(s: LearnerState, d: string) {
+  return Object.values(s.lessons).filter((l) => l.status === "completed" && l.completedAt && day(new Date(l.completedAt)) === d).length;
+}
+
+export function dailyGoalProgress(s: LearnerState, now = new Date()) {
+  const goal = s.profile?.dailyGoal ?? 1;
+  return { done: lessonsDoneOn(s, day(now)), goal };
+}
+
+function checkDailyGoal(s: LearnerState, now: Date): LearnerState {
+  const d = day(now);
+  const { done, goal } = dailyGoalProgress(s, now);
+  if (done < goal || s.goalDays.includes(d)) return s;
+  return { ...s, xp: s.xp + XP.dailyGoal, goalDays: [...s.goalDays, d].slice(-400) };
+}
+
+export function recordQuiz(s: LearnerState, key: string, score: number, questions = 5, now = new Date()): { state: LearnerState; xpGained: number } {
   const base = startLesson(s, key, now);
   const lp = base.lessons[key];
   const prevBest = lp.quizBest ?? 0;
-  // XP only for improvement, so retakes can't farm points.
-  const xpGained = score > prevBest ? XP.quiz(score) - (lp.quizBest !== undefined ? XP.quiz(prevBest) : 0) + (score === 1 && prevBest < 1 ? XP.perfectQuiz : 0) : 0;
+  // XP only for improvement over the best score, so retakes can't farm points.
+  const improved = Math.round(questions * Math.max(0, score - prevBest));
+  const xpGained = improved * XP.answer + (score === 1 && prevBest < 1 ? XP.perfectQuiz : 0);
   const next: LearnerState = {
     ...base,
     xp: base.xp + xpGained,
@@ -347,7 +382,7 @@ const completedCount = (s: LearnerState) => Object.values(s.lessons).filter((l) 
 export const BADGES: BadgeDef[] = [
   { id: "first-steps", emoji: "🚀", title: "First Click", description: "Complete your first lesson", test: (s) => completedCount(s) >= 1 },
   { id: "five-lessons", emoji: "📚", title: "Bookworm", description: "Complete 5 lessons", test: (s) => completedCount(s) >= 5 },
-  { id: "perfect-quiz", emoji: "🎯", title: "Flawless", description: "Score 100% on a quiz", test: (s) => Object.values(s.lessons).some((l) => l.quizBest === 1) },
+  { id: "perfect-quiz", emoji: "💯", title: "Flawless", description: "Score 100% on a quiz", test: (s) => Object.values(s.lessons).some((l) => l.quizBest === 1) },
   {
     id: "capstone",
     emoji: "🧩",
@@ -369,7 +404,9 @@ export const BADGES: BadgeDef[] = [
     description: "Earn your first module certificate",
     test: (s) => Object.keys(s.certificates).length >= 1,
   },
-  { id: "level-5", emoji: "💎", title: "Lifecycle Legend", description: "Reach level 5", test: (s) => levelInfo(s.xp).level >= 5 },
+  { id: "under-review", emoji: "🔍", title: "Under Review", description: "Reach the Under Review rank (level 5)", test: (s) => levelInfo(s.xp).level >= 5 },
+  { id: "released", emoji: "✅", title: "Released", description: "Reach the Released rank (level 10)", test: (s) => levelInfo(s.xp).level >= 10 },
+  { id: "goal-getter", emoji: "🎯", title: "Goal Getter", description: "Hit your daily goal", test: (s) => s.goalDays.length >= 1 },
 ];
 
 /** Returns the state with any newly earned badges and the list of new badge ids. */
@@ -492,6 +529,7 @@ export function mergeStates(a: LearnerState, b: LearnerState): LearnerState {
     activityDays: [...new Set([...a.activityDays, ...b.activityDays])].sort(),
     minutesByDay,
     badges: { ...b.badges, ...a.badges },
+    goalDays: [...new Set([...a.goalDays, ...b.goalDays])].sort(),
     bookmarks: [...new Set([...newer.bookmarks])],
     notes: { ...(newer === a ? b.notes : a.notes), ...newer.notes },
     cards,

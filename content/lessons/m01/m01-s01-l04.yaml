@@ -1,0 +1,213 @@
+id: m01-s01-l04
+subtitle: Follow one cracked kickstand from a service report to the factory floor.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [change, workflow, roles, day-in-the-life, basics]
+
+blocks:
+  - type: text
+    md: |
+      Theory is nice. Let's watch it happen. It's Monday at **Acme Mobility**, and service centres are
+      reporting that the kickstand on the *Zip* e-scooter snaps when the scooter is parked on a slope.
+
+      By Friday, a better kickstand is approved and the factory is building it. Here's who touches the
+      product data along the way, and what each person does in Windchill.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "something's wrong" → *[[problem-report]]*
+      - "here's how we propose to fix it" → *[[change-request]]*
+      - "the group who says yes or no" → *[[change-review-board]]*
+      - "approved, go do it" → *[[change-notice]]* with *[[change-task|change tasks]]*
+      - "a to-do Windchill sends you" → *[[task|workflow task]]*
+      - "officially approved for use" → *Released* [[lifecycle-state]]
+
+  - type: animation
+    title: "One change, one week"
+    diagram:
+      width: 800
+      height: 300
+      nodes:
+        - { id: pr, label: Problem report, sublabel: "Mon - Sam, service", x: 20, y: 40, w: 135, h: 64, tone: danger }
+        - { id: cr, label: Change request, sublabel: "Mon - Priya, change", x: 175, y: 40, w: 135, h: 64, tone: warning }
+        - { id: crb, label: Change board, sublabel: "Tue - approve?", x: 330, y: 40, w: 135, h: 64, tone: warning, shape: pill }
+        - { id: cn, label: Change notice, sublabel: "Tue - tasks planned", x: 485, y: 40, w: 135, h: 64, tone: info }
+        - { id: work, label: Design work, sublabel: "Wed - Leo, Creo", x: 640, y: 40, w: 140, h: 64, tone: accent }
+        - { id: review, label: Review + approve, sublabel: "Thu - Mia, quality", x: 640, y: 200, w: 140, h: 64, tone: info }
+        - { id: release, label: Released, sublabel: "Thu - new revision", x: 460, y: 200, w: 140, h: 64, tone: success, shape: pill }
+        - { id: erp, label: ERP + factory, sublabel: "Fri - building it", x: 280, y: 200, w: 140, h: 64, tone: success, shape: cylinder }
+        - { id: service, label: Service updated, sublabel: "Fri - new spare", x: 100, y: 200, w: 140, h: 64, tone: neutral }
+      edges:
+        - { from: pr, to: cr }
+        - { from: cr, to: crb }
+        - { from: crb, to: cn }
+        - { from: cn, to: work }
+        - { from: work, to: review }
+        - { from: review, to: release }
+        - { from: release, to: erp }
+        - { from: erp, to: service }
+    chapters:
+      - title: "Monday 9:00 - Something's wrong"
+        caption: Sam in service finds the **kickstand part** in Windchill and creates a **problem report** with photos and the affected part.
+        show: [pr]
+        highlight: [pr]
+      - title: "Monday 14:00 - Propose a fix"
+        caption: Priya, the change analyst, turns it into a **change request**. She checks what's affected - the part, its drawing, the BOM and the spare-parts list.
+        show: [pr, cr]
+        highlight: [cr]
+        flow: [pr>cr]
+      - title: "Tuesday 10:00 - The board decides"
+        caption: The **change review board** (engineering, manufacturing, quality, service) looks at cost and impact. Approved, but old stock may be used up first.
+        show: [pr, cr, crb]
+        highlight: [crb]
+        flow: [cr>crb]
+      - title: "Tuesday 15:00 - Plan the work"
+        caption: A **change notice** is created with **change tasks** - one for Leo to update the CAD and drawing, one for manufacturing to update the process.
+        show: [pr, cr, crb, cn]
+        highlight: [cn]
+        flow: [crb>cn]
+      - title: "Wednesday - Do the work"
+        caption: Leo gets a **task**. He checks out the kickstand in Creo, thickens the arm, and checks it in. Each check-in adds a new **iteration**.
+        show: [pr, cr, crb, cn, work]
+        highlight: [work]
+        flow: [cn>work]
+      - title: "Thursday - Review and release"
+        caption: Mia in quality reviews the new revision in **Creo View** and approves her task. The new revision moves to **Released**.
+        show: [pr, cr, crb, cn, work, review, release]
+        highlight: [review, release]
+        flow: [work>review, review>release]
+      - title: "Friday - Everyone switches"
+        caption: The released part and BOM flow to **ERP**, the factory builds the new kickstand, and service orders the new spare. Same revision, everywhere.
+        highlight: [erp, service]
+        flow: [release>erp, erp>service]
+        seconds: 8
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      In a real company, ten or more people can touch one change. Without a controlled process, someone
+      always misses it: the supplier, the manual, the spare-parts catalogue. Windchill's change objects
+      keep the **reason**, the **approvals** and the **affected data** together, so you can prove later
+      exactly what changed, who agreed and when.
+
+  - type: walkthrough
+    title: Sam's Monday - report a problem against a part
+    who: Users your company allows to create problem reports
+    steps:
+      - title: Find the part
+        where: [Search box in the header]
+        md: Type the part number or name (for example `KICKSTAND`) and open the part from the results.
+      - title: Open its information page
+        where: ["<the part>", Information page]
+        md: The part's **information page** shows its attributes, revision, state and related data. Check you're on the latest revision.
+      - title: Start a problem report
+        where: ["<the part>", Actions, New, New Problem Report]
+        md: |
+          From the part's **Actions** menu choose the new problem report action. Starting from the part
+          usually adds it as an affected object for you. (You can also create one from the product's change area.)
+      - title: Describe the problem
+        where: [New Problem Report window]
+        md: Give it a clear name and description, set the priority or category your company uses, and attach photos or test results.
+      - title: Submit
+        where: [New Problem Report window, Finish]
+        md: Finish the wizard. The problem report starts its workflow, and the change analyst gets a task to review it.
+    result: A problem report linked to the kickstand part, visible to everyone working on the product.
+
+  - type: walkthrough
+    title: Leo's Wednesday - find the task assigned to you
+    who: Any user who has been assigned a workflow task
+    steps:
+      - title: Go home
+        where: [Navigator, Home]
+        md: Your **Home** page lists the workflow tasks assigned to you (the exact table name varies by release and setup).
+      - title: Open the task
+        where: [Home, "<your task>"]
+        md: Click the task. It explains what's needed and links to the change notice and the affected objects.
+      - title: Do the work, then complete the task
+        where: ["<your task>", Complete Task]
+        md: Make the change (for Leo, in Creo), check it in, then come back and complete the task so the workflow moves on.
+    result: The workflow moves to the next person automatically. Nobody needs to chase anyone by email.
+
+  - type: example
+    variant: case-study
+    title: The kickstand that almost shipped twice
+    industry: Micromobility
+    md: |
+      The change board set the change to **use up existing stock first**. Because that decision lived on
+      the change request in Windchill, ERP planners saw it, used up the 400 old kickstands for indoor
+      fleet scooters, and switched to the new revision for retail scooters. Service got the new spare at the
+      same time.
+
+      A year later a regulator asked why some scooters had the old part. Acme opened the change request
+      and showed the full history in five minutes.
+    takeaway: The change record is not paperwork. It's the company's memory, and its proof.
+
+  - type: scenario
+    variant: what-if
+    title: "Thursday, 17:30 - the factory calls"
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          The factory supervisor calls Leo: *"We start the new kickstand tomorrow. Just email me your
+          new drawing now, we can't wait for the approval."* Mia hasn't approved the revision yet. What does Leo do?
+        choices:
+          - { label: Email the drawing - the factory is waiting, next: f1, feedback: Fast today, painful tomorrow. }
+          - { label: Explain it's not released and ask Mia if she can review today, next: s2, good: true, feedback: Respect the process and still help the team move. }
+          - { label: Change the part's state to Released himself, next: f2, feedback: Most companies don't give designers that permission, for exactly this reason. }
+      - id: s2
+        md: |
+          Mia reviews it at 18:00 and spots that the drawing still shows the **old** bolt size. Leo fixes it and
+          checks it in, Mia approves, and the part is released. What does the factory use tomorrow?
+        choices:
+          - { label: The released drawing from Windchill, next: win, good: true, feedback: Exactly. Released data is the only data the factory should build from. }
+          - { label: The PDF Leo saved on his desktop earlier, next: f1, feedback: That copy has the wrong bolt - the classic "local copy" trap. }
+      - id: f1
+        md: |
+          The factory builds 300 kickstands from an unreviewed drawing with the wrong bolt size. They don't fit.
+          Scrap, rework, and a late shipment - exactly what PLM is meant to prevent.
+        outcome: fail
+      - id: f2
+        md: |
+          In most setups Leo can't do that: releasing is done through the workflow or by an authorised role.
+          Even where it's possible, skipping review hides the bolt mistake. The factory builds the wrong part.
+        outcome: fail
+      - id: win
+        md: |
+          The factory builds from the released revision, ERP orders the right bolts, and the review caught a
+          mistake that would have cost thousands. One extra hour of patience saved days of rework.
+        outcome: success
+
+  - type: callout
+    variant: pitfall
+    md: |
+      "Just email me the file" is the most expensive sentence in manufacturing. A file outside Windchill has
+      no state, no history and no guarantee it's the latest. Always send a **link** to the Windchill object instead.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Check your **Home** task list at the start and end of each day. In many companies a change stalls
+      for days simply because one approval task sat unnoticed.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: order
+        prompt: Put the change steps in the order they normally happen.
+        items: [Problem report, Change request, Change board approval, Change notice and tasks, Released revision]
+        explanation: A problem is reported, a fix is proposed and reviewed, approved work is carried out through a change notice's tasks, and the result is released.
+      - kind: single
+        prompt: Who decides whether a proposed change goes ahead?
+        options: [The engineer who found it, The change review board, ERP, The factory supervisor]
+        answer: 1
+        explanation: The change review board - a cross-functional group - weighs cost, impact and timing before approving a change request.
+
+  - type: summary
+    points:
+      - A change usually flows problem report, change request, board approval, change notice with tasks, then release.
+      - Many roles touch the data - service, change analysts, engineers, quality, manufacturing and ERP.
+      - Windchill tells each person what to do with workflow tasks on their Home page.
+      - Only released data goes to the factory. Send links, not files.

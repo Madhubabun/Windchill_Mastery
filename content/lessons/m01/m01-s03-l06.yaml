@@ -1,0 +1,158 @@
+id: m01-s03-l06
+subtitle: Bookmark what you use, get pinged when things change - without drowning in email.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [favorites, subscriptions, notifications]
+versionNotes:
+  - versions: ["All releases"]
+    md: |
+      Where favorites appear (a star icon, an Actions menu entry, a favorites list in the header or
+      Navigator) has changed between releases. Subscriptions have been available for a long time from an
+      object's Actions menu, but the event names and dialog layout vary.
+
+blocks:
+  - type: text
+    md: |
+      You don't search for your best friend's number every time you call them - you saved it. And you
+      follow accounts so their posts come to you. Windchill has both ideas:
+
+      - **Favorites** - shortcuts to objects and places you open all the time.
+      - **Subscriptions** - "tell me when this changes", delivered as **notifications**.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a bookmark inside Windchill" → [[favorite]]
+      - "follow this object" → [[subscription|subscribe]]
+      - "the ping you get" → [[notification]] (usually an email)
+      - "something you must do" → [[task]] - not a subscription; workflows assign it to you
+
+  - type: comparison
+    title: Favorite, subscription or task?
+    columns: [Favorite, Subscription, Task]
+    rows:
+      - { label: What it is, cells: [A shortcut you keep, A request to be told about events, Work a workflow assigns to you] }
+      - { label: Who creates it, cells: [You, "You (or someone with rights, for others)", The workflow] }
+      - { label: You get, cells: [Faster access, Notifications when events happen, An item in your task list (often plus an email)] }
+      - { label: Need to act?, cells: [No, Not necessarily - it's information, Yes - complete it] }
+    takeaway: Favorites save clicks, subscriptions keep you informed, tasks need you.
+
+  - type: walkthrough
+    title: Bookmark an object as a favorite
+    steps:
+      - title: Open the object
+        where: [Search, "<object>", Information page]
+        md: Open the information page of the object (or the context) you use often.
+      - title: Add it to favorites
+        where: [Information page, Actions, Add to Favorites]
+        md: |
+          Use the add-to-favorites option - in many releases it's in the **Actions** menu or shown as a
+          star icon. If you can't find it, your release may not offer it; the Navigator's recently visited
+          list is the fallback.
+      - title: Open it later
+        where: [Header or Navigator, Favorites, "<object>"]
+        md: Open your favorites list and click the object. No searching needed.
+
+  - type: walkthrough
+    title: Subscribe to changes on an object
+    who: Any user who can read the object
+    steps:
+      - title: Open the object
+        where: [Search, "1000-0423 Hinge bracket", Information page]
+        md: Open the information page of the object you want to follow.
+      - title: Start a subscription
+        where: [Information page, Actions, Subscribe]
+        md: Choose the **Subscribe** action from the object's Actions menu.
+      - title: Pick the events
+        where: [Subscribe, Events]
+        md: |
+          Choose only the events you care about - for example a **state change** (it got released) or a
+          **new revision**. Avoid "everything".
+      - title: Set an end date and save
+        where: [Subscribe, Expiration, OK]
+        md: |
+          If offered, set an expiration date so the subscription stops when your project ends. Save.
+          You can usually also subscribe to a **folder** or **context** to hear about new objects there.
+    result: When a chosen event happens, Windchill sends you a notification (usually by email) with a link back to the object.
+
+  - type: simulation
+    title: Follow the hinge, not the noise
+    intro: |
+      You're the service engineer for the S2 scooter. You need to know the moment the hinge bracket gets
+      **released**. Set yourself up, then fast-forward the week.
+    headline: "Favorite: {favorite} · Subscribed to: {events} · Notifications: {inbox}"
+    initial: { favorite: false, events: nothing, inbox: 0 }
+    actions:
+      - id: fav
+        label: Add hinge bracket to favorites
+        when: { favorite: false }
+        do: [{ set: { favorite: true } }]
+        log: Added to favorites. Two clicks to open it from now on.
+        blockedHint: It's already a favorite.
+      - id: sub-state
+        label: "Subscribe: state changes only"
+        when: { events: [nothing, every event] }
+        do: [{ set: { events: state changes } }]
+        log: Subscribed to state changes. You'll hear when it's released - nothing else.
+        blockedHint: You're already subscribed to state changes.
+      - id: sub-all
+        label: "Subscribe: every event"
+        when: { events: [nothing, state changes] }
+        do: [{ set: { events: every event } }]
+        log: Subscribed to everything. Brace yourself...
+        blockedHint: You're already subscribed to every event.
+      - id: week-noisy
+        label: Fast-forward a week (15 check-ins + 1 release)
+        when: { events: every event }
+        do: [{ set: { inbox: 16 } }]
+        log: "16 emails. The one that mattered - 'Released' - got lost among 15 check-in emails. Try narrowing your subscription."
+        blockedHint: Subscribe first - otherwise you'd never hear about anything.
+      - id: week-focused
+        label: Fast-forward a week (15 check-ins + 1 release) - focused
+        when: { events: state changes }
+        do: [{ set: { inbox: 1 } }]
+        log: "1 email: 'Hinge bracket 1000-0423 B.1 changed state to Released.' You open it from the link and update the service manual."
+        blockedHint: Subscribe to state changes first.
+    goals:
+      - label: Bookmark the hinge bracket
+        when: { favorite: true }
+      - label: Get exactly one useful notification
+        when: { inbox: 1, events: state changes }
+        message: Subscribe to the events you'll act on - nothing more.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Downstream teams - service, purchasing, suppliers, tech docs - often learn about changes too late.
+      A focused subscription means the service manual and the spare-parts list are updated the day the
+      new hinge is released, not after a customer gets the wrong part.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Subscribing to everything.** People who get 50 Windchill emails a day set up an inbox rule to hide
+      them - and then miss the one that matters. Subscribe to specific events, give subscriptions an end
+      date, and clean them up when you change projects.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Don't confuse a subscription email with a task. A subscription email is "FYI". A task email means a
+      workflow is **waiting for you** - go to your Home task list and complete it.
+
+  - type: flashcards
+    cards:
+      - { front: Favorite, back: "A personal shortcut to an object or place you open often. Saves clicks; sends no messages." }
+      - { front: Subscription, back: "A request to be notified when chosen events happen to an object, folder or context." }
+      - { front: Notification, back: "The message (usually email) Windchill sends for a subscription event or a new task. It links back to Windchill." }
+      - { front: Where do you subscribe?, back: "From the object's information page - Actions → Subscribe (wording varies by release)." }
+      - { front: Subscription vs task, back: "A subscription informs you. A task is work a workflow assigned to you - you must complete it." }
+      - { front: How to avoid notification overload, back: "Pick only the events you act on, set an expiration date, and remove old subscriptions." }
+
+  - type: summary
+    points:
+      - Favorites are shortcuts - they save clicks and send nothing.
+      - Subscriptions notify you (usually by email) when chosen events happen.
+      - Subscribe from the object's Actions menu; choose specific events and an end date.
+      - Tasks are different - they need your action and live in your Home task list.

@@ -1,0 +1,286 @@
+id: m01-s03-l02
+subtitle: Every object has a home address. Learn to read it and you'll never get lost.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [navigation, navigator, contexts, folders]
+
+blocks:
+  - type: text
+    md: |
+      On your laptop, a file lives in a folder on a drive. In Windchill, every object (a part, a CAD
+      model, a document) also has a home address - but the top level isn't a drive. It's a **context**:
+      a product, a library or a project.
+
+      Why not one giant folder tree? Because the context decides **who** is on the team, **what** they
+      may do, and **which rules** apply. Folders just keep things tidy inside it.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the side panel for jumping around" → [[navigator]]
+      - "a home with its own team and rules" → [[context]]
+      - "home for one product line" → [[product-context|product]]
+      - "shared shelf of reusable stuff" → [[library]]
+      - "a temporary team space, e.g. with a supplier" → *project* (Windchill [[projectlink|ProjectLink]])
+      - "a drawer inside a context" → [[folder]]
+
+  - type: diagram
+    title: Acme Mobility's address book
+    caption: Read it top-down, like a postal address. Click each box.
+    diagram:
+      width: 820
+      height: 420
+      groups:
+        - { label: Application contexts, x: 20, y: 170, w: 780, h: 110, tone: neutral }
+      nodes:
+        - id: site
+          label: Site
+          sublabel: the whole server
+          x: 330
+          y: 20
+          w: 160
+          tone: neutral
+          detail: The top of everything. Site-level settings and administrators apply to all organizations on this Windchill server.
+        - id: org
+          label: Organization
+          sublabel: Acme Mobility
+          x: 330
+          y: 96
+          w: 160
+          h: 52
+          tone: primary
+          detail: Usually your company. Holds company-wide rules (numbering, types, access policies) that products and libraries inherit.
+        - id: prod-s2
+          label: Product
+          sublabel: Scooter S2
+          x: 40
+          y: 205
+          w: 160
+          tone: accent
+          detail: |
+            A [[product-context|product]] holds everything for one product line - parts, CAD, documents,
+            changes - with its own team. Example: everything about the S2 folding scooter.
+        - id: prod-e1
+          label: Product
+          sublabel: E-bike E1
+          x: 230
+          y: 205
+          w: 160
+          tone: accent
+          detail: A second product with a different team. S2 engineers might only be able to read here, or see nothing at all.
+        - id: lib
+          label: Library
+          sublabel: Standard Fasteners
+          x: 420
+          y: 205
+          w: 170
+          tone: success
+          detail: |
+            A [[library]] holds reusable things - standard screws, bearings, templates. Both scooter and
+            e-bike designs *use* the M6 screw from here instead of each creating its own copy.
+        - id: proj
+          label: Project
+          sublabel: Supplier collab
+          x: 620
+          y: 205
+          w: 160
+          tone: info
+          detail: |
+            A project is a temporary collaboration space - for example sharing a hinge design with an
+            external supplier without opening up the whole product.
+        - id: folders
+          label: Folders
+          sublabel: Frame · Electrics
+          x: 40
+          y: 320
+          w: 160
+          tone: warning
+          detail: Folders organise objects *inside* a context. Each object lives in exactly one folder of one context.
+        - id: obj
+          label: Hinge bracket
+          sublabel: part 1000-0423
+          x: 250
+          y: 320
+          w: 170
+          tone: warning
+          shape: doc
+          detail: "Its full address: Acme Mobility → Scooter S2 → Frame folder → 1000-0423. The context decides who can see and change it."
+      edges:
+        - { from: site, to: org }
+        - { from: org, to: prod-s2 }
+        - { from: org, to: prod-e1 }
+        - { from: org, to: lib }
+        - { from: org, to: proj }
+        - { from: prod-s2, to: folders }
+        - { from: folders, to: obj }
+        - { from: obj, to: lib, label: uses M6 screw, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Contexts are how real companies keep secrets and stay organised at the same time. A supplier sees
+      only the project they're invited to. The e-bike team can't accidentally edit scooter parts. And
+      settings like the [[life-cycle]] or numbering can differ per context. Put an object in the wrong
+      context and the wrong people see it - or the right people can't.
+
+  - type: walkthrough
+    title: Browse a product's folders
+    who: Any member of the product's team
+    steps:
+      - title: Open the Navigator
+        where: [Navigator, Browse]
+        md: |
+          Expand the Navigator panel on the left (click its edge or icon if it's collapsed) and make
+          sure you're on the browsing view, not the search view.
+      - title: Open Products
+        where: [Navigator, Browse, Products]
+        md: |
+          Hover or click **Products**. You'll see the products you visited recently; choose
+          **View All** (or similar) to see every product you're a member of.
+      - title: Pick your product
+        where: [Products, "Scooter S2"]
+        md: The product's own pages open - its overview, team, folders, changes and more.
+      - title: Open its folders
+        where: [Products, "Scooter S2", Folders]
+        md: |
+          Choose **Folders**. The folder tree appears; click a folder (e.g. *Frame*) to list its
+          contents in a table. Click any object's name to open its [[information-page]].
+    result: You can see every object in a product folder by folder, and open any of them.
+
+  - type: walkthrough
+    title: Grab something from a library
+    steps:
+      - title: Open Libraries
+        where: [Navigator, Browse, Libraries]
+        md: Choose **Libraries** and then the library you need - e.g. *Standard Fasteners*.
+      - title: Open the library's folders
+        where: [Libraries, "Standard Fasteners", Folders]
+        md: Libraries have folders too. Browse to the object, or search inside the library.
+    result: You found a reusable object. Designers *use* it from the library instead of copying it.
+
+  - type: callout
+    variant: version-note
+    versions: ["Many releases"]
+    md: |
+      In many releases the Navigator has two tabs - **Browse** and **Search**. Under Browse you'll find
+      Home, Products, Libraries, Projects (if ProjectLink is used), Organizations and Site (admins only),
+      plus recently visited items. Newer releases restyle the header and panel, but this structure has
+      stayed the same. You only see the contexts you are a member of or have access to.
+
+  - type: simulation
+    title: Find it by browsing
+    intro: |
+      Two quests. Find the **hinge bracket** (part 1000-0423) in the Scooter S2 product, and the **M6 screw**
+      in the Standard Fasteners library. Navigate like you would in Windchill - one level at a time.
+    headline: "You are in: {location}"
+    initial: { location: Home, foundHinge: false, foundScrew: false }
+    actions:
+      - id: products
+        label: Navigator → Products
+        when: { location: [Home, Libraries, Scooter S2, E-bike E1, Standard Fasteners] }
+        do: [{ set: { location: Products } }]
+        log: Products list open. You see Scooter S2 and E-bike E1.
+        blockedHint: You're already in Products or deeper inside one - pick a product or folder.
+      - id: libraries
+        label: Navigator → Libraries
+        when: { location: [Home, Products, Scooter S2, E-bike E1, Scooter S2 / Frame] }
+        do: [{ set: { location: Libraries } }]
+        log: Libraries list open. You see Standard Fasteners.
+        blockedHint: You're already in Libraries.
+      - id: s2
+        label: Open Scooter S2
+        when: { location: Products }
+        do: [{ set: { location: Scooter S2 } }]
+        log: Inside the Scooter S2 product. Open its Folders to see what's inside.
+        blockedHint: Open Products first.
+      - id: e1
+        label: Open E-bike E1
+        when: { location: Products }
+        do: [{ set: { location: E-bike E1 } }]
+        log: Inside E-bike E1... wrong product for this quest. The hinge belongs to the scooter.
+        blockedHint: Open Products first.
+      - id: frame
+        label: Folders → Frame
+        when: { location: Scooter S2 }
+        do: [{ set: { location: Scooter S2 / Frame } }]
+        log: The Frame folder table lists brackets, tubes and the hinge.
+        blockedHint: Open the Scooter S2 product first.
+      - id: hinge
+        label: Click 1000-0423 Hinge bracket
+        when: { location: Scooter S2 / Frame }
+        do: [{ set: { foundHinge: true, location: "Hinge bracket info page" } }]
+        log: Found it! Address - Acme Mobility → Scooter S2 → Frame → 1000-0423.
+        blockedHint: The hinge lives in the Frame folder of Scooter S2.
+      - id: fasteners
+        label: Open Standard Fasteners
+        when: { location: Libraries }
+        do: [{ set: { location: Standard Fasteners } }]
+        log: Inside the library. Its Folders list screws, nuts and washers.
+        blockedHint: Open Libraries first.
+      - id: screw
+        label: Click M6 x 20 screw
+        when: { location: Standard Fasteners }
+        do: [{ set: { foundScrew: true, location: "M6 screw info page" } }]
+        log: Found it! The same screw is used by both the scooter and the e-bike - one object, many users.
+        blockedHint: The screw lives in the Standard Fasteners library.
+      - id: home
+        label: Navigator → Home
+        when: { location: ["Hinge bracket info page", "M6 screw info page", E-bike E1] }
+        do: [{ set: { location: Home } }]
+        log: Back Home. Ready for the next quest.
+        blockedHint: Use the Navigator's lists to move around from here.
+    goals:
+      - label: Find the hinge bracket in Scooter S2
+        when: { foundHinge: true }
+        message: Product → Folders → object. That path works for everything in a product.
+      - label: Find the M6 screw in the library
+        when: { foundScrew: true }
+        message: Reusable parts live in libraries, not copied into every product.
+
+  - type: example
+    variant: real-world
+    title: The supplier who saw too much
+    industry: Micromobility
+    md: |
+      An Acme engineer once uploaded the hinge drawing straight into the Scooter S2 product to "share it
+      with the supplier" - and asked IT to add the supplier to the product team. Suddenly the supplier
+      could see the whole scooter, including unreleased battery designs. The fix: a separate **project**
+      context containing only what the supplier needed.
+    takeaway: Choose the context by asking "who should see this?" - not "where is it convenient?"
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Creating objects in the wrong context or folder.** Moving them later is possible, but it can
+      change who has access, and it often needs extra rights. Before you click *New*, check the page
+      title/path to confirm you are in the right product and folder.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Folders are great for browsing, but don't hunt through ten folders for one part. If you know the
+      number, **search** for it (next lesson). Browse when you want to see what's *around* something.
+
+  - type: quiz
+    questions:
+      - kind: order
+        prompt: Put an object's address in order, from the top down.
+        items: [Site, Organization, "Product, library or project", Folder, Object]
+        explanation: The site holds organizations, organizations hold application contexts (products, libraries, projects), and contexts hold folders that contain objects.
+      - kind: single
+        prompt: Acme wants one M6 screw that both the scooter and e-bike designs reuse. Where should it live?
+        options: [In the Scooter S2 product, In a library, In a project, In both products as two copies]
+        answer: 1
+        explanation: Libraries hold reusable data. Copies in each product would drift apart and double the maintenance work.
+      - kind: truefalse
+        prompt: You can only see the contexts you are a member of or have been given access to.
+        answer: true
+        explanation: Context teams and access rules control visibility, which is why two colleagues can see different lists of products in their Navigator.
+
+  - type: summary
+    points:
+      - Every object lives in one folder of one context - product, library or project.
+      - The context decides the team, the access and the rules. Folders just organise.
+      - Navigator → Browse → Products/Libraries → your context → Folders is the browsing path.
+      - Choose a context by asking "who should see this?"

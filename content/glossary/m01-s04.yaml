@@ -1,0 +1,38 @@
+# New glossary terms introduced in section m01-s04 (Common Windchill objects).
+- id: part-view
+  term: View (part view)
+  plain: A "lens" on the same part - how engineering sees it vs how the factory builds it.
+  definition: A label on a part version, such as Design or Manufacturing, that lets one part master carry separate view versions. Views support transforming an engineering BOM into a manufacturing BOM. The list of views is configured by each company.
+  aka: [Design view, Manufacturing view]
+  related: [part, ebom, mbom]
+
+- id: attachment
+  term: Attachment (secondary content)
+  plain: Extra files clipped to a document, next to its main file.
+  definition: Additional content files or links stored on a document (or another content holder) besides its primary content - for example the raw test data behind a test report PDF.
+  aka: [Secondary content]
+  related: [document, primary-content]
+
+- id: cad-dependency
+  term: CAD dependency
+  plain: '"This CAD file needs that CAD file to open properly."'
+  definition: A relationship between CAD documents, such as an assembly using its component models or a drawing referencing the model it shows. Windchill manages these links so that CAD data opens and checks in together.
+  related: [cad-document, workspace]
+
+- id: revise
+  term: Revise
+  plain: Start the next big edition of an object, for example going from A to B.
+  definition: The action that creates a new revision of an object (for example A.3 → B.1), usually after the previous revision was released. The new revision typically starts again in the first state of its life cycle.
+  related: [revision, iteration, check-out]
+
+- id: affected-object
+  term: Affected object
+  plain: A thing a change will touch, listed before the work starts.
+  definition: An object listed on a problem report, change request or change task as being affected by the change - typically the current released version that needs to be modified.
+  related: [resulting-object, change-request, change-task]
+
+- id: resulting-object
+  term: Resulting object
+  plain: The new version a change produces.
+  definition: An object version produced by the work of a change task, such as the new revision of a part or drawing. Resulting objects are typically released when the change notice completes.
+  related: [affected-object, change-task, change-notice]
