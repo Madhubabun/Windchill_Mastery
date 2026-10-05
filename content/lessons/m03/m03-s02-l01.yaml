@@ -1,0 +1,302 @@
+id: m03-s02-l01
+subtitle: '"It''s broken" is a complaint. A good problem report is a case file.'
+version: 1.0.0
+updated: "2026-10-05"
+tags: [change, problem-report, evidence, affected-objects]
+
+blocks:
+  - type: text
+    md: |
+      Monday, 9 a.m. Sam from field service opens his laptop. Over the weekend, three rental
+      scooters came back with the same issue: the stem wobbles when it's unfolded. Sam pops the
+      cover and sees it straight away. The **SC-1048 fold-lock bracket** has a stretched pin hole.
+
+      Sam could fire off a chat message: *"scooters wobbly again 😩"*. Within a week it's buried
+      under memes. Or he can write a **[[problem-report]]**: one tracked record that says what
+      broke, where, how often and on which part. That record is what starts every proper change.
+
+      This lesson is about writing one so good that nobody has to ask Sam a single follow-up
+      question.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a formal 'something's wrong' ticket" → *[[problem-report]]* (PR)
+      - "the things that have the problem" → *[[affected-object|affected objects]]*, for example SC-1048 A.2
+      - "the products customers actually have" → *affected end items*, for example the Scooter S2
+      - "photos, test data, field notes" → *evidence*, stored as [[attachment|attachments]]
+      - "the person who triages incoming reports" → *[[change-administrator]]*
+
+  - type: diagram
+    title: Anatomy of a strong problem report
+    caption: PR-0101 for the wobbly stem. Click each box to see what goes in it and why.
+    diagram:
+      width: 800
+      height: 400
+      nodes:
+        - id: pr
+          label: PR-0101
+          sublabel: Stem wobble on Scooter S2
+          x: 290
+          y: 160
+          w: 220
+          h: 64
+          tone: primary
+          detail: |
+            The problem report itself. It has a **number**, a **name** (its title) and its own
+            [[lifecycle-state|state]], and it runs through a [[workflow]] so someone has to act on it.
+        - id: title
+          label: Clear title
+          sublabel: what + where
+          x: 20
+          y: 30
+          w: 200
+          tone: info
+          detail: |
+            **Bad:** "Scooter problem". **Good:** "Fold-lock pin hole elongates on SC-1048 after
+            approx. 400 folds". A good title is searchable and tells the reader what broke and where.
+        - id: desc
+          label: Description
+          sublabel: facts, not guesses
+          x: 300
+          y: 30
+          w: 200
+          tone: info
+          detail: |
+            What you saw, when, how often, and how to reproduce it. Keep facts and opinions apart:
+            "3 of 40 rental scooters, all built in March" is a fact. "Supplier used cheap metal" is a
+            guess - put guesses in a separate *suspected cause* line, clearly labelled.
+        - id: priority
+          label: Priority + need date
+          sublabel: how urgent
+          x: 580
+          y: 30
+          w: 200
+          tone: warning
+          detail: |
+            Is anyone at risk? Is a line stopped? Priority and a **need date** help the change
+            administrator decide what gets looked at first. Safety issues jump the queue.
+        - id: affected
+          label: Affected objects
+          sublabel: SC-1048 A.2
+          x: 20
+          y: 300
+          w: 200
+          tone: danger
+          detail: |
+            The exact part (and version) with the problem. Adding it here links the PR to the
+            part, so anyone opening SC-1048 sees an open problem against it on its **Changes** tab.
+        - id: enditems
+          label: Affected end items
+          sublabel: Scooter S2
+          x: 300
+          y: 300
+          w: 200
+          tone: danger
+          detail: |
+            The sellable products that contain the bad part. This tells the business how big the
+            blast radius is. Many configurations have a separate table for this.
+        - id: evidence
+          label: Evidence
+          sublabel: photos, data, logs
+          x: 580
+          y: 300
+          w: 200
+          tone: success
+          shape: doc
+          detail: |
+            Photos of the stretched hole, the service log with scooter serial numbers, a short
+            video of the wobble. Attach them to the PR so they travel with it forever.
+      edges:
+        - { from: title, to: pr }
+        - { from: desc, to: pr }
+        - { from: priority, to: pr }
+        - { from: affected, to: pr, label: linked }
+        - { from: enditems, to: pr, label: linked }
+        - { from: evidence, to: pr, label: attached }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      The problem report is the **first link in the audit trail**. Months later, when an auditor
+      or a customer asks "why did you change this bracket?", the answer starts here. Vague PRs
+      waste engineering time too: every missing fact means a meeting, a phone call or a guess.
+
+  - type: comparison
+    title: Weak PR vs strong PR
+    columns: [Weak, Strong]
+    rows:
+      - label: Title
+        cells: ["Scooter broken", "Fold-lock pin hole elongates on SC-1048 after approx. 400 folds"]
+      - label: Description
+        cells: ["Customers complain it wobbles", "3 of 40 rental S2 scooters. Wobble after unfolding. Hole measured 6.4 mm vs 6.0 mm spec."]
+      - label: Affected object
+        cells: ["None - you'll figure it out", SC-1048 A.2 fold-lock bracket]
+      - label: Evidence
+        cells: [None, "Photos, caliper readings and service log with serial numbers"]
+      - label: Suggested fix
+        cells: ["Use steel!!!", "Optional, clearly marked as a suggestion"]
+    takeaway: Report the problem, not the solution. The change request is where solutions get argued.
+
+  - type: walkthrough
+    title: Create a problem report from the part
+    who: Any user allowed to report problems (often everyone with read access to the product)
+    where: ["<affected part> information page", Actions, New Problem Report]
+    steps:
+      - title: Find the part with the problem
+        where: [Search, SC-1048]
+        md: |
+          Search for the part number and open its [[information-page]]. Check the version: are
+          you looking at the one actually in the field (here A.2, Released)?
+      - title: Start a new problem report
+        where: [Information page, Actions menu, New Problem Report]
+        md: |
+          Starting from the part usually pre-fills it as an affected object. You can also start
+          from a product's **Changes** area or a "New Problem Report" action in the change area of
+          your product. The exact place depends on your release and configuration.
+      - title: Fill in the facts
+        where: [New Problem Report, attributes step]
+        md: |
+          Enter the **name** (your title), **description**, **priority**, **need date** and any
+          category or source fields your company added. Keep facts and suspected causes separate.
+      - title: Attach the evidence
+        where: [New Problem Report, attachments step]
+        md: Upload photos, measurements and logs. Name files so they make sense later, like `SC-1048_pinhole_serial-S2-0417.jpg`.
+      - title: Check affected objects and end items
+        where: [New Problem Report, affected objects step]
+        md: |
+          Confirm SC-1048 A.2 is listed. Add the **Scooter S2** as an affected end item if your
+          form has that table. Add other parts only if they really have the problem.
+      - title: Submit
+        where: [New Problem Report, Finish]
+        md: |
+          Click **Finish**. The PR gets its number (PR-0101) and its workflow starts. Usually a
+          [[change-administrator]] receives a task to review it.
+    result: PR-0101 exists, it is linked to SC-1048, and it appears on the part's Changes tab for everyone to see.
+
+  - type: simulation
+    title: Build PR-0101 until triage accepts it
+    intro: |
+      You're Sam. Build the problem report, submit it and see what the change administrator does
+      with it. In this sandbox the form won't let you submit until the report has a **clear
+      title**, **evidence** and an **affected object** - just like a strict change admin.
+    headline: "PR-0101 · {state} · title: {title} · evidence: {evidence} · affected: {affected}"
+    initial: { state: Draft, title: none, evidence: none, affected: none }
+    actions:
+      - id: vague
+        label: 'Title it "Scooter broken"'
+        when: { state: Draft }
+        do: [{ set: { title: vague } }]
+        log: 'Title set to "Scooter broken". Search for "fold-lock" won''t ever find this.'
+        blockedHint: You can only edit the report while it's a draft.
+      - id: clear
+        label: Write a specific title
+        when: { state: Draft }
+        do: [{ set: { title: clear } }]
+        log: 'Title set to "Fold-lock pin hole elongates on SC-1048 after approx. 400 folds".'
+        blockedHint: You can only edit the report while it's a draft.
+      - id: photos
+        label: Attach photos + caliper data
+        when: { state: Draft }
+        do: [{ set: { evidence: attached } }]
+        log: Three photos and a measurement sheet are attached. Nobody has to drive to the depot to see it.
+        blockedHint: You can only edit the report while it's a draft.
+      - id: addpart
+        label: Add SC-1048 A.2 as affected
+        when: { state: Draft }
+        do: [{ set: { affected: SC-1048 A.2 } }]
+        log: SC-1048 A.2 is now an affected object. The PR shows up on the bracket's Changes tab.
+        blockedHint: You can only edit the report while it's a draft.
+      - id: submit
+        label: Submit
+        when: { state: Draft, title: clear, evidence: attached, affected: SC-1048 A.2 }
+        do: [{ set: { state: Under Review } }]
+        log: PR-0101 submitted. Maya, the change administrator, gets a review task in her inbox.
+        blockedHint: Not ready. You need a specific title, evidence and an affected object.
+      - id: sendback
+        label: "Maya: send back for more info"
+        when: { state: Under Review }
+        do: [{ set: { state: Draft } }]
+        log: Maya returned it with a comment asking for the scooter serial numbers. Back to Draft.
+        blockedHint: Maya can only act on a submitted report.
+      - id: accept
+        label: "Maya: accept and raise a CR"
+        when: { state: Under Review }
+        do: [{ set: { state: Accepted } }]
+        log: Accepted. Maya links PR-0101 to a new change request so engineering can work out a fix.
+        blockedHint: Maya can only act on a submitted report.
+      - id: reset
+        label: Start a fresh report
+        when: { state: Accepted }
+        do: [{ set: { state: Draft, title: none, evidence: none, affected: none } }]
+        log: New empty draft. Try building it in a different order.
+        blockedHint: Finish the current report first.
+    goals:
+      - label: Get PR-0101 submitted
+        when: { state: Under Review }
+        message: Complete reports get through the door. Vague ones stay drafts.
+      - label: Get PR-0101 accepted
+        when: { state: Accepted }
+        message: Accepted PRs feed a change request - the next lesson.
+
+  - type: callout
+    variant: note
+    md: |
+      What happens after triage **depends on your company's configuration**. Common outcomes:
+      accept and raise a [[change-request]], merge it into an existing PR that describes the same
+      issue, or close it with a reason (not a real problem, user error, already fixed). Some
+      companies skip the PR entirely for internal ideas and start straight at the CR.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Duplicate PRs.** Ten service techs each report the same wobble, so the change admin gets
+      ten PRs. Before you create one, open the part's **Changes** tab and look for an open PR on
+      the same issue. If there is one, add your evidence to it (or comment) instead.
+
+  - type: callout
+    variant: pro-tip
+    md: Add **where it happened** as data, not prose - serial numbers, build dates, batch or lot. That's what lets quality spot the pattern ("all built in March") in minutes instead of weeks.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Which is the best problem report title?
+        options:
+          - Scooter broken again
+          - Bracket bad
+          - Fold-lock pin hole elongates on SC-1048 after approx. 400 folds
+          - Switch SC-1048 to steel ASAP
+        answer: 2
+        explanation: It names the part, the symptom and when it happens, so it's searchable and self-explaining. "Switch to steel" is a solution - that belongs in the change request.
+      - kind: multi
+        prompt: What should Sam attach or link to PR-0101? (Choose all that apply.)
+        options:
+          - Photos of the stretched pin hole
+          - SC-1048 A.2 as an affected object
+          - A revised SC-1048 B.1 CAD model
+          - The service log with scooter serial numbers
+        answers: [0, 1, 3]
+        explanation: Evidence and the affected object belong on the PR. Creating a new revision is implementation work that comes much later, through a change notice.
+      - kind: truefalse
+        prompt: Linking SC-1048 as an affected object makes the PR visible to anyone who opens the bracket's Changes tab.
+        answer: true
+        explanation: That link is what connects the problem to the part. Other engineers see there's an open issue before they start their own work on it.
+      - kind: single
+        prompt: You're about to report the wobble and you see an open PR for the same issue on SC-1048. What's best?
+        options:
+          - Create your own PR anyway so your name is on it
+          - Add your evidence to the existing PR or comment on it
+          - Ignore it, someone else is handling it
+          - Start a change notice yourself
+        answer: 1
+        explanation: Duplicates split the evidence and waste triage time. One PR with all the data is much stronger.
+
+  - type: summary
+    points:
+      - A problem report captures what's wrong - not how to fix it.
+      - Strong PRs have a specific title, facts, priority, evidence and affected objects.
+      - Linking the affected part makes the issue visible on the part's Changes tab.
+      - A change administrator triages the PR; what happens next depends on your configuration.
