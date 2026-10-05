@@ -9,6 +9,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { parse as parseYaml } from "yaml";
+import { lintYaml } from "./lint-yaml";
 import { Marked } from "marked";
 import { z } from "zod";
 import {
@@ -134,6 +135,10 @@ function checkLesson(l: z.infer<typeof LessonFile>, rel: string, kind: LessonKin
           }
         });
     }
+    if (b.type === "comparison")
+      b.rows.forEach((r, ri) => {
+        if (r.cells.length !== b.columns.length) errors.push(`${at}: row ${ri} ("${r.label}") has ${r.cells.length} cells but there are ${b.columns.length} columns (quote cells that contain commas)`);
+      });
     if (b.type === "scenario") {
       const ids = new Set(b.nodes.map((n) => n.id));
       if (!ids.has(b.start)) errors.push(`${at}: start "${b.start}" missing`);
@@ -209,6 +214,7 @@ function compile(outline: Outline, mod: { id: string; slug: string; order: numbe
   usedFiles.add(outline.id);
   const rel = path.relative(ROOT, file);
   currentFile = rel;
+  for (const problem of lintYaml(file)) errors.push(`${rel}: ${problem}`);
   const lf = readYaml(file, LessonFile);
   if (!lf) return base;
   if (lf.id !== outline.id) errors.push(`${rel}: id "${lf.id}" must match the file name`);
@@ -401,5 +407,10 @@ if (!checkOnly) {
   fs.writeFileSync(path.join(OUT, "catalog.json"), JSON.stringify(catalog));
   fs.writeFileSync(path.join(OUT, "search.json"), JSON.stringify(search));
   for (const l of lessons) fs.writeFileSync(path.join(OUT, "lessons", `${l.id}.json`), JSON.stringify(l));
+  // All flashcards in one deck for the Review page. Ids match FlashcardsBlock: lesson:block:card.
+  const cards = lessons.flatMap((l) =>
+    l.blocks.flatMap((b, bi) => (b.type === "flashcards" ? b.cards.map((c, ci) => ({ id: `${l.id}:${bi}:${ci}`, lessonId: l.id, front: c.front, back: c.back })) : [])),
+  );
+  fs.writeFileSync(path.join(OUT, "flashcards.json"), JSON.stringify(cards));
   console.log(`   wrote ${path.relative(ROOT, OUT)}/`);
 }

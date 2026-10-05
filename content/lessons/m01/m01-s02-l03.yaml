@@ -104,7 +104,7 @@ blocks:
       - { label: Examples, cells: ["Number, version, state, owner", "CAD model, drawing, PDF"] }
       - { label: Size, cells: [Tiny (kilobytes), Big (MB to GB)] }
       - { label: Lives in, cells: [Database, File vault (or replica)] }
-      - { label: Used by, cells: [Search, reports, workflows, Download, view, check out] }
+      - { label: Used by, cells: ["Search, reports, workflows", "Download, view, check out"] }
     takeaway: Search reads metadata; opening a file reads content.
 
   - type: callout
@@ -124,22 +124,37 @@ blocks:
           A pipe bursts in Acme Mobility's server room. Both disks are damaged. IT has last night's
           backup of the **database only** - nobody remembered the vault. What happens after restore?
         choices:
-          - { label: Everything works - the database has it all, next: w1, feedback: "Nope. The database only holds pointers to files." }
-          - { label: Users can find every object, but files won't open, next: s2, good: true, feedback: "Exactly. The cards are back, the books are gone." }
+          - label: "Everything works - the database has it all"
+            next: "w1"
+            feedback: "Nope. The database only holds pointers to files."
+          - label: "Users can find every object, but files won't open"
+            next: "s2"
+            good: true
+            feedback: "Exactly. The cards are back, the books are gone."
       - id: s2
         md: |
           Right. Search shows SC-1042 B.3 with all its attributes, but downloading the drawing fails -
           the vault file it points to is missing. Now flip it: what if **only the vault** had been backed up?
         choices:
-          - { label: Thousands of files with meaningless names, next: s3, good: true, feedback: "Yes - without the database, nobody knows which file is which version of what." }
-          - { label: Windchill rebuilds the database from the files, next: w2, feedback: "Windchill can't rebuild versions, states, links and history from loose files." }
+          - label: "Thousands of files with meaningless names"
+            next: "s3"
+            good: true
+            feedback: "Yes - without the database, nobody knows which file is which version of what."
+          - label: "Windchill rebuilds the database from the files"
+            next: "w2"
+            feedback: "Windchill can't rebuild versions, states, links and history from loose files."
       - id: s3
         md: |
           Last question: the backups exist, but the database copy is from **midnight** and the vault copy
           from **6 a.m.** What's the risk?
         choices:
-          - { label: Files checked in after midnight have no matching metadata, next: win, good: true, feedback: "Right - the halves are out of sync. That's why backups are coordinated." }
-          - { label: No risk, a few hours don't matter, next: w3, feedback: "Even minutes matter: references and files can disagree." }
+          - label: "Files checked in after midnight have no matching metadata"
+            next: "win"
+            good: true
+            feedback: "Right - the halves are out of sync. That's why backups are coordinated."
+          - label: "No risk, a few hours don't matter"
+            next: "w3"
+            feedback: "Even minutes matter: references and files can disagree."
       - id: win
         md: |
           You get it. **Back up both halves, in a coordinated way, and test restores.** Acme's admins

@@ -70,18 +70,30 @@ blocks:
   - type: flashcards
     title: Architecture deck
     cards:
-      - { front: The four main tiers, back: "Client (browser/CAD), server, database, file vault." }
-      - { front: Web server, back: "PTC HTTP Server (Apache-based): the front door for every request." }
-      - { front: Servlet engine, back: "Tomcat, embedded in Windchill: runs the web app, hands work to method servers." }
-      - { front: Method server, back: "Java process running business logic and access checks." }
-      - { front: Server manager, back: "Starts, watches and load-balances method servers." }
-      - { front: Background method server, back: "Processes queues like publishing and workflow robots." }
-      - { front: Metadata, back: "Facts about an object, stored in the database (Oracle or SQL Server)." }
-      - { front: Content, back: "The files themselves, stored in file vaults or replicas." }
-      - { front: Replica site, back: "Copies of vault files near remote users for faster downloads." }
-      - { front: Search index, back: "Solr-based index that makes keyword search fast." }
-      - { front: PDMLink vs ProjectLink, back: "PDMLink: engineering data and change. ProjectLink: project collaboration." }
-      - { front: MPMLink, back: "Manufacturing planning: mBOMs, process plans, plants." }
+      - front: "The four main tiers"
+        back: "Client (browser/CAD), server, database, file vault."
+      - front: "Web server"
+        back: "PTC HTTP Server (Apache-based): the front door for every request."
+      - front: "Servlet engine"
+        back: "Tomcat, embedded in Windchill: runs the web app, hands work to method servers."
+      - front: "Method server"
+        back: "Java process running business logic and access checks."
+      - front: "Server manager"
+        back: "Starts, watches and load-balances method servers."
+      - front: "Background method server"
+        back: "Processes queues like publishing and workflow robots."
+      - front: "Metadata"
+        back: "Facts about an object, stored in the database (Oracle or SQL Server)."
+      - front: "Content"
+        back: "The files themselves, stored in file vaults or replicas."
+      - front: "Replica site"
+        back: "Copies of vault files near remote users for faster downloads."
+      - front: "Search index"
+        back: "Solr-based index that makes keyword search fast."
+      - front: "PDMLink vs ProjectLink"
+        back: "PDMLink: engineering data and change. ProjectLink: project collaboration."
+      - front: "MPMLink"
+        back: "Manufacturing planning: mBOMs, process plans, plants."
 
   - type: summary
     points:

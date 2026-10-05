@@ -74,15 +74,27 @@ blocks:
   - type: flashcards
     title: Common objects deck
     cards:
-      - { front: WTPart, back: A part - a physical item or assembly. The backbone of the BOM. }
-      - { front: Uses link, back: Parent part → child part. Carries quantity and unit. }
-      - { front: WTDocument, back: "A document: specs, reports, manuals. Primary content plus attachments." }
-      - { front: EPMDocument, back: "A CAD document: model, assembly or drawing, with CAD dependencies." }
-      - { front: Owner association, back: The CAD model that defines a part's structure and attributes. }
-      - { front: Described by, back: Part version → a specific document version. Frozen in time. }
-      - { front: References, back: Part → document master. Always resolves to the latest. }
-      - { front: Problem Report → Change Request → Change Notice, back: "What's wrong → should we change it → how we'll do it (with Change Tasks)." }
-      - { front: Promotion Request, back: Moves a set of objects to a new state after a review. }
-      - { front: Master, back: Number and name shared by every version. }
-      - { front: Check in vs Revise, back: "Check in: A.1 → A.2. Revise: A.3 → B.1." }
-      - { front: Latest vs latest Released, back: Latest may be work in progress. Build and buy from latest Released. }
+      - front: "WTPart"
+        back: "A part - a physical item or assembly. The backbone of the BOM."
+      - front: "Uses link"
+        back: "Parent part → child part. Carries quantity and unit."
+      - front: "WTDocument"
+        back: "A document: specs, reports, manuals. Primary content plus attachments."
+      - front: "EPMDocument"
+        back: "A CAD document: model, assembly or drawing, with CAD dependencies."
+      - front: "Owner association"
+        back: "The CAD model that defines a part's structure and attributes."
+      - front: "Described by"
+        back: "Part version → a specific document version. Frozen in time."
+      - front: "References"
+        back: "Part → document master. Always resolves to the latest."
+      - front: "Problem Report → Change Request → Change Notice"
+        back: "What's wrong → should we change it → how we'll do it (with Change Tasks)."
+      - front: "Promotion Request"
+        back: "Moves a set of objects to a new state after a review."
+      - front: "Master"
+        back: "Number and name shared by every version."
+      - front: "Check in vs Revise"
+        back: "Check in: A.1 → A.2. Revise: A.3 → B.1."
+      - front: "Latest vs latest Released"
+        back: "Latest may be work in progress. Build and buy from latest Released."

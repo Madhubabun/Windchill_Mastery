@@ -201,12 +201,18 @@ blocks:
 
   - type: flashcards
     cards:
-      - { front: WTPart, back: "The Windchill object for a part: a physical item or assembly in the product." }
-      - { front: Assembly, back: A part that uses other parts. It has its own structure. }
-      - { front: Uses link, back: The parent-child link between parts. It carries quantity and unit. }
-      - { front: BOM, back: "The structured list of parts and quantities, formed by uses links." }
-      - { front: Can a part exist without CAD?, back: "Yes. Screws, glue, labels and software are often parts with no CAD model." }
-      - { front: Part view, back: "A perspective on a part, such as Design or Manufacturing, used to transform an EBOM into an MBOM." }
+      - front: "WTPart"
+        back: "The Windchill object for a part: a physical item or assembly in the product."
+      - front: "Assembly"
+        back: "A part that uses other parts. It has its own structure."
+      - front: "Uses link"
+        back: "The parent-child link between parts. It carries quantity and unit."
+      - front: "BOM"
+        back: "The structured list of parts and quantities, formed by uses links."
+      - front: "Can a part exist without CAD?"
+        back: "Yes. Screws, glue, labels and software are often parts with no CAD model."
+      - front: "Part view"
+        back: "A perspective on a part, such as Design or Manufacturing, used to transform an EBOM into an MBOM."
 
   - type: quiz
     passMark: 0.7

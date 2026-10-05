@@ -196,68 +196,116 @@ blocks:
           You need the current Scooter S2 frame assembly. You remember it's called something like
           "frame". What's your first move?
         choices:
-          - { label: Advanced search - type Part, context Scooter S2, name contains frame, next: s3, good: true, feedback: "Precise from the start: right type, right context." }
-          - { label: Quick search for "frame", next: s2, feedback: "Fast, but broad. Let's see what comes back." }
-          - { label: Ask in team chat for the frame file from the shared drive, next: fail-drive, feedback: That's how version chaos starts. }
+          - label: "Advanced search - type Part, context Scooter S2, name contains frame"
+            next: "s3"
+            good: true
+            feedback: "Precise from the start: right type, right context."
+          - label: "Quick search for \"frame\""
+            next: "s2"
+            feedback: "Fast, but broad. Let's see what comes back."
+          - label: "Ask in team chat for the frame file from the shared drive"
+            next: "fail-drive"
+            feedback: "That's how version chaos starts."
       - id: s2
         md: |
           312 results: parts, CAD documents, documents, and frames from the **E-bike E1** product too.
           The first hit is "Frame assembly" EB-2000. What now?
         choices:
-          - { label: Narrow it down with an advanced search (type, context), next: s3, good: true, feedback: Exactly - quick search to explore, advanced search to pin it down. }
-          - { label: Take the first result - it says Frame assembly, next: fail-ebike, feedback: Names aren't unique. Check the number and context. }
+          - label: "Narrow it down with an advanced search (type, context)"
+            next: "s3"
+            good: true
+            feedback: "Exactly - quick search to explore, advanced search to pin it down."
+          - label: "Take the first result - it says Frame assembly"
+            next: "fail-ebike"
+            feedback: "Names aren't unique. Check the number and context."
       - id: s3
         md: |
           Now you get a clean list with **SC-2000 Frame assembly**. Kai mentions you'll need this
           every week. What do you do with the search?
         choices:
-          - { label: Save it as "S2 - frame assemblies", next: s4, good: true, feedback: One click next week - and it always runs fresh. }
-          - { label: Bookmark today's results page in the browser, next: s3-bookmark, feedback: Hmm - is a bookmark really the same thing? }
+          - label: "Save it as \"S2 - frame assemblies\""
+            next: "s4"
+            good: true
+            feedback: "One click next week - and it always runs fresh."
+          - label: "Bookmark today's results page in the browser"
+            next: "s3-bookmark"
+            feedback: "Hmm - is a bookmark really the same thing?"
       - id: s3-bookmark
         md: |
           A browser bookmark may not reopen your criteria reliably, and teammates can't reuse it. A
           **saved search** stores the criteria inside Windchill and reruns them fresh. Want to fix it?
         choices:
-          - { label: Save the search in Windchill instead, next: s4, good: true, feedback: Good call. }
+          - label: "Save the search in Windchill instead"
+            next: "s4"
+            good: true
+            feedback: "Good call."
       - id: s4
         md: |
           On the information page and its history you see **B.2 · Released** and **B.3 · In Work**
           (checked in yesterday by Priya). Which version goes in your brief as "current"?
         choices:
-          - { label: "B.2 Released - and mention B.3 is in progress", next: s5, good: true, feedback: "Spot on. Released is what the factory builds; In Work can still change." }
-          - { label: B.3 - it's the newest, next: s4-latest, feedback: Newest isn't always current for production. }
+          - label: "B.2 Released - and mention B.3 is in progress"
+            next: "s5"
+            good: true
+            feedback: "Spot on. Released is what the factory builds; In Work can still change."
+          - label: "B.3 - it's the newest"
+            next: "s4-latest"
+            feedback: "Newest isn't always current for production."
       - id: s4-latest
         md: |
           Kai replies: "B.3 is Priya's work in progress - it hasn't been reviewed. The factory is
           building B.2." In Work versions can change any time. What do you do?
         choices:
-          - { label: Brief B.2 as current and flag B.3 as upcoming, next: s5, good: true, feedback: Recovered nicely. }
+          - label: "Brief B.2 as current and flag B.3 as upcoming"
+            next: "s5"
+            good: true
+            feedback: "Recovered nicely."
       - id: s5
         md: |
           The team will ask who owns the frame. Where do you look?
         choices:
-          - { label: "Information page details: Created By, Modified By, context and team", next: s6, good: true, feedback: "That's where Windchill records who did what - and the context tells you which team is responsible." }
-          - { label: The file properties of frame.asm on your laptop, next: fail-laptop, feedback: That's a local copy - not the record. }
+          - label: "Information page details: Created By, Modified By, context and team"
+            next: "s6"
+            good: true
+            feedback: "That's where Windchill records who did what - and the context tells you which team is responsible."
+          - label: "The file properties of frame.asm on your laptop"
+            next: "fail-laptop"
+            feedback: "That's a local copy - not the record."
       - id: s6
         md: |
           Next: the top-level parts and drawings. How do you get them?
         choices:
-          - { label: "Structure tab, one level - then the related CAD documents and documents", next: s7, good: true, feedback: "The BOM shows every part, including ones with no CAD, like library bolts." }
-          - { label: Open frame.asm in Creo and count the components, next: s6-cad, feedback: Close - but the CAD tree isn't always the BOM. }
+          - label: "Structure tab, one level - then the related CAD documents and documents"
+            next: "s7"
+            good: true
+            feedback: "The BOM shows every part, including ones with no CAD, like library bolts."
+          - label: "Open frame.asm in Creo and count the components"
+            next: "s6-cad"
+            feedback: "Close - but the CAD tree isn't always the BOM."
       - id: s6-cad
         md: |
           The CAD assembly shows tube, hinge and deck - but the 8 M6 bolts were added only in the
           Windchill part structure, not in CAD. The **part structure** is the BOM the factory uses.
         choices:
-          - { label: Check the Structure tab on the part instead, next: s7, good: true, feedback: Now nothing's missing. }
+          - label: "Check the Structure tab on the part instead"
+            next: "s7"
+            good: true
+            feedback: "Now nothing's missing."
       - id: s7
         md: |
           Final question, from the intern: "So is the frame CAD file stored *in* the database?"
           What do you say?
         choices:
-          - { label: "The database holds the metadata and a pointer; the file content lives in a vault (or a nearby replica)", next: win, good: true, feedback: Textbook. }
-          - { label: Yes - everything is in the database, next: partial-db, feedback: Not quite how most sites are set up. }
-          - { label: "It's on Priya's laptop, she modelled it", next: fail-laptop2, feedback: Her workspace has a local copy, not the master. }
+          - label: "The database holds the metadata and a pointer; the file content lives in a vault (or a nearby replica)"
+            next: "win"
+            good: true
+            feedback: "Textbook."
+          - label: "Yes - everything is in the database"
+            next: "partial-db"
+            feedback: "Not quite how most sites are set up."
+          - label: "It's on Priya's laptop, she modelled it"
+            next: "fail-laptop2"
+            feedback: "Her workspace has a local copy, not the master."
       - id: win
         md: |
           **Stand-up nailed.** Your brief: *"SC-2000 Frame assembly, B.2 Released, B.3 In Work by

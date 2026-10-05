@@ -80,7 +80,7 @@ blocks:
     title: Which search should I use?
     columns: [Quick search, Advanced search, Saved search]
     rows:
-      - { label: Use when, cells: [You know the number or name, You know properties (type, state, date, creator), You run the same search again and again] }
+      - { label: Use when, cells: [You know the number or name, "You know properties (type, state, date, creator)", You run the same search again and again] }
       - { label: Where, cells: [Search field in the header, "Advanced search page (link next to quick search, or the Navigator's search view)", Your saved searches list] }
       - { label: Speed, cells: [Seconds, A minute to set up, One click] }
       - { label: Example, cells: ["1000-0423", "All parts in Scooter S2 in state In Work, modified this week", "My team's open change requests"] }
@@ -198,28 +198,47 @@ blocks:
           A colleague says: "Part **1000-0587 Kickstand plate** exists, I made it this morning!" You type
           `1000-0587` in quick search and get **zero results**. What do you check first?
         choices:
-          - { label: The type picker next to the search field, next: s2, good: true, feedback: "Cheapest check first. It's set to Documents - and a kickstand plate is a part." }
-          - { label: Raise a ticket with IT, next: f1, feedback: Too early. Most empty searches are caused by the criteria, not the system. }
-          - { label: Search again for just "kickstand", next: s2, feedback: "Fair try, but the type picker still says Documents, so that returns nothing too." }
+          - label: "The type picker next to the search field"
+            next: "s2"
+            good: true
+            feedback: "Cheapest check first. It's set to Documents - and a kickstand plate is a part."
+          - label: "Raise a ticket with IT"
+            next: "f1"
+            feedback: "Too early. Most empty searches are caused by the criteria, not the system."
+          - label: "Search again for just \"kickstand\""
+            next: "s2"
+            feedback: "Fair try, but the type picker still says Documents, so that returns nothing too."
       - id: s2
         md: |
           You switch the type to **Parts** (or All). Still nothing. Your colleague says they created it in
           the new **Scooter S3** product. What next?
         choices:
-          - { label: Check whether you can access Scooter S3, next: s3, good: true, feedback: "Good. Search silently hides objects you can't read. You aren't on the S3 team yet." }
-          - { label: Add a wildcard, next: s3b, feedback: "Wildcards help with partial numbers, but you typed the full number. Try something else." }
+          - label: "Check whether you can access Scooter S3"
+            next: "s3"
+            good: true
+            feedback: "Good. Search silently hides objects you can't read. You aren't on the S3 team yet."
+          - label: "Add a wildcard"
+            next: "s3b"
+            feedback: "Wildcards help with partial numbers, but you typed the full number. Try something else."
       - id: s3b
         md: |
           `*1000-0587*` - still zero. Your colleague now mentions Scooter S3, a product you've never opened.
         choices:
-          - { label: Check whether you can access Scooter S3, next: s3, good: true }
+          - label: "Check whether you can access Scooter S3"
+            next: "s3"
+            good: true
       - id: s3
         md: |
           You weren't on the S3 team. The product manager adds you. You search again... and it **still**
           says zero, but the colleague can see it. The part was created 10 minutes ago. What's going on?
         choices:
-          - { label: "The new object may not be in the search index yet - wait a little, or browse the folder", next: win, good: true, feedback: Keyword search uses an index that updates shortly after objects are created or changed. }
-          - { label: The part must have been deleted, next: f2, feedback: Your colleague is looking at it right now. Deleted objects don't show up for anyone. }
+          - label: "The new object may not be in the search index yet - wait a little, or browse the folder"
+            next: "win"
+            good: true
+            feedback: "Keyword search uses an index that updates shortly after objects are created or changed."
+          - label: "The part must have been deleted"
+            next: "f2"
+            feedback: "Your colleague is looking at it right now. Deleted objects don't show up for anyone."
       - id: win
         md: |
           You browse **Scooter S3 → Folders → Frame** and there it is. A few minutes later, quick search

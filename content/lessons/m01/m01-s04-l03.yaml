@@ -191,12 +191,18 @@ blocks:
 
   - type: flashcards
     cards:
-      - { front: Problem Report, back: Captures an issue - what's wrong. Not every PR leads to a change. }
-      - { front: Change Request, back: Proposes a change and gets it reviewed and approved. }
-      - { front: Change Notice, back: The approved plan for implementing a change. It contains Change Tasks. }
-      - { front: Change Task, back: One assigned piece of work in a Change Notice. It produces resulting objects. }
-      - { front: Promotion Request, back: Moves a set of objects to a new state (for example to Released) after a review. }
-      - { front: Affected vs resulting objects, back: "Affected: the existing versions being changed. Resulting: the new versions the change produces." }
+      - front: "Problem Report"
+        back: "Captures an issue - what's wrong. Not every PR leads to a change."
+      - front: "Change Request"
+        back: "Proposes a change and gets it reviewed and approved."
+      - front: "Change Notice"
+        back: "The approved plan for implementing a change. It contains Change Tasks."
+      - front: "Change Task"
+        back: "One assigned piece of work in a Change Notice. It produces resulting objects."
+      - front: "Promotion Request"
+        back: "Moves a set of objects to a new state (for example to Released) after a review."
+      - front: "Affected vs resulting objects"
+        back: "Affected: the existing versions being changed. Resulting: the new versions the change produces."
 
   - type: quiz
     passMark: 0.7

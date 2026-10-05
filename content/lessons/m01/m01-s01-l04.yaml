@@ -154,16 +154,28 @@ blocks:
           The factory supervisor calls Leo: *"We start the new kickstand tomorrow. Just email me your
           new drawing now, we can't wait for the approval."* Mia hasn't approved the revision yet. What does Leo do?
         choices:
-          - { label: Email the drawing - the factory is waiting, next: f1, feedback: Fast today, painful tomorrow. }
-          - { label: Explain it's not released and ask Mia if she can review today, next: s2, good: true, feedback: Respect the process and still help the team move. }
-          - { label: Change the part's state to Released himself, next: f2, feedback: Most companies don't give designers that permission, for exactly this reason. }
+          - label: "Email the drawing - the factory is waiting"
+            next: "f1"
+            feedback: "Fast today, painful tomorrow."
+          - label: "Explain it's not released and ask Mia if she can review today"
+            next: "s2"
+            good: true
+            feedback: "Respect the process and still help the team move."
+          - label: "Change the part's state to Released himself"
+            next: "f2"
+            feedback: "Most companies don't give designers that permission, for exactly this reason."
       - id: s2
         md: |
           Mia reviews it at 18:00 and spots that the drawing still shows the **old** bolt size. Leo fixes it and
           checks it in, Mia approves, and the part is released. What does the factory use tomorrow?
         choices:
-          - { label: The released drawing from Windchill, next: win, good: true, feedback: Exactly. Released data is the only data the factory should build from. }
-          - { label: The PDF Leo saved on his desktop earlier, next: f1, feedback: That copy has the wrong bolt - the classic "local copy" trap. }
+          - label: "The released drawing from Windchill"
+            next: "win"
+            good: true
+            feedback: "Exactly. Released data is the only data the factory should build from."
+          - label: "The PDF Leo saved on his desktop earlier"
+            next: "f1"
+            feedback: "That copy has the wrong bolt - the classic \"local copy\" trap."
       - id: f1
         md: |
           The factory builds 300 kickstands from an unreviewed drawing with the wrong bolt size. They don't fit.

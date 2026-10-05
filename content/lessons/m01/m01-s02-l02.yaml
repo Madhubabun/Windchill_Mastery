@@ -230,15 +230,25 @@ blocks:
           Priya at Acme says: "Windchill gives me an error when I check in my drawing." Everyone else
           is working normally. What's the most useful first step?
         choices:
-          - { label: Restart all method servers now, next: f1, feedback: "Restarting interrupts every user's work - and everyone else is fine." }
-          - { label: Ask Priya for the exact time and the error text, next: s2, good: true, feedback: Yes. With the time, an admin can find the matching entry in the method server log. }
+          - label: "Restart all method servers now"
+            next: "f1"
+            feedback: "Restarting interrupts every user's work - and everyone else is fine."
+          - label: "Ask Priya for the exact time and the error text"
+            next: "s2"
+            good: true
+            feedback: "Yes. With the time, an admin can find the matching entry in the method server log."
       - id: s2
         md: |
           The method server log at that time says Priya doesn't have **Modify** permission in that
           folder. Which part of Windchill made that decision?
         choices:
-          - { label: The method server's business logic, next: ok, good: true, feedback: Correct - access rules are enforced by the method server. }
-          - { label: The web browser, next: p1, feedback: The browser only shows what the server decides. }
+          - label: "The method server's business logic"
+            next: "ok"
+            good: true
+            feedback: "Correct - access rules are enforced by the method server."
+          - label: "The web browser"
+            next: "p1"
+            feedback: "The browser only shows what the server decides."
       - id: ok
         md: The admin (or the context manager) reviews Priya's team role, fixes her access, and she checks in. No restart needed.
         outcome: success
@@ -265,12 +275,18 @@ blocks:
 
   - type: flashcards
     cards:
-      - { front: Web server (PTC HTTP Server), back: "The front door: receives HTTPS requests, handles login, forwards work to the servlet engine." }
-      - { front: Servlet engine (Tomcat), back: "The waiters: runs the web application and passes the real work to a method server." }
-      - { front: Method server, back: "The cooks: Java processes that run Windchill's business logic and enforce access rules." }
-      - { front: Server manager, back: "The kitchen manager: starts, watches, restarts and load-balances method servers." }
-      - { front: Background method server, back: "The prep cooks: work through queues such as publishing and workflow robots." }
-      - { front: Search index (Solr), back: "Makes keyword searches fast by looking up a pre-built index." }
+      - front: "Web server (PTC HTTP Server)"
+        back: "The front door: receives HTTPS requests, handles login, forwards work to the servlet engine."
+      - front: "Servlet engine (Tomcat)"
+        back: "The waiters: runs the web application and passes the real work to a method server."
+      - front: "Method server"
+        back: "The cooks: Java processes that run Windchill's business logic and enforce access rules."
+      - front: "Server manager"
+        back: "The kitchen manager: starts, watches, restarts and load-balances method servers."
+      - front: "Background method server"
+        back: "The prep cooks: work through queues such as publishing and workflow robots."
+      - front: "Search index (Solr)"
+        back: "Makes keyword searches fast by looking up a pre-built index."
 
   - type: summary
     points:
