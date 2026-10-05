@@ -1,0 +1,319 @@
+id: m03-s02-l02
+subtitle: Before anyone touches CAD, figure out what the change hits - then let the board decide.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [change, change-request, impact-analysis, ccb, crb]
+
+blocks:
+  - type: text
+    md: |
+      PR-0101 is accepted: the SC-1048 fold-lock bracket stretches its pin hole. Now the question
+      flips from *"what's wrong?"* to *"what should we do about it - and is it worth it?"*
+
+      Priya has an idea: make the bracket 1 mm thicker and press a hardened steel bushing into the
+      pin hole. Sounds simple. But that bracket sits in the frame assembly, which sits in every
+      Scooter S2. There are 1,200 brackets on the shelf and 800 more on a truck. The supplier's
+      tooling is built for 3 mm, not 4.
+
+      A **[[change-request]]** is where all of that gets written down, analysed and decided -
+      *before* a single CAD file is edited.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a formal proposal to change released stuff" → *[[change-request]]* (CR, sometimes ECR)
+      - "working out everything the change hits" → *[[change-impact-analysis]]*
+      - "the group that says yes or no" → *[[change-review-board]]* (CRB), also called change control board (CCB)
+      - "what we do with old stock: use it, rework it, scrap it" → *disposition*
+      - "the products customers buy that are hit" → *affected end items*
+
+  - type: diagram
+    title: Impact map for CR-0101
+    caption: The CR sits in the middle. Everything around it is something the analysis must check. Click each box.
+    diagram:
+      width: 800
+      height: 430
+      groups:
+        - { label: Product data, x: 10, y: 10, w: 380, h: 200, tone: info }
+        - { label: Business impact, x: 410, y: 10, w: 380, h: 200, tone: warning }
+        - { label: Other changes, x: 10, y: 300, w: 380, h: 120, tone: neutral }
+      nodes:
+        - id: cr
+          label: CR-0101
+          sublabel: Strengthen SC-1048
+          x: 450
+          y: 300
+          w: 200
+          h: 64
+          tone: primary
+          detail: |
+            The change request. It links back to **PR-0101**, lists the affected objects and end
+            items, and holds the proposed solution, the impact analysis and the board's decision.
+        - id: part
+          label: SC-1048 A.2
+          sublabel: fold-lock bracket
+          x: 30
+          y: 45
+          w: 160
+          tone: danger
+          detail: The part itself - the main **affected object**. Its CAD model and drawing SC-1048.drw will need new revisions too.
+        - id: drw
+          label: SC-1048.drw
+          sublabel: drawing
+          x: 210
+          y: 45
+          w: 160
+          tone: danger
+          shape: doc
+          detail: The drawing must show the new thickness and the bushing. Suppliers build from the drawing, so it can't be forgotten.
+        - id: whereused
+          label: Where used
+          sublabel: SC-2000 → Scooter S2
+          x: 30
+          y: 135
+          w: 160
+          tone: info
+          detail: |
+            Run **[[where-used|Where Used]]** on SC-1048. It's in the SC-2000 frame assembly, which
+            is in the Scooter S2 - and in the SC-2550 service fold kit. Two end items, not one.
+        - id: test
+          label: Test spec
+          sublabel: fold endurance
+          x: 210
+          y: 135
+          w: 160
+          tone: info
+          shape: doc
+          detail: The fold-endurance test document needs a higher cycle target so the fix is proven, not hoped for.
+        - id: stock
+          label: Stock + orders
+          sublabel: 1,200 + 800 pcs
+          x: 430
+          y: 45
+          w: 160
+          tone: warning
+          detail: |
+            What happens to brackets already made? This is the **disposition**: use as is, rework
+            (press in a bushing), or scrap. For a safety issue, "use as is" is off the table.
+        - id: supplier
+          label: Supplier tooling
+          sublabel: cost + lead time
+          x: 610
+          y: 45
+          w: 160
+          tone: warning
+          detail: The supplier quotes new tooling and an 8-week lead time. That number goes straight into the board's decision.
+        - id: cost
+          label: Cost + weight
+          sublabel: "+0.40 € · +35 g"
+          x: 430
+          y: 135
+          w: 160
+          tone: warning
+          detail: Each bracket costs a bit more and weighs a bit more. Small per unit - but multiplied by yearly volume it matters.
+        - id: field
+          label: Scooters in the field
+          sublabel: rental fleet
+          x: 610
+          y: 135
+          w: 160
+          tone: danger
+          detail: Should scooters already sold get the fix? That may trigger a service action - a business decision the board must make explicitly.
+        - id: openchg
+          label: Open CN-0095
+          sublabel: frame paint change
+          x: 30
+          y: 340
+          w: 170
+          tone: neutral
+          detail: |
+            Another change is already working on SC-2000. Two changes on the same assembly at the
+            same time can collide - check each affected object's **Changes** tab.
+        - id: pr
+          label: PR-0101
+          sublabel: the original issue
+          x: 220
+          y: 340
+          w: 150
+          tone: neutral
+          detail: The problem report this CR solves. Keeping them linked means anyone can trace the fix back to the field evidence.
+      edges:
+        - { from: cr, to: part }
+        - { from: cr, to: drw }
+        - { from: cr, to: stock }
+        - { from: cr, to: supplier }
+        - { from: part, to: whereused, dashed: true }
+        - { from: cr, to: openchg, dashed: true, label: "conflict?" }
+        - { from: pr, to: cr, label: addressed by }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Saying "yes" is cheap. Living with the yes is not. A change approved without impact analysis
+      can scrap thousands of parts, break a supplier's schedule or quietly break a second product
+      nobody checked. The CR is where a company spends an hour of thinking to save months of mess.
+
+  - type: walkthrough
+    title: Analyse the impact of CR-0101
+    who: The engineer or change analyst assigned to the CR (here Priya)
+    where: [Home, My Tasks, CR-0101 analysis task]
+    steps:
+      - title: Open your task
+        where: [Home, My Tasks]
+        md: |
+          The CR's workflow assigns an analysis task. Open it from your task list, then open the
+          CR itself from the task's link to see its [[information-page]].
+      - title: Review the affected objects and end items
+        where: [CR information page, Affected Objects or Change Summary area]
+        md: |
+          Check that the right **versions** are listed (SC-1048 A.2, SC-1048.drw). Add anything
+          the PR missed. Table and tab names vary by release - look for "Affected".
+      - title: Run Where Used on each affected part
+        where: ["<affected part> information page", Where Used]
+        md: |
+          Find every parent assembly and end item. For SC-1048 you discover the SC-2550 service fold
+          kit as well as the Scooter S2. Add newly found end items to the CR.
+      - title: Look for clashing changes
+        where: ["<affected object> information page", Changes tab]
+        md: |
+          Open changes on the same objects (like CN-0095 on SC-2000) mean two teams could edit the
+          same thing. Note them and talk to the owner.
+      - title: Record the analysis
+        where: [CR, Edit, description or impact fields plus attachments]
+        md: |
+          Write the proposed solution, the options you rejected (and why), cost, weight, lead
+          time and the suggested disposition for stock. Attach the supplier quote. Your company
+          may have dedicated impact fields or a template document.
+      - title: Complete the task
+        where: [Task page, Complete Task]
+        md: Mark your task complete. The workflow sends the CR to the change review board.
+    result: CR-0101 tells the whole story - the problem, the fix, everything it touches and what it will cost.
+
+  - type: text
+    md: |
+      ### The board: who sits there and what it decides
+
+      Maya chairs Acme's **[[change-review-board|CCB]]**. Around the (virtual) table: Kai for
+      engineering, Leo for quality, Ana for manufacturing, someone from purchasing and service.
+      Each seat brings a different "what does this break for *me*?"
+
+      The board makes a **business decision**, not a CAD decision:
+
+      | Decision | What it means | What happens next |
+      | --- | --- | --- |
+      | **Approve** | The change is worth it | A [[change-notice]] is created to implement it |
+      | **Reject** | Not worth it, or wrong fix | CR closes with a reason; PR may stay open |
+      | **More info** | Can't decide yet | CR goes back to the analyst with questions |
+      | **Approve with conditions** | Yes, but... (e.g. rework stock first) | Conditions go into the change notice plan |
+
+      In Windchill, board members usually get a **review task** in their task list and record a
+      vote with comments. How votes are counted (unanimous, majority, chair decides) depends on
+      your company's [[workflow]] configuration.
+
+  - type: scenario
+    variant: challenge
+    title: You're in the CCB meeting for CR-0101
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Maya opens CR-0101. The fix (4 mm bracket + steel bushing) passed a quick lab test.
+          Ana asks: *"What do we do with the 1,200 brackets on the shelf?"* What do you propose?
+        choices:
+          - label: Use them up first - they're already paid for
+            next: f1
+            feedback: This is a safety issue. Knowingly building weak brackets into new scooters is not an option.
+          - label: Rework them by pressing in the new bushing if testing confirms they pass
+            next: s2
+            good: true
+            feedback: Smart - rework saves most of the stock value and still fixes the safety risk.
+          - label: Scrap all 1,200 immediately
+            next: s2b
+            feedback: Safe, but expensive. Check whether rework is possible before you throw money away.
+      - id: s2b
+        md: |
+          Purchasing winces at the scrap cost. Leo points out that the bushing alone fixes the wear.
+          Maya asks you to reconsider.
+        choices:
+          - label: Switch the disposition to rework, with a test on 10 reworked brackets first
+            next: s2
+            good: true
+            feedback: Good recovery. Evidence-based disposition is exactly what the board wants.
+          - label: Stick with scrap
+            next: p1
+            feedback: Allowed, but the board will remember the cost.
+      - id: s2
+        md: |
+          Disposition settled. Then Kai spots it in the impact analysis: **CN-0095** is already
+          changing the paint on the SC-2000 frame assembly - the same assembly that uses SC-1048.
+          What now?
+        choices:
+          - label: Approve CR-0101 and let both teams sort it out later
+            next: p2
+            feedback: The teams might both revise SC-2000 or overwrite each other's work. "Later" is how clashes happen.
+          - label: Approve, with a condition to coordinate with the CN-0095 owner on the SC-2000 revision
+            next: s3
+            good: true
+            feedback: Yes. The board records the condition so the implementation plan respects it.
+      - id: s3
+        md: |
+          Last item. Sam asks: *"What about the 300 rental scooters already on the street?"* The
+          CR only covers new production.
+        choices:
+          - label: Decide it explicitly - add a field retrofit task, or raise a separate change for service
+            next: win
+            good: true
+            feedback: Exactly. The board's job is to make the call visible, not to leave it to chance.
+          - label: Not our problem - the CR is about the design
+            next: p3
+            feedback: Field scooters with the old bracket keep wobbling. Silence is also a decision, just an unrecorded one.
+      - id: win
+        md: |
+          **CR-0101 approved with conditions:** rework stock (after a 10-piece test), coordinate with
+          CN-0095, retrofit the rental fleet. Maya records the decision and the CR's workflow moves
+          on to the [[change-notice]] - the next lesson.
+        outcome: success
+      - id: f1
+        md: Leo blocks the vote. The board sends the CR back to analysis with a note about safety. Nothing gets fixed this week.
+        outcome: fail
+      - id: p1
+        md: Approved - at full scrap cost. The fix happens, but finance asks why nobody checked rework.
+        outcome: partial
+      - id: p2
+        md: |
+          Two weeks later both teams revise SC-2000 at the same time. One set of changes has to be
+          redone. Approved, but messy.
+        outcome: partial
+      - id: p3
+        md: New scooters are fixed, but service keeps getting wobble calls for months. A new PR arrives - about the same issue.
+        outcome: partial
+
+  - type: example
+    variant: real-world
+    title: The CR nobody could find a reason for
+    industry: Micromobility
+    md: |
+      A year after the bracket fix, a customer audit asked why SC-1048 went from 3 mm to 4 mm. Leo
+      opened the B revision, clicked through to CN-0101, then CR-0101, then PR-0101 - and showed
+      the photos, the test data and the board's vote in under two minutes. Audit item closed.
+    takeaway: A well-written CR is a gift to your future self.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Turning the CR into a CAD task.** Some engineers redesign the part first, then raise the
+      CR "for the paperwork". The board can no longer say no without wasting that work - and
+      nobody checked stock, suppliers or other products. Analyse first, design after approval.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Always list **at least one rejected option** in your analysis, with the reason ("steel bracket: +180 g, new tooling, 14 weeks"). It shows the board you thought it through and answers their first question before they ask.
+
+  - type: summary
+    points:
+      - A change request proposes a fix for released data and holds the analysis and decision.
+      - Impact analysis checks where-used, related documents, stock and orders, suppliers, cost and clashing changes.
+      - The change review board (CCB) makes a business decision - approve, reject, ask for more info or approve with conditions.
+      - Votes usually happen as review tasks; how they're counted depends on your workflow configuration.

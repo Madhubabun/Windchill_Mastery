@@ -1,0 +1,118 @@
+id: m03-s03-check
+subtitle: Promote, review, approve or reject - and know when it's not a promotion at all.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [checkpoint, promotion-request, tasks]
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **Promotion requests**: creating them, choosing promotion or change,
+      and handling review and approval tasks. Score 80% to pass. The flashcards below go
+      straight into your review deck.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: Priya's new SC-3500 phone mount has never been released. She wants it Released for production. What does she create?
+        options: [A change notice, A promotion request, A variance, A problem report]
+        answer: 1
+        explanation: First release of new data is what promotion requests are for. Nothing released is being changed, so the full change process isn't needed.
+      - kind: single
+        prompt: What does a promotion request change when it's approved?
+        options:
+          - The revision letter of each object
+          - The lifecycle state of each promotion object
+          - The part numbers
+          - The folders the objects live in
+        answer: 1
+        explanation: Promotion moves the exact versions you added to the target state. It doesn't revise, renumber or move them.
+      - kind: multi
+        prompt: Ana opens her review task on PROM-0310. What can she see? (Choose all that apply.)
+        options:
+          - The target state
+          - The promotion objects and their exact versions
+          - The requester's description
+          - Links to open and view each object
+        answers: [0, 1, 2, 3]
+        explanation: The task shows the promotion request itself - description, target state and the list of objects - so the reviewer can open and inspect each one.
+      - kind: single
+        prompt: Kai wants a thicker wall on the released SC-1048 fold-lock bracket. Priya suggests revising it and promoting revision B. What's the main risk?
+        options:
+          - The promotion is too slow
+          - It skips impact analysis and the recorded reason for the change
+          - Windchill deletes revision A
+          - Revision B gets a new part number
+        answer: 1
+        explanation: Changing released data needs the change process so stock, suppliers and where-used are checked and the why is recorded. A promotion only records who approved.
+      - kind: order
+        prompt: Put the promotion steps in order.
+        items:
+          - Finish the work and check in
+          - Create the promotion request with a target state
+          - Reviewers complete their review tasks
+          - Approver votes on the approval task
+          - Objects move to the target state
+        explanation: Work, bundle, review, vote, promote. Only an approval moves the objects.
+      - kind: single
+        prompt: Which is the most useful rejection comment?
+        options:
+          - "Not OK."
+          - "Please check the drawing again."
+          - "SC-3510 sheet 1: hole 3 mm from edge cracks in bend test. Move to 8 mm."
+          - "Rejected - see me."
+        answer: 2
+        explanation: A useful rejection says what is wrong, where, why it matters and what to do. The others force a follow-up conversation.
+      - kind: truefalse
+        prompt: Reviewers on a promotion request usually vote, and any single reviewer comment automatically rejects the request.
+        answer: false
+        explanation: Reviewers comment to inform the decision. Approvers vote, and an approver's Reject stops the promotion. Exact rules depend on the configured process.
+      - kind: single
+        prompt: Leo wants to promote a part, but Windchill flags it as not promotable. What's a likely reason?
+        options:
+          - The part has a description
+          - The part is still checked out
+          - The part has a drawing
+          - The part is in a folder
+        answer: 1
+        explanation: Checked-out objects (or objects in a state that can't be promoted to the target) are flagged. Check it in or remove it from the request.
+      - kind: multi
+        prompt: Which statements about promotion requests are true? (Choose all that apply.)
+        options:
+          - The target states you can choose depend on the life cycle and configuration
+          - Related objects like the drawing should travel in the same request
+          - Approving creates the next revision automatically
+          - Approvals leave a record of who approved which versions and when
+        answers: [0, 1, 3]
+        explanation: Target states come from configuration, related objects should be promoted together and approvals are recorded. Promotion never creates revisions.
+      - kind: single
+        prompt: You find a task in Home → My Tasks, review the objects and write a comment. What finishes your part?
+        options: [Closing the browser tab, Complete Task, Checking out the part, Emailing the requester]
+        answer: 1
+        explanation: Complete Task submits your comment (and vote, for approvers) and moves the process on. Until then the task stays open in your list.
+
+  - type: flashcards
+    title: Promotion requests deck
+    cards:
+      - front: "Promotion request"
+        back: "Bundles object versions and moves them to one target state after review and approval."
+      - front: "Promotion target state"
+        back: "Where the objects end up when approved, for example Released."
+      - front: "Promotion candidate"
+        back: "One object version in the bundle. All candidates move together."
+      - front: "Promotion or change notice?"
+        back: "Never released: promote. Released and changing: change request and change notice."
+      - front: "Does promotion create revisions?"
+        back: "No. It only changes the state of the versions you added."
+      - front: "Review task"
+        back: "Look and comment. Informs the approvers."
+      - front: "Approval task"
+        back: "Vote Approve or Reject with a comment. A Reject stops the promotion."
+      - front: "Useful rejection"
+        back: "What is wrong, where, why it matters, what to do."
+      - front: "Where are my tasks?"
+        back: "Home → Tasks / My Tasks, plus email notifications."
+      - front: "On rejection, objects..."
+        back: "Typically go back to an earlier state like In Work for fixes."

@@ -1,0 +1,48 @@
+# New glossary terms introduced in section m03-s04 (Lifecycle and workflow fundamentals).
+- id: life-cycle-template
+  term: Life cycle template
+  plain: The map of stations an object can stop at, and the tracks allowed between them.
+  definition: An administrator-defined template listing the states an object can be in (such as In Work, Under Review and Released) and the transitions allowed between them, such as promote, demote and revise. It can also name a workflow to run in a phase. Rules set by the admin decide which template each new object gets.
+  aka: [Lifecycle template]
+  related: [life-cycle, lifecycle-state, workflow-template]
+
+- id: workflow-template
+  term: Workflow template
+  plain: The recipe for a process - every step, who does it and what happens after.
+  definition: An administrator-defined process design made of activities, robots, connectors and links. Each time a change object, promotion request or other process starts, Windchill creates a running process instance from the template.
+  aka: [Process template]
+  related: [workflow, workflow-activity, life-cycle-template]
+
+- id: workflow-activity
+  term: Workflow activity
+  plain: One box in the process recipe, such as Review or Approve.
+  definition: A step in a workflow. An assigned activity creates tasks (work items) for the people or roles it names and waits for them to finish. Automatic steps such as setting a state, sending a notification or waiting on a timer are done by robots.
+  aka: [Assigned activity, Activity]
+  related: [workflow-template, work-item, routing]
+
+- id: work-item
+  term: Work item
+  plain: A to-do in your task list that a workflow is waiting on.
+  definition: The task a person receives when an assigned activity runs. It links to the process and its objects, and is completed by choosing a routing option such as Approve or Reject, usually with comments. Work items can be accepted, reassigned and, in some setups, delegated.
+  aka: [Task, Assignment]
+  related: [task, workflow-activity, delegation]
+
+- id: routing
+  term: Routing
+  plain: Which path the process takes next, based on what people chose.
+  definition: The rules that decide which link a workflow follows when an activity completes. Manual routing lets the assignee pick an option; voting routing tallies the choices of several assignees (for example, any Reject sends the change back). Conditional routing uses an expression.
+  aka: [Routing option, Vote]
+  related: [workflow-activity, work-item, change-review-board]
+
+- id: delegation
+  term: Delegation
+  plain: Handing your tasks to a stand-in while you're away.
+  definition: Passing a work item, or the right to act on new ones, to another user so a process doesn't wait on someone who is absent. Depending on configuration this is done by reassigning tasks, by setting an out-of-office delegate, or by an administrator.
+  aka: [Out of office, Reassign]
+  related: [work-item, task, notification]
+
+- id: process-manager
+  term: Process Manager
+  plain: The live map of a running workflow, showing which step it's on.
+  definition: A graphical view of a running or completed workflow process. It draws the activities and links and marks which activities are complete, running or not yet started, so you can see where a process is waiting and who holds the open task.
+  related: [workflow, workflow-template, workflow-activity]

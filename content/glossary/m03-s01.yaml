@@ -1,0 +1,28 @@
+# New glossary terms introduced in section m03-s01 (Why change management matters).
+- id: cost-of-change
+  term: Cost of change (rule of ten)
+  plain: The later you fix something, the more it costs - roughly ten times more each phase.
+  definition: The rule of thumb that the cost of the same change rises by about an order of magnitude in each later phase of a product's life - concept, design, prototype and test, production and finally the field, where it can mean scrap, rework and recalls.
+  aka: [Rule of ten]
+  related: [change-control, plm]
+
+- id: change-control
+  term: Change control
+  plain: An agreed, tracked way to change released data so everyone who depends on it knows.
+  definition: The discipline of reporting, reviewing, approving, planning and tracing every change to released product data. In Windchill it is carried out with problem reports, change requests, change notices and change tasks, each driven by a workflow.
+  aka: [Change management, Engineering change management]
+  related: [problem-report, change-request, change-notice, change-task, cost-of-change]
+
+- id: full-track-change
+  term: Full track change
+  plain: The complete route - report it, get it approved by a board, then plan and do the work.
+  definition: A change that goes through the full process - typically a problem report, a change request reviewed and approved by a change review board, then a change notice with change tasks. Used for changes with real impact on form, fit, function, safety, cost, suppliers or stock.
+  aka: [Full-track change]
+  related: [fast-track-change, change-request, change-review-board, change-notice]
+
+- id: fast-track-change
+  term: Fast track change
+  plain: A short route for small, low-risk changes that skips the full board review.
+  definition: A shortened change route for low-impact changes, for example raising a change notice without a separate change request, or using a simplified review. Exactly how fast track works, and who may use it, depends on the company's configuration and change policy.
+  aka: [Fast-track change]
+  related: [full-track-change, change-notice, change-task]

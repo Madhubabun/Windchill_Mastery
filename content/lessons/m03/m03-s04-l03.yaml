@@ -1,0 +1,258 @@
+id: m03-s04-l03
+subtitle: Your click picks the path. Learn how votes steer a workflow and how to keep it moving while you're away.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [workflow, routing, voting, delegation, change-review-board]
+
+blocks:
+  - type: text
+    md: |
+      When you click **Approve** or **Reject**, you're not just giving an opinion. You're pulling a
+      railway switch. The workflow looks at your choice (and maybe everyone else's) and sends the
+      process down one track or another.
+
+      Change request **CR-0450** asks to switch the SC-1048 fold-lock bracket to a stronger steel.
+      Maya's change board has to vote. What happens if one person rejects? What if Kai is on
+      vacation? Let's find out.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the track the process takes next" → *[[routing]]*
+      - "your choice in a task" → *routing option* (often called a *vote*: Approve, Reject, Rework)
+      - "one person picks the path" → *manual routing*
+      - "count everyone's choices first" → *voting* or *tally* routing
+      - "a rule decides automatically" → *conditional routing*
+      - "a stand-in who acts for you" → *[[delegation|delegate]]*
+      - "the board that votes on a change" → *[[change-review-board|change review board]]* (CCB/CRB)
+
+  - type: comparison
+    title: Three ways a workflow picks a path
+    columns: [Manual, Voting (tally), Conditional]
+    rows:
+      - label: Who decides
+        cells: [One assignee picks an option, Several assignees each vote, A rule or expression - no human]
+      - label: When it routes
+        cells: [As soon as that person completes, "When enough votes are in, as the tally rule says", The moment the activity finishes]
+      - label: Typical rule
+        cells: [Approve goes on and Reject goes back, "Any Reject sends it back - or majority wins", "If the part is safety-critical then add a quality review"]
+      - label: Acme example
+        cells: ["Kai approves PROM-0452", "Maya's CCB votes on CR-0450", "Extra review when the bracket's class is Safety"]
+    takeaway: The rule is set in the workflow template by an admin. As a user you just need to know which kind you're in.
+
+  - type: animation
+    title: How the CCB vote routes CR-0450
+    diagram:
+      width: 800
+      height: 340
+      nodes:
+        - { id: cr, label: CR-0450, sublabel: stronger steel, x: 20, y: 140, w: 140, tone: info, shape: doc }
+        - { id: maya, label: Maya votes, sublabel: change manager, x: 220, y: 20, w: 160, tone: accent }
+        - { id: ana, label: Ana votes, sublabel: manufacturing, x: 220, y: 140, w: 160, tone: accent }
+        - { id: leo, label: Leo votes, sublabel: quality, x: 220, y: 260, w: 160, tone: accent }
+        - { id: tally, label: Tally, sublabel: "any Reject → rework", x: 440, y: 140, w: 150, tone: warning, shape: pill }
+        - { id: rework, label: Rework, sublabel: back to Priya, x: 640, y: 40, w: 140, tone: danger }
+        - { id: go, label: Approved, sublabel: create CN, x: 640, y: 240, w: 140, tone: success, shape: pill }
+      edges:
+        - { from: cr, to: maya }
+        - { from: cr, to: ana }
+        - { from: cr, to: leo }
+        - { from: maya, to: tally }
+        - { from: ana, to: tally }
+        - { from: leo, to: tally }
+        - { from: tally, to: rework, label: reject }
+        - { from: tally, to: go, label: approve }
+    chapters:
+      - title: One activity, three tasks
+        caption: The CCB activity sends a **task** to each board member at the same time. The process now waits for the votes.
+        show: [cr, maya, ana, leo]
+        highlight: [maya, ana, leo]
+        flow: [cr>maya, cr>ana, cr>leo]
+      - title: Votes come in
+        caption: Maya and Leo vote **Approve**. Ana votes **Reject** - the new steel needs a different bending tool and she wants a cost check first.
+        show: [cr, maya, ana, leo, tally]
+        highlight: [ana]
+        flow: [maya>tally, ana>tally, leo>tally]
+      - title: The tally rule decides
+        caption: This template's rule is **any Reject wins**. One Reject is enough, so the process routes to **Rework** and Priya gets a task with Ana's comment.
+        show: [cr, maya, ana, leo, tally, rework]
+        highlight: [tally, rework]
+        flow: [tally>rework]
+      - title: Second round
+        caption: Priya adds the tooling cost. The board votes again, all **Approve**, and the process routes to the approved path, ready for a change notice.
+        highlight: [go]
+        flow: [maya>tally, ana>tally, leo>tally, tally>go]
+        seconds: 8
+
+  - type: callout
+    variant: note
+    md: |
+      Tally rules differ by company and by template. Common ones are **all must approve**,
+      **any reject sends it back** and **majority wins**. Some templates also let the chair (here,
+      Maya) make the final call. Ask your change manager which rule your CCB uses.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Your vote is a **signature**. In regulated industries (medical, aerospace, automotive) a
+      change approved by the wrong people, or with a missing vote, is an audit finding. Routing
+      rules make sure the right people said yes before anything is released. Delegation keeps that
+      true when people are sick or on holiday, without anyone faking approvals.
+
+  - type: walkthrough
+    title: Vote on a routed task
+    who: A member of the role the activity is assigned to, such as the CCB
+    steps:
+      - title: Open the task
+        where: [Home, My Tasks, "<CR-0450 task>"]
+        md: Open the review or CCB task for **CR-0450**.
+      - title: Review the request
+        where: ["<task> page", Subject, Affected objects]
+        md: Read the change request, its impact notes and the affected objects such as SC-1048 and SC-1048.drw.
+      - title: Pick your routing option
+        where: ["<task> page", Routing options]
+        md: |
+          Choose **Approve**, **Reject** or whatever options this activity offers (some show
+          *Rework* or *Need more info*). If you reject, explain exactly what needs to change.
+      - title: Complete the task
+        where: ["<task> page", Complete Task]
+        md: Click **Complete Task**. In a voting activity, the process routes only when the tally rule is satisfied, so it may keep waiting on others.
+    result: Your vote and comment are stored in the process history. The process either routes on or waits for the remaining votes.
+
+  - type: walkthrough
+    title: Keep your tasks moving while you're away
+    who: Any user - options depend on your company's configuration
+    steps:
+      - title: Clear what you can
+        where: [Home, My Tasks]
+        md: Before leaving, complete the tasks you can. Sort by deadline.
+      - title: Reassign the rest
+        where: ["<task>", Actions menu, Reassign]
+        md: Reassign each remaining task to a colleague with the same role, with a comment.
+      - title: Set a stand-in if your setup has one
+        where: [Your user profile or preferences, Out of office or Delegate]
+        md: |
+          Some configurations let you name a **delegate** and dates in your user profile or
+          preferences, so new tasks go to them while you're out. Not every setup offers this. If
+          you can't find it, ask your admin.
+      - title: Tell the process owner
+        where: [Chat or email]
+        md: Let your change manager (at Acme, Maya) know who is covering. They may also update the team role so new changes go to the right person.
+    result: No process waits on an empty desk. The history shows who acted for whom.
+
+  - type: scenario
+    variant: what-if
+    title: Kai is in the mountains
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          CR-0450 is approved. Change notice **CN-0451** has a review task for Kai, due Friday. On
+          Wednesday Kai's out-of-office reply says he's hiking for ten days with no signal. You're
+          Maya. What do you do?
+        choices:
+          - label: Wait until Kai is back
+            next: f1
+            feedback: Ten days of waiting means ten days of building the old bracket.
+          - label: Log in as Kai and approve it
+            next: f2
+            feedback: Never. That's a fake signature.
+          - label: Find someone who holds Kai's role and get the task reassigned
+            next: s2
+            good: true
+            feedback: Right instinct. Keep the right skills on the review.
+      - id: s2
+        md: |
+          Priya also holds the Engineering Reviewer role, but she designed this change. Ana is
+          available but doesn't hold that role. Who should get the task?
+        choices:
+          - label: Priya - she knows the design best
+            next: p1
+            feedback: Fast, but she'd be reviewing her own work.
+          - label: Ask Kai's backup lead on the e-bike team who holds the same role
+            next: s3
+            good: true
+            feedback: Independent and qualified.
+          - label: Ana - she's free
+            next: p2
+            feedback: Available is not the same as qualified.
+      - id: s3
+        md: |
+          You (or an admin, depending on your permissions) reassign the task with the comment "Kai
+          away until the 20th". The backup approves on Thursday. What should happen so this
+          doesn't repeat?
+        choices:
+          - label: Ask Kai to set a delegate or reassign tasks before future trips, and add a backup to the team role
+            next: win
+            good: true
+            feedback: Fix the cause, not just this task.
+          - label: Nothing - it worked out
+            next: p3
+            feedback: It will happen again next holiday.
+      - id: win
+        md: The change hit its Friday date with an independent, qualified approval on record. Next time a delegate catches the tasks automatically.
+        outcome: success
+      - id: p1
+        md: The change moves, but quality flags it in the next audit - the designer approved her own change. Many companies forbid this.
+        outcome: partial
+      - id: p2
+        md: The change moves, but the approval comes from someone without the role or the expertise. The audit trail shows it.
+        outcome: partial
+      - id: p3
+        md: This change is fine, but the same stall hits the next CN when Kai is away again.
+        outcome: partial
+      - id: f1
+        md: The CN misses its date and the factory builds 400 more scooters with the old bracket.
+        outcome: fail
+      - id: f2
+        md: Sharing logins breaks the audit trail and usually company policy. The approval is invalid and has to be redone.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Rejecting with no comment.** A bare Reject routes the process back but tells the author
+      nothing. They guess, fix the wrong thing, and the loop repeats. Always say *what* is wrong and
+      *what* would make you approve.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Before a long absence, check two things: your **task list** (clear or reassign) and the
+      **team roles** you hold on active products. Ask for a backup to be added to the role, so new
+      tasks have someone to land on.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: A CCB activity uses "any Reject sends it back". Maya and Leo approve, Ana rejects. Where does the process go?
+        options: [Approved path, Back to rework, It waits forever, It picks randomly]
+        answer: 1
+        explanation: With an "any Reject" tally, one Reject is enough to route the process back. The rule lives in the workflow template.
+      - kind: single
+        prompt: Which kind of routing needs no human click?
+        options: [Manual, Voting, Conditional]
+        answer: 2
+        explanation: Conditional routing uses a rule, such as "if the part is safety-critical, add a quality review".
+      - kind: multi
+        prompt: Kai is away for two weeks with open tasks. Which actions are good practice? (Choose all that apply.)
+        options:
+          - Reassign his tasks to someone who holds the same role
+          - Use a delegate or out-of-office setting if your setup has one
+          - Log in with his password and approve
+          - Leave a comment explaining the reassignment
+        answers: [0, 1, 3]
+        explanation: Reassigning or delegating with a clear comment keeps the audit trail honest. Sharing logins never does.
+      - kind: truefalse
+        prompt: In a voting activity, completing your task always moves the process on immediately.
+        answer: false
+        explanation: The process routes only when the tally rule is met, so it may still be waiting for other voters.
+
+  - type: summary
+    points:
+      - Routing is how a workflow picks its next path - manual, voting (tally) or conditional.
+      - Your routing option is a signature. Review first, comment always, especially on Reject.
+      - Tally rules such as "any reject" or "majority" are set by admins in the workflow template.
+      - Going away? Clear, reassign or delegate - never share logins.
