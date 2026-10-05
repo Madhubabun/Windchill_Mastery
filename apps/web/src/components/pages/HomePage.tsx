@@ -212,7 +212,7 @@ function Dashboard() {
           <section className="flex-[2_1_520px] min-w-0 rounded-[24px] p-6 sm:p-7 text-white flex flex-wrap gap-6 items-center relative overflow-hidden" style={{ background: "var(--grad)" }} aria-labelledby="cont">
             <div className="absolute -right-16 -top-16 size-64 rounded-full border-[40px] border-white/10" aria-hidden />
             <ProgressRing value={contProg?.ratio ?? 0} size={120} stroke={12} track="rgba(255,255,255,.22)" color="#fff" label={<span className="text-white text-center"><span className="block font-display text-3xl font-extrabold leading-none">{Math.round((contProg?.ratio ?? 0) * 100)}%</span><span className="text-xs opacity-90">module</span></span>} />
-            <div className="flex-[1_1_260px] relative">
+            <div className="flex-[1_1_260px] min-w-0 relative">
               <p id="cont" className="eyebrow !text-white/90">
                 {REASON[cont.reason]} · Module {contModule?.order}
               </p>
@@ -238,7 +238,7 @@ function Dashboard() {
           </section>
         )}
 
-        <section className="card flex-[1_1_280px] p-5 flex flex-col gap-3.5" aria-labelledby="rank">
+        <section className="card flex-[1_1_280px] min-w-0 p-5 flex flex-col gap-3.5" aria-labelledby="rank">
           <div className="flex items-center justify-between">
             <h3 id="rank" className="text-lg font-bold">
               Lifecycle rank

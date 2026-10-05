@@ -264,7 +264,7 @@ export function LessonPlayer({ lesson }: { lesson: Lesson }) {
                   finish
                 )}
               </div>
-              <div className="sticky bottom-[72px] md:bottom-4 z-10 mt-5 grid grid-cols-[auto_1fr] gap-3 rounded-[20px] bg-surface/90 backdrop-blur p-2 border border-line">
+              <div className="sticky bottom-[76px] md:bottom-4 z-10 mt-5 grid grid-cols-[auto_1fr] gap-3 rounded-[20px] bg-surface/90 backdrop-blur p-2 border border-line">
                 <button className="btn btn-ghost min-h-[52px] w-14 px-0" onClick={() => go(card - 1)} disabled={card === 0} aria-label="Previous">
                   <ChevronLeft className="size-5" />
                 </button>
@@ -291,7 +291,7 @@ export function LessonPlayer({ lesson }: { lesson: Lesson }) {
           </div>
         </div>
 
-        <aside className="flex-[1_1_300px] lg:max-w-[360px] flex flex-col gap-5 no-print">
+        <aside className="flex-[1_1_300px] min-w-0 lg:max-w-[360px] flex flex-col gap-5 no-print">
           <section className="card p-5 lg:sticky lg:top-24" aria-labelledby="outline">
             <h2 id="outline" className="text-lg font-bold">
               In this lesson

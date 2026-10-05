@@ -127,7 +127,7 @@ export function ModulePage({ moduleId }: { moduleId: string }) {
           )}
         </div>
 
-        <aside className="flex-[1_1_280px] lg:max-w-[340px] flex flex-col gap-5">
+        <aside className="flex-[1_1_280px] min-w-0 lg:max-w-[340px] flex flex-col gap-5">
           <section className="card p-5" aria-label="Module certificate">
             <div className="flex items-center gap-3">
               <span className="grid size-12 place-items-center rounded-2xl bg-amber-soft text-amber -rotate-3">

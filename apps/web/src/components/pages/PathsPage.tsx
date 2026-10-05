@@ -148,7 +148,7 @@ export function PathPage({ pathId }: { pathId: string }) {
             </section>
           )}
         </div>
-        <aside className="flex-[1_1_280px] lg:max-w-[340px]">
+        <aside className="flex-[1_1_280px] min-w-0 lg:max-w-[340px]">
           {p.certificate && (
             <section className="card p-5 lg:sticky lg:top-24">
               <div className="flex items-center gap-3">

@@ -96,7 +96,7 @@ function HeaderSearch() {
   }, []);
   return (
     <form
-      className="hidden md:flex flex-[1_1_260px] max-w-[520px] items-center gap-2.5 h-11 px-3.5 rounded-[14px] bg-surface-2 text-muted"
+      className="hidden md:flex flex-[1_1_260px] min-w-0 max-w-[520px] items-center gap-2.5 h-11 px-3.5 rounded-[14px] bg-surface-2 text-muted"
       onSubmit={(e) => {
         e.preventDefault();
         router.push(`/search/?q=${encodeURIComponent(ref.current?.value ?? "")}`);

@@ -11,12 +11,13 @@
     "content": "tsx scripts/build-content.ts",
     "content:check": "tsx scripts/build-content.ts --check",
     "dev": "npm run content && npm run dev -w apps/web",
-    "build:web": "npm run content && npm run build -w apps/web && tsx scripts/postbuild-web.ts",
-    "build:pdf": "tsx scripts/build-pdfs.ts",
+    "build:web": "npm run content && npm run build -w apps/web && tsx scripts/build-pdfs.ts && tsx scripts/postbuild-web.ts",
     "build:android": "bash apps/android/build.sh",
-    "build": "npm run build:web && npm run build:pdf && npm run build:android",
+    "build": "npm run build:web && npm run build:android",
     "test": "vitest run",
-    "typecheck": "tsc -p packages/core --noEmit && tsc -p apps/web --noEmit"
+    "typecheck": "tsc -p packages/core --noEmit && tsc -p apps/web --noEmit",
+    "icons": "tsx scripts/make-icons.ts",
+    "preview": "tsx scripts/preview.ts"
   },
   "devDependencies": {
     "@types/node": "^22",
@@ -30,5 +31,6 @@
   },
   "engines": {
     "node": ">=20"
-  }
+  },
+  "type": "module"
 }
