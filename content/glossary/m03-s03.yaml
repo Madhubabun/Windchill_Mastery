@@ -1,0 +1,26 @@
+# New glossary terms introduced in section m03-s03 (Promotion requests).
+- id: promotion-target-state
+  term: Promotion target state
+  plain: The state you want the objects to end up in, like Released.
+  definition: The lifecycle state chosen on a promotion request that its objects move to when the request is approved. The states you can pick depend on the objects' life cycle and your company's configuration.
+  aka: [Target state, Maturity state]
+  related: [promotion-request, lifecycle-state, life-cycle]
+
+- id: promotion-candidate
+  term: Promotion candidate (promotion object)
+  plain: One of the items in the bundle that's asking to level up.
+  definition: An object version added to a promotion request to be moved to the target state. All candidates on an approved request are promoted together; items that cannot be promoted (for example checked-out objects) are flagged when the request is created.
+  aka: [Promotion object, Promotable]
+  related: [promotion-request, promotion-target-state, version]
+
+- id: review-task
+  term: Review task
+  plain: Windchill asking you to look at something and leave comments.
+  definition: A workflow task that asks a reviewer to inspect the objects of a request, such as a promotion request, and record comments. Reviewers inform the decision but usually do not vote.
+  related: [task, workflow, approval-task]
+
+- id: approval-task
+  term: Approval task
+  plain: Windchill asking you to decide yes or no.
+  definition: A workflow task in which an approver votes, typically Approve or Reject, with a comment. A rejection on a promotion request stops the promotion; the exact vote options depend on the configured process.
+  related: [task, workflow, review-task, promotion-request]

@@ -1,0 +1,111 @@
+id: m03-s05-check
+subtitle: CM functions, effectivity, interchangeability, KPIs and audits - prove you've got them.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [checkpoint, configuration-management]
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **Configuration management best practices**: the four CM functions,
+      effectivity and as-designed vs as-built, form-fit-function decisions, change KPIs and
+      configuration audits. Score 80% to pass. The flashcards below go straight into your review deck.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: order
+        prompt: Put the four core CM functions in their natural order.
+        items: [Configuration identification, Configuration change control, Configuration status accounting, Configuration audit]
+        explanation: Know what it is, control how it changes, record what happened, then verify the product matches its records.
+      - kind: single
+        prompt: A supplier changed a bracket from an emailed drawing that was never released. Which CM function failed first?
+        options: [Status accounting, Change control, Audit, None - email is fine for small changes]
+        answer: 1
+        explanation: Released data must change only through an approved process. An emailed drawing bypasses change control, and the other functions break as a result.
+      - kind: single
+        prompt: Acme must know which individual scooters got the old fold-lock bracket. Which effectivity should the change use?
+        options: [Date effectivity, Lot effectivity, Serial effectivity, None - Latest Released is enough]
+        answer: 2
+        explanation: Serial effectivity ties a version to exact end-item serial numbers. Dates and lots are coarser, and Latest Released only says what's current today.
+      - kind: single
+        prompt: Effectivity says scooter 3010 should have bracket B.1, but the build record shows A.2 used under variance VR-0551. Which spare should service order?
+        options:
+          - B.1 - effectivity is always right
+          - One that fits A.2 - follow the as-built record
+          - Whichever is in stock
+          - Neither - raise a problem report first
+        answer: 1
+        explanation: As-built shows what is really in the unit. The variance created an approved gap between as-designed and as-built, so service follows the build record.
+      - kind: truefalse
+        prompt: Bracket A.2 is effective for serials 1-2999 and B.1 from serial 3001. This cut-over is correct.
+        answer: false
+        explanation: Serial 3000 falls into a gap and has no valid bracket. Effectivity ranges must meet exactly - no gaps, no overlaps.
+      - kind: single
+        prompt: A new bracket has a moved bolt pattern and no longer fits older frames. What's the right call?
+        options:
+          - Revise the bracket
+          - New part number for the bracket, and revise the frame that uses it
+          - Raise a variance
+          - Change the effectivity only
+        answer: 1
+        explanation: Fit changed, so the parts aren't interchangeable. A new number keeps them apart, and every parent must be revised to use the new number.
+      - kind: multi
+        prompt: Which statements about form-fit-function are true? (Choose all that apply.)
+        options:
+          - Interchangeability is judged against every place the part is used
+          - A purely cosmetic change usually means a revision, not a new number
+          - A new part number never affects the parent assembly
+          - The ripple of new numbers stops where an assembly is interchangeable again
+        answers: [0, 1, 3]
+        explanation: Check every where-used, revise for interchangeable changes, and stop renumbering at the first interchangeable level. A new number always forces parents to change, because the uses link points at the old master.
+      - kind: single
+        prompt: Cycle time drops from 41 to 18 days, but the rework rate doubles. What does this tell you?
+        options:
+          - The process is clearly better
+          - Changes got faster but worse - check impact analysis and review quality
+          - Rework doesn't matter if cycle time improves
+          - The KPIs are calculated wrong
+        answer: 1
+        explanation: Speed and quality must be read together. Faster changes that need follow-up fixes don't save time overall.
+      - kind: single
+        prompt: Which audit compares a built Scooter S2 with its released drawings and BOM?
+        options: [Functional configuration audit, Physical configuration audit, Financial audit, Access audit]
+        answer: 1
+        explanation: The physical configuration audit (PCA) checks the item against its documentation. The functional audit (FCA) checks test results against requirements.
+      - kind: multi
+        prompt: You're preparing for a configuration audit next month. What should you do? (Choose all that apply.)
+        options:
+          - Check that every change notice for the configuration is complete or listed with a plan
+          - List all variances with their units
+          - Check that drawings and parts are on matching revisions
+          - Quietly edit Released documents so they look complete
+        answers: [0, 1, 2]
+        explanation: Audit prep means closing loose ends and gathering evidence. Changing released data outside change control is exactly what an audit is designed to catch.
+
+  - type: flashcards
+    title: CM best practices deck
+    cards:
+      - front: "The four CM functions"
+        back: "Identification, change control, status accounting, audit."
+      - front: "Configuration status accounting"
+        back: "Recording and reporting the status and history of items and changes - who, what, when, why."
+      - front: "Date vs lot vs serial effectivity"
+        back: "From a date / from a batch of end items / from a specific end-item unit."
+      - front: "What do lot and serial effectivity count?"
+        back: "End items - such as Scooter S2 units - not the child part itself."
+      - front: "As-designed vs as-built"
+        back: "What the unit should contain (released data + effectivity) vs what it actually contains (build records)."
+      - front: "Form, fit, function"
+        back: "Shape and size / how it connects / what it does. Any change that stops old and new swapping freely breaks interchangeability."
+      - front: "Interchangeable change"
+        back: "Revise - same number, next revision. Parents stay as they are."
+      - front: "Non-interchangeable change"
+        back: "New part number, and revise every parent that uses it, up to the first interchangeable level."
+      - front: "The mixed-bin question"
+        back: "If old and new shared one bin, would anything go wrong? If yes, new number."
+      - front: "Best KPI pair"
+        back: "Cycle time (speed) plus rework rate (quality)."
+      - front: "FCA vs PCA"
+        back: "Functional: meets requirements? Physical: matches released documents?"

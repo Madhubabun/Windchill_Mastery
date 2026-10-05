@@ -1,0 +1,311 @@
+id: m03-s05-l03
+subtitle: New revision or brand-new part number? Three letters decide - F, F, F.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [interchangeability, form-fit-function, revise, part-number, change-impact]
+
+blocks:
+  - type: text
+    md: |
+      Every time a released part changes, someone has to make a call: **revise it** (same number,
+      next letter) or **give it a new number**? Get it wrong and it hurts.
+
+      - Revise when you should have renumbered: old and new parts sit in the same bin with the same
+        number, and somebody fits the wrong one.
+      - Renumber when you didn't need to: you've triggered changes all the way up the BOM, new stock
+        codes and paperwork - for nothing.
+
+      The test is simple: **can the new part swap in for the old one, and the old for the new, in
+      every place it's used, with no other changes?** If yes, revise. If no, new number.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the two can swap places" → *[[interchangeability]]*
+      - "swaps one way only" → *one-way interchangeability*
+      - "shape and size, how it fits, what it does" → *[[form-fit-function]]* (FFF)
+      - "a new edition, same number" → *[[revise]]* → new [[revision]]
+      - "everywhere this part is used" → *[[where-used]]*
+
+  - type: diagram
+    title: The FFF decision
+    caption: Walk the boxes top to bottom. Click any box for the reasoning.
+    diagram:
+      width: 800
+      height: 430
+      nodes:
+        - id: change
+          label: A released part changes
+          sublabel: e.g. SC-1048 A.2
+          x: 270
+          y: 10
+          w: 260
+          tone: primary
+          detail: Start here for any change to a released part, from a new material to a moved hole.
+        - id: form
+          label: Form changed?
+          sublabel: shape, size, mass, look
+          x: 20
+          y: 120
+          w: 230
+          tone: warning
+          detail: |
+            **Form** = the physical shape: dimensions, weight, colour, material properties you can see
+            or measure. A change matters only if it affects the other two Fs or the user - a hidden
+            internal radius that changes nothing else usually doesn't.
+        - id: fit
+          label: Fit changed?
+          sublabel: mounts, holes, interfaces
+          x: 285
+          y: 120
+          w: 230
+          tone: warning
+          detail: |
+            **Fit** = how it connects to its neighbours: hole pattern, mounting points, connectors,
+            clearances. If the old mating parts no longer work, fit changed.
+        - id: func
+          label: Function changed?
+          sublabel: what it does, how well
+          x: 550
+          y: 120
+          w: 230
+          tone: warning
+          detail: |
+            **Function** = what the part does and its performance: load rating, electrical rating,
+            life, safety behaviour. Better performance can still break interchangeability if old
+            units must not get it, or new units must not get the old one.
+        - id: swap
+          label: Old ⇄ new swap freely?
+          sublabel: in every where-used
+          x: 270
+          y: 230
+          w: 260
+          tone: accent
+          detail: |
+            The deciding question. Check **every** assembly in the part's where-used list, plus spares
+            and stock. Two-way interchangeable means either part works anywhere, with no rework.
+        - id: revise
+          label: Revise
+          sublabel: same number, A → B
+          x: 60
+          y: 340
+          w: 260
+          tone: success
+          detail: |
+            Interchangeable: **revise** the part (SC-1048 A.2 → B.1). Parents don't need to change,
+            because the uses link points at the part's master, not at one version.
+        - id: renumber
+          label: New part number
+          sublabel: and revise the parents
+          x: 480
+          y: 340
+          w: 260
+          tone: danger
+          detail: |
+            Not interchangeable: create a **new part number** (for example SC-5510). Every parent that
+            uses the old part must change to use the new one - so the parents get revised too.
+            Keep going up until you reach a level where the assembly is interchangeable again.
+          real: In Windchill, a new number is usually made with Save As (copying the old part) or New Part.
+      edges:
+        - { from: change, to: form }
+        - { from: change, to: fit }
+        - { from: change, to: func }
+        - { from: form, to: swap }
+        - { from: fit, to: swap }
+        - { from: func, to: swap }
+        - { from: swap, to: revise, label: yes - both ways }
+        - { from: swap, to: renumber, label: no or one way }
+
+  - type: comparison
+    title: Revise vs new part number
+    columns: [Revise (same number), New part number]
+    rows:
+      - label: When
+        cells: ["Old and new are fully interchangeable", "Not interchangeable - or only one way (by most policies)"]
+      - label: Parents
+        cells: ["No change - they keep using the same master", "Revised to use the new number - can ripple up the BOM"]
+      - label: Stock and spares
+        cells: ["Mixed in one bin and that's OK", "Separate bins - old stock needs a decision (use up, rework, scrap)"]
+      - label: Effort
+        cells: [Low, "Higher: more objects in the change, new ERP item"]
+      - label: Acme example
+        cells: ["SC-1048 gets a stronger coating, same everything else", "Bracket gets a new bolt pattern → SC-5510"]
+    takeaway: "Interchangeable → revise. Not interchangeable → new number. When in doubt, ask: would a mixed bin be dangerous?"
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Factories, warehouses and service vans work by **part number**. They don't read revision
+      letters under pressure. If two parts that can't swap share one number, someone eventually
+      bolts the wrong one into a scooter - and nobody can tell from the label.
+
+  - type: example
+    variant: case-study
+    title: The bolt pattern that moved
+    industry: Micromobility
+    md: |
+      To stop the clicking hinge, Priya proposed moving the fold-lock bracket's two mounting holes
+      4 mm outward. The CCB first assumed a simple new revision of SC-1048.
+
+      Leo, from quality, checked [[where-used|where-used]]. SC-1048 sits in the **SC-2000 frame
+      assembly**, and older frames have the original hole positions. A moved-hole bracket wouldn't bolt to
+      an old frame; an old bracket wouldn't bolt to a new one. **Fit had changed both ways.**
+
+      Maya's CCB decided:
+
+      - New bracket number **SC-5510** (created with Save As from SC-1048).
+      - Revise **SC-2000** to use SC-5510 and the new hole positions.
+      - Keep SC-1048 Released for service on older scooters.
+      - The CN listed SC-1048 and SC-2000 as affected objects; SC-5510 and the new SC-2000 revision
+        as resulting objects.
+    takeaway: The decision isn't about the bracket alone. It's about every place the bracket goes.
+
+  - type: walkthrough
+    title: Check interchangeability before you choose
+    who: Design engineers and change analysts
+    where: ["<part> information page"]
+    steps:
+      - title: List every use
+        where: ["<part> information page", Where Used]
+        md: |
+          Open **Where Used** for the part. Note every parent assembly, across all products you can
+          see. Remember that where-used only shows contexts you have access to.
+      - title: Check the interfaces
+        where: ["<parent> information page", Structure tab]
+        md: Open each parent and check the parts that touch yours. Do the mounting points still line up for both old and new?
+      - title: Record the decision
+        where: ["<change request>", Details]
+        md: |
+          Write the FFF reasoning in the change request (many companies have an attribute or field
+          for interchangeability). The CCB uses it to approve "revise" or "new number".
+      - title: Create the right object
+        where: ["<part> information page", Actions]
+        md: |
+          Interchangeable: **Revise** the part as part of its change task. Not interchangeable: use
+          **Save As** or **New Part** to create the new number, then revise the parents to use it.
+    result: The change carries a documented, checkable interchangeability decision.
+
+  - type: scenario
+    variant: challenge
+    title: Revise or renumber?
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Ana wants to switch the SC-1048 bracket from aluminium 6061 to 6082, a slightly stronger
+          alloy. Same dimensions, same holes, same coating. Strength goes up a little. What do you do?
+        choices:
+          - label: "Revise SC-1048"
+            next: s2
+            good: true
+            feedback: "Form, fit and function all still work both ways. Old and new can share a bin."
+          - label: "Give it a new number"
+            next: f1
+            feedback: "Overkill. Nothing that matters for swapping has changed."
+      - id: f1
+        md: |
+          You created SC-5520 and had to revise SC-2000 and its parent too. Purchasing now manages two
+          identical-looking brackets. Kai asks why the change touched 6 objects instead of 2.
+        choices:
+          - label: "Go back and reconsider"
+            next: s1
+      - id: s2
+        md: |
+          Next request: Priya wants the bracket's lock pin hole moved so it only fits the **new** lock
+          pin, SC-5530. Old pins no longer fit. What now?
+        choices:
+          - label: "New part number for the bracket"
+            next: s3
+            good: true
+            feedback: "Right. Fit changed: the new bracket needs the new pin. Mixing them in one bin would be a trap."
+          - label: "Revise - it's still a bracket"
+            next: f2
+            feedback: "Same job, different fit. Revision letters won't stop a technician pairing it with the old pin."
+      - id: f2
+        md: |
+          Three weeks later, the line fits revised brackets with old pins from a mixed bin. The pins don't
+          seat. 60 frames need rework. Fit changes need new numbers.
+        outcome: fail
+      - id: s3
+        md: |
+          The new bracket is SC-5510. Its parent, frame assembly SC-2000, now needs SC-5510 **and**
+          SC-5530. Is SC-2000 still interchangeable with its old revision, at the scooter level?
+        choices:
+          - label: "Yes - the frame still mounts to the scooter the same way"
+            next: win
+            good: true
+            feedback: "Exactly. The ripple stops where interchangeability is restored. Revise SC-2000 and stop."
+          - label: "No - so renumber every assembly up to the scooter"
+            next: partial
+            feedback: "Only if the frame's own interfaces changed. Here they didn't."
+      - id: partial
+        md: |
+          You renumbered the frame and the scooter top level too. It's safe, but you created extra
+          ERP items, documents and training for no gain.
+        outcome: partial
+      - id: win
+        md: |
+          Bracket and pin get new numbers, SC-2000 gets a new revision, and the scooter itself is
+          untouched. Clean, traceable and no bigger than it needs to be.
+        outcome: success
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Deciding from the part alone.** Interchangeability depends on *where* a part is used. A
+      change that's harmless in one assembly can break another. Always check where-used - including
+      service kits and other products.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Ask the **mixed-bin question**: "If old and new were dropped into the same bin, would anyone
+      get hurt, or would anything get scrapped?" If yes, it needs a new number. It's quicker than
+      arguing about definitions.
+
+  - type: callout
+    variant: note
+    md: |
+      Rules for one-way interchangeability (new replaces old, but not the other way) differ between
+      companies and industries. Many give it a new number; some revise and control stock with the
+      change notice. Follow your company's numbering policy.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: A part's colour changes from black to dark grey for marketing. Nothing else changes. Usually...
+        options: [Revise, New part number, Variance, No change record needed]
+        answer: 0
+        explanation: A cosmetic change that doesn't affect fit or function keeps the parts interchangeable, so a revision is enough - though it still goes through change control.
+      - kind: single
+        prompt: You give a bracket a new part number. What happens to the assembly that uses it?
+        options:
+          - Nothing - uses links update automatically
+          - It must be changed (usually revised) to use the new number
+          - It gets deleted
+          - It switches to the new part through effectivity alone
+        answer: 1
+        explanation: Uses links point at a part master. A new number is a new master, so each parent must be edited, usually as a new revision, to use it.
+      - kind: multi
+        prompt: Which changes usually break interchangeability? (Choose all that apply.)
+        options:
+          - A moved mounting hole
+          - A lower load rating
+          - A new internal part number for the paint supplier
+          - A connector with a different pin layout
+        answers: [0, 1, 3]
+        explanation: Moved holes and different connectors change fit; a lower load rating changes function. A supplier detail that doesn't touch FFF doesn't.
+      - kind: truefalse
+        prompt: The "ripple" of new part numbers stops at the first parent level that is still interchangeable.
+        answer: true
+        explanation: Once an assembly still fits and works the same way at its own interfaces, it can simply be revised and the ripple stops there.
+
+  - type: summary
+    points:
+      - Interchangeable both ways → revise (same number, new revision).
+      - Not interchangeable → new part number, and revise the parents that use it.
+      - Judge Form, Fit and Function against every where-used, including spares.
+      - The ripple stops where interchangeability is restored.
+      - Use the mixed-bin question and record the reasoning on the change request.

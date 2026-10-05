@@ -2,3 +2,37 @@ id: m03
 theme: teal
 icon: change
 tagline: "Problem reports to change notices: change things without breaking things."
+cheatsheet:
+  sections:
+    - title: The change process
+      points:
+        - "Problem Report (what's wrong) → Change Request (what to change, and is it worth it) → Change Notice (how and when) → Change Tasks (who does what)."
+        - The change control board (CCB) approves, rejects or sends back the change request.
+        - Late changes cost far more than early ones. Catch problems before release, not in the field.
+        - "Fast track skips the change request for small, low-risk changes; full track is for anything with real impact. Your company's configuration decides the rules."
+    - title: Change objects in depth
+      points:
+        - "Affected objects = the versions you start from. Resulting objects = the new versions the work produces."
+        - Every changed object (part, CAD model, drawing, document) goes on the notice so it releases together.
+        - Impact analysis before the decision - where-used, stock, cost, sold units.
+        - Redlines propose BOM changes on a change task before anyone edits the real structure.
+        - "A variance (deviation or waiver) approves a one-time departure for a limited quantity or time. It doesn't change the design."
+    - title: Promotion requests
+      points:
+        - A promotion request moves objects to a target state (for example In Work → Released) after review and approval.
+        - Use promotion to mature new data; use a change notice to change data that's already released.
+        - Reviewers comment; approvers decide. Reject with a reason someone can act on.
+    - title: Lifecycles and workflows
+      points:
+        - "The life cycle defines states and who can do what in each one. The workflow is the process that moves things between states."
+        - Tasks land in your work list; accept, complete or reassign them there.
+        - Votes route the workflow (Approve → next step, Reject → back to rework).
+        - Set a delegate before you're away so tasks don't stall.
+        - "Stuck workflow? Check for unassigned roles, an unclaimed task or an error state, then call your admin."
+    - title: Configuration management
+      points:
+        - "The four CM functions: identify, control, account (status accounting) and audit."
+        - "Date, lot and serial effectivity say from when, or from which units, a change applies."
+        - As-designed is what engineering released; as-built is what was actually made.
+        - "New part number when the new part can't replace the old one everywhere (form, fit or function changed). Otherwise, revise."
+        - "Measure change: cycle time, backlog, approval rework rate and changes after release."

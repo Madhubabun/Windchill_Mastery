@@ -1,0 +1,144 @@
+id: m03-s02-l06
+subtitle: '"Just this once" - with a signature, a limit and an expiry date.'
+version: 1.0.0
+updated: "2026-10-05"
+tags: [change, variance, deviation, waiver]
+
+blocks:
+  - type: text
+    md: |
+      Friday afternoon. A box of 300 brand-new SC-1048 B brackets arrives from the supplier. Leo
+      measures a few: the mounting holes are **0.3 mm** off position. The drawing allows 0.2 mm.
+
+      Options? Scrap 300 parts and stop the line on Monday. Change the drawing forever to allow
+      sloppier holes. Or... ask for permission to use **these 300**, just this once, because
+      testing shows they still fit and work.
+
+      That third option is a **[[variance]]**: an approved, one-time departure from the released
+      design that *doesn't* change the design itself.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "an approved just-this-once exception" → *[[variance]]*
+      - "asking before you build it differently" → *[[deviation]]*
+      - "asking after it was built wrong - can we still use it?" → *[[waiver]]* (some companies say *concession*)
+      - "how many, which batch, until when" → the variance's limits: quantity, lot or serial range, expiry date
+
+  - type: comparison
+    title: Change, deviation or waiver?
+    columns: [Change (CR → CN), Deviation, Waiver]
+    rows:
+      - { label: When, cells: [Any time, Before making the parts, After the parts exist] }
+      - label: Changes the released design?
+        cells: ["Yes - new revisions", "No - design stays as is", "No - design stays as is"]
+      - label: How long
+        cells: [Permanent, "Limited: a quantity, lot or time window", "Limited: the specific nonconforming items"]
+      - label: Acme example
+        cells: ["SC-1048 goes from 3 mm to 4 mm for good", "Use clear anodizing on 500 brackets while black dye is out of stock", "Accept 300 brackets with holes 0.3 mm off position"]
+      - label: Typical object
+        cells: ["Change request + change notice", "Variance (category: deviation)", "Variance (category: waiver)"]
+    takeaway: If you want it forever, it's a change. If it's just this lot or this month, it's a variance.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Without variances, teams face two bad options: scrap good-enough parts, or quietly use them
+      and hope nobody asks. A variance makes the exception **visible, limited and signed off**.
+      When a scooter comes back in two years, service can see exactly which serial numbers got
+      the 300 off-position brackets.
+
+  - type: example
+    variant: case-study
+    title: VR-0101 - the 300 brackets
+    industry: Micromobility
+    md: |
+      **Problem:** lot L-2611 of SC-1048 B arrived with mounting holes 0.3 mm off position.
+      The drawing allows 0.2 mm. The line needs brackets on Monday.
+
+      **Analysis:** Kai and Leo assembled 10 brackets from the lot into SC-2000 frames. Screws
+      went in without force, fold tests passed 2,000 cycles. Strength unaffected.
+
+      **Decision:** Leo raised **VR-0101**, a *waiver*, for **lot L-2611 only, 300 pieces**,
+      on Scooter S2 production. Maya's board approved it with one condition: the serial numbers
+      of the 300 scooters get recorded.
+
+      **And then:** the supplier got a nonconformance notice and fixed their fixture. The next
+      lot was in spec. Nobody touched the SC-1048 drawing - the design was right; the parts were not.
+    takeaway: The variance fixed the lot. The supplier fixed the process. The design didn't need fixing.
+
+  - type: walkthrough
+    title: Create a variance
+    who: Usually quality or manufacturing engineers - here Leo
+    where: ["<affected part> information page", Actions, New Variance]
+    steps:
+      - title: Start from the part
+        where: [SC-1048 information page, Actions menu]
+        md: |
+          Open the affected part and look for **New Variance** in its Actions menu, or in your
+          product's change area. Whether variances are enabled - and what they're called -
+          **depends on your company's configuration**.
+      - title: Pick the category and explain
+        where: [New Variance, attributes step]
+        md: |
+          Choose the category (**waiver** for VR-0101), give a clear name and describe the
+          departure in numbers: "hole position 0.3 mm vs 0.2 mm allowed".
+      - title: Set the limits
+        where: [New Variance, attributes step]
+        md: |
+          Fill in the quantity (300), the lot (L-2611), the end item (Scooter S2) and an expiry or
+          need date if your form has one. A variance with no limits is just a change in disguise.
+      - title: Add affected objects and evidence
+        where: [New Variance, affected objects and attachments]
+        md: Add SC-1048 B (the version the parts were supposed to match). Attach the measurements and the fold-test results.
+      - title: Submit for approval
+        where: [New Variance, Finish]
+        md: Finish. The variance's workflow routes it to the approvers - often the same board that approves change requests.
+    result: VR-0101 is approved and linked to SC-1048, so anyone opening the part sees the one-time exception.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **The variance that never ends.** "Use the clear anodizing" gets approved for one lot,
+      then renewed, then renewed again. Two years later it's how every bracket is made, but the
+      drawing still says black. If you keep renewing a variance, the design is wrong - raise a
+      change request.
+
+  - type: callout
+    variant: pro-tip
+    md: Always write the limit as something **countable** - a quantity, a lot number, a serial range or a date. "Until the supplier fixes it" isn't a limit anyone can audit.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: The supplier warns you **before** the next run that black dye is out of stock and asks to use clear anodizing on 500 brackets. What fits best?
+        options: [A deviation, A waiver, A change notice that updates the drawing, Nothing - just accept the parts]
+        answer: 0
+        explanation: It's a planned, limited departure agreed before the parts are made - a deviation. The design isn't changing permanently, so a change notice would be wrong.
+      - kind: single
+        prompt: 300 brackets were already made with holes 0.3 mm off position. Tests show they work. What fits best?
+        options: [A deviation, A waiver, A new revision of SC-1048, A promotion request]
+        answer: 1
+        explanation: The parts already exist and don't conform. Accepting them for use, for that lot only, is a waiver.
+      - kind: truefalse
+        prompt: An approved variance creates a new revision of the affected part.
+        answer: false
+        explanation: A variance leaves the released design untouched. It authorises a limited exception; only a change creates new revisions.
+      - kind: multi
+        prompt: Which belong on a good variance? (Choose all that apply.)
+        options:
+          - The quantity, lot or serial range it covers
+          - Evidence that the parts are fit for use
+          - An open-ended "until further notice" limit
+          - The affected part and end item
+        answers: [0, 1, 3]
+        explanation: A variance must be limited and evidenced. "Until further notice" has no countable limit - if it really needs to last, it's a change.
+
+  - type: summary
+    points:
+      - A variance is an approved, limited, one-time departure that leaves the design unchanged.
+      - Deviation = agreed before building; waiver = accepting items already built.
+      - Always set countable limits (quantity, lot, serials, date) and attach evidence.
+      - If a variance keeps getting renewed, the design needs a real change.
