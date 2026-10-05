@@ -1,0 +1,320 @@
+id: m02-s01-l06
+subtitle: A conflict isn't an error - it's Windchill stopping you from breaking something. Read it, then pick the fix.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [conflicts, check-in, workspace, troubleshooting, cad]
+
+blocks:
+  - type: text
+    md: |
+      You click **Check In** on the frame assembly. Instead of "done", a window pops up with a list
+      of red and yellow rows. Your heart rate goes up.
+
+      Breathe. That window is Windchill doing its job. It's saying: *"If I do exactly what you asked,
+      something will break - someone's work gets overwritten, a file name clashes, or an assembly
+      opens with holes in it. Pick how you want to handle it."*
+
+      Almost every conflict falls into one of a handful of types. Learn to recognise them and each
+      has a calm, standard fix.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "Windchill won't do it yet" → [[cad-conflict|conflict]]
+      - "someone else is editing it" → *checked out by another user*
+      - "there's a newer one on the server" → *out of date*
+      - "that file name is taken" → *name conflict* (CAD file names are unique)
+      - "the assembly needs a file you don't have" → *missing dependent* ([[cad-dependency|CAD dependency]])
+      - "the fix Windchill suggests" → *resolution* (some conflicts can be overridden, others block)
+
+  - type: diagram
+    title: Read the conflict, pick the fix
+    caption: Start from the check-in that stopped. Click each conflict type to see the usual fix.
+    diagram:
+      width: 820
+      height: 440
+      nodes:
+        - id: stop
+          label: Check-in stopped
+          sublabel: conflicts window
+          x: 310
+          y: 20
+          w: 200
+          tone: danger
+          detail: |
+            The CAD tool or Workgroup Manager lists each problem object, the conflict type and the
+            available resolutions. Nothing has been checked in yet - you can still cancel.
+        - id: other
+          label: Checked out by other
+          sublabel: someone else's lock
+          x: 20
+          y: 140
+          w: 180
+          tone: warning
+          detail: |
+            You changed an object that **another user** has checked out. Windchill won't let two
+            people's edits collide.
+        - id: notco
+          label: Not checked out
+          sublabel: you edited without lock
+          x: 220
+          y: 140
+          w: 180
+          tone: warning
+          detail: |
+            You modified an object without checking it out first (some setups allow that, with a
+            warning). If it's the latest and nobody else has it, the usual resolution is simply
+            **check out** and continue.
+        - id: outdated
+          label: Out of date
+          sublabel: newer one on server
+          x: 420
+          y: 140
+          w: 180
+          tone: warning
+          detail: |
+            Someone checked in a newer iteration after you brought the object into your workspace.
+            Your edits are based on an old iteration.
+        - id: name
+          label: Name taken
+          sublabel: file name exists
+          x: 620
+          y: 140
+          w: 180
+          tone: warning
+          detail: |
+            A **new** CAD file has the same file name as a CAD document already in Windchill -
+            perhaps in a product you can't even see. CAD document file names must be unique.
+        - id: fix-other
+          label: Talk, don't force
+          sublabel: or Save As a new object
+          x: 20
+          y: 290
+          w: 180
+          tone: success
+          detail: |
+            Find who has it (the information page shows it), agree who makes the change, and drop
+            yours from this check-in. If you really meant a **new variant**, Save As a new object.
+        - id: fix-notco
+          label: Check out
+          sublabel: then check in
+          x: 220
+          y: 290
+          w: 180
+          tone: success
+          detail: Accept the **check out** resolution. If someone else has it, it becomes the "checked out by other" case instead.
+        - id: fix-outdated
+          label: Update and redo
+          sublabel: or merge deliberately
+          x: 420
+          y: 290
+          w: 180
+          tone: success
+          detail: |
+            Safest: **update** to the latest iteration and reapply your change. Some companies allow
+            checking out a non-latest iteration. Your check-in then becomes the new latest: the other
+            person's iteration stays in history, but their change is missing from what everyone now
+            sees. Do that only on purpose, after talking to them.
+        - id: fix-name
+          label: Rename
+          sublabel: or reuse the existing one
+          x: 620
+          y: 290
+          w: 180
+          tone: success
+          detail: |
+            If it's genuinely a new design, **rename** it in the workspace following your naming rule.
+            If it's the same thing that already exists (a standard screw, say), use the existing
+            CAD document instead of creating a duplicate.
+        - id: missing
+          label: Missing dependent
+          sublabel: assembly has a hole
+          x: 310
+          y: 380
+          w: 200
+          h: 50
+          tone: info
+          detail: |
+            An assembly or drawing references a file that isn't in your workspace or Windchill. Bring
+            the dependent into the workspace (or check it in too). Ignoring it - if allowed - means
+            everyone else opens a broken assembly.
+      edges:
+        - { from: stop, to: other }
+        - { from: stop, to: notco }
+        - { from: stop, to: outdated }
+        - { from: stop, to: name }
+        - { from: other, to: fix-other }
+        - { from: notco, to: fix-notco }
+        - { from: outdated, to: fix-outdated }
+        - { from: name, to: fix-name }
+        - { from: stop, to: missing, dashed: true }
+
+  - type: comparison
+    title: Conflict cheat sheet
+    columns: [What it means, Calm fix, Don't]
+    rows:
+      - label: Checked out by another user
+        cells: [Someone else holds the lock, "Talk to them, drop yours or Save As", Ask an admin to undo their check-out without asking]
+      - label: Not checked out
+        cells: [You edited without the lock, Accept the check-out resolution, Keep editing and hope]
+      - label: Out of date
+        cells: [Your base iteration is old, "Update, then redo or merge", Overwrite a newer iteration blindly]
+      - label: Name already exists
+        cells: [File name is taken, Rename or reuse the existing one, Add random suffixes like _new2]
+      - label: Missing dependent
+        cells: [A referenced file isn't there, Add the dependent to the workspace, Ignore it and check in a broken assembly]
+      - label: No permission or Released
+        cells: [You may not modify it in this state, Use the change process (revise) or ask, Ask for extra rights to bypass it]
+    takeaway: Every conflict protects someone - another user, the history, or the people who will open the file next.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      The fastest way to lose a teammate's work is to "click whatever makes the window go away".
+      Real teams lose hours every month this way - an overridden out-of-date warning quietly
+      replaces a colleague's fix. Reading the conflict takes ten seconds; untangling an overwrite
+      takes a day.
+
+  - type: walkthrough
+    title: Resolve conflicts during a CAD check-in
+    who: Creo or Workgroup Manager users
+    steps:
+      - title: Start the check-in
+        where: [Workspace page, Check In]
+        md: Select the objects (or let the tool collect dependents) and start **Check In**.
+      - title: Read the conflicts list
+        where: [Check In, Conflicts]
+        md: |
+          If conflicts are found, a conflicts window lists each object, the problem and the available
+          resolutions - often with a suggested default. Read every row before acting.
+      - title: Find out who and what
+        where: ["<object> information page"]
+        md: |
+          For lock or out-of-date conflicts, open the object's information page to see who has it
+          checked out and what the latest iteration is.
+      - title: Pick a resolution per row
+        where: [Conflicts, Resolution]
+        md: |
+          Choose the resolution for each row (for example *check out*, *rename* or *remove from the
+          check-in*) and apply it. Only override a warning when you understand what it protects.
+      - title: Or cancel and come back
+        where: [Conflicts, Cancel]
+        md: Cancelling changes nothing on the server. Your work stays in your workspace while you sort it out.
+    result: Either the check-in completes cleanly, or you've backed out safely with your work still in your workspace.
+
+  - type: scenario
+    variant: troubleshooting
+    title: Friday afternoon frame check-in
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Priya checks in her updated **frame SC-2000** assembly. Two conflicts appear. Row 1: the
+          **hinge SC-1042** is *checked out by Kai*. Priya also tweaked a hole in it. What does she
+          do with row 1?
+        choices:
+          - label: Ask an admin to undo Kai's check-out
+            next: f1
+            feedback: That could throw away Kai's work. Locks are there to be respected.
+          - label: Message Kai and remove the hinge from her check-in
+            next: s2
+            good: true
+            feedback: Right. The frame can go in now; the hinge change is agreed with Kai.
+      - id: s2
+        md: |
+          Kai replies: "I'm changing that hole too - I'll include your size." Row 2: a new part
+          **bracket.prt** has a *name already exists* conflict. Search shows bracket.prt is a
+          completely different bracket in the E-bike E1 product. What now?
+        choices:
+          - label: Rename hers to the Acme naming rule, e.g. sc-2010_brake_bracket.prt
+            next: s3
+            good: true
+            feedback: Yes - it's a new design, so it needs its own unique name.
+          - label: Reuse the e-bike bracket
+            next: p1
+            feedback: Reuse is right only when it's the same part. This one isn't.
+      - id: s3
+        md: |
+          She renames it in her workspace. The assembly updates its reference to the new name. One
+          last warning appears: the frame is **out of date** - Kai checked in a newer iteration of
+          the frame this morning. What does she do?
+        choices:
+          - label: Override it - her version is better
+            next: f2
+            feedback: Overriding would make her iteration latest and drop Kai's morning change.
+          - label: Cancel, update the frame, look at Kai's change and redo hers on top
+            next: win
+            good: true
+            feedback: The calm route. Ten minutes now, no lost work.
+      - id: win
+        md: Priya updates, sees Kai only moved a label, redoes her edit in five minutes and checks in. Frame, bracket and (later) hinge all land cleanly. Nobody's work was lost.
+        outcome: success
+      - id: f1
+        md: The admin undoes Kai's check-out. Kai's half-finished hinge rework - three hours of it - is gone. Monday starts with an awkward conversation.
+        outcome: fail
+      - id: p1
+        md: The frame now uses the e-bike bracket, which doesn't fit. The mistake is found at the prototype build a week later.
+        outcome: partial
+      - id: f2
+        md: Her check-in becomes the latest frame. Kai's morning fix silently disappears from the latest iteration and is only found during a design review.
+        outcome: fail
+
+  - type: example
+    variant: real-world
+    title: The screw that existed three times
+    industry: Micromobility
+    md: |
+      Acme found three CAD documents for the same M6 screw: `m6x20.prt`, `m6x20_new.prt` and
+      `m6x20_scooter.prt`. Each started as a *name already exists* conflict that someone "fixed" by
+      adding a suffix. The library team merged them into the one standard screw in the Standard
+      Fasteners library and added a rule: **name conflict on a standard part = reuse, never rename.**
+    takeaway: A name conflict on something standard usually means "use the one that exists".
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Overriding without reading.** Some conflicts can be overridden with a click. Overriding an
+      out-of-date warning or ignoring a missing dependent doesn't make the problem go away - it hands
+      it to the next person who opens the file.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Prevent conflicts upstream: **update** your workspace before you start editing, **check out**
+      before you change anything, and **check in** in small, frequent batches. Fewer stale files,
+      fewer locks, fewer surprises.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Check-in says the hinge is out of date. What does that mean?
+        options:
+          - Your licence has expired
+          - A newer iteration was checked in after you brought the hinge into your workspace
+          - The hinge is Released
+          - The file is corrupted
+        answer: 1
+        explanation: Out of date means your workspace copy isn't the latest iteration on the server. Your edits are based on old data, so update first and reapply them.
+      - kind: single
+        prompt: Your new part sc-2010.prt hits a "name already exists" conflict. It's a different part from the existing one. Best fix?
+        options: [Reuse the existing one, Rename yours following the naming rule, Override the conflict, Delete the existing one]
+        answer: 1
+        explanation: CAD file names must be unique. If yours is a genuinely new design, it needs its own name. Reuse is right only when it's actually the same part.
+      - kind: multi
+        prompt: Which actions are safe when you hit a conflict you don't understand? (Choose all that apply.)
+        options: [Cancel the check-in, Open the object's information page to see who has it and what's latest, Override every warning, Ask the person who has it checked out]
+        answers: [0, 1, 3]
+        explanation: Cancelling changes nothing on the server, and finding out who and what is involved lets you choose the right fix. Overriding blindly can drop other people's work.
+      - kind: truefalse
+        prompt: Ignoring a missing dependent during check-in only affects you.
+        answer: false
+        explanation: Everyone who opens that assembly or drawing later gets the hole. Missing dependents should be found and brought in.
+
+  - type: summary
+    points:
+      - A conflict means Windchill is protecting something - read it before acting.
+      - "Common types: checked out by another user, not checked out, out of date, name taken, missing dependent."
+      - "Calm fixes: talk, check out, update and redo, rename or reuse, add the dependent."
+      - Cancelling is always safe. Overriding blindly is not.

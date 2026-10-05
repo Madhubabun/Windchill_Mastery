@@ -1,0 +1,537 @@
+id: m02-cap
+subtitle: Build it, link it, fix it, freeze it. Take Acme's new handlebar all the way to Released.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [capstone, bom, structure, cad, markup, revise, release, baseline]
+
+blocks:
+  - type: text
+    md: |
+      Big week at Acme Mobility. The **Scooter S2** is getting a new handlebar with a built-in
+      display mount (it will replace today's SC-4000), and the pilot build starts Monday. Kai drops you a message:
+
+      > "Priya finished the CAD yesterday. Can you own the release? Build the **handlebar eBOM**,
+      > make sure every part is linked to its CAD, get the drawing reviewed, and once it's Released,
+      > **freeze it with a [[baseline]]** so the pilot build can always prove what it was built from."
+
+      This is everything from Module 2 in one job: documents and CAD, versions and lifecycle, the
+      eBOM, and visualization. No hand-holding - just the route and your judgement.
+
+  - type: callout
+    variant: note
+    title: Your mission checklist
+    md: |
+      1. Create the **handlebar part structure** with the correct quantities and units.
+      2. **Link each part to its CAD document** with the right association ([[owner-association|owner]] for Acme-made parts).
+      3. **[[markup|Mark up]] the drawing** in the design review, then **revise** to make the fix.
+      4. Get the structure to **Released** and create a **baseline** of it.
+
+  - type: diagram
+    title: The handlebar you're releasing
+    caption: SC-4100 and what goes into it. Click each box for the details you'll need.
+    diagram:
+      width: 820
+      height: 330
+      nodes:
+        - id: asm
+          label: handlebar.asm
+          sublabel: CAD assembly
+          x: 20
+          y: 20
+          w: 170
+          h: 60
+          tone: accent
+          detail: Priya's Creo assembly. It is the **owner** of the handlebar part - its structure and attributes drive the part's.
+        - id: hb
+          label: SC-4100 Handlebar
+          sublabel: "assembly · A.1 · In Work"
+          x: 300
+          y: 20
+          w: 220
+          h: 60
+          tone: primary
+          detail: |
+            The top of your eBOM. New, never released - so it can go to Released with a
+            [[promotion-request]] rather than the full change process.
+        - id: drw
+          label: SC-4100.drw
+          sublabel: drawing
+          x: 630
+          y: 20
+          w: 170
+          h: 60
+          tone: accent
+          shape: doc
+          detail: The handlebar drawing. Reviewers mark it up in Creo View; it carries the dimensions the supplier builds to.
+        - id: tube
+          label: Bar tube
+          sublabel: "SC-4110 · ×1"
+          x: 20
+          y: 170
+          w: 140
+          tone: info
+          detail: Aluminium tube. Made by Acme, modelled in CAD - owner link to bar_tube.prt.
+        - id: grip
+          label: Grip
+          sublabel: "SC-4120 · ×2"
+          x: 180
+          y: 170
+          w: 140
+          tone: info
+          detail: One part, quantity **2**. Not two separate lines - the uses link carries the quantity.
+        - id: lever
+          label: Brake lever
+          sublabel: "SC-4130 · ×2"
+          x: 340
+          y: 170
+          w: 140
+          tone: info
+          detail: Bought from a supplier. Acme has a simplified CAD model of it for fit checks only.
+        - id: thr
+          label: Throttle
+          sublabel: "SC-4140 · ×1"
+          x: 500
+          y: 170
+          w: 140
+          tone: info
+          detail: Bought part with supplier CAD. One per handlebar.
+        - id: mount
+          label: Display mount
+          sublabel: "SC-4150 · ×1"
+          x: 660
+          y: 170
+          w: 140
+          tone: info
+          detail: New Acme part - the reason for this whole project.
+        - id: screw
+          label: M5 screw
+          sublabel: "library part · ×6"
+          x: 180
+          y: 260
+          w: 180
+          tone: neutral
+          detail: A standard part reused from the fasteners library. Quantity 6, unit each. It's in the part structure even though nobody models screws in this CAD assembly.
+        - id: tape
+          label: Grip adhesive
+          sublabel: "×15 ml"
+          x: 420
+          y: 260
+          w: 180
+          tone: neutral
+          detail: |
+            A bulk material. Its quantity has a **unit** - 15 millilitres, not "15 each". Get the
+            unit wrong and purchasing orders 15 bottles.
+      edges:
+        - { from: asm, to: hb, dashed: true, label: owner }
+        - { from: hb, to: drw, dashed: true }
+        - { from: hb, to: tube }
+        - { from: hb, to: grip, label: "×2" }
+        - { from: hb, to: lever, label: "×2" }
+        - { from: hb, to: thr }
+        - { from: hb, to: mount }
+        - { from: hb, to: screw, label: "×6" }
+        - { from: hb, to: tape, label: 15 ml }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      On Monday, purchasing orders from this BOM, the pilot line builds from it and quality checks
+      against it. A wrong quantity means parts short on the line; a missing CAD link means the
+      structure drifts from the design; a missing baseline means nobody can prove later what the
+      pilot units were built from.
+
+  - type: walkthrough
+    title: "Task 1: build the part structure"
+    who: A designer or engineer on the Scooter S2 product team
+    where: [Navigator, Browse, Products, Scooter S2]
+    steps:
+      - title: Open the handlebar part
+        where: [Search, SC-4100, Information page]
+        md: Find **SC-4100 Handlebar** and open its [[information-page]]. Check it's the latest iteration and still **In Work**.
+      - title: Open the structure for editing
+        where: [Information page, Structure tab]
+        md: |
+          Open the **Structure** tab (or the structure editor your release offers, such as Product
+          Structure Explorer). Editing checks the parent part out for you, or asks you to check it out.
+      - title: Add the existing parts
+        where: [Structure, Insert existing part]
+        md: Search for each child by **number** - SC-4110 to SC-4150 - and add them. Add the M5 screw from the fasteners **library**.
+      - title: Set quantities and units
+        where: [Structure, "<child row>", Quantity / Unit]
+        md: Set grips and brake levers to **2**, screws to **6**, and the grip adhesive to **15 ml**. Leave single items at 1 each.
+      - title: Check in
+        where: [Actions, Check In]
+        md: Check the parent in with a short comment such as "Initial handlebar structure". The structure becomes visible to everyone as a new iteration.
+    result: SC-4100 now has seven children with correct quantities, saved as a new iteration of A.
+
+  - type: simulation
+    title: Build and release the handlebar eBOM
+    intro: |
+      Drive the handlebar from an empty structure to a frozen, released baseline. Watch the
+      quantities - the check-in only unlocks when the BOM is right.
+    headline: "SC-4100 {revision}.{iteration} · {state} · grips {grips} · levers {levers} · screws {screws}"
+    initial:
+      revision: A
+      iteration: 1
+      state: In Work
+      checkedOut: false
+      tube: 0
+      grips: 0
+      levers: 0
+      screws: 0
+      cadLinked: false
+      baseline: false
+    actions:
+      - id: checkout
+        label: Check out SC-4100
+        when: { checkedOut: false, state: In Work }
+        do: [{ set: { checkedOut: true } }]
+        log: Checked out SC-4100 {revision}.{iteration}. The structure is yours to edit.
+        blockedHint: You can only check out an In Work part that isn't already checked out.
+      - id: tube
+        label: Add bar tube
+        when: { checkedOut: true, tube: 0 }
+        do: [{ set: { tube: 1 } }]
+        log: Added SC-4110 bar tube, quantity 1.
+        blockedHint: Check out first - and there's only one tube.
+      - id: grip
+        label: Grip quantity +1
+        when: { checkedOut: true, grips: [0, 1] }
+        do: [{ inc: grips }]
+        log: "Grip SC-4120 quantity is now {grips}. One part, one line - the uses link carries the count."
+        blockedHint: Check out first. A handlebar has two grips.
+      - id: lever
+        label: Brake lever quantity +1
+        when: { checkedOut: true, levers: [0, 1] }
+        do: [{ inc: levers }]
+        log: Brake lever SC-4130 quantity is now {levers}.
+        blockedHint: Check out first. Two brake levers - front and rear.
+      - id: screws
+        label: Add M5 screws from library (×6)
+        when: { checkedOut: true, screws: 0 }
+        do: [{ set: { screws: 6 } }]
+        log: Added library part M5 screw, quantity 6. Reused, not re-created.
+        blockedHint: Check out first - and the screws are already in.
+      - id: checkin
+        label: Check in structure
+        when: { checkedOut: true, tube: 1, grips: 2, levers: 2, screws: 6 }
+        do: [{ inc: iteration }, { set: { checkedOut: false } }]
+        log: "Checked in → SC-4100 {revision}.{iteration}. Quantities saved on the uses links."
+        blockedHint: The structure isn't complete yet - tube ×1, grips ×2, levers ×2, screws ×6.
+      - id: link
+        label: Link parts to CAD (owner)
+        when: { checkedOut: false, iteration: [2, 3, 4, 5], cadLinked: false }
+        do: [{ set: { cadLinked: true } }]
+        log: Each Acme-made part now has its CAD model as owner. Bought parts carry their supplier CAD for fit checks.
+        blockedHint: Build and check in the structure first.
+      - id: promote
+        label: Submit promotion request
+        when: { state: In Work, checkedOut: false, cadLinked: true }
+        do: [{ set: { state: Under Review } }]
+        log: Promotion request submitted. SC-4100 {revision}.{iteration} is Under Review.
+        blockedHint: The structure needs to be checked in and linked to CAD before review.
+      - id: approve
+        label: Reviewers approve
+        when: { state: Under Review }
+        do: [{ set: { state: Released } }]
+        log: Approved. SC-4100 {revision}.{iteration} is Released - purchasing and the pilot line can use it.
+        blockedHint: Nothing is waiting for review.
+      - id: baseline
+        label: Create baseline
+        when: { state: Released, baseline: false }
+        do: [{ set: { baseline: true } }]
+        log: "Baseline \"S2 handlebar - pilot build\" created. This exact set of versions is frozen for good."
+        blockedHint: Baseline the structure once it's Released.
+    goals:
+      - label: Check in a correct structure
+        when: { iteration: 2, tube: 1, grips: 2, levers: 2, screws: 6 }
+        message: Quantities live on the uses links - one line per part, the count on the link.
+      - label: Release it
+        when: { state: Released }
+        message: New data, never released before, so a promotion request was the right road.
+      - label: Freeze it with a baseline
+        when: { baseline: true }
+        message: Mission complete. Even after future revisions, the baseline still points at exactly these versions.
+
+  - type: walkthrough
+    title: "Task 2: link each part to its CAD"
+    who: The designer who owns the CAD data
+    steps:
+      - title: Check the links from the part side
+        where: ["SC-4100 information page", "Related CAD / Dynamic Documents"]
+        md: |
+          See which CAD documents are associated and how - **owner**, **content**, **image**, and
+          so on. Tab wording varies by release.
+      - title: Let Creo build the owner links
+        where: [Creo Parametric, Windchill check-in, Auto associate]
+        md: |
+          Checking the assembly in from Creo with auto-associate on links each model to the part
+          with the same number as its **owner**. Priya's models carry the SC-41xx numbers, so this
+          does most of the work.
+      - title: Link the leftovers by hand
+        where: ["<part> information page", Actions, Edit Associations]
+        md: |
+          For the bought brake lever and throttle, associate the supplier's simplified models. Ask
+          your CAD admin which association type your company uses for supplier models - many use a
+          lighter association than owner so the supplier geometry never drives the part structure.
+    result: Every Acme-made part has its owner CAD model; bought parts carry supplier geometry for visualization and fit checks.
+
+  - type: animation
+    title: "Task 3: from markup to revision"
+    diagram:
+      width: 820
+      height: 300
+      nodes:
+        - { id: drw, label: SC-4100.drw, sublabel: "A.2 · In Work", x: 20, y: 40, w: 170, tone: accent, shape: doc }
+        - { id: review, label: Design review, sublabel: Creo View, x: 230, y: 40, w: 160, tone: info }
+        - { id: markup, label: Markup, sublabel: "clamp gap 2 → 3 mm", x: 430, y: 40, w: 170, tone: warning }
+        - { id: rel, label: "Released A", sublabel: prototype, x: 640, y: 40, w: 160, tone: success, shape: pill }
+        - { id: revise, label: Revise, sublabel: "A.3 → B.1", x: 430, y: 190, w: 170, tone: primary }
+        - { id: relb, label: "Released B", sublabel: pilot build, x: 640, y: 190, w: 160, tone: success, shape: pill }
+      edges:
+        - { from: drw, to: review }
+        - { from: review, to: markup, label: annotate }
+        - { from: drw, to: rel, label: "released for prototypes" }
+        - { from: rel, to: revise }
+        - { from: markup, to: revise, label: input }
+        - { from: revise, to: relb }
+    chapters:
+      - title: The drawing goes to review
+        caption: The handlebar drawing was **Released** at revision A for the prototype shop last month. Now it's reviewed for the pilot build in Creo View - no CAD licence needed.
+        show: [drw, review, rel]
+        highlight: [review]
+        flow: [drw>review, drw>rel]
+      - title: A reviewer spots a problem
+        caption: The supplier quality engineer sees the brake-lever clamp gap is 2 mm - too tight for the new grips. They draw a **markup** on the drawing and save it.
+        show: [drw, review, markup, rel]
+        highlight: [markup]
+        flow: [review>markup]
+      - title: Released data isn't edited - it's revised
+        caption: Revision A is Released, so nobody changes it in place. Priya **revises** the drawing to **B.1** and uses the saved markup as her to-do list.
+        show: [drw, review, markup, rel, revise]
+        highlight: [revise]
+        flow: [rel>revise, markup>revise]
+      - title: The fix is released
+        caption: The fixed drawing goes through review and becomes **Released B**. Revision A stays in history - the prototypes can still be traced to it.
+        highlight: [relb]
+        flow: [revise>relb]
+        seconds: 7
+
+  - type: callout
+    variant: note
+    md: |
+      Revising a part or drawing that's already **Released** is normally done through your
+      company's change process (Module 3). For this mission, assume Kai has an approved change ready
+      and you're doing its task.
+
+  - type: walkthrough
+    title: "Tasks 3 and 4: mark up, revise, release, baseline"
+    steps:
+      - title: View the drawing and mark it up
+        where: ["SC-4100.drw information page", Visualization, Open in Creo View]
+        md: Open the drawing's [[representation]] in Creo View, add a markup with a dimension note and a short comment, and **save** it so it's stored with the drawing in Windchill.
+      - title: Revise the drawing
+        where: ["SC-4100.drw information page", Actions, Revise]
+        md: Revise from the latest Released version. Then check it out in Creo, apply the clamp-gap fix and check it in.
+      - title: Release the new revision
+        where: [Actions, New Promotion Request]
+        md: Promote (or complete the change task for) the new revision so it reaches **Released**, following your company's process.
+      - title: Create the baseline
+        where: ["SC-4100 information page", Actions, Add to Baseline]
+        md: |
+          Create a new **managed [[baseline]]** named "S2 handlebar - pilot build" and add the handlebar
+          with its **whole structure** and related CAD documents. Exact menu wording varies by release.
+      - title: Check the baseline
+        where: [Baseline information page, Contents]
+        md: Confirm every part and CAD document is listed at its **Released** version. Lock the baseline if your company does so for audits.
+    result: The pilot build has a frozen, provable record of exactly which versions it was built from.
+
+  - type: scenario
+    variant: challenge
+    title: "Release week: make the right calls"
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          You're building the structure. The handlebar needs two grips. How do you add them?
+        choices:
+          - label: "Add grip SC-4120 once and set quantity 2"
+            next: s2
+            good: true
+            feedback: One part, one line, the count on the uses link. Clean.
+          - label: "Add SC-4120 twice as two lines"
+            next: s1-twice
+            feedback: That works on screen, but it's not how BOMs stay tidy.
+          - label: "Create a new part \"Grip left\" and another \"Grip right\""
+            next: s1-new
+            feedback: Are they really different parts?
+      - id: s1-twice
+        md: |
+          Two lines of the same part confuse reports and roll-ups - someone will "fix" one and miss
+          the other. Delete the duplicate and set quantity 2 on one line.
+        choices:
+          - label: "Merge into one line, quantity 2"
+            next: s2
+            good: true
+            feedback: Fixed.
+      - id: s1-new
+        md: |
+          The left and right grips are identical. Creating two new parts duplicates data, splits
+          stock and doubles every future change. Reuse SC-4120 with quantity 2.
+        choices:
+          - label: "Use SC-4120, quantity 2"
+            next: s2
+            good: true
+            feedback: Reuse beats duplication.
+      - id: s2
+        md: |
+          The grip adhesive is bought in bulk. Purchasing asks how much goes on one handlebar. How
+          do you record it?
+        choices:
+          - label: "Quantity 15, unit millilitres"
+            next: s3
+            good: true
+            feedback: The unit makes the number mean something.
+          - label: "Quantity 15, unit each"
+            next: fail-unit
+            feedback: Fifteen of what?
+      - id: s3
+        md: |
+          The structure's checked in. Priya says: "My models are numbered SC-41xx too - just check
+          the assembly in from Creo." What happens?
+        choices:
+          - label: "Auto-associate links each model to its matching part as owner"
+            next: s4
+            good: true
+            feedback: Matching numbers make auto-association painless.
+          - label: "Windchill creates a second, duplicate set of parts"
+            next: s3-dup
+            feedback: Only if the numbers don't match.
+      - id: s3-dup
+        md: |
+          That's the risk when CAD numbers don't match existing part numbers - auto-associate can
+          create new parts instead of linking to yours. Here the numbers match, so it links. Worth
+          checking the result on the part's related CAD list anyway.
+        choices:
+          - label: "Check the associations and move on"
+            next: s4
+            good: true
+            feedback: Trust, then verify.
+      - id: s4
+        md: |
+          The reviewer's markup says the clamp gap on the **Released A** drawing must go from 2 to
+          3 mm. What do you do?
+        choices:
+          - label: "Revise the drawing to B, fix it, release B"
+            next: s5
+            good: true
+            feedback: Released data is never edited in place.
+          - label: "Ask an admin to set the state back to In Work and edit A"
+            next: fail-setstate
+            feedback: The prototype shop built from A.
+          - label: "Save As a new drawing SC-4100-v2"
+            next: fail-saveas
+            feedback: That breaks the history.
+      - id: s5
+        md: |
+          Everything is Released. The pilot build is Monday. What's the last step?
+        choices:
+          - label: "Create a managed baseline of the whole structure"
+            next: win
+            good: true
+            feedback: Freeze the moment.
+          - label: "Nothing - Released is enough"
+            next: partial-nobaseline
+            feedback: Released today might not be what's Released next month.
+      - id: win
+        md: |
+          **Mission complete.** SC-4100 is Released with a clean BOM, every part linked to CAD, the
+          drawing fix traced from markup to revision B, and a baseline proving what the pilot build
+          used. Kai: "That's a textbook release. The pilot line has zero questions."
+        outcome: success
+      - id: partial-nobaseline
+        md: |
+          The release is good - but in two months the grip gets revised to B, and "latest Released"
+          no longer shows what the pilot units contain. A **baseline** would have frozen it. Go back
+          and create one.
+        outcome: partial
+      - id: fail-unit
+        md: |
+          Purchasing orders 15 bottles per handlebar. The warehouse fills up with adhesive. Bulk
+          materials need a real **unit** - ml, g, m - on the uses link.
+        outcome: fail
+      - id: fail-setstate
+        md: |
+          Moving Released A back to In Work and editing it erases the record of what the prototypes
+          were built from - and most companies restrict this exact action for that reason. **Revise**
+          instead; A stays in history.
+        outcome: fail
+      - id: fail-saveas
+        md: |
+          SC-4100-v2 is a brand-new object with no history and no link to the handlebar's past.
+          Everything that used the old drawing still points at it. **Revise** keeps one master and a
+          clean history.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Releasing the part but forgetting its drawing.** If the part goes to Released and the
+      drawing stays In Work, the supplier builds from an unreleased drawing. Put the part, its CAD
+      model and its drawing on the **same** promotion request so they release together.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Name baselines so a stranger understands them in a year: **what** + **why** + **when**, for
+      example "S2 handlebar - pilot build - 2026-10". The name is the only clue an auditor gets
+      before opening it.
+
+  - type: quiz
+    title: Capstone check
+    passMark: 0.7
+    questions:
+      - kind: order
+        prompt: Put the release mission in order.
+        items:
+          - Build the part structure with quantities
+          - Link the parts to their CAD documents
+          - Review the drawing and save a markup
+          - Revise the drawing and fix it
+          - Release the structure
+          - Create a baseline
+        explanation: Build the BOM, connect it to CAD, review and fix, release, then freeze the released result.
+      - kind: single
+        prompt: The handlebar uses six identical M5 screws. How should the BOM show them?
+        options:
+          - Six lines of M5 screw, quantity 1 each
+          - One line of the library M5 screw, quantity 6
+          - A new part "M5 screw set" with no CAD
+          - Nothing - screws aren't in the CAD, so they're not in the BOM
+        answer: 1
+        explanation: One part with quantity 6 on the uses link. Reuse the library part so the whole company counts and buys the same screw.
+      - kind: single
+        prompt: A drawing at Released A needs a fix. What's the right move?
+        options: [Check out A and edit it, Revise to B and fix it, Save As a new number, Set state back to In Work]
+        answer: 1
+        explanation: Revise creates B.1 under the same master. A stays Released in history so anything built from it is still traceable.
+      - kind: multi
+        prompt: What does a baseline give the pilot build? (Choose all that apply.)
+        options:
+          - A frozen list of the exact versions used
+          - Proof for audits of what was built
+          - Automatic release of new versions
+          - A stable reference even after parts are revised later
+        answers: [0, 1, 3]
+        explanation: A baseline records specific versions and doesn't change when newer ones appear. It doesn't release anything.
+      - kind: truefalse
+        prompt: A markup saved in Creo View changes the drawing's geometry.
+        answer: false
+        explanation: Markups are annotations stored alongside the drawing. The designer reads them and makes the actual change in CAD on a new iteration or revision.
+
+  - type: summary
+    points:
+      - Build BOMs with one line per part and the quantity and unit on the uses link.
+      - Link Acme-made parts to their CAD models as owner; matching numbers make it automatic.
+      - Review in Creo View with markups; fix released data by revising, never by editing in place.
+      - Release the part, model and drawing together, then baseline the result to freeze it.

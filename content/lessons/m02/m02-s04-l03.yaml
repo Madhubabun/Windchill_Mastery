@@ -1,0 +1,321 @@
+id: m02-s04-l03
+subtitle: Circle it, note it, save it where everyone can find it - not in a screenshot lost in someone's inbox.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [visualization, markup, annotation-set, design-review, creo-view]
+
+blocks:
+  - type: text
+    md: |
+      You know how you screenshot a meme, scribble a red circle on it and send it to the group chat?
+      Engineers do the same thing with designs - and for years they did it with screenshots and email.
+      Three weeks later, nobody knows which version was circled, or whether anyone fixed it.
+
+      Creo View lets you scribble **on the managed design itself** and save the scribble **into
+      Windchill**, tied to the exact version you looked at. That scribble is a **markup**.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the red circle and note" → *[[markup]]*
+      - "a frozen camera angle the markup sits on" → *captured view* (also called a snapshot)
+      - "a named bundle of notes saved as its own object" → *[[annotation-set]]*
+      - "the viewable copy you're marking up" → *[[representation]]*
+      - "making it official" → *saving to Windchill*, so others with access can open it
+
+  - type: animation
+    title: A markup's life in a design review
+    diagram:
+      width: 820
+      height: 320
+      nodes:
+        - { id: rep, label: Hinge B.2, sublabel: representation, x: 20, y: 130, w: 150, tone: info, shape: doc }
+        - { id: view, label: Captured view, sublabel: frozen angle, x: 200, y: 130, w: 150, tone: neutral }
+        - { id: mk, label: Markup, sublabel: "note + circle", x: 380, y: 130, w: 150, tone: warning }
+        - { id: wc, label: Saved to Windchill, sublabel: with B.2, x: 580, y: 30, w: 210, tone: accent, shape: cylinder }
+        - { id: pr, label: Problem Report, sublabel: references markup, x: 580, y: 140, w: 210, tone: danger }
+        - { id: fix, label: Hinge B.3, sublabel: Priya's fix, x: 580, y: 250, w: 210, tone: success, shape: pill }
+      edges:
+        - { from: rep, to: view, label: capture }
+        - { from: view, to: mk, label: annotate }
+        - { from: mk, to: wc, label: save }
+        - { from: wc, to: pr, label: link }
+        - { from: pr, to: fix, label: fixed in }
+    chapters:
+      - title: Kai opens the hinge
+        caption: Kai is reviewing hinge **SC-1042 B.2** for release. He opens its representation in Creo View.
+        show: [rep]
+        highlight: [rep]
+      - title: Freeze the angle
+        caption: He spins to the spot that worries him - the thin wall near the pin - and starts a markup. Creo View **captures the view** so everyone sees exactly what he saw.
+        show: [rep, view]
+        highlight: [view]
+        flow: [rep>view]
+      - title: Scribble and explain
+        caption: "He circles the wall and adds a note: *Wall 1.2 mm - below our 1.5 mm guideline. Please check.*"
+        show: [rep, view, mk]
+        highlight: [mk]
+        flow: [view>mk]
+      - title: Save it where it belongs
+        caption: He saves the markup **to Windchill**. It's stored with the B.2 representation - not on his laptop.
+        show: [rep, view, mk, wc]
+        highlight: [wc]
+        flow: [mk>wc]
+      - title: Turn the note into action
+        caption: Because it's a real problem, Kai raises a **Problem Report** that names the markup, so the evidence travels with the issue.
+        show: [rep, view, mk, wc, pr]
+        highlight: [pr]
+        flow: [wc>pr]
+      - title: The fix is traceable
+        caption: Priya opens the markup, thickens the wall and checks in **B.3**. Anyone can later see what was found, on which version, and what fixed it.
+        highlight: [fix]
+        flow: [pr>fix]
+        seconds: 8
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      A design review is only worth something if its findings are **recorded**. Auditors, new team
+      members and future you will ask: "Who spotted this, on which version, and what was decided?"
+      Markups saved to Windchill answer that. Screenshots in email don't - they rot, and they never say
+      which iteration they show.
+
+  - type: comparison
+    title: Screenshot in email vs markup in Windchill
+    columns: [Screenshot + email, Markup saved to Windchill]
+    rows:
+      - { label: Which version?, cells: [Usually unknown, Tied to the exact version] }
+      - label: Who can find it later?
+        cells: [Whoever got the email, Anyone with access to the object]
+      - label: Can others open the 3D view?
+        cells: ["No - it's a flat picture", "Yes - open it and keep exploring"]
+      - label: Useful as review evidence
+        cells: [Weak, Strong]
+    takeaway: If it's a finding, save it to Windchill. Email is for the conversation - not the record.
+
+  - type: walkthrough
+    title: Create and save a markup
+    who: Reviewers with a Creo View package that includes markup
+    where: ["<object> information page", Creo View, Markup]
+    steps:
+      - title: Open the right version
+        where: [Search, "SC-1042", Information page]
+        md: |
+          Open the information page of the **version under review** and launch Creo View from the
+          thumbnail or view action. Double-check the version shown.
+      - title: Set up the view
+        where: [Creo View]
+        md: |
+          Spin, zoom and section until the problem area is clear. What you see now is what the markup
+          will capture - take a second to frame it well.
+      - title: Start a new markup
+        where: [Creo View, Annotate, New Markup]
+        md: |
+          Use the annotation or markup tools (often an *Annotate* tab; naming varies by Creo View
+          version). Starting a markup captures the current view.
+      - title: Add your notes
+        where: [Creo View, Annotate]
+        md: |
+          Add notes, arrows, circles, clouds or dimensions. Write notes as findings - **what**, **where**,
+          **why it matters** - not "fix this?".
+      - title: Name it and save to Windchill
+        where: [Creo View, Save, Windchill]
+        md: |
+          Give the markup a clear name (for example *SC-1042 B.2 - thin wall at pin*) and save. When
+          Creo View was opened from Windchill, saving stores the markup back in Windchill with that
+          version's representation. Depending on setup, you may also save annotations as an
+          **annotation set** object.
+    result: The markup appears in the object's Representations/Annotations table for everyone with access.
+
+  - type: walkthrough
+    title: Use markups in a review
+    who: Reviewers and designers
+    steps:
+      - title: Find markups on an object
+        where: ["<object> information page", "Representations/Annotations"]
+        md: The table lists saved markups and annotation sets next to the representations. Open one to see the captured view and notes in Creo View.
+      - title: Respond to a review task
+        where: [Home, My Tasks, "<review task>"]
+        md: |
+          If your company runs reviews through workflow tasks (for example on a promotion request), open
+          the objects from the task, add markups, then complete the task with a comment that **names**
+          the markup.
+      - title: Escalate real problems
+        where: ["<object> information page", Actions, New, New Problem Report]
+        md: |
+          If a finding needs a design change, raise a Problem Report on the object and reference the
+          markup by name - or attach an exported image, as your company prefers.
+    result: Findings are saved with the design, linked to the decision, and easy to find later.
+
+  - type: simulation
+    title: Mark it up, don't lose it
+    intro: |
+      You're Kai reviewing hinge **SC-1042 B.2**. Make a markup about the thin wall, save it to Windchill
+      and get it in front of Priya. Watch out - closing Creo View before saving throws your work away.
+    headline: "View: {view} · note: {note} · circle: {circle} · saved: {saved} · in PR: {linked}"
+    initial: { view: Free, note: "No", circle: "No", saved: "No", linked: "No", priyaSeen: "No" }
+    actions:
+      - id: capture
+        label: Start markup (capture view)
+        when: { view: Free }
+        do: [{ set: { view: Captured } }]
+        log: View captured at the pin area. Your notes will sit on this exact angle.
+        blockedHint: You already have a captured view for this markup.
+      - id: note
+        label: Add note
+        when: { view: Captured, note: "No" }
+        do: [{ set: { note: "Yes" } }]
+        log: "Note added: Wall 1.2 mm - below 1.5 mm guideline."
+        blockedHint: Start a markup first - or you already added the note.
+      - id: circle
+        label: Circle the wall
+        when: { view: Captured, circle: "No" }
+        do: [{ set: { circle: "Yes" } }]
+        log: Red circle drawn around the thin wall.
+        blockedHint: Start a markup first - or it's already circled.
+      - id: close
+        label: Close Creo View without saving
+        when: { saved: "No" }
+        do: [{ set: { view: Free, note: "No", circle: "No" } }]
+        log: Creo View closed. Your unsaved markup is gone - nobody else will ever see it.
+        blockedHint: Nothing unsaved to lose.
+      - id: save
+        label: Save markup to Windchill
+        when: { note: "Yes", saved: "No" }
+        do: [{ set: { saved: "Yes" } }]
+        log: "Saved as SC-1042 B.2 - thin wall at pin. It now sits with the B.2 representation in Windchill."
+        blockedHint: Add at least a note first - a markup with no explanation helps nobody.
+      - id: link
+        label: Raise Problem Report naming the markup
+        when: { saved: "Yes", linked: "No" }
+        do: [{ set: { linked: "Yes" } }]
+        log: Problem Report created on SC-1042 B.2 with the markup named as evidence.
+        blockedHint: Save the markup to Windchill first, so there's something to reference.
+      - id: priya
+        label: Priya opens the markup
+        when: { saved: "Yes" }
+        do: [{ set: { priyaSeen: "Yes" } }]
+        log: Priya opens the markup from the information page and sees exactly your angle and note.
+        blockedHint: Priya can't see anything that isn't saved to Windchill.
+    goals:
+      - label: Save a markup with a note to Windchill
+        when: { saved: "Yes" }
+        message: Saved markups live with the version's representation, findable by anyone with access.
+      - label: Get it to Priya through a Problem Report
+        when: { linked: "Yes", priyaSeen: "Yes" }
+        message: The finding is now recorded, linked to the issue and seen by the designer. That's a real review.
+
+  - type: example
+    variant: case-study
+    title: The review that didn't happen twice
+    industry: Micromobility
+    md: |
+      For the E-bike E1 battery cover, Acme's reviewers used to send feedback as annotated screenshots.
+      After release, a cracked cover came back from testing. The team dug through email to find out if
+      anyone had flagged the snap-fit - and found a screenshot from *two iterations earlier* that no one
+      had acted on.
+
+      For the next product, reviews ran through a promotion request task. Every finding had to be a
+      markup saved to Windchill and named in the task comment. When a similar question came up, Kai
+      opened the cover's markups and had the answer in a minute.
+    takeaway: A finding you can't find later is the same as no finding.
+
+  - type: scenario
+    variant: what-if
+    title: Kai's markup and the moving target
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Kai saved a markup on hinge **B.2**. The next morning Priya checks in **B.3** with a thicker wall.
+          Kai opens B.3's information page and can't see his markup. What happened?
+        choices:
+          - label: "Markups are stored with the version they were made on - it's still on B.2"
+            next: s2
+            good: true
+            feedback: "Right. The markup describes what B.2 looked like."
+          - label: "Windchill deleted it because the design changed"
+            next: s1-deleted
+            feedback: "Windchill doesn't throw away review history."
+      - id: s1-deleted
+        md: |
+          Kai checks B.2's information page - the markup is right there in its Representations/Annotations
+          table. Nothing was deleted. Why does that make sense?
+        choices:
+          - label: "Because the note is about B.2's geometry, not B.3's"
+            next: s2
+            good: true
+            feedback: "Exactly - moving it to B.3 would be misleading."
+      - id: s2
+        md: |
+          Kai wants to confirm the fix. What's the best move?
+        choices:
+          - label: "Open B.3 in Creo View, check the wall and note the result in the review"
+            next: s3
+            good: true
+            feedback: "Verify on the new version and record the outcome."
+          - label: "Copy his old markup onto B.3 without looking"
+            next: fail-copy
+            feedback: "That would claim B.3 has the problem B.2 had."
+      - id: s3
+        md: |
+          The wall is now 1.6 mm. Kai notes "verified on B.3" in the Problem Report and completes his
+          review task. Six months later an auditor asks how the thin-wall issue was handled. What will
+          they find?
+        choices:
+          - label: "The B.2 markup, the Problem Report and B.3 - the full story"
+            next: win
+            good: true
+            feedback: "Finding → issue → fix, all traceable."
+      - id: win
+        md: |
+          **Clean review trail.** The markup proves what was found on which version, the Problem Report
+          tracks the decision, and B.3 shows the fix. That's what design reviews are for.
+        outcome: success
+      - id: fail-copy
+        md: |
+          **Misleading record.** Now B.3 appears to have a thin wall it doesn't have, and the next reviewer
+          wastes time chasing it. Markups should always describe the version they're saved on.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Marking up a work-in-progress iteration and calling it a review.** If you review B.2 while Priya
+      is already editing B.3, your notes may be outdated before you save them. Agree on *which version*
+      is under review - ideally the one attached to the review task.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Name markups like a commit message: **number, version, what** - for example
+      *SC-1042 B.2 - thin wall at pin*. In a table of twenty markups, "Markup 7" tells nobody anything.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Kai wants Priya and future reviewers to see his comment on the hinge. Where should the markup go?
+        options:
+          - Saved on his desktop as an image
+          - Saved to Windchill from Creo View
+          - Pasted into a chat message
+          - Printed and pinned to the wall
+        answer: 1
+        explanation: Saving to Windchill stores the markup with the version's representation, so anyone with access can open it - with the 3D view - and it survives as review evidence.
+      - kind: truefalse
+        prompt: Adding a markup in Creo View changes the CAD model.
+        answer: false
+        explanation: Markups are notes on top of a view. The design only changes when a designer edits the CAD model and checks in a new iteration.
+      - kind: order
+        prompt: Put the steps for making a useful markup in order.
+        items: [Open the version under review, Set up the view on the problem area, Start a markup to capture the view, Add notes and shapes, Name it and save to Windchill]
+        explanation: Frame the problem first, because starting a markup captures the current view. Then annotate, name it clearly and save it so it becomes part of the record.
+
+  - type: summary
+    points:
+      - A markup is a note and sketch on a captured view, made in Creo View.
+      - Save markups to Windchill - they're stored with the exact version they describe.
+      - Use markups as evidence in review tasks and Problem Reports, and name them clearly.
+      - A new version doesn't inherit old markups - verify the fix on the new version.

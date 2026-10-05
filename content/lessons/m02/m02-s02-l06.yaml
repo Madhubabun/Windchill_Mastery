@@ -1,0 +1,203 @@
+id: m02-s02-l06
+subtitle: Take a photo of your product data at the moment that matters - and find it again years later, exactly as it was.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [baseline, configuration-management, audit, compliance]
+
+blocks:
+  - type: text
+    md: |
+      Your phone camera roll is a time machine. The photo from launch day shows exactly who was
+      there and what they wore, no matter how much has changed since.
+
+      Product data needs the same thing. The E-bike E1 goes to a certification lab today. Next
+      month Priya will revise half the parts. Two years from now an auditor asks: *"Show me exactly
+      what you certified."* Latest won't help - it has moved on.
+
+      A **baseline** is that photo: a saved list of **exactly which version** of each object
+      belonged together at one moment.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a photo of the data at one moment" → *[[baseline]]*
+      - "a baseline you create and name yourself" → *managed baseline*
+      - "freeze it so nobody can change the list" → *lock* the baseline
+      - "show the structure as it was in the photo" → *Baseline* [[configuration-specification|config spec]]
+      - "one version per object" → one version per [[master]]
+
+  - type: diagram
+    title: A baseline is a list of exact versions
+    caption: Versions keep moving on. The baseline keeps pointing at the ones that were current on certification day. Click to explore.
+    diagram:
+      width: 800
+      height: 380
+      groups:
+        - { label: "Baseline: E1 Certification", x: 20, y: 20, w: 250, h: 340, tone: success }
+        - { label: Today's latest, x: 530, y: 20, w: 250, h: 340, tone: warning }
+      nodes:
+        - id: bl
+          label: E1 Certification
+          sublabel: managed · locked
+          x: 45
+          y: 50
+          w: 200
+          tone: success
+          shape: doc
+          detail: |
+            A managed baseline has its own number, name, context, folder and lifecycle. Its member
+            list says "E1 frame **A.5**, battery bracket **B.3**, motor mount **A.2**, test report **C.1**…"
+            Locked, so nobody can add or swap members.
+          real: Typical baselines - design reviews, prototype builds, certification submissions, customer deliveries.
+        - { id: bl-frame, label: Frame A.5, x: 45, y: 140, w: 200, tone: success }
+        - { id: bl-bracket, label: Battery bracket B.3, x: 45, y: 210, w: 200, tone: success }
+        - { id: bl-report, label: Test report C.1, x: 45, y: 280, w: 200, tone: success, shape: doc }
+        - id: arrow
+          label: Time passes
+          sublabel: revisions · check-ins
+          x: 300
+          y: 170
+          w: 200
+          tone: neutral
+          shape: pill
+          detail: Priya revises the frame, the bracket gets three new iterations and the report is updated. None of that changes the baseline's list.
+        - { id: now-frame, label: Frame B.2, x: 555, y: 140, w: 200, tone: warning }
+        - { id: now-bracket, label: Battery bracket C.1, x: 555, y: 210, w: 200, tone: warning }
+        - { id: now-report, label: Test report E.1, x: 555, y: 280, w: 200, tone: warning, shape: doc }
+      edges:
+        - { from: bl, to: bl-frame }
+        - { from: bl-frame, to: now-frame, dashed: true }
+        - { from: bl-bracket, to: now-bracket, dashed: true }
+        - { from: bl-report, to: now-report, dashed: true }
+
+  - type: comparison
+    title: Ways Windchill remembers a moment
+    columns: [Managed baseline, Promotion request or change record, Effectivity]
+    rows:
+      - label: Created by
+        cells: [You - on purpose, Automatically as part of the process, Change or configuration managers]
+      - label: Holds
+        cells: [Any set of versions you collect, The exact versions that were promoted or changed, Validity ranges on versions]
+      - label: Best for
+        cells: ["Milestones: reviews, builds, certification", Proof of what was approved together, What was built into a unit or date]
+      - label: Can be used as a config spec
+        cells: [Yes, "Rarely in practice (a promotion request is technically a kind of baseline)", Yes]
+    takeaway: When the moment matters to someone outside engineering, make a managed baseline and lock it.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Certifiers, customers and regulators audit **the past**. "Which drawing revision did you send
+      us?" "What software and hardware were in the test sample?" A locked baseline answers in
+      seconds and proves the answer wasn't edited afterwards. Without one, someone spends days
+      reconstructing it from emails and dates - and might get it wrong.
+
+  - type: walkthrough
+    title: Create, lock and use a managed baseline
+    who: Team members allowed to create baselines in the context (locking is often restricted)
+    steps:
+      - title: Start from the top object
+        where: ["<top part> information page", Actions, Add to Baseline]
+        md: |
+          Open the top part (for example E-bike E1) and choose **Add to Baseline**. You can also
+          create an empty one from a folder with **New → New Baseline**. Wording can vary by
+          release.
+      - title: Create a new baseline
+        where: [Add to Baseline, New baseline]
+        md: Choose to create a new baseline. Give it a clear name ("E1 Certification - Oct 2026"), a description and a folder in the product.
+      - title: Collect the right versions
+        where: [Add to Baseline, Collect]
+        md: |
+          Include the children and related objects you need - drawings, CAD, test documents. The
+          collection follows a config spec, so check it picks the versions you mean (often Latest
+          Released). One version per master ends up in the baseline.
+      - title: Check and lock
+        where: ["<baseline> information page", Actions, Lock]
+        md: Review the member list on the baseline's information page, then **Lock** it so members can't be added, removed or replaced. Some companies release the baseline instead, or as well.
+      - title: Use it later
+        where: ["<top part> information page", Structure tab, Filter, Baseline]
+        md: Set the structure's config spec to **Baseline** and pick it. The structure shows exactly the versions in the snapshot. You can also compare the baseline with Latest to see what changed since.
+    result: A named, locked snapshot you can reopen as a structure and hand to an auditor.
+
+  - type: example
+    variant: case-study
+    title: The certification audit, 18 months later
+    industry: Micromobility
+    md: |
+      **The situation.** Acme submits the E-bike E1 to an independent lab for safety
+      certification. Kai asks Priya to create the managed baseline **"E1 Certification - Oct
+      2026"** from the E1 top part, collecting all parts, drawings, the battery spec and the test
+      reports at Latest Released. She locks it.
+
+      **Eighteen months later.** The E1 has had 40 changes. An auditor from the certification body
+      arrives with a question: *"The frame in your certified sample - which revision, and is that
+      what you're producing now?"*
+
+      **The answer.** Kai opens the E1 structure with the **baseline** config spec: frame **A.5**.
+      He switches to Latest Released: frame **B.2**. He opens the change notice that took A.5 to
+      B.2 and shows the engineering assessment: a cosmetic weld-grind change, judged not to affect
+      certification, with the approver's name.
+
+      **The outcome.** The audit closes the same afternoon with no findings. The auditor's note:
+      "configuration traceable."
+    takeaway: A baseline + change records = you can prove what you certified and why today is different.
+
+  - type: exercise
+    title: Baseline your milestone
+    environment: windchill-trial
+    goal: Create and lock a managed baseline for a small structure, then reopen the structure through it.
+    steps:
+      - Pick a small assembly in your trial product with two or three released children.
+      - "From its information page, use **Add to Baseline** to create a new baseline named *Milestone 1*."
+      - Collect the children and any drawings, then finish.
+      - Open the baseline's information page, check the member list and **Lock** it (if your role allows).
+      - Check out and check in one child to create a new iteration.
+      - Open the assembly's Structure tab with the **Baseline** filter, then with **Latest**, and compare.
+    expected: With the Baseline filter the child shows the old iteration; with Latest it shows the new one. The baseline's member list is unchanged.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **The leaky baseline.** It was never locked, and someone later "added the missing drawing" -
+      a revision from a year after the event. Now the snapshot isn't a snapshot. Lock baselines that
+      record external milestones, and collect everything *before* locking.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Agree on a naming pattern for baselines: **product - milestone - date** ("S2 - Launch -
+      2026-03"). When there are hundreds, a consistent name is how anyone finds the right one.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: What does a managed baseline store?
+        options:
+          - Copies of all the files at that moment
+          - A list of specific object versions - one per master
+          - The latest version of everything, updated automatically
+          - Only the top part
+        answer: 1
+        explanation: A baseline references exact versions; it doesn't duplicate files. Because it points at specific versions, it never drifts as new ones are created.
+      - kind: truefalse
+        prompt: After you lock a baseline, its members can still be revised as normal - the baseline just keeps pointing at the old versions.
+        answer: true
+        explanation: Locking freezes the baseline's member list, not the objects. Work continues; the snapshot stays the same.
+      - kind: single
+        prompt: An auditor asks which versions were in the certified E1. What's the fastest reliable answer?
+        options:
+          - Open the E1 structure with Latest Released
+          - Open the E1 structure with the certification baseline as the config spec
+          - Search emails from that month
+          - Ask Priya what she remembers
+        answer: 1
+        explanation: The baseline config spec rebuilds the structure exactly as captured. Latest Released shows today's approved data, which may have changed since.
+
+  - type: summary
+    points:
+      - A baseline is a snapshot - a list of exact versions, one per master.
+      - Create it with Add to Baseline, collect carefully, then lock it.
+      - Use it as a config spec to see the structure exactly as it was.
+      - Baselines plus change records let you prove the past in an audit.

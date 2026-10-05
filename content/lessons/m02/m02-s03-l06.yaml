@@ -1,0 +1,219 @@
+id: m02-s03-l06
+subtitle: Plan B parts - one works everywhere, the other only in one assembly.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [bom, alternates, substitutes, replacements, supply-chain]
+
+blocks:
+  - type: text
+    md: |
+      The wheel bearing supplier just announced a 16-week delay. The factory asks the question every
+      engineer dreads: **"Can we use something else?"**
+
+      Sometimes the answer is "yes, anywhere" - a bearing from another maker is identical in every
+      way. Sometimes it's "yes, but only in the scooter wheel" - it's fine at scooter speeds but not
+      in the e-bike hub. Windchill has a different tool for each answer: an **alternate** and a
+      **substitute**. Together they're often called *replacement parts*.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "can replace this part anywhere it's used" → *[[alternate-part|alternate]]* (global)
+      - "can replace this part, but only in this one assembly" → *[[substitute-part|substitute]]* (local)
+      - "the plan B parts, together" → *replacement parts*
+      - "the part as a whole, across all versions" → *[[master]]* - where alternates are stored
+      - "this parent uses that child" → *[[uses-link|uses link]]* - where substitutes are stored
+
+  - type: diagram
+    title: Where each one lives
+    caption: An alternate hangs on the part itself. A substitute hangs on one BOM line. Click to explore.
+    diagram:
+      width: 820
+      height: 420
+      groups:
+        - { label: "Alternate - global", x: 10, y: 10, w: 390, h: 400, tone: info }
+        - { label: "Substitute - one assembly only", x: 420, y: 10, w: 390, h: 400, tone: warning }
+      nodes:
+        - id: screw
+          label: M6 screw
+          sublabel: FS-0620 · master
+          x: 30
+          y: 60
+          w: 160
+          tone: primary
+          detail: The library screw used across scooters and e-bikes.
+        - id: screw-alt
+          label: M6 screw, maker B
+          sublabel: FS-0621 · master
+          x: 220
+          y: 60
+          w: 160
+          tone: success
+          detail: |
+            Identical spec from a second supplier. Defined as an **alternate** of FS-0620, so it may
+            be used in **every** assembly that uses FS-0620 - frame, handlebar, e-bike, anything.
+        - id: frame
+          label: Frame SC-2000
+          x: 30
+          y: 230
+          w: 160
+          tone: neutral
+          detail: Uses FS-0620. The alternate applies here automatically - nothing on the frame changed.
+        - id: ebike
+          label: E-bike frame EB-2000
+          x: 220
+          y: 230
+          w: 160
+          tone: neutral
+          detail: Also uses FS-0620, so the alternate applies here too. One definition, every use.
+        - id: wheel
+          label: Wheel SC-3100
+          sublabel: scooter
+          x: 440
+          y: 60
+          w: 160
+          tone: neutral
+          detail: The scooter wheel. Its BOM line for the bearing carries a substitute.
+        - id: line
+          label: "Line: bearing ×2"
+          sublabel: SC-3120
+          x: 440
+          y: 180
+          w: 160
+          tone: primary
+          detail: |
+            The uses link from the wheel to bearing SC-3120. The **substitute** is attached to this
+            line, so it only applies when this bearing is used in this wheel.
+        - id: sub
+          label: Bearing SC-3125
+          sublabel: substitute here only
+          x: 630
+          y: 180
+          w: 160
+          tone: success
+          detail: Fine at scooter speeds. Allowed as a stand-in for SC-3120 inside wheel SC-3100 only.
+        - id: hub
+          label: E-bike hub EB-3300
+          sublabel: also uses SC-3120
+          x: 440
+          y: 320
+          w: 180
+          tone: danger
+          detail: |
+            Also uses bearing SC-3120 - but **no** substitute here. The hub spins faster under motor
+            load, so SC-3125 isn't qualified. A substitute keeps the stand-in where it's safe.
+      edges:
+        - { from: screw, to: screw-alt, label: alternate, dashed: true }
+        - { from: frame, to: screw, label: uses }
+        - { from: ebike, to: screw, label: uses }
+        - { from: wheel, to: line }
+        - { from: line, to: sub, label: substitute, dashed: true }
+
+  - type: comparison
+    title: Alternate vs substitute
+    columns: [Alternate, Substitute]
+    rows:
+      - { label: Applies, cells: [Everywhere the original part is used, Only in one parent's use of the part] }
+      - { label: Stored on, cells: [The part master (master-to-master), The uses link in the parent] }
+      - { label: Changes the parent?, cells: [No - parents stay untouched, "Yes - the parent is checked out and iterates"] }
+      - { label: Typical reason, cells: ["Second source, identical spec", Good enough in this assembly only] }
+      - { label: Typical owner, cells: ["Component engineering, sourcing", The assembly's design engineer] }
+      - { label: Example, cells: [FS-0621 for FS-0620 everywhere, SC-3125 for SC-3120 in wheel SC-3100] }
+    takeaway: "Ask: is the stand-in OK everywhere (alternate) or only here (substitute)?"
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Supply shortages are normal, not rare. When planners and ERP know which replacements are
+      already **approved**, a delay becomes a swap instead of a line stop. And because the approval
+      is recorded on the right object - the part or the specific BOM line - nobody uses a stand-in
+      where it was never qualified.
+
+  - type: example
+    variant: case-study
+    title: The bearing shortage
+    industry: Micromobility
+    md: |
+      When bearing SC-3120 slipped by 16 weeks, Acme's engineers tested SC-3125 from another maker.
+      Results: fine in the scooter wheel, **not** fine in the e-bike hub, which runs hotter and faster.
+
+      A first draft defined SC-3125 as an **alternate** of SC-3120. Kai's review caught it - an
+      alternate would have approved SC-3125 in the e-bike hub too. They removed it and added SC-3125
+      as a **substitute** on the wheel's bearing line instead. The scooter line kept running; the
+      e-bike team waited for the original bearing.
+    takeaway: An alternate is a promise about every use. Only make it if you've checked every use.
+
+  - type: walkthrough
+    title: Add an alternate or a substitute
+    who: Engineers with the right permissions (often restricted to component or sourcing engineering)
+    steps:
+      - title: Add an alternate
+        where: ["<part> information page", Replacements / Alternates table]
+        md: |
+          On the original part's information page, find the replacements table (the tab or table
+          name varies, for example **Replacements** or **Alternates**). Use its add action, search
+          for the alternate part and confirm. Because alternates sit on the master, no parent needs
+          to be checked out.
+      - title: Add a substitute
+        where: ["<parent part> information page", Structure tab, select child line, Replacements / Substitutes]
+        md: |
+          Open the **parent**'s Structure tab and select the child line (the bearing under the wheel).
+          Open its replacements or substitutes table and add the substitute part. The parent is
+          checked out for this - the substitute belongs to its uses link.
+      - title: Check in the parent (substitutes only)
+        where: [Structure tab, select parent row, Check In]
+        md: Check in the parent with a comment such as "SC-3125 substitute approved for SC-3100 only - test report DOC-0711".
+    result: Planners and ERP can see which stand-ins are approved, and where.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Using Replace when you meant "plan B".** *Replace* (lesson 2) permanently swaps the part on
+      the line. Alternates and substitutes keep the original as the primary choice and record an
+      approved stand-in. Don't swap the BOM for a temporary shortage.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Before creating an alternate, run a **where-used** on the original part (next lesson). If any
+      parent can't accept the stand-in, you need a substitute on the parents that can - not an
+      alternate.
+
+  - type: callout
+    variant: note
+    md: How replacement parts reach ERP and whether direction matters (A replaces B, B replaces A, or both) depends on your company's setup and integration. Check the rule before relying on a replacement in production.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: A second supplier's M6 screw is identical in every way and can be used anywhere. What should you create?
+        options: [A substitute on every BOM line, An alternate, A Replace in every assembly, A new revision of the screw]
+        answer: 1
+        explanation: An alternate is defined once on the part master and applies wherever the screw is used. Substitutes would mean editing every parent.
+      - kind: single
+        prompt: A cheaper bearing is qualified only for the scooter wheel, not the e-bike hub. What fits?
+        options: [An alternate, A substitute on the wheel's bearing line, Replace the bearing everywhere, Nothing - just tell the factory]
+        answer: 1
+        explanation: A substitute lives on one uses link, so it's approved only in that assembly. The e-bike hub is untouched.
+      - kind: truefalse
+        prompt: Adding a substitute changes the parent assembly, which must be checked out.
+        answer: true
+        explanation: The substitute is attached to the parent's uses link, and uses links belong to the parent's iteration.
+      - kind: multi
+        prompt: Which statements about alternates are true? (Choose all that apply.)
+        options:
+          - They are stored between part masters
+          - They apply in every assembly that uses the original part
+          - They require every parent to be checked out
+          - They're a good fit for an identical second-source part
+        answers: [0, 1, 3]
+        explanation: Alternates are master-to-master and global, which is exactly why parents don't need to change - and why you must be sure the alternate works everywhere.
+
+  - type: summary
+    points:
+      - Alternate = OK everywhere. Stored on the part master; parents don't change.
+      - Substitute = OK in this one assembly. Stored on the uses link; the parent iterates.
+      - Use where-used before creating an alternate to check every use.
+      - Replace is a permanent swap; alternates and substitutes are approved plan B parts.

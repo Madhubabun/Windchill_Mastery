@@ -1,0 +1,105 @@
+id: m02-s03-check
+subtitle: BOMs, usage details, CAD links, compare, plan B parts and where-used - prove you've got them.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [checkpoint, bom, structure]
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on everything in **Product structure and the eBOM**: reading a multi-level BOM,
+      editing a structure, usage attributes, part-CAD associations, compare and reports, alternates
+      and substitutes, and where-used. Score 80% to pass. The flashcards below go straight into your
+      review deck.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: In a multi-level BOM, the scooter uses Wheel ×2 and each wheel uses Bearing ×2. How many bearings do you order for 100 scooters?
+        options: ["200", "400", "4", "100"]
+        answer: 1
+        explanation: Quantities are per parent. 100 scooters × 2 wheels × 2 bearings = 400. Reading the bearing line as "2 per scooter" would under-order by half.
+      - kind: single
+        prompt: Priya inserts fold latch SC-1050 into frame SC-2000 A.3 and checks in. What changes?
+        options:
+          - The latch gets a new iteration
+          - The frame becomes A.4; the latch is unchanged
+          - Both iterate
+          - Nothing until the frame is revised
+        answer: 1
+        explanation: Uses links belong to the parent's iteration, so editing a structure checks out and iterates the parent. The child just gains a new parent.
+      - kind: truefalse
+        prompt: Removing a child line from a structure deletes that child part from Windchill.
+        answer: false
+        explanation: Remove deletes only the uses link from this parent. The part, its history and its other uses are untouched.
+      - kind: single
+        prompt: Which usage attribute names each individual placement of a component on a circuit board?
+        options: [Find number, Line number, Reference designator, Unit]
+        answer: 2
+        explanation: Reference designators (R1, R2, C3…) name each spot, so their count should match the quantity. Find numbers match drawing balloons; line numbers identify the BOM row.
+      - kind: multi
+        prompt: Which statements about part-CAD associations are true? (Choose all that apply.)
+        options:
+          - An owner CAD document rebuilds the part's structure on check-in
+          - A part can have several contributing content CAD documents
+          - With an image association, CAD changes rebuild the BOM
+          - A part has at most one owner CAD document
+        answers: [0, 1, 3]
+        explanation: Owner (one per part) and contributing content (many) build structure. Image links only provide the picture - the BOM is maintained in Windchill.
+      - kind: single
+        prompt: A structure compare of frame A.3 vs A.5 shows SC-1042 only on the left and SC-1043 only on the right. What does it mean?
+        options: [The hinge was revised, The hinge was replaced by a different part, A compare error, Quantity changed]
+        answer: 1
+        explanation: Different part numbers are different masters, so a replace shows as one removed line plus one added line. A revision of the same part would show as the same line.
+      - kind: single
+        prompt: Purchasing needs a BOM report for production orders. Which configuration should it use?
+        options: [Latest, Latest released or a released baseline, The designer's workspace, Any - they all show the same]
+        answer: 1
+        explanation: Latest can include In Work versions. Orders should come from released data, and the export should be labelled with its configuration.
+      - kind: single
+        prompt: A cheaper bearing is qualified only for the scooter wheel, not the e-bike hub that also uses the original. What should you create?
+        options: [An alternate on the bearing, A substitute on the wheel's bearing line, A new revision of the bearing, Replace it everywhere]
+        answer: 1
+        explanation: A substitute lives on one parent's uses link, so it's approved only there. An alternate would approve it in the e-bike hub too.
+      - kind: order
+        prompt: Put the steps for changing a shared part safely in order.
+        items:
+          - Run a multi-level where-used
+          - Check each parent's state and talk to its team
+          - Decide - revise if interchangeable, new number if not
+          - Make the change through your change process
+        explanation: Find every use, understand how live each one is and agree with the owners, choose revise or new number based on interchangeability, then implement it with a recorded change.
+      - kind: truefalse
+        prompt: An interchangeable revision of a shared part reaches every parent that views Latest without editing those parents.
+        answer: true
+        explanation: Uses links point to the child's master, so the new revision appears in every parent resolved with Latest. Released baselines keep the old revision.
+
+  - type: flashcards
+    title: Product structure deck
+    cards:
+      - front: "Multi-level BOM"
+        back: "The whole product tree, every level, indented. Quantities are per parent."
+      - front: "Uses link"
+        back: "Parent → child master. Belongs to the parent's iteration; carries quantity, unit and other usage attributes."
+      - front: "Editing a structure"
+        back: "Check out the parent, insert / replace / remove lines, check in the parent."
+      - front: "Remove vs delete"
+        back: "Remove drops the link from this parent. The child part still exists."
+      - front: "Find number"
+        back: "Matches the balloon on the assembly drawing."
+      - front: "Line number"
+        back: "Numeric row ID within the parent - often what ERP keys on."
+      - front: "Reference designator"
+        back: "Names one exact placement (R1, C3). One per unit of quantity."
+      - front: "Owner association"
+        back: "CAD is in charge: builds the part's structure and mapped attributes on check-in. Max one per part."
+      - front: "Image association"
+        back: "CAD is the picture only. The BOM is edited in Windchill."
+      - front: "Structure compare"
+        back: "Marks added, removed and changed lines between two structures. A replace = removed + added."
+      - front: "Alternate vs substitute"
+        back: "Alternate: on the master, OK everywhere. Substitute: on one uses link, OK in that assembly only."
+      - front: "Where-used"
+        back: "Looks up the tree. Run it multi-level before changing a shared part."

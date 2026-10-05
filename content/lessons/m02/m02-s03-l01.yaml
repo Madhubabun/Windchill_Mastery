@@ -1,0 +1,305 @@
+id: m02-s03-l01
+subtitle: A product is a family tree of parts. Learn to read it level by level.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [bom, ebom, structure, multi-level-bom]
+
+blocks:
+  - type: text
+    md: |
+      Ever built a LEGO set? The booklet starts with a page that lists every brick in the box and how
+      many of each. Then each step shows a small group of bricks becoming a sub-build, and sub-builds
+      snapping together into the final model.
+
+      A real product works the same way. The Acme **Scooter S2** is a frame, two wheels, a handlebar
+      and a battery. The frame itself is a tube, a hinge and some screws. That nested list - *what
+      goes into what, and how many* - is a **bill of materials**, or **BOM**.
+
+      In Windchill a BOM isn't a spreadsheet someone types up. It is built from [[part|parts]] joined
+      by [[uses-link|uses links]]. Change the structure and every report, every viewer and every
+      downstream system sees the same answer.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the list of what goes into the product" → *[[bom]]* (bill of materials)
+      - "the BOM as engineering designed it" → *[[ebom|eBOM]]* (engineering BOM)
+      - "the BOM as the factory builds it" → *[[mbom|mBOM]]* (manufacturing BOM, covered later)
+      - "parent → child, with how many" → *[[uses-link|uses link]]* carrying quantity and unit
+      - "the whole tree, every level" → *[[multi-level-bom|multi-level BOM]]* (also *indented BOM*)
+      - "just one parent and its direct children" → *single-level BOM*
+
+  - type: animation
+    title: Exploding the Scooter S2 into a BOM
+    diagram:
+      width: 820
+      height: 420
+      groups:
+        - { label: Level 0, x: 10, y: 10, w: 800, h: 90, tone: primary }
+        - { label: Level 1, x: 10, y: 120, w: 800, h: 130, tone: info }
+        - { label: Level 2, x: 10, y: 270, w: 800, h: 140, tone: neutral }
+      nodes:
+        - { id: s2, label: Scooter S2, sublabel: SC-0100 · end item, x: 320, y: 30, w: 180, tone: primary }
+        - { id: frame, label: Frame assembly, sublabel: SC-2000, x: 30, y: 160, w: 170, tone: info }
+        - { id: wheel, label: Wheel 10 in, sublabel: SC-3100 · qty 2, x: 230, y: 160, w: 170, tone: info }
+        - { id: bar, label: Handlebar, sublabel: SC-4000, x: 430, y: 160, w: 160, tone: info }
+        - { id: batt, label: Battery pack, sublabel: SC-5100 · bought, x: 620, y: 160, w: 170, tone: warning }
+        - { id: tube, label: Main tube, sublabel: SC-2010, x: 30, y: 310, w: 140, tone: neutral }
+        - { id: hinge, label: Folding hinge, sublabel: SC-1042, x: 190, y: 310, w: 140, tone: neutral }
+        - { id: screw, label: M6 x 20 screw, sublabel: FS-0620 · library, x: 350, y: 310, w: 150, tone: success }
+        - { id: brg, label: Wheel bearing, sublabel: SC-3120 · qty 2, x: 520, y: 310, w: 140, tone: neutral }
+        - { id: cable, label: Brake cable, sublabel: SC-4050 · 1.2 m, x: 680, y: 310, w: 120, tone: neutral }
+      edges:
+        - { from: s2, to: frame, label: "×1" }
+        - { from: s2, to: wheel, label: "×2" }
+        - { from: s2, to: bar, label: "×1" }
+        - { from: s2, to: batt, label: "×1" }
+        - { from: frame, to: tube, label: "×1" }
+        - { from: frame, to: hinge, label: "×1" }
+        - { from: frame, to: screw, label: "×4" }
+        - { from: wheel, to: brg, label: "×2" }
+        - { from: bar, to: cable, label: "1.2 m" }
+        - { from: bar, to: screw, label: "×2" }
+    chapters:
+      - title: One thing you sell
+        caption: The **end item** sits alone at **level 0**. It's a part like any other - it just happens to be the top.
+        show: [s2]
+        highlight: [s2]
+        seconds: 5
+      - title: Its direct children
+        caption: Four **uses links** pull in level 1. Note the wheel - one part, used **twice**. Windchill stores one wheel part and a quantity of 2, not two wheels.
+        show: [s2, frame, wheel, bar, batt]
+        highlight: [frame, wheel, bar, batt]
+        flow: [s2>frame, s2>wheel, s2>bar, s2>batt]
+        seconds: 7
+      - title: Sub-assemblies have children too
+        caption: The frame and wheel are **sub-assemblies**. Their own uses links pull in level 2. The battery is bought complete, so it stops at level 1.
+        show: [s2, frame, wheel, bar, batt, tube, hinge, brg, cable]
+        highlight: [tube, hinge, brg, cable]
+        flow: [frame>tube, frame>hinge, wheel>brg, bar>cable]
+        seconds: 7
+      - title: One screw, two parents
+        caption: The **M6 screw** comes from a library and is used by both the frame (×4) and the handlebar (×2). Still one part - it simply appears in two places in the tree.
+        highlight: [screw]
+        flow: [frame>screw, bar>screw]
+        seconds: 7
+      - title: Read it as a whole
+        caption: "That's a **multi-level BOM**: every level, every quantity. How many screws does one scooter need? 4 + 2 = **6**. How many bearings? 2 wheels × 2 = **4**."
+        highlight: [screw, brg]
+        seconds: 8
+
+  - type: text
+    md: |
+      ### The same BOM as an indented table
+
+      Windchill's structure view and BOM reports show the tree as an **indented list**. The level
+      number tells you how deep a line sits; a line belongs to the nearest line *above* it with a
+      smaller level.
+
+      | Level | Number | Name | Qty | Unit |
+      | --- | --- | --- | --- | --- |
+      | 0 | SC-0100 | Scooter S2 | 1 | each |
+      | 1 | ·· SC-2000 | Frame assembly | 1 | each |
+      | 2 | ···· SC-2010 | Main tube | 1 | each |
+      | 2 | ···· SC-1042 | Folding hinge | 1 | each |
+      | 2 | ···· FS-0620 | M6 x 20 screw | 4 | each |
+      | 1 | ·· SC-3100 | Wheel 10 in | 2 | each |
+      | 2 | ···· SC-3120 | Wheel bearing | 2 | each |
+      | 1 | ·· SC-4000 | Handlebar | 1 | each |
+      | 2 | ···· SC-4050 | Brake cable | 1.2 | m |
+      | 2 | ···· FS-0620 | M6 x 20 screw | 2 | each |
+      | 1 | ·· SC-5100 | Battery pack | 1 | each |
+
+      **Quantities are per parent, not per scooter.** The bearing line says 2 - that's two per
+      *wheel*. Multiply down the tree (1 scooter × 2 wheels × 2 bearings) to get the total of 4.
+      Some reports do this roll-up for you; check which one you're reading.
+
+  - type: diagram
+    title: What a BOM is - and what it isn't
+    caption: The BOM is the parts and their links. Everything else hangs off it. Click to explore.
+    diagram:
+      width: 800
+      height: 330
+      nodes:
+        - id: parts
+          label: Parts
+          sublabel: the things
+          x: 40
+          y: 40
+          w: 170
+          tone: primary
+          detail: Every item you design, buy or make and count. Each has a number, name, version and state. A part with children is called an **assembly** - it's still a part.
+        - id: links
+          label: Uses links
+          sublabel: "how many, where"
+          x: 40
+          y: 150
+          w: 170
+          tone: accent
+          detail: |
+            The parent → child relationships. Each carries a **quantity** and **unit**, and optional
+            details like a find number or reference designators (lesson 3). The links *are* the
+            structure.
+        - id: bom
+          label: The BOM
+          sublabel: parts + links
+          x: 310
+          y: 95
+          w: 180
+          h: 64
+          tone: success
+          detail: Put the parts and the uses links together and you have the product structure. Windchill can show it as a tree, an indented table or a report.
+        - id: cad
+          label: CAD models
+          sublabel: describe the parts
+          x: 590
+          y: 30
+          w: 180
+          tone: info
+          shape: doc
+          detail: CAD has its own assembly tree. It is linked to the parts (lesson 4), but the CAD tree and the BOM are not the same thing - glue, labels and software have no CAD at all.
+        - id: docs
+          label: Documents
+          sublabel: specs, test reports
+          x: 590
+          y: 130
+          w: 180
+          tone: info
+          shape: doc
+          detail: Documents attach to parts with described-by and references links. They explain the parts but don't appear as BOM lines.
+        - id: erp
+          label: ERP / factory
+          sublabel: uses the released BOM
+          x: 590
+          y: 240
+          w: 180
+          tone: warning
+          shape: cylinder
+          detail: Purchasing orders from it, planners schedule from it, the factory builds from it. That's why the BOM has to be right.
+      edges:
+        - { from: parts, to: bom }
+        - { from: links, to: bom }
+        - { from: cad, to: bom, label: linked, dashed: true }
+        - { from: docs, to: bom, label: attached, dashed: true }
+        - { from: bom, to: erp, label: released BOM }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      The BOM is the most-read piece of engineering data in the company. **Purchasing** buys from
+      it, **costing** prices it, the **factory** builds from it and **service** orders spares
+      from it. One wrong quantity means 1,000 scooters short of screws - or 1,000 extra
+      batteries in a warehouse. A single, managed eBOM in Windchill means everyone reads the same list.
+
+  - type: example
+    variant: case-study
+    title: The spreadsheet BOM that cost a launch week
+    industry: Micromobility
+    md: |
+      Before Acme moved its BOMs into Windchill, the E-bike E1 BOM lived in a spreadsheet that Kai's
+      team emailed around. Purchasing had version "final_v3". Engineering was on "final_v5", which
+      had changed the rear brake disc from 160 mm to 180 mm.
+
+      Two weeks before launch, 800 bikes reached the end of the line with **the wrong brake discs
+      in stock**. The fix cost a week of overtime and an express shipment.
+
+      After the move, the E1 eBOM is a part structure in Windchill. Purchasing reads the **latest
+      released** structure directly (or receives it through the ERP integration), and every change
+      to it goes through change control with a record of who changed what.
+    takeaway: A BOM that lives in one managed place can't drift into "final_v3" and "final_v5".
+
+  - type: walkthrough
+    title: Open and read a product structure
+    who: Anyone with read access to the product
+    where: ["<part> information page", Structure tab]
+    steps:
+      - title: Find the top-level part
+        where: [Search, "SC-0100"]
+        md: Search for the end item's number (here **SC-0100**, Scooter S2) and open its [[information-page]].
+      - title: Open the structure
+        where: ["SC-0100 information page", Structure tab]
+        md: |
+          Choose the **Structure** tab. The part appears as the root of a tree with its direct
+          children (level 1) underneath.
+      - title: Expand the levels
+        where: [Structure tab, Expand]
+        md: |
+          Expand one branch at a time, or use the expand-all option (often a toolbar button or a
+          right-click choice) to open every level. Large products can take a while to expand fully,
+          so expand just the branch you need when you can.
+      - title: Show the columns you need
+        where: [Structure tab, Columns / view settings]
+        md: |
+          Add columns such as **Quantity**, **Unit**, **Find Number** and **State** if they aren't
+          shown. Column and view options vary by release and company setup.
+      - title: Check which versions you are looking at
+        where: [Structure tab, configuration filter]
+        md: |
+          The structure is resolved by a configuration filter - usually *Latest* by
+          default. Switch to a released or baseline configuration when you need "what we actually
+          build". Configuration specs were covered in the previous section.
+    result: You can see the full multi-level BOM of the Scooter S2, with quantities, and you know which versions it shows.
+
+  - type: exercise
+    title: Read the BOM like a buyer
+    environment: paper
+    goal: Use the indented table above to answer the questions a purchasing team asks every day.
+    steps:
+      - How many **M6 x 20 screws** does one scooter need in total?
+      - How many **wheel bearings** do you order for a batch of 500 scooters?
+      - Which level-1 line has **no children** - and why might that be?
+      - How much **brake cable** is in 500 scooters?
+    expected: |
+      - **6 screws** - 4 in the frame plus 2 in the handlebar. Same part, two parents.
+      - **2,000 bearings** - 500 scooters × 2 wheels × 2 bearings.
+      - The **battery pack**. It's bought complete from a supplier, so Acme doesn't manage its insides.
+      - **600 m** - 500 × 1.2 m. Not everything is counted in pieces.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Reading quantities as totals.** A quantity in a multi-level BOM is *per parent*. "Bearing ×2"
+      under the wheel means two per wheel, not two per scooter. Multiply down the branch, or use a
+      report that rolls quantities up for you.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Before you share or export a BOM, look at the **configuration** it was resolved with. "Latest"
+      can include work-in-progress iterations; a released or baseline configuration shows what's
+      actually approved to build.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: In Windchill, what actually forms a BOM?
+        options:
+          - A spreadsheet attached to the top part
+          - Parts joined by uses links that carry quantity and unit
+          - The CAD assembly file
+          - The folder the parts are stored in
+        answer: 1
+        explanation: The BOM is the part structure - parts plus the uses links between them. CAD is linked to it, and folders only organise storage; neither *is* the BOM.
+      - kind: single
+        prompt: A multi-level BOM shows Wheel ×2 at level 1 and Bearing ×2 under it at level 2. How many bearings per scooter?
+        options: ["2", "4", "1", "It depends on the folder"]
+        answer: 1
+        explanation: Quantities are per parent. Two wheels each use two bearings, so 2 × 2 = 4 per scooter.
+      - kind: truefalse
+        prompt: If the M6 screw appears under both the frame and the handlebar, Windchill stores two different screw parts.
+        answer: false
+        explanation: It's one part (FS-0620) with two uses links - one from each parent. Change the screw once and both places see the change.
+      - kind: multi
+        prompt: Which teams typically rely on the released BOM? (Choose all that apply.)
+        options: [Purchasing, The factory, Service and spare parts, Nobody outside engineering]
+        answers: [0, 1, 2]
+        explanation: Purchasing buys from it, the factory builds from it and service orders spares from it. That's why one managed BOM matters so much.
+
+  - type: summary
+    points:
+      - A BOM is the nested list of what goes into a product and how many.
+      - In Windchill it's built from parts joined by uses links - not typed into a spreadsheet.
+      - A multi-level (indented) BOM shows every level; quantities are per parent.
+      - Read it on the part's information page → Structure tab, and check the configuration it shows.

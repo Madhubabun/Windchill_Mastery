@@ -1,0 +1,310 @@
+id: m02-s04-l02
+subtitle: That tiny picture on the information page has a backstory. Learn it and you'll know why it's sometimes missing.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [visualization, thumbnail, representation, publishing, browser-viewing]
+
+blocks:
+  - type: text
+    md: |
+      Scroll a photo gallery and you see small previews, not the full 48-megapixel images. Tap one and
+      the big version loads. The preview is made *from* the real photo - and if the photo never finished
+      uploading, you get a grey box.
+
+      Windchill's **thumbnails** work the same way. They aren't drawn by hand and they aren't magic.
+      They are a by-product of publishing a **representation**. No representation, no thumbnail.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the little preview picture" → *[[thumbnail]]*
+      - "the viewable copy it comes from" → *[[representation]]*
+      - "making that copy from CAD" → *[[visualization-publishing]]* (Windchill Visualization Services, *WVS*)
+      - "the helper that does the work" → *[[cad-worker]]*, fed by a [[background-queue]]
+      - "the copy that opens when you click" → the *default representation*
+
+  - type: animation
+    title: Where a thumbnail comes from
+    diagram:
+      width: 820
+      height: 320
+      nodes:
+        - { id: checkin, label: Check-in, sublabel: frame SC-2000 A.4, x: 20, y: 130, w: 150, tone: primary }
+        - { id: queue, label: Publish queue, sublabel: waiting jobs, x: 200, y: 130, w: 150, tone: neutral }
+        - { id: worker, label: CAD worker, sublabel: CAD adapter, x: 380, y: 130, w: 150, tone: neutral }
+        - { id: rep, label: Representation, sublabel: 3D viewable, x: 600, y: 30, w: 190, tone: info, shape: doc }
+        - { id: thumb, label: Thumbnail, sublabel: small image, x: 600, y: 130, w: 190, tone: success }
+        - { id: page, label: Information page, sublabel: shows thumbnail, x: 600, y: 240, w: 190, tone: accent }
+      edges:
+        - { from: checkin, to: queue, label: job }
+        - { from: queue, to: worker, label: next job }
+        - { from: worker, to: rep }
+        - { from: worker, to: thumb }
+        - { from: thumb, to: page }
+    chapters:
+      - title: Something triggers publishing
+        caption: Priya checks in the frame. Depending on company rules, check-in, a state change or a scheduled job can trigger publishing - or someone can request it by hand.
+        show: [checkin]
+        highlight: [checkin]
+      - title: The job waits its turn
+        caption: The publish job joins a **queue**. On a busy Monday morning, big assemblies can wait a while.
+        show: [checkin, queue]
+        highlight: [queue]
+        flow: [checkin>queue]
+      - title: A CAD worker opens the data
+        caption: A **CAD worker** loads the model with an adapter for that CAD tool (Creo, or another CAD system via its adapter) and converts it.
+        show: [checkin, queue, worker]
+        highlight: [worker]
+        flow: [queue>worker]
+      - title: Two outputs at once
+        caption: The worker writes the **representation** and generates **thumbnail** images from it. Both are stored with this version of the object.
+        show: [checkin, queue, worker, rep, thumb]
+        highlight: [rep, thumb]
+        flow: [worker>rep, worker>thumb]
+      - title: The preview appears
+        caption: Refresh the information page and the thumbnail is there. Click it to open the default representation.
+        highlight: [page]
+        flow: [thumb>page]
+        seconds: 7
+
+  - type: diagram
+    title: What hangs off one CAD document version
+    caption: One version can carry several representations. Click each box.
+    diagram:
+      width: 800
+      height: 380
+      nodes:
+        - id: cad
+          label: SC-2000.asm
+          sublabel: frame assembly A.4
+          x: 300
+          y: 20
+          w: 200
+          h: 60
+          tone: accent
+          shape: doc
+          detail: |
+            The CAD document version. Representations belong to a **specific version** - A.4 has its own,
+            A.3 kept its own.
+        - id: default
+          label: Default rep
+          sublabel: opens on click
+          x: 30
+          y: 160
+          w: 170
+          tone: info
+          shape: doc
+          detail: |
+            The representation marked as **default** is the one that opens when you click the thumbnail.
+            Users with the right permissions can change which one is default.
+        - id: simplified
+          label: Simplified rep
+          sublabel: no fasteners
+          x: 230
+          y: 160
+          w: 170
+          tone: info
+          shape: doc
+          detail: |
+            A second representation, for example a lighter one without screws and washers, or one built
+            from a CAD simplified representation. Handy for huge assemblies.
+          real: Which extra representations exist is decided by publishing rules your admin sets up.
+        - id: thumb
+          label: Thumbnail
+          sublabel: preview image
+          x: 430
+          y: 160
+          w: 160
+          tone: success
+          detail: |
+            A small image generated during publishing. Shown in the information page and, in many setups,
+            in search results and tables. It comes from the representation - so it's only as fresh as that.
+        - id: markups
+          label: Markups
+          sublabel: review notes
+          x: 620
+          y: 160
+          w: 160
+          tone: warning
+          detail: Saved review notes and sketches made in Creo View. You'll meet them in the next lesson.
+        - id: part
+          label: Part SC-2000
+          sublabel: may show a rep too
+          x: 300
+          y: 290
+          w: 200
+          tone: primary
+          detail: |
+            The part linked to this CAD document can also have a representation - often published from
+            its owner CAD document - so you can view it straight from the part. How this is set up varies
+            by company.
+      edges:
+        - { from: cad, to: default }
+        - { from: cad, to: simplified }
+        - { from: cad, to: thumb }
+        - { from: cad, to: markups, dashed: true }
+        - { from: cad, to: part, label: owner link, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Thumbnails are how people recognise things at a glance. A search for "bracket" returns twenty rows
+      with near-identical names - the thumbnails tell you instantly which one is the L-shaped one. When
+      publishing breaks, thumbnails vanish across the system, and suddenly everyone is opening objects
+      one by one. That's why admins watch the publishing queue closely.
+
+  - type: simulation
+    title: Will there be a thumbnail?
+    intro: |
+      You're Priya working on the frame **SC-2000**. Publishing on check-in is switched on at Acme. Check
+      in, let the worker run, and see when a thumbnail exists. Then try the failure path and fix it.
+    headline: "Frame A.{iteration} · publish: {publish} · thumbnail: {thumbnail}"
+    initial: { iteration: 3, publish: Done, thumbnail: "Yes", checkedOut: false, recovered: false }
+    actions:
+      - id: checkout
+        label: Check out
+        when: { checkedOut: false }
+        do: [{ set: { checkedOut: true } }]
+        log: Checked out A.{iteration}. You're editing in your workspace.
+        blockedHint: It's already checked out.
+      - id: checkin
+        label: Check in
+        when: { checkedOut: true }
+        do: [{ inc: iteration }, { set: { checkedOut: false, publish: Queued, thumbnail: "Not yet" } }]
+        log: Checked in A.{iteration}. A publish job is queued. The new version has no thumbnail yet.
+        blockedHint: Check out first.
+      - id: worker-ok
+        label: Worker runs (success)
+        when: { publish: Queued }
+        do: [{ set: { publish: Done, thumbnail: "Yes" } }]
+        log: The worker published a representation for A.{iteration} and generated its thumbnail.
+        blockedHint: There's no job waiting in the queue.
+      - id: worker-fail
+        label: Worker runs (missing component)
+        when: { publish: Queued }
+        do: [{ set: { publish: Failed, thumbnail: "No" } }]
+        log: Publishing failed - a component couldn't be loaded. A.{iteration} has no representation and no thumbnail.
+        blockedHint: There's no job waiting in the queue.
+      - id: republish
+        label: Fix the issue and republish
+        when: { publish: Failed }
+        do: [{ set: { publish: Queued, recovered: true } }]
+        log: After fixing the cause, the job is resubmitted for A.{iteration}. It's back in the queue.
+        blockedHint: Republishing is for failed jobs.
+    goals:
+      - label: Get a thumbnail on a new iteration
+        when: { iteration: 4, thumbnail: "Yes" }
+        message: Check-in → queue → worker → representation + thumbnail. The preview always lags the check-in a little.
+      - label: Recover from a failed publish
+        when: { publish: Done, recovered: true }
+        message: A failure means no viewable for that version. Fix the cause, republish, and it appears.
+
+  - type: example
+    variant: case-study
+    title: The Monday morning grey boxes
+    industry: Micromobility
+    md: |
+      One Monday, nobody at Acme saw thumbnails for anything checked in since Friday. People assumed
+      "Windchill lost the files" and started emailing CAD models around.
+
+      Actually the CAD files were fine. The **CAD worker machine** had been rebooted for updates over the
+      weekend and its service didn't restart. Publish jobs piled up in the queue. The admin restarted the
+      worker, the queue drained in an hour, and the thumbnails appeared - with nobody's data lost.
+    takeaway: Missing thumbnails usually mean a publishing problem, not missing data. Check the queue before panicking.
+
+  - type: walkthrough
+    title: View a representation in the browser
+    who: Any user with read access
+    where: ["<object> information page", Representations]
+    steps:
+      - title: Open the information page
+        where: [Search, "SC-2000", Information page]
+        md: Open the CAD document or part. Check the version you're on.
+      - title: Find its representations
+        where: [Information page, "Representations/Annotations"]
+        md: |
+          Look for the table of representations and annotations. In many releases it sits on a tab such
+          as **Visualization** or **Related Objects**; the exact tab name varies. It lists each
+          representation, which one is **default**, and any markups.
+      - title: Open the one you want
+        where: [Representations, "<representation>", View]
+        md: |
+          Click the view icon for a representation. Depending on your release and setup it opens in a
+          **browser-based viewer** (nothing to install) or in the Creo View desktop app.
+      - title: Optional - change the default
+        where: [Representations, "<representation>", Actions]
+        md: |
+          If you have permission, an action lets you set a different representation as default. The
+          thumbnail and the click-to-view then use that one.
+    result: You opened a specific representation - not just whatever the thumbnail shows.
+
+  - type: walkthrough
+    title: When a thumbnail is missing
+    who: Users (first two steps) and administrators (last step)
+    steps:
+      - title: Check the version
+        where: [Information page]
+        md: Is this a version that was just checked in? Give the queue a few minutes, then refresh.
+      - title: Look for representations
+        where: [Information page, "Representations/Annotations"]
+        md: |
+          An empty table means nothing was published for this version. Some setups offer an action to
+          request publishing (wording such as *Create Representation* or *Publish* - varies by release).
+      - title: Admins - check the job queue
+        where: [Site, Utilities, "WVS Job Monitor"]
+        md: |
+          Administrators can see queued, running and failed publish jobs in the Windchill Visualization
+          Services job monitor and the publishing queue, and read the error for each failure. Location
+          and naming vary by release.
+    result: You know whether the thumbnail is pending, failed, or simply never requested.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Trusting a thumbnail to tell you the version.** The thumbnail belongs to the version whose page
+      you're on - but if the latest iteration failed to publish, the newest version shows *no* preview
+      while an older one does. Don't open "the one with the picture" just because it has a picture.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      For huge assemblies like the full Scooter S2, ask whether a **simplified representation** is
+      published. It loads in seconds instead of minutes on a laptop or tablet.
+
+  - type: flashcards
+    cards:
+      - front: "Where does a thumbnail come from?"
+        back: "It's generated during publishing, from the representation of that version."
+      - front: "No thumbnail on a new version - most likely cause?"
+        back: "Publishing hasn't run yet or it failed. The CAD data is usually fine."
+      - front: "Default representation"
+        back: "The representation that opens when you click the thumbnail."
+      - front: "Windchill Visualization Services (WVS)"
+        back: "The part of Windchill that manages publishing representations and thumbnails."
+      - front: "Do representations belong to a version?"
+        back: "Yes. Each version has its own. A.3's representation doesn't update when A.4 is checked in."
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Priya checked in the frame 30 seconds ago and there's no thumbnail. What's most likely?
+        options:
+          - The CAD file was lost
+          - The publish job is still queued or running
+          - Thumbnails must be uploaded by hand
+          - Frames never get thumbnails
+        answer: 1
+        explanation: Thumbnails are produced by publishing, which runs in the background after the trigger. A fresh check-in usually just needs a little time.
+      - kind: order
+        prompt: Put the thumbnail's journey in order.
+        items: [Check-in triggers a publish job, Job waits in the queue, CAD worker converts the model, Representation and thumbnail are stored, Thumbnail shows on the information page]
+        explanation: The thumbnail is the last link in the publishing chain - which is why it lags a little behind every check-in.
+
+  - type: summary
+    points:
+      - Thumbnails are a by-product of publishing a representation - no representation, no thumbnail.
+      - Publishing runs in the background through a queue and CAD workers; triggers are configurable.
+      - Each version can have several representations; the default one opens on click.
+      - View a specific representation from the information page's representations table.

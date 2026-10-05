@@ -1,0 +1,45 @@
+# New glossary terms introduced in section m02-s01 (Document and CAD data management).
+- id: check-in
+  term: Check in
+  plain: Hand your changes back to Windchill so everyone can see them.
+  definition: The action that stores the changes on a checked-out object as a new iteration (for example A.2 → A.3), releases the edit reservation and makes the new iteration visible to other users. Comments entered at check-in are kept in the object's history.
+  related: [check-out, iteration, undo-checkout]
+
+- id: undo-checkout
+  term: Undo checkout
+  plain: '"Never mind" - cancel your edit and throw away the working copy.'
+  definition: Cancels a check-out. The working copy and any changes made to it are discarded, no new iteration is created and the object becomes available to others again. Administrators (or users with the right permission) can undo another user's check-out.
+  aka: [Undo check out, Cancel checkout]
+  related: [check-out, check-in, iteration]
+
+- id: local-cache
+  term: Local cache
+  plain: The hidden folder on your own computer where your CAD tool keeps workspace files.
+  definition: A folder on the user's machine where a CAD integration (Creo Parametric or a Workgroup Manager) stores copies of workspace files and workspace information. Saving in the CAD tool writes here first. Its location is set by the client (for Creo it is often under the user's application-data folder) and it can be cleared when it becomes corrupted, after uploading any unsaved work.
+  related: [workspace, server-side-workspace, commonspace]
+
+- id: server-side-workspace
+  term: Server-side workspace
+  plain: Your private shelf on the Windchill server - backed up, but still only yours.
+  definition: The part of a workspace stored on the Windchill server. Uploading copies modified files from the local cache to it, so work is safe on the server without being checked in. Other users cannot see the uploaded changes until they are checked in to commonspace.
+  related: [workspace, local-cache, commonspace]
+
+- id: commonspace
+  term: Commonspace
+  plain: The shared part of Windchill - the checked-in data everyone on the team can see.
+  definition: Windchill's shared, checked-in data, organized in contexts and folders, as opposed to a user's private workspace. Checking in moves changes from a workspace into commonspace; adding to a workspace or checking out brings objects from commonspace into a workspace.
+  aka: [Common space]
+  related: [workspace, check-in, context]
+
+- id: cad-conflict
+  term: Conflict (CAD check-in)
+  plain: Windchill saying "wait, this won't work yet" during a check-in, check-out or download.
+  definition: A problem Windchill detects while processing a workspace action - for example an object checked out by someone else, a newer iteration on the server, a file name that already exists or a missing dependent. Some conflicts can be resolved with a suggested action or overridden, others block the action until they are fixed.
+  aka: [Check-in conflict, Collision]
+  related: [workspace, check-in, cad-dependency]
+
+- id: embedded-browser
+  term: Embedded browser
+  plain: A Windchill web page shown inside your CAD tool's own window.
+  definition: The browser pane built into Creo Parametric (and into the Windchill Workgroup Manager client) that displays Windchill pages - workspace, search, information pages - so CAD users can work with Windchill without switching to a separate web browser.
+  related: [creo, workgroup-manager, workspace]

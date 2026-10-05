@@ -1,0 +1,331 @@
+id: m02-s03-l04
+subtitle: Is the CAD model in charge of the BOM, helping out, or just a picture? The link type decides.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [bom, cad, associations, owner, contributing, image, build]
+
+blocks:
+  - type: text
+    md: |
+      Priya adds a washer to the frame assembly in Creo and checks it in. Will the washer show up in
+      the frame's BOM? **It depends on how the CAD model and the part are linked.**
+
+      A [[cad-document|CAD document]] and a [[part]] are separate objects. A *build association*
+      (some call it a [[build-link|content association]]) joins them and answers one question:
+      **who's in charge of the part's structure?** The CAD model, Windchill, or a bit of both.
+      Pick the wrong link and CAD changes either flood into the BOM when you didn't want them -
+      or never arrive when you did.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the CAD model is in charge of this part" → *[[owner-association|owner]]* association
+      - "this CAD model adds its pieces, alongside others" → *[[contributing-association|contributing content]]*
+      - "this CAD model just shows what the part looks like" → *[[image-association|image]]* association
+      - "several CAD models make up the picture" → *contributing image*
+      - "Windchill updates the part from the CAD on check-in" → *build*
+      - "linked for reference only, builds nothing" → a *passive* association (often how drawings are linked)
+
+  - type: animation
+    title: How a CAD change becomes a BOM change
+    diagram:
+      width: 820
+      height: 360
+      groups:
+        - { label: "Priya's desk (Creo)", x: 10, y: 10, w: 250, h: 340, tone: neutral }
+        - { label: Windchill, x: 290, y: 10, w: 520, h: 340, tone: info }
+      nodes:
+        - { id: creo, label: Frame assembly, sublabel: "in Creo + washer", x: 40, y: 60, w: 190, tone: accent }
+        - { id: ws, label: Workspace, sublabel: check in, x: 40, y: 220, w: 190, tone: neutral }
+        - { id: cad, label: SC-2000.asm, sublabel: CAD document A.5, x: 320, y: 60, w: 190, tone: info, shape: doc }
+        - { id: build, label: Build, sublabel: owner association, x: 320, y: 220, w: 190, tone: warning, shape: pill }
+        - { id: part, label: SC-2000 part, sublabel: new iteration A.5, x: 590, y: 60, w: 190, tone: primary }
+        - { id: washer, label: Washer FS-0810, sublabel: new BOM line ×4, x: 590, y: 220, w: 190, tone: success }
+      edges:
+        - { from: creo, to: ws }
+        - { from: ws, to: cad, label: check in }
+        - { from: cad, to: build }
+        - { from: build, to: part }
+        - { from: part, to: washer, label: uses ×4 }
+    chapters:
+      - title: Priya edits the CAD assembly
+        caption: She assembles four washers into the frame in Creo. Each washer model already has its own part, FS-0810, from the fastener library.
+        show: [creo]
+        highlight: [creo]
+        seconds: 6
+      - title: Check in through the workspace
+        caption: The Workgroup Manager sends the changed assembly to Windchill. The CAD document gets a new iteration.
+        show: [creo, ws, cad]
+        highlight: [cad]
+        flow: [creo>ws, ws>cad]
+        seconds: 6
+      - title: The association decides
+        caption: Because SC-2000.asm is the **owner** of part SC-2000, Windchill runs a **build** as part of the check-in.
+        show: [creo, ws, cad, build]
+        highlight: [build]
+        flow: [cad>build]
+        seconds: 6
+      - title: The part follows the CAD
+        caption: "Part SC-2000 gets a new iteration in step with the CAD. Its uses links are rebuilt from the CAD components - so a **washer ×4** line appears. Mapped parameters (such as material) update too."
+        highlight: [part, washer]
+        flow: [build>part, part>washer]
+        seconds: 8
+      - title: With an image link instead...
+        caption: If SC-2000.asm were only an **image** of the part, there'd be no build. The CAD iterates, but the BOM stays exactly as it was until someone edits it in Windchill.
+        highlight: [cad, part]
+        seconds: 7
+
+  - type: diagram
+    title: The association family
+    caption: Two of these drive the BOM, two are about the picture, and passive links just point. Click each.
+    diagram:
+      width: 800
+      height: 400
+      groups:
+        - { label: Drive the structure (build), x: 10, y: 10, w: 380, h: 220, tone: warning }
+        - { label: "Picture only, BOM edited in Windchill", x: 410, y: 10, w: 380, h: 220, tone: info }
+      nodes:
+        - id: owner
+          label: Owner
+          sublabel: one per part
+          x: 30
+          y: 60
+          w: 160
+          tone: warning
+          detail: |
+            The CAD document is **in charge**: it builds the part's structure and mapped attributes
+            on check-in, and the two usually iterate together. A part has at most one owner. Typical
+            for a mechanical assembly modelled fully in Creo.
+          real: Most CAD-driven companies use owner links for nearly every designed component and sub-assembly.
+        - id: contrib
+          label: Contributing content
+          sublabel: many per part
+          x: 210
+          y: 60
+          w: 160
+          tone: warning
+          detail: |
+            The CAD document **adds its structure** to the part, alongside other CAD documents. Use it
+            when one part's BOM is assembled from several CAD sources - for example a mechanical
+            assembly plus a separately modelled cable harness.
+        - id: image
+          label: Image
+          sublabel: CAD = the picture
+          x: 430
+          y: 60
+          w: 160
+          tone: info
+          detail: |
+            The CAD document **represents** the part visually, but the part's structure is authored
+            in Windchill. CAD changes don't rebuild the BOM. Useful for top-level parts whose BOM holds
+            lots of non-CAD items (software, manuals, packaging).
+        - id: cimage
+          label: Contributing image
+          sublabel: several make the picture
+          x: 610
+          y: 60
+          w: 160
+          tone: info
+          detail: Several CAD documents together form the part's picture. None of them drives the structure.
+        - id: part
+          label: Part
+          sublabel: WTPart
+          x: 310
+          y: 300
+          w: 180
+          tone: primary
+          detail: The part is what purchasing, the factory and service use. The association type decides whether CAD can change its BOM.
+        - id: passive
+          label: Passive link
+          sublabel: e.g. a drawing
+          x: 600
+          y: 290
+          w: 170
+          tone: neutral
+          shape: doc
+          detail: |
+            A drawing usually documents the part rather than defining its structure, so it's linked
+            passively - it builds nothing. Some releases work out the drawing-to-part link
+            automatically from the model the drawing shows.
+      edges:
+        - { from: owner, to: part, label: builds }
+        - { from: contrib, to: part, label: adds to }
+        - { from: image, to: part, label: shows, dashed: true }
+        - { from: cimage, to: part, dashed: true }
+        - { from: passive, to: part, label: describes, dashed: true }
+
+  - type: comparison
+    title: Owner vs contributing vs image
+    columns: [Owner, Contributing content, Image / contributing image]
+    rows:
+      - { label: Builds the part structure, cells: ["Yes, from the CAD components", "Yes, adds its components", "No"] }
+      - { label: Updates part attributes, cells: [Mapped parameters flow over, Typically not, "No"] }
+      - { label: How many per part, cells: [At most one, Several, "Image: one. Contributing image: several"] }
+      - { label: Who edits the BOM, cells: [CAD designer in Creo, CAD designers (shared), Anyone with rights in Windchill] }
+      - { label: Typical use, cells: [A modelled assembly, Part built from several CAD sources, "Top-level or Windchill-authored BOMs"] }
+    takeaway: Owner and contributing let CAD change the BOM. Image links keep the BOM in Windchill's hands.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      The association type is a **policy decision**: where is the BOM authored? CAD-driven
+      structures keep CAD and BOM in sync automatically, so designers can't forget to update the
+      BOM. Windchill-driven structures let non-CAD items and manufacturing needs shape the BOM. Most
+      companies mix them - CAD-driven at the bottom, Windchill-driven near the top - and write the
+      rule down so everyone links the same way.
+
+  - type: example
+    variant: real-world
+    title: CAD at the bottom, Windchill at the top
+    industry: Micromobility
+    md: |
+      At Acme, every Creo sub-assembly - frame SC-2000, wheel SC-3100, handlebar SC-4000 - is the
+      **owner** of its part, so a change in Creo reaches the BOM on check-in.
+
+      The **Scooter S2 end item** (SC-0100) is different. Its BOM includes the user manual, the
+      firmware, the charger, a QR-code label and the shipping box - none of which exist in the CAD
+      top assembly. So Kai's team links the top-level CAD model as an **image**: Creo View still
+      shows the whole scooter, but the top-level BOM is curated in Windchill.
+    takeaway: Choose the link by asking "where should this BOM be authored?"
+
+  - type: walkthrough
+    title: Check and change how a part is linked to CAD
+    who: Designers; changing associations may need extra rights
+    steps:
+      - title: See the associated CAD documents
+        where: ["<part> information page", Related Objects / CAD documents table]
+        md: |
+          On the part's information page, find the table of related CAD documents (often under a
+          **Related Objects** or similar tab). Look at the **association type** column: Owner,
+          Contributing Content, Image, Contributing Image or a passive type. Labels vary by release.
+      - title: Associate from the workspace
+        where: [Creo, Workspace, select CAD document, Associate / Auto Associate]
+        md: |
+          In the Creo workspace, select the CAD document and use the associate action to link it to
+          an existing part, or **auto-associate** to create or find a matching part. Many companies
+          set preferences so this happens automatically at check-in.
+      - title: Change an association type
+        where: ["<part> information page", CAD documents table, edit association]
+        md: |
+          Where your access allows it, you can remove an association and create it again with a
+          different type. The part or CAD document may need to be checked out. Companies often
+          restrict this to experienced users.
+    result: You can tell whether a part's BOM follows its CAD, and who owns the structure.
+
+  - type: scenario
+    variant: what-if
+    title: Predict the BOM
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Priya adds **four washers** (part FS-0810) to the Creo frame assembly SC-2000.asm and checks
+          in. The CAD document is the **owner** of part SC-2000. What happens to the frame's BOM?
+        choices:
+          - label: A washer ×4 line appears in the part structure
+            next: s2
+            good: true
+            feedback: Right. An owner association builds the part's structure from the CAD on check-in.
+          - label: Nothing - someone must add it in Windchill
+            next: s1-wrong
+            feedback: That's how an image association behaves, not an owner association.
+      - id: s1-wrong
+        md: |
+          Not with an owner link. The build runs on check-in and rebuilds the CAD-driven lines. Try
+          the next case with that in mind.
+        choices:
+          - label: Next case
+            next: s2
+      - id: s2
+        md: |
+          Kai adds the **user manual** to the Scooter S2 end item in Windchill. The top-level CAD is
+          linked as an **image**. Later, Priya moves the battery in the top-level CAD model and checks
+          in. Does the manual line survive?
+        choices:
+          - label: Yes - an image link never rebuilds the BOM
+            next: s3
+            good: true
+            feedback: Correct. With an image link, the part's structure belongs to Windchill. CAD changes only update the picture.
+          - label: No - the CAD check-in wipes Windchill-only lines
+            next: s3-hint
+            feedback: There's no build with an image link, so nothing gets wiped.
+      - id: s3-hint
+        md: An image association never touches the part's structure. Keep going.
+        choices:
+          - label: Next case
+            next: s3
+      - id: s3
+        md: |
+          Back to the **owner**-linked frame. Someone removes the CAD-driven hinge line directly in
+          Windchill instead of in Creo, then Priya checks in a small CAD change. What happens?
+        choices:
+          - label: The hinge line comes back from CAD
+            next: win
+            good: true
+            feedback: Yes. CAD-driven lines are rebuilt from the CAD. To really remove the hinge, remove it in Creo.
+          - label: The hinge stays removed forever
+            next: partial
+            feedback: The owner CAD still contains the hinge, so the build puts the line back.
+      - id: win
+        md: |
+          You can predict the flow. **Owner / contributing**: CAD changes reach the BOM on check-in.
+          **Image**: the BOM is Windchill's job. Windchill-only items added to a CAD-driven part are
+          kept - but CAD-driven lines must be changed in CAD.
+        outcome: success
+      - id: partial
+        md: |
+          Close. Remember: with an owner link the CAD is the source of truth for the lines that come
+          from it. Edit those in Creo, not in the Windchill structure.
+        outcome: partial
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **"Why isn't my new bracket in the BOM?"** Usually one of two things: the part is linked as an
+      **image** (no build), or the new bracket's CAD model has **no part of its own** yet, so
+      there's nothing to put on a BOM line. Check the association type and the component's part.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      When a BOM looks "wrong", start on the part's information page and read the association type
+      column before anything else. It tells you instantly whether to fix it in Creo or in Windchill.
+
+  - type: callout
+    variant: note
+    md: Build rules - which parameters map to attributes, whether parts are created automatically, which CAD components (like skeleton models) are left out of the BOM - are set by preferences and differ between companies.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Which association lets a CAD assembly rebuild a part's structure and mapped attributes on check-in?
+        options: [Image, Owner, Contributing image, A passive drawing link]
+        answer: 1
+        explanation: The owner association puts the CAD document in charge. Image and contributing image only provide the picture; passive links only describe.
+      - kind: single
+        prompt: A part's BOM must combine a Creo mechanical assembly and a separately modelled cable harness. Which links fit?
+        options:
+          - Two owner associations
+          - Contributing content from each CAD source
+          - An image link from the harness only
+          - No association - type it in by hand
+        answer: 1
+        explanation: A part can have only one owner, but several contributing content links can each add their structure to the same part.
+      - kind: truefalse
+        prompt: With an image association, changing the CAD assembly's components automatically changes the part's BOM.
+        answer: false
+        explanation: Image links don't build. The CAD shows what the part looks like, but its structure is maintained in Windchill.
+      - kind: single
+        prompt: The top-level Scooter S2 BOM must include firmware, a manual and packaging that aren't in CAD. What's a common choice for its top-level CAD link?
+        options: [Owner, Image, Contributing content, Delete the CAD model]
+        answer: 1
+        explanation: An image link keeps Creo View's picture of the scooter while letting the team curate a Windchill-authored BOM full of non-CAD items.
+
+  - type: summary
+    points:
+      - The association type decides who's in charge of a part's BOM - CAD or Windchill.
+      - Owner (one per part) and contributing content (many) build the structure on CAD check-in.
+      - Image and contributing image give the picture; the BOM is edited in Windchill.
+      - Drawings are usually linked passively. Fix CAD-driven lines in Creo, not in Windchill.

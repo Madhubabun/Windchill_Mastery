@@ -1,0 +1,289 @@
+id: m02-s02-l05
+subtitle: Same scooter, same structure - four different answers. The filter you pick decides which truth you see.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [structure, configuration-specification, baseline, effectivity, bom]
+
+blocks:
+  - type: text
+    md: |
+      Open the Scooter S2 structure on Monday and the hinge shows **B.2**. Your colleague opens the
+      *same* structure and sees **A.3**. Nobody is wrong.
+
+      Here's the secret: the S2 doesn't point at "hinge B.2". It points at **the hinge** - all of
+      its versions at once. Every time you open the structure, a rule picks *one* version of each
+      child to display. Change the rule and the picture changes.
+
+      That rule is the **configuration specification** - config spec for short. Learn to switch it
+      and you can answer questions like *"what are we building today?"*, *"what was in the launch
+      version?"* and *"what's inside scooter number 1100?"* from one screen.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the rule that picks which version you see" → *[[configuration-specification|configuration specification]]* (config spec, or structure filter)
+      - "the newest of everything" → *Latest*
+      - "the newest approved" → *[[latest-released|latest Released]]* (Latest limited to the Released state)
+      - "a frozen snapshot" → *[[baseline]]*
+      - "valid from this date or serial number on" → *[[effectivity]]*
+      - "parent → child, pointing at all versions" → *[[uses-link|uses link]]* to the child's *[[master]]*
+
+  - type: diagram
+    title: Why one structure can show different versions
+    caption: The uses link points at the master. The config spec chooses which version to show. Click each box.
+    diagram:
+      width: 800
+      height: 400
+      groups:
+        - { label: Hinge SC-1042 versions, x: 380, y: 150, w: 410, h: 230, tone: neutral }
+      nodes:
+        - id: s2
+          label: Scooter S2
+          sublabel: parent part
+          x: 30
+          y: 30
+          w: 170
+          tone: primary
+          detail: The parent part. Its structure lists the hinge with quantity 2.
+        - id: master
+          label: Hinge master
+          sublabel: SC-1042
+          x: 500
+          y: 30
+          w: 170
+          tone: accent
+          shape: pill
+          detail: |
+            The **uses link** from the S2 goes here - to the master, not to a version. That's what
+            lets the structure follow the hinge as it evolves, without editing the S2 every time.
+        - id: spec
+          label: Config spec
+          sublabel: the rule you pick
+          x: 30
+          y: 220
+          w: 170
+          tone: info
+          detail: |
+            Latest, Latest Released, Baseline, Effectivity - or for CAD, As Stored. The structure
+            asks the spec: "for this master, which version?"
+          real: Most structure screens show the active filter somewhere near the top. Check it before you trust what you see.
+        - id: a3
+          label: A.3 Released
+          sublabel: "eff. serial 1-999"
+          x: 400
+          y: 190
+          w: 170
+          tone: success
+          detail: Picked by **Latest Released** until B.1 was released, by the **launch baseline**, and by effectivity for serials up to 999.
+        - id: b1
+          label: B.1 Released
+          sublabel: "eff. serial 1000+"
+          x: 600
+          y: 190
+          w: 170
+          tone: success
+          detail: Picked by **Latest Released** today, and by effectivity for serial 1000 and above.
+        - id: b2
+          label: B.2 In Work
+          sublabel: Priya is editing
+          x: 500
+          y: 300
+          w: 170
+          tone: warning
+          detail: Picked only by **Latest** - the newest iteration of the newest revision, whatever its state.
+      edges:
+        - { from: s2, to: master, label: uses (qty 2) }
+        - { from: spec, to: s2, label: filters }
+        - { from: master, to: a3, dashed: true }
+        - { from: master, to: b1, dashed: true }
+        - { from: master, to: b2, dashed: true }
+
+  - type: comparison
+    title: The main config specs
+    columns: [Latest, Baseline, Effectivity]
+    rows:
+      - label: Shows
+        cells: ["Newest version of each child - optionally only in a chosen state such as Released", Exactly the versions stored in a chosen baseline, The versions valid for a chosen date or lot or serial number]
+      - label: Answers
+        cells: ["What's newest? What's approved now?", What was in that snapshot?, What was built into unit 1100?]
+      - label: Changes over time?
+        cells: [Yes - every check-in or release can change it, "No - frozen", "Only if someone changes effectivity data"]
+      - label: Typical users
+        cells: ["Designers (Latest), purchasing (Latest Released)", "Auditors, certification, project milestones", "Service, manufacturing, configuration managers"]
+    takeaway: "Latest = now. Baseline = a moment. Effectivity = a specific date, lot or unit."
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      A BOM exported with the wrong filter is a classic expensive mistake. Export with **Latest**
+      instead of Latest Released and you send purchasing parts that are still In Work. Answer a
+      service question with **Latest** instead of effectivity and the technician orders a hinge
+      that doesn't fit the customer's scooter.
+
+  - type: simulation
+    title: One structure, four answers
+    intro: |
+      The Scooter S2 uses the hinge SC-1042 and the frame SC-2000. Four people need answers.
+      Switch the config spec, watch the versions change, then lock in each answer. An answer
+      button only works when the right spec is active - read the hint if it's greyed out.
+    headline: "Spec: {spec} · Hinge {hinge} · Frame {frame}"
+    initial: { spec: Latest, hinge: "B.2 In Work", frame: "B.1 Released", designer: false, purchasing: false, auditor: false, service: false }
+    actions:
+      - id: spec-latest
+        label: "Spec → Latest"
+        when: {}
+        do: [{ set: { spec: Latest, hinge: "B.2 In Work", frame: "B.1 Released" } }]
+        log: Latest shows the newest version of each child, whatever its state. The hinge shows Priya's work in progress.
+      - id: spec-released
+        label: "Spec → Latest Released"
+        when: {}
+        do: [{ set: { spec: Latest Released, hinge: "B.1 Released", frame: "B.1 Released" } }]
+        log: Latest limited to Released skips B.2 In Work and shows B.1 - the newest approved hinge.
+      - id: spec-baseline
+        label: "Spec → Baseline \"S2 Launch\""
+        when: {}
+        do: [{ set: { spec: Baseline S2 Launch, hinge: "A.3 Released", frame: "A.2 Released" } }]
+        log: The launch baseline froze A.3 and A.2 on launch day. It shows them no matter what changed since.
+      - id: spec-eff-500
+        label: "Spec → Effectivity serial 0500"
+        when: {}
+        do: [{ set: { spec: Effectivity serial 0500, hinge: "A.3 Released", frame: "A.2 Released" } }]
+        log: Scooter 0500 was built with hinge A.3 (serials 1-999) and frame A.2 (serials 1-1199).
+      - id: spec-eff-1100
+        label: "Spec → Effectivity serial 1100"
+        when: {}
+        do: [{ set: { spec: Effectivity serial 1100, hinge: "B.1 Released", frame: "A.2 Released" } }]
+        log: Scooter 1100 mixes hinge B.1 (from serial 1000) with frame A.2 (B.1 only from serial 1200). No other filter shows this combination.
+      - id: answer-designer
+        label: "Answer Priya: what's on the drawing board?"
+        when: { spec: Latest }
+        do: [{ set: { designer: true } }]
+        log: "Priya: thanks - B.2 is my work in progress, good to see it in context."
+        blockedHint: She wants to see work in progress, including In Work versions. Which spec shows the newest of everything?
+      - id: answer-purchasing
+        label: "Answer purchasing: what may we buy?"
+        when: { spec: Latest Released }
+        do: [{ set: { purchasing: true } }]
+        log: "Purchasing: B.1 hinge and B.1 frame, both approved. Orders placed."
+        blockedHint: Purchasing must only see approved data - and the newest approved. Latest would show In Work.
+      - id: answer-auditor
+        label: "Answer the auditor: what was approved at launch?"
+        when: { spec: Baseline S2 Launch }
+        do: [{ set: { auditor: true } }]
+        log: "Auditor: A.3 and A.2, exactly as frozen on launch day. Evidence accepted."
+        blockedHint: The auditor wants a moment in the past that must not move. Which spec is frozen?
+      - id: answer-service
+        label: "Answer service: what's in scooter 1100?"
+        when: { spec: Effectivity serial 1100 }
+        do: [{ set: { service: true } }]
+        log: "Service tech: hinge B.1 with frame A.2 - ordering the right spare."
+        blockedHint: Service needs what was built into that exact unit. Pick the effectivity spec for its serial number.
+    goals:
+      - label: Answer the designer
+        when: { designer: true }
+        message: Latest = newest of everything, including In Work.
+      - label: Answer purchasing
+        when: { purchasing: true }
+        message: Latest Released = newest approved. The safe choice for buying.
+      - label: Answer the auditor
+        when: { auditor: true }
+        message: A baseline never moves - perfect evidence.
+      - label: Answer the service tech
+        when: { service: true }
+        message: Effectivity rebuilds a specific unit, even a mix no other filter would show.
+
+  - type: walkthrough
+    title: Switch the config spec on a structure
+    who: Anyone with read access to the structure
+    steps:
+      - title: Open the structure
+        where: ["<part> information page", Structure tab]
+        md: Open the top part (for example Scooter S2) and go to its **Structure** tab.
+      - title: Find the active filter
+        where: [Structure tab, Filter]
+        md: |
+          Look for the filter or configuration specification control near the top of the
+          structure. It shows what is active now, often *Latest*. Its exact look and name vary by
+          release.
+      - title: Edit the config spec
+        where: [Structure tab, Filter, Edit filter]
+        md: |
+          Choose the type: **Latest** (optionally limited to a lifecycle state such as Released and
+          to a view such as Design), **Baseline** (pick the baseline), or **Effectivity** (enter a
+          date, lot or serial number and the end-item context). Apply it.
+      - title: Read the result
+        where: [Structure tab]
+        md: The versions in the tree update. Children with no version that matches the filter may be hidden or flagged - that's useful information too.
+      - title: Save a filter you use often
+        where: [Structure tab, Filter, Save]
+        md: Many releases let you save named filters ("Released only - Design view") so you don't rebuild them each time.
+    result: You see the same structure resolved for the question you're answering.
+
+  - type: example
+    variant: real-world
+    title: The recall that wasn't
+    industry: Micromobility
+    md: |
+      A batch of hinge pins from one supplier fails a hardness test. The pins went into hinge
+      **B.1**. Panic: "Recall every scooter!"
+
+      The configuration manager runs the S2 structure with **effectivity** for a few serial
+      numbers. Only serials **1000 and up** contain B.1 - and production of those started three
+      weeks ago. Instead of recalling 12,000 scooters, Acme contacts the owners of 400.
+    takeaway: Effectivity turns "which ones are affected?" from a guess into a filter.
+
+  - type: callout
+    variant: note
+    md: |
+      For CAD structures there's also **As Stored**: the exact versions that were saved together
+      when the assembly was checked in. Effectivity is optional - some companies use only Latest and
+      baselines, and how effectivity is assigned (often through change notices) is configured per
+      company.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Trusting the default.** Many structure views open with *Latest*, which happily shows In
+      Work versions. Before you export, print or screenshot a BOM for someone outside engineering,
+      check the filter.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      When you send someone a structure, say which filter you used: *"S2 BOM, Latest Released,
+      Design view, 5 Oct."* It turns a list of parts into a reproducible answer.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Why can the same structure show hinge B.2 for one person and A.3 for another?
+        options:
+          - Windchill caches different data per user
+          - The uses link points at the hinge master and each person's config spec picks a different version
+          - One of them has an outdated browser
+          - The hinge was copied with Save As
+        answer: 1
+        explanation: Uses links point to masters. The config spec decides which version of each master to show - Latest picks B.2, while a baseline or effectivity may pick A.3.
+      - kind: single
+        prompt: Purchasing needs the parts list to order for next month's builds. Which spec is the safe default?
+        options: [Latest, Latest limited to Released, Any baseline, As Stored]
+        answer: 1
+        explanation: Plain Latest includes In Work versions that may change. Limiting Latest to Released shows the newest approved data. (If your company uses effectivity, the build's effectivity is even more precise.)
+      - kind: truefalse
+        prompt: A structure viewed with a baseline config spec changes when someone checks in a new iteration of a child.
+        answer: false
+        explanation: A baseline stores specific versions. New check-ins don't change it - that's the whole point.
+      - kind: single
+        prompt: Service asks which hinge is in scooter serial 0500. Which spec answers this directly?
+        options: [Latest, Latest Released, Effectivity with serial 0500, As Stored]
+        answer: 2
+        explanation: Effectivity resolves the structure for a specific unit. Latest Released shows today's approved design, which may differ from what was built into 0500.
+
+  - type: summary
+    points:
+      - Uses links point at masters, so a structure needs a rule to pick versions - the config spec.
+      - Latest = newest (In Work included). Latest limited to Released = newest approved.
+      - Baseline = a frozen snapshot. Effectivity = valid for a date, lot or serial number.
+      - Always check, and state, which filter you used.

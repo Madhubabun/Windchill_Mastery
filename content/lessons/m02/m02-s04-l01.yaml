@@ -1,0 +1,304 @@
+id: m02-s04-l01
+subtitle: The buyer, the tester and the boss all need to see the hinge. None of them has Creo.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [visualization, creo-view, representation, viewing]
+
+blocks:
+  - type: text
+    md: |
+      A Creo model is like a raw video project: huge, full of layers, and it only opens in the pro
+      editing app. Most people don't want to *edit* the video. They want to **watch** it.
+
+      Design data works the same way. Priya designs the folding hinge **SC-1042** in Creo Parametric.
+      But the buyer needs to see it before ordering, the test lab needs to check where the sensor goes,
+      and Kai wants a quick look before the review. None of them has a CAD licence - or wants one.
+
+      So Windchill makes a lightweight "watch-only" copy of the design, and everyone opens it in a free
+      or low-cost viewer. That viewer is **Creo View**.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the viewer anyone can use" → *[[creo-view]]*
+      - "the lightweight watch-only copy" → *[[representation]]* (also called a *viewable*)
+      - "turning CAD into that copy" → *[[visualization-publishing|publishing]]*, done by [[cad-worker|CAD workers]]
+      - "the original model or drawing" → *[[cad-document]]*
+      - "the item it describes" → *[[part]]*
+
+  - type: diagram
+    title: One design, many viewers
+    caption: The heavy CAD file stays with the designer. Everyone else looks at the light copy. Click each person.
+    diagram:
+      width: 820
+      height: 420
+      groups:
+        - { label: Needs CAD, x: 20, y: 20, w: 220, h: 380, tone: neutral }
+        - { label: Just needs to see it, x: 470, y: 20, w: 330, h: 380, tone: success }
+      nodes:
+        - id: priya
+          label: Priya
+          sublabel: designer · Creo
+          x: 45
+          y: 70
+          w: 170
+          tone: primary
+          detail: |
+            Priya creates and changes the hinge in **Creo Parametric**. She is one of very few people who
+            need the full CAD tool - and the native files.
+        - id: cad
+          label: SC-1042.prt
+          sublabel: CAD document
+          x: 45
+          y: 250
+          w: 170
+          tone: accent
+          shape: doc
+          detail: |
+            The native CAD file: features, sketches, parameters, history. Big, editable - and useless
+            without Creo installed.
+        - id: rep
+          label: Representation
+          sublabel: lightweight copy
+          x: 265
+          y: 165
+          w: 180
+          h: 64
+          tone: info
+          shape: doc
+          detail: |
+            A [[representation]] is published from the CAD data: shapes, colours, structure and some
+            data - but no design history. It's much smaller and opens in [[creo-view]].
+          real: Many companies publish representations automatically on every check-in, so the copy is always fresh.
+        - id: buyer
+          label: Buyer
+          sublabel: purchasing
+          x: 500
+          y: 50
+          w: 130
+          tone: success
+          detail: Checks what she's buying before sending a quote request - shape, size, material notes on the drawing.
+        - id: tester
+          label: Test lab
+          sublabel: quality
+          x: 650
+          y: 50
+          w: 130
+          tone: success
+          detail: Plans where to clamp the hinge on the rig and where to put the strain gauge.
+        - id: kai
+          label: Kai
+          sublabel: lead · reviewer
+          x: 500
+          y: 170
+          w: 130
+          tone: success
+          detail: Reviews the design before release. Spins it, sections it, adds markups - no CAD needed.
+        - id: factory
+          label: Factory
+          sublabel: assembly line
+          x: 650
+          y: 170
+          w: 130
+          tone: success
+          detail: Sees how the hinge fits into the frame so the assembly instructions match reality.
+        - id: service
+          label: Service tech
+          sublabel: repair shop
+          x: 500
+          y: 300
+          w: 130
+          tone: success
+          detail: Looks up the exploded view to replace a worn hinge pin on a customer's scooter.
+        - id: supplier
+          label: Supplier
+          sublabel: outside Acme
+          x: 650
+          y: 300
+          w: 130
+          tone: warning
+          detail: |
+            Can be given a view of just the parts they make - often without ever receiving the native
+            CAD files. Access is still controlled by Windchill's team and permission rules.
+      edges:
+        - { from: priya, to: cad, label: designs }
+        - { from: cad, to: rep, label: publish }
+        - { from: rep, to: kai }
+        - { from: rep, to: buyer, dashed: true }
+        - { from: rep, to: service, dashed: true }
+
+  - type: animation
+    title: From check-in to "I can see it!"
+    diagram:
+      width: 820
+      height: 300
+      nodes:
+        - { id: creo, label: Creo Parametric, sublabel: Priya checks in, x: 20, y: 120, w: 160, tone: primary }
+        - { id: wc, label: Windchill, sublabel: CAD document B.2, x: 220, y: 120, w: 160, tone: accent, shape: cylinder }
+        - { id: worker, label: CAD worker, sublabel: publishes, x: 420, y: 30, w: 160, tone: neutral }
+        - { id: rep, label: Representation, sublabel: stored with B.2, x: 420, y: 210, w: 160, tone: info, shape: doc }
+        - { id: viewer, label: Creo View, sublabel: Kai opens it, x: 630, y: 120, w: 170, tone: success, shape: pill }
+      edges:
+        - { from: creo, to: wc, label: check in }
+        - { from: wc, to: worker, label: job queued }
+        - { from: worker, to: rep, label: result }
+        - { from: rep, to: viewer, label: view }
+    chapters:
+      - title: Priya checks in
+        caption: Priya checks in the hinge from Creo. Windchill now holds a new iteration of the **CAD document**.
+        show: [creo, wc]
+        highlight: [wc]
+        flow: [creo>wc]
+      - title: A publishing job is queued
+        caption: Windchill puts a **publish job** in a background queue. Whether this happens on every check-in is a company setting.
+        show: [creo, wc, worker]
+        highlight: [worker]
+        flow: [wc>worker]
+      - title: The worker builds the light copy
+        caption: A **CAD worker** opens the model with a CAD adapter and writes a lightweight **representation**. Large assemblies can take minutes.
+        show: [creo, wc, worker, rep]
+        highlight: [rep]
+        flow: [worker>rep]
+      - title: Anyone with access can look
+        caption: Kai clicks the thumbnail on the hinge's information page. **Creo View** opens the representation - spin, zoom, section, measure. No CAD licence used.
+        highlight: [viewer]
+        flow: [rep>viewer]
+        seconds: 8
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      CAD licences are expensive and CAD tools take months to learn. If only designers can see the
+      design, every question becomes an email with a screenshot - often of the **wrong version**.
+      With Creo View, the buyer, tester and service tech all look at the same managed version that
+      Windchill controls. Fewer meetings, fewer "which file is this?" moments.
+
+  - type: comparison
+    title: Native CAD vs representation
+    columns: [Native CAD file, Representation in Creo View]
+    rows:
+      - { label: Who opens it, cells: [Designers with Creo, Almost anyone with access] }
+      - label: Can you change the design?
+        cells: ["Yes - features, sketches, dimensions", "No - view, measure, section, mark up"]
+      - { label: File size, cells: [Large, Much smaller] }
+      - label: Drawings
+        cells: [Native drawing file, "Published 2D view, often PDF-like"]
+      - { label: Typical users, cells: [Design engineers, "Reviewers, buyers, factory, service"] }
+    takeaway: Designers edit the native file. Everyone else looks at the representation.
+
+  - type: example
+    variant: real-world
+    title: The buyer who stopped asking for screenshots
+    industry: Micromobility
+    md: |
+      Acme's buyer used to email Priya every week: "Can you send me a picture of the latest bracket?"
+      Priya would screenshot whatever was open in Creo - sometimes an unfinished iteration.
+
+      Now the buyer searches for the bracket, opens its information page and clicks the thumbnail.
+      Creo View opens the representation of the **Released** version. She can spin it, read the drawing
+      and check the material note herself. Priya got back about an hour a week.
+    takeaway: Self-service viewing of the managed version beats screenshots of "whatever is open".
+
+  - type: walkthrough
+    title: Open a model in Creo View
+    who: Any user with read access to the object
+    where: [Search, "<CAD document or part>", Information page]
+    steps:
+      - title: Find the object
+        where: [Search, "SC-1042"]
+        md: |
+          Search for the CAD document or the part by number. Check the version and state in the
+          results - for most reviews you want the latest **Released** version.
+      - title: Open its information page
+        where: ["SC-1042", Information page]
+        md: |
+          Click the name. The information page usually shows a **thumbnail** of the model in a
+          visualization area, if a representation has been published.
+      - title: Launch the viewer
+        where: [Information page, Thumbnail]
+        md: |
+          Click the thumbnail, or use the **View in Creo View** action (often an icon next to the
+          thumbnail or in the Actions menu - wording varies by release). Depending on your setup, the
+          model opens in a **browser-based viewer** or in the **Creo View** desktop app.
+      - title: Look around
+        where: [Creo View]
+        md: |
+          Spin with the mouse, zoom with the wheel, pick a component to highlight it in the structure
+          tree. You are looking at a copy - nothing you do here changes the CAD data.
+    result: You see the managed version of the model in 3D without opening any CAD tool.
+
+  - type: walkthrough
+    title: Open a drawing in Creo View
+    who: Any user with read access to the drawing
+    where: [Search, "<drawing>", Information page]
+    steps:
+      - title: Find the drawing, not just the model
+        where: [Search, "SC-1042.drw"]
+        md: |
+          Drawings are their own CAD documents. Search for the drawing, or open the model's information
+          page and look at its related CAD documents (for example on a related-objects tab) to jump to it.
+      - title: View the published drawing
+        where: ["Drawing information page", Thumbnail]
+        md: |
+          Click the thumbnail or the view action. Creo View opens the drawing sheets. Use the page or
+          sheet controls to move between sheets, and zoom into dimensions and notes.
+    result: You can read the official drawing - dimensions, tolerances and notes - without Creo.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **No thumbnail? The object might simply not be published yet** - or publishing failed. That's not
+      a missing file. Large assemblies can sit in the queue for a while. Check again later, or ask your
+      admin to look at the publishing queue (next lesson shows how).
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Before you comment on a design, **check the version in the viewer's title or the information page**.
+      "The hole is too small" means nothing if you were looking at A.3 and Priya is already on B.2.
+
+  - type: callout
+    variant: note
+    md: |
+      Creo View comes in different packages. A free *Lite* viewer covers basic viewing; licensed
+      packages add tools such as measuring, sectioning, markup and compare. Exactly which tools you have
+      depends on your company's licences and release.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Acme's service tech needs to see how the hinge pin is assembled. What's the best option?
+        options:
+          - Install Creo Parametric and open the native file
+          - Open the hinge's representation in Creo View
+          - Ask Priya for a screenshot
+          - Download the CAD file and email it to the repair shop
+        answer: 1
+        explanation: Creo View opens the lightweight representation without a CAD licence, and it shows the version Windchill manages. Screenshots and emailed files escape version control.
+      - kind: truefalse
+        prompt: Zooming and spinning a model in Creo View changes the CAD document in Windchill.
+        answer: false
+        explanation: Creo View works on a published copy (the representation). Viewing never changes the CAD data, and editing the design still needs the CAD tool.
+      - kind: multi
+        prompt: Who typically benefits from viewing designs without CAD? (Choose all that apply.)
+        options: [Buyers, Test and quality engineers, Service technicians, Factory planners]
+        answers: [0, 1, 2, 3]
+        explanation: Everyone who needs to see the design but not edit it benefits. That's usually far more people than the designers themselves.
+
+  - type: flashcards
+    cards:
+      - front: "Creo View"
+        back: "PTC's viewer for 3D models and drawings. No CAD licence needed to look."
+      - front: "Representation"
+        back: "The lightweight viewable copy published from CAD data."
+      - front: "How do you open a model in Creo View?"
+        back: "Information page → click the thumbnail or the View in Creo View action."
+
+  - type: summary
+    points:
+      - Native CAD is for editing. Representations are for looking - by almost anyone.
+      - Windchill publishes representations from CAD data, often on check-in.
+      - Open a model or drawing from its information page by clicking the thumbnail or view action.
+      - Always check which version you're viewing before you comment.

@@ -1,0 +1,285 @@
+id: m02-s02-l02
+subtitle: Three buttons that all "make something new" - and only one of them keeps your history in one piece.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [versioning, revise, save-as, view-version, interchangeability]
+
+blocks:
+  - type: text
+    md: |
+      You need "a new version of the hinge". Windchill offers three actions that all sound right:
+
+      - **Revise** - the next edition of the *same* hinge (A → B).
+      - **Save As** - a *copy* that becomes a different hinge with a new number.
+      - **New View Version** - the same hinge, seen through another team's lens (for example
+        Manufacturing instead of Design).
+
+      Pick the wrong one and nothing crashes. The damage shows up months later: a supplier
+      building the wrong thing, a where-used report that misses half the products, an audit trail
+      with a hole in it. This lesson is about choosing right the first time.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "next edition of the same thing" → *[[revise|Revise]]* (A.3 → B.1)
+      - "copy it into a new thing" → *[[save-as|Save As]]* (new number, new [[master]])
+      - "same part, other team's lens" → *[[new-view-version|New View Version]]* (for example Design → Manufacturing [[part-view|view]])
+      - "can the new one replace the old one everywhere?" → *interchangeability* (often called the form-fit-function rule)
+
+  - type: diagram
+    title: Which button? A three-question decision
+    caption: Start at the top. Click each box for the reasoning.
+    diagram:
+      width: 800
+      height: 420
+      nodes:
+        - id: start
+          label: I need to change it
+          sublabel: hinge SC-1042
+          x: 300
+          y: 20
+          w: 200
+          tone: primary
+          shape: pill
+          detail: Before clicking anything, ask what the change *means* for everyone who already uses this object.
+        - id: q1
+          label: Still interchangeable?
+          sublabel: form · fit · function
+          x: 300
+          y: 120
+          w: 200
+          tone: info
+          detail: |
+            Could a new hinge replace an old one in **every** scooter already built and in every
+            spare-parts bin - same mounting, same size, same job? If yes, it's the same item. If no,
+            it's a different item.
+          real: Many companies write this rule into their change process. Ask your change manager for yours.
+        - id: q2
+          label: Another discipline?
+          sublabel: e.g. manufacturing
+          x: 30
+          y: 230
+          w: 200
+          tone: info
+          detail: |
+            Is the "new version" really the same part as seen by another team - for example how the
+            plant structures it for assembly? Then it's a view question, not a design change.
+        - id: revise
+          label: Revise
+          sublabel: same number · A → B
+          x: 300
+          y: 340
+          w: 200
+          tone: success
+          detail: |
+            The next revision of the same master. History, where-used, links and change records all
+            stay connected. Usually done from a Released revision, often inside a change.
+        - id: nvv
+          label: New View Version
+          sublabel: same number · new view
+          x: 30
+          y: 340
+          w: 200
+          tone: accent
+          detail: |
+            Creates a version of the **part** in another view (for example Manufacturing) on the same
+            master. Each view then evolves on its own. Parts only - documents and CAD don't have views.
+        - id: saveas
+          label: Save As
+          sublabel: new number · fresh history
+          x: 570
+          y: 340
+          w: 200
+          tone: warning
+          detail: |
+            A new object with its own number and history, starting from a copy of the original. The
+            original keeps its own where-used and history. Right when the result is genuinely a
+            different item.
+      edges:
+        - { from: start, to: q1 }
+        - { from: q1, to: q2, label: "yes - same item" }
+        - { from: q2, to: nvv, label: "yes" }
+        - { from: q2, to: revise, label: "no - design change" }
+        - { from: q1, to: saveas, label: "no - new item" }
+
+  - type: comparison
+    title: Revise vs New View Version vs Save As
+    columns: [Revise, New View Version, Save As]
+    rows:
+      - label: What you get
+        cells: ["Next revision, e.g. A.3 → B.1", "Same part in another view", "A new object copied from the old one"]
+      - label: Number
+        cells: [Same, Same, New]
+      - label: History
+        cells: ["Continues - one timeline", "Same master - each view has its own versions", "Starts fresh at the first version"]
+      - label: Where-used
+        cells: ["Parents still use this master", "Same master - shared where-used", "Nobody uses the copy yet"]
+      - label: Works on
+        cells: ["Parts, documents, CAD", "Parts only", "Parts, documents, CAD"]
+      - label: Typical trigger
+        cells: ["Approved change to a released item", "Downstream team needs its own version", "A new variant or a new design started from an old one"]
+      - label: Typical control
+        cells: ["Often via a change notice task", "Often by manufacturing engineering", "Usually anyone who can create in the context"]
+    takeaway: Same item → Revise. Same item in another discipline → New View Version. Different item → Save As.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Where-used, cost roll-ups, service manuals and change history all follow the **master**.
+      Revise keeps everything on one master. Save As breaks the chain on purpose - which is perfect
+      for a real new item and a disaster when it's used as a shortcut to "get a fresh version".
+
+  - type: example
+    variant: real-world
+    title: The save-as trap at Acme
+    industry: Micromobility
+    md: |
+      A contractor needs to change the hinge pin. The released A.3 is locked and the change
+      process feels slow, so he does **Save As** → SC-1042-NEW, edits it and gets it promoted.
+
+      What broke:
+      - The Scooter S2 assembly still **uses SC-1042**. Nobody updated it, so the factory keeps
+        building with the old pin.
+      - A where-used on SC-1042 doesn't mention the new hinge. Service doesn't know it exists.
+      - Six months later an auditor asks "show me the change history of the hinge". The trail
+        stops at A.3. The pin change lives on a different number with no change record.
+
+      The fix took a week: a proper revise to B, a change notice, and cancelling the orphan copy.
+    takeaway: If it still fits and does the same job, it's the same part - revise it.
+
+  - type: scenario
+    variant: challenge
+    title: Kai's three requests
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Kai, the lead, sends you three requests. **Request 1:** the Released hinge SC-1042 A.3
+          needs a harder pin. Same size, same holes, fits every S2 already built. What do you do?
+        choices:
+          - label: Revise SC-1042 to B
+            next: s2
+            good: true
+            feedback: Right. It's interchangeable, so it's the same item - the next edition.
+          - label: Save As SC-1043 and edit the copy
+            next: f1
+            feedback: That creates a new item nobody uses. The S2 assembly still points at SC-1042.
+          - label: Check out A.3 and edit it in place
+            next: f2
+            feedback: A.3 is Released - normal users can't check it out, and if they could, the factory's record would change under them.
+      - id: s2
+        md: |
+          **Request 2:** the E-bike E1 needs a hinge like SC-1042, but with **wider mounting holes**
+          for its thicker tube. The S2 keeps the current hinge. What now?
+        choices:
+          - label: Save As a new hinge for the E1
+            next: s3
+            good: true
+            feedback: Yes. Wider holes won't fit an S2 - not interchangeable, so it's a new item with its own number, started from a copy.
+          - label: Revise SC-1042 to C with wider holes
+            next: f3
+            feedback: Then every S2 that pulls the latest hinge would get holes that don't fit.
+      - id: s3
+        md: |
+          **Request 3:** manufacturing wants SC-1042 in their own structure for the plant, with
+          assembly-specific information, without touching engineering's design version.
+        choices:
+          - label: New View Version (Manufacturing)
+            next: win
+            good: true
+            feedback: Exactly - same part, same number, a version in the Manufacturing view that evolves separately.
+          - label: Save As SC-1042-MFG
+            next: p1
+            feedback: Works on paper, but now there are two numbers for one physical hinge. Orders and stock get confused.
+      - id: f1
+        md: The S2 assembly keeps using SC-1042, so the factory never gets the harder pin, and the hinge's change history stops at A.3. Classic save-as trap.
+        outcome: fail
+      - id: f2
+        md: Editing a released version would change what the factory, suppliers and auditors see without any approval. That's exactly what lifecycle states stop.
+        outcome: fail
+      - id: f3
+        md: A non-interchangeable change on the same number. Older S2 spare-parts orders now get the wrong hinge. A new item needs a new number.
+        outcome: fail
+      - id: p1
+        md: Two numbers for one physical part is a classic data-quality headache. You got requests 1 and 2 right though - nice.
+        outcome: partial
+      - id: win
+        md: Three for three. Revise for the same item, Save As for a different item, New View Version for another discipline's lens.
+        outcome: success
+
+  - type: walkthrough
+    title: Where the three actions live
+    who: Users with create or modify rights in the context (your company may restrict Revise to change tasks)
+    steps:
+      - title: Revise
+        where: ["<object> information page", Actions, Revise]
+        md: |
+          Pick the Released version, choose **Revise**, confirm. You get the next revision, usually
+          In Work. Many companies do this from the **change task** instead, so the new revision is
+          recorded as a resulting object of the change.
+      - title: Save As
+        where: ["<object> information page", Actions, Save As]
+        md: |
+          Give the copy a new number (or let Windchill generate one) and a name. For CAD, related
+          objects such as drawings can be included and renamed together. The copy starts its own
+          history.
+      - title: New View Version
+        where: ["<part> information page", Actions, New View Version]
+        md: |
+          Parts only. Choose the target view (for example Manufacturing). Depending on your release
+          and setup, manufacturing teams may instead create downstream views from a BOM
+          transformation tool rather than this action.
+    result: You know where each action is and which one fits the change in front of you.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Revising when you needed a new number.** The opposite of the save-as trap. If the change
+      isn't interchangeable, revising pushes it into every product that pulls the latest version.
+      When in doubt, ask "would the old and new be mixed in the same bin?"
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Use **Save As** proudly for genuine variants - it's the fastest way to start the E1 hinge
+      from the S2 hinge. Just put the reason in the description ("Based on SC-1042 B.1, wider
+      holes for E1") so the family relationship is easy to find later.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: The Released frame SC-2000 needs a stronger weld. Every existing scooter could take the new frame. Which action?
+        options: [Revise, Save As, New View Version, Set State back to In Work and edit]
+        answer: 0
+        explanation: Interchangeable change to a released item = same item, next edition. Revise keeps the frame's history, where-used and change records on one master.
+      - kind: single
+        prompt: What is the main reason Save As "breaks history"?
+        options:
+          - It deletes the original
+          - It creates a new master with its own number, so the old object's where-used and change history don't follow
+          - It resets the original to A.1
+          - It removes all CAD content
+        answer: 1
+        explanation: The original is untouched. The copy simply lives on a new master, so assemblies, change records and where-used still point to the old number.
+      - kind: truefalse
+        prompt: New View Version works on parts, documents and CAD documents alike.
+        answer: false
+        explanation: Views (like Design and Manufacturing) belong to parts. Documents and CAD documents don't have view versions.
+      - kind: multi
+        prompt: Which situations call for Save As? (Choose all that apply.)
+        options:
+          - Starting a new e-bike rear rack from the scooter rack design
+          - A larger hinge for a new model that won't fit the old one
+          - Fixing a typo in a released drawing's title block
+          - Getting around a slow change process
+        answers: [0, 1]
+        explanation: Save As is for genuinely new items, including non-interchangeable variants. A typo fix on the same item is a revise (or follows your company's minor-change rule). Dodging change control is the save-as trap.
+
+  - type: summary
+    points:
+      - Revise = same item, next edition. History, links and where-used stay together.
+      - Save As = a new item with a new number and fresh history. Great for real variants.
+      - New View Version = the same part in another view, such as Manufacturing.
+      - Ask "is it still interchangeable?" before you pick.

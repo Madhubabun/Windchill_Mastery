@@ -1,0 +1,109 @@
+id: m02-s01-check
+subtitle: Documents, the edit cycle, content, CAD integrations, workspaces and conflicts - prove you've got them.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [checkpoint, documents, cad, workspace]
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on everything in **Document and CAD data management**: creating documents,
+      the check-out / check-in cycle, primary content and representations, CAD integrations,
+      workspaces and the local cache, and calm conflict resolution. Score 80% to pass. The
+      flashcards below go straight into your review deck.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: multi
+        prompt: Priya creates a new test report document. Which choices does she make in the wizard? (Choose all that apply.)
+        options: [The context and folder, The document type, The primary content file, The vault folder where the file is stored]
+        answers: [0, 1, 2]
+        explanation: You choose where the document lives, what type it is and its main file. Windchill handles vault storage itself - users never pick vault folders.
+      - kind: single
+        prompt: A new document is created and Finish is clicked. What's its version, and who can see it?
+        options:
+          - A.0 - only the creator until it's checked in
+          - A.1 - visible to people with access right away
+          - B.1 - visible after a promotion
+          - 1.0 - visible after publishing
+        answer: 1
+        explanation: New objects are born at A.1 (with the usual revision scheme) and are already checked in, so anyone with access can find them unless you kept it checked out.
+      - kind: order
+        prompt: Put the document edit cycle in order.
+        items: [Check out, Download and edit the file, Upload it to the working copy, Check in with a comment]
+        explanation: Reserve it, change it locally, put the change on your private working copy, then check in to create the next iteration.
+      - kind: single
+        prompt: TR-0057 is at A.2. You check it out by mistake and choose Undo checkout. What happens?
+        options:
+          - It becomes A.3
+          - It stays A.2 and the working copy is discarded
+          - It goes back to A.1
+          - It's locked until an admin unlocks it
+        answer: 1
+        explanation: Undo checkout throws away the working copy and creates no iteration. The object stays exactly where it was.
+      - kind: truefalse
+        prompt: Republishing a representation creates a new iteration of the CAD document.
+        answer: false
+        explanation: Representations are generated viewables. Republishing replaces the viewable but doesn't change the object's version. Changing primary content or attachments is what needs a check-out and creates an iteration.
+      - kind: single
+        prompt: Leo designs in NX. How should his assemblies get into Windchill?
+        options:
+          - Uploaded with New Document in the browser
+          - Through the Workgroup Manager, checked in from NX
+          - Through Creo's embedded browser
+          - Emailed to the Windchill admin
+        answer: 1
+        explanation: Non-Creo CAD tools connect through a Workgroup Manager, which reads their assembly links so CAD dependencies are kept. Plain document upload loses those links.
+      - kind: single
+        prompt: Priya hit Save in Creo but never uploaded or checked in. Her laptop dies. What's lost?
+        options: [Nothing - Save goes to the server, Her edits since the last upload or check-in, Every iteration of the hinge, Only the thumbnail]
+        answer: 1
+        explanation: Save writes to the local cache on her computer. Uploading copies work to the server-side workspace; check-in puts it in commonspace. Neither happened, so the edits are gone.
+      - kind: order
+        prompt: Put the safe recovery from a corrupted local cache in order.
+        items: [Upload any local-only edits, Clear or rename the local cache, Restart and reconnect the workspace, Carry on working]
+        explanation: Rescue anything that exists only on your computer, then clear the cache and let the workspace rebuild from the server.
+      - kind: multi
+        prompt: Which of these are typical CAD check-in conflicts? (Choose all that apply.)
+        options: [Object checked out by another user, Object out of date, File name already exists, Thumbnail too small]
+        answers: [0, 1, 2]
+        explanation: Locks held by others, stale iterations and duplicate CAD file names are classic conflicts. Missing dependents are another. Thumbnails don't block check-in.
+      - kind: single
+        prompt: Check-in warns the frame is out of date - Kai checked in a newer iteration this morning. What's the calm fix?
+        options:
+          - Override the warning so your version becomes latest
+          - Update to the latest iteration and redo or merge your change
+          - Ask an admin to delete Kai's iteration
+          - Rename the frame
+        answer: 1
+        explanation: Updating first keeps Kai's change. Overriding (where allowed) would make your older-based version the latest and drop his work.
+
+  - type: flashcards
+    title: Document and CAD data deck
+    cards:
+      - front: Creating a document
+        back: Pick the context and folder, the type, the primary content and the attributes. It's born at A.1.
+      - front: Check out
+        back: Reserve an object and get a private working copy. Others see the last checked-in iteration.
+      - front: Check in
+        back: Store your changes as a new iteration (A.1 → A.2) and release the lock.
+      - front: Undo checkout
+        back: Discard the working copy. No new iteration. Admins can undo other users' check-outs.
+      - front: Primary content vs attachments
+        back: One main file vs zero or more extra files. Both belong to the iteration.
+      - front: Representation
+        back: A generated viewable for Creo View and the browser. Republishing doesn't create an iteration.
+      - front: Embedded browser
+        back: Windchill pages shown inside Creo Parametric (or the Workgroup Manager client).
+      - front: Workgroup Manager
+        back: The client that connects non-Creo CAD tools such as SOLIDWORKS or NX to Windchill.
+      - front: Local cache
+        back: Workspace files on your computer. Save writes here - not safe from a dead laptop.
+      - front: Server-side workspace
+        back: Your private shelf on the server. Upload puts work here. Still invisible to others.
+      - front: Commonspace
+        back: Shared, checked-in data. Check-in moves your work here.
+      - front: Out-of-date conflict
+        back: A newer iteration exists on the server. Update and redo your change - don't override blindly.

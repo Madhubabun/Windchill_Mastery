@@ -1,0 +1,267 @@
+id: m02-s01-l02
+subtitle: Borrow it, change it, give it back. Or say "never mind" - safely.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [check-out, check-in, undo-checkout, iteration, documents]
+
+blocks:
+  - type: text
+    md: |
+      Ever had two people edit the same file and one person's work just... vanished? Windchill
+      stops that with a simple rule: **to change something, you borrow it first.**
+
+      The cycle has three moves:
+
+      1. **Check out** - "I'm editing this." Windchill reserves it for you.
+      2. **Edit** - change the file and/or the attributes on your private working copy.
+      3. **Check in** - "Done." Your changes become a new iteration everyone can see.
+
+      And there's an emergency exit: **Undo checkout** - "Never mind, throw my changes away."
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "I'm borrowing this to edit" → [[check-out|check out]]
+      - "my private copy while I edit" → *working copy*
+      - "here are my changes, publish them" → [[check-in|check in]]
+      - "cancel, discard my edits" → [[undo-checkout|undo checkout]]
+      - "the number after the dot" → [[iteration]] (A.1 → A.2)
+
+  - type: animation
+    title: One full edit cycle
+    diagram:
+      width: 800
+      height: 340
+      groups:
+        - { label: Shared - everyone sees, x: 10, y: 10, w: 250, h: 320, tone: success }
+        - { label: Private - only you, x: 290, y: 10, w: 500, h: 320, tone: info }
+      nodes:
+        - { id: a1, label: Test report A.1, sublabel: checked in, x: 40, y: 60, w: 190, tone: primary, shape: doc }
+        - { id: wc, label: Working copy, sublabel: checked out to Priya, x: 320, y: 60, w: 190, tone: warning, shape: doc }
+        - { id: laptop, label: Edited PDF, sublabel: on Priya's laptop, x: 570, y: 60, w: 190, tone: neutral, shape: doc }
+        - { id: a2, label: Test report A.2, sublabel: latest, x: 40, y: 230, w: 190, tone: success, shape: doc }
+        - { id: kai, label: Kai, sublabel: teammate, x: 570, y: 230, w: 190, tone: accent, shape: pill }
+      edges:
+        - { from: a1, to: wc, label: check out }
+        - { from: wc, to: laptop, label: download + edit, bidirectional: true }
+        - { from: wc, to: a2, label: check in }
+        - { from: kai, to: a1, label: sees, dashed: true }
+    chapters:
+      - title: Version A.1 is shared
+        caption: The report sits in Windchill at **A.1**. Anyone with access can view it.
+        show: [a1, kai]
+        highlight: [a1]
+      - title: Priya checks it out
+        caption: Windchill creates a **working copy** reserved for Priya. Others see a "checked out by Priya" marker and can't check it out themselves.
+        show: [a1, wc, kai]
+        highlight: [wc]
+        flow: [a1>wc]
+      - title: She edits
+        caption: She downloads the PDF, fixes a table, then uploads the new file and updates an attribute - all on the working copy.
+        show: [a1, wc, laptop, kai]
+        highlight: [laptop]
+        flow: [wc>laptop, laptop>wc]
+      - title: Kai still sees A.1
+        caption: Until check-in, Kai sees the last checked-in iteration, **A.1**. Half-finished work stays private.
+        show: [a1, wc, laptop, kai]
+        highlight: [kai, a1]
+        flow: [kai>a1]
+      - title: Check in → A.2
+        caption: Priya checks in with a comment. Windchill stores **A.2** as the new latest iteration. A.1 stays in history forever.
+        highlight: [a2]
+        flow: [wc>a2]
+        seconds: 8
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Check-out is a **lock** and check-in is a **save point with a label**. Together they mean no
+      lost edits, a complete history (who changed what, when, with a comment) and the ability to
+      look at - or go back to - any earlier iteration. That's exactly what auditors and future-you
+      will need.
+
+  - type: walkthrough
+    title: Run the edit cycle on a document
+    who: A user with modify rights on the document
+    where: ["<document> information page", Actions]
+    steps:
+      - title: Open the document
+        where: [Search, "<number or name>", Information page]
+        md: Find the document (for example TR-0057) and open its information page.
+      - title: Check it out
+        where: [Information page, Actions, Check Out]
+        md: |
+          Choose **Check Out**. Some releases also offer **Check Out and Download** or **Check Out
+          and Edit**, which combine steps. The page now shows that it's checked out to you.
+      - title: Get the file and edit it
+        where: [Information page, Primary content]
+        md: Download the primary content, make your changes locally and save the file.
+      - title: Put your changes on the working copy
+        where: [Information page, Actions, Edit]
+        md: |
+          Use **Edit** to upload the changed file as the new primary content and update attributes.
+          Depending on the release, you may also upload the file in the check-in window. Wording
+          varies.
+      - title: Check in with a comment
+        where: [Information page, Actions, Check In]
+        md: |
+          Choose **Check In** and write a useful comment ("Fixed brake force table, row 4"). Your
+          comment is kept in the iteration history.
+    result: The document moves from A.1 to A.2. The lock is released and everyone now sees A.2 as the latest.
+
+  - type: walkthrough
+    title: Undo a check-out
+    who: The user who checked it out (or an administrator)
+    steps:
+      - title: Open the checked-out object
+        where: [Home, Checked Out items]
+        md: |
+          Your Home page usually lists everything you have checked out (look for a *Checked Out*
+          table or filter). Or open the object's information page directly.
+      - title: Undo the check-out
+        where: [Information page, Actions, Undo Checkout]
+        md: Choose **Undo Checkout** and confirm. Any changes on the working copy are discarded.
+    result: The object is back at the iteration it had before (still A.1 - no new iteration) and anyone can check it out again.
+
+  - type: simulation
+    title: Drive the edit cycle
+    intro: |
+      You're editing TR-0057. Try the full cycle, then try undoing a check-out. Watch the
+      **iteration** - which actions change it and which don't?
+    headline: "TR-0057 {revision}.{iteration} · {status} · working copy: {changes}"
+    initial: { revision: A, iteration: 1, checkedOut: false, status: Checked in, changes: none, undone: false }
+    actions:
+      - id: checkout
+        label: Check out
+        when: { checkedOut: false }
+        do: [{ set: { checkedOut: true, status: Checked out to you, changes: no edits yet } }]
+        log: Checked out {revision}.{iteration}. You have a private working copy. Others can view but not check out.
+        blockedHint: It's already checked out to you.
+      - id: edit
+        label: Edit the file and upload it
+        when: { checkedOut: true }
+        do: [{ set: { changes: edited } }]
+        log: New PDF uploaded to your working copy. Nobody else sees it yet.
+        blockedHint: Check it out first - you can't change a checked-in iteration.
+      - id: checkin
+        label: Check in
+        when: { checkedOut: true }
+        do: [{ inc: iteration }, { set: { checkedOut: false, status: Checked in, changes: none } }]
+        log: Checked in. New iteration {revision}.{iteration} is now the latest for everyone.
+        blockedHint: Nothing to check in - check it out first.
+      - id: undo
+        label: Undo checkout
+        when: { checkedOut: true }
+        do: [{ set: { checkedOut: false, status: Checked in, changes: none, undone: true } }]
+        log: Check-out undone. Working copy discarded. Still at {revision}.{iteration} - no new iteration.
+        blockedHint: There's no check-out to undo.
+    goals:
+      - label: Reach A.3 with two check-ins
+        when: { revision: A, iteration: 3 }
+        message: Every check-in adds one to the iteration. A.1 and A.2 are still in the history.
+      - label: Undo a check-out without creating an iteration
+        when: { undone: true }
+        message: Undo checkout is the clean exit. Nothing new appears in the history.
+
+  - type: scenario
+    variant: what-if
+    title: Priya's on holiday - with the report checked out
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Kai needs to update TR-0057 today for a customer audit. It's **checked out to Priya**, who
+          is on a beach with no laptop. What does Kai do?
+        choices:
+          - label: Create a new document "TR-0057 copy" and edit that
+            next: f1
+            feedback: That splits the history into two documents. The audit trail gets messy.
+          - label: Ask an administrator to look at the check-out
+            next: s2
+            good: true
+            feedback: Right - administrators can undo another user's check-out.
+          - label: Wait two weeks
+            next: p1
+            feedback: Safe, but the audit is today.
+      - id: s2
+        md: |
+          The admin can **undo Priya's check-out**. But first: did Priya change anything on the
+          working copy? If she uploaded a new file but never checked in, undoing the check-out
+          throws that work away. What should happen first?
+        choices:
+          - label: Message Priya (or check the working copy) to see if it holds unsaved work
+            next: s3
+            good: true
+            feedback: Exactly. Undo is safe only when you know what you're discarding.
+          - label: Just undo it - speed matters
+            next: p2
+            feedback: Fast, but you might delete Priya's edits.
+      - id: s3
+        md: |
+          Priya replies from the beach: "Nothing changed, I only checked it out to remember to edit
+          it." The admin undoes the check-out. TR-0057 is still A.2. Kai checks it out, edits and
+          checks in A.3 in time for the audit.
+        outcome: success
+      - id: f1
+        md: Two documents now claim to be the brake test report. The auditor asks which one is real - and nobody's sure.
+        outcome: fail
+      - id: p1
+        md: The audit goes ahead with an outdated report and a promise to follow up. Not a disaster, but not great.
+        outcome: partial
+      - id: p2
+        md: The undo worked - but Priya had uploaded a corrected table that's now gone. She has to redo it when she's back.
+        outcome: partial
+
+  - type: example
+    variant: real-world
+    title: The 47 forgotten check-outs
+    industry: Micromobility
+    md: |
+      During a release review, Acme found **47 objects** still checked out to people - some for
+      months. The release couldn't continue because checked-out objects block state changes in
+      many configurations. Kai now asks his team to clear their *Checked Out* list every Friday:
+      check in what's done, undo what isn't needed.
+    takeaway: A check-out is a lock. Locks you forget about block everyone else.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Checking in "nothing".** Checking in creates a new iteration even if you didn't change
+      anything meaningful. If you checked out by mistake, use **Undo checkout** instead - your
+      history stays clean.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Write check-in comments for a stranger reading them in two years: *what* changed and *why*.
+      "Updated" tells nobody anything. "Brake force row 4 corrected after retest" does.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: order
+        prompt: Put the edit cycle in order.
+        items: [Check out, Download and edit the file, Upload the file to the working copy, Check in with a comment]
+        explanation: You reserve the object, make the change locally, put it on your working copy, then check in to create the new iteration.
+      - kind: single
+        prompt: TR-0057 is at A.2. You check it out, then choose Undo checkout. What's the version now?
+        options: [A.1, A.2, A.3, B.1]
+        answer: 1
+        explanation: Undo checkout discards the working copy and creates nothing new. The object stays exactly where it was - A.2.
+      - kind: truefalse
+        prompt: While Priya has a document checked out, Kai sees her unfinished changes.
+        answer: false
+        explanation: Kai sees the last checked-in iteration. The working copy is private until check-in.
+      - kind: single
+        prompt: A document is checked out to someone who left the company. Who can usually release it?
+        options: [Anyone on the team, Nobody - it's locked forever, An administrator or user with the right permission, Only the original creator]
+        answer: 2
+        explanation: Administrators (or users given that permission) can undo another user's check-out. Check first whether the working copy holds work worth keeping.
+
+  - type: summary
+    points:
+      - Check out = reserve and get a private working copy. Check in = new iteration for everyone.
+      - Others keep seeing the last checked-in iteration while you work.
+      - Undo checkout discards your working copy and creates no iteration.
+      - Clear your checked-out list often - forgotten check-outs block others.

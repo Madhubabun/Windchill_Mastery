@@ -1,0 +1,322 @@
+id: m02-s03-l02
+subtitle: Add, swap and remove parts - and why the parent is the one that changes.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [bom, structure, uses-link, check-in, editing]
+
+blocks:
+  - type: text
+    md: |
+      Priya has a job: the Scooter S2 frame (**SC-2000**) needs a new fold latch, and the old
+      folding hinge must be swapped for the new two-piece hinge designed for the latch. Two BOM edits. Easy, right?
+
+      Here's the twist that trips up almost everyone at first: **the links belong to the parent.**
+      When Priya adds a latch to the frame, the latch part doesn't change at all. The *frame*
+      changes - it now uses one more thing. So the frame is what she checks out, edits and checks
+      in, and the frame is what gets a new iteration.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "put a part that already exists into the assembly" → *Insert Existing Part* (wording varies)
+      - "create a brand-new part right inside the assembly" → *Insert New Part*
+      - "swap one child for another in the same spot" → *Replace*
+      - "take a line out of this assembly" → *Remove* (deletes the link, **not** the part)
+      - "lock the parent so I can edit it" → *[[check-out|check out]]*; "save it for everyone" → *check in*
+      - "the parent's new save number" → *[[iteration]]* (A.3 → A.4)
+
+  - type: diagram
+    title: Who changes when you edit a structure?
+    caption: The uses links hang off the parent's iteration. Click the boxes.
+    diagram:
+      width: 800
+      height: 400
+      groups:
+        - { label: Before - SC-2000 A.3, x: 10, y: 10, w: 380, h: 380, tone: neutral }
+        - { label: After - SC-2000 A.4, x: 410, y: 10, w: 380, h: 380, tone: success }
+      nodes:
+        - id: a3
+          label: Frame A.3
+          sublabel: 3 uses links
+          x: 110
+          y: 50
+          w: 180
+          tone: info
+          detail: |
+            The old iteration. Its uses links point to the tube, the old hinge and the M6 screw.
+            It stays in history exactly like this - checking in never rewrites the past.
+        - id: tube
+          label: Main tube
+          sublabel: SC-2010
+          x: 30
+          y: 180
+          w: 150
+          tone: neutral
+          detail: Unchanged in both iterations. Notice it doesn't get a new iteration just because the frame changed.
+        - id: old-hinge
+          label: Folding hinge
+          sublabel: SC-1042
+          x: 210
+          y: 180
+          w: 150
+          tone: neutral
+          detail: The old hinge. In A.4 it's replaced - but the hinge *part* still exists, and other assemblies may still use it.
+        - id: screw-a
+          label: M6 screw ×4
+          sublabel: FS-0620
+          x: 120
+          y: 290
+          w: 160
+          tone: neutral
+          detail: The screw line with quantity 4. Quantity lives on the link, not on the screw part.
+        - id: a4
+          label: Frame A.4
+          sublabel: 4 uses links
+          x: 510
+          y: 50
+          w: 180
+          tone: success
+          detail: |
+            The new iteration Priya checks in. It has its **own** set of uses links: tube, new hinge,
+            screws, and the new latch. Only the parent iterated.
+        - id: new-hinge
+          label: Two-piece hinge
+          sublabel: SC-1043 · replaced
+          x: 430
+          y: 180
+          w: 160
+          tone: accent
+          detail: Swapped in with **Replace**, so it takes the old hinge's place in the structure.
+        - id: latch
+          label: Fold latch
+          sublabel: SC-1050 · inserted
+          x: 610
+          y: 180
+          w: 160
+          tone: accent
+          detail: Added with **Insert Existing Part**. The latch part itself didn't change - it just gained a new parent.
+        - id: screw-b
+          label: M6 screw ×4
+          sublabel: same part FS-0620
+          x: 520
+          y: 290
+          w: 160
+          tone: neutral
+          detail: The same screw part as before. A.4 carries its own copy of the link with its own quantity.
+      edges:
+        - { from: a3, to: tube }
+        - { from: a3, to: old-hinge }
+        - { from: a3, to: screw-a }
+        - { from: a4, to: new-hinge }
+        - { from: a4, to: latch }
+        - { from: a4, to: screw-b }
+        - { from: a4, to: tube, label: still uses, dashed: true }
+
+  - type: text
+    md: |
+      ### Four ways to change a structure
+
+      | Action | What happens | Typical use |
+      | --- | --- | --- |
+      | **Insert existing** | A new uses link from the parent to a part that already exists | Reusing a library screw or an existing part |
+      | **Insert new** | Creates a new part and links it in one go | Designing a brand-new component inside the assembly |
+      | **Replace** | Points the line at a different child | Swapping the old hinge for the new one |
+      | **Remove** | Deletes the uses link from this parent | The part is no longer needed *in this assembly* |
+
+      A uses link points from the parent's **iteration** to the child's [[master]] - the child as a
+      whole, not one version of it. Which version of the child you see is decided by the
+      configuration filter (usually *Latest*). That's why a child can iterate from A.1 to A.5
+      without the parent needing a new iteration.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Because the links belong to the parent, every structure change is **traceable on the
+      parent**: who added the latch, in which iteration, with which check-in comment. In audits and
+      change reviews, "when did this part enter the BOM?" is answered by the parent's history.
+
+  - type: walkthrough
+    title: Edit a part structure in Windchill
+    who: A designer with modify rights on the parent part
+    where: ["<parent part> information page", Structure tab]
+    steps:
+      - title: Open the parent's structure
+        where: ["SC-2000 information page", Structure tab]
+        md: |
+          Open the parent assembly's information page and choose the **Structure** tab. Make sure
+          the parent is not Released - released data is normally changed through a revise and the
+          change process, not edited in place.
+      - title: Check out the parent
+        where: [Structure tab, Actions, Check Out]
+        md: |
+          Check out the parent part. In many releases Windchill checks it out for you the moment you
+          start an edit in the Structure tab; you'll see the checked-out icon on the parent row.
+      - title: Insert an existing part
+        where: [Structure tab, select parent row, Insert, Insert Existing Part]
+        md: |
+          Select the **parent** row, choose the insert-existing action (toolbar or right-click), then
+          search for the part (for example **SC-1050**) and pick it. A new line appears with a default
+          quantity of 1. Wording and icons vary by release.
+      - title: Or insert a new part
+        where: [Structure tab, select parent row, Insert, Insert New Part]
+        md: Fill in the new part's type, number (or let Windchill generate it), name and location. Windchill creates the part and links it to the parent.
+      - title: Replace a child
+        where: [Structure tab, select child row, Replace]
+        md: |
+          Select the child row (here **SC-1042**), choose **Replace**, and pick the new part
+          (**SC-1043**). The line now points at the new part. Check the quantity and find number on
+          the replaced line afterwards - how much is carried over can depend on release and settings.
+      - title: Remove a child
+        where: [Structure tab, select child row, Remove]
+        md: The line disappears from this parent. The child part still exists in Windchill and in every other assembly that uses it.
+      - title: Check in the parent
+        where: [Structure tab, select parent row, Check In]
+        md: |
+          Check in the parent with a short comment ("Added fold latch, replaced hinge per CN-0042").
+          If you created new parts, make sure they're checked in too. To throw away every change
+          instead, use **Undo Checkout**.
+    result: SC-2000 goes from A.3 to A.4 with the new structure. Everyone with access now sees the latch and the new hinge.
+
+  - type: simulation
+    title: Rebuild the frame
+    intro: |
+      You're Priya. Make SC-2000 use the **fold latch** and the **two-piece hinge**, keep its four
+      M6 screws, and check it in. Try editing before checking out, or "deleting" the old hinge, to
+      see what Windchill would tell you.
+    headline: "SC-2000 Frame A.{iteration} · {status} · hinge {hinge} · latch {latch} · screws {screws}"
+    initial:
+      iteration: 3
+      checkedOut: false
+      status: checked in
+      hinge: SC-1042
+      latch: none
+      screws: "FS-0620 ×4"
+      undone: false
+      canDelete: false
+    actions:
+      - id: checkout
+        label: Check out SC-2000
+        when: { checkedOut: false }
+        do: [{ set: { checkedOut: true, status: checked out to you } }]
+        log: SC-2000 A.{iteration} is checked out to you. Its uses links are now yours to edit.
+        blockedHint: It's already checked out to you.
+      - id: insert-latch
+        label: Insert existing part SC-1050 Fold latch
+        when: { checkedOut: true, latch: none }
+        do: [{ set: { latch: "SC-1050 ×1" } }]
+        log: New line - SC-1050 ×1. The latch part didn't change; the frame gained a link.
+        blockedHint: Structure edits change the parent - check out SC-2000 first. (Or the latch is already in.)
+      - id: replace-hinge
+        label: Replace SC-1042 with SC-1043 Two-piece hinge
+        when: { checkedOut: true, hinge: SC-1042 }
+        do: [{ set: { hinge: SC-1043 } }]
+        log: The hinge line now points at SC-1043. Quantity stays 1 - check it anyway.
+        blockedHint: Check out SC-2000 first. (Or you've already replaced the hinge.)
+      - id: remove-screws
+        label: Remove the M6 screw line
+        when: { checkedOut: true, screws: "FS-0620 ×4" }
+        do: [{ set: { screws: removed } }]
+        log: Line removed. The frame has no screws now! The screw part FS-0620 still exists - only this link is gone.
+        blockedHint: Check out SC-2000 first. (Or the line is already removed.)
+      - id: insert-screws
+        label: Insert existing part FS-0620 M6 screw ×4
+        when: { checkedOut: true, screws: removed }
+        do: [{ set: { screws: "FS-0620 ×4" } }]
+        log: Screws back in, quantity 4. Phew.
+        blockedHint: The screw line is already there - nothing to re-insert.
+      - id: delete-hinge
+        label: Delete part SC-1042 from Windchill
+        when: { canDelete: true }
+        do: [{ set: { hinge: deleted } }]
+        log: Deleted.
+        blockedHint: "Stop! Removing a line is not deleting a part. SC-1042 has released history and other assemblies use it. Deleting is usually blocked by access rules - and you never need it to edit a structure."
+      - id: undo
+        label: Undo Checkout
+        when: { checkedOut: true, iteration: 3 }
+        do: [{ set: { checkedOut: false, status: checked in, hinge: SC-1042, latch: none, screws: "FS-0620 ×4", undone: true } }]
+        log: All edits thrown away. SC-2000 is back to A.3 exactly as it was. Nobody else ever saw your changes.
+        blockedHint: Undo Checkout only applies while the parent is checked out (in this sandbox, before your first check-in).
+      - id: checkin
+        label: Check in SC-2000
+        when: { checkedOut: true }
+        do: [{ inc: iteration }, { set: { checkedOut: false, status: checked in } }]
+        log: Checked in SC-2000 A.{iteration}. Only the parent iterated - the latch, hinge and screw parts are untouched.
+        blockedHint: Nothing to check in - SC-2000 isn't checked out.
+    goals:
+      - label: Frame A.4 with latch, two-piece hinge and 4 screws
+        when: { iteration: 4, checkedOut: false, latch: "SC-1050 ×1", hinge: SC-1043, screws: "FS-0620 ×4" }
+        message: One check-out, three edits, one check-in. The frame's history now shows exactly when the latch arrived.
+      - label: Throw away a mistake with Undo Checkout
+        when: { undone: true }
+        message: Undo Checkout discards everything since the check-out. Great when an edit goes sideways.
+
+  - type: example
+    variant: real-world
+    title: The check-out that sat for a week
+    industry: Micromobility
+    md: |
+      An Acme designer added three new brackets to the E-bike E1 battery tray, then went on holiday
+      with the tray **still checked out**. For a week, everyone else - including purchasing - kept
+      seeing the old structure, and nobody else could edit the tray. Kai had to ask an administrator
+      to resolve the check-out.
+    takeaway: A structure edit only counts once the parent is checked in. Check in at the end of every working session.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Remove + Insert instead of Replace.** It gives the same parts, but you lose the line's place
+      and its usage details (find number, line number, reference designators) and must re-enter
+      them. When one part takes over another's role, use **Replace**.
+
+  - type: callout
+    variant: pitfall
+    title: Editing a CAD-driven structure in Windchill
+    md: |
+      If the parent part is built from a CAD assembly (an *owner* association, lesson 4), structure
+      lines that came from CAD are rebuilt from CAD on the next check-in. Change those in Creo
+      instead. Windchill-only items - glue, labels, packaging - can be added in Windchill and are kept.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Write check-in comments people can search for: *what* changed and *why* ("Replaced hinge
+      SC-1042 → SC-1043, CN-0042"). Six months later, the parent's history reads like a changelog.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Priya adds the fold latch SC-1050 to frame SC-2000 A.3 and checks in. What gets a new iteration?
+        options: [The latch only, The frame only, Both the frame and the latch, Neither - links don't iterate anything]
+        answer: 1
+        explanation: The uses link belongs to the parent, so the frame goes A.3 → A.4. The latch part is unchanged - it just has a new parent.
+      - kind: truefalse
+        prompt: Removing the old hinge from the frame structure deletes the hinge part from Windchill.
+        answer: false
+        explanation: Remove deletes only the uses link from this parent. The hinge part, its history and its other uses are untouched.
+      - kind: single
+        prompt: The new hinge should take over exactly where the old one was. Which action is best?
+        options: [Remove then Insert New Part, Replace, Delete the old part, Revise the old hinge]
+        answer: 1
+        explanation: Replace swaps the child on the existing line, so the line keeps its place and usage details. Remove + Insert loses them.
+      - kind: single
+        prompt: Frame SC-2000 is at A.4. Afterwards, hinge SC-1043 is checked in several times and reaches A.5. When will the frame's structure show hinge A.5?
+        options:
+          - Only after the frame is checked out and in again
+          - Right away, when viewed with a Latest configuration
+          - Never - the frame is locked to A.1
+          - Only after the hinge is released
+        answer: 1
+        explanation: The uses link points to the hinge's master. With a Latest configuration, the structure shows the hinge's latest version without the frame changing.
+      - kind: order
+        prompt: Put the steps for a structure edit in order.
+        items: [Open the parent's Structure tab, Check out the parent, "Insert, replace or remove lines", Check in the parent with a comment]
+        explanation: Open the structure, lock the parent, make your edits, then check in so everyone sees them as a new iteration of the parent.
+
+  - type: summary
+    points:
+      - Uses links belong to the parent, so editing a structure means checking out the parent.
+      - Insert existing, insert new, replace and remove are the four core edits.
+      - Remove deletes a link, never the part. Use Replace to keep a line's place and details.
+      - Check in the parent with a clear comment; Undo Checkout throws edits away.

@@ -1,0 +1,32 @@
+# New glossary terms introduced in section m02-s04 (Visualization).
+- id: thumbnail
+  term: Thumbnail
+  plain: The small preview picture of a model or drawing you see on its information page.
+  definition: A small image generated during visualization publishing from an object version's representation. Windchill shows it on the information page and, in many setups, in search results and tables. If nothing has been published for a version, it has no thumbnail.
+  related: [representation, visualization-publishing, creo-view]
+
+- id: visualization-publishing
+  term: Visualization publishing
+  plain: Windchill turning a heavy CAD file into a light copy anyone can view.
+  definition: The process, managed by Windchill Visualization Services (WVS), that converts CAD data into representations and thumbnails. Publish jobs are triggered by events such as check-in or a state change, or on request, wait in a background queue and are run by CAD workers. Triggers and rules are configured by each company.
+  aka: [Publishing, Windchill Visualization Services, WVS]
+  related: [representation, cad-worker, background-queue, thumbnail]
+
+- id: markup
+  term: Markup
+  plain: A sticky note and sketch you put on a model or drawing during a review.
+  definition: Annotations such as notes, arrows, circles and dimensions created in Creo View on top of a captured view of a model or a drawing sheet. Markups can be saved back to Windchill, where they are stored with the representation of the specific version they were made on.
+  related: [creo-view, representation, annotation-set]
+
+- id: annotation-set
+  term: Annotation set
+  plain: A named bundle of review notes saved as its own object in Windchill.
+  definition: A collection of annotations created in Creo View and saved to Windchill as a separate object associated with the part or structure it describes, so the notes can be found, shared and referenced in reviews or changes. How annotation sets and markups are used varies by release and company configuration.
+  related: [markup, creo-view, part]
+
+- id: cross-section
+  term: Cross-section
+  plain: Slicing a model open with a virtual saw to see inside it.
+  definition: A Creo View tool that cuts a model along a plane (or several planes) so internal features such as wall thickness, ribs and clearances become visible. The section plane can be moved and rotated, and the view can be saved for later.
+  aka: [Section, Section view]
+  related: [creo-view, representation]

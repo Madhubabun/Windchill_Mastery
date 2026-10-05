@@ -1,0 +1,275 @@
+id: m02-s02-l03
+subtitle: In Work, Under Review, Released - each state is a promise about who can touch the data and who can trust it.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [lifecycle, states, access, release]
+
+blocks:
+  - type: text
+    md: |
+      A version number tells you *which* edition you're looking at. The **state** tells you how
+      far you can trust it.
+
+      Think of a school essay:
+      - **Draft** - you're still writing; change anything you like.
+      - **Handed in** - the teacher is marking it; you shouldn't be editing it now.
+      - **Graded** - it's final and on your record. Want to improve it? Write a new version.
+
+      Windchill objects travel the same road. The usual names are **In Work → Under Review →
+      Released**, and later **Obsolete** when nobody should use it any more.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "where it is on its journey" → *[[lifecycle-state|lifecycle state]]*
+      - "the map of possible stops and roads" → *[[life-cycle|life cycle template]]*
+      - "draft" → *In Work* · "being checked" → *Under Review* · "approved, build it" → *Released*
+      - "retired - don't use in new designs" → *Obsolete* (some companies also use *Canceled* for designs that never made it)
+
+  - type: animation
+    title: The hinge's journey to Released
+    diagram:
+      width: 800
+      height: 300
+      nodes:
+        - { id: inwork, label: In Work, sublabel: drafting, x: 20, y: 60, w: 160, tone: warning }
+        - { id: review, label: Under Review, sublabel: being checked, x: 220, y: 60, w: 160, tone: info }
+        - { id: released, label: Released, sublabel: approved, x: 420, y: 60, w: 160, tone: success }
+        - { id: obsolete, label: Obsolete, sublabel: retired, x: 620, y: 60, w: 160, tone: neutral }
+        - { id: nextrev, label: "B.1 In Work", sublabel: next revision, x: 420, y: 200, w: 160, tone: warning, shape: pill }
+      edges:
+        - { from: inwork, to: review, label: submit }
+        - { from: review, to: released, label: approve }
+        - { from: review, to: inwork, label: reject, dashed: true }
+        - { from: released, to: obsolete, label: retire }
+        - { from: released, to: nextrev, label: revise }
+    chapters:
+      - title: Drafting
+        caption: Priya creates hinge A.1. It starts **In Work** - she and her team can check out, change and check in as often as they need.
+        show: [inwork]
+        highlight: [inwork]
+      - title: Hand it in
+        caption: When A.3 looks right, it's submitted for review and moves to **Under Review**. In most setups editing is now blocked so reviewers check a stable design.
+        show: [inwork, review]
+        highlight: [review]
+        flow: [inwork>review]
+      - title: Sent back
+        caption: The reviewer spots a missing tolerance. Rejected - the hinge goes back to **In Work**, Priya fixes it (A.4) and resubmits.
+        show: [inwork, review]
+        highlight: [inwork]
+        flow: [review>inwork]
+      - title: Approved
+        caption: This time it passes. **Released** - the factory, purchasing and suppliers may now use it. Normal users can no longer check it out.
+        show: [inwork, review, released]
+        highlight: [released]
+        flow: [inwork>review, review>released]
+      - title: Changing a released design
+        caption: Released data isn't edited - it's **revised**. B.1 starts its own journey at In Work while A.4 stays Released.
+        show: [inwork, review, released, nextrev]
+        highlight: [nextrev, released]
+        flow: [released>nextrev]
+      - title: Retirement
+        caption: Years later the hinge is replaced by a new design. It moves to **Obsolete** - still in history, but flagged so nobody uses it in new products.
+        highlight: [obsolete]
+        flow: [released>obsolete]
+        seconds: 7
+
+  - type: diagram
+    title: What can you do in each state?
+    caption: Typical rules for a normal team member. Click a state for details - your company's access rules decide the exact list.
+    diagram:
+      width: 800
+      height: 330
+      groups:
+        - { label: Editable, x: 10, y: 20, w: 190, h: 290, tone: warning }
+        - { label: Locked, x: 220, y: 20, w: 570, h: 290, tone: neutral }
+      nodes:
+        - id: s-inwork
+          label: In Work
+          sublabel: change freely
+          x: 25
+          y: 120
+          w: 160
+          tone: warning
+          detail: |
+            **You can:** check out, check in, edit attributes, rename (if allowed), delete your own
+            unreleased data, add it to structures.
+            **Watch out:** other teams shouldn't build or buy from In Work data.
+        - id: s-review
+          label: Under Review
+          sublabel: hands off
+          x: 240
+          y: 120
+          w: 160
+          tone: info
+          detail: |
+            **You can:** view, mark up, comment, complete your review task.
+            **You usually can't:** check out or modify - the design must stay still while people
+            approve it.
+        - id: s-released
+          label: Released
+          sublabel: trust it · build it
+          x: 420
+          y: 120
+          w: 160
+          tone: success
+          detail: |
+            **You can:** view, download, use it in new structures, **revise** it to start the next edition.
+            **You can't:** check out or modify this version. Changes go through a new revision,
+            usually under change control.
+          real: Purchasing, the factory and suppliers typically see or receive Released data only.
+        - id: s-obsolete
+          label: Obsolete
+          sublabel: history only
+          x: 605
+          y: 120
+          w: 165
+          tone: neutral
+          detail: |
+            **You can:** view it for history, service and audits.
+            **You shouldn't:** add it to new designs. Many companies block that with rules or
+            highlight it in reports.
+      edges:
+        - { from: s-inwork, to: s-review }
+        - { from: s-review, to: s-released }
+        - { from: s-released, to: s-obsolete }
+
+  - type: comparison
+    title: Typical permissions by state
+    columns: [In Work, Under Review, Released, Obsolete]
+    rows:
+      - { label: Check out and modify, cells: [Yes, No, No, No] }
+      - { label: View and download, cells: [Team, Yes, Yes, Yes] }
+      - { label: Use in a new design, cells: [Not for production, Wait, Yes, No] }
+      - { label: Revise, cells: [Usually not, No, Yes, Rarely] }
+      - { label: Delete, cells: [Often allowed, No, No, No] }
+    takeaway: Who can do what in each state is set by access rules per state - this table is the common pattern.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      States let hundreds of people share one system safely. Purchasing can filter to Released
+      and never order from a half-finished model. Engineers can experiment freely in In Work
+      without scaring anyone. And auditors can see the exact moment something became official.
+
+  - type: example
+    variant: real-world
+    title: The supplier who ordered too early
+    industry: Micromobility
+    md: |
+      An Acme supplier portal once showed every version, not just Released ones. A supplier saw
+      the E1 battery bracket at **B.2 In Work**, assumed it was final and cut 2,000 brackets.
+      Priya changed the hole spacing in B.3 the next day.
+
+      After that, Acme set the portal and the purchasing reports to show **Released only**. In
+      Work data stays inside engineering.
+    takeaway: In Work means "not yet" - make sure everyone outside engineering only sees Released.
+
+  - type: walkthrough
+    title: Check an object's state and its journey
+    who: Anyone with read access
+    steps:
+      - title: See the current state
+        where: ["<object> information page", header]
+        md: The **State** appears next to the version in the header and in most search result tables. Add a State column to your table views if it's missing.
+      - title: See the state history
+        where: ["<object> information page", History]
+        md: |
+          The history area shows when each version changed state and who did it. Depending on
+          release it may be called *Life Cycle History* or *Maturity History*.
+      - title: See the possible states
+        where: ["<object> information page", Details]
+        md: The details usually name the **life cycle template** the object follows. Your administrator defines which states it contains and how objects may move between them.
+    result: You know the current state, how the object got there and which states it can move to.
+
+  - type: scenario
+    variant: troubleshooting
+    title: "\"Check Out is greyed out!\""
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Priya tries to check out the frame SC-2000 to fix a hole position. **Check Out** is
+          greyed out. Nobody else has it checked out. What do you look at first?
+        choices:
+          - label: The frame's state
+            next: s2
+            good: true
+            feedback: Yes. State is the first suspect when an edit action disappears.
+          - label: Restart the browser
+            next: f1
+            feedback: Nothing is broken - the system is following a rule.
+      - id: s2
+        md: |
+          The header says **SC-2000 A.2 · Released**. What should Priya do?
+        choices:
+          - label: Ask an admin to set it back to In Work
+            next: f2
+            feedback: That would change what the factory is building from, without any approval.
+          - label: Follow the change process to revise it to B
+            next: win
+            good: true
+            feedback: Right. The fix goes into B.1 while A.2 stays the trusted record.
+      - id: f1
+        md: Same result after the restart. Released versions are locked by access rules - the button will stay grey.
+        outcome: fail
+      - id: f2
+        md: The admin refuses, and rightly so. Pushing released data back to In Work silently rewrites history for everyone downstream.
+        outcome: fail
+      - id: win
+        md: Priya raises the change, revises to B.1 (In Work) and fixes the hole. A.2 stays Released until B is approved.
+        outcome: success
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Assuming every company uses the same states.** Some add *Prototype* and *Production*,
+      some use *Design* or *Concept* instead of In Work, some have different templates for
+      documents and parts. Learn **your** company's templates before your first release.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      State belongs to each **version**, not the object. When someone asks "is the hinge
+      released?", answer with the version: "A.4 is Released, B.1 is In Work." It avoids a lot of
+      confusion.
+
+  - type: flashcards
+    cards:
+      - front: "In Work"
+        back: "Draft. The team can check out and change it. Not for building or buying."
+      - front: "Under Review"
+        back: "Being checked. Usually locked against edits while reviewers look."
+      - front: "Released"
+        back: "Approved. Trust it, build it, buy it. Change it only by revising."
+      - front: "Obsolete"
+        back: "Retired. Kept for history and service, not for new designs."
+      - front: "Life cycle template"
+        back: "The admin-defined map of states and allowed moves between them."
+      - front: "Does state belong to the object or the version?"
+        back: "The version. A.4 can be Released while B.1 is In Work."
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: order
+        prompt: Put the common states in the order a new design normally travels.
+        items: [In Work, Under Review, Released, Obsolete]
+        explanation: Draft, review, approval, then retirement. A rejection can send it from Under Review back to In Work.
+      - kind: single
+        prompt: Hinge A.4 is Released and needs a change. What normally happens?
+        options: [Check out A.4 and edit it, Revise to B.1 which starts In Work, Delete A.4 and recreate it, Move A.4 back to In Work]
+        answer: 1
+        explanation: Released versions are locked so everyone downstream keeps a stable record. Changes start a new revision.
+      - kind: truefalse
+        prompt: Purchasing should normally order parts that are In Work if they are the latest version.
+        answer: false
+        explanation: Latest isn't the same as approved. In Work can change tomorrow. Purchasing should use Released data.
+
+  - type: summary
+    points:
+      - States show maturity - In Work, Under Review, Released, Obsolete are the common ones.
+      - Each state decides what you can do through access rules set by your company.
+      - Released data is changed by revising, never by editing in place.
+      - State belongs to each version, so different revisions can be in different states.

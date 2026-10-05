@@ -1,0 +1,69 @@
+# Terms introduced in section m02-s03 (Product structure and the eBOM).
+
+- id: multi-level-bom
+  term: Multi-level BOM
+  plain: The full family tree of a product, with parts inside sub-assemblies inside the top assembly.
+  definition: A bill of materials shown across every level of the product structure, usually indented so each child sits under its parent. Level 0 is the top item, level 1 its direct children, and so on. A single-level BOM shows only one parent and its direct children.
+  aka: [indented BOM, multi-level structure]
+  related: [bom, ebom, uses-link]
+
+- id: find-number
+  term: Find number
+  plain: The balloon number that matches a BOM line to the picture on the drawing.
+  definition: A usage attribute on a uses link that identifies the child in its parent's BOM, typically matching the item balloon on the assembly drawing. It is stored as text. Whether it is required, unique or generated automatically is set by company preferences.
+  aka: [item number, balloon number]
+  related: [line-number, uses-link, bom]
+
+- id: line-number
+  term: Line number
+  plain: The row number of a child in its parent's BOM, often used by ERP.
+  definition: A numeric usage attribute on a uses link that orders the lines of a parent's BOM and can identify a line uniquely within that parent. It is often what downstream systems such as ERP key on. Whether it is required and how it is numbered (for example in steps of 10) is configured per company.
+  related: [find-number, uses-link, erp]
+
+- id: reference-designator
+  term: Reference designator
+  plain: The label printed on a circuit board that says exactly which spot a component goes in, like R1 or C3.
+  definition: A usage attribute that names each individual occurrence of a child in its parent, mostly used for electronic assemblies (R1, R2, C1, U4). Each designator marks one physical position, so the number of designators normally matches the quantity. Pick-and-place machines, test and repair all rely on them.
+  aka: [ref des, refdes]
+  related: [uses-link, find-number]
+
+- id: owner-association
+  term: Owner association
+  plain: '"This CAD model is in charge of this part": CAD drives the part''s structure and chosen attributes.'
+  definition: An active association between a CAD document and a part in which the CAD document builds the part's structure and mapped attributes when it is checked in. A part has at most one owner CAD document, and the two usually iterate together.
+  related: [build-link, contributing-association, image-association, cad-document, part]
+
+- id: contributing-association
+  term: Contributing association
+  plain: A CAD model that adds its pieces to a part's structure without being in charge of the whole part.
+  definition: An active association (contributing content) in which a CAD document contributes its structure to a part that may also get structure from other CAD documents. Several contributing CAD documents can feed one part. A related variant, contributing image, contributes only to the part's visualization.
+  aka: [contributing content]
+  related: [owner-association, image-association, build-link]
+
+- id: image-association
+  term: Image association
+  plain: '"This CAD model shows what the part looks like" - but the BOM is edited in Windchill, not driven by CAD.'
+  definition: A passive association in which a CAD document represents the part visually but does not build the part's structure or attributes. The part's structure is maintained directly in Windchill. Contributing image is the variant used when several CAD documents together form the part's picture.
+  aka: [contributing image]
+  related: [owner-association, contributing-association, representation]
+
+- id: alternate-part
+  term: Alternate part
+  plain: A part that can replace another part anywhere it is used.
+  definition: A replacement defined between two part masters, meaning the alternate is interchangeable with the original in every assembly that uses it. Because it sits at master level it applies globally and does not change any parent structure.
+  aka: [alternate, global alternate]
+  related: [substitute-part, master, where-used]
+
+- id: substitute-part
+  term: Substitute part
+  plain: A part that can replace another part, but only inside one specific assembly.
+  definition: A replacement defined on a particular uses link, so it applies only to that parent's use of the child. Because the uses link belongs to the parent, adding or removing a substitute changes the parent's structure and needs the parent checked out.
+  aka: [substitute, local substitute]
+  related: [alternate-part, uses-link]
+
+- id: structure-compare
+  term: Structure compare
+  plain: Spot-the-difference for two BOMs, done by Windchill.
+  definition: A comparison of two part structures - two versions of one assembly, an assembly against a baseline, or two different assemblies - that marks added, removed and changed lines, including changes to usage attributes such as quantity or find number.
+  aka: [BOM compare, compare structure]
+  related: [bom, multi-level-bom, master]

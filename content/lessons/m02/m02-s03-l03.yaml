@@ -1,0 +1,275 @@
+id: m02-s03-l03
+subtitle: The small print on every BOM line - and why a factory robot reads it.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [bom, uses-link, quantity, unit, find-number, line-number, reference-designator]
+
+blocks:
+  - type: text
+    md: |
+      "The controller board uses resistor EB-6201." Fine - but how many? Measured in what? Which
+      bubble on the drawing is it? And which of the eight empty pads on the board does each one go on?
+
+      Those answers don't live on the resistor part, because the same resistor is used on many
+      boards in different amounts and spots. They live on the **uses link** - the line that joins
+      this parent to this child. Windchill calls them **usage attributes**, and getting them right
+      is what turns a list of parts into something a factory can actually build.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "how many" → *quantity*
+      - "counted in pieces, metres, kilograms…" → *unit* (defaults from the child's *default unit*)
+      - "the bubble number on the drawing" → *[[find-number|find number]]*
+      - "the row number the ERP system keys on" → *[[line-number|line number]]*
+      - "exactly which spot on the board: R1, R2, C3" → *[[reference-designator|reference designators]]*
+      - "the whole bundle on one line" → *usage attributes* on the [[uses-link|uses link]]
+
+  - type: diagram
+    title: Anatomy of one BOM line
+    caption: Everything in the middle belongs to the link, not to either part. Click each piece.
+    diagram:
+      width: 820
+      height: 400
+      groups:
+        - { label: The uses link, x: 230, y: 10, w: 360, h: 380, tone: accent }
+      nodes:
+        - id: parent
+          label: Controller board
+          sublabel: EB-6100 · parent
+          x: 20
+          y: 170
+          w: 180
+          tone: primary
+          detail: The E-bike E1 motor controller board. Its structure lists every component soldered onto it.
+        - id: child
+          label: Resistor 10 kΩ
+          sublabel: EB-6201 · child
+          x: 620
+          y: 170
+          w: 180
+          tone: info
+          detail: A generic 10 kΩ resistor. It's used on many boards in different numbers, so nothing about *this* board's usage is stored on the resistor itself.
+        - id: qty
+          label: "Quantity: 4"
+          sublabel: how many per parent
+          x: 250
+          y: 40
+          w: 150
+          tone: neutral
+          detail: |
+            How many of the child go into **one** parent. Per parent, not per finished product -
+            multiply down the tree for totals.
+        - id: unit
+          label: "Unit: each"
+          sublabel: pieces · m · kg · l
+          x: 420
+          y: 40
+          w: 150
+          tone: neutral
+          detail: |
+            What the quantity counts. Discrete parts use *each*. Cable, tube stock, paint or glue may
+            use metres, kilograms or litres, and some companies use an *as needed* unit for
+            consumables. The default comes from the child part's default unit.
+        - id: find
+          label: "Find number: 7"
+          sublabel: balloon on drawing
+          x: 250
+          y: 170
+          w: 150
+          tone: neutral
+          detail: |
+            Matches the item balloon on the assembly drawing so an assembler can look from the
+            picture to the BOM line. It's text, so "7" or "7A" both work. Rules for required,
+            unique or auto-generated find numbers are company preferences.
+        - id: line
+          label: "Line number: 70"
+          sublabel: row ID for ERP
+          x: 420
+          y: 170
+          w: 150
+          tone: neutral
+          detail: |
+            A numeric ID for the line within this parent, often numbered in steps (10, 20, 30) so
+            new lines fit in between. ERP integrations frequently key on it. Whether it's used at
+            all is a company decision.
+        - id: refdes
+          label: "Ref des: R1–R4"
+          sublabel: one name per spot
+          x: 290
+          y: 300
+          w: 240
+          tone: warning
+          detail: |
+            **Reference designators** name each individual placement on the board: R1, R2, R3, R4.
+            Four designators for a quantity of 4 - one per physical spot. The pick-and-place
+            machine, the test fixture and the repair technician all use these names.
+      edges:
+        - { from: parent, to: find, label: uses }
+        - { from: find, to: line }
+        - { from: line, to: child }
+
+  - type: diagram
+    title: Where reference designators live in real life
+    caption: The silkscreen printed on a board names each spot. The BOM says which part goes there. Click a spot.
+    diagram:
+      width: 780
+      height: 330
+      groups:
+        - { label: "EB-6100 Controller board (top side)", x: 20, y: 20, w: 520, h: 290, tone: success }
+      nodes:
+        - { id: r1, label: R1, x: 50, y: 70, w: 90, h: 44, tone: neutral, detail: "Resistor EB-6201. One of four. If R1 fails a test, the technician knows exactly which component to replace." }
+        - { id: r2, label: R2, x: 160, y: 70, w: 90, h: 44, tone: neutral, detail: "Resistor EB-6201, second placement." }
+        - { id: r3, label: R3, x: 270, y: 70, w: 90, h: 44, tone: neutral, detail: "Resistor EB-6201, third placement." }
+        - { id: r4, label: R4, x: 380, y: 70, w: 90, h: 44, tone: neutral, detail: "Resistor EB-6201, fourth placement. Quantity 4 = four designators." }
+        - { id: c1, label: C1, x: 50, y: 170, w: 90, h: 44, tone: info, detail: "Capacitor EB-6305. Same idea - its own BOM line with quantity 2 and designators C1 and C2." }
+        - { id: c2, label: C2, x: 160, y: 170, w: 90, h: 44, tone: info, detail: "Capacitor EB-6305, second placement." }
+        - { id: u1, label: U1 · MCU, x: 290, y: 160, w: 180, h: 64, tone: primary, detail: "The microcontroller. Quantity 1, designator U1. Integrated circuits usually get U designators." }
+        - { id: j1, label: J1 · motor plug, x: 290, y: 245, w: 180, h: 44, tone: warning, detail: "A connector. Connectors in boards and wiring harnesses often use J or P designators." }
+        - id: bom
+          label: BOM line
+          sublabel: "EB-6201 ×4 · R1,R2,R3,R4"
+          x: 570
+          y: 70
+          w: 190
+          h: 64
+          tone: accent
+          detail: |
+            One line in the board's BOM: resistor EB-6201, quantity 4, reference designators R1, R2,
+            R3, R4. Many setups also accept a range such as **R1-R4**, which is expanded into the
+            four names.
+      edges:
+        - { from: bom, to: r4, label: places, dashed: true }
+
+  - type: comparison
+    title: Find number vs line number vs reference designator
+    columns: [Find number, Line number, Reference designator]
+    rows:
+      - { label: Identifies, cells: [The line on the drawing, The line in the BOM table, Each single placement] }
+      - { label: How many per line, cells: [One, One, One per unit of quantity] }
+      - { label: Format, cells: ["Text, e.g. 7 or 7A", "Number, e.g. 70", "Text list, e.g. R1,R2,R3"] }
+      - { label: Who reads it, cells: [Assemblers with the drawing, ERP and planners, "Machines, testers, repair"] }
+      - { label: Typical in, cells: [Mechanical assemblies, Any BOM sent to ERP, Electronics and harnesses] }
+    takeaway: Find number points at the picture, line number at the row, reference designator at the exact spot.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Usage attributes are where engineering hands over to manufacturing. A pick-and-place machine
+      is programmed from reference designators. ERP imports quantities and units to order stock. An
+      assembler matches balloons on the drawing to find numbers. If these fields are wrong, the
+      design can be perfect and the product still comes out wrong.
+
+  - type: example
+    variant: real-world
+    title: The case of the missing R4
+    industry: Micromobility
+    md: |
+      An early batch of E1 controller boards came back with an **empty pad**. The BOM line said
+      quantity 4 for resistor EB-6201 - but someone had typed only **R1, R2, R3** as designators.
+      Purchasing ordered 4 per board (from the quantity), while the placement program, built from
+      the designators, placed only 3. Hundreds of resistors sat in a reel, and every board failed test.
+
+      Acme turned on Windchill's check that warns when the number of designators doesn't match the
+      quantity (this is a configurable setting), and the problem hasn't come back.
+    takeaway: For electronics, quantity and reference designators must tell the same story.
+
+  - type: walkthrough
+    title: Fill in usage attributes
+    who: A designer with modify rights on the parent part
+    where: ["<parent part> information page", Structure tab]
+    steps:
+      - title: Check out the parent
+        where: ["EB-6100 information page", Structure tab, Check Out]
+        md: Usage attributes live on the parent's uses links, so the parent must be checked out - just like adding or removing a line.
+      - title: Select the child line
+        where: [Structure tab, select the EB-6201 row]
+        md: Click the child's row (not the parent). The usage attributes you edit belong to this one line.
+      - title: Edit quantity and unit
+        where: [Structure tab, Quantity / Unit columns]
+        md: |
+          Edit the cells in the table, or open the line's usage editing panel (the exact place varies
+          by release). Set **Quantity 4**, **Unit each**.
+      - title: Set find number and line number
+        where: [Structure tab, Find Number / Line Number columns]
+        md: Enter the find number that matches the drawing balloon, and a line number if your company uses them. Some setups fill these in automatically.
+      - title: Add reference designators
+        where: [Structure tab, Reference Designators column or panel]
+        md: |
+          Enter **R1,R2,R3,R4** (or a range such as R1-R4 where supported). Windchill may warn you
+          if the count doesn't match the quantity.
+      - title: Check in the parent
+        where: [Structure tab, select parent row, Check In]
+        md: Check in EB-6100 with a comment. The new iteration carries the updated usage attributes.
+    result: The controller board's BOM line reads EB-6201, quantity 4 each, find number 7, line 70, designators R1-R4.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Using the wrong unit for bulk material.** "Brake cable, quantity 1, unit each" tells
+      purchasing to buy one *cable* - of unknown length. If the part is bought by the metre, the
+      line should say **1.2 m**. Check the child's default unit before you type a quantity.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Leave gaps in line numbers (10, 20, 30…). When a new part has to sit between lines 20 and
+      30, it becomes 25 - and nothing downstream needs renumbering.
+
+  - type: callout
+    variant: note
+    md: Which usage attributes are shown, required, unique or auto-generated is set by preferences and type configuration, so your company's structure table may look a little different. The meaning of each field stays the same.
+
+  - type: flashcards
+    cards:
+      - front: "Quantity on a BOM line"
+        back: "How many of the child go into ONE parent. Multiply down the tree for totals."
+      - front: "Unit"
+        back: "What the quantity counts - each, m, kg, l. Defaults from the child's default unit."
+      - front: "Find number"
+        back: "Matches the item balloon on the assembly drawing. Stored as text."
+      - front: "Line number"
+        back: "Numeric ID of the line within its parent. Often used by ERP. Number in steps of 10."
+      - front: "Reference designator"
+        back: "Names one exact placement, like R1 or C3. One per unit of quantity."
+      - front: "Where do usage attributes live?"
+        back: "On the uses link - which belongs to the parent's iteration."
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Where is the quantity "4" for resistor EB-6201 on the controller board stored?
+        options: [On the resistor part, On the controller board part's attributes, On the uses link between them, On the drawing]
+        answer: 2
+        explanation: The same resistor is used in different amounts on different boards, so the quantity belongs to the link joining this parent to this child.
+      - kind: single
+        prompt: A BOM line has quantity 6 and reference designators C1, C2, C3, C4, C5. What's wrong?
+        options:
+          - Nothing - designators are optional extras
+          - One placement has no designator, so a machine may skip it
+          - Capacitors can't have designators
+          - The unit must be metres
+        answer: 1
+        explanation: Each unit of quantity needs one designator. Six parts but five names means one spot is unaccounted for - exactly the missing-R4 problem.
+      - kind: multi
+        prompt: Which statements are true? (Choose all that apply.)
+        options:
+          - Find numbers match the balloons on the assembly drawing
+          - Line numbers are often what ERP integrations key on
+          - Reference designators are mainly used for electronics and harnesses
+          - Changing a find number does not need the parent checked out
+        answers: [0, 1, 2]
+        explanation: The first three describe each field's job. Find numbers are usage attributes on the parent's uses link, so changing one needs the parent checked out and creates a new parent iteration.
+      - kind: truefalse
+        prompt: Brake cable bought by the metre should be entered as quantity 1.2 with unit m, not quantity 1 with unit each.
+        answer: true
+        explanation: The unit tells purchasing and the factory what the number means. 1.2 m is a length; "1 each" would be one cable of unknown length.
+
+  - type: summary
+    points:
+      - Usage attributes live on the uses link, not on the parts.
+      - Quantity is per parent; the unit says what it counts.
+      - Find number → drawing balloon. Line number → BOM row ID for ERP. Reference designator → exact spot.
+      - For electronics, the number of designators must match the quantity.
