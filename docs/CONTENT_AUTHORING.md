@@ -125,6 +125,7 @@ node shows its `detail`. `groups` draw labelled background zones (e.g. "Server t
         tone: accent           # primary | accent | success | warning | danger | neutral | info
         shape: rect            # rect | pill | cylinder (databases, vaults) | circle | doc (files)
         detail: Markdown shown in the panel.
+        real: Optional "In real companies" line shown under the detail.
     edges:
       - { from: browser, to: web, label: HTTPS, dashed: false, bidirectional: false }
 ```
@@ -156,6 +157,7 @@ Use version-neutral names for menus and tabs (e.g. "Browse", "Products", "Folder
 - type: walkthrough
   title: Find a product's folders
   who: Any user who is a member of the product team   # optional
+  where: [Browse, Products]                            # optional overall path, shown as chips
   steps:
     - title: Open the Navigator
       where: [Navigator, Browse]
@@ -291,6 +293,18 @@ For future real videos. `chapters` are seconds offsets.
   points: [..., ...]
 ```
 
+## YAML pitfall: commas in one-line mappings
+
+`{ label: Fast, cheap, good }` is **not** one string: YAML splits it at the commas into extra keys,
+and the schema silently drops them. Use one-line `{ ... }` only for short values with no commas
+(ids, numbers, coordinates). For anything with prose, use block style or quote the value:
+```yaml
+- label: "Fast, cheap, good"
+  next: done
+```
+`npm run content:check` flags null values and unbalanced brackets that usually mean this happened,
+and checks that every comparison row has one cell per column.
+
 ## Style rules
 
 - **Simple language first, then the official term.** "The number after the dot goes up each time
@@ -315,7 +329,7 @@ npm run content:check    # validate every lesson; prints errors and warnings
 npm run dev              # preview on http://localhost:3000
 ```
 
-The build fails on schema errors, unknown glossary links, broken scenario links, quiz answers out of
+The build fails on YAML lint errors (see above), schema errors, unknown glossary links, broken scenario links, quiz answers out of
 range, animation chapters that reference missing nodes, and lesson files whose id isn't in the
 curriculum.
 

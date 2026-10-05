@@ -11,8 +11,12 @@ const ROOT = path.resolve(import.meta.dirname, "..");
 const OUT = path.join(ROOT, "apps/web/out");
 const catalog = JSON.parse(fs.readFileSync(path.join(ROOT, "apps/web/src/generated/catalog.json"), "utf8"));
 
+const browser = await chromium.launch({ executablePath: CHROMIUM }).catch((e: Error) => {
+  console.warn(`⚠️  Skipping cheat-sheet PDFs: no Chromium found (set CHROMIUM_PATH). ${e.message.split("\n")[0]}`);
+  return null;
+});
+if (!browser) process.exit(0);
 const { url, close } = await serve(OUT);
-const browser = await chromium.launch({ executablePath: CHROMIUM });
 const page = await browser.newPage();
 fs.mkdirSync(path.join(OUT, "pdf"), { recursive: true });
 for (const m of catalog.modules.filter((x: { cheatsheet?: unknown }) => x.cheatsheet)) {
