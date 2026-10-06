@@ -1,0 +1,302 @@
+id: m05-s03-l02
+subtitle: Lakeside waits four minutes for every Scooter S2 assembly. Rosa puts a file server in the plant and the wait disappears.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, replication, file-server, remote-sites, wan]
+sources:
+  - id: ac
+    where: "Appendix A: Replicate Windchill content overview; Describe Windchill file servers; Describe content replication architecture; Differences between file vaulting and content replication; Centrally vault content; Remotely and centrally vault content; Describe the proximity list; Set the preferred file server; Describe server-to-server replication; Synchronize and replicate content example; Describe ad hoc replication; Perform local replication; Describe user-initiated replication; Install a file server; Register the file server; Configure the replica vault; Allow file transfer from replica servers; Create replication rules; Schedule replication; Improve replication performance; Describe replication and the visualization service; Identify replication properties"
+  - id: ac
+    where: "Module 15: Optimize WAN performance; Add a WAN accelerator. Module 16: DeliveryQueue"
+  - id: trn-config
+    where: "Installing the File Server; Configuring Replication Vaults; Creating Replication Rules (older release; used only where the 13.0 course manual agrees)"
+versionNotes:
+  - versions: ["all"]
+    md: |
+      File servers, replica vaults and replication rules are described in the supplied course for
+      customer-run installations. On Windchill+ PTC runs the servers; how remote-site content delivery is
+      offered there is not confirmed by the supplied sources. Older training calls the main site **master**
+      and uses its own example host names; the 13.0 course uses **main**.
+
+blocks:
+  - type: text
+    md: |
+      The **Lakeside plant** opens a Scooter S2 frame assembly. Every byte crosses a slow WAN link from
+      HQ. Four minutes later the model appears - and the next person at Lakeside who opens it waits four
+      minutes again.
+
+      The fix isn't a bigger link (well, not only). It's to put the files **near the people**: a Windchill
+      [[file-server]] at Lakeside, `wc-fs-lakeside`, holding copies of the content Lakeside uses.
+      The metadata still lives in one database at HQ. Only the bytes travel - ahead of time.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a mini Windchill at the plant that only stores files" → [[file-server]] (also called a [[replica|replica site]])
+      - "the vault at the plant" → [[replica-vault]]
+      - "which files get copied there" → [[replication-rule]]
+      - "when they get copied" → a **replication schedule**
+      - "the server I download from" → [[preferred-file-server]]
+      - "who's next-closest if my server lacks the file" → [[proximity-list]]
+      - "copy it the first time someone asks" → [[ad-hoc-replication]]
+
+  - type: diagram
+    title: HQ, the WAN and the Lakeside file server
+    caption: Metadata stays at HQ. Content gets copied to Lakeside. Click each box.
+    diagram:
+      width: 840
+      height: 420
+      groups:
+        - { label: "HQ - main site", x: 20, y: 20, w: 380, h: 380, tone: neutral }
+        - { label: "Lakeside plant", x: 500, y: 20, w: 320, h: 380, tone: accent }
+      nodes:
+        - id: app
+          label: Windchill server
+          sublabel: wc-app01
+          x: 40
+          y: 60
+          w: 170
+          tone: primary
+          detail: Runs the method servers and owns every replication rule and schedule. Users at Lakeside still log in here; only file transfers are local.
+        - id: db
+          label: Database
+          sublabel: wc-db01
+          x: 230
+          y: 60
+          w: 150
+          h: 70
+          tone: info
+          shape: cylinder
+          detail: The single source of metadata for both sites. A file server never has its own database.
+        - id: mainv
+          label: Main vault
+          sublabel: main copies
+          x: 40
+          y: 200
+          w: 170
+          h: 70
+          tone: success
+          shape: cylinder
+          detail: In the recommended central-vaulting design, every main copy lives here at HQ. Back up these first.
+        - id: cad
+          label: CAD worker
+          sublabel: wc-cad01
+          x: 230
+          y: 210
+          w: 150
+          tone: neutral
+          detail: With central vaulting, visualization publishing runs only at the main location.
+        - id: fs
+          label: File server
+          sublabel: wc-fs-lakeside
+          x: 520
+          y: 60
+          w: 280
+          tone: accent
+          detail: |
+            A functional subset of Windchill: servlet engine, Info*Engine and Windchill services, but **no database
+            and no metadata**. It needs an LDAP server only during installation. Access control still comes
+            from HQ, and file names on disk are hashed.
+        - id: repv
+          label: Replica vault
+          sublabel: copies for Lakeside
+          x: 520
+          y: 190
+          w: 150
+          h: 70
+          tone: success
+          shape: cylinder
+          detail: Filled by replication rules and schedules, by ad hoc requests and by user-initiated Replicate. Its folders are mounted to directories **on the file server**.
+        - id: cachev
+          label: Cache vault
+          sublabel: local uploads
+          x: 690
+          y: 190
+          w: 120
+          h: 70
+          tone: warning
+          shape: cylinder
+          detail: Lakeside uploads land here first; synchronization then pulls them to their designated main vault.
+        - id: users
+          label: Lakeside users
+          sublabel: preferred = Lakeside
+          x: 560
+          y: 320
+          w: 220
+          tone: accent
+          shape: pill
+          detail: Each user's Preferred File Server preference must point to Lakeside, or downloads still cross the WAN.
+      edges:
+        - { from: app, to: db, label: metadata }
+        - { from: app, to: mainv }
+        - { from: mainv, to: repv, label: "replication (WAN)", dashed: true }
+        - { from: cachev, to: mainv, label: sync, dashed: true }
+        - { from: fs, to: repv }
+        - { from: fs, to: cachev }
+        - { from: users, to: fs, label: fast LAN, bidirectional: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      PTC estimates that downloading content causes most user performance complaints - around 80%. For
+      remote CAD users, a nearby file server is PTC's standing recommendation; the best results come with
+      both a file server and a WAN accelerator. Replication only helps **remote** users, though, so it's a
+      plant-by-plant decision, not a default.
+
+  - type: comparison
+    title: Vaulting, replication and caching - who does what
+    columns: [File vaulting, Scheduled replication, Ad hoc caching]
+    rows:
+      - label: Purpose
+        cells: ["Store content outside the database", "Copy chosen content to remote sites ahead of time", "Copy content to a remote site the first time it is requested"]
+      - label: Who benefits
+        cells: ["Everyone (faster uploads and downloads)", "Remote users", "Remote users"]
+      - label: Driven by
+        cells: ["Vaulting rules", "Replication rules plus a schedule per replica vault", "A user request; then predictive replication of new iterations"]
+      - label: First download at the remote site
+        cells: ["Not applicable", "Already local", "Slow once - fast for everyone after"]
+      - label: Main control
+        cells: ["`wt.fv.forceContentToVault` and rules", "Content Replication Rules and Replication Scheduler", "`wt.fv.master.adhocCaching.flag` (0, 1 or 2)"]
+    takeaway: Rules and schedules cover the predictable work; ad hoc caching catches what nobody predicted.
+
+  - type: text
+    md: |
+      ### Designing replication for Lakeside
+
+      Rosa answers four questions before touching a server:
+
+      1. **Where do main copies live?** *Central vaulting* keeps every main copy at HQ; the file server
+         only holds replicas (plus fresh uploads until they sync). PTC recommends this for most customers.
+         *Remote and central vaulting* lets main copies live at remote sites too - faster in some cases, but
+         backup and recovery get harder, and remote sites need their own CAD workers.
+      2. **What does Lakeside need?** Kai's answer: released Scooter S2 and E-Bike E1 CAD, plus viewables.
+         That becomes replication rules by context, type and life cycle state.
+      3. **When?** A nightly schedule for the replica vault, when the WAN is quiet.
+      4. **What's next-closest?** The proximity list for wc-fs-lakeside: itself first, then HQ.
+
+      Ad hoc caching, set with `wt.fv.master.adhocCaching.flag`, catches the rest:
+
+      | Value | Behaviour |
+      | --- | --- |
+      | `0` | No ad hoc caching |
+      | `1` | Only when a replication rule already applies; stored according to that rule |
+      | `2` | Always; stored by the rule if there is one, otherwise in the site's [[default-target-vault|default target]] |
+
+      After an ad hoc request, **predictive replication** creates a short-lived rule that keeps sending new
+      iterations of the same objects - for three months by default.
+
+  - type: walkthrough
+    title: Bring wc-fs-lakeside online
+    who: Rosa, site administrator (with Omar for the network side)
+    where: [Site, Utilities, File Server Administration]
+    steps:
+      - title: Prepare the main site
+        md: |
+          The main site must be installed with the PTC Solution Installer with file server support enabled.
+          Generate a **security key** at the main server and export it. The file server uses the main site's
+          public key to verify that its URLs and replicated content really come from HQ.
+      - title: Download and install
+        md: |
+          From Lakeside, sign in to the main server and use the **File Server Manager** utility to download the
+          file server bundle and the key. Run the installer for the file server and make the main site's
+          public key known to it during installation.
+      - title: Register the file server
+        md: |
+          In the Site Administration window (the File Server Management utility can do it too), register it under a unique name with no spaces (for example `lakeside`), using the file server's
+          `wt.httpgw.url.anonymous` value as its URL, and tick **File Server**. List the other sites in order
+          of proximity - closest first. Don't register the same file server with several Windchill systems.
+      - title: Create the replica vault
+        where: [File Server Administration, Vault Configuration, Sites, lakeside]
+        md: |
+          Under the Lakeside site create a **host** with its fully qualified DNS name, then a **replica vault**
+          (with automatic folder creation if you like), a root folder, and a **mount** to a directory on
+          wc-fs-lakeside. Every replica vault must be mounted on the file server itself.
+      - title: Allow transfers from the file server
+        md: |
+          In `<Windchill_Home>/codebase/WEB-INF/web.xml` add the file server's URL and port to the
+          `cors.allowed.origins` and `antiClickJackingUri` parameters (the Help Center has the template),
+          then restart Windchill.
+      - title: Write the replication rule
+        where: [File Server Administration, Content Replication Rules]
+        md: |
+          Create a rule - name, description, context (Scooter S2, E-Bike E1), the object types to send, the
+          target replica vault, and optional criteria such as life cycle state. For viewables, add rules for
+          the `DerivedImage` and `WTMarkUp` classes.
+      - title: Schedule it
+        where: [File Server Administration, Replication Scheduler]
+        md: Create a schedule object for the Lakeside replica vault - target vault, time and frequency (nightly at 01:00). Each replica vault needs its own schedule.
+      - title: Point the users at it
+        md: Ask every Lakeside user to set **Preferred File Server** to Lakeside from the Quick Links menu on their home page - and explain why.
+    result: The first scheduled run pulls released Scooter S2 and E-Bike E1 content to Lakeside. Lakeside users download over their own LAN.
+
+  - type: example
+    variant: case-study
+    title: Seeding Lakeside without choking the WAN
+    industry: Micromobility
+    md: |
+      Lakeside needed about 400 GB of released CAD on day one. Pushing that over the plant's WAN link
+      would have taken most of a week and slowed everyone at both sites.
+
+      Rosa used **local replication** instead: a replication run that copies content from the main vault
+      into a replica vault on HQ's own file system. She then physically moved that replica vault to
+      wc-fs-lakeside and updated Windchill so the vault was defined under the Lakeside file server.
+      From then on, the nightly schedule only had to send the day's changes.
+
+      One surprise: small viewables were missing. `wt.fv.replicationFileSizeThreshold` defaults to
+      10,240 bytes, so tiny files were skipped. Setting it to `0` and adding rules for the viewable classes
+      fixed it.
+    takeaway: Seed big remote vaults locally; let the WAN carry only the daily changes.
+
+  - type: text
+    md: |
+      ### Speed and plumbing worth knowing
+
+      - Replication runs through **DeliveryQueue** entries - one entry per file waiting to be sent.
+      - `wt.fv.master.replication.NumOfQueues` (default 3) and `wt.fv.master.replicationThreadCount`
+        (default 1) allow parallel, multi-threaded replication to several file servers. More threads help when
+        a job is bigger than `wt.fv.revaultQuerySize` (default 1000).
+      - Uploads made at Lakeside are pulled to their main vault by **synchronization** (system-wide, every three
+        hours out of the box, never more often than hourly). Replication then pushes copies to other sites,
+        fetching from the nearest site on the proximity list that has an up-to-date copy.
+      - A **Replication Manager** (member of the Replication Managers group) can push selected objects on
+        demand with **Actions → Replicate**, choosing the target file server; results show in the Event Console.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Building the file server and forgetting the preference.** The Preferred File Server is a personal
+      setting that users can change at any time. If Lakeside users leave it pointing at HQ, the file server
+      sits idle and the complaints continue. Check it during rollout and again when people say "it's slow".
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Add a **replication test** to your monthly checklist - the course lists it as a monthly task when file
+      servers are in use. Pick one recently released Scooter S2 drawing and confirm it is in the Lakeside
+      replica vault before anyone asks for it.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: What does wc-fs-lakeside store?
+        options: [Content files only, Metadata only, Both content and a copy of the database, The LDAP directory]
+        answer: 0
+        explanation: A file server manages content only. All metadata stays in the single database at HQ.
+      - kind: single
+        prompt: A Lakeside user requests a document no replication rule covers, and the ad hoc caching flag is 2. What happens?
+        options: [The download fails, It is delivered from HQ and cached on Lakeside in the site's default target vault, It is added to a permanent replication rule, It is stored as a BLOB]
+        answer: 1
+        explanation: With value 2, ad hoc caching always happens; with no rule, content goes to the site's default target vault. Predictive replication then sends new iterations for a set period.
+      - kind: truefalse
+        prompt: For most customers PTC recommends keeping every main copy at the main site and only replicas at remote file servers.
+        answer: true
+        explanation: Central vaulting is the recommended design. Remote main copies are possible but make backup and recovery harder.
+
+  - type: summary
+    points:
+      - A file server is a content-only Windchill subset near remote users. No database, no metadata.
+      - Replication rules choose content; a schedule per replica vault sends it; ad hoc caching catches the rest.
+      - Users must set their Preferred File Server; the proximity list finds the next-closest copy.
+      - Prefer central vaulting. Seed large remote vaults with local replication.
+      - Watch the file size threshold for viewables and add a monthly replication test.

@@ -1,0 +1,303 @@
+id: m05-s01-l01
+subtitle: Before Rosa buys a single server, she has to decide what shape Acme's Windchill will be - and prove every piece is on PTC's list.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, architecture, installation, topology, requirements]
+sources:
+  - id: ac
+    where: "Module 11: Describe the Windchill architecture; Describe the Windchill client; Describe the web server; Describe the Windchill server; Describe the database server; Describe LDAP integration; Identify optional servers; Identify Windchill system requirements; Identify operating system requirements; Identify prerequisite software; Identify LDAP requirements; Identify client requirements; Activity: Verify the platform requirements for Windchill; Describe the monolithic (single-tiered) configuration; Describe the multi-tiered configuration; Describe the clustered configuration"
+versionNotes:
+  - versions: ["All releases"]
+    md: |
+      Supported operating systems, database versions and browsers change with every release. This lesson
+      teaches how to read the platform support matrix; always check the matrix for **your** exact release
+      rather than trusting a list in a course.
+  - versions: ["Windchill+"]
+    md: |
+      On [[windchill-plus|Windchill+]] PTC hosts and runs the servers as a SaaS service, so choosing a
+      topology and checking server platforms is PTC's job. Client requirements (supported browsers) still
+      matter to you.
+
+blocks:
+  - type: text
+    md: |
+      Acme Mobility has signed for Windchill. Kai wants CAD data for **Scooter S2** and **E-Bike E1** in
+      it by spring, and the **Lakeside plant** needs access over its slow WAN link.
+
+      **Rosa**, Acme's new Windchill system administrator, gets the first question from IT: *"How many
+      servers do you need, and what goes on them?"* That's a topology decision. And before anyone orders
+      hardware, she has to check that every piece - operating system, database, directory, browsers - is
+      a combination PTC actually supports.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the shape of the installation: what runs on which machine" → **topology** or **configuration**
+      - "everything on one box" → [[monolithic-configuration]] (single-tier)
+      - "web, app and database on separate boxes" → [[multi-tiered-configuration]]
+      - "several Windchill servers sharing the load behind one address" → **clustered configuration**
+      - "PTC's list of what's been tested together" → [[platform-support-matrix]]
+      - "the user's side" → the **client** (browser, Creo, [[workgroup-manager|Workgroup Manager]])
+
+  - type: diagram
+    title: The three layers every topology has
+    caption: Every Windchill system has these pieces. Topologies only differ in how many machines carry them. Click a box.
+    diagram:
+      width: 820
+      height: 470
+      groups:
+        - { label: Client layer, x: 20, y: 20, w: 180, h: 430, tone: neutral }
+        - { label: Application layer, x: 230, y: 20, w: 340, h: 430, tone: primary }
+        - { label: Database layer, x: 600, y: 20, w: 200, h: 430, tone: info }
+      nodes:
+        - id: browser
+          label: Web browser
+          sublabel: Edge · Firefox · Chrome · Safari
+          x: 35
+          y: 90
+          w: 150
+          tone: neutral
+          detail: |
+            Most people reach Windchill through a browser: they need network access, the Windchill URL and
+            a valid user ID and password. An email client is optional, for notifications and subscriptions.
+            The supported browsers for a release are listed in the [[platform-support-matrix]].
+        - id: cad
+          label: Creo / WGM
+          sublabel: CAD clients
+          x: 35
+          y: 250
+          w: 150
+          tone: neutral
+          detail: A Creo Parametric session or a [[workgroup-manager|Workgroup Manager]] can be the client instead of a browser. Their requests go through the same web server.
+        - id: web
+          label: Web server
+          sublabel: PTC HTTP Server (Apache)
+          x: 250
+          y: 90
+          w: 140
+          tone: accent
+          detail: |
+            The [[web-server]] hosts static content (HTML, images, JavaScript, stylesheets) and passes
+            dynamic requests to the servlet engine. It can share a machine with the Windchill server, sit
+            in front as a reverse proxy for security or load balancing, or be clustered behind a load
+            balancer.
+          real: Acme plans wc-web01 as a separate web server.
+        - id: app
+          label: Windchill server
+          sublabel: server manager + method servers
+          x: 410
+          y: 90
+          w: 145
+          h: 70
+          tone: primary
+          detail: |
+            The application server: a [[server-manager]] that looks after one or more [[method-server|method servers]],
+            each with the embedded Tomcat [[servlet-engine]]. The method servers run the business logic and
+            talk to the database and LDAP. One method server is often set aside for background work such as
+            workflow propagation and visualization.
+          real: Acme plans wc-app01 (and later wc-app02).
+        - id: optional
+          label: Optional servers
+          sublabel: index · viz · file server
+          x: 330
+          y: 290
+          w: 170
+          tone: warning
+          detail: |
+            Add only what you use: a Solr **indexing** server for full-text search (required if you use Parts
+            Classification or faceted search), **visualization workers** that create Creo View viewables,
+            Windchill Business Reporting, **file servers** with replication for remote sites, and Windchill
+            Navigate. Indexing and visualization can be down without stopping user access - those features
+            just stop working.
+          real: Lakeside's slow WAN link is why Acme will add wc-fs-lakeside.
+        - id: db
+          label: Database
+          sublabel: Oracle or SQL Server
+          x: 620
+          y: 90
+          w: 160
+          shape: cylinder
+          tone: info
+          detail: |
+            The [[database]] holds Windchill's metadata. Oracle and Microsoft SQL Server are supported. File
+            content can live in the database, but it is usually stored in a [[vault]] elsewhere on the network.
+          real: Omar, Acme's DBA, will run wc-db01.
+        - id: ldap
+          label: LDAP directory
+          sublabel: users · groups · config
+          x: 620
+          y: 260
+          w: 160
+          shape: cylinder
+          tone: info
+          detail: |
+            A v3-compliant [[ldap|LDAP]] directory stores users and groups and application configuration.
+            Windchill can also authenticate against a corporate directory such as Active Directory. If that
+            corporate connection is configured and can't be reached at startup, Windchill will not start.
+      edges:
+        - { from: browser, to: web, label: HTTP(S) }
+        - { from: cad, to: web }
+        - { from: web, to: app, label: servlet requests }
+        - { from: app, to: db, label: metadata }
+        - { from: app, to: ldap, label: users }
+        - { from: app, to: optional, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      The topology decides your cost, your security story and how far you can grow before a painful
+      re-install. Picking a platform combination that isn't on the matrix decides something else: whether
+      PTC Technical Support can help you when it breaks.
+
+  - type: comparison
+    title: Three ways to lay out the same pieces
+    columns: [Monolithic, Multi-tiered, Clustered]
+    rows:
+      - label: What goes where
+        cells:
+          - "Web server, Windchill, database and LDAP on one operating system"
+          - "Web/application tier separated from the database tier; web server often separate too"
+          - "Several Windchill servers behind a load-balancing router, sharing one database and cache"
+      - label: Typical use
+        cells:
+          - "Development, testing, small implementations"
+          - "Most production systems"
+          - "Large implementations needing scale and fault tolerance"
+      - label: PTC guidance
+        cells:
+          - "Not typically recommended above about 100 named users"
+          - "Separate web/app from the database for all production configurations"
+          - "Chosen for performance and failover; covered in the clustering section"
+      - label: Security options
+        cells:
+          - "Everything exposed on one host"
+          - "Reverse proxy or standalone web server in a DMZ"
+          - "Same as multi-tiered, plus a single DNS name for the cluster"
+      - label: If one machine fails
+        cells:
+          - "Everything is down"
+          - "That tier is down"
+          - "Other cluster nodes pick up the load"
+    takeaway: Same components every time - the topology just decides how many machines carry them.
+
+  - type: example
+    variant: case-study
+    title: Rosa sketches Acme's first layout
+    industry: Micromobility
+    md: |
+      Acme expects around 150 named users - designers, engineers, purchasing and the Lakeside plant.
+      That rules out a monolithic box for production. Acme doesn't need 24/7 failover yet, but Lena (IT
+      security) insists that nothing internet-facing sits next to the database.
+
+      Rosa's plan:
+      - **wc-web01** - web server in the DMZ, the only machine users talk to directly
+      - **wc-app01** - Windchill server (server manager and method servers)
+      - **wc-db01** - Oracle database, run by Omar, plus the LDAP connection to Acme's Active Directory
+      - **wc-cad01** - a visualization worker host, added in phase 2
+      - **wc-fs-lakeside** - a file server at the plant, added once the WAN pain is measured
+
+      For developers she adds one small **monolithic** test box.
+    takeaway: Multi-tiered for production, monolithic for development - and a written reason for each choice.
+
+  - type: comparison
+    title: What the 13.x course manual says you need
+    columns: [Requirement, Notes]
+    rows:
+      - label: Server operating system
+        cells: ["Microsoft Windows Server or Red Hat Enterprise Linux", "Exact versions are in the software matrix. Non-server Windows is for development and testing only."]
+      - label: Database
+        cells: ["Oracle or Microsoft SQL Server", "New or existing; the installer can create one for you"]
+      - label: Directory
+        cells: ["A v3-compliant LDAP server", "For example Active Directory or another LDAPv3 corporate directory"]
+      - label: Prerequisite software
+        cells: ["Java, web server/servlet engine, LDAP, database", "If you install with the PTC Solution Installer it installs the web server for you"]
+      - label: Browsers
+        cells: ["Edge, Firefox, Chrome, Safari", "Check the matrix for the supported versions"]
+      - label: Test vs production
+        cells: ["Same platform for both", "PTC's recommendation, so tests mean something"]
+    takeaway: The list tells you the families; the matrix tells you the exact versions.
+
+  - type: walkthrough
+    title: Read the platform support matrix
+    who: Anyone with a PTC eSupport account (Rosa)
+    where: [support.ptc.com, Product Release Calendar, Windchill, View Matrix Page]
+    steps:
+      - title: Sign in to PTC eSupport
+        where: [support.ptc.com, Sign in]
+        md: Sign in with your PTC account. The support site is also where you search the knowledge base and download software.
+      - title: Find your release in the calendar
+        where: [Product Release Calendar, Choose Product Family, Windchill]
+        md: |
+          Open the **Product Release Calendar**, filter the product family to **Windchill**, sort by
+          **Release** (newest first) and find the Windchill PLM release you plan to install.
+      - title: Open the matrix
+        where: [Windchill PLM row, View Matrix Page]
+        md: |
+          Click **View Matrix Page** for that release. The matrix opens in a new tab with tables such as
+          **PTC Product Interoperability**, **Operating Systems**, **Application Compatibility** and
+          **Component Compatibility**. You can hide tables you don't need.
+      - title: Check each piece of your plan
+        where: [Operating Systems, Component Compatibility]
+        md: |
+          For each planned server, confirm the OS version, the database version and other third-party
+          components appear for your release. Anything not listed may work, but it hasn't been qualified
+          by PTC's testing.
+      - title: Export a dated copy
+        where: [Matrix page, Export]
+        md: |
+          Click **Export** to save a PDF. It carries the date it was generated - file it with your
+          installation plan, because the matrix is updated over time.
+    result: |
+      Rosa has a dated PDF showing that Windows Server, Oracle, Active Directory and Acme's browsers are
+      supported for the release she picked. If the site's layout has changed, look for the same names -
+      release calendar, product family, matrix.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **"It runs on my laptop."** Non-server Windows is supported only for development and testing. And a
+      test system on a different platform from production hides exactly the problems you most need to
+      find. Keep test and production on the same platform.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Planning an upgrade or mixing several PTC products? PTC's **Release Advisor**
+      (ptc.com/en/support/release-advisor) builds custom compatibility and upgrade reports for your
+      combination of OS and database. Save its report next to the matrix PDF.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: A three-person team needs a Windchill system for customization development. Which topology fits?
+        options: [Monolithic, Multi-tiered with a DMZ web server, Clustered, It must be identical to production]
+        answer: 0
+        explanation: Monolithic (everything on one machine) is the usual choice for development and testing environments, especially for a single developer or small team.
+      - kind: single
+        prompt: Which layout does PTC recommend for all production configurations?
+        options: [Everything on one server, Web and application server separated from the database server, A cluster with at least three nodes, Database on the same server as the web server]
+        answer: 1
+        explanation: The manual recommends separating the web and application server from the database server for every production configuration. Clustering is for large implementations.
+      - kind: truefalse
+        prompt: If a combination of OS and database isn't in the platform support matrix, it definitely won't work.
+        answer: false
+        explanation: It may work - but it hasn't been qualified through PTC's testing and validation, so you'd be on your own if it misbehaves.
+      - kind: multi
+        prompt: Which of these can be down while users still sign in and work (with some features missing)? (Choose all that apply.)
+        options: [The Solr indexing server, A visualization worker, The database, The web server]
+        answers: [0, 1]
+        explanation: The manual names the visualization worker and indexing server as components that can be down without blocking access. Without the database or web server, nobody gets in.
+      - kind: single
+        prompt: Rosa plans production on Windows Server. Where may the developers' Windows 11 workstations be used?
+        options: [As production servers, For development and testing only, Only as database servers, Nowhere]
+        answer: 1
+        explanation: Non-server editions of Windows are supported only for Windchill development and testing.
+
+  - type: summary
+    points:
+      - Every Windchill system has a client layer, an application layer (web server and Windchill server) and a database layer (database and LDAP).
+      - Monolithic puts everything on one machine - fine for development and small systems, not typically above about 100 named users.
+      - Multi-tiered separates web/application from the database (PTC's production recommendation); clusters add scale and failover.
+      - Windows Server or Red Hat Enterprise Linux, Oracle or SQL Server, an LDAPv3 directory, supported browsers - exact versions come from the matrix.
+      - Read the platform support matrix for your exact release and keep a dated PDF with the plan.

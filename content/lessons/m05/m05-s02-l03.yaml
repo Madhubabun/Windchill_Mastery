@@ -1,0 +1,338 @@
+id: m05-s02-l03
+subtitle: Every error leaves a trail. Know which file holds it, and how to turn up the detail without drowning the server.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, logs, log4j, log-levels, troubleshooting]
+sources:
+  - id: ac
+    where: "Module 18: Describe the Windchill logging mechanism; Identify Windchill log properties; Set Windchill log levels; View Windchill log files; Manage log files using JConsole; Manage web server logs; View SQL Server log files; Monitor the Oracle database with alerts"
+  - id: ac
+    where: "Module 19: Review application server logs; Review database logs; Activity: Monitor Windchill system performance (Log Levels, Log Comment, Log File Viewer); Activity: Monitor Windchill performance using JConsole (Logging MBean, LogsDirViewers)"
+versionNotes:
+  - versions: ["Windchill+"]
+    md: |
+      On Windchill+ (software as a service) PTC runs the servers, so you don't browse server folders or edit
+      log4j files yourself. The file locations and property files below describe installations your company
+      runs itself.
+
+blocks:
+  - type: text
+    md: |
+      14:02. Priya's check-in of the E-Bike E1 frame assembly fails with a red error box. 14:03, Kai: *"Rosa,
+      can you look at the logs?"* Which logs? Acme's Windchill has a web server, a server manager, several
+      method servers, a database and a directory server, and each keeps its own diary.
+
+      Good admins don't open every file. They go to the **right** one first, and they know how to raise the
+      level of detail on just the part that's misbehaving.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the logging engine Windchill uses" → Apache *Log4j*
+      - "a named source of log messages" → a *logger* (all out-of-the-box loggers are described in `loggers.html` in the codebase)
+      - "how much detail a logger writes" → [[log-level|log level]]: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL
+      - "the method server's diary" → [[method-server-log|method server log]]
+      - "the in-browser log reader" → [[log-file-viewer|Log File Viewer]]
+
+  - type: diagram
+    title: Which log for which problem
+    caption: Each tier keeps its own log. Click a box to see the file and what it's good for.
+    diagram:
+      width: 820
+      height: 430
+      nodes:
+        - id: apache
+          label: Web server logs
+          sublabel: wc-web01
+          x: 30
+          y: 40
+          w: 220
+          tone: info
+          shape: doc
+          detail: |
+            **error.log** (Windows) or **error_log** (UNIX) in the `HTTPServer\logs` folder is the most important
+            Apache log: the first place to look when the server won't start or requests fail. **access.log**
+            records every client request. Check the **mod_jk** logs for thread problems or missing or outdated
+            jar files.
+          real: Start here for "I can't even log in" problems.
+        - id: sm
+          label: ServerManager log
+          sublabel: "ServerManager-<pid>-log4j.log"
+          x: 300
+          y: 40
+          w: 220
+          tone: primary
+          shape: doc
+          detail: Each server application keeps a separate log. This one, in the Windchill `logs` folder, holds the [[server-manager|server manager]]'s messages, so read it when the problem is with the server manager process itself.
+        - id: ms
+          label: MethodServer log
+          sublabel: "MethodServer-<pid>-log4j.log"
+          x: 300
+          y: 160
+          w: 220
+          tone: primary
+          shape: doc
+          detail: |
+            The most important Windchill log. Business logic runs in the [[method-server|method server]], and
+            servlet and JSP logging is captured here too. One file per method server process, named with its
+            process id.
+          real: Priya's failed check-in is almost certainly recorded here.
+        - id: gc
+          label: GC log
+          sublabel: "MethodServer-<pid>-GC.log"
+          x: 300
+          y: 280
+          w: 220
+          tone: warning
+          shape: doc
+          detail: The method server's [[garbage-collection|garbage collection]] log. Useful when the problem is "slow and getting slower" rather than an error (lesson 4).
+        - id: db
+          label: Database logs
+          sublabel: wc-db01
+          x: 570
+          y: 40
+          w: 220
+          tone: accent
+          shape: doc
+          detail: |
+            The Oracle alert log (look for `ORA-` errors) or the SQL Server error log. Both should be checked
+            daily. In SQL Server Management Studio, the Log File Viewer filters and drills into them. Omar owns these.
+        - id: ldap
+          label: Directory server logs
+          sublabel: LDAP
+          x: 570
+          y: 160
+          w: 220
+          tone: accent
+          shape: doc
+          detail: The [[directory-server|directory server]] is a third-party LDAPv3 product chosen by your company, so where its logs live and how to read them depends on that product's documentation.
+        - id: logdir
+          label: Windchill logs folder
+          sublabel: "set by wt.logs.dir"
+          x: 570
+          y: 280
+          w: 220
+          tone: neutral
+          shape: cylinder
+          detail: |
+            `wt.logs.enabled` switches logging on and `wt.logs.dir` names the folder (by default `logs` under the
+            installation folder). Log files that haven't been opened for 15 days are deleted automatically by
+            the LogsDirViewer MBean; the timing is configurable.
+      edges:
+        - { from: apache, to: sm, label: request passes on, dashed: true }
+        - { from: sm, to: ms, label: starts }
+        - { from: ms, to: gc, dashed: true }
+        - { from: ms, to: db, label: JDBC, dashed: true }
+        - { from: ms, to: logdir, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      When something breaks, the clock is running: users are blocked and managers are asking. Knowing the map
+      of logs turns a two-hour search into a five-minute look. And logs are also your evidence when you open
+      a case with PTC Technical Support or with the team that wrote a customization.
+
+  - type: comparison
+    title: Symptom → first log to open
+    columns: [Open first, Then]
+    rows:
+      - label: "Can't reach the login page at all"
+        cells: ["Apache error.log", "mod_jk logs; then the server manager log"]
+      - label: An action fails with an error box
+        cells: ["Method server log at that time", "Persisted Log Events (lesson 7)"]
+      - label: A problem with the server manager process
+        cells: ["Server manager log", "Its table on the Server Status page"]
+      - label: Slow and getting slower
+        cells: ["Server Status page and GC log", "Thread dumps (lesson 4)"]
+      - label: Database errors in Windchill logs
+        cells: ["Oracle alert log or SQL Server error log", "Ask Omar to check the database alerts"]
+    takeaway: Match the symptom to the tier, then the tier to the file.
+
+  - type: text
+    md: |
+      **Why the error you want often isn't there yet**
+
+      Out of the box Windchill writes only **ERROR** and **FATAL** events to its log files. To see WARN, INFO,
+      DEBUG or TRACE detail you have to raise the level, and that has a cost: logging uses CPU and disk, so
+      verbose logging slows the system. The rule: raise it **narrowly** (one logger, not everything) and
+      **briefly** (turn it back down when you're done).
+
+      Three log4j property files in `codebase/WEB-INF` hold the logging configuration:
+      `log4jMethodServer.properties` (method servers, including Info*Engine messages),
+      `log4jServerManager.properties` and `log4jWebApp.properties` (web applications in the servlet engine).
+
+  - type: walkthrough
+    title: Raise one logger's level safely
+    who: Rosa, site administrator
+    where: [Site, Utilities, Server Status, Monitoring Tools, Log Levels]
+    steps:
+      - title: Find the logger that matters
+        where: [Windchill codebase, loggers.html]
+        md: |
+          Look up the logger for the area you're investigating in `loggers.html`. You want one specific logger,
+          not the root logger.
+      - title: Mark the moment
+        where: [Server Status, Monitoring Tools, Log Comment]
+        md: |
+          Use **Log Comment** to write a note such as "Rosa: DEBUG on for check-in investigation" into the server
+          manager and method server logs (on all cluster nodes). Anyone reading later knows why the logs got noisy.
+      - title: Open Log Levels
+        where: [Site, Utilities, Server Status, Monitoring Tools, Log Levels]
+        md: |
+          On the **Log Levels** page, select the server processes (server manager, method server or servlet
+          engine), browse to the logger and set its level, for example DEBUG. This works on the processes
+          running now.
+      - title: Reproduce and read
+        where: [Server Status, Monitoring Tools, Log File Viewer]
+        md: |
+          Ask Priya to try the check-in again, then read the result in the **Log File Viewer** or a text editor.
+      - title: Put it back
+        where: [Site, Utilities, Server Status, Monitoring Tools, Log Levels]
+        md: |
+          Set the logger back to its previous level and add a second Log Comment. Verbose logging left on is a
+          quiet performance tax on every user.
+    result: You captured the detail you needed for one area, for a few minutes, with a clear note in the log.
+
+  - type: callout
+    variant: note
+    title: Other ways to set a level
+    md: |
+      - **In JConsole:** under `com.ptc → MethodServers → MethodServer.<id> → com.ptc → Logging`, the
+        Operations node has a `setLevel` operation.
+      - **In a log4j properties file:** add a pair of lines naming one logger and its level, for example a
+        `logger.<id>.name=` line for `wt.servlet.ServletRequestMonitor` and a `logger.<id>.level=INFO` line in
+        `log4jWebApp.properties`. Changing the root logger's level instead turns on that level for **all**
+        loggers, which usually produces far too much output and hurts performance.
+      - **From the command line:** the `wt.util.jmx.SetLogLevel` utility sets or resets logger levels in
+        chosen server processes. Its options are in the Help Center; they are not covered here.
+
+  - type: scenario
+    variant: what-if
+    title: Priya's check-in error
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Priya's check-in failed at 14:02 with an error. Users can still log in and browse. Where does Rosa
+          look first?
+        choices:
+          - label: The method server log around 14:02
+            next: s2
+            good: true
+            feedback: Right tier. Check-ins run in the method server, and servlet logging is captured there too.
+          - label: The Apache access.log
+            next: s1b
+            feedback: It will show the request arrived, but not why the server-side work failed.
+          - label: Set the root logger to DEBUG and ask Priya to try again
+            next: fail1
+            feedback: That turns on DEBUG for every logger at once.
+      - id: s1b
+        md: |
+          access.log shows Priya's request reached the web server. The web tier is fine. Where next?
+        choices:
+          - label: The method server log around 14:02
+            next: s2
+            good: true
+            feedback: Yes. The request got through; the failure is server-side.
+          - label: The Oracle alert log
+            next: s2db
+            feedback: Possible, but nothing yet points at the database.
+      - id: s2db
+        md: |
+          Omar checks the alert log: no new `ORA-` errors. Rosa has lost a little time, but ruled out the database.
+          She opens the method server log next.
+        choices:
+          - label: Read the method server log
+            next: s2
+            good: true
+            feedback: Back on track.
+      - id: s2
+        md: |
+          The log shows an ERROR line at 14:02 with a stack trace, but not enough detail about *why*. What now?
+        choices:
+          - label: Raise one related logger to DEBUG on the Log Levels page, add a Log Comment, reproduce, then reset it
+            next: win
+            good: true
+            feedback: Narrow, brief and documented. The best way to get more detail.
+          - label: Raise every logger to DEBUG and leave it on for a week to be safe
+            next: partial1
+            feedback: You'll get the detail, and also a slower system and huge files.
+      - id: win
+        md: |
+          The DEBUG lines show the check-in failing on a customization's validation. Rosa resets the level, adds a
+          closing Log Comment and sends the evidence to the team that owns the customization.
+        outcome: success
+      - id: partial1
+        md: |
+          The detail is there, buried in gigabytes. Users complain that everything is slower all week, and the log
+          folder fills faster than anyone expected. It works, but at a price.
+        outcome: partial
+      - id: fail1
+        md: |
+          Every logger now writes DEBUG. The method server log grows at an alarming rate, response times climb for
+          all users, and the one useful line is hard to find. Rosa reverts the change and starts again.
+        outcome: fail
+
+  - type: example
+    variant: real-world
+    title: The debug setting that outlived the bug
+    industry: Micromobility
+    md: |
+      An admin at a company like Acme turned on detailed logging to chase a supplier upload problem, fixed it,
+      and went on holiday. Three weeks later the logs folder had grown enormously and users said Windchill "just
+      got slower". The fix was one level change; finding it took a day because nobody had noted the change.
+    takeaway: Every log level you raise needs a matching "put it back" step, and a Log Comment.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Searching the wrong method server's log.** With several method servers there is one log per process
+      (named by process id), and the error is only in the one that served the request. Search across files with
+      the Log File Viewer, or use the request id from an error report (lesson 7) to jump straight to it.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      The Log File Viewer can search the **web server** logs too. A user says they can't log in? Tick the
+      `wt.webserver.logs.dir` log directory and search for their username. No remote desktop session to wc-web01
+      needed.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Which log levels does Windchill write to its log files out of the box?
+        options: [All levels, "Only ERROR and FATAL", "INFO and above", "DEBUG and above"]
+        answer: 1
+        explanation: By default only ERROR and FATAL events are written, so you usually have to raise a level to see WARN, INFO or DEBUG detail.
+      - kind: single
+        prompt: Where are servlet and JSP log messages captured?
+        options: [In the Apache access.log, In the method server log files, In the server manager log, In the database alert log]
+        answer: 1
+        explanation: Servlet and JSP logging is captured in the method server log files, which is one reason the method server log is the most important one.
+      - kind: single
+        prompt: Rosa needs DEBUG detail for one area. What is the safest approach?
+        options:
+          - Change the root logger level to DEBUG
+          - Raise one specific logger on the Log Levels page and reset it afterwards
+          - Set wt.logs.enabled to false and back to true
+          - Delete old log files so new ones are created
+        answer: 1
+        explanation: Raising the root logger affects all loggers and usually hurts performance. One logger, briefly, then reset it.
+      - kind: single
+        prompt: A user can't reach the Windchill login page at all. Which log is the first place to look?
+        options: [The Apache error log, The method server GC log, The SQL Server error log, loggers.html]
+        answer: 0
+        explanation: The Apache error log is where the web server records problems processing requests, and is the first stop when the server won't start or requests fail.
+      - kind: truefalse
+        prompt: Windchill keeps every log file forever unless an administrator deletes it.
+        answer: false
+        explanation: By default, log files that haven't been opened for 15 days are deleted automatically by the LogsDirViewer MBean. The timing is configurable.
+
+  - type: summary
+    points:
+      - Windchill logs through Apache Log4j; loggers.html lists the out-of-the-box loggers.
+      - "Logs folder: ServerManager-<pid>-log4j.log, MethodServer-<pid>-log4j.log and MethodServer-<pid>-GC.log. The method server log matters most."
+      - Web server, database and directory server keep their own logs. Match the symptom to the tier.
+      - Only ERROR and FATAL are logged by default. Raise one logger briefly (Log Levels page, JConsole or a log4j file), never the root logger.
+      - Mark changes with Log Comment and always set levels back.

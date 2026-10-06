@@ -1,0 +1,406 @@
+id: m05-s05-l03
+subtitle: A backup you have never restored is a hope, not a plan. Run Acme's first disaster recovery drill and turn it into a runbook.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, disaster-recovery, restore, runbook, drill, vaults]
+sources:
+  - id: ac
+    where: "Module 17: Back up and recover Windchill data: overview; Perform a cold backup; Recover from a cold backup; Perform a hot backup; Suspend background queues; Describe Oracle Archive log mode; Back up and restore SQL Server; Back up file vaults; Rebuild replica vaults; Identify vault backup and recovery best practices; Generate vault backup information; Use the WContentVerify tool; Set Read Only mode for vaults"
+  - id: ac
+    where: "Module 19: Perform and verify scheduled system backup; Monitor system availability; Monitor queues using Queue Management; Maintain multiple Windchill environments (Rehost utility). Module 12: Start/stop Windchill"
+versionNotes:
+  - versions: ["Windchill+", "PTC Cloud Services"]
+    md: On Windchill+ and PTC Cloud Services PTC runs the servers, so the server-level restore steps here are PTC's. What your company should still own is the business side of the runbook - who decides to declare a disaster, who tells users, and which checks prove the data is right. The course manual does not describe PTC's internal recovery process.
+
+blocks:
+  - type: text
+    md: |
+      It's a Saturday in March. Nothing is broken - on purpose. Rosa has cloned production to the test
+      server, and today the team pretends **wc-db01's storage has died**. Omar is restoring the
+      database, Rosa owns Windchill and the vaults, Lena watches the clock and the security checklist.
+
+      The goal is not to "get it working somehow". It's to find out three things: **can** we restore,
+      **how long** does it take, and **what was missing** from our instructions. Whatever they learn
+      goes into the [[disaster-recovery-runbook]].
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the step-by-step rescue plan" → [[disaster-recovery-runbook]]
+      - "the copy of production we practise on" → a test system made by **cloning or rehosting** production (Windchill Rehost utility)
+      - "the checker that compares vault files with the database" → [[wcontentverify|WContentVerify]]
+      - "replaying the database's change log" → rolling forward with archived redo logs (Oracle) or log backups (SQL Server)
+      - "how much we may lose / how long we may be down" → [[recovery-point-objective|RPO]] / [[recovery-time-objective|RTO]]
+
+  - type: diagram
+    title: The shape of every Windchill restore
+    caption: Four phases, left to right. Click each box for what happens there.
+    diagram:
+      width: 840
+      height: 400
+      groups:
+        - { label: 1. Stop, x: 20, y: 20, w: 180, h: 360, tone: danger }
+        - { label: 2. Restore, x: 220, y: 20, w: 190, h: 360, tone: warning }
+        - { label: 3. Start, x: 430, y: 20, w: 180, h: 360, tone: info }
+        - { label: 4. Prove, x: 630, y: 20, w: 190, h: 360, tone: success }
+      nodes:
+        - id: stop
+          label: Stop what runs
+          sublabel: web · Windchill · DB · LDAP
+          x: 35
+          y: 160
+          w: 150
+          tone: danger
+          detail: |
+            Stop the web server, Windchill, the database and the directory server - each only if it is
+            still running. Nothing may write while you put old data back.
+        - id: r-db
+          label: Database
+          sublabel: restore + roll forward
+          x: 235
+          y: 70
+          w: 160
+          tone: warning
+          shape: cylinder
+          detail: |
+            Restore the database backup, then (if you have them) apply archived redo logs (Oracle) or log
+            backups (SQL Server) to reach the chosen point in time. On SQL Server, back up the tail of
+            the log first if the database is still reachable.
+        - id: r-ldap
+          label: Directory
+          sublabel: LDAP import or copy
+          x: 235
+          y: 160
+          w: 160
+          tone: warning
+          shape: cylinder
+          detail: Restore the directory server from its export or file copy taken in the same backup set.
+        - id: r-vault
+          label: Vaults and home
+          sublabel: same backup set
+          x: 235
+          y: 250
+          w: 160
+          tone: warning
+          shape: cylinder
+          detail: |
+            Restore master and cache vault folders (HQ **and** Lakeside) and the Windchill home with its
+            configuration files. Use the recorded mount information so each folder lands where
+            Windchill expects it.
+        - id: start
+          label: Start in order
+          sublabel: DB + LDAP first
+          x: 445
+          y: 160
+          w: 150
+          tone: info
+          detail: |
+            Start the database and directory server first, then Windchill (`windchill start` from the
+            Windchill Shell) and the web server.
+        - id: p-verify
+          label: Content check
+          sublabel: WContentVerify
+          x: 645
+          y: 70
+          w: 160
+          tone: success
+          detail: |
+            Run [[wcontentverify|WContentVerify]] to confirm the vaults match the database: no missing
+            directories, no missing files, no size mismatches.
+        - id: p-avail
+          label: Availability
+          sublabel: test pages · queues
+          x: 645
+          y: 160
+          w: 160
+          tone: success
+          detail: |
+            Check each component answers (Windchill test page, web server page, servlet engine JSP,
+            directory, database client) and that queues are running with no failed entries.
+        - id: p-sites
+          label: Remote sites
+          sublabel: replication job
+          x: 645
+          y: 250
+          w: 160
+          tone: success
+          detail: |
+            Run a replication job so Lakeside has the content it should. If the replica vault was not
+            backed up, reset replication for it in Vault Configuration and let it rebuild.
+      edges:
+        - { from: stop, to: r-db }
+        - { from: stop, to: r-ldap }
+        - { from: stop, to: r-vault }
+        - { from: r-db, to: start }
+        - { from: r-ldap, to: start }
+        - { from: r-vault, to: start }
+        - { from: start, to: p-verify }
+        - { from: start, to: p-avail }
+        - { from: start, to: p-sites }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Real disasters happen at the worst time, to the person who wrote the backup scripts being on
+      holiday. A drill turns knowledge in one head into steps anyone on the team can follow - and it
+      tells you whether your RTO is real. PTC lists "practising backup, failover and recovery" and
+      "validating disaster recovery to a new host" among the reasons to keep extra Windchill environments.
+
+  - type: scenario
+    variant: troubleshooting
+    title: "The drill: bring Acme back"
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          09:00. The clone is running, and the "disaster" is declared: wc-db01's data is gone. Omar has
+          the database backup files ready. Windchill on the test server is still up, throwing errors.
+          What happens first?
+        choices:
+          - label: Stop the web server, Windchill, the database and the directory server
+            next: s2
+            good: true
+            feedback: Nothing should run while you put old data back. Stop each component that is still running.
+          - label: Restore the database straight away to save time
+            next: f1
+            feedback: Windchill is still up and can write to the vaults and directory while the database rewinds under it.
+      - id: f1
+        md: |
+          While Omar restores, a background job writes new files into the vault and an index entry
+          points to an object that no longer exists. The team stops everything and starts the restore
+          again from scratch, losing 90 minutes.
+        outcome: fail
+      - id: s2
+        md: |
+          Everything is stopped. The backup catalogue shows Sunday's full set (database, directory
+          export, HQ vaults, Lakeside cache vault, Windchill home) plus database incrementals and archived
+          redo logs up to Friday 22:00. The vault backups are daily too. Which set do you restore?
+        choices:
+          - label: "The newest of each: Friday's database logs, Thursday's vault copy, Sunday's directory export"
+            next: p1
+            feedback: Newest is not the same as consistent. The three pieces describe three different moments.
+          - label: "One consistent point: the latest night where database, directory and every vault backup belong together"
+            next: s3
+            good: true
+            feedback: Consistency first. Then roll the database forward only as far as the vaults can follow.
+      - id: p1
+        md: |
+          Windchill starts, but Kai's test team immediately finds CAD documents from Friday whose files
+          can't be downloaded - the database knows about them, the restored vault doesn't. Rosa stops everything again
+          and picks a consistent set. The drill is now 2 hours behind.
+        choices:
+          - label: Restore a consistent set
+            next: s3
+            good: true
+            feedback: Better late than inconsistent.
+      - id: s3
+        md: |
+          11:30. Database, directory, vaults and home are restored from Thursday night's set, and Omar
+          has rolled the database forward to the end of that backup run. The database and directory
+          start, then `windchill start`. The home page loads. Kai says: "Great, we're done!" Are you?
+        choices:
+          - label: Not yet - run WContentVerify against the vaults
+            next: s4
+            good: true
+            feedback: A page that loads proves the servers start, not that the files match the database.
+          - label: "Yes - users can log in, call it a success"
+            next: p2
+            feedback: Logging in doesn't open a single CAD file.
+      - id: p2
+        md: |
+          On Monday a real user opens a drawing that the drill would have flagged as missing. Not a
+          disaster - it's a test server - but the runbook still has no consistency check in it.
+        outcome: partial
+      - id: s4
+        md: |
+          WContentVerify's report lists **14 objects** whose content files are missing - all CAD
+          documents uploaded at **Lakeside** on Thursday evening. The HQ vaults are clean. What is the
+          most likely cause?
+        choices:
+          - label: Those files were still in the Lakeside cache vault and weren't in the restored set
+            next: s5
+            good: true
+            feedback: Right. A cache vault can hold locally uploaded files that haven't reached the main vault yet.
+          - label: WContentVerify is wrong; delete the 14 objects
+            next: f2
+            feedback: Deleting real engineering data to make a report clean is the worst outcome of a drill.
+      - id: f2
+        md: |
+          Priya's 14 bracket models are gone from the clone. In a real recovery that would be lost work.
+          Lena records it as a critical finding: never delete data to silence a check.
+        outcome: fail
+      - id: s5
+        md: |
+          The Lakeside cache vault backup exists but was left out of the restore steps. Rosa restores it,
+          reruns WContentVerify: zero missing. She also finds a few hundred vault files that **no**
+          object points to - leftovers from deletions since the last clean-up. What does she do with them?
+        choices:
+          - label: Move them aside so their origin can be checked, delete later
+            next: s6
+            good: true
+            feedback: The course advice for recovery - move extra files, don't delete them - until you know where they came from.
+          - label: Delete them now to save disk space
+            next: p3
+            feedback: Usually harmless, but you lose the chance to confirm they really were orphans.
+      - id: p3
+        md: |
+          It turns out they were orphans, so nothing was lost. Still, Lena adds "move, don't delete" to
+          the runbook. Next time it might not be so lucky.
+        choices:
+          - label: Continue to the last check
+            next: s6
+            feedback: On to the remote site.
+      - id: s6
+        md: |
+          14:10. Last item: the Lakeside replica vault. It wasn't backed up, and re-replicating would
+          push about 600 GB over the slow WAN. Lena checks the clock: the RTO is 8 hours. What goes in
+          the runbook?
+        choices:
+          - label: "Reset replication in Vault Configuration, and record the estimated rebuild time against the RTO"
+            next: win
+            good: true
+            feedback: Replica vaults are normally rebuilt, not restored - but only if the rebuild fits your RTO. Measure it.
+          - label: Ignore Lakeside; it's only a copy
+            next: p4
+            feedback: Copies matter when the people at Lakeside can't open a file without them over the slow link.
+      - id: p4
+        md: |
+          HQ is back by 14:30, but Lakeside users would download everything over the WAN for days.
+          The drill passes for HQ and fails for Lakeside.
+        outcome: partial
+      - id: win
+        md: |
+          14:40 - 5 h 40 min from start, inside the 8-hour RTO. The team writes up six runbook changes:
+          stop-first, consistent backup set, include the Lakeside cache vault, WContentVerify before
+          go-live, move-don't-delete, and a measured Lakeside rebuild time. The next drill is in the calendar.
+        outcome: success
+
+  - type: text
+    md: |
+      ### What goes in the runbook
+
+      A [[disaster-recovery-runbook]] is your company's own document. A good one answers, for each
+      step, **who**, **where**, **what exactly** and **how do we know it worked**:
+
+      | Section | Acme's entry |
+      | --- | --- |
+      | Targets | RPO 1 hour, RTO 8 hours (signed by the head of engineering) |
+      | People | Rosa (Windchill, vaults), Omar (database), Lena (security, sign-off), Jordan (tells users) |
+      | Where backups are | Database and archived logs, directory export, HQ and Lakeside vault folders, Windchill home - with paths |
+      | Vault map | Latest mount information, so folders are restored to the right paths |
+      | Stop order | Web server, Windchill, database, directory server |
+      | Restore | One consistent backup set; database rolled forward only as far as the vaults allow |
+      | Start | Database and directory first, then Windchill and the web server |
+      | Prove | WContentVerify; component test pages; queues running; replication job for Lakeside |
+      | Afterwards | Back up the restored system; record timings; list what to fix |
+
+  - type: walkthrough
+    title: Recover from a cold backup (the core of the runbook)
+    who: Windchill system administrator with the database administrator
+    steps:
+      - title: Stop every component that is still running
+        where: [Web server, Windchill, Database, Directory server]
+        md: |
+          Stop the web server, then Windchill (`windchill stop` from the Windchill Shell), then the
+          database, then the directory server - each only if it's running.
+      - title: Copy the backup files back
+        where: [Backup location, Component home and data directories]
+        md: |
+          Copy the files from the backup set to the directories they came from: Windchill home, database,
+          directory server, and local and remote file server storage directories.
+      - title: Restore or recover each component
+        where: [Database tools, Directory server tools]
+        md: |
+          Let Omar run the database's own restore or recovery, and restore the directory server, as their
+          products require. After a cold backup restore, all repositories are back at the same moment.
+      - title: Restart the system
+        where: [Windchill Shell]
+        md: |
+          Start the database and directory server, then run `windchill start` in the Windchill Shell, and
+          bring up the web server.
+      - title: Prove it
+        where: [Windchill Shell, Browse, Site, Utilities, Queue Management]
+        md: |
+          Run `windchill wt.fv.tools.WContentVerify` (add `-usage` to see its options), open the
+          Windchill test page `/Windchill/wtcore/test.html`, and check Queue Management for stopped
+          queues or failed entries.
+    result: Users can log in, files open, queues run - and you have the timings to prove the RTO.
+
+  - type: scenario
+    variant: what-if
+    title: What if the backup was hot?
+    start: w1
+    nodes:
+      - id: w1
+        md: |
+          Acme switches to nightly **hot** backups so Lakeside's night shift can keep working. In a
+          hot backup the copies of database, directory and vaults are taken one after another while
+          Windchill runs. What could make the restored pieces disagree?
+        choices:
+          - label: Background work changing data while each piece is copied
+            next: w2
+            good: true
+            feedback: Even with users kept out, background operations can change data during the backup.
+          - label: Nothing - hot backups are always consistent
+            next: w3
+            feedback: That's the promise of a cold backup, not a hot one.
+      - id: w3
+        md: |
+          The first restore drill from a hot backup shows index queue entries that don't match what the
+          search engine has indexed. Rosa adds the hot-backup safeguards to the runbook.
+        outcome: partial
+      - id: w2
+        md: |
+          Exactly. Which safeguard does the course suggest to shrink that risk?
+        choices:
+          - label: Suspend background queues and local content caching during the backup, and make vaults read-only while they're copied
+            next: w4
+            good: true
+            feedback: Not strictly required, but it minimises synchronization problems on recovery.
+          - label: Run the backup twice and keep the bigger one
+            next: w3
+            feedback: Size says nothing about consistency.
+      - id: w4
+        md: |
+          With queues paused and vaults read-only during the copy, the restored set lines up. Queues
+          whose work lives entirely inside the database recover in step with the data anyway; the ones
+          to worry about touch something outside it, like the search index. Lesson 4 covers the details.
+        outcome: success
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Drilling on production.** Restoring over the live system to "test" it is how drills become
+      disasters. Practise on a clone or rehosted copy of production. If production data is too big to
+      clone monthly, do it quarterly or when needed - but do it.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Give the runbook to someone who did **not** write it and let them run the drill while the author
+      only watches. Every question they ask is a missing line in the runbook.
+
+  - type: flashcards
+    title: DR drill deck
+    cards:
+      - front: Restore phases
+        back: "Stop what runs, restore one consistent set, start (DB and directory first), prove it."
+      - front: Stop order before restoring
+        back: "Web server, Windchill, database, directory server - each if running."
+      - front: First check after Windchill starts
+        back: "WContentVerify: vault content against database metadata."
+      - front: Extra unreferenced files after a restore
+        back: "Move them aside, confirm origin, delete later."
+      - front: Replica vault after a disaster
+        back: "Usually reset replication and rebuild it - unless the WAN rebuild would break the RTO."
+      - front: Where to practise
+        back: "On a cloned or rehosted copy of production, never on production itself."
+
+  - type: summary
+    points:
+      - A drill on a cloned system proves you can restore, measures your real recovery time and finds gaps in your instructions.
+      - Every restore follows stop, restore one consistent set, start, then prove.
+      - Cold backups restore to one moment; hot backups need queues paused and vaults read-only to stay consistent.
+      - Prove the restore with WContentVerify, component availability tests, queue checks and a replication job for remote sites.
+      - Write everything into a runbook with targets, people, locations, order and checks - and rehearse it with someone who didn't write it.

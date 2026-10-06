@@ -1,0 +1,365 @@
+id: m05-s06-l02
+subtitle: "10:14 on a Tuesday: wc-app02 goes dark. Who notices, what keeps working, and what Rosa does next."
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, cluster, load-balancing, failover, high-availability, affinity]
+sources:
+  - id: ac
+    where: "Module 11: Describe the clustered configuration (load balancing router, failover to other servers); Describe the web server (reverse proxy, load balancing switch); Describe the Windchill server (server manager restarts a failed method server). Module 15: Describe the cluster configuration; thread dumps (Cluster-wide Stack Traces, GetClusterStacks). Module 16: background method servers in a clustered environment; queue groups and high availability queue processing. Module 18/19: Server Status page (all machines in a cluster, thresholds), Monitoring Tools, Log Comment. Module 19: Maintain multiple Windchill environments (practicing failover)"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Installing and Configuring a Cluster Windchill Environment"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCAdvDeployGuide/WCAdvDepClusterConfig_ServerClustConfigOview.html"
+    covers: "Main Server Manager Fail Over (automatic takeover, old main returns as secondary); Configuring a Load Balancing Router (appears as one server; AJP13 balancing between web servers and method servers in the reference architecture); Configuring Affinity (client host or session affinity required, session affinity more precise, host affinity simplest, affinity for tunneled HTTP/HTTPS traffic)"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Advanced Windchill Configurations"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCAdvDeployGuide/WCAdvDepAdv_LoadBalMultMethodServers.html"
+    covers: "Server manager starts and monitors several method servers; round-robin balancing on initial client connections; overloaded server redirects a call to the next server; wt.method.loadbalance.maxRedirects (default 1); wt.manager.monitor.start.MethodServer"
+  - id: trn-cluster
+    where: "Cluster nodes (load balancer supplies host or session affinity); Load Balancing: HTTP and Load Balancing: AJP. Older release: used only where ac or the Help Center agrees"
+versionNotes:
+  - versions: ["windchill-plus"]
+    md: On Windchill+ (software as a service) PTC runs the servers, so load balancer setup and node failover are PTC's job. This lesson's tasks apply to on-premises clusters.
+
+blocks:
+  - type: text
+    md: |
+      Rosa's two-node cluster has been live for a month. Tuesday, 10:14: **wc-app02** loses power.
+      Lakeside is mid-shift, Priya is checking in a model, Kai is approving a change.
+
+      Will everyone be kicked out? Will half the users see errors forever? Or will nobody even notice? It all
+      depends on two things: **how requests are spread** across the nodes, and **what the cluster does when a
+      piece disappears**. Let's make Rosa able to predict it before it happens.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "spreading requests over several servers" → load balancing, done by the [[load-balancer]]
+      - "keep sending me to the same server" → [[sticky-session|affinity]] (client host or session affinity)
+      - "work moves to a survivor when something breaks" → [[failover]]
+      - "the node that keeps caches in step" → [[master-node|main cache node]] (main server manager)
+      - "inside one node, sharing work between engines" → the [[server-manager]] balancing its [[method-server|method servers]]
+
+  - type: diagram
+    title: Two levels of balancing
+    caption: The load balancer picks a node. Inside the node, the server manager picks a method server. Click each box.
+    diagram:
+      width: 860
+      height: 430
+      groups:
+        - { label: "Level 1: between nodes", x: 150, y: 20, w: 300, h: 390, tone: info }
+        - { label: "Level 2: inside wc-app01", x: 480, y: 20, w: 360, h: 390, tone: neutral }
+      nodes:
+        - id: client
+          label: Kai
+          sublabel: browser
+          x: 15
+          y: 185
+          w: 115
+          shape: pill
+          tone: accent
+          detail: Kai's browser sends requests to the cluster name. Every request after the first one is part of the same session.
+        - id: lb
+          label: Load balancer
+          sublabel: affinity on
+          x: 170
+          y: 100
+          w: 140
+          tone: primary
+          detail: |
+            Hands each request to a node. Windchill's servlet engines need **affinity**: related requests
+            from the same client must keep going to the same servlet engine and method server, because that's
+            where the session data lives. Two kinds:
+
+            - **Client host affinity**: all requests from one client host, for a period of time, go to one node. The easiest to set up.
+            - **Session affinity**: requests in one session go to one node. More precise, and the best match for what servlet engines actually need.
+
+            Affinity must also hold for HTTP and HTTPS traffic that carries tunneled calls.
+          real: "Configuration differs by load balancer product. The Help Center doesn't give one universal recipe."
+        - id: web
+          label: Web server
+          sublabel: AJP forwarding
+          x: 170
+          y: 270
+          w: 140
+          tone: neutral
+          detail: |
+            Two common layouts appear in the sources. (1) An HTTP(S) load balancer in front of a web server per
+            node, each forwarding to its own node's servlet engine. (2) The load balancer sends traffic only to the
+            web servers, and the web server balances onward over **AJP** to the servlet engines and method servers.
+            In layout 2 the web server's connector can enforce session affinity.
+        - id: app2
+          label: wc-app02
+          sublabel: other node
+          x: 330
+          y: 185
+          w: 105
+          tone: success
+          detail: The other [[cluster-node]]. If wc-app01 can't take a request, this is where new work goes.
+        - id: sm
+          label: Server manager
+          sublabel: wc-app01
+          x: 500
+          y: 185
+          w: 150
+          tone: primary
+          detail: |
+            The [[server-manager]] starts and watches the node's method servers. The number of foreground
+            method servers comes from `wt.manager.monitor.start.MethodServer`. It balances with a simple
+            **round robin on initial client connections**, and it **restarts** a method server that dies.
+        - id: ms1
+          label: Method server 1
+          x: 680
+          y: 70
+          w: 145
+          tone: success
+          detail: |
+            A foreground [[method-server]] with its embedded servlet engine. If it's over its load thresholds it
+            can answer a call with "try the next server". The client then redirects the call. How many times one
+            call may be redirected is set by `wt.method.loadbalance.maxRedirects` (default 1).
+        - id: ms2
+          label: Method server 2
+          x: 680
+          y: 185
+          w: 145
+          tone: success
+          detail: A second foreground method server. New client connections are shared round robin between the two.
+        - id: bgms
+          label: Background MS
+          sublabel: queues
+          x: 680
+          y: 300
+          w: 145
+          tone: warning
+          detail: |
+            A background method server runs queues, not user requests. Running the same queue group on
+            background method servers on **two** nodes is how the manual describes **high availability queue
+            processing**. Otherwise a queue whose group has no running background method server stops executing.
+      edges:
+        - { from: client, to: lb }
+        - { from: lb, to: web }
+        - { from: lb, to: app2, dashed: true }
+        - { from: web, to: sm }
+        - { from: sm, to: ms1 }
+        - { from: sm, to: ms2 }
+        - { from: sm, to: bgms, dashed: true }
+
+  - type: animation
+    title: wc-app02 goes down
+    caption: Watch what keeps working, and what a node failure costs.
+    diagram:
+      width: 860
+      height: 420
+      groups:
+        - { label: Cluster, x: 160, y: 20, w: 530, h: 380, tone: neutral }
+      nodes:
+        - { id: users, label: Users, sublabel: HQ + Lakeside, x: 15, y: 175, w: 125, shape: pill, tone: accent }
+        - { id: lb, label: Load balancer, sublabel: wc-cluster, x: 180, y: 175, w: 140, tone: primary }
+        - { id: app1, label: wc-app01, sublabel: main cache, x: 380, y: 60, w: 180, h: 70, tone: success }
+        - { id: app2, label: wc-app02, sublabel: cache client, x: 380, y: 290, w: 180, h: 70, tone: success }
+        - { id: down, label: wc-app02 DOWN, sublabel: power lost, x: 380, y: 290, w: 180, h: 70, tone: danger }
+        - { id: back, label: wc-app02, sublabel: back · cache client, x: 380, y: 290, w: 180, h: 70, tone: info }
+        - { id: db, label: wc-db01, sublabel: one database, x: 720, y: 175, w: 120, h: 70, shape: cylinder, tone: warning }
+      edges:
+        - { from: users, to: lb }
+        - { from: lb, to: app1 }
+        - { from: lb, to: app2 }
+        - { from: lb, to: back }
+        - { from: app1, to: app2, label: cache sync, dashed: true, bidirectional: true }
+        - { from: app1, to: back, dashed: true, bidirectional: true }
+        - { from: app1, to: db }
+        - { from: app2, to: db }
+        - { from: back, to: db }
+    chapters:
+      - title: A normal Tuesday
+        caption: The load balancer spreads users over both nodes. Affinity keeps each user on "their" node, where their session data lives.
+        show: [users, lb, app1, app2, db]
+        flow: [users>lb, lb>app1, lb>app2]
+        seconds: 6
+      - title: 10:14, power lost
+        caption: wc-app02 vanishes. Its method servers and its session data in memory go with it.
+        show: [users, lb, app1, down, db]
+        highlight: [down]
+        flow: []
+        seconds: 6
+      - title: Survivors carry on
+        caption: Users on **wc-app01** don't notice. Requests are now directed to the remaining server. One shared database means wc-app01 sees all the same data.
+        show: [users, lb, app1, down, db]
+        highlight: [app1, lb]
+        flow: [users>lb, lb>app1, app1>db]
+        seconds: 7
+      - title: What about Priya?
+        caption: Priya was on wc-app02. The sources don't spell out what a user mid-operation sees. Her session lived in that node's memory, so Rosa plans for her to sign in again and retry the check-in.
+        show: [users, lb, app1, down, db]
+        highlight: [users, down]
+        flow: [users>lb, lb>app1]
+        seconds: 8
+      - title: If the main cache had died
+        caption: Had wc-app01 been the one to fail, another server manager would **automatically** take over the main cache role. No admin action needed.
+        show: [users, lb, app1, down, db]
+        highlight: [app1]
+        flow: []
+        seconds: 7
+      - title: wc-app02 returns
+        caption: Rosa restores power and starts Windchill on wc-app02. It rejoins as a cache client. A former main cache would also come back as secondary, not grab the role back.
+        show: [users, lb, app1, back, db]
+        highlight: [back]
+        flow: [lb>back, back>app1, back>db]
+        seconds: 7
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      A cluster only gives you high availability if the pieces are set up for it. Without affinity, one
+      user's requests can bounce between nodes, away from their session data, even on a *healthy* day. Without a second
+      background method server running the same queue group, a dead node quietly stops publishing or
+      notifications. Knowing the failure behaviour lets Rosa tell the business exactly what a node outage costs.
+
+  - type: example
+    variant: case-study
+    title: The quiet queue
+    industry: Micromobility
+    md: |
+      A company like Acme clustered two nodes and celebrated: when node B was patched, users kept working. But
+      every background queue ran only on node B. During the four-hour patch window, nobody's workflow
+      notifications went out and no viewables were published. The users who "didn't notice the outage"
+      noticed the next morning.
+
+      The fix was to run the same queue group on a background method server on **both** nodes, which the
+      manual describes as high availability queue processing.
+    takeaway: Users failing over is half the story. Check where background work runs too.
+
+  - type: scenario
+    variant: what-if
+    title: Predict the failure
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          **What if** one foreground method server on wc-app01 crashes (Java process gone), but the node is fine?
+        choices:
+          - label: The server manager notices and tries to restart it
+            next: s2
+            good: true
+            feedback: Yes. The server manager watches its method servers and restarts a dead one automatically.
+          - label: The whole cluster goes down
+            next: f1
+            feedback: No. One process on one node is the smallest failure there is.
+          - label: Rosa must restart wc-app01 by hand
+            next: s2
+            feedback: Not usually. The server manager tries an automatic restart first. Check the logs afterwards.
+      - id: s2
+        md: |
+          **What if** the whole of wc-app01, the current main cache node, loses power?
+        choices:
+          - label: Another server manager becomes the main cache and wc-app02 keeps serving
+            next: s3
+            good: true
+            feedback: Right. Main cache failover is automatic, and the load balancer directs requests to the remaining node.
+          - label: "Caches stop syncing until Rosa promotes wc-app02 by hand"
+            next: f2
+            feedback: The Help Center says another server manager takes over automatically.
+      - id: s3
+        md: |
+          **What if** the database server wc-db01 stops?
+        choices:
+          - label: Every node stops working, because they all share one database
+            next: win
+            good: true
+            feedback: Exactly. A single database stores the data for the whole cluster. Make it redundant separately.
+          - label: The nodes keep working from their caches
+            next: f3
+            feedback: Caches hold a subset of data for speed. They don't replace the database.
+      - id: win
+        md: |
+          Rosa can now predict all three: a method server restarts itself, a node fails over, and the database is
+          the piece the cluster can't cover. She writes these down in the runbook.
+        outcome: success
+      - id: f1
+        md: The cluster survives much bigger failures than one method server. Overreacting here leads to unneeded restarts for everyone.
+        outcome: fail
+      - id: f2
+        md: Waiting for a manual promotion that never needed to happen. The main cache role moves on its own.
+        outcome: partial
+      - id: f3
+        md: Within seconds requests start failing on every node. One shared database means one shared point of failure.
+        outcome: fail
+
+  - type: walkthrough
+    title: Check the cluster after a node failure
+    who: Rosa, as site administrator
+    where: [Navigator, Browse, Site, Utilities, Server Status]
+    steps:
+      - title: Open Server Status
+        where: [Navigator, Browse, Site, Utilities, Server Status]
+        md: |
+          In the Navigator choose **Browse → Site → Utilities**, and in System Administration click
+          **Server Status**. In a cluster it shows the processes on **all** machines. Values in red have
+          crossed their thresholds. Confirm wc-app02's server manager and method servers are back.
+      - title: Mark the incident in the logs
+        where: [Server Status, Monitoring Tools, Log Comment]
+        md: |
+          Open **Monitoring Tools** (top right) and use **Log Comment** to write "wc-app02 power loss 10:14,
+          restarted 10:52". In a cluster the comment goes into the server manager and method server logs on all
+          nodes, so anyone reading them later sees the timeline.
+      - title: Take cluster-wide stack traces if something hangs
+        where: [Server Status, Monitoring Tools, Cluster-wide Stack Traces]
+        md: |
+          If a node seems stuck rather than dead, **Cluster-wide Stack Traces** captures stack traces for every
+          server manager and method server on every node. From a Windchill shell, the same is available as
+          `windchill wt.util.jmx.GetClusterStacks > cluster_stacks.txt`.
+    result: Rosa has proof both nodes are healthy, a timestamped log marker, and (if needed) stack traces for PTC support.
+
+  - type: callout
+    variant: pitfall
+    title: Affinity left off
+    md: |
+      A load balancer set to pure round robin, with no affinity, sends one user's requests to different nodes.
+      Windchill's servlet engines require **client host or session affinity**. Affinity is what lets the servlet
+      engine's session cache and multi-step operations work, so without it you risk session trouble on a perfectly
+      healthy cluster. When users report "random" problems that follow no node, affinity is a good first check.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      **Practise failover before you need it.** The manual lists practising backup, failover and recovery
+      among the reasons to keep a test environment next to production. Pull the plug on a test node, time
+      the recovery and write down what users see. That's your answer when the business asks what a node outage costs.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Why does a Windchill cluster's load balancer need affinity?
+        options: [To encrypt traffic, "So related requests keep reaching the same servlet engine and method server, where the session data lives", To choose the main cache node, To balance background queues]
+        answer: 1
+        explanation: Windchill's servlet engines require client host or session affinity. Encryption, main cache choice and queues are separate things.
+      - kind: single
+        prompt: Which kind of affinity does the Help Center call more precise and the best match for servlet engines?
+        options: [Client host affinity, Session affinity, Round robin, DNS affinity]
+        answer: 1
+        explanation: Session affinity follows the actual session. Client host affinity is easier to set up but cruder, since it maps a whole client host to one node for a period of time.
+      - kind: truefalse
+        prompt: When the main cache node becomes unreachable, Rosa must manually promote another node to main cache.
+        answer: false
+        explanation: Another server manager automatically becomes the main server manager. When the old one returns, it takes secondary status.
+      - kind: single
+        prompt: Inside one node, how does the server manager spread new client connections over its foreground method servers by default?
+        options: [Random, Round robin on initial client connections, By user's license group, By file vault]
+        answer: 1
+        explanation: The default is simple round robin on initial connections. An overloaded method server can also redirect a call to the next server.
+      - kind: multi
+        prompt: Acme's background queues run only on wc-app02. wc-app02 is down for two hours. What happens? (Choose all that apply.)
+        options: [Users on wc-app01 keep working, Queues assigned only to wc-app02's background method server stop executing, wc-app01 automatically starts running those queues, The database stops]
+        answers: [0, 1]
+        explanation: Foreground work fails over, but a queue group with no running background method server halts. Running the same group on both nodes is high availability queue processing.
+
+  - type: summary
+    points:
+      - The load balancer picks a node. Inside a node, the server manager shares connections round robin across method servers.
+      - Windchill needs client host or session affinity at the load balancer. Session affinity is the more precise choice.
+      - "A dead method server: the server manager restarts it. A dead node: requests go to the remaining nodes."
+      - If the main cache node fails, another server manager takes over automatically. The old one rejoins as secondary.
+      - Background queues need the same queue group on two nodes for high availability queue processing.
+      - The shared database is not covered by node failover. Practise failover in a test environment.

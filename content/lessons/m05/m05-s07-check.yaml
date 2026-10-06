@@ -1,0 +1,98 @@
+id: m05-s07-check
+subtitle: Prove you can keep Acme's Windchill secure and its licences compliant.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, security, licensing, checkpoint]
+sources:
+  - id: ac
+    where: "Module 10: Manage licensing (license groups, Named User and Active Daily User, license profiles, License Management utility, license types, notifications, usage report). Module 11: Describe LDAP integration; System password encryption. Module 15: remote JMX prompts. Module 19: Generate throughput and security audit reports; Apply maintenance patches and updates; Monitor license usage"
+  - id: hc-sso
+    label: PTC Help Center supplement
+    title: "Single Sign-on Authentication"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCAdvDeployGuide/WCAdvDepAuth_ConfigAltAuth_SSO.html"
+    covers: "SAML or OIDC, one SSO protocol per system, SAML with OAuth, OAuth 2.0 for REST Services, PingFederate"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Best Practices for Securing Your Windchill Solution"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCSysAdminWCConsiderSecureInfrastructure/WCConsiderSecureInfrastructure_SecurityBestPractice.html"
+    covers: "HTTPS and HSTS, default account passwords, removing sample content, rate limiting"
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **security and licensing**: single sign-on protocols, hardening, advisories and patches,
+      security auditing, and licence groups. Score 80% to pass. Every answer explains itself.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: Lena wants browser single sign-on for Windchill. Which protocols can Rosa choose from?
+        options: [SAML or OpenID Connect, OAuth 2.0 or LDAP, SAML and OpenID Connect together, Kerberos only]
+        answer: 0
+        explanation: The Help Center lists SAML or OpenID Connect for SSO, and only one of them per Windchill system.
+      - kind: single
+        prompt: Why can a Windchill system run only one SSO protocol?
+        options:
+          - SAML and OIDC do the same sign-in job at the web server, and PTC supports only one SSO protocol per system
+          - Licences only cover one protocol
+          - The database can store only one kind of password
+          - OAuth 2.0 blocks the second protocol
+        answer: 0
+        explanation: SAML and OIDC both handle sign-in at the same front door. The Help Center states one SSO protocol per Windchill system; OAuth is a separate job.
+      - kind: truefalse
+        prompt: SAML for people and OAuth 2.0 for a REST integration can run on the same Windchill system.
+        answer: true
+        explanation: The Help Center explicitly allows SAML authentication together with OAuth 2.0 for Windchill REST Services.
+      - kind: multi
+        prompt: Which items are on the Help Center's list of best practices for securing Windchill? (Choose all that apply.)
+        options:
+          - Configure HTTPS and HSTS
+          - Change the passwords of default accounts such as wcadmin
+          - Remove sample code and API docs from web folders on production
+          - Turn on anonymous remote JMX access for monitoring
+        answers: [0, 1, 2]
+        explanation: The first three are Help Center best practices. Anonymous remote JMX defaults to off in the WCA - leave it that way.
+      - kind: single
+        prompt: A Java security update is released. What does the course manual say about it?
+        options: [Never update Java automatically - check the software matrix and test first, Install it on production immediately, Java updates never affect Windchill, Wait for the next major release]
+        answer: 0
+        explanation: Check every component update against the Windchill software matrix, validate on a test system, back up and patch in a maintenance window.
+      - kind: order
+        prompt: Put Rosa's advisory response in order.
+        items: [Confirm which hosts and versions are affected, Assess exposure and apply a temporary mitigation, Get the fix and check the software matrix, Validate on a test system, Back up and patch production in a window, Record the change for the audit file]
+        explanation: Know if you're affected before acting, mitigate while the fix is tested, and never let a production patch be the first test.
+      - kind: single
+        prompt: Which two security audit events are enabled by default in an on-premises Windchill installation?
+        options: [Login and Logout, Delete and Move, Check-in and Check-out, Password change and Lockout]
+        answer: 0
+        explanation: Login and Logout are on by default. Add other critical events your security team needs.
+      - kind: single
+        prompt: A user is in an Active Daily User licence group, but signing in fails at 15:00. What is the most likely cause?
+        options: [Today's Active Daily seats are all in use, The licence profile was edited, The user isn't in the directory server, The licence resets at 15:00]
+        answer: 0
+        explanation: Active Daily is a pool. When the count is at the entitled limit, further users can't sign in until 00:00 GMT.
+      - kind: single
+        prompt: Rosa needs a test account on production that doesn't use a paid seat. What does she use?
+        options: [The Windchill License Exclusion group, An organization-level group, A standard profile that hides everything, The PTC Contributor licence]
+        answer: 0
+        explanation: The site-level License Exclusion group licenses users without counting them. Add the group to the licence groups whose access it needs.
+      - kind: single
+        prompt: The License Information tab shows an available count of 0 for a Named User licence. What does it mean?
+        options: [The count is used up - no more users can be added to that licence group, The licence has expired, Nobody is using the licence, The server ID changed]
+        answer: 0
+        explanation: Zero available means the purchased count is exceeded or reached. Remove a user to free a seat, or buy more.
+
+  - type: flashcards
+    cards:
+      - { front: SAML, back: "XML-assertion SSO; on Windchill the Shibboleth Service Provider with PTC HTTP Server receives it." }
+      - { front: OpenID Connect, back: "Token-based SSO layered on OAuth 2.0; Apache's mod_auth_openidc handles it for Windchill." }
+      - { front: OAuth 2.0 in Windchill, back: "Secures Windchill REST Services: client credentials (machine-to-machine) or authorization code (interactive)." }
+      - { front: One SSO protocol rule, back: "One Windchill system runs SAML or OIDC, never both. SAML plus OAuth is allowed." }
+      - { front: Remote JMX defaults, back: "The WCA prompts for authenticated non-SSL and anonymous remote JMX access both default to n." }
+      - { front: Security audit report, back: "A history of who changed what, plus security events such as privilege changes, team changes and access denials." }
+      - { front: Patch routine, back: "Check software matrix → test system → back up → maintenance window → keep rollback steps." }
+      - { front: PTC Author licence, back: Base licence and prerequisite for all except PTC Contributor and the SLM package licences. }
+      - { front: Active Daily reset, back: "00:00 GMT - the available count returns to the purchased total." }
+      - { front: License Management path, back: "Site > Utilities > License Management" }

@@ -1,0 +1,356 @@
+id: m05-s03-l01
+subtitle: Priya saves a 900 MB CAD assembly. The database gets a pointer, a vault gets the bytes - and Rosa decides which vault.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, file-vaults, vaulting-rules, revaulting, storage]
+sources:
+  - id: ac
+    where: "Module 14: What are file vaults; Identify storage options; Describe the file vaulting architecture; Identify file storage elements; Identify types of file vaults; Identify file vaulting strategies; Describe the multiple vault configuration; Force content into a single vault; Set up external storage; Describe automatic folder creation; Specify the file threshold value for vaults; Identify the default system target vault; Describe the cache vault; Describe how domains affect file vaulting; Create vaulting rules; Revault data; Examples: Configure file vaults for external storage, Create vaulting rules"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Scheduling Revaulting from the Vault Configuration Window"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/filevault/FileVaultConfigExtStgAdmin.html"
+    covers: "Where the revaulting scheduler is opened (select a vault, Objects > Revaulting); Immediate or On Schedule, Once or Periodic; default periodic interval of one day; PTC recommends On Schedule plus Periodic"
+  - id: trn-config
+    where: "Configuring File Vaults for External Storage; Creating Vaulting Rules (older release; used only where the 13.0 course manual agrees)"
+versionNotes:
+  - versions: ["all"]
+    md: |
+      The supplied course covers customer-run (on-premises) installations, where your own administrators
+      create vaults, folders and rules. On Windchill+ PTC runs the servers; whether customers can change
+      vault layout there is not confirmed by the supplied sources, so check with PTC before planning one.
+      Older training material calls the main site **master**; the 13.0 course calls it **main**.
+
+blocks:
+  - type: text
+    md: |
+      Priya checks in the new **E-Bike E1** frame assembly: 900 MB of Creo files. Two things happen at
+      once. The **database** on wc-db01 records the number, version, state and a *pointer*. The actual
+      bytes go somewhere else: a folder on disk that Windchill manages.
+
+      That "somewhere else" is Rosa's job. Which disk? Which folder? What happens when the folder has
+      50,000 files in it? And if Kai later wants released CAD stored apart from work-in-progress, how do
+      the files that already exist get moved? This lesson answers all four.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "files kept on disk, not inside the database" → [[external-storage]] (file vaulting)
+      - "a file stored inside the database" → [[blob-content|BLOB]]
+      - "a named storeroom for files" → [[vault]]
+      - "the waiting room for new uploads" → [[cache-vault]]
+      - "the permanent home of the official copy" → [[master-vault|main vault]]
+      - "one real directory a vault uses" → [[file-vault-folder|folder]], linked to disk by a **mount**
+      - "which files go to which vault" → [[vaulting-rule]]
+      - "the vault that catches everything else" → [[default-target-vault]]
+      - "moving existing files to where the rules now say" → [[revaulting]]
+      - "max files per folder" → [[file-threshold]]
+
+  - type: diagram
+    title: The building blocks of a vault
+    caption: Everything is set up in the Vault Configuration window. Click each box.
+    diagram:
+      width: 820
+      height: 430
+      groups:
+        - { label: "Site: main (HQ)", x: 20, y: 20, w: 560, h: 390, tone: neutral }
+        - { label: Operating system, x: 600, y: 20, w: 200, h: 390, tone: info }
+      nodes:
+        - id: host
+          label: Host
+          sublabel: wc-app01
+          x: 40
+          y: 60
+          w: 150
+          tone: primary
+          detail: A machine on the network that can store content. Creating a host ties the site to that machine. A **site** is a group of hosts reached through one URL; the automatically created site for the main server is called `main`.
+        - id: cache
+          label: Cache vault
+          sublabel: defaultuploadvault
+          x: 230
+          y: 60
+          w: 170
+          h: 64
+          tone: warning
+          shape: cylinder
+          detail: |
+            Where new uploads wait. Created automatically; its first location is under the installation's
+            `vaults\defaultuploadrootfolder`. Only one cache vault per site, and you need a write-enabled one
+            to create documents and CAD documents.
+        - id: main
+          label: Main vault
+          sublabel: defaultsystemvault
+          x: 230
+          y: 190
+          w: 170
+          h: 64
+          tone: success
+          shape: cylinder
+          detail: |
+            Permanent home of the main copy. In the course environment the main vault is `defaultsystemvault`,
+            and it is the default system target. Add more main vaults only when you have a reason to separate content.
+        - id: folders
+          label: Folders
+          sublabel: Folder_1 · Folder_2
+          x: 230
+          y: 320
+          w: 170
+          tone: accent
+          detail: A vault is a logical container of folders. Each folder stands for one physical storage location. With **Automatic folder creation** on, Windchill adds the next folder when the current one fills up.
+        - id: mount
+          label: Mount
+          sublabel: folder ↔ path
+          x: 420
+          y: 320
+          w: 140
+          tone: neutral
+          shape: pill
+          detail: The link between a Windchill folder, a host and a real path. It tells the method server on that host how to reach the storage location.
+        - id: disk
+          label: Directory on disk
+          sublabel: e.g. a vault drive
+          x: 620
+          y: 310
+          w: 160
+          h: 70
+          tone: info
+          shape: doc
+          detail: Where the bytes physically sit. File names on disk are hashed, not the original names - the database maps them back. Back this up together with the database so pointers and files stay consistent.
+        - id: rule
+          label: Vaulting rule
+          sublabel: domain · class · state
+          x: 420
+          y: 120
+          w: 140
+          tone: accent
+          shape: doc
+          detail: Only needed when you run more than one vault. Picks the target vault for content by domain, object class and life cycle state.
+      edges:
+        - { from: host, to: cache, label: stores }
+        - { from: cache, to: main, label: sync }
+        - { from: rule, to: main, label: picks, dashed: true }
+        - { from: main, to: folders, label: contains }
+        - { from: folders, to: mount }
+        - { from: mount, to: disk }
+
+  - type: animation
+    title: The life of one upload
+    diagram:
+      width: 820
+      height: 340
+      nodes:
+        - { id: priya, label: Priya, sublabel: checks in, x: 20, y: 140, w: 130, tone: accent, shape: pill }
+        - { id: app, label: Windchill server, sublabel: wc-app01, x: 190, y: 140, w: 160, tone: primary }
+        - { id: db, label: Database, sublabel: wc-db01 · pointer, x: 400, y: 20, w: 170, h: 70, tone: info, shape: cylinder }
+        - { id: cache, label: Cache vault, sublabel: waiting room, x: 400, y: 140, w: 170, h: 70, tone: warning, shape: cylinder }
+        - { id: main, label: Main vault, sublabel: chosen by rules, x: 620, y: 140, w: 180, h: 70, tone: success, shape: cylinder }
+        - { id: f2, label: Next folder, sublabel: now writable, x: 620, y: 260, w: 180, tone: accent }
+      edges:
+        - { from: priya, to: app, label: upload }
+        - { from: app, to: db, label: metadata }
+        - { from: app, to: cache, label: bytes }
+        - { from: cache, to: main, label: sync }
+        - { from: main, to: f2, label: folder full }
+    chapters:
+      - title: The upload arrives
+        caption: Priya checks in the frame assembly. The server takes the request.
+        show: [priya, app]
+        highlight: [priya]
+        flow: [priya>app]
+      - title: Metadata to the database
+        caption: Number, version, state and a **pointer** to the file go to the database. The bytes do not.
+        show: [priya, app, db]
+        highlight: [db]
+        flow: [app>db]
+      - title: Bytes to the cache vault
+        caption: With multiple vaults, every new file lands in the [[cache-vault]] first. (If `wt.fv.forceContentToVault` is true, Windchill skips the cache and writes straight to the single vault.)
+        show: [priya, app, db, cache]
+        highlight: [cache]
+        flow: [app>cache]
+      - title: Synchronization moves it home
+        caption: The cache vault synchronizer copies files to the vault the [[vaulting-rule|rules]] choose - or to the default system target if no rule matches. Default interval is **three hours**.
+        show: [priya, app, db, cache, main]
+        highlight: [main]
+        flow: [cache>main]
+        seconds: 7
+      - title: A folder fills up
+        caption: When the writable folder reaches the [[file-threshold]] (50,000 by default, ±10%), it turns read-only and the next folder takes over. Reads still work from the old one.
+        highlight: [f2]
+        flow: [main>f2]
+        seconds: 7
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Content in the database as BLOBs gets slow: a file over 100 MB can take a long time to write, and
+      half-gigabyte files can take hours. Vaults keep uploads and downloads fast. But every extra vault
+      is extra rules, extra backups and extra places for files to go missing. Good vault design is
+      **as few vaults as your real requirements allow**.
+
+  - type: comparison
+    title: One vault or several?
+    columns: [Single vault, Multiple vaults]
+    rows:
+      - label: Switch
+        cells: ["`wt.fv.forceContentToVault=true`", "`wt.fv.forceContentToVault=false` (default)"]
+      - label: Vaulting rules
+        cells: ["Ignored - not needed", "Required to send content to specific vaults"]
+      - label: Uploads
+        cells: ["Straight to the one vault, which must be designated for cache", "Cache vault first, then synchronized to the ruled vault"]
+      - label: Extra vaults
+        cells: ["Refused - and the method server won't start if more than one exists", "Allowed"]
+      - label: Good for
+        cells: ["Most companies - simpler and often faster", "Real separation needs, such as keeping classified content apart"]
+    takeaway: PTC recommends one vault unless content truly must be separated.
+
+  - type: example
+    variant: real-world
+    title: The chargeback that didn't need a vault
+    industry: Micromobility
+    md: |
+      Finance asked Rosa to bill each product line for its storage: one vault for Scooter S2, one for
+      E-Bike E1. Rosa pushed back. Separate vaults only to measure usage is exactly the case PTC advises
+      against - a database query can report storage per context instead. Acme kept one vault. Two years
+      later, when Lena needed export-controlled motor-controller data kept physically apart, *that*
+      became the first real reason for a second vault and a vaulting rule.
+    takeaway: Separate vaults for separation, not for accounting.
+
+  - type: text
+    md: |
+      ### How vaulting rules pick a vault
+
+      Every Windchill object belongs to a [[domain]], and **vaulting rules are set per domain**. A rule says:
+      for this **class** (for example `EPMDocument` for CAD documents or `WTDocument` for documents) in this
+      **life cycle state**, use this **vault**.
+
+      | Domain | What it covers | Vaulting angle |
+      | --- | --- | --- |
+      | Product or project **Default** domain | Most documents, parts and CAD in that context | The main place for rules; each product can go to a different vault |
+      | **Folder** sub-domains | Created by the business administrator | Send one folder's files somewhere else |
+      | **System** domain | Life cycles, workflows and other admin objects | Few files, but they exist (e.g. workflow attachments) |
+      | **User** domains | Personal workspaces and notebooks | Can split content by user |
+
+      Content no rule covers goes to the [[default-target-vault|default system target]] as long as
+      `wt.fv.useVaultsForAllContent` is true (the default). If it were false, that content would be stored
+      in the database as BLOBs.
+
+  - type: walkthrough
+    title: Add a vault, mount it and point CAD at it
+    who: Rosa, site administrator
+    where: [Site, Utilities, File Server Administration]
+    steps:
+      - title: Prepare the disk
+        md: |
+          Create the physical directory on the storage the vault will use, with permissions for the
+          Windchill service account. `wt.fv.forceContentToVault` must be **false** for rules to apply.
+      - title: Create the vault
+        where: [File Server Administration, Vault Configuration, Sites, main]
+        md: |
+          Expand **Sites → main**, then **File → New → Vault**. Name it (for example `vault-export`) and
+          keep **Automatic folder creation** on so Windchill adds folders as they fill.
+      - title: Create a root folder
+        where: [Vault Configuration, main, "File → New → Folder"]
+        md: With the **main** node selected, choose **File → New → Folder**, name it and associate it with the new vault.
+      - title: Mount the folder
+        where: [Vault Configuration, Root Folders, "Object → Mount"]
+        md: |
+          Select the folder under **Root Folders**, choose **Object → Mount**, enter the **Root Path** of the
+          directory and pick **File system based**. With automatic folder creation, the mount is validated
+          and the folder enabled for you.
+      - title: Write the vaulting rules
+        where: [File Server Administration, Vaulting Rules]
+        md: |
+          Use the domain picker to choose the context (for example the E-Bike E1 product) and its
+          **Default** domain. Click **New**, choose the class (such as `EPMDocument`), the states, and the
+          target vault. Repeat for the **System** domain if its content should follow - rules must be defined
+          for each domain separately.
+      - title: Test it
+        md: |
+          Upload a test CAD document in that context. It lands in the cache vault first, then moves on the
+          next synchronization. To check the interval or force a sync, the course uses JConsole: the
+          `CacheVaultSynchronizer` MBean under **com.ptc → Monitors** has `sysCheckSyncInterval_Hours` and `sysForceSync`.
+    result: New CAD content in E-Bike E1 ends up in the new vault. Content that already existed stays where it was - until you revault.
+
+  - type: text
+    md: |
+      ### Planning a revault
+
+      Rules decide where **new** files go. Existing files only move when you **revault**. You need one when
+      a rule is created, changed or deleted, or when you want content moved between vaults, from a vault into
+      the database or from BLOBs into a vault. Changes to an object's domain or state that affect storage are
+      revaulted in the background when `wt.fv.revaultOnChange` is true (the default).
+
+      Revaulting is heavy work for the method server, so plan it like a change:
+
+      1. **Pick the window.** Schedule it for quiet hours. Modes are *Immediate* or *On Schedule*, each
+         *Once* or *Periodic*. The Help Center recommends On Schedule plus Periodic for regular runs.
+      2. **Size the batches.** `wt.fv.revaultQuerySize` (default 1000) is how many items each round handles.
+         Bigger is faster but uses more method server memory; smaller is gentler but slower.
+      3. **Check space.** Revaulting **copies** files; it does not delete the old ones. The target needs room,
+         and the source keeps the old copies as unreferenced files until you clean them up (lesson 3).
+      4. **Verify.** Open a few moved objects, then check vault status in Vault Configuration.
+
+  - type: walkthrough
+    title: Schedule the revault
+    who: Rosa, site administrator
+    where: [Site, Utilities, File Server Administration, Vault Configuration]
+    steps:
+      - title: Select the vault
+        where: [Vault Configuration, Sites, main, Main Vaults]
+        md: Select the vault that should be processed.
+      - title: Open the revaulting scheduler
+        where: [Vault Configuration, Objects, Revaulting]
+        md: Choose **Objects → Revaulting** (or the revault scheduler icon). This is the PTC Help Center supplement's path.
+      - title: Choose start and frequency
+        md: Pick **On Schedule** with a Saturday-night start, and **Once** for a one-off move after a rule change - or **Periodic** for a recurring run.
+    result: At the scheduled time the files move to the vaults the current rules choose. The old copies remain until a cleanup.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Switching on single-vault mode with two vaults still configured.** With
+      `wt.fv.forceContentToVault=true`, the method server will not start if more than one vault exists.
+      Remove the extra vaults first, and make sure the remaining vault is designated for cache.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Before changing a vaulting rule, write down which vault each affected context uses today and how much
+      content it holds. That one table tells you the revault's size, the target space you need and the
+      unreferenced files you will clean up afterwards.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Priya uploads a document in a multi-vault setup. Where does the file land first?
+        options: [The main vault named by the rule, The cache vault, The database as a BLOB, Her local cache]
+        answer: 1
+        explanation: With `wt.fv.forceContentToVault` false, uploads go to the cache vault and are synchronized to the ruled vault later - every three hours by default.
+      - kind: truefalse
+        prompt: Changing a vaulting rule automatically moves all existing files to the new vault.
+        answer: false
+        explanation: Rules affect new content. Existing files move only when revaulting runs.
+      - kind: single
+        prompt: No vaulting rule matches a file and `wt.fv.useVaultsForAllContent` is true. Where does the file end up?
+        options: [In the database as a BLOB, In the default system target vault, Nowhere - the upload fails, In the first replica vault]
+        answer: 1
+        explanation: With that property true (the default), content without a matching rule goes to the default system target. Only if it were false would it be stored as a BLOB.
+      - kind: single
+        prompt: A vault folder reached the file threshold. What does Windchill do?
+        options: [Rejects new uploads, Makes the folder read-only and writes to the next available folder, Deletes the oldest files, Moves the files to the database]
+        answer: 1
+        explanation: The full folder becomes read-only (still readable) and the next folder becomes writable - created automatically if automatic folder creation is on.
+      - kind: multi
+        prompt: Which facts belong in Rosa's revault plan? (Choose all that apply.)
+        options: [A quiet-hours schedule, Enough space in the target vault, A cleanup of the old copies afterwards, Turning off the database]
+        answers: [0, 1, 2]
+        explanation: Revaulting is resource-heavy and copies rather than deletes, so plan time, target space and a cleanup. The database must be running.
+
+  - type: summary
+    points:
+      - The database keeps metadata and a pointer; vaults on disk keep the bytes.
+      - "Site → host → vault → folder → mount → directory: that's the vault structure."
+      - New uploads wait in the cache vault, then sync to the main vault chosen by vaulting rules (or the default system target).
+      - One vault is the recommended default; use more only to separate content for a real reason.
+      - Revaulting moves existing files after rule changes. Schedule it off-hours, size the batches, and clean up the old copies afterwards.

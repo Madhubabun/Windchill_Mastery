@@ -1,0 +1,286 @@
+id: m05-s02-l07
+subtitle: From a user's error email to the exact log line in four clicks, and how to hand PTC the evidence without oversharing.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, error-reporting, log-events, diagnostics, system-configuration-collector, support]
+sources:
+  - id: ac
+    where: "Module 18: Describe system error reporting; Work with the Persisted Log Events page; Work with the Log Events Details page; Work with the Log File Viewer page; Identify administration actions after receiving error reports; Gather system configuration information; Activity: Collect system data with the System Configuration Collector (SCC); View Windchill log files; Analyze Java process information"
+  - id: ac
+    where: "Module 19: Monitor server processes (System Configuration Collector link); Activity: Monitor Windchill system performance (Persisted Log Events, Log Event Histogram, Export System Health/Performance Tables to Client and to Support)"
+versionNotes:
+  - versions: ["Windchill+"]
+    md: |
+      On Windchill+ (software as a service) PTC runs the servers. The server folders, log files and collection
+      directories in this lesson describe installations your company runs itself.
+
+blocks:
+  - type: text
+    md: |
+      An email lands in the admins' shared inbox: subject *"Windchill Error! Servlet request id: …"*, sent by
+      Priya straight from the error page. In the old days Rosa would reply *"what time did it happen? what were
+      you doing?"*, then trawl several method server logs.
+
+      Windchill's error reporting does that legwork. The request id in the email leads to the **Persisted Log
+      Events** page, then to the event's details, then to the exact spot in the log file. And when PTC Technical
+      Support needs to see more, the **System Configuration Collector** packages the evidence for them.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the unique tag on a failed request" → *servlet request id*
+      - "log events kept in the database so you can search them" → [[persisted-log-events|Persisted Log Events]]
+      - "the page that opens the log file at the right line" → [[log-file-viewer|Log File Viewer]]
+      - "the tool that bundles logs and settings for support" → [[system-configuration-collector|System Configuration Collector (SCC)]]
+      - "your support case number" → *call number* (from PTC Technical Support)
+
+  - type: animation
+    title: From error email to log line
+    diagram:
+      width: 820
+      height: 320
+      nodes:
+        - { id: err, label: Error page, sublabel: Priya's screen, x: 20, y: 40, w: 160, tone: danger }
+        - { id: mail, label: Error email, sublabel: to JMX admins, x: 220, y: 40, w: 160, tone: warning, shape: doc }
+        - { id: ple, label: Persisted Log Events, sublabel: by request id, x: 420, y: 40, w: 180, tone: primary }
+        - { id: det, label: Log Event Details, sublabel: tracing info, x: 420, y: 200, w: 180, tone: primary }
+        - { id: lfv, label: Log File Viewer, sublabel: first occurrence, x: 640, y: 200, w: 160, tone: success }
+        - { id: rosa, label: Rosa, sublabel: admin, x: 640, y: 40, w: 160, tone: info, shape: pill }
+      edges:
+        - { from: err, to: mail, label: mail-to link }
+        - { from: mail, to: ple, label: URL in body }
+        - { from: ple, to: det, label: Details icon }
+        - { from: det, to: lfv, label: timestamp link }
+        - { from: lfv, to: rosa, label: answer }
+    chapters:
+      - title: The error page
+        caption: Priya's check-in fails. The error page has a **mail-to link** that prepares an email to the address configured for the JMX administrators.
+        show: [err]
+        highlight: [err]
+        seconds: 5
+      - title: The email arrives
+        caption: The subject carries the **servlet request id**, unique to this error. The body holds a URL to the user error report.
+        show: [err, mail]
+        highlight: [mail]
+        flow: [err>mail]
+        seconds: 6
+      - title: Persisted Log Events
+        caption: The URL opens **Persisted Log Events**, filtered to this request - time, level, type, JVM and a synopsis with the stack trace.
+        show: [err, mail, ple]
+        highlight: [ple]
+        flow: [mail>ple]
+        seconds: 6
+      - title: Details
+        caption: The **Details** icon opens **Log Event Details** with more tracing information.
+        show: [err, mail, ple, det]
+        highlight: [det]
+        flow: [ple>det]
+        seconds: 5
+      - title: Straight to the line
+        caption: The event **timestamp** link opens the **Log File Viewer** on the right log file, positioned at the first occurrence. No guessing which method server served the request.
+        show: [err, mail, ple, det, lfv, rosa]
+        highlight: [lfv, rosa]
+        flow: [det>lfv, lfv>rosa]
+        seconds: 7
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Matching a user's vague description to a log entry is the slowest part of support. The request id removes
+      the guesswork, so users get answers faster and admins spend their time fixing, not searching. And a tidy,
+      scrubbed SCC package gets a PTC case moving on day one instead of after three rounds of "please send us…".
+
+  - type: walkthrough
+    title: Trace a reported error
+    who: Rosa, site administrator
+    where: [Error email, Persisted Log Events, Log Event Details, Log File Viewer]
+    steps:
+      - title: Acknowledge
+        where: [Your mail client]
+        md: Reply to Priya so she knows someone is on it. PTC lists this as the first step.
+      - title: Open the report
+        where: [Error email, URL in body]
+        md: |
+          Click the URL in the email (or paste it into a browser). The **Persisted Log Events** page shows the
+          error's age, severity, type and servlet request id. Change the fields and click **OK** to re-run the query.
+      - title: Drill into the event
+        where: [Persisted Log Events, Details icon]
+        md: Click the **Details** icon in the event's row to open **Log Event Details**.
+      - title: Jump into the log
+        where: [Log Event Details, log event timestamp]
+        md: |
+          Click the timestamp link. The **Log File Viewer** opens the right log file at the first occurrence of
+          that timestamp. Read the lines around it.
+      - title: Decide who fixes it
+        where: [Your support process]
+        md: |
+          Fixable? Fix it and tell the user. A problem in standard Windchill, or you can't find the cause? Contact
+          PTC Technical Support. From custom code? Go to the internal team that owns the customization.
+    result: Rosa goes from email to root cause without asking Priya a single follow-up question.
+
+  - type: callout
+    variant: note
+    title: Browsing events without an email
+    md: |
+      From **Server Status → Monitoring Tools → Persisted Log Events** you can browse recent events. By default it
+      shows events of level **WARN** and above (WARN, ERROR, FATAL) from the last six hours. The **Log Event
+      Histogram** shows how many events of each level occurred over a period, which is handy for spotting the start of a
+      problem. **Java Process Information** finds historic processes, for example a method server that recently died.
+
+  - type: callout
+    variant: note
+    title: Stack traces and your users
+    md: |
+      Setting `wt.servlet.errorPage.omitStackTrace` to `true` in `wt.properties` (with xconfmanager, of course) stops
+      users from seeing stack traces on the error page. Admins still get the stack trace when the user forwards the
+      error report. Lena likes this one: fewer internal details shown to every user.
+
+  - type: walkthrough
+    title: Collect diagnostics for PTC with the SCC
+    who: A member of the site Administrators group
+    where: [Navigator, Browse, Site, Utilities, System Configuration Collector]
+    steps:
+      - title: Open the collector
+        where: [Navigator, Browse, Site, Utilities, System Administration, System Configuration Collector]
+        md: |
+          Open **Site → Utilities** and choose **System Configuration Collector** in the System Administration
+          section. (There's also a link to it on the Server Status page.)
+      - title: Pick categories
+        where: [System Configuration Collector, Collect System Information]
+        md: |
+          On **Collect System Information**, select one or more categories in the categories table, for example
+          **Workflow and Queues** for a background queue issue. If none fits, create a custom category from the
+          available plugins.
+      - title: Choose how to collect
+        where: [Collect System Information, Collect system information]
+        md: |
+          **Collect, save, and send** tags everything with the support **call number** and sends it at once.
+          **Collect and save** stores it under a directory name you choose, to send later.
+      - title: Set the date range and credentials
+        where: [Collect System Information dialog]
+        md: |
+          Pick the range of days for logs (in the time zone of your browser's machine). Some plugins query the
+          database: Omar enters the database administrator user and password, or those plugins fail with a message
+          that credentials weren't supplied.
+      - title: Review, scrub, then send
+        where: [System Configuration Collector, Send Saved System Information]
+        md: |
+          Check what was collected under `<Windchill>/utilities/SystemConfigurationCollector/saved/`. Remove private
+          data you don't want to share, then send it from the **Send Saved System Information** tab.
+    result: PTC receives logs, properties and system details tagged with the case, and nothing Lena didn't approve.
+
+  - type: text
+    md: |
+      **What lands on disk**
+
+      Saved collections go to `<Windchill>/utilities/SystemConfigurationCollector/saved/<call or directory>/<type>/<date_time>`.
+      With a call number the folder is `C` plus the number; otherwise it's the directory name you typed. Types include
+      `PTC_Logs`, `PTC_Properties`, `Third_Party` (for example Apache configuration and logs), `Utilities` (such as
+      MBean dumps and database information), `WinDU` (Windchill Diagnostic Utility output) and `Miscellaneous`.
+      Cancelled runs keep the files already collected and get `-canceled` added to the folder name.
+
+      Need to send performance history instead? **Monitoring Tools → Export System Health/Performance Tables to
+      Support** sends the data directly (it needs a valid PTC Service Contract Number and support call number), and
+      **…to Client** saves it to a file you can transfer yourself. PTC's Performance Advisor utility can also send
+      diagnostic data; it's covered in section 5 with system health dashboards.
+
+  - type: scenario
+    variant: what-if
+    title: '"Just send them everything"'
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          PTC Technical Support asks for logs and configuration for case 12345 about stuck workflow queues. Kai says:
+          *"Tick every category and hit send, it's faster."* What does Rosa do?
+        choices:
+          - label: Select the Workflow and Queues category, choose Collect and save, then review before sending
+            next: s2
+            good: true
+            feedback: Targeted, and nothing leaves before it's been checked.
+          - label: Tick every category and choose Collect, save, and send
+            next: partial1
+            feedback: Fast, but huge, slow to analyse and never reviewed.
+      - id: s2
+        md: |
+          The saved folder contains property files with internal host names and a customization's configuration. Lena asks
+          what happens to it. What now?
+        choices:
+          - label: Scrub what Lena doesn't want shared, send from Send Saved System Information, and keep a copy until the case is closed
+            next: win
+            good: true
+            feedback: Matches PTC's advice - keep the files until the issue is resolved, then clean up.
+          - label: Send it and delete the local copy immediately
+            next: partial2
+            feedback: If support asks a follow-up question, you have nothing to compare against.
+      - id: win
+        md: |
+          Support gets exactly what they need. When the case closes, Rosa deletes the collection and adds "tidy SCC folder"
+          to her monthly maintenance list so the directory doesn't keep growing.
+        outcome: success
+      - id: partial1
+        md: |
+          The upload takes hours, includes data nobody reviewed, and support still asks which part is relevant. Lena is not
+          happy that nobody looked at it first.
+        outcome: partial
+      - id: partial2
+        md: |
+          Support asks about a log from the first collection. Rosa has to collect again, and the logs from that day are already
+          older than the range she picks. It works out, but slowly.
+        outcome: partial
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Letting the SCC folder grow forever.** Every collection stays under `utilities/SystemConfigurationCollector`.
+      Add a size check to your weekly or monthly maintenance, keep collections until their issue is resolved, then
+      delete them.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Error emails go to the address configured for the JMX administrators, the same list as your alerts (lesson 2).
+      Give it a shared mailbox the whole admin team can see, and agree who acknowledges each report.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: What links a user's error email to the right log entry?
+        options: [The user's name, The servlet request id, The method server's process id, The time the email was sent]
+        answer: 1
+        explanation: The servlet request id identifies the failed request. It opens Persisted Log Events and leads through Log Event Details to the log line.
+      - kind: order
+        prompt: Put Rosa's path from an error email to the log line in order.
+        items:
+          - Open the URL in the error email
+          - Persisted Log Events page
+          - Click the Details icon to open Log Event Details
+          - Click the timestamp link to open the Log File Viewer
+        explanation: Each page links to the next, ending with the Log File Viewer positioned at the first occurrence of the event.
+      - kind: single
+        prompt: By default, what does the Persisted Log Events page show when opened from Monitoring Tools?
+        options:
+          - All events from the last 30 days
+          - Events of level WARN and above from the last six hours
+          - Only FATAL events from today
+          - DEBUG events from the current session
+        answer: 1
+        explanation: The default minimum severity is WARN (so WARN, ERROR and FATAL are returned) and the default age is the last six hours.
+      - kind: single
+        prompt: Rosa wants to review collected data before PTC sees it. Which SCC option should she choose?
+        options: [Collect and save, "Collect, save, and send", Export System Health/Performance Tables to Support, Log Comment]
+        answer: 0
+        explanation: Collect and save stores the data locally; she can review and scrub it, then send it from the Send Saved System Information tab.
+      - kind: truefalse
+        prompt: Setting wt.servlet.errorPage.omitStackTrace to true also hides the stack trace from administrators.
+        answer: false
+        explanation: Users no longer see the stack trace on the error page, but administrators still get it when the user forwards the error report.
+
+  - type: summary
+    points:
+      - Error pages include a mail-to link; the email to the JMX administrators carries the servlet request id.
+      - "Request id → Persisted Log Events → Log Event Details → Log File Viewer at the first occurrence."
+      - "After a report: acknowledge, trace, fix or route (PTC for standard Windchill, internal team for custom code)."
+      - The System Configuration Collector (Site → Utilities) gathers logs, properties and more by category; collect and save lets you review and scrub first.
+      - Keep collections until the issue is resolved, then clean up the SCC folder.

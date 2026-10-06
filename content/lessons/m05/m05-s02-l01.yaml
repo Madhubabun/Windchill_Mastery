@@ -1,0 +1,297 @@
+id: m05-s02-l01
+subtitle: One line in a text file can change how all of Windchill behaves. Here's how to change it without leaving a landmine.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, properties, xconf, xconfmanager, configuration]
+sources:
+  - id: ac
+    where: "Module 13: Identify system administration utilities; Identify Windchill configuration property files; Activity: Execute commands using the Windchill Shell; Describe the site.xconf file; Use JConsole to modify property values; Describe the xconfmanager utility; Identify xconfmanager options; Use xconfmanager: example; Validate changes with xconfmanager; Create a custom xconf file; Activity: Modify properties using xconfmanager; Describe Windchill Configuration Assistant (WCA)"
+  - id: ac
+    where: "Module 11: Describe Windchill+ (SaaS delivery; properties deployed through a Code and Configuration Deployment structure)"
+versionNotes:
+  - versions: ["Windchill+"]
+    md: |
+      Windchill+ is delivered as software as a service, so PTC runs the servers and you don't open a
+      Windchill Shell on production. The course manual describes customer properties travelling to
+      Windchill+ inside a **Code and Configuration Deployment (CCD)** structure prepared on a test
+      server. Everything in this lesson applies as written to on-premises installations.
+
+blocks:
+  - type: text
+    md: |
+      Rosa's first week as Acme Mobility's Windchill system administrator. She opens
+      `wt.properties` on **wc-app01** and finds a comment at the bottom: *"changed by hand - do not
+      touch!!"*. Nobody remembers why, nothing records it, and there is no backup of the old value.
+
+      That is exactly the mess Windchill's property tooling is designed to prevent. Windchill reads
+      hundreds of **properties**: small `name=value` settings that control things like whether search
+      indexing runs, where logs go and how much memory a server gets. This lesson shows the supported
+      way to change one: record it in **site.xconf**, then let **xconfmanager** write the property files for you.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the main settings file" → [[wt-properties|wt.properties]] (in the Windchill *codebase* folder)
+      - "the database settings file, kept away from clients" → `db.properties` (outside the codebase, because it holds the database password)
+      - "the menu of every property and what it does" → `properties.html` in the codebase, also at `http://<host>/Windchill/properties.html`
+      - "the logbook of every site change" → [[site-xconf|site.xconf]] in the Windchill installation folder
+      - "the command that writes the change and copies it into the property files" → [[xconfmanager]]
+      - "copying xconf changes into the real property files" → *propagate*
+      - "the automatic safety copies" → the `.xconf-backup` folder in the installation folder
+
+  - type: diagram
+    title: Where a property change really lives
+    caption: You change the logbook. Windchill builds the property files from it. Click each box.
+    diagram:
+      width: 820
+      height: 430
+      groups:
+        - { label: You use, x: 20, y: 20, w: 200, h: 390, tone: neutral }
+        - { label: Source of truth (xconf files), x: 250, y: 20, w: 290, h: 390, tone: accent }
+        - { label: Generated output, x: 570, y: 20, w: 230, h: 390, tone: success }
+      nodes:
+        - id: xconfmgr
+          label: xconfmanager
+          sublabel: in the Windchill Shell
+          x: 40
+          y: 70
+          w: 160
+          tone: primary
+          detail: |
+            The command-line utility for adding, removing or changing properties in any Windchill property
+            file. Run it from a [[windchill-shell|Windchill Shell]] so the environment is set up correctly.
+            Anyone with write access to the xconf and property files in the installation folder can run it.
+          real: The everyday tool. Most admins never use anything else for properties.
+        - id: jmxclient
+          label: JMX client
+          sublabel: e.g. JConsole
+          x: 40
+          y: 190
+          w: 160
+          tone: info
+          detail: |
+            A [[jmx|JMX]] client such as [[jconsole|JConsole]] can also get and set properties through the
+            PropertiesManager MBean. Its changes land in site.xconf too. PTC notes it is rarely used this way;
+            JConsole is mainly for monitoring and alerts (next lesson).
+        - id: editor
+          label: Text editor
+          sublabel: "on wt.properties"
+          x: 40
+          y: 310
+          w: 160
+          tone: danger
+          detail: |
+            Editing a property file directly is what PTC tells you **not** to do. The change bypasses
+            site.xconf, so it isn't recorded, isn't backed up and isn't part of the source the property
+            files are built from.
+        - id: site
+          label: site.xconf
+          sublabel: every site change since install
+          x: 280
+          y: 70
+          w: 230
+          tone: accent
+          shape: doc
+          detail: |
+            Holds every site-specific property change, from installation onwards. The supported tools
+            always update this file. Windchill validates every xconf file, including this one, against
+            `xconf.dtd`.
+        - id: custom
+          label: mysettings.xconf
+          sublabel: linked at the bottom
+          x: 280
+          y: 190
+          w: 230
+          tone: accent
+          shape: doc
+          detail: |
+            PTC's best practice: keep your own changes in a custom xconf file and link it at the **bottom** of
+            site.xconf with a `ConfigurationRef` element. Your settings stay separate, easy to find and easy
+            to switch off. Edit it, then run `xconfmanager -p`.
+        - id: backup
+          label: .xconf-backup
+          sublabel: automatic copies
+          x: 280
+          y: 310
+          w: 230
+          tone: neutral
+          shape: cylinder
+          detail: Every change made with xconfmanager or a JMX client first backs up all xconf and property files into this folder in the installation directory.
+        - id: props
+          label: Property files
+          sublabel: wt.properties · db.properties …
+          x: 590
+          y: 130
+          w: 190
+          tone: success
+          shape: doc
+          detail: |
+            Standard Java property files. They are the *output* of propagation. Some, such as
+            `modelRegistry.properties`, `moduleRegistry.properties` and `debug.properties`, manage internal
+            system activities and must never be modified at all.
+        - id: ms
+          label: Method server
+          sublabel: reads them at start-up
+          x: 590
+          y: 290
+          w: 190
+          tone: primary
+          detail: The updated property files are used when Windchill restarts. Changing a property value needs a restart of the [[method-server|method server]] before it takes effect.
+      edges:
+        - { from: xconfmgr, to: site, label: "-s set" }
+        - { from: jmxclient, to: site, label: setProperty }
+        - { from: site, to: custom, label: ConfigurationRef, dashed: true }
+        - { from: site, to: props, label: "-p propagate" }
+        - { from: site, to: backup, label: before each change, dashed: true }
+        - { from: editor, to: props, label: bypasses the logbook, dashed: true }
+        - { from: props, to: ms, label: restart }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Property changes are system-wide. A wrong value can switch off indexing, starve a server of memory
+      or break a vault. In a real company you need to answer three questions at any moment: **what did we
+      change, when, and how do we undo it?** site.xconf, the automatic backups and `xconfmanager -d` answer
+      all three. A hand-edited `wt.properties` answers none.
+
+  - type: comparison
+    title: Four ways to change a property
+    columns: [Recorded in site.xconf, Backed up, When to use]
+    rows:
+      - label: "xconfmanager -s … -p"
+        cells: ["Yes", "Yes, automatically", "The normal way for any single property change"]
+      - label: Custom xconf + xconfmanager -p
+        cells: ["Yes, through a ConfigurationRef", "Yes, on propagation", "A set of related site settings you want to keep together"]
+      - label: JMX client (JConsole)
+        cells: ["Yes", "Yes, automatically", "Possible, but rarely used for properties"]
+      - label: Text editor on wt.properties
+        cells: ["No", "No", "Never: PTC no longer recommends editing property files directly"]
+    takeaway: Change the logbook, then propagate. Never edit the output.
+
+  - type: walkthrough
+    title: Turn on a property the supported way
+    who: Rosa, Windchill system administrator, on wc-app01
+    where: [Windchill Shell, xconfmanager]
+    steps:
+      - title: Look the property up first
+        where: [Browser, "http://wc-app01/Windchill/properties.html"]
+        md: |
+          Search `properties.html` for the property name to read what it does and its default. The page covers
+          the properties in `wt.properties`, `tools.properties` and `db.properties`. Copy the name exactly as
+          it appears there.
+      - title: Open a Windchill Shell
+        where: [Start menu, Windchill folder, Windchill Shell]
+        md: |
+          Use the **Windchill Shell** shortcut (or type `windchill shell` at a command prompt). It sets the
+          environment variables xconfmanager needs.
+      - title: Display the current value
+        where: [Windchill Shell]
+        md: |
+          Run `xconfmanager -d wt.fv.verbose`. The output shows the current value **and** which xconf files set
+          it. Separate several property names with commas to check them together.
+      - title: Set and propagate in one go
+        where: [Windchill Shell]
+        md: |
+          Run `xconfmanager -s wt.fv.verbose=true -p`. `-s` writes the value into site.xconf (replacing any
+          earlier setting there) after backing it up, and `-p` propagates it into `wt.properties`. `-p` always
+          runs after any set options, so the new value is included.
+      - title: Adding a brand-new property? Add -t
+        where: [Windchill Shell]
+        md: |
+          When the property does not exist yet in the target file, add `-t` with the target property file.
+          When you only change an existing property, `-t` is optional.
+      - title: Check it, then plan the restart
+        where: [Windchill Shell]
+        md: |
+          Run `xconfmanager -d wt.fv.verbose` again. The file is updated, but Windchill only reads it when it
+          restarts, so book a restart (`windchill stop`, then `windchill start`) in an agreed maintenance window.
+    result: |
+      The new value is in site.xconf, the previous files are in `.xconf-backup`, `wt.properties` is
+      regenerated, and after the restart the method servers use the new value.
+
+  - type: text
+    md: |
+      **The xconfmanager options you will actually use**
+
+      | Option | Long form | What it does |
+      | --- | --- | --- |
+      | `-s` | `--set` | Sets a property to a value in site.xconf |
+      | `-t` | `--target` | Names the target property file; required when adding a new property |
+      | `-p` | `--propagate` | Pushes xconf changes into the property files and keeps them in sync |
+      | `-f` | `--force` | Ignores the dependency cache and timestamp check and propagates all site-specific changes |
+      | `-d` | `--display` / `--describe` | Shows the current value and the xconf files that set it |
+      | `-h` | `--help` | Lists all options |
+
+  - type: example
+    variant: real-world
+    title: The setting that wasn't where anyone looked
+    industry: Micromobility
+    md: |
+      A company like Acme had a performance problem that support couldn't reproduce. Their notes said a
+      cache size had been raised, and `xconfmanager -d` showed the default. Someone had raised it months earlier
+      by hand-editing a property file on one server only. The change was in no xconf file, so the tool that
+      everyone trusted to report the configuration didn't show it, and the second server never had it.
+    takeaway: If it isn't in an xconf file, it is invisible to the tools your team relies on.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Changing the value and forgetting the restart.** `xconfmanager -d` happily reports the new value as
+      soon as the files are updated, but the running method servers still use the old one until Windchill is
+      restarted. Note the pending restart in your change log so nobody "tests" it too early.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Create `mysettings.xconf` (any name works) for Acme's own site settings and link it at the bottom of
+      site.xconf with a `ConfigurationRef` element. Order matters: when the same property is set twice, the
+      one later in site.xconf wins. The [[windchill-configuration-assistant|Windchill Configuration
+      Assistant]] uses the same mechanism for its own file, which you'll meet in lesson 6.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Rosa needs to change `wt.index.enabled`. Which approach does PTC recommend?
+        options:
+          - Edit wt.properties in a text editor and restart
+          - "Run xconfmanager -s wt.index.enabled=false -p from a Windchill Shell, then restart"
+          - Edit db.properties because it is outside the codebase
+          - Change it on the properties.html page
+        answer: 1
+        explanation: xconfmanager records the change in site.xconf (with a backup) and propagates it to wt.properties. properties.html is a reference page only, and db.properties holds database settings.
+      - kind: multi
+        prompt: Why is editing wt.properties directly a mistake? (Choose all that apply.)
+        options:
+          - The change is not recorded in site.xconf
+          - No automatic backup is made in .xconf-backup
+          - Property files are generated from the xconf files that the tools maintain
+          - Windchill refuses to start when wt.properties has been edited
+        answers: [0, 1, 2]
+        explanation: The hand edit skips the logbook and the backup and lives only in a generated file. The last option is a distractor - the real problems are the missing record and the missing backup.
+      - kind: single
+        prompt: Rosa is adding a property that does not exist in any property file yet. What must she add to her xconfmanager command?
+        options: ["-d", "-t with the target property file", "-f", "-h"]
+        answer: 1
+        explanation: "-t names the target file. It is required when adding a new property and optional when changing an existing one."
+      - kind: truefalse
+        prompt: As soon as xconfmanager -p finishes, every running method server uses the new value.
+        answer: false
+        explanation: The updated property files are read when Windchill restarts. Plan a restart for the change to take effect.
+      - kind: single
+        prompt: A custom xconf file sets a property, and so does an earlier line in site.xconf. Which value ends up in the property file?
+        options:
+          - The earlier line in site.xconf
+          - The value from the custom file referenced at the bottom of site.xconf
+          - Whichever value is larger
+          - Neither; xconfmanager reports a conflict and stops
+        answer: 1
+        explanation: Propagation applies values in the order they appear in site.xconf, so a setting later in the file (including one reached through a ConfigurationRef at the bottom) overrides an earlier one.
+
+  - type: summary
+    points:
+      - Windchill reads Java property files; wt.properties is the main one, db.properties sits outside the codebase because it holds the database password.
+      - site.xconf is the record of every site change; property files are generated from the xconf files.
+      - "Use xconfmanager from a Windchill Shell: -d to check, -s to set, -t for new properties, -p to propagate."
+      - Every change through xconfmanager or a JMX client is backed up in .xconf-backup.
+      - Keep your own settings in a custom xconf linked at the bottom of site.xconf, and restart Windchill to apply changes.

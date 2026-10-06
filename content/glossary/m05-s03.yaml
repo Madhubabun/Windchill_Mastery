@@ -1,0 +1,105 @@
+# New glossary terms introduced in section m05-s03 (File vaulting and replication).
+- id: external-storage
+  term: External file storage
+  plain: Keeping Windchill's files on disk outside the database, instead of inside it.
+  definition: The storage option in which Windchill content files (CAD models, Word files and so on) are kept in vaults on a file system - on the Windchill server or another server on the network - while the object metadata stays in the database and points to each file. It is the default for Windchill content and avoids the slow uploads that very large files suffer when written into the database.
+  aka: [File vaulting, External vaulting]
+  related: [vault, blob-content, file-vault-folder]
+
+- id: blob-content
+  term: BLOB content
+  plain: A file stored inside the database itself instead of in a vault on disk.
+  definition: Content stored in the Windchill relational database as a Binary Large Object (BLOB) rather than in an external vault. It happens when vaulting is not used for that content, for example when no vaulting rule applies and the property `wt.fv.useVaultsForAllContent` is false. Large BLOB uploads are slow and performance can degrade over time, so administrators check weekly for content that has not been vaulted and revault it. Moving BLOBs out does not shrink the database by itself.
+  aka: [BLOB, Binary Large Object]
+  related: [external-storage, revaulting, database]
+
+- id: file-vault-folder
+  term: Vault folder
+  plain: One real directory on disk that a vault fills with files.
+  definition: A Windchill object that represents a physical storage location for a vault, such as a directory on a file system (the course also mentions cloud object storage locations). A vault is a logical container of one or more folders. A folder becomes usable through a mount, which links it to a path on a host. Folders can be created automatically when the current one reaches the file threshold, and a folder becomes read-only when it is full or its disk runs out of space. A folder that still contains content files cannot be deleted.
+  aka: [Folder, Root folder]
+  related: [vault, file-threshold, cache-vault]
+
+- id: master-vault
+  term: Main vault
+  plain: The permanent home of the official copy of a file.
+  definition: A vault that holds the main (permanent) copy of content files after they leave the cache vault. Vaulting rules decide which main vault receives which content, and one main vault can be marked as the default system target for content that no rule covers. In a replication setup, every other copy of a file is a replica of the main copy. Older material and some tool options call it the master vault.
+  aka: [Master vault]
+  related: [vault, cache-vault, replica-vault, default-target-vault]
+
+- id: cache-vault
+  term: Cache vault
+  plain: The waiting room where newly uploaded files land first.
+  definition: A vault that temporarily stores new content files when they are uploaded. Windchill later copies them to their designated main vault according to the vaulting rules; on the main site this synchronization runs every three hours by default. A default cache vault named `defaultuploadvault` is created automatically, and a write-enabled cache vault is needed to create documents and CAD documents. Each site has only one cache vault. Because it collects unreferenced files quickly, it needs regular cleanup.
+  aka: [Upload vault, defaultuploadvault]
+  related: [vault, master-vault, revaulting, unreferenced-file]
+
+- id: vaulting-rule
+  term: Vaulting rule
+  plain: An instruction saying which vault gets which kind of file.
+  definition: A rule, defined per administrative domain, that sends content to a particular vault based on the object's class (for example `WTDocument` or `EPMDocument`) and life cycle state. Rules are created with the Vaulting Rules tool in File Server Administration and are needed only for a multiple-vault configuration; they are ignored when `wt.fv.forceContentToVault` is true. Changing or deleting a rule means existing files must be revaulted.
+  related: [vault, revaulting, domain, default-target-vault]
+
+- id: revaulting
+  term: Revaulting
+  plain: Moving files that already exist to the vault where the current rules say they belong.
+  definition: The process that relocates content files after vaulting rules change, or after an object's domain or life cycle state changes. It can move content between vaults, from a vault into the database as a BLOB, or from a BLOB into a vault. Because it is resource intensive it runs on a schedule (Immediate or On Schedule, Once or Periodic). Revaulting copies files but does not delete the old ones, which then become unreferenced files.
+  related: [vaulting-rule, vault, unreferenced-file, blob-content]
+
+- id: default-target-vault
+  term: Default target vault
+  plain: The vault that catches content no rule claims.
+  definition: The vault marked as the fallback destination for a site. A main vault can be the default system target, receiving content that no vaulting rule covers when `wt.fv.useVaultsForAllContent` is true. A replica or cache vault can be the default target for a site, which is used mainly for ad hoc and predictive replication when no replication rule applies. There must always be one, so the checkbox cannot be cleared directly; it moves when another vault is designated.
+  aka: [Default system target, Default target for site]
+  related: [master-vault, vaulting-rule, ad-hoc-replication]
+
+- id: file-threshold
+  term: File threshold
+  plain: The maximum number of files Windchill puts in one vault folder.
+  definition: A limit on the number of content files per vault folder, enabled with `wt.fv.useFvFileThreshold` and set with `wt.fv.fvFileThreshold` (50,000 in a new installation). When the writable folder reaches the limit, give or take 10%, Windchill makes it read-only and writes to the next available folder. It protects directory performance on some operating systems but adds work to every upload, so check your operating system guidance before relying on it.
+  related: [file-vault-folder, vault]
+
+- id: unreferenced-file
+  term: Unreferenced file
+  plain: A file in a vault that no Windchill object points to anymore.
+  definition: A vault file that has lost its valid link to a Windchill object, for example because the object was deleted (vault files are not removed at that moment) or because revaulting copied it elsewhere. All vaults on all sites collect them. Administrators remove them with Remove unreferenced files in the Vault Configuration window or the `RemoveUnreferencedFiles` command-line tool, either moving them to a `.unreferenced` subfolder or deleting them permanently, after backing up.
+  related: [vault, revaulting, cache-vault, replica-vault]
+
+- id: file-server
+  term: File server (Windchill)
+  plain: A small Windchill installation at a remote office that only stores and serves files.
+  definition: A functional subset of a Windchill installation placed near remote users to hold replica copies of content. It has no database and stores no metadata; all metadata stays with the main site. It needs an LDAP server only during installation (for Info*Engine). It is installed with the PTC Solution Installer using a security key exported from the main site, and must be registered with the main site under a unique name.
+  aka: [Replica site, Remote file server, Content server]
+  related: [replica, replica-vault, preferred-file-server, proximity-list]
+
+- id: replica-vault
+  term: Replica vault
+  plain: A vault at a remote site that holds copies of files for fast local downloads.
+  definition: A vault that permanently stores replicated copies of content files, usually mounted to a directory on a remote file server so nearby users download locally. Replica vaults are created under the replica site with a host, folders and mounts, and replication rules and schedules fill them. A site's automatic cleanup rules can unreference replica copies by size or age.
+  aka: [Replication vault]
+  related: [replica, file-server, replication-rule, master-vault]
+
+- id: replication-rule
+  term: Replication rule
+  plain: An instruction saying which files get copied to which remote vault.
+  definition: A rule in the Content Replication Rules section of File Server Administration that chooses content to replicate by context, object type, and optionally iteration, life cycle state or creator, and names the target replica vault. A replication schedule for that vault then pushes the content at the chosen times.
+  related: [replica-vault, file-server, ad-hoc-replication]
+
+- id: proximity-list
+  term: Proximity list
+  plain: A ranked list of which servers are closest to a given file server.
+  definition: An ordered list, kept for each file server, of other file servers and the main server from nearest to farthest, based on network bandwidth and latency. Windchill uses it to fetch content from the nearest site that has an up-to-date copy, both for replication jobs and for user requests that miss on the preferred file server. It is set when a file server is registered.
+  related: [file-server, preferred-file-server, replica]
+
+- id: preferred-file-server
+  term: Preferred file server
+  plain: The file server you choose to download files from - normally the one in your building.
+  definition: A personal user preference that names the file server Windchill should deliver content from. Users set it to their local replica site, for example from the Quick Links menu on their home page. If the content is not there, Windchill fetches it from the nearest site on the proximity list and caches it on the preferred server. Because users can change it easily, administrators explain why it matters.
+  related: [file-server, proximity-list, ad-hoc-replication]
+
+- id: ad-hoc-replication
+  term: Ad hoc replication
+  plain: Copying a file to your local server on demand, the first time someone there asks for it.
+  definition: Replication that happens without a replication rule or schedule. When a user requests content that is not on their preferred file server, Windchill delivers it to that server, caches it there and serves it locally; predictive replication then keeps sending new iterations of those objects for a set period (three months by default). The property `wt.fv.master.adhocCaching.flag` turns it off (0), allows it only where a rule exists (1) or always (2). Replication managers can also trigger it with the Replicate action.
+  aka: [Ad hoc caching]
+  related: [preferred-file-server, replication-rule, default-target-vault]

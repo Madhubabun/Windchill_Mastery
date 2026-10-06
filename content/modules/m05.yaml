@@ -2,3 +2,44 @@ id: m05
 theme: indigo
 icon: server
 tagline: "Install, tune, secure and keep Windchill healthy."
+cheatsheet:
+  sections:
+    - title: Install and run
+      points:
+        - "The main pieces: web server, Windchill server (server manager + method servers), database and an LDAP directory. They can share one machine (monolithic) or be split across tiers."
+        - Size the hardware from weighted active users, not head count. Heavy CAD users weigh more than people who only view or upload documents.
+        - Install with the PTC Solution Installer (PSI). Keep its installation log files; they are your first stop when a step fails.
+        - "Start order: database and directory server first, then Windchill. On Windchill+, PTC runs the servers for you."
+    - title: Properties and diagnostics
+      points:
+        - "Change properties with xconfmanager from the Windchill Shell, so the change is recorded in site.xconf. Don't hand-edit wt.properties."
+        - "Windchill Configuration Assistant (WCA) calculates recommended settings, such as heap sizes, and can roll its changes back."
+        - "Each server manager and method server has its own log in the Windchill logs directory. Raise log levels only while you debug: logging costs performance."
+        - "JMX clients such as JConsole show and change live values. Failed queue entries and threshold breaches can be emailed to the JMX-Administrators list."
+        - The System Configuration Collector gathers configuration and diagnostic reports to send to PTC Technical Support.
+    - title: Files and remote sites
+      points:
+        - "Vaults hold file content outside the database; vaulting rules decide which vault an object's files go to. Revault to move existing content."
+        - A file server at a remote site holds replica vaults. It stores content only; all metadata stays in the one main database.
+        - Replication copies content to replicas on a schedule. If a file isn't in the preferred replica yet, Windchill serves it from another site, often across the WAN.
+        - Remove unreferenced files regularly, and request backup information before you do.
+    - title: Queues and visualization
+      points:
+        - "Queue Management (Site → Utilities) shows every background queue with its status and its waiting, failed and severe entries."
+        - "Entry states: Ready, Executing, Completed, Failed, Suspended, Rescheduled and Severe. A Severe entry stops its queue."
+        - Review failed and severe entries on a routine and decide, entry by entry, to delete or reset them. Big neglected queues slow the whole system.
+        - "WVS sends publishing jobs to CAD workers through worker agents. Watch them in the WVS Job Monitor; use publish rules and Publish and Thumbnail Control to decide what gets published."
+        - Background method servers take queue work off the method servers that answer users.
+    - title: Backup and health
+      points:
+        - "Back up the database and the vaults so they match each other. Cold backups need Windchill stopped; hot backups run while it is up, with background queues suspended."
+        - WContentVerify checks that the files the database points to really exist in the vaults.
+        - "If a backup sets vaults to Read Only, clear the flag afterwards and run replication."
+        - Watch KPIs on the Server Status page and dashboards; Performance Advisor sends data to PTC for analysis.
+        - Practise restores in a drill and keep a written runbook.
+    - title: Scale and security
+      points:
+        - "A cluster puts several Windchill nodes behind a load balancer that looks like one server. One node runs the main server manager and main cache; if it fails, another node takes over. Background queues can run on a dedicated main node."
+        - "Single sign-on lets users sign in once through an identity provider. Pick SAML or OpenID Connect: one SSO protocol per system. OAuth 2.0 protects calls to Windchill REST Services."
+        - "Harden the system: HTTPS, encrypted system passwords, no anonymous remote JMX access, current patches (CPS) and security audit reports."
+        - License groups decide who uses which license; the License Management utility shows license information, notifications and usage reports.

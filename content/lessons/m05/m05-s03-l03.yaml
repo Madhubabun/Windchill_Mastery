@@ -1,0 +1,261 @@
+id: m05-s03-l03
+subtitle: Deleted objects leave their files behind. Rosa's weekly job is to clear them out - without deleting anything Acme still needs.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, file-vaults, maintenance, unreferenced-files, replica-cleanup]
+sources:
+  - id: ac
+    where: "Module 14: Describe the cache vault; Specify the file threshold value for vaults; Maintain vaults; Change the location of files in vaults; Remove unreferenced files from file vaults"
+  - id: ac
+    where: "Module 19: Identify daily administrative tasks; Monitor file vaults; Identify weekly administrative tasks; Identify BLOBs that have not been vaulted; Remove unreferenced files from file vaults; Automatically clean up replica vaults; Generate an unreferenced file report; Identify monthly administrative tasks"
+  - id: ac
+    where: "Module 16: FileVaultingQueues"
+versionNotes:
+  - versions: ["all"]
+    md: |
+      These tasks are described for customer-run (on-premises) installations, where your team owns the
+      vault disks. On Windchill+ PTC runs the servers; which of these tasks customers perform there is not
+      confirmed by the supplied sources.
+
+blocks:
+  - type: text
+    md: |
+      Jordan cleans up an old Scooter S1 prototype library: 12,000 documents deleted in one afternoon.
+      The database shrinks a little. The vault disk doesn't move at all.
+
+      That's by design. When an object is deleted, Windchill does **not** delete its vault files at that
+      moment. Revaulting also copies files and leaves the originals behind. Over months, every vault on every
+      site fills up with [[unreferenced-file|unreferenced files]] - bytes no Windchill object points to.
+      Rosa's job: find them, prove they're really orphaned, and remove them **safely**.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "orphaned file on the vault disk" → [[unreferenced-file]]
+      - "files stuck in the database instead of a vault" → [[blob-content|BLOBs not vaulted]]
+      - "the waiting room that collects orphans fastest" → [[cache-vault]]
+      - "automatic tidy-up of the Lakeside copies" → content cleanup rules for [[replica-vault|replica vaults]]
+      - "files per folder before it goes read-only" → [[file-threshold]]
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      A vault disk that fills up silently is one of the quieter ways Windchill breaks: the folder turns
+      read-only, uploads have nowhere to go, and check-ins start failing for everyone on that site. Regular
+      cleanup keeps disk growth predictable - and a careless cleanup is one of the few admin actions that
+      **permanently** deletes content.
+
+  - type: walkthrough
+    title: Remove unreferenced files safely (weekly)
+    who: Rosa, site administrator - with Omar for the database backup
+    where: [Site, Utilities, File Server Administration, Vault Configuration]
+    steps:
+      - title: Back up first
+        md: |
+          Removal deletes files from the host for good. PTC's advice: back up the **database**, then all files
+          in the vault or folder you'll clean. Run the cleanup after the backup completes - the weekly checklist
+          pairs them, and PTC recommends purging the cache vault's unreferenced files at the end of backups.
+      - title: Preview the damage
+        md: |
+          Run the **Unreferenced Files Report** in the Windchill Diagnostic Utility (**WinDU**), launched from
+          the Windchill Shell (it lives in the installation's `bin` directory). It shows how many unreferenced
+          files there are and how big they are, without touching anything.
+      - title: Move, don't delete - the first time
+        where: [Vault Configuration, Object, Remove unreferenced files]
+        md: |
+          Select the vault or folder and choose **Object → Remove unreferenced files**. In the notice window,
+          choose to **move** the files: they go into a `.unreferenced` subfolder where the content sits, instead
+          of being deleted. Leave that option clear and the files are deleted permanently.
+      - title: Or script it
+        md: |
+          For a scheduled job, an administrator runs the tool from a Windchill Shell:
+
+          `windchill wt.fv.tools.RemoveUnreferencedFiles -move -vault=defaultuploadvault`
+
+          Use `-move` or `-delete`, plus `-vault=` or `-folder=` (comma-separated lists are allowed; master or
+          replica vaults and folders both work).
+      - title: Read the log
+        md: |
+          The tool writes a log in a `RemoveUnreferencedFiles` subfolder of the Windchill log directory:
+          who ran it, the parameters, start and finish times, and any errors. Check it every time.
+      - title: Spot-check
+        md: Open a handful of current Scooter S2 and E-Bike E1 documents and CAD files from different folders. Their content should open normally.
+    result: |
+      Disk growth is under control, and the moved files sit in `.unreferenced` while you confirm nothing
+      needed them. The course doesn't describe a separate step for emptying that subfolder - agree with your
+      team how long to keep it before it's cleared.
+
+  - type: walkthrough
+    title: Let Lakeside's replica vaults clean themselves
+    who: Rosa, site administrator
+    where: [Site, Utilities, File Server Administration, Vault Configuration]
+    steps:
+      - title: Open the site's cleanup rules
+        where: [Vault Configuration, Sites, lakeside, Object, Define Content Cleanup Rules]
+        md: Select the Lakeside site in the left pane, then **Object → Define Content Cleanup Rules**. The rules apply to all replica vaults of that site.
+      - title: Cap the size
+        md: Tick **Restrict vault size** and enter a maximum in MB or GB.
+      - title: Age out stale copies
+        md: Tick **Dereference content not accessed in the last** and pick a number of days, weeks or months (a month counts as 30 days).
+      - title: Schedule it
+        md: Tick **Cleanup Schedule** and set the hour (0-23, where 0 is midnight).
+      - title: Decide what "cleanup" means
+        md: |
+          By default the cleanup only **unreferences** replica files; they're removed by the next Remove
+          unreferenced files run. Setting `wt.fv.master.deleteUnreferencedFilesOnAutoVaultCleanup` to true makes
+          the cleanup delete them itself. Note that cleaned-up content is replicated again on the next replication
+          run unless you change `wt.fv.master.replicatePrevCleanedObjects`.
+    result: Lakeside's replica vaults stay within their disk budget, and copies nobody has opened in months make room for current work.
+
+  - type: text
+    md: |
+      ### The other weekly check: BLOBs that never made it to a vault
+
+      If everything should be vaulted, there should be no content in the database. The course gives a SQL
+      query (against the `StreamData` table) that Omar runs weekly to count BLOB content by type. If it finds
+      any, Rosa checks the [[vaulting-rule|vaulting rules]] and then uses the revaulting scheduler to move the
+      content from the database to a vault. Even then the database **doesn't shrink by itself** - Omar has to
+      reclaim the space with database tools.
+
+  - type: scenario
+    variant: what-if
+    title: "Monday, 07:40: Lakeside can't check in"
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Lakeside designers report check-in failures on E-Bike E1 CAD. Downloads work. A JMX alert for
+          wc-fs-lakeside says free disk space dropped below its threshold (15% by default). What do you look at first?
+        choices:
+          - label: Vault Configuration - status of Lakeside's vaults and folders
+            next: s2
+            good: true
+            feedback: Right. Vault Configuration shows whether folders are Enabled, Read Only or Synchronized.
+          - label: Delete old files straight from the vault directory on disk
+            next: fail-disk
+            feedback: You can't tell orphans from live files by looking at hashed names on disk.
+          - label: Restart all Windchill servers
+            next: s1-restart
+            feedback: A restart doesn't free disk space.
+      - id: s1-restart
+        md: Everything comes back up. Check-ins still fail at Lakeside, and you've interrupted HQ for nothing. Start again from the evidence.
+        choices:
+          - label: Check Vault Configuration
+            next: s2
+            good: true
+            feedback: Better late than never.
+      - id: s2
+        md: |
+          The Lakeside cache vault's only folder shows **read-only** (a + in the mount table's Read Only column).
+          The disk under it is nearly full. Uploads need a write-enabled cache vault. What now?
+        choices:
+          - label: Give the vault a writable folder on a disk with space, then plan cleanup
+            next: s3
+            good: true
+            feedback: Restores uploads quickly without deleting anything.
+          - label: Run Remove unreferenced files with delete - no time for a backup
+            next: fail-delete
+            feedback: Permanent deletion with no backup is exactly what PTC warns against.
+          - label: Turn off the file threshold with wt.fv.useFvFileThreshold=false
+            next: s2-threshold
+            feedback: The problem is disk space, not the file count.
+      - id: s2-threshold
+        md: |
+          Nothing changes - a folder also goes read-only when its file system has no space left. And you have just
+          left folder sizes for someone to manage by hand. Undo that and fix the real problem.
+        choices:
+          - label: Add a writable folder on a disk with space
+            next: s3
+            good: true
+            feedback: Now you're fixing the cause.
+      - id: s3
+        md: |
+          Check-ins work again. The old folder is still big and read-only. Kai asks: "Can we just move all those
+          files to the new SAN?" How do you move a folder's content without breaking Windchill?
+        choices:
+          - label: Follow the folder move procedure
+            next: s4
+            good: true
+            feedback: "Stop revaulting, set read-only, copy, update the mount, test, remove read-only, restore schedules."
+          - label: Copy the files to the SAN and delete the old folder
+            next: fail-move
+            feedback: Windchill's mount still points at the old path.
+      - id: s4
+        md: |
+          Rosa cancels pending revaulting, keeps the folder read-only, copies everything to the SAN, updates the
+          mount, then renames the old directory to prove Windchill reads from the new one. Content opens. She removes
+          read-only and restores the schedules. Next weekend's backup is followed by an unreferenced-file move, and
+          Lakeside's replica cleanup rules now cap the vault size.
+        outcome: success
+      - id: fail-disk
+        md: |
+          Three of the "old" files belonged to released E-Bike E1 drawings. The database still points at them, and
+          now the content is gone until someone restores it from backup. Vault files are only safe to remove through
+          Windchill's own tools.
+        outcome: fail
+      - id: fail-delete
+        md: |
+          The run frees space, but the files are gone for good. When a misconfigured rule later turns out to have
+          left live content looking unreferenced, there is nothing to restore from. Back up first, and prefer moving
+          to `.unreferenced` the first time.
+        outcome: fail
+      - id: fail-move
+        md: Every object in that folder now fails to open. The mount must be updated to the new location before the old one disappears. Put the folder back and follow the procedure.
+        outcome: fail
+
+  - type: comparison
+    title: Cheat sheet - vault upkeep
+    columns: [How, When]
+    rows:
+      - label: Check vault status
+        cells: ["Vault Configuration (Enabled, Read Only, Synchronized); JMX disk-space alert; System Configuration Collector vault reports", "Daily"]
+      - label: Find BLOBs not vaulted
+        cells: ["Database query on StreamData; then fix rules and revault", "Weekly"]
+      - label: Remove unreferenced files
+        cells: ["Object → Remove unreferenced files or `wt.fv.tools.RemoveUnreferencedFiles` (-move or -delete)", "Weekly - after the backup"]
+      - label: Preview orphans
+        cells: ["WinDU Unreferenced Files Report", "Before a cleanup"]
+      - label: Replica vault cleanup
+        cells: ["Object → Define Content Cleanup Rules on the site", "On its own schedule"]
+      - label: Replication test
+        cells: ["Confirm a recent item reached the replica vault", "Monthly"]
+      - label: Folder full
+        cells: ["File threshold (default 50,000 ±10%) or no disk space → read-only; add space or a folder", "When status changes"]
+    takeaway: Back up, preview, move before delete, read the log.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Deleting files by hand on the vault disk.** File names on disk are hashed, and only the database knows
+      which ones are still in use. Anything you remove outside Windchill's tools risks breaking live content.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Script the weekly cleanup with the command-line tool right after the backup job finishes, using `-move`
+      for the cache vault. Then a human reviews the log on Monday morning before anything is ever deleted.
+
+  - type: flashcards
+    title: Vault maintenance deck
+    cards:
+      - front: Why do vaults collect unreferenced files?
+        back: "Deleting objects doesn't delete vault files at that moment, and revaulting copies rather than moves."
+      - front: "-move vs -delete"
+        back: "-move puts orphans in a .unreferenced subfolder; -delete removes them permanently."
+      - front: Before removing unreferenced files
+        back: "Back up the database, then the files of the vault or folder."
+      - front: Preview without deleting
+        back: "WinDU's Unreferenced Files Report shows count and size."
+      - front: Replica vault cleanup by default
+        back: "Only unreferences files; a Remove unreferenced files run (or the delete property) removes them."
+      - front: Why does a folder go read-only?
+        back: "It reached the file threshold or its disk ran out of space."
+
+  - type: summary
+    points:
+      - Deleted objects and revaulting leave unreferenced files in every vault on every site.
+      - Back up, preview with WinDU, move to `.unreferenced` first, then read the tool's log.
+      - Replica vaults can clean themselves by size and age; by default that only unreferences files.
+      - Weekly, look for BLOBs that never reached a vault and revault them.
+      - A full vault is fixed with space or a new writable folder - never by deleting files on disk.

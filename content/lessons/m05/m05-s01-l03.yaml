@@ -1,0 +1,270 @@
+id: m05-s01-l03
+subtitle: The installer says "complete". Rosa doesn't believe it until every layer answers, from the database up to the Windchill home page.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, installation, verification, smoke-test, server-status]
+sources:
+  - id: ac
+    where: "Module 11: Describe the Windchill installation process (advanced configuration); Identify installation log files; Review the installation summary; System password encryption; Describe LDAP integration"
+  - id: ac
+    where: "Module 12: Identify Windchill services; Start/stop Windchill"
+  - id: ac
+    where: "Module 13: Activity: windchill version and windchill status in the Windchill Shell"
+  - id: ac
+    where: "Module 10: Obtain a Windchill license file; Activate licenses; View license-related notifications"
+  - id: ac
+    where: "Module 18: JMX-Administrators email list and SMTP server as a post-installation activity"
+  - id: ac
+    where: "Module 19: Monitor server processes (Server Status page); Monitor system availability; Activity: Verify Windchill system components availability; Performance Advisor configuration"
+versionNotes:
+  - versions: ["Windchill+"]
+    md: |
+      On [[windchill-plus|Windchill+]] PTC runs and checks the servers. The component tests here (database,
+      directory, web server, servlet engine) are for on-premises and self-hosted cloud systems. A browser
+      sign-in check is still a sensible first test for any system.
+
+blocks:
+  - type: text
+    md: |
+      The PTC Solution Installer finished on **wc-app01** with a cheerful message. Kai wants to start
+      loading Scooter S2 data on Monday.
+
+      Rosa says: *not yet*. A finished installer only proves the installer finished. Before anyone loads
+      real data she checks every layer - database, directory, web server, servlet engine, Windchill itself -
+      and finishes the jobs the installer leaves undone. It takes an hour and saves weeks.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a quick test that the system basically works" → **smoke test** (general IT term)
+      - "Windchill's live health page" → **Server Status** page (Site → Utilities)
+      - "Windchill's 'are you there?' page" → the basic connectivity test page, `wtcore/test.html`
+      - "the admin command line set up for Windchill" → **Windchill Shell**
+      - "the admins who get alert emails" → the **JMX-Administrators** email list
+
+  - type: diagram
+    title: Test from the bottom up
+    caption: Each layer depends on the ones below it. Test bottom-up and the first failure points at the culprit. Click a layer.
+    diagram:
+      width: 800
+      height: 460
+      nodes:
+        - id: home
+          label: Windchill home page
+          sublabel: /Windchill
+          x: 250
+          y: 20
+          w: 300
+          tone: success
+          detail: Sign in at `http://<server>/Windchill` as an administrator. If the home page loads, the whole chain works.
+        - id: wctest
+          label: Windchill test page
+          sublabel: /Windchill/wtcore/test.html
+          x: 250
+          y: 100
+          w: 300
+          tone: primary
+          detail: The basic connectivity test page for Windchill, `http://<server>:<port>/Windchill/wtcore/test.html`.
+        - id: servlet
+          label: Servlet engine
+          sublabel: Info*Engine admin JSP
+          x: 250
+          y: 180
+          w: 300
+          tone: primary
+          detail: Run a JSP to prove the [[servlet-engine]] answers - for example `http://<server>/Windchill/infoengine/jsp/admin/index.jsp`, signing in as an administrator.
+        - id: web
+          label: Web server
+          sublabel: http://<server>:<port>/
+          x: 250
+          y: 260
+          w: 300
+          tone: accent
+          detail: The [[web-server]]'s own test page at the server root. An untouched Apache shows a simple "It works!" page.
+        - id: ldap
+          label: LDAP directory
+          sublabel: control panel or LDAP tool
+          x: 60
+          y: 360
+          w: 300
+          shape: cylinder
+          tone: info
+          detail: Use the directory server's own control panel or tools, if it has one, as a basic connectivity check. Remember that Windchill won't start if a configured corporate LDAP connection can't be reached.
+        - id: db
+          label: Database
+          sublabel: SQL*Plus or SQL Server client
+          x: 440
+          y: 360
+          w: 300
+          shape: cylinder
+          tone: info
+          detail: Connect with Oracle SQL*Plus or the SQL Server native client using the Windchill database account. Omar can help with credentials.
+      edges:
+        - { from: wctest, to: home }
+        - { from: servlet, to: wctest }
+        - { from: web, to: servlet }
+        - { from: ldap, to: web, dashed: true }
+        - { from: db, to: web, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      A problem found on day zero is a configuration fix. The same problem found after 5,000 CAD files are
+      loaded is a data repair - with a project deadline attached. Checking each layer also gives you a
+      **known-good baseline** to compare against the first time something breaks.
+
+  - type: walkthrough
+    title: Verify a fresh installation
+    who: Rosa, Windchill system administrator
+    where: [wc-app01, Windchill Shell]
+    steps:
+      - title: Read the installation summary and logs
+        where: ["<installation directory>", installer]
+        md: |
+          Open `summary.html` and check the values match your plan. Scan the newest
+          `*_PtcInstall.log` in `installer/logs` for errors. File both with the change record.
+      - title: Check the services are running
+        where: [Windows, Services]
+        md: |
+          Confirm the web server, LDAP, database services (for Oracle the listener **and** instance
+          services) and the Windchill server are running.
+      - title: Ask Windchill about itself
+        where: [Windchill Shell]
+        md: |
+          In a Windchill Shell, run `windchill version` (component versions and installed language packs)
+          and `windchill status` (server status, including free memory).
+      - title: Run the bottom-up smoke test
+        where: [Browser]
+        md: |
+          Database connection → directory → web server root page → Info*Engine admin JSP →
+          `wtcore/test.html` → sign in at `/Windchill`. Stop at the first failure and fix that layer.
+      - title: Open the Server Status page
+        where: [Browse, Site, Utilities, System Administration, Server Status]
+        md: |
+          The page shows the server manager, method servers, directory server and file servers: memory,
+          active users, database calls, servlet requests. Red values have crossed a threshold.
+      - title: Activate the license
+        where: [License Management utility, Settings]
+        md: |
+          If the license wasn't imported by the PSI, activate it in the **License Management** utility -
+          online with PTC credentials, or from a license file. Members of the Administrators group see a
+          sign-in notification while Windchill has no valid license. (Details in the license management
+          lesson.)
+    result: |
+      Every layer answers, `windchill status` looks healthy, Server Status has no red values and the
+      license is active. Rosa writes the date and results into the system log book.
+
+  - type: comparison
+    title: "Cheat sheet: the post-install checklist"
+    columns: [How to check, Good looks like]
+    rows:
+      - label: Installer result
+        cells: ["`summary.html` and `installer/logs`", "Values match the plan; no errors in the PtcInstall log"]
+      - label: Services
+        cells: ["Windows Services panel (or OS tools)", "Web server, LDAP, database services and Windchill all running"]
+      - label: Database
+        cells: ["SQL*Plus or SQL Server native client", "Connects with the Windchill account"]
+      - label: Directory
+        cells: ["LDAP control panel or tool", "Server running, connections open"]
+      - label: Web server
+        cells: ["`http://<server>:<port>/`", "Test page loads"]
+      - label: Servlet engine
+        cells: ["`/Windchill/infoengine/jsp/admin/index.jsp`", "Info*Engine admin page after sign-in"]
+      - label: Windchill
+        cells: ["`/Windchill/wtcore/test.html` then `/Windchill`", "Test page, then the home page"]
+      - label: Windchill Shell
+        cells: ["`windchill version`, `windchill status`", "Expected release and languages; server status shown"]
+      - label: Server Status
+        cells: ["Site → Utilities → Server Status", "No red values"]
+      - label: License
+        cells: ["License Management utility", "Purchased features listed; no expiry warning"]
+    takeaway: Bottom-up, one layer at a time - the first failure is your culprit.
+
+  - type: callout
+    variant: note
+    title: Jobs the installer leaves for you
+    md: |
+      - **JMX-Administrators email and SMTP host** are not filled in during installation. Set them as a
+        post-installation task so admins actually receive Windchill's error and threshold alerts. Use a
+        team mailing list, not personal addresses.
+      - **Performance Advisor**: if you skipped it in the PSI, configure it later from Site → Utilities.
+      - **Passwords**: the PSI encrypted the system passwords - make sure the ones set during installation
+        are recorded in Acme's secure password store.
+      - **Optional extras** from the plan: a remote file server, Windchill as a Windows service.
+
+  - type: scenario
+    variant: troubleshooting
+    title: The home page that never loads
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Monday, 07:45. `http://wc-web01/Windchill` spins and errors. Kai is waiting. Rosa opens the web
+          server root page at `http://wc-web01/` - it loads fine. Next?
+        choices:
+          - label: Try the Info*Engine admin JSP
+            next: s2
+            good: true
+            feedback: Good - the web server works, so test the next layer up, the servlet engine.
+          - label: Restart all the servers
+            next: fail1
+            feedback: A restart hides the evidence and may not fix the cause.
+      - id: s2
+        md: The JSP page fails too. The servlet engine runs inside the method server. What does Rosa check?
+        choices:
+          - label: Run `windchill status` in a Windchill Shell
+            next: s3
+            good: true
+            feedback: Right - find out whether the Windchill server is actually running.
+          - label: Reinstall the web server
+            next: fail2
+            feedback: The web server already passed its test.
+      - id: s3
+        md: |
+          Windchill isn't running. It was stopped for Sunday's maintenance and failed to start this
+          morning. Database and web server are fine. Lena mentions that Acme's Active Directory domain
+          controllers were patched overnight. What's the likely link?
+        choices:
+          - label: Windchill can't reach the corporate LDAP at startup
+            next: s4
+            good: true
+            feedback: If a configured corporate LDAP connection can't be established when Windchill starts, Windchill will not start.
+          - label: The license expired overnight
+            next: s5
+            feedback: Possible in theory, but nothing points to it - and admins would have seen expiry notifications.
+      - id: s4
+        md: |
+          Lena confirms one domain controller came back with a new certificate and refused connections.
+          Once it's fixed, Rosa runs `windchill start`, re-tests bottom-up and the home page loads at 08:30.
+        outcome: success
+      - id: s5
+        md: The License Management utility shows a valid license. Rosa lost twenty minutes; she goes back and checks the directory connection.
+        outcome: partial
+      - id: fail1
+        md: Everything restarts, Windchill still won't come up, and now nobody knows which layer was healthy before.
+        outcome: fail
+      - id: fail2
+        md: An hour of reinstalling later, the root page still works - and so does nothing else. The problem was never the web server.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Skipping straight to the home page.** If `/Windchill` fails, you know *something* is broken but not
+      what. If you've tested bottom-up, you know exactly which layer stopped answering.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Write the smoke test as a one-page runbook with Acme's real host names (wc-db01, wc-web01, wc-app01)
+      and run it after every install, update and restart - not just the first one. Save the
+      `windchill version` output each time; it's a quick record of what's installed.
+
+  - type: summary
+    points:
+      - A finished installer is not a verified system. Check every layer before loading real data.
+      - Test bottom-up - database, directory, web server, servlet engine, Windchill test page, home page.
+      - "`windchill version` and `windchill status` in a Windchill Shell, plus the Server Status page, confirm the server's health."
+      - Activate the license, set the JMX-Administrators email list and SMTP host, and record the encrypted passwords.
+      - Keep the results as your known-good baseline.

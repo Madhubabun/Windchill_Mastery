@@ -1,0 +1,266 @@
+id: m05-s05-l02
+subtitle: A backup of the database alone is not a backup of Windchill. Learn to capture every repository at the same moment - and to say how much loss and downtime is acceptable.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, backup, recovery, rpo, rto, database, vaults]
+sources:
+  - id: ac
+    where: "Module 17: Back up and recover Windchill data: overview (primary and secondary repositories); Identify types of backups; Describe Oracle backup and recovery; Describe Oracle Archive log mode; Describe the Oracle flash recovery area; Back up and restore SQL Server; Review Windchill file vaults; Back up file vaults; Rebuild replica vaults; Set Read Only mode for vaults"
+  - id: ac
+    where: "Module 19: Perform and verify scheduled system backup; Maintain multiple Windchill environments"
+versionNotes:
+  - versions: ["Windchill+", "PTC Cloud Services"]
+    md: The course manual describes backups of servers your company operates. For Windchill+ (software as a service) and PTC Cloud Services, PTC hosts and manages the system; backup frequency and recovery targets there come from your agreement with PTC and are not covered by this lesson's sources.
+
+blocks:
+  - type: text
+    md: |
+      Omar, Acme's database administrator, proudly tells Rosa: "The Windchill database is backed up
+      every night. We're covered." Rosa asks one question: "And the vaults? And the directory? Taken
+      at the same moment?" Silence.
+
+      Here's the problem. When Priya checks in a CAD model, Windchill writes **two** things in two
+      places: a row of [[metadata]] in the [[database]] (who, what, which version) and the actual file
+      in a [[vault]]. The file gets a hashed name; only the database knows which file belongs to which
+      object. Restore one without the other and you get objects with no files, or files no object
+      points to.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the stores holding data you can't recreate" → **primary repositories**
+      - "the stores Windchill can rebuild from the others" → **secondary repositories**
+      - "everything, every time" → **full backup**
+      - "only what changed since last time" → **incremental backup** (the course also calls it differential)
+      - "how much work we can afford to lose" → [[recovery-point-objective]] (RPO)
+      - "how long we can be down" → [[recovery-time-objective]] (RTO)
+
+  - type: diagram
+    title: What a Windchill backup must cover
+    caption: Primary repositories must be in every backup. Secondary ones are a judgement call. Click each box.
+    diagram:
+      width: 820
+      height: 430
+      groups:
+        - { label: "Primary - must back up", x: 20, y: 20, w: 520, h: 390, tone: danger }
+        - { label: "Secondary - rebuild or back up?", x: 560, y: 20, w: 240, h: 390, tone: neutral }
+      nodes:
+        - id: db
+          label: Database
+          sublabel: wc-db01 · metadata
+          x: 40
+          y: 70
+          w: 220
+          tone: primary
+          shape: cylinder
+          detail: |
+            Attributes, relationships and version history of every object - plus content stored as
+            BLOBs if it isn't vaulted. The heart of the backup.
+        - id: ldap
+          label: Directory server
+          sublabel: users and some groups
+          x: 290
+          y: 70
+          w: 220
+          tone: primary
+          shape: cylinder
+          detail: |
+            Users (and optionally some external groups) live in the LDAP [[directory-server]]. Lose it
+            and nobody can log in, even if every part is safe.
+        - id: vaults
+          label: Master and cache vaults
+          sublabel: HQ and Lakeside
+          x: 40
+          y: 170
+          w: 220
+          tone: primary
+          shape: cylinder
+          detail: |
+            The content files themselves, on HQ and on the remote file server wc-fs-lakeside. A cache
+            vault can hold files uploaded locally that have not reached the main vault yet - so it counts too.
+        - id: home
+          label: Install and config
+          sublabel: Windchill home · codebase
+          x: 290
+          y: 170
+          w: 220
+          tone: primary
+          shape: doc
+          detail: |
+            Software installation and configuration files, such as the codebase folder. **Back them up
+            right after any change to configuration files** such as properties files.
+        - id: archive
+          label: Windchill archive
+          sublabel: archived data
+          x: 165
+          y: 280
+          w: 220
+          tone: primary
+          shape: cylinder
+          detail: Data moved to the Windchill archive is original data too, so it belongs in the primary list.
+        - id: index
+          label: Search indexes
+          sublabel: rebuilt from the DB
+          x: 580
+          y: 70
+          w: 200
+          tone: neutral
+          detail: Built from primary data. Rebuild or restore, whichever is faster for you.
+        - id: replica
+          label: Replica vaults
+          sublabel: copies at remote sites
+          x: 580
+          y: 170
+          w: 200
+          tone: neutral
+          shape: cylinder
+          detail: |
+            Copies of master content at remote sites ([[replica]]). Usually not backed up - but if
+            hundreds of gigabytes would have to come back over a slow WAN, re-replicating could take
+            hours or days. Then a backup is the faster way back.
+        - id: esi
+          label: Integration data
+          sublabel: e.g. TIBCO-based ESI
+          x: 580
+          y: 280
+          w: 200
+          tone: neutral
+          detail: Enterprise system integration data is also derived and listed as secondary.
+      edges:
+        - { from: db, to: vaults, label: points to files, bidirectional: true }
+        - { from: db, to: index, label: source of, dashed: true }
+        - { from: vaults, to: replica, label: replicated to, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Every company eventually restores something - a failed disk, ransomware, an admin who deleted
+      the wrong folder. The question is never *whether* you have a backup but whether the pieces
+      **match**. A database from 02:00 and vaults from 23:00 the night before is a mismatch you will
+      spend days untangling.
+
+  - type: text
+    md: |
+      ### Designing a consistent backup
+
+      PTC's principle: no system goes to production until backup **and** recovery are set up and
+      tested. A complete strategy usually mixes **full** and **incremental** backups - typically a full
+      backup weekly and incrementals daily. Four design rules follow from the course material:
+
+      1. **Same moment for all primary repositories.** The simplest way is a cold backup (everything
+         stopped); a hot backup needs extra steps such as pausing background work. Lesson 4 compares them.
+      2. **Use the database's own tools.** Copying database files while the database runs may not give
+         a valid backup, because what's in memory may not match the files. Use the database's hot-backup method.
+      3. **Vault files are easy to back up incrementally.** File names are sequential and a file is never
+         changed after upload, so "copy what's new" works well. To lose almost nothing, mirror the
+         vault to a second device (tools such as rsync, Unison or SAN replication) - but let Windchill
+         mount only **one** of the two devices.
+      4. **Verify.** From checking file sizes up to a full restore on a test system.
+
+  - type: comparison
+    title: Making the database recoverable past the last backup
+    columns: [Oracle, SQL Server]
+    rows:
+      - label: The feature
+        cells: ["Archive log mode: each redo log is archived before it can be overwritten", "Full recovery model: transaction log backups"]
+      - label: Default with Windchill's DB setup tool
+        cells: ["The Oracle Configuration Utility sets archive mode **disabled**", "The SQL Server Configuration Utility sets the full recovery model by default"]
+      - label: What it gives you
+        cells: ["Restore a backup then roll forward to a point in time", "Restore full and log backups then the tail of the log to reach the point of failure"]
+      - label: Daily watch
+        cells: ["Redo logs archiving properly and not slowing the log writer", "Log backups running - or the log fills and activity stops"]
+      - label: Course advice
+        cells: ["Strongly recommended for production; a flash recovery area is also strongly recommended", "Supplement full backups with differential backups to shorten restores"]
+    takeaway: Archive or transaction logs are what let the database recover to just before the failure instead of last night.
+
+  - type: text
+    md: |
+      ### RPO and RTO in plain words
+
+      These two are general IT terms, not Windchill settings - but every backup design should start with them.
+
+      - **[[recovery-point-objective|RPO]]**: "If disaster strikes at 15:00, how far back may we land?"
+        A nightly backup alone means an RPO of up to a day. Database archive or transaction logs plus
+        a mirrored vault can shrink it to minutes - **but only if the vault can be brought to the
+        same point as the database.**
+      - **[[recovery-time-objective|RTO]]**: "How many hours until Kai's team can check in again?" It
+        includes restoring every repository, rolling logs forward, consistency checks and a smoke test.
+
+      The course gives two RTO hints. Rebuilding a big replica vault over a WAN can take hours or days,
+      so restoring it may be faster. And keeping a vault read-only for a whole database backup pushes
+      new content into the redo logs, which lengthens recovery.
+
+  - type: example
+    variant: case-study
+    title: Acme sets its targets
+    industry: Micromobility
+    md: |
+      Rosa, Omar and Kai sit down with the head of engineering. Kai says losing a full day of CAD
+      work before a Scooter S2 release would cost about 30 engineer-days. They agree:
+
+      | Target | Value | What it forces |
+      | --- | --- | --- |
+      | RPO | 1 hour | Oracle in archive log mode with archived logs on separate devices; HQ master vault mirrored to a second storage array |
+      | RTO | 8 hours | Weekly full and daily incremental backups on fast disk, not only tape; a written runbook |
+      | Lakeside | Replica vault backed up weekly | Re-replicating 600 GB over the slow WAN would take longer than the RTO |
+
+      Then Rosa books a restore drill on the test server. The first attempt takes 13 hours - over the
+      RTO - because the vault restore came from tape. They move the latest full vault backup to disk.
+      The second drill takes 6.5 hours.
+    takeaway: A target is a promise; only a timed restore tells you whether you can keep it.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Backing up the database "because that's where the data is".** The course says it plainly for
+      SQL Server, and it's true for Oracle too: backing up the database is not enough to back up Windchill.
+      The procedure must keep **all** primary repositories in step.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Write the RPO and RTO at the top of the backup design document and get the business to sign them.
+      When someone later asks "why do we pay for a second storage array?", the answer is on page one.
+
+  - type: quiz
+    title: Check your understanding
+    passMark: 0.7
+    questions:
+      - kind: multi
+        prompt: Which are primary repositories that must be in Acme's backup? (Choose all that apply.)
+        options: [The Oracle database on wc-db01, The LDAP directory server, Master and cache vaults, Search engine indexes, Windchill codebase and configuration files]
+        answers: [0, 1, 2, 4]
+        explanation: Search indexes are secondary - built from primary data and can be rebuilt. The others hold original data that cannot be recreated.
+      - kind: single
+        prompt: Omar restores the database from 02:00 and Rosa restores the vaults from 23:00 the night before. What is the most likely result?
+        options: [Nothing - Windchill re-syncs on startup, Objects checked in between 23:00 and 02:00 point to files that are missing from the vault, The vault files are renamed automatically, Only search breaks]
+        answer: 1
+        explanation: The database knows about files written after 23:00, but the restored vault doesn't contain them. That's why all primary repositories must come from the same point.
+      - kind: truefalse
+        prompt: RPO is a Windchill property you set in site.xconf.
+        answer: false
+        explanation: RPO and RTO are general business and IT targets. Windchill has no such setting; you meet them with your backup design.
+      - kind: single
+        prompt: Acme's RPO is one hour, but Oracle was configured with Windchill's Oracle Configuration Utility and nobody changed it. What is the gap?
+        options: [None, The flash recovery area is too large, Archive log mode is disabled so the database can only go back to the last backup, The full recovery model is off]
+        answer: 2
+        explanation: The utility configures Oracle with archive mode disabled. Without archived redo logs you can't roll forward past the last backup, so you could lose up to a day.
+      - kind: single
+        prompt: Why is incremental backup of vault files straightforward?
+        options: [Vaults compress files, File names are sequential and files never change after upload, Windchill deletes old files every night, The database stores a copy of every file]
+        answer: 1
+        explanation: New content always arrives as new files with sequential names, so copying just what's new is enough.
+      - kind: single
+        prompt: Rosa mirrors the HQ vault to a second array with a sync tool. How should Windchill access them?
+        options: [Mount only one device and switch mounts if it fails, Mount both devices in parallel for speed, Alternate between them every night, Mount the mirror read-only as a second vault]
+        answer: 0
+        explanation: Mounting both in parallel is untested and not recommended. Keep direct access to one device and switch to the mirror after a failure.
+
+  - type: summary
+    points:
+      - Windchill data lives in several primary repositories - database, directory, vaults (including cache vaults and remote sites), installation and config files, archive. All must be backed up.
+      - Secondary repositories such as search indexes and replica vaults can be rebuilt; back them up when rebuilding would take too long.
+      - A consistent backup captures all primary repositories at the same point; the database's own backup method beats copying live files.
+      - Oracle archive log mode or SQL Server's full recovery model lets you recover past the last backup.
+      - RPO is how much data you may lose and RTO is how long you may be down. They drive the design, and a timed drill proves it.

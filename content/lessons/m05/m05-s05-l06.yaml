@@ -1,0 +1,300 @@
+id: m05-s05-l06
+subtitle: Pick the handful of numbers that tell you Windchill is healthy, know where to read them, and let Performance Advisor show the trends.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, monitoring, kpi, dashboards, performance-advisor, server-status]
+sources:
+  - id: ac
+    where: "Module 19: Monitor system health using key performance indicators (KPIs); Monitor system health using dashboards; Monitor server processes; Activity: Monitor Windchill system performance; Monitor the operating system; Review Windchill Performance Advisor; Monitor system availability; Monitor queues using JMX clients; Monitor file vaults; Check performance using monitoring tools; Monitor network health"
+versionNotes:
+  - versions: ["Windchill+", "PTC Cloud Services"]
+    md: With PTC Cloud Services PTC performs ongoing application management and performance tuning, and Windchill+ is delivered as software as a service, so server-tier KPIs are watched by PTC there. The course manual does not say which of these dashboards Windchill+ customers can open themselves.
+
+blocks:
+  - type: text
+    md: |
+      "Windchill is slow." Rosa hears it twice a week. Slow **where**? Opening a drawing at Lakeside?
+      Searching at HQ? Everything, every morning at 8:30?
+
+      Without numbers, "slow" is a feeling. With a short list of **[[system-health-kpi|KPIs]]**,
+      watched on a couple of dashboards and compared to what normal looks like, it becomes a
+      diagnosis. And with **[[performance-advisor|Performance Advisor]]**, PTC helps with the trends.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the few numbers I watch" → [[system-health-kpi|key performance indicators (KPIs)]]
+      - "Windchill's own health page" → **Server Status** page
+      - "PTC's dashboard of my system's data" → [[performance-advisor|Windchill Performance Advisor]]
+      - "a value has gone red" → a **threshold** has been exceeded
+      - "what this value usually is" → **baseline** (on Server Status: since the last reset or start-up)
+
+  - type: diagram
+    title: KPIs by tier
+    caption: The course groups KPIs by the web, application and database tiers, plus the system and network under all of them. Click each tier.
+    diagram:
+      width: 820
+      height: 430
+      groups:
+        - { label: Tiers, x: 20, y: 20, w: 520, h: 390, tone: neutral }
+        - { label: Where to look, x: 560, y: 20, w: 240, h: 390, tone: accent }
+      nodes:
+        - id: web
+          label: Web tier
+          sublabel: wc-web01
+          x: 40
+          y: 60
+          w: 480
+          tone: info
+          detail: |
+            **Availability** and **response time for user requests**. The web server can be watched
+            with its own modules (for Apache, mod_status and mod_info).
+        - id: app
+          label: Application tier
+          sublabel: wc-app01 · wc-app02
+          x: 40
+          y: 140
+          w: 480
+          tone: primary
+          detail: |
+            Java heap used (%), garbage collection time (aim under 5%), number of Java threads, Windchill
+            search response time, load balancing across [[method-server|method servers]], failed
+            transaction rate, and [[background-queue]] numbers - entries waiting and time per entry.
+        - id: db
+          label: Database and directory
+          sublabel: wc-db01 · LDAP
+          x: 40
+          y: 220
+          w: 480
+          tone: warning
+          shape: cylinder
+          detail: |
+            Database performance through Oracle Enterprise Manager or SQL Server Management Studio, and
+            **LDAP query response time** for the directory server.
+        - id: sys
+          label: System and network
+          sublabel: under every tier
+          x: 40
+          y: 310
+          w: 480
+          tone: neutral
+          detail: |
+            CPU (average about 40-60%, peaks of 80% or less), available disk space, disk I/O, elapsed time,
+            latency and bandwidth (utilisation under 50% on average, peaks under 80%).
+        - id: status
+          label: Server Status
+          sublabel: Site → Utilities
+          x: 580
+          y: 60
+          w: 200
+          tone: accent
+          detail: |
+            Windchill's own page: server manager, method servers, directory and file servers - memory,
+            active users, database calls, servlet requests, garbage collection, CPU. Red means over threshold.
+        - id: dbtools
+          label: OEM or SSMS
+          sublabel: database dashboards
+          x: 580
+          y: 160
+          w: 200
+          tone: accent
+          detail: Oracle Enterprise Manager or Microsoft SQL Server Management Studio for database status.
+        - id: jmx
+          label: JMX clients
+          sublabel: JConsole · VisualVM
+          x: 580
+          y: 250
+          w: 200
+          tone: accent
+          detail: Watch Java processes and Windchill's monitoring objects, including queue and file server thresholds.
+        - id: pa
+          label: Performance Advisor
+          sublabel: PTC-hosted trends
+          x: 580
+          y: 335
+          w: 200
+          tone: success
+          detail: |
+            A ThingWorx-powered dashboard of your system's diagnostic data over time - growth, licences,
+            clients, sizing recommendations. Third-party tools (for example Nagios) and hardware vendor
+            tools can sit beside it.
+      edges:
+        - { from: app, to: status, label: read on }
+        - { from: db, to: dbtools, label: read on }
+        - { from: app, to: jmx, dashed: true }
+        - { from: sys, to: pa, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      KPIs only mean something next to a **baseline** - the values from a normal, healthy week.
+      Companies that write their baseline down fix "slow" in hours; companies that don't spend days
+      arguing whether 70% heap is a problem. You can also add KPIs of your own to match your business
+      and IT requirements.
+
+  - type: walkthrough
+    title: Read Server Status in two minutes
+    who: Site administrator
+    where: [Browse, Site, Utilities, Server Status]
+    steps:
+      - title: Open Server Status
+        where: [Browse, Site, Utilities, Server Status]
+        md: |
+          In the Navigator click **Browse → Site → Utilities** and choose **Server Status** in the System
+          Administration section. It opens in its own window.
+      - title: Scan for red
+        where: [Server Status]
+        md: |
+          Values shown in red have passed their threshold. Either something needs attention or the
+          threshold is set too low for your system - thresholds can be adjusted. In a cluster you see
+          the processes on all machines.
+      - title: Compare Recent with Baseline
+        where: [Server Status, "<a value>"]
+        md: |
+          **Recent** is the latest short interval; **Baseline** covers the time since the last baseline
+          reset or process start. Many values are links that graph history, so you can see when a value
+          started to climb. Single-moment values such as memory in use and uptime have no baseline.
+      - title: Check the file servers
+        where: [Server Status, File Servers]
+        md: |
+          Confirm each file server (HQ and wc-fs-lakeside) reports OK.
+      - title: Dig deeper if needed
+        where: [Server Status, Monitoring Tools]
+        md: |
+          The **Monitoring Tools** link opens more reports, for example Top SQL Sample Intervals and
+          Java Process Information (useful for a method server that recently died). Section 2 covers
+          these pages in detail.
+    result: In two minutes Rosa knows whether a complaint is the system or something around it.
+
+  - type: text
+    md: |
+      ### Is the component even up?
+
+      When a major component seems unavailable, the course suggests checking each one directly:
+
+      | Component | Quick check |
+      | --- | --- |
+      | Windchill | the basic connectivity test page, `/Windchill/wtcore/test.html` |
+      | Web server (Apache) | the server's root page |
+      | Servlet engine | an Info*Engine JSP, `/Windchill/infoengine/jsp/admin/index.jsp` |
+      | Directory server | the LDAP server's control panel or similar tool, if available |
+      | Database | connect with SQL*Plus (Oracle) or the SQL Server native client |
+
+  - type: text
+    md: |
+      ### Windchill Performance Advisor
+
+      [[performance-advisor|Performance Advisor]] is a dashboard powered by [[thingworx|ThingWorx]] that
+      aggregates diagnostic data collected from your Windchill servers. It helps investigate user issues
+      and supports ongoing maintenance and upgrade planning. Its gadgets drill down into detail pages:
+
+      | Gadget | Shows |
+      | --- | --- |
+      | Connected Windchill Servers | Servers linked to your Service Contract Number |
+      | Clients | User sessions over 90 days by browser, operating system and CAD client |
+      | Customization Analysis | How much your system is customised |
+      | License Usage | Each licence type over the last 90 days |
+      | Primary Business Object Growth Rate | Counts of the most used objects, such as CAD documents and parts |
+      | Recommendations / Sizing Recommendations | Open recommendations; CPU and memory sizing from the last 30 days of use |
+      | Peer Reports / Transmitted Data | Database and OS used across opted-in customers; data received successfully or not |
+
+      You can add more gadgets with **Add Gadgets**.
+
+      Three practical facts:
+      - It is configured during installation, or later from **Site → Utilities → Performance Advisor for
+        PTC Windchill**. If it was skipped during installation, the course shows a property,
+        `wt.jmx.core.transport.SimpleHttpTransport.instance.QUALITYAGENTSIMPLEHTTP.targetURL`, that
+        must be set in `wt.properties` to point to PTC's production data centre (change properties
+        the supported way, as section 2 explains).
+      - The collected data is **sent to PTC**. A copy stays on your server under
+        `<Windchill Loadpoint>\utilities\PerformanceAdvisor\Reports`, so you can review what was sent.
+      - Viewing the dashboard needs a PTC **global support account**.
+
+  - type: walkthrough
+    title: Turn on Performance Advisor after installation
+    who: Site administrator, with Lena's approval for sending data to PTC
+    where: [Browse, Site, Utilities, Performance Advisor for PTC Windchill]
+    steps:
+      - title: Agree what leaves the building
+        where: [IT security review]
+        md: |
+          The utility sends system information and usage data to PTC. Lena reviews it - and knows that
+          a copy of everything sent is kept in the Performance Advisor Reports folder on the server.
+      - title: Open the utility
+        where: [Browse, Site, Utilities, Performance Advisor for PTC Windchill]
+        md: Configure Performance Advisor from the site Utilities page.
+      - title: Check the dashboard
+        where: [PTC Performance Advisor dashboard]
+        md: |
+          Sign in with Acme's PTC global support account and confirm Connected Windchill Servers and
+          Transmitted Data show your system.
+    result: Acme's diagnostic data flows to PTC and Rosa can watch growth, licences and sizing trends.
+
+  - type: example
+    variant: case-study
+    title: The 8:30 slowdown
+    industry: Micromobility
+    md: |
+      For three weeks, Kai's team complains that Windchill crawls between 8:15 and 9:00. Rosa compares
+      KPIs against her written baseline:
+
+      - **Server Status:** heap use on wc-app02 hits its threshold every morning; garbage collection time
+        jumps well above the usual few percent. Red values, right on time.
+      - **Background queues:** fine - no build-up.
+      - **CPU:** peaks of 95% on wc-app02, but only 50% on wc-app01. **Load balancing** across method
+        servers is uneven.
+      - **Performance Advisor:** Clients shows a new CAD client version rolled out three weeks ago;
+        Primary Business Object Growth Rate shows CAD documents growing faster than last quarter.
+
+      Rosa's conclusion: more users than the system was sized for are hitting one server at the morning
+      rush. She fixes the balancing, raises the case for more memory (section 2 covers heap tuning), and
+      adds "morning heap and GC" to her daily KPI list. The 8:30 complaints stop.
+    takeaway: KPIs plus a baseline turn "it's slow" into "this server, this resource, this time of day".
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Raising every red threshold until the page turns green.** Thresholds are adjustable, and sometimes
+      they really are too low for your system. But always investigate first - the red value may be the
+      only warning you get. If you're unsure what to do, PTC Technical Support can help.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Pick **five to eight** KPIs you check daily - for example availability, response time, queue
+      entries waiting, heap %, GC time, CPU, free disk on vault drives and WAN latency to Lakeside. A short
+      list you actually read beats a wall of graphs nobody opens.
+
+  - type: quiz
+    title: Check your understanding
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: A value on the Server Status page is shown in red. What does that mean?
+        options: [The process has crashed, The baseline was reset, The value is not collected, The value has exceeded its threshold]
+        answer: 3
+        explanation: Red marks a threshold breach. Investigate whether there's a real issue or the threshold is too low for your system.
+      - kind: single
+        prompt: What does the Baseline column on Server Status show?
+        options: [The value at installation time, PTC's recommended value, Statistics since the last baseline reset or process start-up, The highest value ever recorded]
+        answer: 2
+        explanation: Baseline gives the long-term view since reset or start-up; Recent shows the latest short interval.
+      - kind: multi
+        prompt: Which are true about Windchill Performance Advisor? (Choose all that apply.)
+        options: [It is powered by ThingWorx, Data is sent to PTC with a copy kept on your server, Viewing the dashboard needs a PTC global support account, It replaces the Server Status page]
+        answers: [0, 1, 2]
+        explanation: It's a ThingWorx dashboard of data sent to PTC, with a local copy for review. It complements Server Status rather than replacing it.
+      - kind: single
+        prompt: Which gadget would help Rosa plan CPU and memory for next year?
+        options: [Peer Reports, Sizing Recommendations, Transmitted Data, Connected Windchill Servers]
+        answer: 1
+        explanation: Sizing Recommendations suggests CPU cores and memory based on the last 30 days of use.
+
+  - type: summary
+    points:
+      - KPIs are grouped by web, application and database tiers plus the system and network under them; add your own.
+      - Read them on Server Status, OEM or SSMS, JMX clients, third-party tools - always against a written baseline.
+      - On Server Status, red means a threshold was exceeded; compare Recent with Baseline and graph the history.
+      - Performance Advisor is a ThingWorx dashboard of data sent to PTC, configured during installation or from Site Utilities.
+      - Combining KPIs turns "it's slow" into a specific server, resource and time.

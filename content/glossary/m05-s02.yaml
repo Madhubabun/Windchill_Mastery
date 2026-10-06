@@ -1,0 +1,102 @@
+# New glossary terms introduced in section m05-s02 (Properties, monitoring and performance).
+- id: wt-properties
+  term: wt.properties
+  plain: Windchill's main settings file.
+  definition: The primary Java properties file of a Windchill installation, in the codebase directory. It holds most configuration settings and affects both client and server Java classes. Its values are generated from the xconf files, so PTC recommends changing them with xconfmanager (or a JMX client) rather than editing the file in a text editor. Changes take effect after a restart. properties.html in the codebase describes its properties.
+  related: [site-xconf, xconfmanager]
+
+- id: site-xconf
+  term: site.xconf
+  plain: The logbook of every site-specific property change.
+  definition: An XML file in the Windchill installation directory that records all site changes to property files, from installation onwards. xconfmanager and JMX clients write changes here, and Windchill propagates them from the xconf files into the property files. Other xconf files can be linked into it with ConfigurationRef elements (for example a custom settings file, or the file used by the Windchill Configuration Assistant); when the same property is set more than once, the later setting in the file wins. Every xconf file is validated against xconf.dtd.
+  related: [xconfmanager, wt-properties, windchill-configuration-assistant]
+
+- id: xconfmanager
+  term: xconfmanager
+  plain: The command that changes Windchill properties the supported way.
+  definition: A command-line utility, run from a Windchill Shell, that adds, removes or modifies properties in any Windchill property file. It records changes in site.xconf, backs up the xconf and property files in the .xconf-backup directory, and propagates changes into the property files. Main options are -s (set), -t (target file, required for a new property), -p (propagate), -f (force full propagation), -d (display current value and where it is set) and -h (help).
+  related: [site-xconf, wt-properties, windchill-shell]
+
+- id: jmx
+  term: JMX
+  plain: Java's built-in way to watch and control a running Java application.
+  definition: Java Management Extensions, the Java technology for managing and monitoring applications through managed beans (MBeans). Each MBean has attributes, operations, notifications and descriptive metadata. Windchill publishes its own MBeans (for example for properties, logging, log directories, email lists and monitors) alongside the standard Java ones, and keeps Server Status thresholds as MBean attributes. Any JMX client, such as JConsole or VisualVM, can read them.
+  aka: [Java Management Extensions, MBeans]
+  related: [jconsole, method-server, server-manager]
+
+- id: jconsole
+  term: JConsole
+  plain: A desktop app for looking inside Windchill's Java processes.
+  definition: The JMX client bundled with the Java SDK. Its tabs show overview, memory, threads, classes, VM summary and an MBean tree; Windchill adds a Windchill tab for servlet requests and method contexts. When Windchill runs as a service it is opened from a Windchill Shell with windchill wt.util.jmx.SMJconsole. It can set properties, but is mainly used for monitoring, logging options and alert email settings.
+  related: [jmx, windchill-shell]
+
+- id: windchill-shell
+  term: Windchill Shell
+  plain: A command window with Windchill's environment already set up.
+  definition: A command shell created during installation (with a desktop or Start menu shortcut, or opened with windchill shell) that sets the environment variables Windchill commands and scripts need. PTC recommends running all server-side Windchill applications, tools and utilities, such as xconfmanager and the Windchill Configuration Assistant, from it.
+  related: [windchill-command, xconfmanager]
+
+- id: windchill-command
+  term: windchill command
+  plain: The command that starts, stops and reports on Windchill.
+  definition: A command in the Windchill bin directory that invokes Windchill actions, for example windchill start, windchill stop, windchill status, windchill version, windchill shell and windchill -h for help. It also works as a Java wrapper that runs a Windchill class with the correct environment, for example windchill wt.util.jmx.GetClusterStacks.
+  related: [windchill-shell, server-manager]
+
+- id: windchill-configuration-assistant
+  term: Windchill Configuration Assistant (WCA)
+  plain: A tool that measures the server and recommends Windchill settings.
+  definition: A utility, installed by the PTC Solution Installer, that examines the server's memory and CPU and calculates recommended values such as heap sizes, number of method servers, garbage collection threads, cache sizes and database connection settings, plus some Tomcat settings. It runs as ant targets of WindchillConfigAssistant.xml in the utilities/wca folder, interactively by default, and stores its values in windchillconfigurator.xconf, which a ConfigurationRef links into site.xconf. Restore targets roll back its last propagated changes. It does not change database-side tuning parameters.
+  aka: [WCA]
+  related: [site-xconf, java-heap, garbage-collection]
+
+- id: java-heap
+  term: Java heap
+  plain: The memory a Java process uses to hold its objects.
+  definition: The part of the memory a Java virtual machine gets from the operating system that stores the objects applications create. In Windchill each server manager, method server and background method server has its own heap, set by properties such as wt.method.minHeap and wt.method.maxHeap; the Tomcat servlet engine shares the method server's heap. The total for all JVMs must fit in the machine's memory, and PTC recommends setting heap sizes with the Windchill Configuration Assistant.
+  aka: [Heap]
+  related: [garbage-collection, method-server, windchill-configuration-assistant]
+
+- id: thread-dump
+  term: Thread dump
+  plain: A snapshot of what every thread in a Java process is doing right now.
+  definition: Also called a thread stack trace. It lists each JVM thread with its name, id, state and call stack, showing what it has locked or is waiting for, which helps find deadlocks, memory problems or contention when Windchill hangs or slows under load. It can be captured from Server Status → Monitoring Tools → Cluster-wide Stack Traces, with windchill wt.util.jmx.GetClusterStacks, with a JMX client, or with Java or operating system commands.
+  aka: [Stack trace, Thread stack trace]
+  related: [jconsole, method-server]
+
+- id: garbage-collection
+  term: Garbage collection
+  plain: Java automatically clearing out objects nobody uses any more.
+  definition: The automatic memory management of the Java virtual machine, which finds objects in the heap that are no longer needed and frees their memory. Collections pause the application, longer when there are more live objects, so time in garbage collection is watched on the Server Status page and should stay under about 5%. Because several Windchill JVMs share a server, the number of parallel GC threads per JVM is set to CPU cores divided by JVMs, rounded down, between 1 and 8. Method servers write a separate GC log.
+  aka: [GC]
+  related: [java-heap, method-server-log]
+
+- id: log-level
+  term: Log level
+  plain: How much detail a logger writes.
+  definition: The verbosity of a Log4j logger, from the most to the least detailed ALL, TRACE, DEBUG, INFO, WARN, ERROR and FATAL. Windchill writes only ERROR and FATAL events by default. Levels can be raised for specific loggers on the Log Levels page under Server Status → Monitoring Tools, through the Logging MBean in a JMX client, in the log4j properties files or with the wt.util.jmx.SetLogLevel utility; raising the root logger affects all loggers and usually hurts performance.
+  related: [method-server-log, log-file-viewer]
+
+- id: persisted-log-events
+  term: Persisted Log Events
+  plain: A searchable page of recent warnings and errors stored by Windchill.
+  definition: A Monitoring Tools page that lists log events stored in the database, with time, level, type, JVM, a details link and a synopsis containing the stack trace. By default it shows WARN and above from the last six hours. The URL in a user's error-report email opens it filtered to the failed request's servlet request id; the Details icon leads to Log Event Details and then to the Log File Viewer.
+  related: [log-file-viewer, log-level]
+
+- id: log-file-viewer
+  term: Log File Viewer
+  plain: A web page for searching and reading server log files.
+  definition: A Windchill monitoring tool, reached from Site → Utilities → Server Status → Monitoring Tools, that searches, lists and shows log files from the configured log directories, including web server logs, with keyword highlighting and remote access. Opened from a log event timestamp, it shows the right file at the first occurrence of that event.
+  related: [persisted-log-events, method-server-log]
+
+- id: system-configuration-collector
+  term: System Configuration Collector (SCC)
+  plain: The tool that bundles logs and settings to send to PTC support.
+  definition: A site-level utility (Site → Utilities → System Configuration Collector) for gathering logs, property files, xconf files, reports and other site files by category, using plugins, and optionally sending them to PTC Technical Support tagged with a call number. Collections are saved under utilities/SystemConfigurationCollector/saved in the Windchill installation, where they can be reviewed and scrubbed before sending from the Send Saved System Information tab.
+  aka: [SCC]
+  related: [log-file-viewer, wt-properties]
+
+- id: method-server-log
+  term: Method server log
+  plain: The method server's diary - the most important Windchill log.
+  definition: The Log4j log file of a method server, named MethodServer-<pid>-log4j.log, in the Windchill logs directory. Each method server process has its own file, and servlet and JSP logging is captured there too. A separate MethodServer-<pid>-GC.log records garbage collection; the server manager writes ServerManager-<pid>-log4j.log. Logging is configured in log4jMethodServer.properties.
+  related: [method-server, log-level, garbage-collection]

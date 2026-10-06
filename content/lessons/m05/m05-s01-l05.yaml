@@ -1,0 +1,204 @@
+id: m05-s01-l05
+subtitle: Your basement, someone else's cloud, PTC running it for you, or Windchill as a service - who owns which problem?
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, architecture, deployment, cloud, windchill-plus, topology]
+sources:
+  - id: ac
+    where: "Module 11: Describe on-premises deployment; Describe third-party cloud deployment; Engage PTC Cloud Services; Describe the monolithic (single-tiered) configuration; Describe the multi-tiered configuration; Describe the web server; Describe Windchill+; Package business administration configurations; Deploy Windchill+ with the CCD utility"
+versionNotes:
+  - versions: ["12.1.2.0+"]
+    md: |
+      From Windchill 12.1.2.0 onwards, the [[windchill-plus-ccd|CCD utility]] is the only supported tool for
+      deploying customizations and configurations to Windchill+.
+  - versions: ["Windchill+"]
+    md: |
+      Everything about servers, topology and sizing in this section is PTC's responsibility on Windchill+.
+      Your administrators configure through the organization administrator account on the QA system or
+      through CCD packages.
+
+blocks:
+  - type: text
+    md: |
+      Before Rosa finalized Acme's server plan, the CFO asked a fair question: *"Do we even need our own
+      servers?"* Acme's IT team is small. Lena worries about security. Kai just wants it to work.
+
+      Windchill can live in four kinds of places, and the real difference between them is **who does the
+      work**: who owns the hardware, who patches it, who tunes Windchill at 2 a.m. And wherever it lives,
+      a self-run Windchill still needs a shape - **monolithic** or **multi-tiered**.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "our servers, our data centre, our problem" → **on-premises deployment**
+      - "our Windchill on rented cloud machines" → **third-party cloud deployment** (Infrastructure as a Service)
+      - "PTC hosts and manages our Windchill" → **PTC Cloud Services** (managed services)
+      - "Windchill as a subscription service" → [[windchill-plus|Windchill+]] (SaaS)
+      - "the tool that ships our tested setup to Windchill+" → [[windchill-plus-ccd|CCD utility]]
+
+  - type: comparison
+    title: Four places Windchill can live
+    columns: [On-premises, Third-party cloud, PTC Cloud Services, Windchill+]
+    rows:
+      - label: Where it runs
+        cells: ["Your own servers", "A public cloud platform such as Microsoft Azure or AWS", "A secure environment in commercial cloud services, hosted by PTC", "PTC's SaaS architecture"]
+      - label: Who deploys it
+        cells: ["You, PTC Global Services or a PTC-certified partner", "You, PTC Global Services or a PTC-certified partner", "PTC", "PTC delivers the service; you implement it (readiness check, deployment, configuration)"]
+      - label: Who runs and tunes it
+        cells: ["You: infrastructure, application support and performance", "You or your partner, on rented infrastructure", "PTC: application management, performance tuning and updates", "PTC"]
+      - label: Good fit for
+        cells: ["A strong IT team that wants in-house control", "Less infrastructure overhead; add or remove hardware as needs change; pay for what you use", "Companies that find enterprise apps hard to run or want less IT burden", "Faster PLM deployment and collaboration around product data, with SaaS benefits"]
+      - label: How you change configuration
+        cells: ["Directly, with full admin access", "Directly, with full admin access", "Not detailed in the course manual", "Organization admin on the QA system, or CCD packages"]
+    takeaway: Moving left to right, you hand more of the work - and more of the control - to someone else.
+
+  - type: diagram
+    title: Monolithic vs multi-tiered, side by side
+    caption: The same components, packed onto one machine or spread across three. Click each box.
+    diagram:
+      width: 820
+      height: 420
+      groups:
+        - { label: Monolithic - one server, x: 20, y: 20, w: 300, h: 380, tone: neutral }
+        - { label: DMZ, x: 360, y: 20, w: 140, h: 380, tone: warning }
+        - { label: Internal network, x: 520, y: 20, w: 280, h: 380, tone: primary }
+      nodes:
+        - id: mono
+          label: wc-test01
+          sublabel: web · Windchill · DB · LDAP
+          x: 50
+          y: 150
+          w: 240
+          h: 80
+          tone: neutral
+          detail: |
+            A [[monolithic-configuration]]: every component on one operating system. Simple to install, ideal for
+            development and testing. In production the processes compete for CPU and memory, especially the
+            database and the Windchill stack, so PTC doesn't typically recommend it above about 100 named users.
+        - id: web
+          label: wc-web01
+          sublabel: web server / reverse proxy
+          x: 370
+          y: 150
+          w: 120
+          h: 80
+          tone: accent
+          detail: In a [[multi-tiered-configuration]] many companies put a standalone [[web-server]] or reverse proxy in a DMZ, so users reach a secured server before any application server.
+        - id: app
+          label: wc-app01
+          sublabel: Windchill server
+          x: 540
+          y: 80
+          w: 240
+          tone: primary
+          detail: The application tier, separated from the database. It can be scaled on its own - more method servers, more memory, or later more application servers.
+        - id: db
+          label: wc-db01
+          sublabel: database
+          x: 540
+          y: 260
+          w: 240
+          shape: cylinder
+          tone: info
+          detail: PTC recommends separating the web and application server from the database server for **all** production configurations.
+      edges:
+        - { from: web, to: app }
+        - { from: app, to: db }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      The deployment option is a business decision with a long tail: it decides staffing, budget, security
+      reviews, how fast you can add a site like Lakeside and how upgrades happen. Admins who can explain
+      the trade-offs plainly end up in the room where the decision is made.
+
+  - type: comparison
+    title: Monolithic or multi-tiered?
+    columns: [Monolithic, Multi-tiered]
+    rows:
+      - label: Machines
+        cells: ["One", "Two or more (web, application, database)"]
+      - label: Best for
+        cells: ["Development, testing, small implementations", "Production"]
+      - label: Scaling
+        cells: ["Add RAM and I/O to one box until it stops helping", "Scale each tier vertically or horizontally"]
+      - label: Security
+        cells: ["All components exposed together", "Web tier can sit in a DMZ"]
+      - label: Windows service notes
+        cells: ["Set LDAP, database and web server as dependencies; don't run the visualization worker as a Windows service", "Each server manages its own services"]
+    takeaway: Monolithic for convenience, multi-tiered for production.
+
+  - type: example
+    variant: real-world
+    title: The system that outgrew its box
+    industry: Micromobility
+    md: |
+      A company like Acme started on a single monolithic server. It grew to 120 named users and became
+      slow. Admins tuned Windchill and added RAM and I/O, but the problems stayed. They could afford one
+      or two extra servers, didn't need 24/7 failover, and had to keep all data on-premises.
+
+      The answer, straight from PTC's playbook: switch to a **multi-tiered** configuration - move the
+      database to its own server and put the web server in front.
+    takeaway: When tuning and RAM stop helping a monolithic box, split the tiers before you buy a bigger box.
+
+  - type: text
+    md: |
+      ### Getting your setup into Windchill+
+
+      On Windchill+ you don't touch servers, so how do your types, rules and templates get there? Two ways:
+
+      - Sign in to the **QA system** with the organization administrator account and configure directly.
+      - Build a **Code and Configuration Deployment (CCD)** package on a test system (on-premises or a
+        PTC cloud portal virtual machine). It can contain a **Business Administrative Change (BAC)**
+        package - business administration settings such as object initialization rules and life cycle
+        templates exported as a ZIP - plus customization files, load files and properties.
+
+      CCD also works on-premises: for example, to move a document subtype, its life cycle template, OIR,
+      workflow template, helper class, properties, global attribute and enumeration from development to
+      test in one package.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Assuming "cloud" means "PTC runs it".** On a third-party cloud such as Azure or AWS, Windchill is
+      still deployed by you, PTC Global Services or a certified partner - you've mainly stopped buying
+      hardware. Agree in writing who handles patching, tuning and backups. PTC Cloud Services and
+      Windchill+ are the options where PTC runs the application.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Even on-premises, practise with packages: move business administration changes between test and
+      production with BAC packages, and bundle bigger releases with CCD. If Acme ever moves to
+      Windchill+, the team already knows the only supported route.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Acme wants to stop buying hardware but keep its own admins installing and tuning Windchill. Which option fits?
+        options: [On-premises, Third-party cloud, PTC Cloud Services, Windchill+]
+        answer: 1
+        explanation: On a third-party cloud (Infrastructure as a Service), Acme rents the machines but still deploys and manages Windchill itself or with a partner.
+      - kind: single
+        prompt: Which option has PTC host Windchill and perform ongoing application management, tuning and updates?
+        options: [On-premises, Third-party cloud, PTC Cloud Services, A monolithic installation]
+        answer: 2
+        explanation: PTC Cloud Services is PTC's managed-services option. (Windchill+ is also run by PTC, but as SaaS rather than a hosted installation of your own.)
+      - kind: single
+        prompt: From 12.1.2.0 onwards, what is the only supported way to deploy customizations and configurations to Windchill+?
+        options: [Copying files to the server, The PTC Solution Installer, The CCD utility, Editing properties in a browser]
+        answer: 2
+        explanation: The Code and Configuration Deployment (CCD) utility is the only supported tool from 12.1.2.0 onwards.
+      - kind: truefalse
+        prompt: PTC recommends separating the web and application server from the database server for all production configurations.
+        answer: true
+        explanation: That's the manual's guidance. Monolithic is for development, testing and small systems.
+
+  - type: summary
+    points:
+      - Four options - on-premises, third-party cloud, PTC Cloud Services and Windchill+ - differ mainly in who runs and tunes Windchill.
+      - On a third-party cloud you still run Windchill yourself; PTC Cloud Services and Windchill+ hand that work to PTC.
+      - Monolithic puts everything on one server - good for development and small systems.
+      - Multi-tiered separates web/application from the database (PTC's production recommendation), often with a DMZ web server.
+      - Configurations reach Windchill+ through the QA system or CCD packages, which can include BAC packages.

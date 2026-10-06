@@ -1,0 +1,48 @@
+# New glossary terms introduced in section m05-s01 (Installation and configuration).
+- id: monolithic-configuration
+  term: Monolithic configuration
+  plain: Everything Windchill needs, installed on one machine.
+  definition: A single-tier Windchill installation where the web server, Windchill server, database and directory all run on the same operating system and hardware. It is the simplest to install and is mostly used for development, test and small implementations. In production its processes compete for resources (especially the database and the Windchill software stack), and PTC does not typically recommend it for more than about 100 named users.
+  aka: [Single-tier configuration]
+  related: [multi-tiered-configuration, web-server, database]
+
+- id: multi-tiered-configuration
+  term: Multi-tiered configuration
+  plain: Windchill split across several machines, each doing one job.
+  definition: A Windchill installation where the web, application and database layers run on separate servers so each can be secured and scaled on its own. PTC recommends separating the web and application server from the database server for all production systems; many companies also put a standalone web server or reverse proxy in a DMZ in front of the application servers. A cluster is a larger form of this layout.
+  aka: [Multi-tier configuration]
+  related: [monolithic-configuration, web-server, method-server, database]
+
+- id: ptc-solution-installer
+  term: PTC Solution Installer (PSI)
+  plain: The setup wizard that installs Windchill and the parts it needs.
+  definition: PTC's desktop installation program for Windchill solutions. It is used for fresh installations, updates (optional products, languages, maintenance releases) and upgrades. You choose the products and platform components, and the PSI asks for the details it needs (directories, database, LDAP and admin settings). It installs the web server for you, encrypts an initial set of system passwords, writes log files under the installation directory's installer/logs folder and can recover a failed installation when run again on the same machine.
+  aka: [PSI]
+  related: [web-server, database, ldap]
+
+- id: weighted-active-users
+  term: Weighted active users
+  plain: How many people use Windchill at the same time, counting heavy users as more than one.
+  definition: PTC's basis for hardware sizing. You count the users who are active at the same time and multiply each group by an average weighting factor for its role, then add the results. The 13.x course manual's examples are 1.0 for a user who creates and uploads documents and 3.0 for a user who regularly works with moderately sized CAD data, because CAD work puts far more load on the servers. The total is read against PTC's hardware sizing guidelines or the Windchill Sizing Calculator.
+  aka: [WAU]
+  related: [monolithic-configuration, multi-tiered-configuration]
+
+- id: platform-support-matrix
+  term: Platform support matrix (software matrix)
+  plain: PTC's official list of what Windchill has been tested to run with.
+  definition: A PTC document, opened from the Product Release Calendar on PTC's support site, that lists the operating systems, databases, browsers and other third-party products certified for a specific Windchill release, plus interoperability with other PTC products. It can be exported to a dated PDF. Combinations it does not list may work but are not qualified by PTC testing. PTC's Release Advisor offers related compatibility and upgrade reports.
+  aka: [Software matrix, Release matrix]
+  related: [database, web-server]
+
+- id: windchill-service
+  term: Windchill Windows service
+  plain: Windchill set up to start and stop from Windows' Services panel, even at boot.
+  definition: An optional configuration on Windows Server where the Windchill server (server manager and method servers) is registered as a Windows service, using an Ant build file supplied with Windchill, run from a Windchill Shell. Once installed, the service starts immediately and can be started and stopped from the Windows Services panel. The service runs in a different environment from a console window, cannot reach network shares under the default system account without extra permissions, and should depend on the database, LDAP and web server services so it starts after them.
+  related: [server-manager, method-server, web-server]
+
+- id: windchill-plus-ccd
+  term: Code and Configuration Deployment (CCD) utility
+  plain: The packaging tool that moves your tested Windchill settings and code into Windchill+.
+  definition: A PTC utility for deploying configurations and customizations built on a test system (on-premises or private cloud) to a target system. From Windchill 12.1.2.0 onwards it is the only supported way to deploy customizations and configurations to Windchill+. A CCD package can hold Business Administrative Change (BAC) packages, customization files, load files and properties. It can also deploy to on-premises systems.
+  aka: [CCD utility, CCD]
+  related: [windchill-plus]
