@@ -1,0 +1,96 @@
+id: m05-s04-check
+subtitle: Prove you can keep Acme's background work flowing - queues, visualization publishing and the servers behind them.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, queues, visualization, checkpoint]
+sources:
+  - id: ac
+    where: "Module 16: Identify queue types; Identify out-of-the-box background queues; Manage queues; Describe queue entry states; Configure a background method server; Configure multiple background method servers; Distribute background queues; Develop a queue maintenance routine"
+  - id: ac
+    where: "Appendix A: Describe the WVS architecture; Calculate the number of CAD workers; Administer worker agents; View and manage WVS publication jobs; Administer the WVS Job Scheduler; Manage publishing and thumbnail generation; Configure publisher queues and jobs; Set up the publish job priority; Clean up publisher queue entries; Configure queue pooling; Describe dedicated queues; Configure dedicated queues"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Evaluating Publish Rules"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WVSPublishRules/WVSPublishRulesEvaluate.html"
+    covers: "one publish job per matching publish element; no match means no job; case-sensitive values"
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **background queues**, **visualization services** and **background method
+      servers**. Score 80% to pass. Every answer explains itself, so a miss still teaches you something.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: Workflow tasks at Acme finish in a different order than they started. Rosa wonders if something is broken. What's the explanation?
+        options: [The workflow queues are process queues, "All workflow queues are pool queues, which don't guarantee completion order", The schedule queue is overloaded, A Severe entry reordered them]
+        answer: 1
+        explanation: Pool queues run entries independently as resources free up, so finishing order isn't guaranteed. That's by design.
+      - kind: single
+        prompt: EMailQueue shows Stopped with one Severe entry. What does a Severe entry do?
+        options: [Nothing until the next restart, It stops the queue it was executing in, It deletes the waiting entries, It moves to the default group]
+        answer: 1
+        explanation: Setting the Severe state also stops the queue. Fix the cause, reset or delete the entry, then start the queue.
+      - kind: order
+        prompt: Put Rosa's routine for a queue with failed entries in order.
+        items: [Open Queue Management from the site Utilities page, "View information for the queue", Sort the Queue Entries table by Status, Find and fix the cause of each Failed or Severe entry, Reset or delete each entry and start the queue if it stopped]
+        explanation: Find the queue, open its entries, group them by status, understand the cause, then act. Resetting before fixing the cause just fails again.
+      - kind: truefalse
+        prompt: A queue's Failure Retries value is 0 by default, so a failed entry isn't re-executed automatically.
+        answer: true
+        explanation: With the default of zero the method server won't re-execute a failed entry. Edit the queue's attributes to allow retries.
+      - kind: single
+        prompt: Which WVS component turns the native CAD data into a Creo View viewable, using configured workers?
+        options: [WVS Loader, WVS Worker Agent, WVS Job Scheduler, Queue Management]
+        answer: 1
+        explanation: The Worker Agent manages the configured workers that convert native data. The Publisher creates jobs; the Loader stores results and thumbnails.
+      - kind: single
+        prompt: "Acme publishes about 1,800 drawings a day at about 96 seconds each. Using 1.2 × (V × RT) / 86,400, how many CAD workers?"
+        options: ["1", "2", "3", "4"]
+        answer: 2
+        explanation: "1.2 × (1,800 × 96) / 86,400 = 207,360 / 86,400 = 2.4, so round up to 3. As a rule, give each worker its own numbered PublisherQueue."
+      - kind: multi
+        prompt: A worker won't start after its host was rebuilt. Which checks come straight from the Worker Agent set-up? (Choose all that apply.)
+        options: [Worker Agent server host name and port, Full path to the worker script, Save the configuration and reload the Worker Agent, Increase wt.queue.execEntriesCount]
+        answers: [0, 1, 2]
+        explanation: Adding or fixing a worker needs the Worker Agent host and port, the worker location and the full script path, then a save and a Worker Agent reload. execEntriesCount is a queue throughput setting.
+      - kind: single
+        prompt: A publish rule's if element holds publish on="checkin" and publish on="schedule". A matching drawing is picked up by a scheduled job. How many jobs does that rule create for it?
+        options: ["None", "One", "Two", "Three"]
+        answer: 1
+        explanation: Each publish element whose trigger matches creates one publish job. Only the schedule element matches a scheduled job.
+      - kind: single
+        prompt: Rosa sets wt.queue.queueGroup=group1 for a background method server but also leaves wt.queue.executeQueues=false on it. What happens?
+        options: [It runs group1 queues, It runs all queues, It runs no queues - executeQueues overrides the group, It runs only the default group]
+        answer: 2
+        explanation: wt.queue.executeQueues overrides wt.queue.queueGroup. With false, that server runs no queues.
+      - kind: single
+        prompt: One workflow template with long-running expression robots keeps delaying every other workflow. What's the most targeted fix?
+        options: [Delete WfUserWorkQueue, "Enable dedicated queue mode and set Has Dedicated Queue on that template", Run a single method server, Lower the template's priority in wvs.properties]
+        answer: 1
+        explanation: Dedicated queues tie a template's work to its own queue, so its long line of robots doesn't hold up templates on the shared queues. Never delete out-of-the-box queues.
+
+  - type: flashcards
+    cards:
+      - { front: Seven queue entry states, back: "Ready, Executing, Completed, Failed, Severe, Suspended, Rescheduled." }
+      - front: Process vs schedule vs pool queue
+        back: "Process: arrival order. Schedule: at a set time. Pool: side by side, order not guaranteed (all workflow queues)."
+      - front: Where is Queue Management?
+        back: "Browse → Site → Utilities → System Administration → Queue Management."
+      - front: Default publisher queue set
+        back: "PublisherQueueH, M, L (waiting) and PublisherQueue1 (processing). CLASH and PRINT sets also exist."
+      - front: What sets a publish job's priority?
+        back: Its job type + job source combination, mapped to H, M or L in wvs.properties.
+      - front: Publish and Thumbnail Control options
+        back: "Prohibit publishing, prohibit thumbnail creation only, publish as positioning assembly, publish as extended positioning assembly."
+      - front: Completed entries in PublisherQueue1
+        back: "Not removed out of the box (they keep the job logs). Clean them up regularly, for example with a Job Scheduler cleanup job."
+      - front: Background method server default name
+        back: "BackgroundMethodServer - it runs queues while MethodServer handles user requests."
+      - front: Orphan queue group
+        back: A queue assigned to a group that no background method server runs stops executing.
+      - front: Queue pooling vs dedicated queue
+        back: "Pooling: several shared copies of the workflow queues. Dedicated: a template's own queue."

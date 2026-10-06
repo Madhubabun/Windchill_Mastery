@@ -27,7 +27,7 @@ lessons, 4 section checkpoints and a capstone. Module 3 (Change & Configuration 
 complete: 20 lessons, 5 section checkpoints and a capstone. Module 4 (Business Administration) is
 complete: 38 lessons, 9 section checkpoints and a capstone. Module 5 (System Administration) is
 complete: 31 lessons, 7 section checkpoints and a capstone. All five have cheat sheets; the
-glossary has GLOSSARY_COUNT terms. The other modules are outlined.
+glossary has 287 terms. The other modules are outlined.
 
 ## Not done yet / known limits
 

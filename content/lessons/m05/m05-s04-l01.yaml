@@ -1,0 +1,340 @@
+id: m05-s04-l01
+subtitle: Half of Windchill's work happens after you click OK. Learn to read the to-do lists, and to unstick them.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, queues, background-queues, queue-management, maintenance]
+sources:
+  - id: ac
+    where: "Module 16: What is a queue?; Describe Windchill background queues; Identify queue types; Identify out-of-the-box background queues 1 and 2; Manage queues; Describe queue entry states; Activity: Manage publishing queues in Windchill; Develop a queue maintenance routine; Identify queue performance issues"
+  - id: ac
+    where: "Module 19: Identify daily administrative tasks; Monitor queues using Queue Management; Monitor queues using JMX clients; Use the Queue and Workflow Health Check script"
+  - id: ac
+    where: "Appendix A: Describe workflow queues"
+  - id: trn-config
+    where: "Implementing Dedicated Workflow Queues; Implementing Workflow Queue Pooling (Queue Management view steps only; older release, used where the course manual agrees)"
+versionNotes:
+  - versions: ["Windchill+"]
+    md: |
+      Windchill+ is delivered as software as a service and PTC runs its servers. The course manual
+      describes Queue Management as a site-level utility for the site administrator; how much of it a
+      Windchill+ customer sees isn't covered by the supplied sources. Everything here applies as
+      written to on-premises installations.
+
+blocks:
+  - type: text
+    md: |
+      Monday, 9:12. Three messages land in Rosa's inbox at once:
+
+      - Priya: *"I checked in the E-Bike E1 frame an hour ago. Still no thumbnail."*
+      - Jordan: *"Nobody got the change review email this morning."*
+      - Kai: *"Is Windchill broken?"*
+
+      Windchill isn't broken. Users can log in, search and check in. But a lot of Windchill's work
+      doesn't happen while you watch: emails, publishing, workflow steps and index updates are
+      written onto **to-do lists** and done in the background. When one of those lists stops, the
+      work quietly piles up. Rosa's job is to read those lists, spot the stuck item and get it
+      moving again.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a to-do list Windchill works through behind the scenes" → [[background-queue|background queue]]
+      - "one item on that list" → [[queue-entry|queue entry]]
+      - "a list done strictly in arrival order" → [[process-queue|process queue]]
+      - "a list where each item runs at its booked time" → [[schedule-queue|schedule queue]]
+      - "a list that runs many items side by side" → [[pool-queue|pool queue]]
+      - "the screen where you watch and control every list" → **Queue Management** (site Utilities)
+
+  - type: diagram
+    title: The life of a queue entry
+    caption: Every queue entry is in one of seven states. Click a state to see what it means and what you do about it.
+    diagram:
+      width: 820
+      height: 420
+      groups:
+        - { label: Normal path, x: 20, y: 20, w: 560, h: 110, tone: success }
+        - { label: Needs Rosa, x: 20, y: 160, w: 560, h: 120, tone: danger }
+        - { label: Parked or repeating, x: 600, y: 20, w: 200, h: 380, tone: neutral }
+      nodes:
+        - id: ready
+          label: Ready
+          sublabel: waiting its turn
+          x: 40
+          y: 50
+          w: 150
+          tone: primary
+          detail: |
+            The starting state. **Only Ready entries are picked for execution**, in the order they were
+            added. A Ready count that keeps growing means entries arrive faster than they are processed,
+            or the queue isn't running.
+        - id: executing
+          label: Executing
+          sublabel: being worked on
+          x: 230
+          y: 50
+          w: 150
+          tone: info
+          detail: The entry has been picked and is running. From here it goes to Completed or Failed.
+        - id: completed
+          label: Completed
+          sublabel: done
+          x: 420
+          y: 50
+          w: 140
+          tone: success
+          detail: |
+            The task ran successfully. By default completed entries are removed from the queue. If the
+            `wt.queue.removeCompleted` properties are set to keep them, delete them yourself as part of
+            regular maintenance so the queue tables don't grow without limit.
+        - id: failed
+          label: Failed
+          sublabel: an error occurred
+          x: 230
+          y: 190
+          w: 150
+          tone: warning
+          detail: |
+            An error happened while the entry ran. The queue keeps going with other entries. Review the
+            entry, fix the cause, then **reset it to Ready** or **delete it**. Each queue's *Failure Retries*
+            value (default 0) decides how many automatic retries happen first.
+        - id: severe
+          label: Severe
+          sublabel: stops the whole queue
+          x: 420
+          y: 190
+          w: 140
+          tone: danger
+          detail: |
+            Something unexpected happened while the entry ran. **Setting this state also stops the queue**,
+            so everything behind it waits. Fix the cause, reset or delete the entry, then start the queue
+            again.
+        - id: suspended
+          label: Suspended
+          sublabel: parked by an admin
+          x: 620
+          y: 60
+          w: 160
+          tone: neutral
+          detail: The entry stays in the queue but won't run until someone changes it back to Ready.
+        - id: rescheduled
+          label: Rescheduled
+          sublabel: ran, booked again
+          x: 620
+          y: 200
+          w: 160
+          tone: neutral
+          detail: The entry ran and was automatically rescheduled to run again.
+        - id: admin
+          label: Rosa decides
+          sublabel: reset or delete?
+          x: 40
+          y: 320
+          w: 200
+          h: 60
+          tone: accent
+          detail: |
+            The manual leaves this to the administrator: whether a Failed or Severe entry can be safely
+            reset or deleted depends on the queue and on the site's practices. An email for a meeting that
+            already happened? Delete. A publish job for today's release? Fix and reset.
+      edges:
+        - { from: ready, to: executing }
+        - { from: executing, to: completed }
+        - { from: executing, to: failed }
+        - { from: executing, to: severe }
+        - { from: failed, to: admin, dashed: true }
+        - { from: severe, to: admin, dashed: true }
+        - { from: admin, to: ready, label: reset, dashed: true }
+        - { from: suspended, to: ready, label: set Ready, dashed: true }
+        - { from: executing, to: rescheduled, dashed: true }
+
+  - type: text
+    md: |
+      ### Three kinds of queue
+      | Type | Runs entries... | Typical use |
+      | --- | --- | --- |
+      | [[process-queue|Process]] | One after another, in the order they arrived | Ordered work such as the numbered publishing queues |
+      | [[schedule-queue|Schedule]] | At each entry's scheduled time | Timed housekeeping, for example the `commonScheduleQueue` |
+      | [[pool-queue|Pool]] | Side by side as resources free up; finishing order isn't guaranteed | **All workflow queues** |
+
+      ### The queues Rosa watches most
+      Windchill creates its queues at installation; optional products can add more.
+
+      | Queue | What waits in it | Symptom when it stalls |
+      | --- | --- | --- |
+      | `EMailQueue` | Requests to send email | Emails stop arriving |
+      | `NotificationQueue` | Policy and subscription notifications | No subscription notices |
+      | `PublisherQueueH/M/L` and `PublisherQueue1` | Visualization publish jobs | No new thumbnails or viewables |
+      | `WfPropagationQueue`, `WfUserWorkQueue`, `WfScheduleQueue` | Workflow state changes, robots, deadlines | Workflow tasks never appear |
+      | `IndexingQueue`, Bulk Indexing Queue | Search index updates | New objects missing from search |
+      | `CtmdRecomputeMembershipQueue` | Recomputing group and role membership in contexts | New team members can't see data yet |
+      | `DeliveryQueue` | Content files waiting to go to replica sites | Lakeside downloads still slow |
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      A stopped queue rarely raises an alarm on its own. Users just see "nothing happened": no email,
+      no thumbnail, no task. Left alone, failed and severe entries pile up and the queue tables grow.
+      The course manual lists the symptoms of neglect: the Queue Management page won't open, the method
+      server log shows `OutOfMemoryError` from the queue checker, and CPU sits near 100%. That's why
+      **monitor queues** is on the manual's *daily* checklist.
+
+  - type: example
+    variant: real-world
+    title: Proving a group change really landed
+    industry: Micromobility
+    md: |
+      Jordan adds three new designers to a group that fills the Designer role in Scooter S2, E-Bike E1
+      and two libraries. The membership recalculation runs in the background, in
+      `CtmdRecomputeMembershipQueue`. Before telling the designers "you're in", Jordan asks Rosa to check
+      that the matching entries in that queue reached **Completed**. One quick look saves a round of
+      "I still can't see anything" emails.
+    takeaway: Background work isn't finished until its queue entry says Completed.
+
+  - type: walkthrough
+    title: Read queue status and restart a stuck entry
+    who: Site administrator (Rosa)
+    where: [Browse, Site, Utilities, Queue Management]
+    steps:
+      - title: Open Queue Management
+        where: [Navigator, Browse, Site, Utilities]
+        md: |
+          In the Navigator click **Browse**, then the **Site** tab, then **Utilities**. Under
+          *System Administration* click **Queue Management**. The utility exists only at site level.
+      - title: Scan the queue table
+        where: [Queue Management]
+        md: |
+          Each row is a queue. Read these columns first:
+          - **Status**: is the queue running or stopped?
+          - **Enabled**: a disabled queue doesn't process entries.
+          - **Waiting Entries**: a number that keeps climbing means work is arriving faster than it's done.
+          - **Severe/Failed Entries**: anything above zero needs a look.
+
+          Look for **stopped queues** and **failed entries**, especially in the busy ones: indexing,
+          visualization and workflow.
+      - title: Open the queue's information page
+        where: [Queue Management, "<queue>", View information]
+        md: |
+          Click **View information** in the queue's row (or right-click → *View Information*). The page
+          shows the queue's attributes and its **Queue Entries** table.
+      - title: Group entries by status
+        where: [Queue Entries table, Status column]
+        md: Sort by the **Status** column so all Failed and Severe entries sit together.
+      - title: Find the cause before you touch anything
+        md: |
+          Open each Failed or Severe entry and read its details. For workflow queues the manual says to
+          check the **method server log** for the cause. Fix the cause first (a mail server that was down,
+          a CAD worker that was stopped, a bad expression in a workflow robot).
+      - title: Reset or delete each entry
+        where: [Queue Entries table]
+        md: |
+          For each Failed or Severe entry decide: **reset** it (it returns to Ready and runs again) or
+          **delete** it (the work is no longer wanted). Repeat until none are left in the queue.
+      - title: Start the queue again if it stopped
+        where: [Queue Management, Start]
+        md: |
+          A Severe entry stops its queue. Back in the Queue Management table, select the queue's
+          checkbox and click **Start** on the toolbar. Watch Waiting Entries fall.
+      - title: Optional - allow an automatic retry
+        where: [View information, Actions, Edit]
+        md: |
+          On the queue's information page choose **Actions → Edit** and raise **Failure Retries**
+          (default 0, meaning a failed entry is never re-run automatically). The course activity sets it to 1
+          on a publishing queue. Click **OK**.
+    result: The stuck entry runs again, the queue is running and its Severe/Failed count is back to zero.
+
+  - type: scenario
+    variant: what-if
+    title: The emails that never left
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Jordan's change review emails didn't go out. In Queue Management, `EMailQueue` shows
+          **Stopped**, 1 Severe entry and 240 Waiting entries. What's Rosa's first move?
+        choices:
+          - label: Restart all of Windchill
+            next: f1
+            feedback: A restart doesn't fix whatever made the entry fail, and it kicks every user out.
+          - label: Open the queue's information page and read the Severe entry
+            next: s2
+            good: true
+            feedback: Start with the evidence. The Severe entry is what stopped the queue.
+          - label: Delete all 240 waiting entries so the queue is clean
+            next: f2
+            feedback: Those are real emails people are waiting for.
+      - id: f1
+        md: |
+          After the restart the queue still shows the Severe entry and nothing has been sent. Rosa lost
+          twenty minutes and annoyed 300 users. Back to reading the entry.
+        choices:
+          - { label: Read the Severe entry, next: s2 }
+      - id: f2
+        md: |
+          The queue is "clean", and 240 notifications (review tasks, change notices) are gone for good.
+          Jordan now has to tell reviewers by hand. The Severe entry is still there too.
+        outcome: fail
+      - id: s2
+        md: |
+          The entry's details point to the outgoing mail server being unreachable at 07:58. IT confirms a
+          mail relay restart around then; it's back now. What next?
+        choices:
+          - label: Reset the Severe entry to Ready, then start the queue
+            next: s3
+            good: true
+            feedback: The cause is gone, so the work can run again. Severe stopped the queue, so it needs a Start.
+          - label: Just click Start on the queue
+            next: p1
+            feedback: Close, but decide about the Severe entry too.
+      - id: p1
+        md: |
+          The queue runs and the 240 waiting emails go out, but the Severe entry is still sitting there
+          unsent. It was the review email for Kai. Rosa resets it too.
+        outcome: partial
+      - id: s3
+        md: |
+          All 241 emails leave within minutes. Rosa adds `EMailQueue` to her daily check list and sets a
+          JMX threshold on Waiting/Ready entries so the next pile-up raises a notification on its own.
+        outcome: success
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Deleting first, asking later.** Every queue entry is a piece of real work: an email, a workflow
+      step, a publish job. Delete only when you know the work is unwanted. On the other hand, never
+      *ignoring* failed entries matters just as much: left for months, they bloat the queue tables until
+      Queue Management itself won't open.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      - At go-live, run a **weekly** queue clean-up (review every Failed and Severe entry); relax the
+        schedule once you know your site's patterns, as the manual suggests.
+      - Let the system warn you: JMX comes preconfigured with notifications for failed entries and with
+        per-queue thresholds (`TotalThreshold`, `WaitingReadyThreshold`, `EntryExecutionTimeThresholdSec`)
+        you can tune from a JMX client such as JConsole.
+      - Workflow trouble that queue screens can't explain? Ask Omar (DBA) to run PTC's **Queue and
+        Workflow Health Check** SQL script; it ships under the Windchill `db` folder and the same report
+        is in the *Workflow and Queues* category of the System Configuration Collector.
+
+  - type: flashcards
+    cards:
+      - front: Which queue entries are picked up for execution?
+        back: Only entries in the Ready state - in the order they were added.
+      - front: What does a Severe entry do to its queue?
+        back: It stops the queue. Fix the cause, reset or delete the entry, then Start the queue.
+      - front: Failure Retries default
+        back: "0 - a failed entry is not re-run automatically. Edit it on the queue's information page."
+      - front: Where is Queue Management?
+        back: "Browse → Site → Utilities → System Administration → Queue Management (site level only)."
+      - front: The three queue types
+        back: Process (arrival order), Schedule (at a set time), Pool (side by side; all workflow queues).
+
+  - type: summary
+    points:
+      - Background queues hold work Windchill does later - email, publishing, workflow, indexing and more.
+      - Queues are process, schedule or pool queues; all workflow queues are pool queues.
+      - Queue Management (site Utilities) shows status, waiting entries and Severe/Failed counts.
+      - Only Ready entries run; Failed entries wait for you; a Severe entry stops its whole queue.
+      - Find the cause, then reset or delete each entry, and Start a stopped queue.
+      - Check queues daily and clean failed entries regularly so the queue tables stay small.

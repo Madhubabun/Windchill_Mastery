@@ -40,10 +40,10 @@ blocks:
     md: |
       | Plain words | Official term |
       | --- | --- |
-      | "The to-do lists the server works through in the background" | [[background-queue|Background queues]], managed in the Queue Management utility |
-      | "The machine that turns CAD files into 3D previews" | [[cad-worker|CAD worker]], driven by Windchill Visualization Services (WVS) |
+      | "The to-do lists the server works through in the background" | [[background-queue|Background queues]], managed in the Queue Management utility; each job is a [[queue-entry|queue entry]] |
+      | "The machine that turns CAD files into 3D previews" | [[cad-worker|CAD worker]], driven by [[wvs|Windchill Visualization Services (WVS)]] |
       | "The list of preview jobs and how they went" | WVS Job Monitor |
-      | "Lakeside's local copy of the files" | A [[replica]] vault on the Lakeside file server |
+      | "Lakeside's local copy of the files" | A [[replica-vault|replica vault]] on the Lakeside [[file-server|file server]] |
       | "Copying files to Lakeside on a timetable" | Content replication with a replication schedule |
       | "The server's diary" | Method server and server manager logs |
 
