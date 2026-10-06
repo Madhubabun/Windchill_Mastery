@@ -1,0 +1,353 @@
+id: m02-s04-l04
+subtitle: Measure it, slice it, spot the difference - three superpowers for people who don't run CAD.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [visualization, measure, cross-section, compare, creo-view]
+
+blocks:
+  - type: text
+    md: |
+      Looking at a model is nice. But real questions sound like this:
+
+      - "Will a 32 mm clamp fit around the frame tube?" → you need to **measure**.
+      - "Is there a reinforcement rib inside that joint?" → you need to **look inside**.
+      - "What actually changed between A.4 and B.1?" → you need to **compare**.
+
+      Creo View can answer all three - no CAD tool, no asking a designer to "just quickly check".
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "use a virtual ruler" → *measure* (distance, angle, diameter, radius, length and more)
+      - "slice it open" → *[[cross-section]]* (a section plane)
+      - "spot the difference" → *compare* (geometry compare, for models; overlay compare, for drawings)
+      - "the exact maths shape" vs "the triangle mesh" → *exact geometry* vs *tessellated geometry*
+
+  - type: diagram
+    title: Three questions, three tools
+    caption: Click each tool to see what it answers - and its catch.
+    diagram:
+      width: 800
+      height: 380
+      nodes:
+        - id: model
+          label: Frame SC-2000
+          sublabel: representation B.1
+          x: 300
+          y: 20
+          w: 200
+          h: 60
+          tone: info
+          shape: doc
+          detail: The published representation of the frame assembly. All three tools work on this light copy, never on the CAD file.
+        - id: measure
+          label: Measure
+          sublabel: how big? how far?
+          x: 30
+          y: 170
+          w: 200
+          tone: primary
+          detail: |
+            Pick edges, faces or points to get distances, angles, diameters and more.
+            **Catch:** if the representation holds only *tessellated* geometry (a triangle mesh),
+            values are close but approximate. Publishing with *exact geometry* gives precise results -
+            your admin decides how things are published.
+          real: Buyers often measure envelope sizes for packaging and shipping quotes.
+        - id: section
+          label: Cross-section
+          sublabel: "what's inside?"
+          x: 300
+          y: 170
+          w: 200
+          tone: accent
+          detail: |
+            Cut the model with a plane along X, Y or Z, then drag or rotate it. Hidden ribs, wall
+            thickness and clearances become visible. **Catch:** a section only shows what's at that slice
+            - move the plane through the whole area.
+        - id: compare
+          label: Compare
+          sublabel: what changed?
+          x: 570
+          y: 170
+          w: 200
+          tone: warning
+          detail: |
+            Load two versions and Creo View colour-codes geometry that was added, removed or changed. For
+            drawings, an overlay highlights differences between sheets. **Catch:** it shows *geometry*
+            differences, not attribute or BOM changes.
+        - id: answer1
+          label: "\"The tube is 31.8 mm\""
+          x: 30
+          y: 290
+          w: 200
+          tone: success
+          shape: pill
+          detail: A number you can put in a quote request - if it came from exact geometry.
+        - id: answer2
+          label: "\"There's a gusset\""
+          x: 300
+          y: 290
+          w: 200
+          tone: success
+          shape: pill
+          detail: An internal feature you'd never see from outside.
+        - id: answer3
+          label: "\"The tab moved 5 mm\""
+          x: 570
+          y: 290
+          w: 200
+          tone: success
+          shape: pill
+          detail: The change you need to check against the Change Notice.
+      edges:
+        - { from: model, to: measure }
+        - { from: model, to: section }
+        - { from: model, to: compare }
+        - { from: measure, to: answer1 }
+        - { from: section, to: answer2 }
+        - { from: compare, to: answer3 }
+
+  - type: animation
+    title: Slicing the frame joint
+    diagram:
+      width: 820
+      height: 280
+      nodes:
+        - { id: outside, label: Outside view, sublabel: looks solid, x: 20, y: 110, w: 160, tone: neutral }
+        - { id: plane, label: Section plane, sublabel: along X, x: 220, y: 110, w: 160, tone: accent }
+        - { id: slice1, label: Slice at edge, sublabel: just tube wall, x: 430, y: 30, w: 170, tone: info }
+        - { id: slice2, label: Slice at middle, sublabel: gusset visible!, x: 430, y: 190, w: 170, tone: success }
+        - { id: measurewall, label: Measure wall, sublabel: 2.0 mm, x: 640, y: 110, w: 160, tone: primary, shape: pill }
+      edges:
+        - { from: outside, to: plane, label: add plane }
+        - { from: plane, to: slice1 }
+        - { from: plane, to: slice2, label: drag }
+        - { from: slice2, to: measurewall }
+    chapters:
+      - title: From outside it tells you nothing
+        caption: The steering-column joint of frame SC-2000 looks like a plain tube. Is it reinforced?
+        show: [outside]
+        highlight: [outside]
+      - title: Add a section plane
+        caption: In Creo View you add a **cross-section** along the X axis. The model is cut open with a cap on the cut face.
+        show: [outside, plane]
+        highlight: [plane]
+        flow: [outside>plane]
+      - title: Wrong spot, wrong answer
+        caption: At the edge of the joint you only see tube wall. Stop here and you'd say "no reinforcement".
+        show: [outside, plane, slice1]
+        highlight: [slice1]
+        flow: [plane>slice1]
+      - title: Drag through the part
+        caption: Drag the plane to the middle of the joint - and a triangular **gusset** appears. A section only shows its own slice.
+        show: [outside, plane, slice1, slice2]
+        highlight: [slice2]
+        flow: [plane>slice2]
+      - title: Measure on the section
+        caption: Now measure the gusset thickness right on the cut face. Combine tools to answer real questions.
+        highlight: [measurewall]
+        flow: [slice2>measurewall]
+        seconds: 7
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Every "can you quickly check...?" sent to a designer costs them focus. When buyers, testers and
+      change reviewers can measure, section and compare themselves, designers design - and reviewers stop
+      approving changes they never actually looked at.
+
+  - type: comparison
+    title: Which compare do you need?
+    columns: [Visual compare (Creo View), Attribute compare, Structure compare]
+    rows:
+      - label: Answers
+        cells: ["What does the shape look like now?", "Which data fields changed?", "Which components were added or removed?"]
+      - label: Example
+        cells: ["Mounting tab moved 5 mm", "Material changed to 6061-T6", "New bolt added to the frame BOM"]
+      - label: Where
+        cells: [Creo View compare tool, "Compare action on versions in Windchill", "Part structure compare in Windchill"]
+    takeaway: A full change review often needs all three. Creo View only covers the shape.
+
+  - type: example
+    variant: real-world
+    title: The clamp that almost didn't fit
+    industry: Micromobility
+    md: |
+      Acme's buyer was sourcing a phone-holder clamp for the Scooter S2 handlebar. She opened the bar in
+      Creo View and measured the diameter: **22.1 mm**. The supplier's clamp range was 22.0-22.2 mm.
+
+      Kai noticed she'd measured a representation published without exact geometry. On a version
+      published with exact geometry, the value was **22.2 mm** - still in range, but right on the edge.
+      Acme picked a clamp with a wider range.
+    takeaway: For decisions that hinge on tenths of a millimetre, check you're measuring exact geometry - or confirm with the drawing.
+
+  - type: walkthrough
+    title: Take a measurement
+    who: Users with a Creo View package that includes measuring
+    where: [Information page, Creo View, Measure]
+    steps:
+      - title: Open the version you need
+        where: [Search, "SC-2000", Information page]
+        md: Open the information page of the right version and launch Creo View from the thumbnail or view action.
+      - title: Pick a measure type
+        where: [Creo View, Measure]
+        md: |
+          Open the measure tools (often a *Measure* tab or menu; naming varies by version). Choose
+          **distance**, **angle**, **diameter**, **length** or another type.
+      - title: Pick the geometry
+        where: [Creo View, Measure, "<pick edges or faces>"]
+        md: |
+          Click the edges, faces or points. The value appears in the view. Many setups let you keep
+          the measurement in the view, for example as part of a markup.
+    result: You have a dimension - and you know whether it came from exact or tessellated geometry.
+
+  - type: walkthrough
+    title: Create a cross-section
+    where: [Creo View, Section]
+    steps:
+      - title: Add a section plane
+        where: [Creo View, Section]
+        md: |
+          Open the section tools (often under a *Section* or *Model* tab; naming varies). Create a planar
+          section along X, Y or Z, or relative to a face you pick.
+      - title: Move it through the model
+        where: [Creo View, Section, "<drag plane>"]
+        md: Drag or type an offset to move the plane. Turn the cap on or off to see the cut faces clearly.
+      - title: Keep it
+        where: [Creo View, Annotate]
+        md: Measure on the cut face, or capture the sectioned view in a markup so others can see it.
+    result: You can see and measure inside the model without asking for a CAD screenshot.
+
+  - type: walkthrough
+    title: Compare two versions visually
+    where: [Information page, History, Creo View]
+    steps:
+      - title: Open the newer version
+        where: [Search, "SC-2000", Information page]
+        md: Open the information page of the newer version (for example B.1) and launch Creo View.
+      - title: Locate the older version
+        where: [Information page, History]
+        md: |
+          The version history (often a *History* tab) lists earlier versions. Note the one you want
+          to compare against - for example A.4, the last released one.
+      - title: Run the compare
+        where: [Creo View, Compare]
+        md: |
+          Use Creo View's compare tool and choose the other version (when Creo View is connected to
+          Windchill you can usually pick it from there). Differences are shown in colour; for drawings,
+          an overlay highlights what moved. Tool names and options vary by Creo View version.
+    result: You see exactly which geometry changed between the two versions.
+
+  - type: simulation
+    title: Inspect the frame like a pro
+    intro: |
+      A Change Notice says frame **SC-2000** went from **A.4** to **B.1**. You're the change reviewer.
+      Get a precise tube measurement, find out if the joint is reinforced, and see what changed.
+    headline: "Geometry: {geometry} · tube: {tube} · section: {section} · compare: {compare}"
+    initial: { geometry: Tessellated, tube: "not measured", section: "Off", compare: "Off" }
+    actions:
+      - id: measure
+        label: Measure tube diameter
+        when: { section: "Off", geometry: Tessellated }
+        do: [{ set: { tube: "about 31.7 mm" } }]
+        log: Measured on the triangle mesh - about 31.7 mm. Close, but is it good enough for a clamp order?
+        blockedHint: Turn the section off to pick the outside of the tube cleanly.
+      - id: measure-exact
+        label: Measure tube diameter (exact)
+        when: { section: "Off", geometry: Exact }
+        do: [{ set: { tube: "31.80 mm" } }]
+        log: Measured on exact geometry - 31.80 mm. That's a number you can use.
+        blockedHint: Open the exact-geometry representation and turn the section off first.
+      - id: exact
+        label: Open the rep published with exact geometry
+        when: { geometry: Tessellated }
+        do: [{ set: { geometry: Exact, tube: "not measured" } }]
+        log: Opened a representation that includes exact geometry. Measure again for a precise value.
+        blockedHint: You're already on exact geometry.
+      - id: addsection
+        label: Add section plane at joint edge
+        when: { section: "Off" }
+        do: [{ set: { section: Edge } }]
+        log: "Section at the edge of the joint: just tube wall. Looks unreinforced... or is it?"
+        blockedHint: A section plane already exists.
+      - id: drag
+        label: Drag plane to the middle
+        when: { section: Edge }
+        do: [{ set: { section: Middle } }]
+        log: A triangular gusset appears in the middle of the joint. It IS reinforced.
+        blockedHint: Add a section plane first.
+      - id: removesection
+        label: Remove section
+        when: { section: [Edge, Middle] }
+        do: [{ set: { section: "Off" } }]
+        log: Section removed. The model is whole again.
+        blockedHint: There's no section to remove.
+      - id: compare
+        label: Compare with A.4
+        when: { compare: "Off" }
+        do: [{ set: { compare: Shown } }]
+        log: "Colour-coded differences: the rear mounting tab moved 5 mm. Everything else matches A.4."
+        blockedHint: Compare is already on.
+    goals:
+      - label: Get a precise tube measurement
+        when: { tube: "31.80 mm" }
+        message: Exact geometry gives values you can put in a quote or a tolerance check.
+      - label: Find the hidden reinforcement
+        when: { section: Middle }
+        message: Sections only show their own slice - always drag through the area.
+      - label: Spot what changed from A.4
+        when: { compare: Shown }
+        message: Now check that the moved tab matches what the Change Notice says should change.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Treating a viewer measurement as the spec.** The **drawing** with its dimensions and tolerances
+      is the official definition. Use Creo View measurements to check and explore, and use the released
+      drawing when something gets ordered or inspected.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      When reviewing a change, run a visual compare **before** reading the change description. If the
+      colours show changes the Change Notice doesn't mention, you just caught an unplanned edit.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: You need to know if there's a rib inside the frame joint. Which tool?
+        options: [Measure, Cross-section, Thumbnail, Attribute compare]
+        answer: 1
+        explanation: A cross-section cuts the model open so internal features become visible. Drag the plane through the whole area - one slice can miss the rib.
+      - kind: truefalse
+        prompt: Measurements on a representation without exact geometry can be slightly approximate.
+        answer: true
+        explanation: Without exact geometry, Creo View measures on a triangle mesh (tessellation), so curved surfaces give close but not exact values. Publishing with exact geometry fixes that.
+      - kind: single
+        prompt: A reviewer wants to know which components were added to the frame BOM between A.4 and B.1. What's the right tool?
+        options: [Creo View geometry compare, Part structure compare in Windchill, Cross-section, A markup]
+        answer: 1
+        explanation: Visual compare shows shape differences. Added or removed components and quantity changes are a structure question, answered by comparing part structures in Windchill.
+      - kind: multi
+        prompt: Which of these can you do in Creo View with a suitable licence? (Choose all that apply.)
+        options: [Measure a hole diameter, Section a model along a plane, Compare two versions visually, Change a dimension in the CAD model]
+        answers: [0, 1, 2]
+        explanation: Creo View measures, sections and compares published representations. Changing the design itself still needs the CAD tool and a new iteration.
+
+  - type: flashcards
+    cards:
+      - front: "Cross-section"
+        back: "Cut the model with a plane to see inside. Drag it through the area."
+      - front: "Exact vs tessellated geometry"
+        back: "Exact = true shape, precise measurements. Tessellated = triangle mesh, approximate."
+      - front: "Visual compare shows..."
+        back: "Geometry differences between two versions, colour-coded. Not attribute or BOM changes."
+
+  - type: summary
+    points:
+      - Measure gives distances, angles and diameters - precise only on exact geometry.
+      - A cross-section shows one slice; drag it through the whole area.
+      - Visual compare shows shape changes between versions; use attribute and structure compare for the rest.
+      - The released drawing stays the official spec.

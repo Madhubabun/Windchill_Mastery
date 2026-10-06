@@ -1,0 +1,272 @@
+id: m02-s01-l01
+subtitle: Upload a file, give it a name and a home - and it's instantly version A.1.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [documents, create, primary-content, attributes, folders]
+
+blocks:
+  - type: text
+    md: |
+      Priya just finished the brake test report for the Scooter S2. Right now it's a PDF on her
+      laptop. Nobody else can find it, nobody knows if it's the final one, and if her laptop dies,
+      it's gone.
+
+      Putting it into Windchill fixes all three. She creates a **document**: one object that holds
+      the file *plus* the facts about it - a number, a name, a type, a version and a state. From
+      that moment the team can search for it, link it to the brake part and track every change.
+
+      Creating a document comes down to three choices:
+
+      1. **Where** does it live? (context and folder)
+      2. **What** is it? (type and attributes)
+      3. **Which file** is it about? (primary content)
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a managed file plus its facts" → [[document]] (WTDocument)
+      - "the main file" → [[primary-content|primary content]]
+      - "extra files clipped on" → [[attachment|attachments]]
+      - "the facts: number, name, description..." → *attributes* ([[metadata]])
+      - "what kind of document it is" → *document type* (for example Specification or Test Report)
+      - "its home" → [[context]] + [[folder]]
+      - "save my changes back" → [[check-in|check in]]
+
+  - type: animation
+    title: From laptop file to Windchill document
+    diagram:
+      width: 800
+      height: 320
+      nodes:
+        - { id: pdf, label: brake-test.pdf, sublabel: on Priya's laptop, x: 20, y: 40, w: 170, tone: neutral, shape: doc }
+        - { id: where, label: Context + folder, sublabel: Scooter S2 / Tests, x: 230, y: 40, w: 180, tone: info }
+        - { id: what, label: Type + attributes, sublabel: Test Report, x: 230, y: 140, w: 180, tone: accent }
+        - { id: file, label: Primary content, sublabel: the PDF uploaded, x: 230, y: 240, w: 180, tone: warning }
+        - { id: doc, label: Document A.1, sublabel: TR-0057 · In Work, x: 470, y: 140, w: 170, tone: primary, shape: doc }
+        - { id: team, label: The team, sublabel: can search it, x: 670, y: 140, w: 110, tone: success, shape: pill }
+      edges:
+        - { from: pdf, to: file, label: upload }
+        - { from: where, to: doc }
+        - { from: what, to: doc }
+        - { from: file, to: doc }
+        - { from: doc, to: team }
+    chapters:
+      - title: A file nobody can find
+        caption: The report only exists on Priya's laptop. No number, no version, no backup.
+        show: [pdf]
+        highlight: [pdf]
+      - title: Pick its home
+        caption: She starts in the **Scooter S2** product, folder **Tests**. The context decides who can see the document and which rules apply.
+        show: [pdf, where]
+        highlight: [where]
+      - title: Say what it is
+        caption: She picks the type **Test Report** and fills in attributes - name, description and any fields her company requires. The number is often generated automatically.
+        show: [pdf, where, what]
+        highlight: [what]
+      - title: Attach the main file
+        caption: The PDF is uploaded as **primary content**. It goes to a file vault; the document keeps a pointer to it.
+        show: [pdf, where, what, file]
+        highlight: [file]
+        flow: [pdf>file]
+      - title: Born as A.1
+        caption: Click Finish and the document exists - version **A.1**, usually in state **In Work**. It's already checked in, so the team can find it.
+        highlight: [doc, team]
+        flow: [where>doc, what>doc, file>doc, doc>team]
+        seconds: 8
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      A document in the right place with good attributes is **findable** and **controlled**. In
+      real companies, auditors ask "show me the test report that approved this brake design". If
+      the answer lives in someone's email or Downloads folder, that's a problem. If it's TR-0057,
+      revision A, Released, in the Scooter S2 product - you answer in ten seconds.
+
+  - type: comparison
+    title: Which context and folder?
+    columns: [Put it here when..., Acme example]
+    rows:
+      - label: A product
+        cells: [It belongs to one product line and its team, Brake test report for Scooter S2]
+      - label: A library
+        cells: [It's reused by many products, Acme's standard paint specification]
+      - label: A project
+        cells: [You share it temporarily with outsiders, Drawing pack for the hinge supplier]
+      - label: The right folder
+        cells: ["Your company's folder plan says so (Specs, Tests, Manuals...)", "Scooter S2 / Tests"]
+    takeaway: Ask "who needs to see this?" first. That picks the context. The folder plan picks the folder.
+
+  - type: walkthrough
+    title: Create a document with primary content
+    who: A product team member with create rights in the folder
+    where: [Navigator, Browse, Products, "<your product>", Folders]
+    steps:
+      - title: Go to the right folder first
+        where: [Navigator, Browse, Products, "Scooter S2", Folders, Tests]
+        md: |
+          Open the product, choose **Folders** and click the folder the document belongs in.
+          Starting here means the wizard already knows the location.
+      - title: Start a new document
+        where: [Folder contents, New, New Document]
+        md: |
+          Use the **New Document** action in the folder's toolbar or **Actions** menu (some
+          releases show it under a *New* icon). A wizard opens.
+      - title: Choose the type
+        where: [New Document wizard, Type]
+        md: |
+          Pick the document type, for example *Test Report*. Types are configured by your company,
+          and each type can have its own attributes and rules.
+      - title: Add the primary content
+        where: [New Document wizard, Primary content]
+        md: |
+          Choose where the main file comes from - usually a **local file** you browse to. Other
+          options can include a URL link or no content at all. Many releases fill in the name from
+          the file name; check it.
+      - title: Fill in the attributes
+        where: [New Document wizard, Attributes]
+        md: |
+          Enter the **name**, description and any required fields (marked with an asterisk). The
+          **number** is usually generated automatically. Confirm the **location** shows the right
+          context and folder.
+      - title: Add attachments (optional)
+        where: [New Document wizard, Attachments]
+        md: Add supporting files such as raw test data. Attachments are covered in a later lesson.
+      - title: Finish
+        where: [New Document wizard, Finish]
+        md: |
+          Click **Finish**. If you plan to keep editing right away, some wizards offer a *keep
+          checked out* option.
+    result: The document exists at version A.1 in its first life cycle state (often In Work). It's checked in, so your team can search for it and open its information page.
+
+  - type: callout
+    variant: note
+    md: |
+      Exact step names and order vary by release and by your company's configuration - some types
+      skip steps or add their own. Office users may also create documents straight from Word or
+      Excel if Windchill's desktop integration is installed.
+
+  - type: simulation
+    title: Create the brake test report
+    intro: |
+      You're Priya. Create the brake test report so it lands in **Scooter S2 → Tests**, typed as a
+      **Test Report**, with the PDF as primary content. Try making mistakes too - see what Windchill
+      would let you get away with.
+    headline: "Location: {context} / {folder} · Type: {type} · Content: {content} · Version: {version}"
+    initial: { context: none, folder: none, type: none, named: false, content: none, created: false, version: "-" }
+    actions:
+      - id: s2
+        label: Open Scooter S2
+        when: { created: false }
+        do: [{ set: { context: Scooter S2, folder: none } }]
+        log: You're in the Scooter S2 product. Now pick a folder.
+        blockedHint: The document already exists. Its location is set.
+      - id: e1
+        label: Open E-bike E1
+        when: { created: false }
+        do: [{ set: { context: E-bike E1, folder: none } }]
+        log: You're in E-bike E1. The e-bike team would own this report - is that who should see it?
+        blockedHint: The document already exists.
+      - id: tests
+        label: Open folder Tests
+        when: { context: [Scooter S2, E-bike E1], created: false }
+        do: [{ set: { folder: Tests } }]
+        log: Folder Tests selected. Now start New Document.
+        blockedHint: Open a product first - folders live inside a context.
+      - id: specs
+        label: Open folder Specs
+        when: { context: [Scooter S2, E-bike E1], created: false }
+        do: [{ set: { folder: Specs } }]
+        log: Folder Specs selected. Hmm - is a test report a spec?
+        blockedHint: Open a product first.
+      - id: type-tr
+        label: Type = Test Report
+        when: { folder: [Tests, Specs], created: false }
+        do: [{ set: { type: Test Report } }]
+        log: Type set to Test Report. Its attributes appear in the wizard.
+        blockedHint: Choose a folder and start New Document first.
+      - id: type-spec
+        label: Type = Specification
+        when: { folder: [Tests, Specs], created: false }
+        do: [{ set: { type: Specification } }]
+        log: Type set to Specification. Searches for test reports won't find this one.
+        blockedHint: Choose a folder and start New Document first.
+      - id: attach
+        label: Upload brake-test.pdf as primary content
+        when: { type: [Test Report, Specification], created: false }
+        do: [{ set: { content: brake-test.pdf } }]
+        log: PDF uploaded as primary content. The name field is pre-filled from the file name.
+        blockedHint: Choose the type first - it controls what the wizard asks for.
+      - id: name
+        label: Enter name and required attributes
+        when: { type: [Test Report, Specification], created: false }
+        do: [{ set: { named: true } }]
+        log: "Name: Brake test - S2 front disc. Number left blank - Windchill will generate it."
+        blockedHint: Choose the type first.
+      - id: finish
+        label: Finish
+        when: { named: true, created: false }
+        do: [{ set: { created: true, version: A.1 } }]
+        log: "Created! TR-0057, version {version}, in {context} / {folder}, type {type}. It's checked in and visible to the team."
+        blockedHint: Required attributes are missing - the wizard won't finish without a name.
+    goals:
+      - label: Create a Test Report in Scooter S2 / Tests with the PDF
+        when: { created: true, context: Scooter S2, folder: Tests, type: Test Report, content: brake-test.pdf }
+        message: Right home, right type, right file. This document will turn up in every search the brake team runs.
+      - label: "Spot the trap: create a document with no primary content"
+        when: { created: true, content: none }
+        message: Windchill allows it - some documents are just placeholders - but a test report with no file is useless. Always check the content before you click Finish.
+
+  - type: example
+    variant: real-world
+    title: The report that was in the wrong product
+    industry: Micromobility
+    md: |
+      A new Acme engineer created the S2 brake test report while he happened to be in the
+      **E-bike E1** product. The scooter team searched their product for weeks and assumed the test
+      was never done. A retest was booked - and cancelled only when Kai searched the whole site.
+      The document was then moved to Scooter S2 by someone with the right permissions.
+    takeaway: Check the location field before Finish. It's the cheapest fix you'll ever make.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Uploading a new file instead of a new version.** If the report already exists in Windchill,
+      don't create a second document called "Brake test v2". Check out the existing one and check
+      in the new file (next lesson). Duplicates split history and confuse everyone.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Search before you create. Thirty seconds of searching by name or keyword tells you whether
+      someone already made this document - and whether it should get a new iteration instead.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Priya creates a new test report document and clicks Finish. What's its version?
+        options: [A.0, A.1, "1.0", B.1]
+        answer: 1
+        explanation: A new object starts at the first revision letter and iteration 1 - typically A.1. The revision scheme is configurable, but A.1 is the usual default.
+      - kind: multi
+        prompt: Which choices do you make when creating a document? (Choose all that apply.)
+        options: [Context and folder, Document type, Primary content, The vault folder the file is stored in]
+        answers: [0, 1, 2]
+        explanation: You choose where it lives, what type it is and its main file. Vault storage is handled by Windchill automatically - users never pick vault folders.
+      - kind: single
+        prompt: A spec will be shared temporarily with an external supplier only. Where should it be created?
+        options: [In the Scooter S2 product, In a project shared with the supplier, In the standard library, On a USB stick]
+        answer: 1
+        explanation: Projects are temporary collaboration spaces with their own team. Putting the spec in the product would require adding the supplier to the product team, exposing everything else.
+      - kind: truefalse
+        prompt: A newly created document must be checked in before anyone else can see it.
+        answer: false
+        explanation: Creating a document stores it as A.1 straight away. Unless you chose to keep it checked out, it's already visible to people with access.
+
+  - type: summary
+    points:
+      - A document = primary content + attributes, living in one context and folder.
+      - Start in the right folder, choose the type, upload the file, fill required attributes, Finish.
+      - New documents are born at A.1, usually In Work, and are visible right away.
+      - Search first - update an existing document instead of creating a duplicate.

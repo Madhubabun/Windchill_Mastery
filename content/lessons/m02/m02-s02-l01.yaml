@@ -1,0 +1,312 @@
+id: m02-s02-l01
+subtitle: Two characters tell you how official a design is and how many times it changed. Learn to read them in one glance.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [versioning, revision, iteration, check-in]
+
+blocks:
+  - type: text
+    md: |
+      You open the hinge SC-1042 and the header says **B.2**. What does that actually tell you?
+
+      More than you'd think. A version label has two halves, and each half moves for a different
+      reason:
+
+      - The **letter** is the *edition*. It only moves when someone deliberately starts a new,
+        formal edition - usually after the previous one was approved.
+      - The **number** is the *save count* inside that edition. It goes up every time someone checks
+        in a change.
+
+      So **B.2** reads as: *"second edition, saved twice so far."* By the end of this lesson you'll
+      read any version like that in one glance - and know what made it change.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the whole label, like B.2" → *[[version]]*
+      - "the letter - the edition" → *[[revision]]*
+      - "the number - the save count" → *[[iteration]]*
+      - "saving your changes back to Windchill" → *check in* (after a [[check-out|check out]])
+      - "start the next edition" → *[[revise|Revise]]*
+      - "the identity every version shares - number and name" → *[[master]]*
+
+  - type: animation
+    title: The life of hinge SC-1042, one version at a time
+    diagram:
+      width: 800
+      height: 300
+      groups:
+        - { label: Revision A, x: 10, y: 20, w: 400, h: 150, tone: info }
+        - { label: Revision B, x: 430, y: 20, w: 360, h: 150, tone: accent }
+      nodes:
+        - { id: a1, label: A.1, sublabel: created, x: 30, y: 70, w: 110, tone: neutral }
+        - { id: a2, label: A.2, sublabel: thicker wall, x: 160, y: 70, w: 110, tone: neutral }
+        - { id: a3, label: A.3, sublabel: Released, x: 290, y: 70, w: 110, tone: success }
+        - { id: b1, label: B.1, sublabel: revised, x: 450, y: 70, w: 110, tone: warning }
+        - { id: b2, label: B.2, sublabel: new pin, x: 580, y: 70, w: 110, tone: warning }
+        - { id: master, label: "Master SC-1042", sublabel: Folding hinge, x: 300, y: 220, w: 200, tone: primary, shape: pill }
+      edges:
+        - { from: a1, to: a2, label: check in }
+        - { from: a2, to: a3, label: check in }
+        - { from: a3, to: b1, label: revise }
+        - { from: b1, to: b2, label: check in }
+        - { from: master, to: a1, dashed: true }
+        - { from: master, to: b2, dashed: true }
+    chapters:
+      - title: Priya creates the hinge
+        caption: The first time the hinge is saved into Windchill it gets **A.1** - revision A, iteration 1. Its number and name live on the **master**.
+        show: [a1, master]
+        highlight: [a1]
+        flow: [master>a1]
+      - title: Check out, change, check in
+        caption: Priya checks out A.1, thickens the wall and checks in. Windchill keeps A.1 untouched and adds **A.2** on top. Nothing is overwritten.
+        show: [a1, a2, master]
+        highlight: [a2]
+        flow: [a1>a2]
+      - title: One more save, then approval
+        caption: Another check-in makes **A.3**. Reviewers approve it and it becomes **Released**. Notice the release didn't change the number - approval changes the *state*, not the version.
+        show: [a1, a2, a3, master]
+        highlight: [a3]
+        flow: [a2>a3]
+      - title: Time for a new edition
+        caption: Winter testing shows a weak pin. A.3 is released and locked, so the change starts a new revision with **Revise** - **B.1**. The letter moves and the number restarts at 1.
+        show: [a1, a2, a3, b1, master]
+        highlight: [b1]
+        flow: [a3>b1]
+      - title: Edition B keeps evolving
+        caption: Priya checks in the new pin design - **B.2**. A.3 is still there, still Released, still what the factory builds until B is approved.
+        highlight: [b2, a3]
+        flow: [b1>b2, master>b2]
+        seconds: 8
+
+  - type: diagram
+    title: Anatomy of a version
+    caption: Click each part of the label to see what moves it.
+    diagram:
+      width: 780
+      height: 330
+      nodes:
+        - id: label
+          label: SC-1042 B.2
+          sublabel: what you see
+          x: 280
+          y: 20
+          w: 220
+          h: 60
+          tone: accent
+          detail: |
+            Number **SC-1042**, version **B.2**. Number and name belong to the master. The version
+            tells you exactly which edition and which save you're looking at.
+        - id: rev
+          label: "B = revision"
+          sublabel: the edition
+          x: 40
+          y: 140
+          w: 200
+          tone: info
+          detail: |
+            Moves only when someone uses **Revise**. Usually that happens after the previous revision
+            was Released, often as part of a change. The sequence (A, B, C… or 1, 2, 3, or a
+            "-" prototype revision first) is a **revision scheme** your company configures. Many
+            schemes skip letters like I and O so they can't be confused with 1 and 0.
+          real: Customers, suppliers and drawings quote the revision letter - "build to rev B".
+        - id: iter
+          label: "2 = iteration"
+          sublabel: the save count
+          x: 290
+          y: 140
+          w: 200
+          tone: warning
+          detail: |
+            Goes up by one on every **check in**. Restarts at 1 when a new revision is created.
+            Older iterations are kept, so you can open A.1 and see the very first design.
+          real: Iterations are internal history. People outside engineering rarely talk about them.
+        - id: state
+          label: State
+          sublabel: not part of the label
+          x: 540
+          y: 140
+          w: 200
+          tone: success
+          detail: |
+            In Work, Released and so on belong to **each version** but are not part of the label.
+            A.3 can be Released while B.2 is In Work - at the same time.
+        - id: notmoving
+          label: What does NOT move it
+          sublabel: "view, download, state"
+          x: 260
+          y: 250
+          w: 260
+          tone: neutral
+          detail: |
+            Opening, viewing, downloading, changing the lifecycle state, and **undoing** a check-out
+            create no new iteration. Only a check-in (or an action that edits and saves the object
+            for you) adds one.
+      edges:
+        - { from: label, to: rev }
+        - { from: label, to: iter }
+        - { from: label, to: state, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      The whole supply chain speaks in revisions. A purchase order says "SC-1042 **rev A**". A
+      supplier quality claim says "parts made to **rev B**". If you misread B.2 as "approved", you
+      might send a supplier a design that nobody signed off. If you think A.3 was overwritten when
+      B started, you'll panic for nothing - it's still there.
+
+  - type: example
+    variant: real-world
+    title: "\"Which hinge is in my scooter?\""
+    industry: Micromobility
+    md: |
+      An Acme service centre emails: *"Customer's hinge snapped - which design is it?"* The
+      scooter was built in spring. Kai looks up SC-1042: **A.3** was Released in March, **B.1**
+      was created in October and is still In Work.
+
+      Answer in ten seconds: spring scooters carry **revision A** (A.3). Revision B hasn't reached
+      a single scooter yet. Kai attaches the A.3 drawing to the reply. The iteration history even
+      shows *why* A.2 existed - the thicker wall - so the service team knows that fix is already in.
+    takeaway: The letter tells you what was built. The number tells you how the design got there.
+
+  - type: walkthrough
+    title: Read an object's version history
+    who: Anyone with read access to the object
+    steps:
+      - title: Open the object
+        where: [Search, "<number>", "<object> information page"]
+        md: Search for the number (for example SC-1042) and open its **information page**. The header shows the number, name, version (for example B.2) and state.
+      - title: See every version
+        where: ["<object> information page", History]
+        md: |
+          Open the **History** tab or area. It lists earlier iterations and revisions with who
+          checked them in, when, and the check-in comment. Depending on your release the tab may
+          be called *Iteration History* or *Version History*, or show both.
+      - title: Open an older version
+        where: ["<object> information page", History, "<older version>"]
+        md: Click an older version, such as A.3, to open its own information page. It's read-only - history can't be edited.
+      - title: Search across all versions
+        where: [Advanced Search, Criteria, Version]
+        md: Search normally returns the latest version. In advanced search you can usually choose to include all versions instead, which helps when you need an old revision.
+    result: You can see where a version came from, who saved each step and what the latest version is.
+
+  - type: simulation
+    title: Drive the hinge through its versions
+    intro: |
+      You are Priya. Move the hinge SC-1042 through its life. Watch which actions change the
+      **letter**, which change the **number**, and which change neither. Greyed-out buttons
+      explain why they're blocked.
+    headline: "SC-1042 {revision}.{iteration} · {state} · checked out: {checkedOut}"
+    initial: { revision: A, iteration: 1, state: In Work, checkedOut: false, undone: false }
+    actions:
+      - id: checkout
+        label: Check out
+        when: { checkedOut: false, state: In Work }
+        do: [{ set: { checkedOut: true } }]
+        log: Checked out {revision}.{iteration}. You now have a working copy; nobody else can check it out.
+        blockedHint: You can only check out an In Work version that isn't already checked out. Released versions are locked - revise first.
+      - id: checkin
+        label: Check in your change
+        when: { checkedOut: true }
+        do: [{ inc: iteration }, { set: { checkedOut: false } }]
+        log: Checked in. New iteration {revision}.{iteration}. The previous iteration is kept in history.
+        blockedHint: Check out first - there's nothing to check in.
+      - id: undo
+        label: Undo check out
+        when: { checkedOut: true }
+        do: [{ set: { checkedOut: false, undone: true } }]
+        log: Check-out undone. Your edits are thrown away and the version stays {revision}.{iteration} - no new iteration.
+        blockedHint: Nothing is checked out.
+      - id: release
+        label: Get it approved (Released)
+        when: { checkedOut: false, state: In Work }
+        do: [{ set: { state: Released } }]
+        log: "{revision}.{iteration} is now Released. The state changed - the version label did not."
+        blockedHint: Check in first, and it must be In Work to be approved.
+      - id: revise
+        label: Revise
+        when: { state: Released }
+        do: [{ nextLetter: revision }, { set: { iteration: 1, state: In Work } }]
+        log: Revised. New revision {revision}.1 starts In Work. The released previous revision stays in history, still Released.
+        blockedHint: Revise is usually only allowed from Released. Get this revision approved first.
+    goals:
+      - label: Reach A.3
+        when: { revision: A, iteration: 3 }
+        message: Two check-ins after A.1 give A.3. Every check-in adds exactly one.
+      - label: Undo a check-out
+        when: { undone: true }
+        message: Undo check out discards your edits and creates no iteration.
+      - label: Reach B.2
+        when: { revision: B, iteration: 2 }
+        message: "Release → Revise → check in: the letter moved once, the number restarted at 1 and climbed to 2."
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Reading the number as maturity.** "It's at A.7, so it must be nearly done" - no. A.7 only
+      means seven saves. A.1 could be Released and A.7 still In Work. Always check the
+      **state** before you trust a version.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Write a real **check-in comment** every time ("wall 2.0 → 2.5 mm for drop test"). The
+      iteration history becomes a readable diary, and future-you will know why A.2 exists without
+      opening the model.
+
+  - type: callout
+    variant: note
+    md: |
+      Revision schemes, the starting revision and which states allow Revise are configured per
+      company. Some also let administrators delete or prune old iterations to save space. The
+      **revision.iteration** idea is the same everywhere.
+
+  - type: flashcards
+    cards:
+      - front: "Version"
+        back: "Revision.iteration, for example B.2."
+      - front: "Iteration"
+        back: "The number. +1 on every check-in. Restarts at 1 on a new revision."
+      - front: "Revision"
+        back: "The letter. Moves only on Revise - a new formal edition."
+      - front: "A.3 → revise → ?"
+        back: "B.1. A.3 stays in history, still in its own state."
+      - front: "Does releasing change the version?"
+        back: "No. It changes the state. A.3 In Work becomes A.3 Released."
+      - front: "Undo check out"
+        back: "Throws away your edits. No new iteration."
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: The frame SC-2000 is at **C.4**. What does that tell you?
+        options:
+          - It has been released four times
+          - Third revision, and four check-ins within it so far
+          - Fourth revision, third iteration
+          - It's Released, because it's past revision A
+        answer: 1
+        explanation: The letter is the revision (C = third edition), the number is the iteration inside it. The label says nothing about state - check the state separately.
+      - kind: single
+        prompt: Priya checks out hinge B.2, changes a fillet and checks in. What's the new version?
+        options: [B.3, C.1, B.2 - overwritten, C.2]
+        answer: 0
+        explanation: A check-in adds one iteration in the same revision. B.2 is kept unchanged in history.
+      - kind: truefalse
+        prompt: When A.3 is Released and someone revises it, A.3 is replaced by B.1.
+        answer: false
+        explanation: Revise adds a new revision next to the old one. A.3 stays, still Released, until B is approved and A is perhaps made obsolete later.
+      - kind: multi
+        prompt: Which of these create a new iteration? (Choose all that apply.)
+        options: [Checking in a change, Undoing a check-out, Viewing the model in a viewer, Changing the lifecycle state]
+        answers: [0]
+        explanation: Only saving a change back (check-in) adds an iteration. Undo check-out discards edits, viewing reads only, and a state change updates the existing version without a new iteration.
+
+  - type: summary
+    points:
+      - A version is revision.iteration - the letter is the edition, the number is the save count.
+      - Check-in adds an iteration (A.2 → A.3). Revise starts a new revision at iteration 1 (A.3 → B.1).
+      - Old versions are never overwritten. History is read-only and always there.
+      - The state (In Work, Released) is separate from the label - always check it.

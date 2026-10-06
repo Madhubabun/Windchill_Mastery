@@ -1,0 +1,104 @@
+id: m02-s02-check
+subtitle: Versions, states, filters and snapshots - prove you can read and control an object's history.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [checkpoint, versioning, lifecycle]
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on everything in **Versioning, iteration and lifecycle**: reading versions,
+      revise vs save as vs new view version, lifecycle states, set state vs promotion, config specs
+      and baselines. Score 80% to pass. The flashcards below go straight into your review deck.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: Frame SC-2000 is at **B.3 In Work**. Priya checks out, edits and checks in. Then it's approved. What's the result?
+        options: [B.4 Released, C.1 Released, B.3 Released, C.1 In Work]
+        answer: 0
+        explanation: The check-in adds an iteration (B.3 → B.4). Approval changes the state of B.4 to Released without changing the version label.
+      - kind: order
+        prompt: Put hinge SC-1042's versions in the order they are created.
+        items: [A.1, A.2, A.3, B.1, B.2]
+        explanation: Check-ins climb the iteration within revision A. Revise starts B at iteration 1, then check-ins continue from there.
+      - kind: single
+        prompt: The Released hinge needs a tougher pin. Same size, same holes, fits every scooter already built. Which action?
+        options: [Save As, Revise, New View Version, Set State back to In Work]
+        answer: 1
+        explanation: An interchangeable change is the same item, next edition. Revise keeps one master, so where-used, links and change history stay together.
+      - kind: multi
+        prompt: What happens when you use Save As on hinge SC-1042? (Choose all that apply.)
+        options:
+          - A new object with a new number is created
+          - The copy starts its own version history
+          - Assemblies that use SC-1042 switch to the copy
+          - SC-1042 is deleted
+        answers: [0, 1]
+        explanation: Save As makes a new master with its own history. The original stays exactly as it was, and its parents keep using it - which is why using Save As instead of Revise breaks the chain.
+      - kind: single
+        prompt: A version is **Under Review**. What can a normal team member typically do with it?
+        options: [Check it out and fix typos, "View it, mark it up and complete review tasks", Delete it, Revise it]
+        answer: 1
+        explanation: Under Review usually locks editing so reviewers check a stable design. Viewing, markups and review tasks are what this state is for. Exact rules come from your company's access settings.
+      - kind: truefalse
+        prompt: Set State and a promotion request both leave an approval record showing who reviewed the objects.
+        answer: false
+        explanation: Set State changes the state directly with no review - the history shows who flipped it, nothing more. Only the promotion request routes review and approval and keeps that record.
+      - kind: single
+        prompt: A brand-new battery bracket and its drawing are ready for their first release. What's the everyday way to release them?
+        options: [Ask an admin for Set State, A promotion request with both objects, Save As into a Released folder, Revise to B]
+        answer: 1
+        explanation: A promotion request collects the bracket and drawing, routes them for approval and moves both to Released together - with evidence.
+      - kind: single
+        prompt: Why can the Scooter S2 structure show hinge B.2 to one user and A.3 to another?
+        options:
+          - The uses link points at the hinge master and each user's config spec picks a different version
+          - The hinge was saved as a new number
+          - Windchill shows random versions to save time
+          - B.2 and A.3 are in different products
+        answer: 0
+        explanation: Uses links point to masters. Latest picks the newest (B.2 In Work); a baseline or effectivity filter may pick A.3.
+      - kind: multi
+        prompt: Match the question to the spec. Which pairs are correct? (Choose all that apply.)
+        options:
+          - "\"What may purchasing buy?\" - Latest limited to Released"
+          - "\"What's in scooter serial 1100?\" - Effectivity"
+          - "\"What did we certify?\" - the certification baseline"
+          - "\"What was approved at launch?\" - Latest"
+        answers: [0, 1, 2]
+        explanation: Latest shows today's newest data, including In Work - it can't answer questions about the past. Baselines freeze a moment; effectivity resolves a specific unit or date.
+      - kind: truefalse
+        prompt: Locking a managed baseline stops anyone from revising the objects in it.
+        answer: false
+        explanation: Locking freezes the baseline's member list. The objects keep evolving; the baseline just keeps pointing at the versions it captured.
+
+  - type: flashcards
+    title: Versioning and lifecycle deck
+    cards:
+      - front: "B.2"
+        back: "Revision B, iteration 2: second edition, saved twice."
+      - front: "Check in vs Revise"
+        back: "Check in: A.2 → A.3. Revise: A.3 → B.1."
+      - front: "Does approval change the version?"
+        back: "No. It changes the state of the same version."
+      - front: "Save As"
+        back: "New number, new master, fresh history. For genuinely new items."
+      - front: "New View Version"
+        back: "Same part master, another view - e.g. Manufacturing next to Design."
+      - front: "Interchangeable change"
+        back: "Same item - revise. Not interchangeable - new number."
+      - front: "In Work → Under Review → Released → Obsolete"
+        back: "Draft → being checked → approved → retired."
+      - front: "Set State"
+        back: "Direct state change, no review. Usually admin-only."
+      - front: "Promotion request"
+        back: "Collect objects, review and approve, then move to the target state - with a record."
+      - front: "Config spec"
+        back: "The rule that picks which version of each child a structure shows."
+      - front: "Latest vs Latest Released"
+        back: "Latest includes In Work. Latest Released is the newest approved."
+      - front: "Managed baseline"
+        back: "A named, lockable list of exact versions - a snapshot for audits and milestones."

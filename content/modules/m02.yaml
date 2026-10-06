@@ -2,3 +2,32 @@ id: m02
 theme: blue
 icon: layers
 tagline: "Versions, iterations, lifecycles and BOMs: the daily core of product data."
+cheatsheet:
+  sections:
+    - title: Documents and CAD
+      points:
+        - "Edit cycle: check out → change → check in (new iteration). Undo check-out throws your changes away."
+        - A document has one primary content file plus attachments; representations are viewable copies made by publishing.
+        - Creo connects through its embedded browser; other CAD tools connect through Workgroup Managers.
+        - "Your workspace and local cache are your private desk; commonspace is what everyone sees after check-in."
+    - title: Versions and lifecycle
+      points:
+        - "Version = revision.iteration (B.3). Check in → B.4. Revise → C.1."
+        - Revise keeps history under one master; Save As makes a brand-new object with no history.
+        - "Common states: In Work → Under Review → Released. Released data is revised, not edited."
+        - Promotion requests move objects forward with review; set state is usually restricted to admins.
+        - "Configuration specs decide which version a structure shows: latest, baseline or effectivity."
+        - A baseline freezes an exact set of versions for builds and audits.
+    - title: Product structure (eBOM)
+      points:
+        - One line per child part; quantity and unit live on the uses link.
+        - Find numbers label BOM items on drawings; reference designators name positions such as R1 or C4.
+        - "CAD to part links: owner drives structure; contributing and image links are lighter."
+        - Alternates are interchangeable everywhere; substitutes only in one specific assembly.
+        - Run where-used before changing a shared part, and compare structures to see what changed.
+    - title: Visualization
+      points:
+        - Creo View shows models and drawings without a CAD licence.
+        - Thumbnails and representations come from publishing, run by background workers.
+        - Save markups so review comments stay with the design in Windchill.
+        - Measure, section and compare versions visually before you approve a change.

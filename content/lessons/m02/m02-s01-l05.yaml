@@ -1,0 +1,291 @@
+id: m02-s01-l05
+subtitle: "Three places your CAD file can be: your laptop, your private server shelf, and the shared world."
+version: 1.0.0
+updated: "2026-10-05"
+tags: [workspace, local-cache, commonspace, upload, creo, recovery]
+
+blocks:
+  - type: text
+    md: |
+      When Priya hits **Save** in Creo, where does the file go? Not to the team. Not even to the
+      server. It goes to a hidden folder on her laptop.
+
+      CAD work in Windchill moves through **three places**, each a step more public:
+
+      1. **Local cache** - on your computer. Fast, private, fragile.
+      2. **Server-side workspace** - your private shelf on the server. Safe, still private.
+      3. **Commonspace** - the shared, checked-in data. Everyone sees it.
+
+      Knowing which place your work is in is the difference between "no problem" and "I lost two
+      days of modelling".
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "my CAD desk in Windchill" → [[workspace]]
+      - "the hidden folder on my laptop" → [[local-cache|local cache]]
+      - "my private shelf on the server" → [[server-side-workspace|server-side workspace]]
+      - "copy my local work to that shelf" → *upload*
+      - "the shared world" → [[commonspace]]
+      - "publish to the shared world" → [[check-in|check in]]
+      - "bring something into my workspace" → *add to workspace* (download), and *update* to refresh it
+
+  - type: animation
+    title: Where Priya's hinge edits travel
+    diagram:
+      width: 820
+      height: 340
+      groups:
+        - { label: Priya's laptop, x: 10, y: 10, w: 250, h: 320, tone: neutral }
+        - { label: Server - private, x: 290, y: 10, w: 240, h: 320, tone: warning }
+        - { label: Server - shared, x: 560, y: 10, w: 250, h: 320, tone: success }
+      nodes:
+        - { id: creo, label: Creo session, sublabel: hinge open in memory, x: 40, y: 50, w: 190, tone: primary }
+        - { id: cache, label: Local cache, sublabel: files on disk, x: 40, y: 210, w: 190, h: 70, tone: warning, shape: cylinder }
+        - { id: sws, label: Server workspace, sublabel: uploaded copies, x: 310, y: 210, w: 200, h: 70, tone: warning, shape: cylinder }
+        - { id: common, label: Commonspace, sublabel: SC-1042 A.3 → A.4, x: 580, y: 210, w: 210, h: 70, tone: success, shape: cylinder }
+        - { id: kai, label: Kai, sublabel: sees only commonspace, x: 600, y: 50, w: 170, tone: accent, shape: pill }
+      edges:
+        - { from: common, to: cache, label: add to workspace, dashed: true }
+        - { from: creo, to: cache, label: save }
+        - { from: cache, to: sws, label: upload }
+        - { from: sws, to: common, label: check in }
+        - { from: kai, to: common, dashed: true }
+    chapters:
+      - title: Bring it into the workspace
+        caption: Priya adds hinge **SC-1042 A.3** to her workspace and checks it out. A copy lands in her **local cache**.
+        show: [cache, common, kai]
+        highlight: [cache]
+        flow: [common>cache]
+      - title: Save = local only
+        caption: She models and hits **Save**. Creo writes to the local cache. Fast - but it lives only on her laptop.
+        show: [creo, cache, common, kai]
+        highlight: [creo, cache]
+        flow: [creo>cache]
+      - title: Upload = safe but private
+        caption: She **uploads**. Her edited files are copied to her **server-side workspace**. If her laptop dies now, the work survives. Kai still can't see it.
+        show: [creo, cache, sws, common, kai]
+        highlight: [sws]
+        flow: [cache>sws]
+      - title: Check in = shared
+        caption: She **checks in**. The hinge becomes **A.4** in commonspace, the lock is released and Kai sees the new iteration.
+        highlight: [common, kai]
+        flow: [sws>common, kai>common]
+        seconds: 8
+
+  - type: comparison
+    title: The three places
+    columns: [Local cache, Server-side workspace, Commonspace]
+    rows:
+      - label: Where
+        cells: [Your computer, Windchill server, Windchill server]
+      - label: Who sees it
+        cells: [Only you, Only you, Everyone with access]
+      - label: How work gets there
+        cells: [Save in the CAD tool, Upload (check-in uploads too), Check in]
+      - label: Survives a laptop crash
+        cells: [No, Yes, Yes]
+      - label: Creates an iteration
+        cells: [No, No, Yes]
+    takeaway: Save protects nothing from a dead laptop. Upload protects your work. Check in shares it.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Laptops get stolen, disks die, caches get corrupted. Companies that teach "save, upload often,
+      check in when it's ready" rarely lose work. The ones that don't hear "but I saved it!" every
+      month - from someone whose edits only ever lived in a local cache.
+
+  - type: simulation
+    title: Survive the cache crash
+    intro: |
+      You're editing hinge SC-1042 in Creo. First do a normal cycle. Then, mid-edit, let the laptop
+      crash and **corrupt the local cache** - and recover without losing your work.
+    headline: "Commonspace: SC-1042 A.{iteration} · {lock} · Your edits: {edits} · Cache: {cache}"
+    initial: { iteration: 3, inWs: false, lock: not checked out, edits: none, cache: healthy, recovered: false }
+    actions:
+      - id: add
+        label: Add to workspace
+        when: { inWs: false }
+        do: [{ set: { inWs: true, edits: none yet } }]
+        log: SC-1042 A.{iteration} downloaded into your local cache.
+        blockedHint: It's already in your workspace.
+      - id: checkout
+        label: Check out
+        when: { inWs: true, lock: not checked out, cache: healthy }
+        do: [{ set: { lock: checked out to you } }]
+        log: Checked out A.{iteration}. Nobody else can check it out now.
+        blockedHint: Add it to your workspace first, make sure the cache is healthy, and check it isn't already checked out.
+      - id: save
+        label: Model and Save in Creo
+        when: { lock: checked out to you, cache: healthy }
+        do: [{ set: { edits: in local cache only } }]
+        log: Saved. Your edits are in the local cache - on this laptop only.
+        blockedHint: Check it out first (and the cache must be healthy).
+      - id: upload
+        label: Upload
+        when: { edits: in local cache only }
+        do: [{ set: { edits: uploaded to server workspace } }]
+        log: Uploaded. Your edits are safe on the server - still private to you.
+        blockedHint: Nothing new to upload - save some edits first.
+      - id: crash
+        label: Laptop crash corrupts the cache
+        when: { inWs: true, cache: healthy }
+        do: [{ set: { cache: corrupted } }]
+        log: Creo throws workspace errors on restart. The local cache is corrupted.
+        blockedHint: The cache is already broken - recover it.
+      - id: clear
+        label: Clear the local cache
+        when: { cache: corrupted, edits: [none yet, uploaded to server workspace, restored from server] }
+        do: [{ set: { cache: healthy, recovered: true, edits: restored from server } }]
+        log: Cache cleared. Creo re-downloads your workspace from the server - uploaded edits included. Nothing lost.
+        blockedHint: "Stop! Your edits exist only in the local cache. Clearing now deletes them. Try Upload first - or rename the cache folder so IT can rescue the files."
+      - id: checkin
+        label: Check in
+        when: { lock: checked out to you, cache: healthy, edits: [in local cache only, uploaded to server workspace, restored from server] }
+        do: [{ inc: iteration }, { set: { lock: not checked out, edits: none yet } }]
+        log: Checked in. SC-1042 A.{iteration} is in commonspace for the whole team.
+        blockedHint: You need it checked out, some edits, and a healthy cache.
+    goals:
+      - label: Check in the hinge as A.4
+        when: { iteration: 4 }
+        message: Save → upload → check in. The edit made it all the way to commonspace.
+      - label: Recover from a corrupted cache without losing edits
+        when: { recovered: true }
+        message: Upload first, then clear. Your server-side workspace was the safety net.
+
+  - type: scenario
+    variant: what-if
+    title: "Monday morning: Creo won't open the workspace"
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Priya's laptop froze on Friday. On Monday, Creo shows errors when it connects to her
+          workspace, and files show strange statuses. She has **unfinished edits** on the frame
+          SC-2000 from Friday. A colleague says: "Just delete the cache folder, it fixes everything."
+        choices:
+          - label: Delete the cache folder right now
+            next: f1
+            feedback: That fixes the cache - and deletes any edits that were never uploaded.
+          - label: First check what's only local and try to upload it
+            next: s2
+            good: true
+            feedback: Exactly. Rescue first, clean up second.
+      - id: s2
+        md: |
+          Creo still opens the workspace page. Two files show as modified locally. Priya selects them
+          and **uploads** - it works. Now her edits are on the server. What next?
+        choices:
+          - label: Close Creo and clear the cache from Server Management
+            next: s3
+            good: true
+            feedback: Right - Creo provides a clear-cache action for exactly this.
+          - label: Keep working with the broken cache
+            next: p1
+            feedback: Risky. The errors usually get worse, not better.
+      - id: s3
+        md: |
+          The cache is cleared. Priya restarts Creo, the workspace is re-downloaded from the server
+          and her uploaded edits are back. What should she change in her habits?
+        choices:
+          - label: Upload at least at the end of every day
+            next: win
+            good: true
+            feedback: Uploading daily means a dead laptop costs hours at most, not days.
+          - label: Nothing - this was bad luck
+            next: p2
+            feedback: Bad luck happens again. Habits are the fix.
+      - id: win
+        md: Priya now uploads before every break and checks in finished work. The next time her laptop dies, she loses 20 minutes, not two days.
+        outcome: success
+      - id: f1
+        md: The cache is clean and Creo works - but Friday's frame edits were never uploaded. They're gone. Two days of modelling must be redone.
+        outcome: fail
+      - id: p1
+        md: Creo keeps crashing. Eventually IT clears the cache anyway - luckily after an upload, but half a day was lost.
+        outcome: partial
+      - id: p2
+        md: Three months later, the same thing happens with nothing uploaded. Same lesson, more pain.
+        outcome: partial
+
+  - type: walkthrough
+    title: Recover from a corrupted local cache (Creo)
+    who: Any Creo user - with IT help if your company locks down settings
+    steps:
+      - title: Rescue local-only work
+        where: [Creo, Embedded browser, Workspace page]
+        md: |
+          If the workspace page still opens, look for objects modified locally and **Upload** them
+          (or check in what's finished). Write down anything you can't upload.
+      - title: Clear the cache
+        where: [Creo, File, Manage Session, Server Management, Cache]
+        md: |
+          Open Server Management and use the cache tab's **Clear** action. Creo may ask you to make
+          no server active first. Wording varies by release.
+      - title: If Creo won't start at all
+        where: ["Your computer", "Creo cache folder"]
+        md: |
+          Close Creo and **rename** (don't delete) the cache folder - for Creo it's often a `.wf`
+          folder under your user's application-data folder; IT can confirm the path. Renaming keeps
+          any unsaved files recoverable.
+      - title: Reconnect
+        where: [Creo, Server Management, Servers]
+        md: |
+          Restart Creo. Re-register the server if needed and activate your workspace. Files download
+          again from the server-side workspace and commonspace.
+    result: Creo opens cleanly, your workspace is rebuilt from the server and uploaded work is back.
+
+  - type: callout
+    variant: note
+    md: |
+      Workgroup Manager clients have the same idea: a local cache, a server-side workspace and a
+      server-management or cache-clearing option in the client. The exact menu differs by client.
+
+  - type: example
+    variant: real-world
+    title: The workspace with 3,000 objects
+    industry: Micromobility
+    md: |
+      Kai's workspace slowly filled with **3,000 objects** from two years of projects. Creo got
+      slower every week, and a corrupted cache took an hour to rebuild. He now keeps **one workspace
+      per task** (for example "S2 hinge rework"), checks everything in when the task ends, and
+      deletes the empty workspace. Creo is fast again.
+    takeaway: Workspaces are desks, not archives. Clear them when the job's done.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **"I saved it" is not "it's safe".** Save writes only to the local cache. Until you upload or
+      check in, a dead laptop or a cleared cache takes your work with it.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Before clearing a cache, ask: *does anything exist only here?* If yes, upload or rename the
+      folder first. If no, clear away - everything else comes back from the server.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Priya saved her edits in Creo but didn't upload or check in. Where are they?
+        options: [In commonspace, In her server-side workspace, In her local cache only, In the vault]
+        answer: 2
+        explanation: Save writes to the local cache. Upload copies to the server-side workspace; check-in puts a new iteration in commonspace.
+      - kind: order
+        prompt: Put the safe recovery from a corrupted cache in order.
+        items: [Upload any local-only edits, Clear (or rename) the local cache, Restart and reconnect the workspace, Continue working]
+        explanation: Rescue local-only work first, then clear, then let the workspace rebuild from the server.
+      - kind: truefalse
+        prompt: Uploading creates a new iteration that teammates can see.
+        answer: false
+        explanation: Upload only copies your files to your private server-side workspace. Only check-in creates a new iteration in commonspace.
+
+  - type: summary
+    points:
+      - Local cache (your computer) → server-side workspace (private) → commonspace (shared).
+      - Save writes locally, upload makes work safe, check in shares it as a new iteration.
+      - A corrupted cache is fixable - upload or rescue local-only work first, then clear.
+      - Keep workspaces small and task-focused.

@@ -1,0 +1,250 @@
+id: m02-s03-l07
+subtitle: Reusing a part saves money - until you change it. Where-used tells you who you're about to surprise.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [bom, where-used, reuse, impact, change]
+
+blocks:
+  - type: text
+    md: |
+      Reusing parts is one of the smartest things an engineering team can do. One hinge used in
+      three products means one design to test, one supplier contract, bigger orders, better prices.
+
+      But reuse has a price tag that shows up later: **when you change a shared part, you change it
+      for everyone.** Before touching a part, you need the answer to one question: *who uses this?*
+      The structure view looks **down** a BOM. [[where-used|Where-used]] looks **up**.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "who uses this part?" → *[[where-used|where-used]]*
+      - "just the direct parents" → *single-level where-used*
+      - "all the way up to the products we sell" → *multi-level where-used* (up to the *end items*)
+      - "what a change will touch" → *impact* (the parents become candidate [[affected-object|affected objects]])
+      - "still fits, still works, same job" → *interchangeable* (often called *form, fit and function*)
+
+  - type: animation
+    title: Looking up the tree from one hinge
+    diagram:
+      width: 820
+      height: 400
+      groups:
+        - { label: End items, x: 10, y: 10, w: 800, h: 100, tone: primary }
+        - { label: Direct parents, x: 10, y: 140, w: 800, h: 100, tone: info }
+      nodes:
+        - { id: s2, label: Scooter S2, sublabel: Released · selling, x: 40, y: 35, w: 200, tone: primary }
+        - { id: e1, label: E-bike E1 Fold, sublabel: Released · selling, x: 310, y: 35, w: 200, tone: primary }
+        - { id: s3, label: Scooter S3, sublabel: prototype · In Work, x: 580, y: 35, w: 200, tone: neutral }
+        - { id: frame, label: Frame SC-2000, x: 40, y: 165, w: 200, tone: info }
+        - { id: fold, label: Fold kit EB-2600, x: 310, y: 165, w: 200, tone: info }
+        - { id: s3frame, label: Frame SC-2900, x: 580, y: 165, w: 200, tone: info }
+        - { id: hinge, label: Folding hinge, sublabel: SC-1042, x: 310, y: 310, w: 200, tone: warning }
+      edges:
+        - { from: hinge, to: frame, label: used in }
+        - { from: hinge, to: fold, label: used in }
+        - { from: hinge, to: s3frame, label: used in }
+        - { from: frame, to: s2 }
+        - { from: fold, to: e1 }
+        - { from: s3frame, to: s3 }
+    chapters:
+      - title: Start from the part
+        caption: Priya wants to widen the hole spacing on hinge **SC-1042**. Before she does, she runs a where-used.
+        show: [hinge]
+        highlight: [hinge]
+        seconds: 5
+      - title: One level up
+        caption: A **single-level** where-used lists the direct parents - three different assemblies, not just the scooter frame she knows.
+        show: [hinge, frame, fold, s3frame]
+        highlight: [frame, fold, s3frame]
+        flow: [hinge>frame, hinge>fold, hinge>s3frame]
+        seconds: 7
+      - title: All the way to the end items
+        caption: A **multi-level** where-used climbs to the products. Two are released and selling; one is a prototype. Three product teams, three opinions.
+        highlight: [s2, e1, s3]
+        flow: [frame>s2, fold>e1, s3frame>s3]
+        seconds: 7
+      - title: The real question
+        caption: "Will the changed hinge still fit **every** parent? If not, changing SC-1042 in place would break the E-bike fold kit. That's a job for a new part number."
+        highlight: [fold, e1]
+        seconds: 8
+
+  - type: comparison
+    title: Revise the shared part, or give the change a new number?
+    columns: [Revise the same part, New part number]
+    rows:
+      - { label: When, cells: ["The change is interchangeable - fits and works everywhere", Some parent can't take the change] }
+      - { label: Who is affected, cells: [Every parent that uses the part, Only the parents you replace it in] }
+      - { label: Parents change?, cells: ["No - their uses links point to the master, so they pick up the new revision", "Yes - each chosen parent replaces the line and iterates"] }
+      - { label: Example, cells: [Better coating on the M6 screw, Wider hole spacing on the hinge] }
+    takeaway: Interchangeable → revise. Not interchangeable → new number. Many companies write this rule into their change process.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Uses links point to a child's **master**, so a new revision of a shared part shows up in every
+      parent that views *Latest* - across products, teams and sometimes sites. Released baselines
+      keep the old revision, which protects history, but the *next* build of every product is
+      affected. A five-minute where-used beats a recall.
+
+  - type: walkthrough
+    title: Run a where-used query
+    who: Anyone with read access to the part
+    where: ["<part> information page", Where Used]
+    steps:
+      - title: Open the part
+        where: [Search, "SC-1042", Information page]
+        md: Search for the part number and open its information page.
+      - title: Open where-used
+        where: ["SC-1042 information page", Where Used tab]
+        md: |
+          Choose the **Where Used** tab (in some releases it sits under a Structure or Related
+          Objects area). You'll see the parts whose structures use this part.
+      - title: Choose levels and versions
+        where: [Where Used, levels / filter]
+        md: |
+          Expand parents to climb level by level, or use the expand-all or multi-level option to
+          reach the end items. A filter decides whether you see only the latest versions of the
+          parents or every version that ever used the part. Labels vary by release.
+      - title: Add useful columns
+        where: [Where Used, Columns / view settings]
+        md: Show **State**, **Context** (which product) and **Version**. Released parents in other products are the ones to worry about most.
+      - title: Get a report or export
+        where: ["SC-1042 information page", Actions, Reports]
+        md: |
+          For a shareable list, run a where-used report from the part's reports (often a multi-level
+          where-used report), or export the table. Attach it to your change request.
+    result: You know every assembly and product that uses SC-1042, with their states - your impact list.
+
+  - type: callout
+    variant: note
+    md: CAD documents have their own where-used, showing which CAD assemblies and drawings reference a model. Check both when a change touches geometry.
+
+  - type: simulation
+    title: Impact check before the change
+    intro: |
+      Priya wants a wider hole spacing on hinge **SC-1042**. You're helping her plan it. Find every
+      use, talk to every owner, then pick a plan that doesn't break anyone.
+    headline: "Where-used {view} · E1 team {e1} · S3 team {s3} · plan {plan}"
+    initial:
+      view: not run
+      e1: not told
+      s3: not told
+      plan: none
+    actions:
+      - id: wu1
+        label: Run where-used on SC-1042 (one level)
+        when: { view: not run }
+        do: [{ set: { view: 1 level } }]
+        log: "Three parents: Frame SC-2000, Fold kit EB-2600, Frame SC-2900. More than Priya expected!"
+        blockedHint: You've already run it - expand further instead.
+      - id: wu-all
+        label: Expand to all levels
+        when: { view: 1 level }
+        do: [{ set: { view: all levels } }]
+        log: "End items: Scooter S2 (Released), E-bike E1 Fold (Released), Scooter S3 (prototype, In Work)."
+        blockedHint: Run the single-level where-used first, or you're already at the top.
+      - id: tell-e1
+        label: Ask the E-bike E1 team
+        when: { view: all levels, e1: not told }
+        do: [{ set: { e1: keep SC-1042 } }]
+        log: "E1 team: the fold kit's bracket has fixed holes - the wider spacing won't fit. Keep SC-1042 for us."
+        blockedHint: Find the end items first so you know which teams to ask (or you already asked).
+      - id: tell-s3
+        label: Ask the Scooter S3 team
+        when: { view: all levels, s3: not told }
+        do: [{ set: { s3: wants new hinge } }]
+        log: "S3 team: yes please - our new frame is designed around the wider hinge."
+        blockedHint: Find the end items first so you know which teams to ask (or you already asked).
+      - id: revise
+        label: Plan - revise SC-1042 for everyone
+        when: { plan: none }
+        do: [{ set: { plan: revise SC-1042 } }]
+        log: "Careful! A revision appears in every parent - including the E1 fold kit, where the wider holes don't fit. Not interchangeable means not a revise."
+        blockedHint: You already have a plan - rethink it first.
+      - id: newpart
+        label: Plan - new part SC-1046 in S2 and S3 only
+        when: { plan: none, view: all levels, e1: keep SC-1042, s3: wants new hinge }
+        do: [{ set: { plan: new SC-1046 for S2 + S3 } }]
+        log: Save As SC-1042 → SC-1046, widen the holes, then replace the hinge line in SC-2000 and SC-2900. E1 keeps SC-1042 untouched.
+        blockedHint: Know every use and hear from every team before you commit to a plan. (Or you already have a plan.)
+      - id: rethink
+        label: Rethink the plan
+        when: { plan: [revise SC-1042, new SC-1046 for S2 + S3] }
+        do: [{ set: { plan: none } }]
+        log: Plan cleared. What does the impact list tell you?
+        blockedHint: There's no plan to rethink yet.
+    goals:
+      - label: Know the full impact
+        when: { view: all levels, e1: keep SC-1042, s3: wants new hinge }
+        message: Every use found, every owner heard. That's an impact assessment.
+      - label: Pick a plan that breaks nobody
+        when: { plan: new SC-1046 for S2 + S3 }
+        message: Not interchangeable → new number, replaced only where it fits. The E1 fold kit never notices.
+
+  - type: example
+    variant: case-study
+    title: 37 assemblies and one screw
+    industry: Micromobility
+    md: |
+      Acme switched the coating on the library screw **FS-0620** to resist road salt. The new screw
+      fits and works exactly like the old one - fully interchangeable - so the team **revised** it
+      (A → B) instead of creating a new number.
+
+      The where-used still mattered. A multi-level query found FS-0620 in **37 assemblies across
+      four products**. The change notice listed the impact, purchasing used up the old stock first,
+      and every product's next build picked up revision B automatically - without a single parent
+      assembly being touched. Had they created a new number, 37 parents would have needed editing.
+    takeaway: Where-used tells you the size of a change. Interchangeability tells you how to make it.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Running only a single-level where-used.** The direct parent might be an Acme sub-assembly you
+      know well - while three levels up sits a released product from another team. Always climb to the
+      end items before judging impact.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Before creating a part, **search for an existing one** - and before changing a part, **run a
+      where-used**. Reuse is cheapest when you find the part first, and safest when you check its
+      users last.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Which question does a where-used answer?
+        options: [What is this assembly made of?, Which assemblies use this part?, Who last edited this part?, Which CAD model owns this part?]
+        answer: 1
+        explanation: The structure view looks down (children). Where-used looks up (parents and, multi-level, the end items).
+      - kind: single
+        prompt: A change to shared part FS-0620 is fully interchangeable. What's usually the best way to make it?
+        options:
+          - Create a new part number and replace it in every parent
+          - Revise FS-0620 so every parent picks up the new revision
+          - Edit the released version in place
+          - Copy each parent assembly
+        answer: 1
+        explanation: Parents point at the part's master, so an interchangeable revision reaches every parent without editing any of them.
+      - kind: truefalse
+        prompt: If a change doesn't fit one of the parents, revising the shared part is still fine - that parent can just ignore the new revision.
+        answer: false
+        explanation: Uses links point to the master, so a parent viewing Latest gets the new revision automatically. If it doesn't fit, use a new part number and replace it only where it fits.
+      - kind: multi
+        prompt: What belongs in an impact assessment for changing a shared part? (Choose all that apply.)
+        options:
+          - A multi-level where-used up to the end items
+          - The state of each parent (In Work, Released)
+          - A conversation with each affected product team
+          - Only the assembly you're working on
+        answers: [0, 1, 2]
+        explanation: You need every use, how "live" each use is, and agreement from the owners. Your own assembly is just one of the users.
+
+  - type: summary
+    points:
+      - Where-used looks up the tree; run it multi-level to reach every end item.
+      - Changing a shared part changes it for every parent viewing Latest.
+      - Interchangeable change → revise. Not interchangeable → new part number, replaced where it fits.
+      - Attach the where-used to your change so reviewers see the full impact.

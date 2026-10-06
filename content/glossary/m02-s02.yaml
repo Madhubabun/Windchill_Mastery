@@ -1,0 +1,46 @@
+# New glossary terms introduced in section m02-s02 (Versioning, iteration and lifecycle).
+- id: save-as
+  term: Save As
+  plain: Make a copy that becomes a brand-new object with its own number and its own history.
+  definition: The action that copies an existing object (part, document or CAD document) into a new object with a new number and master. The copy starts its own version history; it is not a new version of the original, and the original's where-used, links and change history stay with the original.
+  aka: [Save a copy]
+  related: [revise, master, new-view-version]
+
+- id: new-view-version
+  term: New View Version
+  plain: The same part, seen through another team's lens - for example the manufacturing version of a design part.
+  definition: The action that creates a version of a part in a different view (for example Manufacturing alongside Design) on the same part master. Each view version then evolves with its own revisions and iterations. The views available and how the new version is labelled are set by each company's configuration.
+  related: [part-view, revise, save-as, mbom]
+
+- id: set-state
+  term: Set State
+  plain: Flip an object straight to another lifecycle state, with no review.
+  definition: The action that directly changes the lifecycle state of one or more object versions without a promotion request, workflow or approval. It does not create a new iteration. Most companies restrict it to administrators or librarians through access rules.
+  related: [lifecycle-state, promotion-request, life-cycle]
+
+- id: configuration-specification
+  term: Configuration specification (config spec)
+  plain: The rule that decides which version of each part you see when you open a structure.
+  definition: A filter applied to a product structure that picks one version of each child for display, because uses links point to the child's master rather than a specific version. Common types are Latest (optionally limited to a lifecycle state such as Released), Baseline and Effectivity; CAD structures can also be shown As Stored.
+  aka: [Config spec, Structure filter]
+  related: [uses-link, master, baseline, effectivity, latest-released]
+
+- id: baseline
+  term: Baseline (managed baseline)
+  plain: A frozen snapshot listing exactly which version of each object belonged together at one moment.
+  definition: A Windchill object that records a set of specific object versions - one per master - so that a configuration can be found and reproduced later, for example "what we sent to certification". A managed baseline has its own number, name, context and lifecycle, and can be locked so its members cannot be changed. Baselines can be used as a configuration specification.
+  aka: [Managed baseline]
+  related: [configuration-specification, version, lifecycle-state]
+
+- id: effectivity
+  term: Effectivity
+  plain: '"This version applies from this date, lot or serial number on."'
+  definition: Information on a part version (and, depending on configuration, on usage) that says when it is valid in the context of an end item - by date, by lot or by serial number. An effectivity configuration specification uses it to show the structure as built for a given date or unit. Whether and how effectivity is used is a company decision.
+  aka: [Date effectivity, Serial effectivity, Lot effectivity]
+  related: [configuration-specification, baseline, change-notice]
+
+- id: latest-released
+  term: Latest released
+  plain: The newest version that has passed approval - what the factory and suppliers should use.
+  definition: The most recent version of an object that is in the Released state (or the state your company uses for approved data). It is selected with a Latest configuration specification limited to that lifecycle state, and is often different from the latest version, which may still be work in progress.
+  related: [lifecycle-state, configuration-specification, version]
