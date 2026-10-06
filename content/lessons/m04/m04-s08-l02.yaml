@@ -1,0 +1,272 @@
+id: m04-s08-l02
+subtitle: A report nobody opens is just a query. Get it to the right people, and pick numbers that change decisions.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [reporting, dashboards, metrics, business-admin]
+sources:
+  - id: ac
+    where: "Manage reports; Author reports; Generate throughput and security audit reports; Optional servers (Windchill Business Reporting)"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Reports and Queries"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/sublandingpages/ReportOview_sublanding.html"
+    covers: "Reports vs report templates; Report Templates table is for administrators; saved reports and data monitors"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Reports Table"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/reportmgmt/ReportMgmtReportsTableRef.html"
+    covers: "Where the Reports table appears, Ready For Use flag, cascade from site and organization"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Properties (Query Builder)"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/querybuilder/QBProperties.html"
+    covers: "Expose As Report, Bypass Access Control"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Report Builder"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/reportbuilder/ReportBuilderAbout.html"
+    covers: "How Report Builder is launched, Results Table, Export List to File, charts"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "About Saved Reports"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/reportmgmt/ReportMgmtSavedReportAbout.html"
+    covers: "Saving criteria, Saved Reports drop-down, charts saved with a report, ownership"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "About Data Monitors"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/reportmgmt/ReportMgmtDataMonitorAbout.html"
+    covers: "Scheduled saved reports with threshold email notifications"
+
+blocks:
+  - type: text
+    md: |
+      Jordan's first report for Maya worked perfectly - and she opened it twice. Why? It returned
+      400 rows, she had to hunt for it, and it didn't answer the question her CCB actually asks:
+      **"Are we getting faster or slower at closing changes?"**
+
+      Building a [[report-template]] is half the job. The other half is **delivery**: where people find
+      it, what they see, and which handful of numbers they look at every week.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the template, offered to ordinary users" → *report* (a template with **Expose As Report** set)
+      - "the list of reports in a product, library or Home" → *Reports table*
+      - "switch that says it's finished" → *Ready For Use*
+      - "my filled-in criteria, kept for next time" → *saved report*
+      - "run it on a schedule and email me when it matters" → *data monitor*
+      - "a few numbers you watch over time" → *metrics* or *KPIs* (key performance indicators)
+
+  - type: animation
+    title: From template to the Monday meeting
+    diagram:
+      width: 820
+      height: 330
+      nodes:
+        - { id: tpl, label: Report template, sublabel: Expose As Report, x: 20, y: 40, w: 170, tone: primary, shape: doc }
+        - { id: ready, label: Ready For Use, sublabel: visible to users, x: 230, y: 40, w: 160, tone: warning }
+        - { id: run, label: Report Builder, sublabel: criteria + Generate, x: 430, y: 40, w: 160, tone: accent, shape: pill }
+        - { id: table, label: Results Table, sublabel: rows + charts, x: 640, y: 40, w: 160, tone: info }
+        - { id: saved, label: Saved report, sublabel: criteria + charts kept, x: 430, y: 200, w: 160, tone: info, shape: doc }
+        - { id: monitor, label: Data monitor, sublabel: schedule + threshold, x: 640, y: 200, w: 160, h: 70, tone: success }
+        - { id: ccb, label: CCB meeting, sublabel: Maya decides, x: 230, y: 200, w: 160, tone: primary, shape: pill }
+      edges:
+        - { from: tpl, to: ready }
+        - { from: ready, to: run }
+        - { from: run, to: table }
+        - { from: run, to: saved, label: Save }
+        - { from: saved, to: monitor }
+        - { from: monitor, to: ccb, label: email + link }
+        - { from: table, to: ccb, label: drill into rows, dashed: true }
+    chapters:
+      - title: The template becomes a report
+        caption: Jordan's *"CCB - open changes by age"* template has **Expose As Report** set, so it appears in the Reports table.
+        show: [tpl]
+        highlight: [tpl]
+      - title: Ready For Use
+        caption: Until the report is marked **Ready For Use**, only people with modify permission see it. Jordan tests first, then sets the flag.
+        show: [tpl, ready]
+        highlight: [ready]
+        flow: [tpl>ready]
+      - title: Maya runs it
+        caption: Report Builder opens. She fills in the criteria, clicks **Generate**, and gets a live Results Table - and can add a chart.
+        show: [tpl, ready, run, table]
+        highlight: [run, table]
+        flow: [ready>run, run>table]
+      - title: Keep it, schedule it
+        caption: She saves her criteria and chart as a **saved report**. Jordan adds a **data monitor** that runs it on a schedule.
+        show: [tpl, ready, run, table, saved, monitor]
+        highlight: [saved, monitor]
+        flow: [run>saved, saved>monitor]
+        seconds: 7
+      - title: A decision, not a printout
+        caption: When the threshold is met, the CCB gets an email with a link to the executed report, then drills into the oldest changes. That's a report doing its job.
+        show: [tpl, ready, run, table, saved, monitor, ccb]
+        highlight: [ccb]
+        flow: [monitor>ccb, table>ccb]
+        seconds: 7
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Managers don't log in to Windchill to browse. If the answer isn't one click away, they ask someone
+      to paste numbers into a slide - and now the company runs on a copy of a copy. Delivering reports
+      well keeps decisions tied to **live PLM data**, and it saves the business admin from becoming a
+      human report generator.
+
+  - type: walkthrough
+    title: Publish a report to the people who need it
+    who: Business administrator (Jordan) for the context
+    where: ["<context>", Utilities, Report Management]
+    steps:
+      - title: Put the template in the right context
+        where: ["E-Bike E1", Utilities, Report Management]
+        md: |
+          Reports created at site or organization level cascade down to lower contexts such as products
+          and users' Home pages; a product's own template stays with that product. If a template sits in the wrong
+          place, export it and import it into the right context.
+      - title: Expose it as a report
+        where: [Report Templates table, "<template>", Edit Report Template, Properties]
+        md: |
+          On the Properties tab, select **Expose As Report** so the template becomes a report object that
+          appears in the Reports table. PTC notes this can't be undone once saved - so finish testing
+          first.
+      - title: Check access before you share
+        where: [Report Builder, Generate]
+        md: |
+          Unless Bypass Access Control is on, each person's results are limited by their own access, so
+          "it works for me" proves little when you are an administrator. Ask Maya to run it once while
+          you watch, or have a colleague with her permissions try it.
+      - title: Mark it Ready For Use
+        where: ["<context>", Reports, "<report>"]
+        md: |
+          In the Reports table, a report without the **Ready For Use** flag is visible only to people
+          with modify permission. Set the flag once the report is tested.
+      - title: Tell people where to find it
+        where: ["<context>", Reports]
+        md: |
+          The Reports table is available in products, libraries, organizations, the site and other
+          contexts, and users can add **Reports** to their Home page. Send Maya the path, plus one line
+          on what the report answers and which criteria to fill in.
+    result: |
+      Maya opens the Reports table in E-Bike E1, runs the report in Report Builder and sees only the data
+      she is allowed to see.
+
+  - type: comparison
+    title: Three ways to keep a report coming
+    columns: [What it does, Good for]
+    rows:
+      - label: Saved report
+        cells: ["Keeps a set of criteria (and any charts on the Results Table) for reuse; others can pick it from the Saved Reports list", "The same question every week, one click away"]
+      - label: Export List to File
+        cells: ["Exports the Results Table to a file", "Loading numbers into a spreadsheet or BI tool for long-term trends"]
+      - label: Data monitor
+        cells: ["Runs a saved report on a schedule and emails chosen recipients a link when a threshold is met", "Alerts - \"tell me when changes over 30 days pass 10\""]
+    takeaway: Save the criteria once, chart it, and let a data monitor tap people on the shoulder only when it matters.
+
+  - type: callout
+    variant: version-note
+    versions: ["All releases"]
+    md: |
+      PTC also offers **Windchill Business Reporting**, an optional capability that uses a third-party
+      reporting application (the course manual names Jasper Report Studio) for richer report authoring,
+      scheduling and delivery. The manual says it is available only in certain Windchill solutions, so
+      check whether your installation has it before you plan around it. Query Builder, Report
+      Management and Report Builder are part of standard Windchill.
+
+  - type: example
+    variant: case-study
+    title: Maya's three-number CCB view
+    industry: Micromobility
+    md: |
+      **Before.** Jordan's first report listed every open change request in E-Bike E1 - 400 rows, 14
+      columns. Maya skimmed it, gave up and asked Kai for "a rough number" before each CCB.
+
+      **What Jordan changed.**
+      1. He asked Maya which **decision** the CCB makes each week: "Which changes do we push, and are we
+         keeping up?"
+      2. He built two small templates instead of one big one:
+         - *"CCB - open change requests"*: one row per open request with its created date, so Maya can
+           sort and chart by age.
+         - *"CCB - changes resolved recently"*: change notices that reached the resolved state, with the
+           date.
+      3. Maya saved her criteria and a chart for each as **saved reports**. Every month Jordan exports the
+         Results Table with **Export List to File** into a spreadsheet that tracks **three numbers**:
+         open over 30 days, opened this week, closed this week.
+      4. A **data monitor** emails Maya and Kai whenever more than 10 requests are over 30 days old.
+
+      **After.** Within six weeks the CCB noticed that old changes piled up whenever Leo (quality) was on
+      the road - reviews were waiting on him. They added a delegate. The over-30-day count dropped from
+      19 to 6.
+    takeaway: Start from the decision a manager makes, then pick the smallest set of numbers that informs it.
+
+  - type: comparison
+    title: "Cheat sheet: metrics a manager will actually use"
+    columns: [Question it answers, Built from, Watch out for]
+    rows:
+      - label: Open changes by age
+        cells: ["Are changes getting stuck?", "Change requests or notices + state + created date", "Define 'open' once (which states count) and write it in the description"]
+      - label: Opened vs closed per week
+        cells: ["Are we keeping up?", "Count of changes created and resolved per week", "Compare trends, not single weeks - one big release distorts a week"]
+      - label: Change cycle time
+        cells: ["How long from request to implemented?", "Created date of the request + resolution date of the change notice (joined)", "Use the median, not the average - one 300-day change ruins an average"]
+      - label: Overdue tasks by role
+        cells: ["Where is the bottleneck?", "Workflow tasks + assignee + due date", "Show roles or teams in shared views; naming individuals publicly backfires"]
+      - label: Parts released per week
+        cells: ["Is the design maturing on plan?", "Parts + state Released + state change date, per product", "Count each part once, not each iteration"]
+      - label: Parts still In Work near launch
+        cells: ["What could block the launch?", "Parts in a product + state In Work, with owner", "Filter to the product's own parts, or library parts inflate it"]
+      - label: Reuse ratio
+        cells: ["Are designers reusing or reinventing?", "New parts created vs existing library parts used in a product", "Agree what counts as 'reused' (library only, or any existing part)"]
+    takeaway: "Pick 3 to 5. Each one must answer a question somebody acts on. If nobody would change a decision when the number moves, drop it."
+
+  - type: callout
+    variant: pitfall
+    title: The vanity dashboard
+    md: |
+      "Total parts in Windchill: 48,213" looks impressive and changes nothing. Neither does a page with
+      22 charts. Big totals and long lists feel like reporting but don't support a decision. If a number
+      only ever goes up, it's probably a vanity metric. And if you count with **Group By**, remember it
+      bypasses access control - a "count" report can reveal numbers about data its audience can't read.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Write each metric's **definition** in the report template's description and next to the chart -
+      which states count as "open", which dates are used, which contexts are included. When the CCB and
+      the finance team disagree about a number, a written definition ends the argument in one minute.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Maya runs Jordan's report and gets zero rows. Jordan gets 42. What should Jordan check first?
+        options:
+          - Whether Maya has read access to the data in E-Bike E1
+          - Whether the template has enough columns
+          - Whether the description is long enough
+          - Whether Maya's browser is out of date
+        answer: 0
+        explanation: Unless Bypass Access Control is on, results are limited by each user's access. Administrators see everything, so "it works for me" proves little.
+      - kind: single
+        prompt: Jordan's new report shows up for him but not for Maya in the Reports table. Most likely reason?
+        options: [The Ready For Use flag isn't set, The report has too many rows, Maya has no saved reports, The template has no description]
+        answer: 0
+        explanation: Without Ready For Use, only users with modify permission see the report.
+      - kind: single
+        prompt: Maya wants an email when more than 10 change requests are over 30 days old. What fits?
+        options: [A data monitor on a saved report, A second report template, Export List to File every day, A shared saved search]
+        answer: 0
+        explanation: A data monitor runs a saved report on a schedule and notifies recipients when a threshold is met.
+      - kind: multi
+        prompt: Which of these are good dashboard metrics for a CCB? (Choose all that apply.)
+        options: [Open changes over 30 days, Total number of documents ever created, Changes opened vs closed per week, Median change cycle time]
+        answers: [0, 2, 3]
+        explanation: Each of these answers a question the CCB acts on. A grand total only goes up and doesn't change a decision.
+
+  - type: summary
+    points:
+      - Delivery matters as much as the query - context, Expose As Report, Ready For Use, a clear path.
+      - Results respect each user's access unless Bypass Access Control is on; test as the user.
+      - Saved reports keep criteria and charts; data monitors run them on a schedule and alert on thresholds.
+      - Pick 3-5 metrics tied to a decision; write down each definition.

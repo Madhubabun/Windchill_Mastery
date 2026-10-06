@@ -1,0 +1,127 @@
+id: m04-s03-check
+subtitle: Roles, teams, team templates, team instances - and the missing task that ruins a launch week.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, roles, teams, checkpoint]
+sources:
+  - id: ac
+    where: "Module 6, Manage Windchill teams: overview; Identify team terminology; Identify organization and application context types; Describe the context team architecture; Describe the team members context group; Describe role resolution for objects not managed by workflows; Describe role resolution for workflow-driven objects; Describe team instances; Define a team instance upon object creation; Create team templates; Identify team role resolution best practices. Module 7, Identify components of an OIR (team template association). Module 8, Define a notification policy"
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **teams and roles**: where roles come from, how context teams and team
+      templates fill them, how Windchill builds each object's team instance, and how tasks, access and
+      notifications reach people at Acme. Score 80% to pass. Every answer explains itself.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: Acme's review workflow assigns an activity to "Reviewer". Why a role and not Leo's name?
+        options:
+          - "So the same workflow works in every product, and each product's team says who the reviewer is"
+          - "Because workflows cannot store user names at all"
+          - "Because roles give the reviewer full control of the context"
+          - "Because roles are faster for the database"
+        answer: 0
+        explanation: Roles decouple the process from people. Each context fills the role, so one workflow fits Scooter S2 and E-Bike E1 alike, and people can change without editing templates.
+      - kind: multi
+        prompt: What are the two jobs roles do in Windchill? (Choose all that apply.)
+        options: [Access control, Workflow role resolution, Numbering parts, Choosing the revision scheme]
+        answers: [0, 1]
+        explanation: Teams are made of roles, and roles drive access control and workflow role resolution. Numbering and revisions come from other rules.
+      - kind: single
+        prompt: Jordan wants a new role that a custom e-bike workflow will assign work to. Which kind of role does Rosa need to create?
+        options:
+          - "A resource bundle role - a new entry in the Role enumeration"
+          - "A custom organization role"
+          - "A new group called Battery Safety Engineer"
+          - "A new context"
+        answer: 0
+        explanation: Only resource bundle roles are available to workflow, life cycle and team template administrators. Custom organization roles are for access control only.
+      - kind: truefalse
+        prompt: Windchill puts everyone in any E-Bike E1 role except Guest into the Team Members context group, and you can't edit that group by hand.
+        answer: true
+        explanation: Team Members is system-maintained, collects all non-guest role members and is only visible in Policy Administration.
+      - kind: single
+        prompt: Jordan created the team template E-Bike Document Team. What makes new battery specifications actually use it?
+        options:
+          - "An object initialization rule for the document type that names the template"
+          - "Adding the template to the E-Bike E1 context team"
+          - "Enabling it in the life cycle template's properties"
+          - "Nothing - Windchill picks the newest template"
+        answer: 0
+        explanation: The team template association is part of the object initialization rules. Out of the box the rule names the Default team template.
+      - kind: truefalse
+        prompt: Giving Ana full access to E-Bike E1 makes manufacturing review tasks appear in her task list.
+        answer: false
+        explanation: Access is not assignment. Tasks come from the role an activity names and who that role resolves to in the object's team instance.
+      - kind: single
+        prompt: A battery specification's workflow assigns work to Battery Safety Engineer. Leo fills that role in E-Bike E1's team, but the object's team template and life cycle state don't list it. What happens?
+        options:
+          - "The context team can't add the role, so it is added from the workflow and resolves to the responsible role"
+          - "The context team adds the role and Leo gets the task"
+          - "Leo and the whole Team Members group get the task"
+          - "The workflow refuses to start"
+        answer: 0
+        explanation: The context team only augments roles already in the team instance. Missing process roles are added last and resolved to the workflow template's responsible role.
+      - kind: order
+        prompt: Order how Windchill builds the team instance for a new workflow-driven object.
+        items:
+          - The object initialization rule names a team template
+          - The team template's roles and participants are added
+          - Missing roles from the current life cycle state are added
+          - The context team adds participants to existing roles
+          - Missing workflow roles are added and resolved to the responsible role
+        explanation: Template, life cycle, context team, workflow. Only the context team can't add roles.
+      - kind: single
+        prompt: Jordan fills an empty role in the E-Bike E1 team at 10:00. A specification created at 09:00 still has nobody in that role. What should Jordan do?
+        options:
+          - "Update that object's team instance from its details page (or reassign its task)"
+          - "Nothing - the team instance updates automatically"
+          - "Delete the specification and create it again"
+          - "Give the reviewers administrator rights"
+        answer: 0
+        explanation: Once created, a team instance is unaffected by changes to the context team, team template or life cycle template it came from.
+      - kind: single
+        prompt: Voltra Cells is named in a notification rule for released battery drawings, but its users never get the email. Mail works for everyone else. What's the likeliest cause?
+        options:
+          - "Voltra's users lack read access to the drawings"
+          - "Voltra isn't in a team template"
+          - "The drawings have no team instance"
+          - "Notification rules can only name users"
+        answer: 0
+        explanation: Windchill doesn't send a notification to someone without read access to the object. Notification rules can name users, groups or organizations.
+
+  - type: flashcards
+    title: Teams and roles deck
+    cards:
+      - front: "The two jobs of a role"
+        back: "Access control and workflow role resolution."
+      - front: "Context team"
+        back: "The single team of a product, library, project or program: roles and their participants."
+      - front: "Context group"
+        back: "System-generated group mirroring one context role; access rules are usually written to it."
+      - front: "Team Members group"
+        back: "All participants of every context role except Guest. Windchill maintains it."
+      - front: "Resource bundle role"
+        back: "An entry in the Role enumeration. Usable in workflows, life cycles, team templates and teams."
+      - front: "Custom organization role"
+        back: "A role added by an organization. Access control only; not usable in workflows; not translated."
+      - front: "Team template"
+        back: "Reusable roles (and optional participants) that start an object's team instance; named in an object initialization rule."
+      - front: "Team instance"
+        back: "The system-built team of one workflow-driven object. Frozen once built; update it on the object."
+      - front: "Team instance build order"
+        back: "Team template → life cycle state → context team (people only) → workflow roles (responsible role)."
+      - front: "Access vs assignment"
+        back: "Permissions decide what you may do. The team instance decides what work you get."
+
+  - type: summary
+    points:
+      - Roles name the job; teams name the people per context; context groups mirror the roles for access rules.
+      - Only resource bundle roles work in workflows and team templates.
+      - Team instances are built from template, life cycle, context team and workflow - then frozen.
+      - Tasks, access and notifications are separate; trace the right one.

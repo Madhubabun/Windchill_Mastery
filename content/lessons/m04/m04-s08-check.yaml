@@ -1,0 +1,137 @@
+id: m04-s08-check
+subtitle: Can you turn a manager's question into a report people actually use?
+version: 1.0.0
+updated: "2026-10-05"
+tags: [reporting, query-builder, checkpoint]
+sources:
+  - id: ac
+    where: "Manage reports; Author reports; Define, edit, and save queries; Administer administrator-saved searches"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Properties (Query Builder)"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/querybuilder/QBProperties.html"
+    covers: "Group By, Distinct, Bypass Access Control, Expose As Report"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Tables and Joins (Query Builder)"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/querybuilder/QBTablesAndJoins.html"
+    covers: "Join every type; duplicate rows without joins"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Managing Report Templates"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/querybuilder/QBReportTemplatesTable.html"
+    covers: "Report Templates table actions, export and import"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Reports Table"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/reportmgmt/ReportMgmtReportsTableRef.html"
+    covers: "Ready For Use flag"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "About Data Monitors"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/reportmgmt/ReportMgmtDataMonitorAbout.html"
+    covers: "Data monitors"
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **business reporting**: building report templates with Query Builder, joining
+      object types, run-time criteria, sharing reports, and choosing metrics a manager will use. Score
+      80% to pass. Every answer explains itself.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: Where does Jordan create a new report template for the E-Bike E1 product?
+        options:
+          - "E-Bike E1 → Utilities → Report Management → New Report Template"
+          - "E-Bike E1 → Folders → New Document"
+          - "His own Home page → Saved searches"
+          - "Site → Utilities → Queue Management"
+        answer: 0
+        explanation: The Report Management link on a context's Utilities page opens the Report Templates table, and New Report Template launches Query Builder.
+      - kind: order
+        prompt: Order the Query Builder tabs as Jordan works through them.
+        items: [Properties, Tables and Joins, Select or Constrain, Criteria]
+        explanation: Only Properties is available at first. Then add and join tables, choose reportable items, and add fixed criteria.
+      - kind: truefalse
+        prompt: In a query with several types, leaving one table unjoined can return duplicate rows.
+        answer: true
+        explanation: PTC advises joining every type in the query for exactly this reason.
+      - kind: single
+        prompt: Jordan builds a template at Acme organization level. Who sees it in Report Management?
+        options:
+          - Only the organization
+          - The organization, plus each product and library under it
+          - Only the site
+          - Nobody until it is copied into each product
+        answer: 1
+        explanation: Report Management lists templates from the current context and its parent contexts, so products see their organization's and the site's templates.
+      - kind: single
+        prompt: Maya wants the same report for In Work, Under Review and Released parts. What does Jordan build?
+        options: [Three templates, One template where state is a criterion chosen in Report Builder, One template with no state at all, A saved search per state]
+        answer: 1
+        explanation: Constrainable fields and parameter values appear as criteria in Report Builder, so one definition serves every state and never drifts.
+      - kind: multi
+        prompt: Ana gets an empty result from a report that works for Jordan. Which could explain it? (Choose all that apply.)
+        options:
+          - Ana can't read the data in that context
+          - Ana filled in different criteria
+          - Reports always hide data from non-administrators
+          - Ana's access rights filter out the rows Jordan sees
+        answers: [0, 1, 3]
+        explanation: Unless Bypass Access Control is on, results respect each user's access, and they depend on the criteria entered. Reports don't hide everything from non-admins.
+      - kind: single
+        prompt: Jordan ticks Group By to count changes per state. What else happens?
+        options:
+          - Bypass Access Control is switched on and locked
+          - The template becomes Ready For Use
+          - The template is exported to a ZIP file
+          - Nothing else changes
+        answer: 0
+        explanation: Group By and Distinct automatically select Bypass Access Control, so the output is no longer limited by each user's access.
+      - kind: single
+        prompt: A new report appears for Jordan but not for Maya in the Reports table. What's missing?
+        options: [The Ready For Use flag, A second join, A data monitor, A longer name]
+        answer: 0
+        explanation: Without Ready For Use, only users with modify permission see the report.
+      - kind: single
+        prompt: Which is the best dashboard metric for Maya's change control board?
+        options: [Total parts ever created, Open changes older than 30 days, Number of report templates, Number of Windchill users]
+        answer: 1
+        explanation: The CCB can act on aging changes. The others only go up or have nothing to do with the CCB's decisions.
+      - kind: multi
+        prompt: Which habits make reports trustworthy over time? (Choose all that apply.)
+        options:
+          - Write each metric's definition in the template description
+          - Build on a test system, then Export and Import the template to production
+          - Create new templates rather than editing predefined Windchill ones
+          - Copy the template whenever someone wants a small variation
+        answers: [0, 1, 2]
+        explanation: Definitions stop arguments; testing protects production; predefined reports can be used by the UI, so PTC advises creating new ones. Copies drift apart - use run-time criteria instead.
+
+  - type: flashcards
+    title: Business reporting deck
+    cards:
+      - front: Query Builder
+        back: "The tool for defining report templates, on four tabs: Properties, Tables and Joins, Select or Constrain, Criteria."
+      - front: Report template
+        back: A saved query stored in a context and listed in the Report Templates table. Run it any time for fresh results.
+      - front: Report Management
+        back: The Utilities link that opens the Report Templates table - templates from this context and its parents. New, edit, delete, export, import.
+      - front: Report Builder
+        back: Opens when a report runs. Fill in the criteria, click Generate, read the Results Table.
+      - front: Join
+        back: Connects two tables in a query. A link join follows an association Windchill already models, such as part to describing document.
+      - front: Missing join
+        back: Can return duplicate, mismatched rows. Join every table in the query.
+      - front: Bypass Access Control
+        back: Results are no longer limited by the user's access. Switched on automatically by Distinct or Group By.
+      - front: Ready For Use
+        back: Without it, a report is visible only to people with modify permission.
+      - front: Saved report and data monitor
+        back: A saved report keeps criteria and charts; a data monitor runs it on a schedule and emails people when a threshold is met.
+      - front: A good manager metric
+        back: Tied to a decision, defined in writing, tracked as a trend. Pick 3-5.

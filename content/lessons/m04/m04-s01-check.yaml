@@ -1,0 +1,114 @@
+id: m04-s01-check
+subtitle: Prove you can run Acme's people layer - users, groups, organizations, profiles and safe offboarding.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, participants, checkpoint]
+sources:
+  - id: ac
+    where: "Module 2, all sections (participants architecture, best practices, user accounts and groups, profiles, user and group structure, managing existing participants, deleting users, groups and organizations)"
+  - id: ac
+    where: "Module 10, Identify license profiles; Describe license profiles and standard profile interaction; Appendix A, Create a user profile"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Managing Disconnected Participants"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/participantadmin/ParticipantAdminMaintTbl.html"
+    covers: "Search Disconnected Participants and reconnecting"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Managing Standard Profiles"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/profilemgmt/ProfileMgmtAbout.html"
+    covers: "Merging of several standard profiles"
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **participants**: users, groups and organizations, Participant Administration,
+      disconnected participants, directories, profiles and deleting participants safely. Score 80% to pass.
+      Every answer explains itself, so a miss still teaches you something.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: multi
+        prompt: Which of these are participants in Windchill? (Choose all that apply.)
+        options: [The user Kai, The group ACME-Quality, The organization Voltra Cells, The product Scooter S2]
+        answers: [0, 1, 2]
+        explanation: Users, groups and organizations are participants - things you can give access or work to. Scooter S2 is a context, not a participant.
+      - kind: single
+        prompt: Jordan wants every Acme user to be able to read released data, with as little maintenance as possible. What should the organization-level rule be written for?
+        options: [A new group that Jordan keeps in sync with HR, The Acme Mobility organization principal, Each user individually, The site Administrators group]
+        answer: 1
+        explanation: The organization principal acts like a supergroup of every user associated with the organization, so there's no extra group to maintain.
+      - kind: single
+        prompt: Where does Jordan create a new organization-level group such as ACME-Ebike-Battery?
+        options: [In the product's folder tree, "Participant Administration on Acme Mobility's Utilities page", In the corporate directory's admin console, In a workflow template]
+        answer: 1
+        explanation: Participant Administration, opened from the organization's Utilities page, creates groups associated with that organization. The group's context can't be changed afterwards.
+      - kind: truefalse
+        prompt: Jordan creates users without email addresses to save time. This only affects the users' convenience.
+        answer: false
+        explanation: Without an email address, Windchill notifications to the user fail and the user can't be found in several Windchill tools.
+      - kind: single
+        prompt: After IT moved Maya's directory entry, she shows "Disconnected from directory service". She still works at Acme. What does Jordan do?
+        options: [Delete Maya and create her again, "Reconnect her user object to the current directory entry", Purge the participant cache and wait, Ask IT to undo the move]
+        answer: 1
+        explanation: Reconnect Disconnected Principal links the existing user object to the new entry and keeps memberships and history. Delete-and-recreate would lose them.
+      - kind: truefalse
+        prompt: Acme's corporate directory is Active Directory, read-only for Windchill. Jordan can still use "Delete from Windchill" for a leaver.
+        answer: true
+        explanation: Delete from Windchill removes the user object and does Windchill's clean-up while leaving the directory entry. Deleting from the directory as well needs write access.
+      - kind: single
+        prompt: Jordan hides the Delete action for quality reviewers with a standard profile. A reviewer who has delete permission on a document...
+        options: [Loses that permission, Still has the permission - the profile only hides the action, Can no longer read the document, Is moved to a different license group]
+        answer: 1
+        explanation: Profiles are a user interface control, not access control. They never grant or remove permissions.
+      - kind: single
+        prompt: Ana needs the features of a license Acme bought for her. What does Jordan do?
+        options: [Add Ana to the matching license group, Edit the license profile, Create a standard profile showing those features, Make Ana an organization administrator]
+        answer: 0
+        explanation: License profiles are maintained by PTC and can't be edited. Membership of the license group extends the license profile to the user and keeps usage compliant.
+      - kind: order
+        prompt: Marco is leaving. Put the safe deletion steps in order.
+        items: [Complete or reassign his assignments, Check in or undo his checked-out work, Delete him in Participant Administration, Delete his personal cabinet if the username will be reused]
+        explanation: Assignments must be empty before Windchill allows the delete, and checked-out work must be secured or it can be lost. The personal cabinet is not removed automatically.
+      - kind: single
+        prompt: IT deleted the group SUP-Hexa only in the directory. What is true now?
+        options: [Windchill has removed it from all access rules, It is a disconnected participant still referenced in Windchill, Its members were deleted from Windchill, The organization Hexa Tooling was deleted]
+        answer: 1
+        explanation: A directory-only deletion skips Windchill's clean-up. Search Disconnected Participants, add the group to the table and delete it from Windchill.
+
+  - type: flashcards
+    title: Participants checkpoint deck
+    cards:
+      - front: Participant
+        back: "A user, group or organization - anything Windchill can grant access or work to."
+      - front: Organization principal
+        back: "The organization acting as a supergroup of all its users."
+      - front: Group or team?
+        back: "Groups for organization-wide sets of people; teams for one product, library or project."
+      - front: Participant Administration
+        back: "Utility in Business Administration on the organization or site Utilities page."
+      - front: Disconnected participant
+        back: "A participant object whose directory entry was removed or relocated. Search for them monthly."
+      - front: Reconnect vs delete
+        back: "Reconnect keeps memberships and history. Delete-and-recreate loses them."
+      - front: Directory vs Windchill database
+        back: "Directory: name, email, phone, groups, organization. Windchill: access, teams, contexts, plus a pointer."
+      - front: Profile
+        back: "Controls which actions, tabs and attributes are visible. Not access control."
+      - front: License group
+        back: "Membership entitles a user to a license and its license profile."
+      - front: Before deleting a user
+        back: "Empty the assignments list; check in or undo checkouts."
+      - front: Deleting a group
+        back: "Members are disassociated, not deleted. Do an impact analysis first."
+      - front: Deleting an organization
+        back: "Organization contexts can't be deleted; nor can a participant with an organization context."
+
+  - type: summary
+    points:
+      - Users are associated with an organization and many groups; groups fill roles and rules.
+      - Participant Administration creates, finds, reconnects and deletes participants.
+      - Profiles shape the screen; access control and license groups decide what people may do and use.
+      - Offboard deliberately - assignments, checked-out work, then the delete.

@@ -1,0 +1,63 @@
+# New glossary terms introduced in section m04-s06 (Lifecycles, workflows and automation).
+- id: phase
+  term: Phase (life cycle phase)
+  plain: One stop on an object's life cycle, as drawn in the life cycle template editor.
+  definition: The building block of a life cycle template. Each phase stands for one life cycle state (for example In Work or Released) and holds that state's transitions. A state has two parts, a phase and a gate. In an advanced life cycle a phase can also carry a workflow (the phase process) plus roles and grant-only access rules for that state.
+  aka: [Life cycle phase]
+  related: [life-cycle, lifecycle-state, transition, life-cycle-gate]
+
+- id: life-cycle-gate
+  term: Gate (life cycle gate)
+  plain: The checkpoint at the end of a life cycle state, where the object waits and can't be edited.
+  definition: The second part of a life cycle state, after the phase. In an advanced life cycle a gate can carry its own workflow (the gate process). Objects can't be modified while a gate process manages them, so most designs put workflows in phases only. Using gate workflows requires the modular workflow approach.
+  aka: [Gate, Gate process]
+  related: [phase, life-cycle, workflow]
+
+- id: transition
+  term: Transition (life cycle transition)
+  plain: A signpost that says "from this state, this action leads to that state".
+  definition: A named path from a source state to one or more destination states in a life cycle template. Transition types include Promote, Lock, Revise, Set State, Change, Production Released, Obsolescence, Refine and Review. The transitions defined for an object's current state decide which state-changing actions users are offered; a Revise transition names the state a new version is created in.
+  aka: [Promote transition, Revise transition, Lock transition]
+  related: [life-cycle, lifecycle-state, phase, revise, promotion-request]
+
+- id: workflow-robot
+  term: Robot (workflow robot)
+  plain: A step in a workflow that the system does on its own - no human task.
+  definition: An automated node in a workflow template. The basic robots (Notification, Checkpoint, Method, Timer) only need their properties set; a Method robot of type Set State is the usual way to change an object's life cycle state. The advanced robots (Application, Expression, Synchronization, URL) need Java, Info*Engine or Windchill API knowledge.
+  aka: [Set State robot, Method robot, Notification robot, Expression robot, Timer robot]
+  related: [workflow, task, workflow-expression]
+
+- id: workflow-variable
+  term: Workflow variable
+  plain: A named box inside a running workflow that remembers a value, like the review comments.
+  definition: A value declared on a workflow template (global, for the whole process) or on an activity (local), and stored with each running process. On an activity a variable can be made visible, required, read-only or resettable, and expressions can read and change variables.
+  aka: [Process variable]
+  related: [workflow, task, workflow-expression]
+
+- id: workflow-expression
+  term: Workflow expression
+  plain: A few lines of Java that let a workflow decide or calculate something.
+  definition: Java code stored in a workflow template - in an Expression robot, in a Conditional router that picks the next routing event, or as a condition on a transition. Keep expressions minimal, validate the template, test every branch, and move anything bigger into properly tested server-side code.
+  aka: [Routing expression, Conditional expression]
+  related: [workflow, workflow-variable, workflow-robot]
+
+- id: object-initialization-rule
+  term: Object initialization rule (OIR)
+  plain: The "fill in these defaults automatically" rule for a type of object in a context.
+  definition: An XML rule for one object type, defined in a context (site, organization, product, library and so on), that sets values when an object is created - for example the number, versioning scheme, default folder, life cycle template and team template - and can constrain how attributes display. A rule also covers the type's subtypes. All applicable rules are merged and the lowest level wins; only enabled rules are used.
+  aka: [OIR, Initialization rule]
+  related: [part, context, life-cycle, folder, numbering-scheme]
+
+- id: version-series
+  term: Version series
+  plain: The counting style for revision labels, such as 1, 2, 3 or A, B, C.
+  definition: The sequence of labels Windchill uses for new versions of an object. Out of the box this is a Harvard series set in the object initialization rule. With state-based versioning, each life cycle state can name its own series (Numeric or Mil Std), and the state in which a revision is made decides which series the new version uses.
+  aka: [Versioning scheme, Harvard series]
+  related: [version, revision, state-based-versioning, object-initialization-rule]
+
+- id: state-based-versioning
+  term: State-based versioning
+  plain: Letting the life cycle state decide whether revisions count with numbers or letters.
+  definition: A versioning scheme, built on file-based versioning, in which each life cycle state can set a version series. It applies only when the object type's initialization rule uses wt.series.HarvardSeries.StateBased. The first state sets the initial series, the state where a revision happens sets the next one, and a series once started is never replaced by an earlier one.
+  aka: [State-based version series]
+  related: [version-series, life-cycle, lifecycle-state, object-initialization-rule]

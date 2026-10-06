@@ -1,0 +1,39 @@
+# New glossary terms introduced in section m04-s09 (Part classification).
+- id: classification
+  term: Classification (part classification)
+  plain: Sorting parts by what they physically are - screw, bearing, battery pack - so people can find and reuse them.
+  definition: Assigning a part (or a document) to a node in a classification structure, provided in Windchill by the PartsLink module. The node gives the object a set of describing attributes (for example thread size and length for a screw) and makes it findable by classification search.
+  aka: [Part classification, PartsLink classification]
+  related: [classification-structure, classification-node, classification-attribute, part]
+
+- id: classification-structure
+  term: Classification structure
+  plain: The company's family tree of part kinds, from broad groups down to very specific ones.
+  definition: A hierarchy of classification nodes, identified by its namespace and maintained in Classification Administration (Manage Classifications) by members of the classification administrators group. Attributes defined on a node are inherited by every node below it, so the tree goes from general to specific. Structures can be exported and imported.
+  aka: [Classification tree, Classification hierarchy]
+  related: [classification-node, classification-attribute, classification]
+
+- id: classification-node
+  term: Classification node
+  plain: One branch or end of the classification tree, such as "Machine screws".
+  definition: An element of a classification structure, also called a class. A node has an internal and a display name, a parent, its own attributes plus those it inherits, and an Instantiable setting that decides whether objects can be classified into it. Grouping nodes are usually not instantiable; end nodes carry the parts. A node can also hold an autonaming rule.
+  aka: [Classification class]
+  related: [classification-structure, classification-attribute]
+
+- id: classification-attribute
+  term: Classification attribute
+  plain: A describing property that only makes sense for one kind of part, like "thread size" for screws.
+  definition: A reusable (global) attribute, managed in Type and Attribute Management, that is added to a classification node rather than to a part type. Child nodes inherit it, and objects classified into the node get it. Units and constraints such as Required, an enumerated value list or a valid range keep values consistent and searchable.
+  related: [classification-node, classification-search]
+
+- id: classification-search
+  term: Classification search
+  plain: Finding parts by walking the tree and filtering on their properties instead of guessing names.
+  definition: Searching by classification node and classification attribute values - by browsing the Classification Explorer and refining the results, by adding a node and attribute criteria to an advanced search (a node also covers its child nodes), or with Find Similar Objects from a classified part.
+  related: [classification, classification-attribute, advanced-search, part-reuse]
+
+- id: part-reuse
+  term: Part reuse
+  plain: Using a part that already exists instead of creating a near-identical new one.
+  definition: The practice of selecting an existing, released part (often from a library) for a new design. Reuse avoids duplicate part numbers, extra supplier qualification and inventory, and is the main business reason for classification.
+  related: [classification-search, library, where-used]

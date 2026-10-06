@@ -1,0 +1,50 @@
+# New glossary terms introduced in section m04-s01 (Participants).
+- id: participant
+  term: Participant
+  plain: Anyone (or any bundle of people) Windchill can give work or access to.
+  definition: The umbrella name for users, groups and organizations - the things Windchill can grant access to, put in team roles and route tasks to. Participants are created and maintained with the Participant Administration utility. Their shared details (name, email, group membership, organization) usually live in a directory server; Windchill-only details such as team membership live in the Windchill database.
+  aka: [Principal]
+  related: [group, organization, directory-server]
+
+- id: group
+  term: Group
+  plain: A named list of people, so you can manage them all at once.
+  definition: A participant that collects users, organizations and other groups under one name. Groups are used to fill team and life cycle roles, receive workflow tasks and appear in access control and notification policies, so admins change membership in one place. Groups can be created at site or organization level; PTC recommends organization level where possible.
+  related: [participant, organization, context-team]
+
+- id: organization
+  term: Organization (participant)
+  plain: A company - yours or a partner's - that people belong to.
+  definition: A participant that represents a company, business unit, supplier or partner. Users are associated with an organization through their Organization field; a user with none is unaffiliated. The organization participant also acts like a supergroup of all its users. It can exist on its own (for example a supplier) or be linked to an organization context that holds products and libraries.
+  related: [participant, organization-context, group]
+
+- id: ldap
+  term: LDAP
+  plain: The standard language Windchill uses to read its address book of people.
+  definition: Lightweight Directory Access Protocol, the industry-standard protocol for directory entries such as users and groups. Windchill requires an LDAPv3-compliant directory server, for example Microsoft Active Directory. Windchill does not need write access to it, but some actions, such as deleting users from the directory, only work when it has write access.
+  aka: [Lightweight Directory Access Protocol]
+  related: [directory-server, participant]
+
+- id: disconnected-participant
+  term: Disconnected participant
+  plain: A user or group Windchill remembers, but can no longer find in the address book.
+  definition: A participant whose Windchill object no longer points to a valid directory entry, because the entry was removed or relocated in the directory. Participant Administration shows it with the status "Disconnected from directory service". Administrators find these with Search Disconnected Participants and then reconnect them to the current entry or delete them from Windchill.
+  related: [participant, ldap, directory-server]
+
+- id: profile
+  term: Profile
+  plain: A setting that decides which buttons, tabs and attributes a group of people sees.
+  definition: A user interface control that shows or hides actions, tabs and attributes for the users, groups and organizations associated with it. Standard profiles are created by site or organization administrators; license profiles are maintained by PTC and follow license groups. A profile is not access control - it never grants a permission and never blocks an action a user is allowed to perform.
+  related: [participant, group, license-group]
+
+- id: license-group
+  term: License group
+  plain: The group that says which Windchill licence a person uses.
+  definition: A site-level group that entitles its members to a Windchill license. Each license group is linked to a license profile that shows the features of that license. Adding users (or a user-defined group) to the right license group is how business administrators keep license usage compliant.
+  related: [profile, group]
+
+- id: personal-cabinet
+  term: Personal cabinet
+  plain: A user's private storage area in Windchill.
+  definition: The cabinet each user has for objects not shared with others, such as working copies of checked-out work and server-side workspaces. It is not removed automatically when the user is deleted. Deleting it also deletes the user's workspaces, and it must be deleted before the same username can be reused.
+  related: [participant, workspace]

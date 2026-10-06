@@ -1,0 +1,419 @@
+id: m04-s05-l01
+subtitle: Access in Windchill isn't set object by object. It's set by zone. Meet the zones.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [access-control, domains, policy-administration, business-admin]
+sources:
+  - id: ac
+    where: "Module 8: Plan access control strategies; Describe the Windchill context architecture; Identify domain and cabinet administrative objects; Describe the Windchill domain, user domain, system domain, special site domain, data domain, private domain and folder domain architecture; Create folder domains; Work with the Policy Administrator; Identify components of a domain access control rule; Identify participants of an access control rule; Configure permissions for an access control rule; Identify available permissions; Identify default access permissions; Activity: Create an access control rule"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Policy Administration"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/policyadmin/PolicyAdminAbout.html"
+    covers: "Policy Administration opens from each context's Utilities page; tab names Access Control Rules, Indexing Rules, Notification Rules; Context list with Single Context"
+
+blocks:
+  - type: text
+    md: |
+      Kai messages Jordan: *"Voltra Cells starts Monday. They should see our **released battery
+      drawings** in E-Bike E1. Nothing else. Can you sort it?"*
+
+      Jordan's first instinct is **not** to open each drawing and tick boxes. E-Bike E1 will have
+      thousands of objects, and new ones appear every day. Instead, Windchill lets you write rules for a
+      whole **zone** at once. Anything stored in that zone follows them automatically, including
+      drawings that don't exist yet.
+
+      In Windchill a zone is a **domain**, and you write its rules in **Policy Administration**.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a rule zone that objects belong to" → [[domain]]
+      - "a hidden storage box behind a context's folders" → [[cabinet]]
+      - "a rule like *Suppliers may read released drawings*" → [[access-control-rule|access control rule (policy rule)]]
+      - "the admin tool where you write those rules" → [[policy-administration|Policy Administration]] (the course calls it the *Policy Administrator*)
+      - "the stage an object is at, like In Work or Released" → [[lifecycle-state|life cycle state]]
+
+  - type: text
+    md: |
+      ### Where domains come from
+      Every object that uses access control and sits in a folder belongs to a **cabinet** and a
+      **domain**. Users never see cabinets, but they matter here:
+
+      - The **Default cabinet** of a context holds the everyday data (parts, documents, CAD). Its
+        folders are what you see on the context's Folders page.
+      - The **System cabinet** holds the context's administrative objects, such as life cycle
+        templates.
+      - Each user also has a **personal cabinet** for private things like checked-out working copies.
+
+      A domain is normally linked to a cabinet and governs everything in it. An administrator can also
+      link a domain to a **folder**, which overrides the cabinet's domain for that folder's objects.
+      One domain per object, always. A domain controls three things for its objects: **who may access
+      them**, **when they are indexed for search** and **who is notified** when something happens.
+
+  - type: diagram
+    title: Acme's domain tree
+    caption: Domains form a tree under /(Root). Click each box to see what it governs.
+    diagram:
+      width: 820
+      height: 470
+      groups:
+        - { label: Site level, x: 20, y: 10, w: 780, h: 90, tone: neutral }
+        - { label: Organization (Acme Mobility), x: 20, y: 115, w: 780, h: 100, tone: primary }
+        - { label: Product context (E-Bike E1), x: 20, y: 230, w: 780, h: 225, tone: accent }
+      nodes:
+        - id: root
+          label: "/(Root)"
+          sublabel: top of every tree
+          x: 40
+          y: 32
+          w: 180
+          h: 50
+          tone: neutral
+          detail: |
+            Every domain descends from /(Root). Its out-of-the-box access rules and its single indexing
+            rule apply to the whole installation. PTC recommends adding **no** new rules here and changing
+            none of the shipped ones, except that single indexing rule.
+        - id: plumbing
+          label: Plumbing domains
+          sublabel: User · System · Default · Session Iteration
+          x: 300
+          y: 32
+          w: 300
+          h: 50
+          tone: neutral
+          detail: |
+            Site-level and participant domains Windchill needs to run: the **User** domain (with the
+            unaffiliated and organization domains under it) governs users, groups and organizations;
+            each context has a **System** domain for its templates; the site **Default** domain covers
+            site-level documents; **Session Iteration** is internal. PTC recommends leaving their rules alone.
+        - id: org-default
+          label: Acme Default
+          sublabel: org Default domain
+          x: 40
+          y: 145
+          w: 170
+          h: 52
+          tone: primary
+          detail: |
+            The organization's **Default** domain. It's the parent of PDM and Project, so a rule here
+            reaches every product, library, project and program in Acme.
+        - id: pdm
+          label: PDM
+          sublabel: public products + libraries
+          x: 240
+          y: 145
+          w: 180
+          h: 52
+          tone: primary
+          detail: |
+            Parent of every **public** product and library Default domain in Acme. Write rules here that
+            should govern all PDM data in the organization, but not projects.
+        - id: project
+          label: Project
+          sublabel: projects + programs
+          x: 440
+          y: 145
+          w: 160
+          h: 52
+          tone: primary
+          detail: |
+            Sibling of PDM. Parent of project and program domains. Its rules are usually looser than PDM's,
+            because projects are used for less formal collaboration.
+        - id: private
+          label: Private
+          sublabel: private contexts
+          x: 620
+          y: 145
+          w: 160
+          h: 52
+          tone: primary
+          detail: |
+            A context created as **private** hangs its Default domain here instead of under PDM or Project,
+            so it skips the organization's Default, PDM and Project rules. More in the inheritance lesson.
+        - id: e1-default
+          label: E-Bike E1 Default
+          sublabel: product data domain
+          x: 60
+          y: 265
+          w: 200
+          h: 52
+          tone: accent
+          detail: |
+            Created with the product. It governs E1's data objects unless a folder is linked to another
+            domain. The product template already put many rules here; business admins review and adapt them.
+        - id: battery
+          label: Battery
+          sublabel: folder domain
+          x: 60
+          y: 375
+          w: 200
+          h: 56
+          tone: success
+          detail: |
+            Jordan creates this domain as a **child of E-Bike E1 Default** (folder domains must be) and
+            links the **Battery** folder to it. The battery drawings now sit in their own rule zone, and
+            still follow every rule above.
+        - id: folder
+          label: Battery folder
+          sublabel: EB-10021 drawings
+          x: 320
+          y: 375
+          w: 200
+          h: 56
+          tone: warning
+          shape: doc
+          detail: |
+            Folders don't get a domain of their own by default; they use their context's domain. Once
+            linked to the Battery domain, everything in this folder follows the Battery domain's rules.
+        - id: rule
+          label: Policy rule
+          sublabel: where · what · when · who · how
+          x: 580
+          y: 375
+          w: 200
+          h: 56
+          tone: info
+          detail: |
+            A rule is stored **in** a domain and answers five questions: domain, object type (and its
+            subtypes), life cycle state (or all), participant, and the permissions it grants or denies.
+      edges:
+        - { from: root, to: plumbing }
+        - { from: root, to: org-default }
+        - { from: org-default, to: pdm }
+        - { from: org-default, to: project }
+        - { from: root, to: private, dashed: true }
+        - { from: pdm, to: e1-default }
+        - { from: e1-default, to: battery }
+        - { from: folder, to: battery, label: linked to, dashed: true }
+        - { from: rule, to: folder, label: applies to contents, dashed: true }
+
+  - type: callout
+    variant: note
+    title: Your data domains are where you work
+    md: |
+      As a business admin you spend nearly all your time in the **data domains**: the organization's
+      Default, PDM and Project domains, and each context's Default domain (plus any folder domains you
+      add). The plumbing domains come with rules Windchill needs; PTC's advice is to leave them alone.
+
+  - type: animation
+    title: How one rule reaches a brand-new drawing
+    diagram:
+      width: 820
+      height: 300
+      nodes:
+        - { id: rule, label: Policy rule, sublabel: in Battery domain, x: 20, y: 30, w: 180, tone: info }
+        - { id: domain, label: Battery domain, sublabel: under E1 Default, x: 320, y: 30, w: 180, tone: success }
+        - { id: parents, label: Parent domains, sublabel: E1 · PDM · Acme · Root, x: 620, y: 30, w: 180, tone: primary }
+        - { id: folder, label: Battery folder, sublabel: linked to Battery, x: 320, y: 140, w: 180, tone: warning }
+        - { id: drawing, label: EB-10021 drawing, sublabel: CAD Document, x: 320, y: 235, w: 180, tone: warning, shape: doc }
+        - { id: user, label: Voltra user, sublabel: Supplier role, x: 20, y: 235, w: 180, tone: accent, shape: pill }
+        - { id: check, label: Access check, sublabel: on the server, x: 620, y: 235, w: 180, tone: danger, shape: circle }
+      edges:
+        - { from: rule, to: domain, label: stored in }
+        - { from: parents, to: domain, label: inherited }
+        - { from: domain, to: folder, label: linked to }
+        - { from: folder, to: drawing, label: contains }
+        - { from: user, to: drawing, label: opens }
+        - { from: drawing, to: check }
+        - { from: check, to: user, dashed: true, label: answer }
+    chapters:
+      - title: Jordan writes one rule
+        caption: "*Supplier role · CAD Document · Released · Grant Read + Download.* It's saved in the **Battery** domain, not on any object."
+        show: [rule, domain]
+        highlight: [rule]
+        flow: [rule>domain]
+      - title: The domain picks up its parents' rules
+        caption: Objects in the Battery domain also follow every rule of E1 Default, PDM, Acme Default and /(Root). Parent rules flow down; child rules never flow up.
+        show: [rule, domain, parents]
+        highlight: [parents]
+        flow: [parents>domain]
+      - title: The folder points to the domain
+        caption: Jordan linked the Battery folder to the Battery domain. Each object has exactly one domain.
+        show: [rule, domain, parents, folder]
+        highlight: [folder]
+        flow: [domain>folder]
+      - title: Priya checks in a new drawing
+        caption: The new EB-10021 drawing lands in the Battery folder, so it uses the Battery domain. Nobody touched its permissions.
+        show: [rule, domain, parents, folder, drawing]
+        highlight: [drawing]
+        flow: [folder>drawing]
+      - title: Voltra tries to open it
+        caption: Windchill combines every rule that matches the drawing's **domain** (and parents), **type** (and parent types) and **state**, for the user and every group and role they belong to.
+        show: [rule, domain, parents, folder, drawing, user, check]
+        highlight: [check]
+        flow: [user>drawing, drawing>check]
+      - title: The answer depends on state
+        caption: While the drawing is **In Work**, no rule grants the Supplier role anything, so Voltra gets nothing. Once it's **Released**, Jordan's rule matches and Voltra can read and download it, with no extra work.
+        highlight: [user, rule]
+        flow: [check>user]
+        seconds: 8
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Rules by zone scale; permissions object by object don't. An access model built on domains survives
+      new hires, new suppliers and a hundred thousand new objects. It also lets you answer an auditor's
+      question, *"who can see released battery drawings?"*, by reading a handful of rules instead of
+      opening every file.
+
+  - type: text
+    md: |
+      ### Reading a rule: five questions
+      Every access control rule answers **where, what, when, who and how**:
+
+      | Question | Field | Jordan's Voltra rule |
+      | --- | --- | --- |
+      | Where? | Domain | Battery |
+      | What? | Object type (the rule also covers its subtypes) | CAD Document |
+      | When? | Life cycle state, or all states | Released |
+      | Who? | One participant | Supplier role |
+      | How? | Each permission: Grant, Deny, Absolute Deny or None | Grant Read, Download |
+
+      A few details worth knowing:
+
+      - **One participant per rule.** Two groups need two rules. The participant can be a user, a
+        group, an organization or a role, including the pseudo-roles **All** (every Windchill user)
+        and **Owner** (the object's owner, by default its creator). You can also aim a rule at
+        *everyone except* the chosen participant.
+      - **None** means "this rule has no opinion", leaving the decision to other rules.
+      - **Grant auto-selects companions.** Granting *Create* also ticks Modify, Modify Content, Read
+        and Download. You can change them afterwards.
+      - **Not granted means no.** If nothing grants a permission for the type or its parent types, the
+        user doesn't have it.
+
+  - type: text
+    md: |
+      ### The permissions you'll use most
+      | Permission | Lets the participant... |
+      | --- | --- |
+      | Read | See the object listed and view it |
+      | Download | Download primary content and attachments |
+      | Modify | Change attributes and other parts of the object's definition |
+      | Modify Content | Change or upload content files, URLs or external storage references |
+      | Modify Identity | Change identity attributes, such as a part number (not the part name) |
+      | Create | Create the object |
+      | Revise | Create a new version |
+      | Set State | Move the object to another life cycle state along a defined transition |
+      | Change Domain / Change Context | Move the object out of its domain or out of its context |
+      | Create By Move | Move an object into a domain |
+      | Change Permissions | Give others permissions on the object, up to the ones they hold themselves |
+      | Delete | Delete the object |
+      | Administrative | Admin tasks such as breaking a lock or changing the owner |
+      | Full Control (All) | Every permission, including future ones, except Administrative |
+
+      Grant only what the job needs. Read and Download cover most viewers.
+
+  - type: walkthrough
+    title: Open Policy Administration and read a domain's rules
+    who: An organization administrator (the course runs this as the organization admin)
+    where: [Browse, Organizations, "Acme Mobility", Utilities, Policy Administration]
+    steps:
+      - title: Go to the organization's Utilities
+        where: [Navigator, Browse, Organizations, "Acme Mobility", Utilities]
+        md: |
+          In the Navigator, choose **Browse**, open the **Organizations** tab, expand **Acme Mobility**
+          and click **Utilities**. (Every context has a Utilities page with Policy Administration; the
+          organization is where Jordan can see all the data domains.)
+      - title: Launch Policy Administration
+        where: [Utilities, Business Administration, Policy Administration]
+        md: In the **Business Administration** section, click **Policy Administration**. The domain tree is on the left, the rules of the selected domain on the right.
+      - title: Show the whole tree
+        where: [Policy Administration, Context list, All Contexts]
+        md: |
+          The list at the top starts on **Single Context**. Switch it to **All Contexts**, then expand
+          Acme's **Default** and **PDM** nodes to reach **E-Bike E1**'s Default domain.
+      - title: Read the rules
+        where: [Policy Administration, "<domain>", Access Control Rules]
+        md: |
+          Select a domain and open the **Access Control Rules** tab. Each row is one rule. Sort or
+          filter the table, for example to show only rules for CAD Document. The **Indexing Rules** and
+          **Notification Rules** tabs hold the domain's other policies.
+      - title: See the combined result
+        where: [Policy Administration, "<domain>", "<type and state>"]
+        md: |
+          Policy Administration can also display the **access control list**: pick an object type and a
+          life cycle state, and it shows the result of combining every rule that applies, including
+          rules from parent domains.
+    result: |
+      For any domain you can say which rules are written there, and what the combined list looks like
+      for a given type and state once the parents' rules are included.
+
+  - type: walkthrough
+    title: Give a folder its own domain
+    who: An administrator who can create domains for the context
+    where: [Browse, Products, "E-Bike E1", Folders, Battery]
+    steps:
+      - title: Make domains visible on folders
+        where: [Site, Utilities, Preference Management, Display Folder Domains]
+        md: |
+          Folder domains are hidden in the user interface by default. In **Preference Management**, set the
+          **Display Folder Domains** preference to **Yes** (its default is No).
+      - title: Create the domain
+        where: [Utilities, Policy Administration, "E-Bike E1 Default"]
+        md: |
+          In Policy Administration, create a new domain named **Battery** as a child of **E-Bike E1
+          Default**. A folder domain must sit under its context's Default domain.
+      - title: Write its rules
+        where: [Policy Administration, Battery, Access Control Rules]
+        md: Add the rules the folder needs, such as the Supplier role's Read and Download on Released CAD Documents.
+      - title: Link the folder
+        where: ["E-Bike E1", Folders, Battery, Edit]
+        md: Edit the **Battery** folder, search for the **Battery** domain and select it.
+      - title: Tidy up
+        where: [Preference Management, Display Folder Domains]
+        md: Set the preference back to its original value once the link is made.
+    result: |
+      The Battery folder is its own rule zone and still follows every E1, PDM, Acme and /(Root) rule. A
+      product template made from this set-up carries the domain and its rules along.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Writing rules in the wrong domain.** A rule in Acme Default reaches *every* product, library,
+      project and program in the organization. A rule in E1 Default reaches *every* E1 folder. Before
+      you save, look at the domain you selected and ask "what's below this?"
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      **Keep folder domains rare and named for a reason.** PTC notes that folder domains are mostly used
+      when many contexts made from one template share the same folder structure; one-off folder
+      exceptions are usually handled with ad hoc access instead. Grant to **roles and groups**, not
+      single users, so people can join and leave without rule edits.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: "Where does a battery drawing normally get its domain from?"
+        options: [It is chosen at every check-in, "Its cabinet, or its folder if a domain is linked to the folder", The user who created it, Its life cycle template]
+        answer: 1
+        explanation: Domains are linked to cabinets, and optionally to folders, which override the cabinet's domain. Every access-controlled object ends up with exactly one domain.
+      - kind: multi
+        prompt: Which of these does a policy access control rule specify? (Choose all that apply.)
+        options: [Object type, Life cycle state or all states, One participant, A specific object number, Grant / Deny / Absolute Deny / None per permission]
+        answers: [0, 1, 2, 4]
+        explanation: "Where (the domain it's stored in), what, when, who and how. Rules for one specific object are ad hoc rules, not policy rules."
+      - kind: truefalse
+        prompt: A rule written in E-Bike E1's Default domain also applies to objects in the Battery folder domain.
+        answer: true
+        explanation: An object follows the rules of its own domain and all parent domains. Battery is a child of E1 Default.
+      - kind: single
+        prompt: Kai asks Jordan to add a handy rule at the /(Root) domain. What does PTC recommend?
+        options: [Fine for any rule, Don't add rules at /(Root); write it in the organization or context domains, Only add deny rules there, Only add rules for administrators]
+        answer: 1
+        explanation: /(Root) governs the whole installation. PTC recommends adding no rules there and changing none of its shipped rules except the single indexing rule.
+      - kind: single
+        prompt: Jordan wants to link the Battery folder to a new domain but can't see any domain field on the folder. What's missing?
+        options: [The Display Folder Domains preference is still No, A security label, Jordan needs the Revise permission, The folder must be empty]
+        answer: 0
+        explanation: Folder domains only show in the user interface when Display Folder Domains is Yes. Set it, make the link, then set it back.
+
+  - type: summary
+    points:
+      - A domain is a rule zone for access, notification and indexing; every access-controlled object has exactly one.
+      - Domains link to cabinets, and optionally to folders; they form a tree under /(Root) and objects follow every parent's rules.
+      - Business admins work in the data domains (org Default, PDM, Project, context Default, folder domains) and leave the plumbing alone.
+      - A rule answers where, what, when, who and how, for one participant.
+      - Open Policy Administration from a context's Utilities page; switch to All Contexts to see the whole tree.

@@ -1,0 +1,140 @@
+id: m04-s04-check
+subtitle: Subtypes, attributes, constraints, pick-lists, formulas, layouts and aliases - modelling Acme's data without code.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, types, attributes, layouts, checkpoint]
+sources:
+  - id: ac
+    where: "Module 4, Extend Windchill object types; Describe object typing capabilities; Manage object subtypes; Activity: Create a subtype; Create global enumerations; Describe global object attributes; Describe local object attributes; Describe calculated object attributes; Describe alias object attributes; Describe modeled object attributes; Create reusable attributes; Constrain strings to a set of values; Manage attribute constraints; Manage attribute visibility"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Attribute Constraint Rules"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/typeattr/TypeMgrAttrConstraintRuleRef.html"
+    covers: "Constraint names (Required, Valid Range)"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Viewing and Editing Enumerations"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/typeattr/TypeMgrGlobalEnumEnumInfo.html"
+    covers: "Removed from selection list keeps existing values"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Creating a New Attribute Layout"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/typeattr/TypeMgrAttrLayoutCreate.html"
+    covers: "A first new layout on a subtype drops inherited layouts"
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **types and attributes**, built around Jordan's **E-Bike Part** subtype and its
+      Battery Voltage, Motor Power and IP Rating attributes. Score 80% to pass. Every answer explains
+      itself.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: Acme needs e-bike parts to carry voltage, power and IP rating, with their own access rules. What's the best first move?
+        options:
+          - "Create an E-Bike Part subtype of Part in Type and Attribute Management"
+          - "Ask a developer to write a modeled part class"
+          - "Tell engineers to type the values into the description"
+          - "Create a new product context for every motor"
+        answer: 0
+        explanation: A subtype is non-modeled configuration, inherits from Part and can have its own attributes and administration such as access rules. Code is the last resort.
+      - kind: truefalse
+        prompt: A Battery Pack subtype created under E-Bike Part inherits Battery Voltage, Motor Power and IP Rating.
+        answer: true
+        explanation: A subtype inherits from its parent anything it doesn't override, through every level of the hierarchy.
+      - kind: single
+        prompt: The scooter team also needs a battery voltage field, and some parts need several voltage values. How should Battery Voltage be set up?
+        options:
+          - "As a reusable attribute added to both types as a global attribute"
+          - "As a local attribute on each type"
+          - "As an enumeration"
+          - "As a calculated attribute"
+        answer: 0
+        explanation: Global attributes can be multi-valued and shared by unrelated types. Local attributes hold at most one value and belong to one type.
+      - kind: multi
+        prompt: Which constraints fit Battery Voltage on E-Bike Part? (Choose all that apply.)
+        options: [Required, "Valid Range 24 to 72", Enumerated Value List of IP ratings, String Length of 6]
+        answers: [0, 1]
+        explanation: Voltage is a required number within limits. IP lists and string lengths belong to other attributes.
+      - kind: single
+        prompt: Acme no longer wants new parts rated IP54, but 300 existing parts are IP54. What does Jordan do?
+        options:
+          - "Move the IP54 entry to Removed from selection list"
+          - "Delete the IP54 entry"
+          - "Edit the IP54 entry's internal name to IP65"
+          - "Remove the IP Rating attribute from the type"
+        answer: 0
+        explanation: An entry removed from the selection list stays unchanged where it's already used but can't be chosen when creating or editing. Entry internal names can't be edited.
+      - kind: single
+        prompt: Ana wants Max Current on every e-bike part, always equal to Motor Power ÷ Battery Voltage. What should Jordan create, and how does the formula name its inputs?
+        options:
+          - "A calculated attribute, using the inputs' internal names"
+          - "A calculated attribute, using the inputs' display names"
+          - "An alias attribute, using the inputs' display names"
+          - "A local attribute users fill in"
+        answer: 0
+        explanation: Calculated attributes derive values by formula, and formulas must use internal names rather than display names.
+      - kind: single
+        prompt: Ana wants each battery part to show the description of the spec document with the same name. Which attribute kind fits?
+        options: [Alias, Calculated, Local, Modeled]
+        answer: 0
+        explanation: An alias attribute maps to an attribute on a related object and displays it on the current type.
+      - kind: order
+        prompt: Put Jordan's IP Rating set-up in order.
+        items:
+          - Create an enumeration organizer and the IP Rating global enumeration
+          - Add the entries IP54, IP65 and IP67
+          - Add an Enumerated Value List constraint that uses it on the IP Rating attribute
+          - Test the drop-down by creating a part in a test context
+        explanation: Build the list, fill it, attach it to the attribute through a constraint, then test.
+      - kind: truefalse
+        prompt: Creating the first new layout on E-Bike Part keeps all the layouts it inherited from Part.
+        answer: false
+        explanation: All inherited layouts are lost and must be recreated for the subtype. PTC recommends editing inherited layouts instead.
+      - kind: multi
+        prompt: Which are good practices when modelling types? (Choose all that apply.)
+        options:
+          - "Put shared attributes on a generic parent type and specific ones on its subtypes"
+          - "Search Manage Reusable Attributes before creating a new attribute"
+          - "Use a modeled attribute only when no configurable attribute can do the job"
+          - "Create a new subtype for every part category"
+        answers: [0, 1, 2]
+        explanation: Those are PTC's recommended patterns. Too many subtypes make search, rules and reports painful.
+
+  - type: flashcards
+    title: Types and attributes deck
+    cards:
+      - front: "Subtype"
+        back: "Your own kind of object under a shipped type. Inherits what it doesn't override; non-modeled, no code."
+      - front: "Type and Attribute Management"
+        back: "The utility (Site or Organization Utilities) for types, attributes, layouts, global enumerations, reusable attributes and units."
+      - front: "Global attribute"
+        back: "Based on a reusable definition; zero or more values; usable by unrelated types; the most common kind."
+      - front: "Local attribute"
+        back: "Stored in a column of one type's table; zero or one value; faster; needs columns (AddColumns)."
+      - front: "Attribute constraint"
+        back: "A rule on the type-and-attribute pair: Required, Valid Range, String Length, value lists, Immutable..."
+      - front: "Global enumeration"
+        back: "A shared list of legal values, used through an Enumerated Value List constraint."
+      - front: "Retire a pick-list value"
+        back: "Move it to Removed from selection list - existing data keeps it."
+      - front: "Calculated attribute"
+        back: "Formula over internal names; always Immutable; not stored directly; recalculated after create or edit."
+      - front: "Alias attribute"
+        back: "Displays an attribute of a related object, found through a mapping."
+      - front: "Modeled attribute"
+        back: "Java-coded; only when configuration can't do it; adds upgrade complexity."
+      - front: "Visibility vs layouts"
+        back: "Visibility decides which attributes show and how; layouts decide where."
+
+  - type: summary
+    points:
+      - Subtypes model your data as configuration and inherit from their parent.
+      - Global attributes are shared and multi-valued; local ones live on one type's table.
+      - Constraints, enumerations and calculated attributes keep values clean.
+      - Alias attributes borrow values; modeled attributes are a last resort.
+      - Edit inherited layouts rather than replacing them; use visibility to hide fields.

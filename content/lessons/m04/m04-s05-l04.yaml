@@ -1,0 +1,357 @@
+id: m04-s05-l04
+subtitle: The most common admin ticket in PLM. Solve it like a detective, not with Full Control.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [access-control, troubleshooting, effective-permissions, business-admin]
+sources:
+  - id: ac
+    where: "Module 8: Identify available permissions (troubleshooting example); Implement ad hoc access control; Troubleshoot access control issues; Describe security labeled objects; Identify permissions needed for move operations; Define an indexing policy (search results filtered by access control); Activity: Create an ad hoc rule"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Access Control Overview"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/accesscontrol_chp/AccessControlChp_Overview.html"
+    covers: "Fields that refer to an object the user cannot read show (Secured information)"
+
+blocks:
+  - type: text
+    md: |
+      Tuesday, 08:12. Email from Lin at Voltra Cells:
+
+      > *"Kai said the battery pack drawing EB-10021 was released yesterday. I search for it and get
+      > nothing. Can you check?"*
+
+      The fastest "fix" is to add Lin to `ACME-Engineering`. It also gives a supplier access to
+      everything engineers see. A good admin finds the **one** missing piece and fixes only that.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "what Lin can actually do to that drawing" → [[effective-permissions|effective permissions]]
+      - "the admin X-ray for who can do what, and why" → [[access-information-tool|Access Information page]]
+      - "giving more access than needed" → *over-granting* (the opposite of *least privilege*)
+
+  - type: callout
+    variant: note
+    title: Invisible is the default
+    md: |
+      Windchill doesn't say "access denied" in search results. Search results are filtered by access
+      control, so objects you can't **Read** simply don't appear. Where a field refers to an object you
+      can't read (say, a creator's user record), it shows **(Secured information)** instead of the value.
+      So "I can't find it" and "I'm not allowed to see it" look the same to the user.
+
+  - type: diagram
+    title: The seven usual suspects
+    caption: Check them roughly in this order. The cheap checks come first. Click each one.
+    diagram:
+      width: 820
+      height: 400
+      nodes:
+        - id: s1
+          label: 1 · Right object?
+          sublabel: number · version · state
+          x: 20
+          y: 20
+          w: 240
+          h: 56
+          tone: neutral
+          detail: |
+            First make sure there really is a problem. Is EB-10021's drawing really Released, or still
+            **Under Review**? Is it in E-Bike E1, or was it checked in to another product by mistake?
+        - id: s2
+          label: 2 · Right person?
+          sublabel: account · groups · team role
+          x: 290
+          y: 20
+          w: 240
+          h: 56
+          tone: neutral
+          detail: |
+            Is Lin's account in `SUP-Voltra`? Is `SUP-Voltra` in the E-Bike E1 team with the Supplier
+            role? A new hire on the supplier side often has an account but no group.
+        - id: s3
+          label: 3 · Right folder?
+          sublabel: which domain it uses
+          x: 560
+          y: 20
+          w: 240
+          h: 56
+          tone: primary
+          detail: |
+            Voltra's rules live in the **Battery** domain. If the drawing was saved in the *Electrics*
+            folder (E1 Default domain), the Battery rules never apply to it.
+        - id: s4
+          label: 4 · Matching grant?
+          sublabel: type · state · participant
+          x: 20
+          y: 130
+          w: 240
+          h: 56
+          tone: primary
+          detail: |
+            Is there a grant for that **type** (or a parent type), that **state**, and a participant Lin
+            belongs to? No grant means no access.
+        - id: s5
+          label: 5 · A deny somewhere?
+          sublabel: whole domain chain
+          x: 290
+          y: 130
+          w: 240
+          h: 56
+          tone: warning
+          detail: Check denies in the object's domain **and every parent**. A deny on any of Lin's groups cancels a grant to another of her groups.
+        - id: s6
+          label: 6 · Security label?
+          sublabel: authorized · agreement active?
+          x: 560
+          y: 130
+          w: 240
+          h: 56
+          tone: danger
+          detail: |
+            A label denies unauthorized users whatever the rules say. If access worked last week and nothing
+            else changed, check whether an [[agreement]] expired or became inactive.
+        - id: s7
+          label: 7 · Ad hoc changed?
+          sublabel: life cycle · removed · absolute deny
+          x: 290
+          y: 240
+          w: 240
+          h: 56
+          tone: warning
+          detail: |
+            Did the access come from a life cycle ad hoc rule for a state the object has now left? Did
+            someone remove a hand-added grant? Or did an absolute deny appear, which beats any ad hoc grant?
+        - id: tool
+          label: Access Information page
+          sublabel: shows 4 to 7 in one place
+          x: 290
+          y: 330
+          w: 240
+          h: 56
+          tone: success
+          shape: pill
+          detail: |
+            Lists every rule behind Lin's permissions on the exact object, and says whether each is a policy
+            rule, a life cycle ad hoc rule, a hand-added ad hoc rule or a security label denial.
+      edges:
+        - { from: s1, to: s2 }
+        - { from: s2, to: s3 }
+        - { from: s3, to: s4 }
+        - { from: s4, to: s5 }
+        - { from: s5, to: s6 }
+        - { from: s6, to: s7 }
+        - { from: s7, to: tool }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Each over-grant is a small, permanent leak that nobody remembers. Auditors find them years later,
+      or a supplier finds them sooner. Fixing the real cause also fixes the *next* ticket: if one
+      drawing was in the wrong folder, ten more probably are too.
+
+  - type: walkthrough
+    title: See why someone has (or lacks) a permission
+    who: An administrator, or anyone with Change Permissions on the object
+    where: ["<object> information page", Actions, Edit Access Control]
+    steps:
+      - title: Open the exact object
+        where: [Search, "EB-10021", "<drawing information page>"]
+        md: |
+          Open the drawing's information page. Check its **context**, **folder** and **state**. That
+          already answers suspects 1 and 3.
+      - title: Open Edit Access Control
+        where: ["<information page>", Actions, Edit Access Control]
+        md: |
+          From the **Actions** menu choose **Edit Access Control**. It lists participants and their basic
+          permissions on this object. If Lin isn't listed, add her account with **Add participants** so you
+          can examine her row.
+      - title: Open the Access Information page
+        where: [Edit Access Control, "<Lin's row>", View Access Information]
+        md: |
+          Click the **View Access Information** icon on Lin's row. The **Access Information** page lists
+          every rule that produces her permissions on this object, with the rule details and where each
+          comes from: policy rule, life cycle ad hoc rule, ad hoc rule from Edit Access Control, or a
+          security label denial. You can't change rules here; it tells you where to go.
+      - title: Cross-check in Policy Administration
+        where: [Utilities, Policy Administration, "<object's domain>"]
+        md: |
+          Open Policy Administration for the context and find the rule the Access Information page
+          named, including rules inherited from parent domains. You can also display the access control
+          list for the drawing's type and state there.
+      - title: Check team membership
+        where: [Browse, Products, "E-Bike E1", Team]
+        md: Confirm the participant's group holds the expected role in the context team.
+    result: |
+      You can name the single cause, such as *"drawing sits in Electrics, not Battery"*, and show the evidence.
+
+  - type: scenario
+    variant: troubleshooting
+    title: Lin can't find EB-10021
+    start: t1
+    nodes:
+      - id: t1
+        md: Lin can't find the EB-10021 battery drawing. What do you check first?
+        choices:
+          - label: "Look at the object itself: number, version, state, folder"
+            next: t2
+            good: true
+            feedback: Cheapest check first. Confirm the object is what everyone thinks it is.
+          - label: Add Lin to ACME-Engineering so it works
+            next: bad1
+            feedback: That's over-granting before you know the cause.
+          - label: Ask Rosa to restart the server
+            next: bad2
+            feedback: Changes to policy rules take effect immediately; a restart doesn't change rule logic.
+      - id: bad1
+        md: |
+          Lin now sees the drawing, and also every In Work part, CAD model and change that engineers see.
+          Kai finds out a week later. You remove Lin from the group and start again.
+        outcome: fail
+      - id: bad2
+        md: The restart disrupts everyone, and Lin still can't see the drawing. Back to square one.
+        choices:
+          - { label: Start the investigation properly, next: t2 }
+      - id: t2
+        md: |
+          The drawing exists in E-Bike E1, revision A, **Released**. But its location is the
+          **Electrics** folder, not **Battery**. What does that mean?
+        choices:
+          - label: It uses the E1 Default domain, so the Battery rules don't apply
+            next: t3
+            good: true
+            feedback: Exactly. The folder decides the domain.
+          - label: Nothing, the folder doesn't affect access
+            next: t2-hint
+            feedback: The folder decides the domain, and the domain decides which rules apply.
+      - id: t2-hint
+        md: Electrics uses E1 Default, which has no Supplier grant for CAD. Battery is a separate folder domain. Look again.
+        choices:
+          - { label: Got it, next: t3 }
+      - id: t3
+        md: How do you fix it without over-granting?
+        choices:
+          - label: Move the drawing (and its model) to the Battery folder
+            next: t4
+            good: true
+            feedback: The object now sits in the zone built for exactly this.
+          - label: Copy the Battery Supplier rule into E1 Default
+            next: bad3
+            feedback: That reaches every E1 folder.
+          - label: Add an ad hoc Read for SUP-Voltra on the drawing
+            next: partial1
+            feedback: It works for this one, but hides the real problem.
+      - id: bad3
+        md: Voltra can now read every Released CAD Document in E-Bike E1, including motor and frame drawings they shouldn't see.
+        outcome: fail
+      - id: partial1
+        md: |
+          Lin sees EB-10021, but next week's EB-10025 cell module drawing lands in Electrics too and
+          the ticket comes back. Ad hoc fixes treat symptoms.
+        outcome: partial
+      - id: t4
+        md: |
+          Priya tries the move and gets refused. Moving between folders in **different domains** needs
+          **Change Domain** on the object where it is now and **Create By Move** in the new domain (a move
+          within one domain only needs Modify). Jordan does the move. The Access Information page now
+          shows Lin has **Read** and **Download**. One last thing?
+        choices:
+          - label: Tell Priya, and check Electrics for other battery drawings
+            next: win
+            good: true
+            feedback: Fix the cause, then the pattern.
+          - label: Close the ticket
+            next: partial2
+            feedback: Fine, but the same mistake will happen again.
+      - id: partial2
+        md: The ticket is closed. Two weeks later another battery drawing is filed in Electrics.
+        outcome: partial
+      - id: win
+        md: |
+          Priya now saves battery CAD in Battery. You find two more misfiled drawings and move them, and
+          you note the fix in the access log. Least privilege kept, root cause fixed.
+        outcome: success
+
+  - type: scenario
+    variant: what-if
+    title: "What if it was something else?"
+    start: w1
+    nodes:
+      - id: w1
+        md: Same complaint, different cause. Pick a case to see the right fix.
+        choices:
+          - { label: Drawing is still Under Review, next: w-state }
+          - { label: Org-level Deny Read for the Supplier role, next: w-deny }
+          - { label: "Label 'Voltra Proprietary', agreement expired", next: w-label }
+          - { label: "Lin's account isn't in SUP-Voltra", next: w-group }
+      - id: w-state
+        md: |
+          **Fix: nothing to fix.** The rule grants Released only, by design. Tell Lin it'll appear when
+          Maya's review completes. If Voltra genuinely must review it now, add an ad hoc Read on that one
+          object, and remove it afterwards.
+        outcome: success
+      - id: w-deny
+        md: |
+          **Fix: find out why the deny exists before touching it.** If it's an intentional red line, the
+          answer is "no". If it's too broad, narrow its state or type at the organization level. Don't
+          paper over a deny you don't understand.
+        outcome: success
+      - id: w-label
+        md: |
+          **Fix: renew the coverage** through a new or updated agreement, if the business still wants
+          Voltra cleared. Don't remove the label from the object; that would expose it to everyone with a
+          policy grant.
+        outcome: success
+      - id: w-group
+        md: |
+          **Fix: add Lin's account to `SUP-Voltra`** in Participant Administration. Don't add Lin to rules
+          by name; the group exists so people can come and go.
+        outcome: success
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **"It works for me."** An admin account has far more rights than Lin, so opening the drawing as
+      admin proves only that the drawing exists. Examine Lin's own row on the Access Information page,
+      or test with a user who has exactly her groups and roles.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Keep a short access log for every fix: who, which object, cause, change made and why. When an
+      auditor asks "why can Voltra read the Battery folder?", you'll answer in one line instead of an
+      afternoon.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Lin searches for EB-10021 and gets no result. As admin you find it immediately. What does this suggest?
+        options: [Search is broken, Lin most likely lacks Read access to it, The drawing was deleted, Lin typed the number wrong]
+        answer: 1
+        explanation: Search results are filtered by access control, so unreadable objects don't appear. Confirm on the Access Information page.
+      - kind: single
+        prompt: How do you open the Access Information page for Lin on one drawing?
+        options:
+          - "Drawing's Actions → Edit Access Control → View Access Information icon on Lin's row"
+          - Policy Administration → Access Information tab
+          - Participant Administration → Lin → Access
+          - Preference Management → Security
+        answer: 0
+        explanation: The Access Information page is opened per participant from the object's Edit Access Control page. It's read-only; you change rules elsewhere.
+      - kind: multi
+        prompt: Which fixes avoid over-granting when a Released battery drawing is misfiled in Electrics? (Choose all that apply.)
+        options: [Move it to the Battery folder, Copy the Supplier rule into E1 Default, Add Lin to ACME-Engineering, Find and move other misfiled battery drawings]
+        answers: [0, 3]
+        explanation: Moving objects into the zone built for them keeps Voltra inside its fence. The other two open large areas to a supplier.
+      - kind: single
+        prompt: The move from Electrics to Battery changes the drawing's domain. Which permissions does it need?
+        options: [Modify only, Change Domain on the object and Create By Move in the new domain, Change Context only, Administrative]
+        answer: 1
+        explanation: A move inside one domain needs Modify. When the domain changes, you need Change Domain (before) and Create By Move (after); Change Context is added when the context changes too.
+
+  - type: summary
+    points:
+      - Unreadable objects are invisible in search, so "can't find" often means "can't read".
+      - Check object, person, folder, grants, denies, labels and ad hoc changes, cheapest first.
+      - The Access Information page, opened from Edit Access Control, shows every rule behind a participant's permissions and its source.
+      - Fix the single real cause, then the pattern behind it; never fix with Full Control or a big group.

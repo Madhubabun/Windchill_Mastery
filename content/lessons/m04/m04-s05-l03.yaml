@@ -1,0 +1,291 @@
+id: m04-s05-l03
+subtitle: Rules flow downhill. Design the hill so they land where you want.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [access-control, domains, inheritance, deny]
+sources:
+  - id: ac
+    where: "Module 8: Identify domain and cabinet administrative objects; Describe the Windchill domain architecture; Describe the Windchill data domain architecture; Describe the Windchill private domain architecture; Describe the Windchill folder domain architecture; Describe the Windchill shared team domain architecture; Identify access control list resolution principles; Identify participants of an access control rule; Explicitly deny access to data"
+
+blocks:
+  - type: text
+    md: |
+      Two weeks after Voltra joined, Kai pings Jordan: *"Why can Voltra see Priya's half-finished
+      battery drawings?!"* Jordan's Battery rules only grant **Released**. So where did the extra
+      access come from?
+
+      From **above**. Someone had added a convenience rule at the organization level, and every domain
+      below it passed it on. Domains inherit; that's their strength, and the source of most surprises.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "rules flow from parent zones to child zones" → *domain inheritance*
+      - "the zone a zone sits under" → *parent domain*
+      - "a context that skips the organization's shared rules" → *private* context
+      - "a 'no' written into a rule" → [[deny-rule|deny]]
+
+  - type: diagram
+    title: What a drawing in Battery really "sees"
+    caption: An object follows its own domain's rules plus every ancestor's. Click each layer.
+    diagram:
+      width: 820
+      height: 430
+      nodes:
+        - id: site
+          label: "/(Root)"
+          sublabel: shipped rules only
+          x: 40
+          y: 20
+          w: 200
+          h: 52
+          tone: neutral
+          detail: Out-of-the-box rules for the whole installation. PTC recommends adding nothing here.
+        - id: org
+          label: Acme Default
+          sublabel: one rule is new!
+          x: 40
+          y: 110
+          w: 200
+          h: 52
+          tone: primary
+          detail: |
+            Rules for every product, library, project and program in Acme. The new one, added in a hurry:
+            **All · CAD Document · All states · Grant Read**. *All* is the pseudo-role for every Windchill
+            user, so suppliers are included. It flows down into every context.
+        - id: pdm
+          label: PDM
+          sublabel: public products + libraries
+          x: 40
+          y: 200
+          w: 200
+          h: 52
+          tone: primary
+          detail: Parent of every public product and library Default domain. Rules here reach Scooter S2, E-Bike E1 and Acme Standard Parts alike, but not projects.
+        - id: e1
+          label: E-Bike E1 Default
+          sublabel: team rules
+          x: 40
+          y: 290
+          w: 200
+          h: 52
+          tone: accent
+          detail: E1's own rules for designers, members and change roles, many of them from the product template.
+        - id: battery
+          label: Battery
+          sublabel: folder domain
+          x: 40
+          y: 375
+          w: 200
+          h: 48
+          tone: success
+          detail: Jordan's Voltra rule. Read + Download on Released CAD Documents for the Supplier role.
+        - id: effective
+          label: Combined for Battery
+          sublabel: every layer, together
+          x: 380
+          y: 180
+          w: 240
+          h: 64
+          tone: warning
+          detail: |
+            Windchill combines the rules of all five layers. For Voltra on an In Work drawing, the Acme rule
+            grants Read, so Voltra sees it. **Grants add up across levels.**
+        - id: lesson
+          label: No "closest wins"
+          sublabel: grants add · a deny cuts
+          x: 380
+          y: 300
+          w: 240
+          h: 60
+          tone: danger
+          detail: |
+            Many people expect a child domain to override its parent, like CSS. It doesn't. A child can
+            **add** grants and **add** denies; to take away a parent's grant for some users, you need a deny
+            (or a change to the parent rule).
+      edges:
+        - { from: site, to: org }
+        - { from: org, to: pdm }
+        - { from: pdm, to: e1 }
+        - { from: e1, to: battery }
+        - { from: site, to: effective, dashed: true }
+        - { from: org, to: effective, dashed: true, label: leak }
+        - { from: pdm, to: effective, dashed: true }
+        - { from: e1, to: effective, dashed: true }
+        - { from: battery, to: effective, dashed: true }
+        - { from: effective, to: lesson }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      One rule high in the tree quietly changes access in every context beneath it. In a regulated
+      company that's an audit finding; with a supplier involved it can be an IP leak. Deciding *which*
+      rule goes *where* is the main architecture decision in access control.
+
+  - type: text
+    md: |
+      ### Three ways a context's parent chain changes
+      The data domain tree isn't the same for every context. Three set-ups change what a context
+      inherits:
+
+      | Set-up | Context's Default domain hangs under | Effect |
+      | --- | --- | --- |
+      | **Public** product or library | PDM | Gets Acme Default and PDM rules |
+      | **Public** project or program | Project | Gets Acme Default and Project rules |
+      | **Private** context (chosen at creation) | Private | Skips Acme Default, PDM and Project rules; the Private domain has no shipped rules for data objects |
+      | Product or library using a **shared team** | The shared team's own domain, at PDM's level | PDM rules are **ignored**; put shared rules in the shared team domain |
+
+      A real-life example of the private effect: an organization created from the *General (PDM)*
+      template gets a PDM rule granting Read on every **Released** object. Every public product shows its
+      Released data across the organization; turning a product private hides it, because the PDM rule no
+      longer reaches it.
+
+  - type: simulation
+    title: Keep Voltra on released drawings only
+    intro: |
+      You're Jordan. Set Voltra up, survive the organization-wide "convenience rule", then fix the leak
+      in one of two ways. Watch what Voltra can see after each step.
+    headline: "Phase: {phase} · Released drawings: {released} · In Work drawings: {inWork}"
+    initial: { phase: Start, released: Hidden, inWork: Hidden }
+    actions:
+      - id: join
+        label: Add SUP-Voltra to E-Bike E1 team (Supplier role)
+        when: { phase: Start }
+        do: [{ set: { phase: In team } }]
+        log: Voltra is on the team, but no rule grants the Supplier role anything on battery CAD yet. Membership alone gives nothing.
+        blockedHint: Voltra is already on the team.
+      - id: grant
+        label: "Battery domain: Supplier · CAD Document · Released · Grant Read + Download"
+        when: { phase: In team }
+        do: [{ set: { phase: Granted, released: Visible } }]
+        log: Released battery drawings are now visible to Voltra. In Work ones still aren't; no rule matches that state.
+        blockedHint: Put Voltra on the team first, or you've already added this rule.
+      - id: leak
+        label: "Someone adds at Acme Default: All · CAD Document · All states · Grant Read"
+        when: { phase: Granted }
+        do: [{ set: { phase: Leaked, inWork: Visible } }]
+        log: The rule flows down to PDM, E1 Default and Battery. The All pseudo-role includes suppliers, so Voltra now sees In Work drawings too. Leak!
+        blockedHint: This happens after Jordan's grant is in place.
+      - id: fix-deny
+        label: "Battery domain: Supplier · CAD Document · In Work · Deny Read"
+        when: { phase: Leaked }
+        do: [{ set: { phase: Fixed by deny, inWork: Hidden } }]
+        log: Granted by one rule, denied by another, both for groups or roles, so not granted. In Work is hidden from Voltra again; employees keep the org rule.
+        blockedHint: Only needed once there's a leak to fix.
+      - id: fix-source
+        label: Replace All with the ACME-All employee group in the org rule
+        when: { phase: Leaked }
+        do: [{ set: { phase: Fixed at source, inWork: Hidden } }]
+        log: Fixed at its source. Employees keep Read; suppliers get nothing from it. Cleaner than piling on denies.
+        blockedHint: Only needed once there's a leak to fix.
+      - id: reset
+        label: Start over
+        when: { phase: [In team, Granted, Leaked, Fixed by deny, Fixed at source] }
+        do: [{ set: { phase: Start, released: Hidden, inWork: Hidden } }]
+        log: Back to an empty rule set.
+        blockedHint: You're already at the start.
+    goals:
+      - label: Fix the leak with a deny lower down
+        when: { released: Visible, inWork: Hidden, phase: Fixed by deny }
+        message: A deny in a child domain cancels an inherited group grant. It works, but every deny is one more thing to remember.
+      - label: Fix the leak at its source
+        when: { released: Visible, inWork: Hidden, phase: Fixed at source }
+        message: Changing the parent rule fixes every context below it at once. Usually the better fix.
+
+  - type: callout
+    variant: note
+    title: When does a deny win?
+    md: |
+      In the simulation both rules were written for groups or roles, so the deny wins. That isn't always
+      the case: a grant to a **named user**, to the **Owner** pseudo-role or an **ad hoc** grant ranks
+      above a group deny. The *Grant, deny and absolute deny* lesson sets out the full ranking.
+
+  - type: text
+    md: |
+      ### Designing a hierarchy that won't surprise you
+      | Put it at... | When the rule is... | Acme example |
+      | --- | --- | --- |
+      | /(Root) and the plumbing domains | Never; leave the shipped rules alone | (nothing) |
+      | Acme Default | True for **every** product, library, project and program | `ACME-All` may Read Released parts |
+      | PDM | True for all public products and libraries, not projects | What the Members role may do in any product |
+      | Project | True for all projects and programs | Looser collaboration rules |
+      | Shared team domain | Common to every context that uses that shared team | Rules for the shared supplier team |
+      | Context Default | Specific to one product team | E1 designers may Modify In Work parts |
+      | Folder domain | A **subset** of folders needs different rules | Battery: Supplier reads Released CAD |
+
+      Rule of thumb: **grant as low as possible, and keep denies few.** Grants placed low reach only who
+      needs them. PTC's own best practice is to minimize deny rules, because each one makes the result
+      harder to predict.
+
+  - type: scenario
+    variant: challenge
+    title: Hexa Tooling joins the scooter line
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Hexa Tooling (machining supplier) needs Released drawings for SC-2000 and SC-1042 in
+          **Scooter S2**. Rosa suggests: *"Just put the supplier rule at Acme Default so it covers every
+          product."* What do you do?
+        choices:
+          - label: "Make a Machining folder domain in Scooter S2 and grant SUP-Hexa there"
+            next: s2
+            good: true
+            feedback: Low grants keep each supplier inside their own fence.
+          - label: "Put Supplier role · Released CAD · Read at Acme Default"
+            next: f1
+            feedback: Now every supplier with the Supplier role in any context sees Released drawings there, including Voltra on the scooter.
+      - id: f1
+        md: |
+          A month later Voltra's engineer finds Scooter S2 frame drawings in a search. Nothing broke
+          technically; the rule did exactly what it said. You move the rule down and explain the exposure
+          to Maya.
+        outcome: fail
+      - id: s2
+        md: |
+          Done. Months ago, Kai had written one rule in the **PDM** domain: *Supplier role · Document ·
+          Released · Grant Read*, so every supplier can read released spec sheets in its products. Now
+          Rosa creates a new product, **Scooter S3**, that uses a **shared team**, and Hexa joins it.
+          Hexa reads Released spec documents in Scooter S2 but not in Scooter S3. Why?
+        choices:
+          - label: "Contexts using a shared team skip PDM rules; the rule belongs in the shared team domain"
+            next: s3
+            good: true
+            feedback: Right. The shared team domain sits at PDM's level, so PDM rules are ignored there.
+          - label: "Hexa's account has expired"
+            next: p1
+            feedback: Then Hexa couldn't read Scooter S2 either.
+      - id: p1
+        md: |
+          Rosa checks the account; it's fine, and Scooter S2 still works. The difference is the shared
+          team: its domain sits beside PDM, so PDM rules don't reach Scooter S3.
+        choices:
+          - { label: Move the rule, next: s3 }
+      - id: s3
+        md: |
+          Jordan copies the spec-sheet rule into the shared team's domain, so every context using that team
+          gets it. Hierarchy done: supplier grants live low in their own folder domains, rules common to the
+          shared team live in its domain, and the leaky All rule now names `ACME-All` instead.
+        outcome: success
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Using All as "all employees".** The *All* pseudo-role means every Windchill user, which includes
+      supplier and partner accounts. Create a real employee group (`ACME-All`) and grant to that.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Before saving a rule high in the tree, list the contexts beneath that domain and read the rule
+      aloud for each: *"In Acme Standard Parts, All may read In Work CAD. OK?"* If any sentence sounds
+      wrong, move the rule down.
+
+  - type: summary
+    points:
+      - An object follows its own domain's rules plus every ancestor's, all combined.
+      - There's no "closest rule wins". Grants add up; between group rules, a deny cuts.
+      - Private contexts skip the organization's Default, PDM and Project rules; shared team contexts skip PDM rules.
+      - Grant as low as possible and keep denies few.
+      - Never use All to mean employees; suppliers are users too.
