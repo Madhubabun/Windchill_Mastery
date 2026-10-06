@@ -1,0 +1,116 @@
+id: m04-s09-check
+subtitle: Can you design a tree people will use - and find a part in it?
+version: 1.0.0
+updated: "2026-10-05"
+tags: [classification, reuse, checkpoint]
+sources:
+  - id: pl
+    where: "Windchill PartsLink Classification: overview; Classification structure; Classification attributes; Create and update classification structures; Classification search and advanced search; Find Similar Objects; Implementation considerations"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Classification Nodes"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wcclassreuse/WCClassReuseClassNodeAbout.html"
+    covers: "Do not use the same attribute on a classification node and an object type"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Classification Constraints"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wcclassreuse/WCClassReuseConstraintsAbout.html"
+    covers: "Required constraint"
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **part classification**: why it drives reuse, how to design a classification
+      tree, how to classify a part and how to find a reusable part with classification search. Score
+      80% to pass.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: What's the main business reason Acme introduces part classification?
+        options: [To make parts look tidy, To make reuse easier and stop duplicate parts, To replace part numbers, To control who can edit parts]
+        answer: 1
+        explanation: Every duplicate part costs money to qualify, buy, stock and service. Classification makes the existing part easy to find.
+      - kind: single
+        prompt: Which classification tree design is best for Acme's first version?
+        options:
+          - "One node per team: Kai's team, Priya's team..."
+          - "One node per supplier: Voltra Cells, Hexa Tooling..."
+          - "By what parts are: Mechanical → Fasteners → Machine screws"
+          - "Eight levels deep so every part has its own node"
+        answer: 2
+        explanation: Teams, suppliers and products change; what a part is doesn't. Keep it shallow - three or four levels.
+      - kind: truefalse
+        prompt: An attribute defined on the Fasteners node is inherited by the Machine screws and Nuts nodes below it.
+        answer: true
+        explanation: Attributes flow down the tree, which is why the upper nodes should carry only attributes that apply to everything below them.
+      - kind: single
+        prompt: Jordan wants classification to drive findability, and a part type to drive numbering and life cycle. Which statement fits?
+        options:
+          - Create a subtype for every kind of screw
+          - Types decide rules; classification decides how parts are found
+          - Classification replaces part types
+          - Types and classification are the same thing
+        answer: 1
+        explanation: A few types carry business rules; a larger classification tree describes what parts physically are. PTC also advises not putting the same attribute on both a type and a node.
+      - kind: multi
+        prompt: Which make good classification attributes for the Machine screws node? (Choose all that apply.)
+        options: [Thread size from a list, Length in mm, Designer's favourite colour, "Free-text notes on how it was tested"]
+        answers: [0, 1]
+        explanation: Good attributes are things people search or compare on, with constrained values and units. Notes belong in documents.
+      - kind: single
+        prompt: Kai creates EB-10130 (48 V Li-ion pack). Which node should he pick?
+        options: [Electrical, Battery packs, Li-ion packs, Acme Parts]
+        answer: 2
+        explanation: Pick the most specific instantiable node that fits. A search on Battery packs still covers it, because a node's search includes its child nodes.
+      - kind: single
+        prompt: Jordan adds a Washers node under Fasteners. Where does he do it?
+        options:
+          - "Navigator → Browse → Classification Administration → Manage Classifications"
+          - "E-Bike E1 → Folders → New Part"
+          - "Site → Utilities → Report Management"
+          - "His Home page → Saved searches"
+        answer: 0
+        explanation: Classification structures are maintained in Manage Classifications by members of the classification administrators group; right-click the parent and choose Insert Node.
+      - kind: order
+        prompt: Order Priya's steps to reuse a battery pack.
+        items: [Open the Classification Explorer, Walk to Battery packs, Refine to 36 V and at least 14 Ah, Check state and where-used, Insert it into her structure]
+        explanation: Tree, filters, sanity checks, then reuse.
+      - kind: single
+        prompt: Sam's filtered search misses a pack that is classified in the right node. Most likely cause?
+        options: [The filtered attribute is blank on that part, The node is too specific, Searches never include sub-nodes, The part is in a library]
+        answer: 0
+        explanation: A part with no value can't match a filter on that attribute. Adding the Required constraint on the node fixes this for new parts.
+      - kind: single
+        prompt: Priya's search returns EB-10021 (Released) and EB-10088 (In Work). Both match. What should she do?
+        options: [Reuse EB-10021, Reuse EB-10088, Create a new part to be safe, Reuse both]
+        answer: 0
+        explanation: Prefer released parts - they are approved and stable. A prototype can still change or be dropped.
+
+  - type: flashcards
+    title: Part classification deck
+    cards:
+      - front: Classification
+        back: Putting a part into a node of a shared tree of part kinds, giving it standard attributes.
+      - front: Classification structure
+        back: The company-wide tree of nodes, maintained in Manage Classifications by classification administrators.
+      - front: Classification node
+        back: A branch or end node of the tree. Instantiable nodes carry the parts; upper nodes group.
+      - front: Classification attribute
+        back: A constrained property of one kind of part, e.g. Thread size for screws.
+      - front: Inheritance
+        back: Attributes defined on a node apply to every node below it.
+      - front: Classification search
+        back: Classification Explorer (tree + Refine Results), advanced search with a node (includes child nodes), or Find Similar Objects.
+      - front: Part reuse
+        back: Using an existing, ideally released, part instead of creating a near-duplicate.
+      - front: Type vs classification
+        back: Type drives rules (numbering, life cycle, access); classification drives findability.
+      - front: Blank attributes
+        back: Invisible to filtered searches. Add the Required constraint to the important ones.
+      - front: Find Similar Objects
+        back: Starts from a classified part and finds others in the same node with adjusted values.
+      - front: Good first tree
+        back: By what parts are, 3-4 levels deep, 3-6 searchable attributes per leaf.

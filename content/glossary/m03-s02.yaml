@@ -1,0 +1,48 @@
+# New glossary terms introduced in section m03-s02 (Change objects in depth).
+- id: change-administrator
+  term: Change administrator
+  plain: The person who keeps change paperwork moving - triages reports, sets up the plan and checks the work is done.
+  definition: A role in the change process (often split into several numbered roles in standard processes, depending on configuration) responsible for reviewing incoming problem reports and change requests, creating change notices and their implementation plans, and auditing the change notice before it is closed. Role names and duties are set by each company.
+  aka: [Change admin, Change analyst, Change coordinator]
+  related: [problem-report, change-request, change-notice, change-review-board]
+
+- id: change-impact-analysis
+  term: Change impact analysis
+  plain: '"If we change this, what else gets hit?" - answered before anyone says yes.'
+  definition: The study done on a change request to find everything a proposed change touches - where-used assemblies and end items, related documents and CAD, other open changes, stock and orders, suppliers, cost and schedule. Its result helps the change review board decide.
+  aka: [Impact analysis, Impact assessment]
+  related: [change-request, where-used, affected-object, change-review-board]
+
+- id: implementation-plan
+  term: Implementation plan
+  plain: The to-do list of a change - who does which piece, by when.
+  definition: The set of change tasks on a change notice, each with an assignee, a reviewer, a need date and its own affected and resulting objects. When every task is complete and the change notice is resolved, the resulting objects are typically released.
+  aka: [Change plan]
+  related: [change-notice, change-task, resulting-object]
+
+- id: redline
+  term: Redline (BOM redline)
+  plain: Marking up a structure in red - "remove this, add that" - as a proposal before anyone edits the real thing.
+  definition: A set of proposed edits to a product structure (adds, removes, replacements, quantity changes) captured in the context of a change, so reviewers can see exactly what will change. Depending on release and configuration, a redline is created from a change task and applied to the real structure when the work is approved.
+  aka: [Redlining, BOM markup]
+  related: [change-task, bom, change-request]
+
+- id: variance
+  term: Variance
+  plain: An approved "just this once" exception to the released design.
+  definition: A change object that authorizes a temporary, one-time departure from released data for a limited quantity, lot, serial range or period, without changing the released design. Companies often classify variances as deviations or waivers.
+  aka: [Deviation request, Concession]
+  related: [deviation, waiver, change-request, affected-object]
+
+- id: deviation
+  term: Deviation
+  plain: Permission asked before building something differently from the drawing.
+  definition: A variance approved in advance that allows a limited quantity or period of production to depart from released requirements, for example using an alternative material for one lot while the normal one is unavailable.
+  related: [variance, waiver]
+
+- id: waiver
+  term: Waiver
+  plain: Permission asked after parts were made wrong - "can we still use these?"
+  definition: A variance that accepts items already produced that do not conform to released requirements, for a specific lot or quantity, typically after review shows they are still fit for use.
+  aka: [Concession]
+  related: [variance, deviation]

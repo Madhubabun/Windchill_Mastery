@@ -1,0 +1,239 @@
+id: m04-s02-l04
+subtitle: Decide where data should live before it exists - and know what really happens when you move it later.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, architect, contexts, strategy, move]
+sources:
+  - id: ac
+    where: "Module 3, Why is data strategy important; Describe how contexts contain data; Create a context strategy; Identify relationships between contexts; Compare contexts; Use contexts to manage product data; Move objects between contexts"
+  - id: ac
+    where: "Module 2, Identify best practices for organizations, users, and groups (single organization); Activity notes on creating an organization (use a new organization rather than the initial one)"
+  - id: ac
+    where: "Module 7, Identify best practices for creating OIRs (product-level rules can restrict moves)"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "About Move"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/commonactions/CommonMoveAbout.html"
+    covers: "Moved objects take the policies of the new location; associated items move along; new versions get the new context's processes"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Move Restrictions"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/commonactions/CommonMoveRestrictionsRef.html"
+    covers: "Products and libraries only; all versions needed across contexts; checked-out objects can't move; permissions in both folders; team template conflicts"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Moving an Object"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/commonactions/CommonObjMove.html"
+    covers: "Name and number unchanged; new versions get team and life cycle from the target context's initialization rules"
+
+blocks:
+  - type: text
+    md: |
+      Acme's leadership has big plans: an e-bike division, a cargo range, maybe a separate company for rental fleets.
+      Kai asks Jordan the architect's question: **"Where should all of this live?"**
+
+      Every object in Windchill lives in exactly one context, and that home decides its team, its folders and its
+      rules. Choosing homes well is a **context strategy**. Choose badly and you'll be *moving* data later - which
+      Windchill can do, with consequences you need to predict.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the plan for which contexts exist and what goes where" → *context strategy* (or container strategy)
+      - "what makes a context a context" → folder structure + [[context-team]] + rules (access and initialization)
+      - "relocating data to another product or library" → the **Move** action
+      - "the list of extra things to bring along" → *Collect Objects* table in the Move wizard
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      A good context strategy pays back every day: people find and reuse data faster, changes reach the right people,
+      workflows run automatically, libraries and projects can be shared, collaboration is easier - and there's less to
+      administer and less to teach new users. A messy one costs you in every one of those places.
+
+  - type: comparison
+    title: Pick the right kind of context
+    columns: [Product, Library, Project, Program]
+    rows:
+      - label: Main purpose
+        cells: [All the definition data for one product or product line, Shared objects not unique to one product, "A plan of deliverables and milestones, plus its working data", A hub linking related contexts and the umbrella plan]
+      - label: Acme example
+        cells: [E-Bike E1, Acme Standard Parts, Voltra Cell Dev, E-Bike programme]
+      - label: Typical creator
+        cells: [Product Creators, Library Creators, "Project creators - often regular users", Program creators]
+      - label: Good for
+        cells: ["Data under formal control for one product family", "Reused components, standards, CAD start parts and templates", Collaboration - including third parties, Finding and navigating related information]
+      - label: Can objects be moved in or out?
+        cells: [Yes, Yes, No - Move isn't available, No - Move isn't available]
+    takeaway: Products for product lines, libraries for reuse, projects for collaboration, programs to tie them together.
+
+  - type: text
+    md: |
+      **Jordan's strategy rules for Acme** (all straight from PTC's guidance, in our words):
+
+      1. **One organization** unless you have large, separate divisions that share little data. Lots of sharing? Stay in one.
+      2. **Not the initial organization.** If more organizations might come later, create your own organization context for
+         products and libraries instead of using the one present at installation - adding organizations later won't
+         need a restructure.
+      3. **Organize products by product family or product line**, each holding related data - better access, better security.
+      4. **Libraries for anything reused**: common components, design and manufacturing standards everyone needs, CAD start
+         parts and drawing templates.
+      5. **Projects for outside partners.** Share product data into a project so partners can read and download it, while
+         the original stays under product control.
+      6. **Keep initialization rules at organization or site level.** Rules inside individual products can restrict moving
+         objects between products later.
+
+  - type: example
+    variant: real-world
+    title: Acme's strategy on one page
+    industry: Micromobility
+    md: |
+      Jordan's proposal for the e-bike launch:
+
+      - **Acme Mobility** stays the single organization. The rental idea shares most parts with the scooters, so a second
+        organization would only get in the way.
+      - Products: **Scooter S2**, **E-Bike E1**, later **E1 Cargo** - one per product line.
+      - Library **Acme Standard Parts** for fasteners and bearings, and a second library for CAD start parts and drawing
+        templates.
+      - Project **Voltra Cell Dev** for the supplier collaboration; battery specs are shared into it for read and download.
+      - All numbering and life cycle rules at organization level, written for subtypes such as **E-Bike Part**.
+    takeaway: Write the strategy down before the first product is created; it is far cheaper than moving data later.
+
+  - type: walkthrough
+    title: Move objects to another context
+    who: A user with the right permissions in both the source and the target folders
+    where: [Object, Actions, Move]
+    steps:
+      - title: Make sure nothing is checked out
+        md: Objects can't be moved while checked out - not even by the user who has them checked out. Get them checked in first.
+      - title: Start the move
+        where: [Object information page, Actions, Move]
+        md: Open the object and choose **Move** from its **Actions** menu. The Move wizard opens with the **Collect Objects** table.
+      - title: Collect what belongs with it
+        where: [Move wizard, Collect Objects]
+        md: |
+          Add related objects that should travel too, such as dependents or a whole folder's contents. To move to a different
+          product or library, move **all versions** - moving only the current version keeps it inside the same context.
+      - title: Set the new location
+        where: [Move wizard, Collect Objects, Set new location]
+        md: Set the target location for every object - row by row, or for several objects at once - then finish.
+    result: |
+      The objects live in the new context with the same name, number, version identifiers and history. From now on they
+      follow the policies of their new location.
+
+  - type: comparison
+    title: What changes when an object moves
+    columns: [Stays the same, Changes]
+    rows:
+      - label: Identity
+        cells: ["Name, number, version identifiers, full history", "Its context and folder"]
+      - label: Access control
+        cells: ["-", "Takes the policies of the new location (folder domains included)"]
+      - label: Associated items
+        cells: ["Associations to the object are kept", "Representations, effectivity, discussions, baselines and similar items move along"]
+      - label: Processes
+        cells: ["Running processes move with the version - if their templates sit at organization or site level", "New versions get team, life cycle, workflow and access from the new context's rules"]
+    takeaway: Move when the latest version is released - then the next revision starts cleanly under the new context's rules.
+
+  - type: scenario
+    variant: challenge
+    title: Moving the hinge to the library
+    start: m1
+    nodes:
+      - id: m1
+        md: |
+          The hinge **SC-1042** turned out to be reused on E-Bike E1, so Jordan wants to move it from **Scooter S2** into
+          **Acme Standard Parts**. Priya has it checked out for a small fix. What now?
+        choices:
+          - label: Move it anyway - Priya can check in later
+            next: f1
+            feedback: Checked-out objects can't be moved.
+          - label: Ask Priya to check in first
+            next: m2
+            good: true
+            feedback: Right. A move needs the object checked in.
+      - id: m2
+        md: Checked in. In the Move wizard, which version option lets SC-1042 leave Scooter S2?
+        choices:
+          - label: Only the displayed version
+            next: f2
+            feedback: Moving only the current version keeps the object inside the same product or library.
+          - label: All versions
+            next: m3
+            good: true
+            feedback: Crossing to another product or library needs all versions.
+      - id: m3
+        md: |
+          The move reports a conflict: SC-1042's team comes from a team template defined inside Scooter S2. What's the
+          lesson?
+        choices:
+          - label: Templates and rules used across products belong at organization or site level
+            next: win
+            good: true
+            feedback: Team templates managed at product or library level block cross-context moves; organization- or site-level ones move cleanly.
+          - label: Moves between products are impossible in Windchill
+            next: p1
+            feedback: They're possible - this one is blocked by where the team template lives.
+      - id: win
+        md: |
+          **Moved.** Once the team template was managed at Acme's organization level, the move went through. SC-1042 lives
+          in the library with the same number and history. From now on it
+          follows the library's access policies - so Jordan checked that the scooter and e-bike teams can read it there.
+        outcome: success
+      - id: p1
+        md: Windchill can move all versions between products and libraries. The block came from a product-level team template - fixable by managing templates higher up.
+        outcome: partial
+      - id: f1
+        md: The Move action refuses checked-out objects, even for the person who has them checked out.
+        outcome: fail
+      - id: f2
+        md: A current-version-only move must stay in the same product or library, so SC-1042 can't leave Scooter S2 this way.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Forgetting that access follows the new home.** A moved object takes the policies of its new location. Moving
+      a part into a library with a different audience changes who can see it - check the target's team and rules before
+      you move, not after a complaint.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      **Use the Collect Objects table generously.** Bring dependent objects and whole folders along in one move instead of
+      several partial ones; split moves leave versions in different places and can trigger extra conflicts.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Acme and its planned rental business will share most parts. What does PTC's guidance suggest for organizations?
+        options: [One organization context for both, One organization each, One organization per product, Use the site for shared parts]
+        answer: 0
+        explanation: Multiple organizations suit large, separate divisions that share little. With significant data sharing, one organization is generally better.
+      - kind: multi
+        prompt: Which belong in a library rather than a product? (Choose all that apply.)
+        options: [Fasteners used by scooters and e-bikes, CAD start parts and drawing templates, Design standards everyone must follow, The E-Bike E1 battery pack assembly]
+        answers: [0, 1, 2]
+        explanation: Libraries hold things shared across product lines, such as common components, standards and CAD start parts. The battery pack assembly belongs to the E-Bike E1 product.
+      - kind: truefalse
+        prompt: Jordan can use Move to relocate documents out of the Voltra Cell Dev project into E-Bike E1.
+        answer: false
+        explanation: Move works for product and library contexts only; it isn't available for projects or programs.
+      - kind: single
+        prompt: SC-1042 moves from Scooter S2 to Acme Standard Parts. What happens to its number and history?
+        options: [It gets a new library number, Number and history stay the same, History is reset in the new context, It becomes a copy with a new number]
+        answer: 1
+        explanation: Name, number, version identifiers and history are unchanged. What changes is its location - and therefore the policies it follows.
+      - kind: single
+        prompt: Why does PTC recommend defining object initialization rules at organization or site level?
+        options: [They run faster there, Product-level rules can restrict moving objects between products, Product-level rules are not allowed, Only site administrators can read them]
+        answer: 1
+        explanation: Rules and templates kept inside individual products can block or complicate moves between products later.
+
+  - type: summary
+    points:
+      - A context is folders + team + rules; a context strategy decides which contexts exist and what lives where.
+      - "One organization unless divisions share little; products per product line, libraries for reuse, projects for collaboration."
+      - Move (Actions menu) relocates objects between products and libraries; move all versions to cross contexts, and check in first.
+      - Moved objects keep name, number and history but take the new location's policies. Keep rules and templates high up to keep moves easy.

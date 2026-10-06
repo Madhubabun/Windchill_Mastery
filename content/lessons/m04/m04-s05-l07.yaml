@@ -1,0 +1,269 @@
+id: m04-s05-l07
+subtitle: Domains don't only guard access. They also decide who hears about changes and what search can find.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [domains, notification-policy, indexing-policy, policy-administration, search]
+sources:
+  - id: ac
+    where: "Module 8: Identify domain and cabinet administrative objects (what a domain controls); Describe the Windchill domain architecture (single indexing rule at /(Root)); Work with the Policy Administrator; Define a notification policy; Define an indexing policy"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Notification Rules"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/policyadmin/PolicyAdminNotifAbout.html"
+    covers: "A notification rule maps a domain, an object type and an event to participants; notifications come from rules or user subscriptions"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Managing Notification Rules"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/policyadmin/PolicyAdminNotifManage.html"
+    covers: "Notification Rules tab, New icon, Domain/Type/Event fields; one event and one type per rule, several participants allowed"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Indexing Rules"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/policyadmin/PolicyAdminIndexAbout.html"
+    covers: "Indexing rule = domain, type, life cycle state and collections; rules inherit down domains and types"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Managing Indexing Rules"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/policyadmin/PolicyAdminIndexManage.html"
+    covers: "Indexing Rules tab, New and Edit icons, Type/State/Collections criteria"
+
+blocks:
+  - type: text
+    md: |
+      Leo (quality) has a request: *"Every time someone checks in a battery document in E-Bike E1, I want
+      an email. I keep missing changes."* Same week, Rosa asks Jordan whether the new battery folder
+      domain needs anything for **search**.
+
+      Both questions land in the same place. A domain controls three things for its objects: **access**,
+      **notification** and **indexing**. You've mastered access. These are the other two, and they live
+      right next to it in Policy Administration.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "email these people when this happens to this kind of object" → [[notification-policy|notification rule]] (all of a domain's rules form its *notification policy*)
+      - "my own 'tell me when this changes' request" → [[subscription]]
+      - "which objects go into the search index, and when" → [[indexing-policy|indexing rule]] (all of them form the *indexing policy*)
+      - "the keyword search engine" → [[index-search|index search]]
+
+  - type: diagram
+    title: Two more jobs for every domain
+    caption: Top lane, notifications. Bottom lane, indexing. Click each box.
+    diagram:
+      width: 820
+      height: 420
+      groups:
+        - { label: Notification policy, x: 20, y: 10, w: 780, h: 180, tone: info }
+        - { label: Indexing policy, x: 20, y: 215, w: 780, h: 190, tone: accent }
+      nodes:
+        - id: event
+          label: Event
+          sublabel: e.g. check-in of a document
+          x: 40
+          y: 60
+          w: 200
+          h: 56
+          tone: neutral
+          detail: Something happens to an object, for example a check-in or check-out.
+        - id: nrule
+          label: Notification rule
+          sublabel: domain · type · event · who
+          x: 300
+          y: 60
+          w: 220
+          h: 56
+          tone: info
+          detail: |
+            Windchill looks for rules in the object's domain (and parents) that match its **type** and the
+            **event**. One rule has one type and one event, but can list several participants: users,
+            groups or organizations.
+        - id: readcheck
+          label: Read check
+          sublabel: no Read, no email
+          x: 580
+          y: 30
+          w: 200
+          h: 52
+          tone: danger
+          detail: |
+            Windchill never sends a notification to someone who can't read the object, so a notification
+            can't leak what access control hides.
+        - id: email
+          label: Email
+          sublabel: to each recipient
+          x: 580
+          y: 110
+          w: 200
+          h: 52
+          tone: success
+          shape: pill
+          detail: Recipients can't cancel a policy notification; only an administrator can change the rule.
+        - id: state
+          label: Object in a state
+          sublabel: e.g. Released
+          x: 40
+          y: 270
+          w: 200
+          h: 56
+          tone: neutral
+          detail: Indexing rules match the object's type and life cycle state.
+        - id: irule
+          label: Indexing rule
+          sublabel: domain · type · state · collections
+          x: 300
+          y: 270
+          w: 220
+          h: 56
+          tone: accent
+          detail: |
+            Says which objects to index, in which state, and into which **collections**. Out of the box, a
+            single rule at /(Root) indexes every type in every state into a collection named **wblib**.
+        - id: index
+          label: Index server
+          sublabel: attributes + file content
+          x: 580
+          y: 240
+          w: 200
+          h: 52
+          tone: primary
+          shape: cylinder
+          detail: The indexing server lets users search by keyword across attributes and inside content files.
+        - id: results
+          label: Search results
+          sublabel: filtered by access
+          x: 580
+          y: 330
+          w: 200
+          h: 52
+          tone: success
+          shape: pill
+          detail: Being indexed doesn't make an object visible. Access control still filters results so users only see what they may read.
+      edges:
+        - { from: event, to: nrule }
+        - { from: nrule, to: readcheck }
+        - { from: readcheck, to: email, label: can read }
+        - { from: state, to: irule }
+        - { from: irule, to: index }
+        - { from: index, to: results }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Notifications that fire too often get filtered to spam; ones that never fire leave people blind.
+      A misconfigured index means people "can't find" things that exist, and they start keeping private
+      copies. Both are small settings with a big effect on whether people trust the system.
+
+  - type: comparison
+    title: Three ways people get told about changes
+    columns: [Domain notification rule, Subscription, Workflow email]
+    rows:
+      - label: Set up by
+        cells: [An administrator in Policy Administration, The user themselves, The workflow designer]
+      - label: Covers
+        cells: ["Every object of a type in the domain, for one event", Objects the user chose, Steps of one business process]
+      - label: Can the recipient cancel it?
+        cells: ["No - only an admin can change the rule", "Yes - any time", "No - it's part of the process"]
+      - label: How common
+        cells: [Used sparingly, "Often the better choice for personal interest", "Most notifications are built this way, with email robots"]
+    takeaway: Before writing a notification rule, ask whether a subscription or the workflow already covers it. Change and promotion processes send notices of their own.
+
+  - type: walkthrough
+    title: Create a notification rule
+    who: An administrator who manages the domain's policies
+    where: [Utilities, Policy Administration, "<domain>", Notification Rules]
+    steps:
+      - title: Pick the domain
+        where: [Utilities, Business Administration, Policy Administration, Battery]
+        md: |
+          Open **Policy Administration** from the context's Utilities page and select the domain whose
+          objects should trigger the email, here the **Battery** folder domain.
+      - title: Start a rule
+        where: [Policy Administration, Notification Rules, New]
+        md: Open the **Notification Rules** tab and click the **New** icon to open the new notification rule window.
+      - title: Choose type and event
+        where: [New Notification Rule, Type, Event]
+        md: Pick the object **Type** (Document) and the **Event** (the check-in event). One rule holds one type and one event.
+      - title: Add the recipients
+        where: [New Notification Rule, Participants]
+        md: Add one or more participants. Prefer a group such as `ACME-Quality` over Leo's own account.
+    result: Whenever a document in the Battery domain is checked in, members of `ACME-Quality` who can read it get an email.
+
+  - type: callout
+    variant: note
+    title: When an email doesn't arrive
+    md: |
+      Split the work. The system admin checks the mail server and that Windchill is set up to use it. You,
+      the business admin, check the user's email address in Windchill and, most important of all, whether
+      the user can **read** the object. No Read, no notification.
+
+  - type: text
+    md: |
+      ### Indexing policy in practice
+      Most of the time the shipped /(Root) indexing rule is all you need; it's the one /(Root) rule PTC
+      says you may change. To build a different indexing rule you name the **domain**, the **object type**,
+      the **life cycle state** in which indexing happens and the **collections** to fill, on the
+      **Indexing Rules** tab of Policy Administration. Like access rules, indexing rules flow down to child
+      domains and subtypes.
+
+      Two moments call for **bulk indexing** (re-indexing existing data):
+
+      - **After a large data load.** Indexing is turned off during bulk loads, so the loaded data has to
+        be indexed afterwards.
+      - **After an indexing rule changes.** Objects that didn't match the old rule may match the new one.
+
+  - type: walkthrough
+    title: Review a domain's indexing rules
+    who: An administrator who manages the domain's policies
+    where: [Utilities, Policy Administration, "<domain>", Indexing Rules]
+    steps:
+      - title: Open the tab
+        where: [Policy Administration, "/(Root)", Indexing Rules]
+        md: In Policy Administration, select a domain and open the **Indexing Rules** tab. Switch the context list to **All Contexts** to reach /(Root).
+      - title: Filter the table
+        where: [Indexing Rules, Type, State, Collections]
+        md: Narrow the rule list by **Type**, **State** or **Collections** to find the rules for one kind of object.
+      - title: Create or edit only with a reason
+        where: [Indexing Rules, New]
+        md: Use **New** or **Edit** to change rules, and plan a bulk re-index with the system admin afterwards.
+    result: You can tell Rosa that the Battery domain inherits the /(Root) rule, so its objects are already indexed into wblib; no new rule needed.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **"Search is broken!"** Before touching indexing, check access. Search results are filtered by
+      access control, so an object the user can't read won't show up however well it's indexed.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Point notification rules at **groups** and narrow events. One check-in rule for `ACME-Quality` on
+      the Battery domain is useful; a rule for every event on every type at Acme Default is an inbox
+      flood that people will filter away.
+
+  - type: flashcards
+    cards:
+      - front: Three things a domain controls
+        back: Access to its objects, when they're indexed for search, and who is notified when an event happens to them.
+      - front: Parts of a notification rule
+        back: Domain, object type, event (one of each), plus one or more participants to notify.
+      - front: Notification rule vs subscription
+        back: A rule is set by an admin and can't be cancelled by recipients. A subscription is set by the user and can be cancelled any time.
+      - front: Who gets no notification?
+        back: Anyone who can't read the object. Windchill won't send it, so notifications never bypass access control.
+      - front: Parts of an indexing rule
+        back: Domain, object type, life cycle state, and the collections to fill.
+      - front: The shipped indexing rule
+        back: One rule at /(Root) that indexes every type in every state into the wblib collection.
+      - front: When to run bulk indexing
+        back: After a large data load (indexing is off during bulk loads) and after an indexing rule changes.
+      - front: Does indexing make objects visible?
+        back: No. Access control still filters search results.
+
+  - type: summary
+    points:
+      - Domains control access, notification and indexing; all three are managed in Policy Administration.
+      - A notification rule is domain + type + event + recipients; recipients without Read get nothing.
+      - Most notifications come from workflows; subscriptions suit personal interest; use domain rules sparingly.
+      - An indexing rule is domain + type + state + collections; the shipped /(Root) rule covers most needs.
+      - Run bulk indexing after big loads and after indexing rule changes.

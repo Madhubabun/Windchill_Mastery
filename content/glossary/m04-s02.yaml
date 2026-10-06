@@ -1,0 +1,31 @@
+# New glossary terms introduced in section m04-s02 (Contexts).
+- id: site
+  term: Site (context)
+  plain: The very top of the Windchill server - settings here reach everyone.
+  definition: The root of the context hierarchy, one per Windchill installation. Policies, templates and preferences defined at site level become the defaults for every organization and every product, library, project and program below it, unless a lower level overrides them where that is allowed. Usually only administrators work at site level.
+  related: [context, organization-context]
+
+- id: organization-context
+  term: Organization context
+  plain: Your company's own floor of the building, holding all its products and libraries.
+  definition: The context between the site and the application contexts. It holds company-wide settings - access policies, object initialization rules, templates, groups and shared teams - which its products, libraries, projects and programs inherit. It is always linked to an organization participant and cannot be deleted.
+  related: [site, organization, product-context, library]
+
+- id: project-context
+  term: Project (context)
+  plain: A less formal team space for a piece of work, often with partners.
+  definition: An application context whose main purpose is to track a project plan of deliverables and milestones, plus the parts and documents created along the way. Projects are often used to collaborate with third parties; regular users can be allowed to create them. Projects sit directly inside an organization and cannot be nested in other projects.
+  related: [context, projectlink, organization-context]
+
+- id: shared-team
+  term: Shared team
+  plain: One team list that several products or libraries all use.
+  definition: A team defined at organization level (on the organization's Teams page) and selected when a product, library, project or program is created, so several contexts use the same role membership. A change to the shared team reaches every context that uses it. By default it can only be chosen at creation; a command-line utility can add one to an existing context.
+  related: [context-team, organization-context, group]
+
+- id: context-team
+  term: Context team
+  plain: The team that belongs to just one product, library or project.
+  definition: The single team of a product, project, library or program, shown on its Team page. It maps business roles to users and groups; for each role Windchill keeps a matching context group used in access rules. The context's manager maintains it, and its starting roles come from the context template.
+  aka: [Local team]
+  related: [shared-team, context, group]

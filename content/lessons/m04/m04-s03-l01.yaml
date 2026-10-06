@@ -1,0 +1,334 @@
+id: m04-s03-l01
+subtitle: Name the job, not the person. Then let Windchill find the person.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, roles, teams, team-template, workflow]
+sources:
+  - id: ac
+    where: "Module 6, Manage Windchill teams: overview; Identify team terminology; Identify organization and application context types; Describe the context team architecture; Describe the team members context group; Add a new context role; Add a new user to the context role; Identify context roles in OOTB context templates; Activity: Add a role and a member to a context team; Create team templates; Activity: Create a team template; Identify team role resolution best practices. Module 5, Activity: Create a basic life cycle template (adding an entry to the Role custom modeled enumeration). Module 7, Identify components of an OIR (team template association)"
+
+blocks:
+  - type: text
+    md: |
+      E-Bike E1 is about to launch, and Jordan, Acme's business administrator, gets the same
+      question three times before lunch: *"Who reviews e-bike parts?"*
+
+      Kai says Leo. Leo says "anyone in Quality". Maya says "whoever is on the CCB this month".
+      If Windchill's processes had **Leo** typed into them, every holiday, promotion or new hire
+      would break something.
+
+      So Windchill never asks "who?" first. It asks **"which job?"** - *Product Manager*,
+      *Promotion Approvers*, *Change Administrator I* - and only then looks up who holds that job
+      **in this context**. The job is a **role**. The product's list of roles and people is its
+      **team**. A reusable list of roles for one kind of object's process is a **team template**.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a job title inside a product" → *[[role]]* (Product Manager, Promotion Reviewers, Guest...)
+      - "the product's cast list, sorted by job" → *[[team]]* (the context team)
+      - "people, groups or whole organizations that fill a job" → *participants*
+      - "the hidden group that mirrors each role" → *[[context-group]]*
+      - "a reusable list of roles for an object's process" → *[[team-template]]*
+
+  - type: text
+    md: |
+      Roles do exactly **two jobs** in Windchill:
+
+      1. **Access control** - rules are written for the context groups that mirror the roles, so
+         "Promotion Approvers can do X" stays true whoever the approvers are.
+      2. **Workflow role resolution** - a workflow activity names a role, and Windchill works out
+         which people get the task.
+
+      The next lesson shows both in action. This one is about where roles come from and how you fill them.
+
+  - type: diagram
+    title: Where roles come from, and who uses them
+    caption: Role names are defined once. Each context team fills them. Access rules and workflows point at them. Click each box.
+    diagram:
+      width: 800
+      height: 440
+      groups:
+        - { label: Role names, x: 20, y: 20, w: 220, h: 400, tone: neutral }
+        - { label: Filled per context, x: 270, y: 20, w: 250, h: 400, tone: info }
+        - { label: Who uses roles, x: 550, y: 20, w: 230, h: 400, tone: accent }
+      nodes:
+        - id: rb-roles
+          label: Resource bundle roles
+          sublabel: site-wide Role list
+          x: 35
+          y: 60
+          w: 190
+          h: 64
+          tone: primary
+          detail: |
+            The standard role list. A site administrator adds new entries to the **Role**
+            enumeration in Type and Attribute Management. These are the **only** roles that
+            workflow, life cycle and team template administrators can use, and they work for both
+            access control and role resolution.
+          real: Keep the list short. Fifty roles nobody understands is worse than ten everybody does.
+        - id: org-roles
+          label: Custom org roles
+          sublabel: access control only
+          x: 35
+          y: 180
+          w: 190
+          h: 64
+          tone: warning
+          detail: |
+            An organization can add its own role names (for example to match company job titles).
+            They can only be used as context roles for **access control**. Workflows, life cycles and
+            team templates can't see them, and they are not translated when a user's language changes.
+        - id: team-tpl
+          label: Team template
+          sublabel: roles for one process
+          x: 35
+          y: 310
+          w: 190
+          h: 64
+          tone: primary
+          shape: doc
+          detail: |
+            Lists the roles an object's process needs and can map them to users, groups, an
+            organization or the **creator** of the object. An object initialization rule tells
+            Windchill which team template an object type uses.
+        - id: ctx-team
+          label: E-Bike E1 team
+          sublabel: context roles + members
+          x: 290
+          y: 60
+          w: 210
+          h: 64
+          tone: info
+          detail: |
+            Every product, library, project or program has **one** context team. Its Members table
+            maps roles to participants:
+            - Product Manager → Kai
+            - Promotion Approvers → Maya
+            - Promotion Reviewers → ACME-Quality
+            - Members → ACME-Engineering
+            Whoever created the product starts out as its Product Manager.
+        - id: ctx-groups
+          label: Context groups
+          sublabel: one per role + Team Members
+          x: 290
+          y: 190
+          w: 210
+          h: 64
+          tone: info
+          detail: |
+            For every context role, Windchill keeps a matching **context group** with the same
+            people. One extra group, **Team Members**, collects everyone in every role except Guest.
+            You can't edit Team Members by hand, and you only see it in Policy Administration.
+        - id: obj-team
+          label: Team instance
+          sublabel: one per object process
+          x: 290
+          y: 320
+          w: 210
+          h: 64
+          tone: info
+          detail: |
+            When an object starts a workflow-driven process, Windchill builds its own team from the
+            team template, the life cycle and the context team. Lesson 3 of this section takes it apart.
+        - id: acl
+          label: Access rules
+          sublabel: written for context groups
+          x: 570
+          y: 110
+          w: 190
+          h: 64
+          tone: accent
+          detail: Access control rules in Policy Administration are assigned to context groups (and roles). The shipped product and library templates already write many rules to the Team Members group.
+        - id: wf
+          label: Workflow activities
+          sublabel: "assigned to: a role"
+          x: 570
+          y: 290
+          w: 190
+          h: 64
+          tone: accent
+          detail: A workflow activity names a role. At run time Windchill resolves it to people through the object's team instance, and they see the task.
+      edges:
+        - { from: rb-roles, to: ctx-team, label: added to }
+        - { from: org-roles, to: ctx-team, dashed: true }
+        - { from: rb-roles, to: team-tpl, label: listed in }
+        - { from: ctx-team, to: ctx-groups, label: mirrored by }
+        - { from: team-tpl, to: obj-team, label: starts }
+        - { from: ctx-team, to: obj-team, label: adds people, dashed: true }
+        - { from: ctx-groups, to: acl }
+        - { from: obj-team, to: wf }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Roles are what make **one** process work for **many** products. Acme can run the same promotion
+      process on scooters and e-bikes, because the process says "Promotion Reviewers" and each
+      product's team says who that is. When Leo goes on holiday, Jordan changes one team entry - not
+      twelve workflow templates.
+
+  - type: comparison
+    title: Role, group, context team, team template
+    columns: [What it is, Acme example, Who maintains it]
+    rows:
+      - label: Role
+        cells: ["A generic job name", "Promotion Reviewers", "Site admin adds new resource bundle roles (rarely)"]
+      - label: Group
+        cells: ["A list of users", "ACME-Quality (Leo and two others)", "Participant administration"]
+      - label: Context team
+        cells: ["Roles and their participants for one context", "E-Bike E1: Promotion Reviewers = ACME-Quality", "The context manager (for example the product manager)"]
+      - label: Context group
+        cells: ["System copy of one role's members", "E-Bike E1's Promotion Reviewers group", "Windchill - automatically"]
+      - label: Team template
+        cells: ["Roles an object's process needs", "E-Bike Document Team: Submitter + Reviewer", "Site or organization admin, in Team Administration"]
+    takeaway: Put people in groups, put groups in roles, point processes and rules at roles.
+
+  - type: example
+    variant: real-world
+    title: The day the reviewer left
+    industry: Micromobility
+    md: |
+      Before Windchill, Acme's scooter team routed approvals by email to a named quality engineer.
+      When he left, 40 approval emails sat in a dead mailbox for two weeks.
+
+      In Windchill, Jordan fills E-Bike E1's **Promotion Reviewers** role with the group
+      **ACME-Quality**, not with Leo personally. When a new quality engineer joins, Rosa adds her to
+      ACME-Quality once, and she is a reviewer in every product that uses that group.
+    takeaway: Roles plus groups survive people moving around. Names typed into processes don't.
+
+  - type: walkthrough
+    title: Add a role to the E-Bike E1 team and fill it
+    who: Product manager of E-Bike E1, or Jordan as organization administrator
+    where: [Browse, Products, E-Bike E1, Team]
+    steps:
+      - title: Make sure the organization shows the role
+        where: [Browse, Organizations, Acme Mobility, Roles]
+        md: |
+          Open the organization's **Roles** page. Roles can be hidden from an organization (the
+          organization template decides which ones start hidden). If the role you need is hidden,
+          right-click it and choose **Show Role**.
+      - title: Open the product's team
+        where: [Browse, Products, E-Bike E1, Team]
+        md: Open the product and click **Team**. The **Members** table lists the local roles and the members of each one.
+      - title: Add the role
+        where: [Team, Actions, Add Roles]
+        md: |
+          From the **Actions** menu choose **Add Roles** and pick the role from the organization's
+          list. Only context managers, organization administrators and site administrators can add
+          local team roles.
+      - title: Add participants to the role
+        where: [Team, Members table, Add participants to team]
+        md: |
+          Next to the role, use **Add participants to team**. In the **Find Participants** window,
+          search, select and click **OK**. Prefer **groups** (ACME-Quality) over single users, and
+          add an organization such as Voltra Cells only when every one of its users should hold the role.
+    result: The Members table shows the new role with its participants. Those people are now in the role's context group and in Team Members, so they can work with the product's data.
+
+  - type: walkthrough
+    title: Create a team template
+    who: Organization or site administrator (Jordan)
+    where: [Browse, Organizations, Acme Mobility, Utilities, Team Administration]
+    steps:
+      - title: Open Team Administration
+        where: [Organizations, Acme Mobility, Utilities, Business Administration, Team Administration]
+        md: |
+          On the organization's **Utilities** page, in **Business Administration**, click
+          **Team Administration**. The **Team Templates** table lists the shipped templates (several
+          are built for change management) and any of your own. The context where a template is
+          stored decides where it can be used.
+      - title: Start a new template
+        where: [Team Templates, New Team template]
+        md: Click **New Team template**. Enter a clear name and description, for example **E-Bike Document Team**, and choose whether it is enabled.
+      - title: Add roles
+        where: [New Team Template, Add Role]
+        md: |
+          Click **Add Role**, search for the role in the **Find Participants** dialog, select it and
+          click **OK**. Add every role your workflow assigns work to - and only those.
+      - title: Map roles to participants where it makes sense
+        where: [Team template, Roles]
+        md: |
+          You can resolve a role to users, the **creator** of the object, groups or an organization.
+          Do this for organization-wide positions. Leave product-specific roles to each product's team.
+      - title: Hand it to the object initialization rule
+        where: [Utilities, Object Initialization Rules Administration]
+        md: |
+          A team template does nothing until an **object initialization rule** for the object type
+          names it. Out of the box the rule names the **Default** team template. Rules are covered
+          later in this module.
+    result: The new template appears in the Team Templates table, associated with Acme Mobility, ready to be named in an object initialization rule.
+
+  - type: walkthrough
+    title: Add a brand-new role name (site administrator)
+    who: Rosa, as site administrator
+    where: [Browse, Site, Utilities, Type and Attribute Management]
+    steps:
+      - title: Open the modeled enumerations
+        where: [Site, Utilities, Type and Attribute Management, Customize Modeled Enumerations]
+        md: |
+          In Type and Attribute Management, expand **Customize Modeled Enumerations**. If the
+          **Role** enumeration is not under *Custom Modeled Enumerations* yet, right-click that folder,
+          choose **Customize Enumeration** and select **Role**.
+      - title: Create the entry
+        where: [Role, Available for selection, Create a new entry]
+        md: Select **Role** and click **Create a new entry**. Give it an internal name without spaces (`BatterySafetyEngineer`) and a display name (*Battery Safety Engineer*). Save.
+    result: Battery Safety Engineer is now a resource bundle role. Organizations can show it, products can add it to their teams, and team templates and workflows can use it.
+
+  - type: callout
+    variant: note
+    title: Two kinds of new role, very different reach
+    md: |
+      A role added to the **Role** enumeration works everywhere: teams, team templates, life cycles
+      and workflows. A **custom organization role** (added from the organization's role list or the
+      Team page's add-roles action) is quicker, but it only drives access control. If a workflow will
+      ever need the role, ask Rosa for a resource bundle role.
+
+  - type: callout
+    variant: pitfall
+    title: Close is not the same role
+    md: |
+      The workflow assigns work to **Battery Safety Engineer**. The team has a custom organization
+      role called *Battery Safety Engineers*. To Windchill those are two different roles, and the
+      custom one can't be used for workflow work at all. Agree on one role list and reuse it everywhere.
+
+  - type: callout
+    variant: pitfall
+    title: The "all roles, just in case" template
+    md: |
+      Adding every available role to a team template looks safe. It isn't: every object's team then
+      lists dozens of empty roles, and people can't tell who actually works on the process. Add only
+      the roles the process uses.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      No custom workflows yet? You may not need your own team templates at all - the context team
+      can resolve the roles used by the shipped Promote transition. Start with the context team, and
+      add a team template when a custom workflow needs one.
+
+  - type: flashcards
+    cards:
+      - front: "The two jobs of a role"
+        back: "Access control, and workflow role resolution (who gets an activity)."
+      - front: "Context team"
+        back: "The one team every product, library, project or program has: roles and their participants."
+      - front: "Context group"
+        back: "A system-generated group mirroring one context role. Access rules are usually written to it."
+      - front: "Team Members group"
+        back: "Everyone in every context role except Guest. Maintained by Windchill; visible only in Policy Administration."
+      - front: "Resource bundle role vs custom organization role"
+        back: "Resource bundle roles work everywhere, including workflows. Custom organization roles are for access control only."
+      - front: "Team template"
+        back: "A reusable list of roles (with optional participants) used to start an object's team instance. Named in an object initialization rule."
+      - front: "Participants that can fill a role"
+        back: "Users, groups and organizations (and, in templates, the creator actor)."
+      - front: "Best practice for filling roles"
+        back: "Put people in groups, put groups in roles."
+
+  - type: summary
+    points:
+      - Roles do two jobs - access control and workflow role resolution.
+      - Every context has one team; Windchill mirrors each role in a context group, plus Team Members.
+      - New role names for workflows go into the Role enumeration; custom organization roles are for access only.
+      - Team templates list the roles an object's process needs; an object initialization rule picks the template.
+      - Fill roles with groups so people can come and go without touching processes.

@@ -2,3 +2,34 @@ id: m04
 theme: amber
 icon: shield
 tagline: "Set up contexts, types, access, teams, lifecycles and workflows."
+cheatsheet:
+  sections:
+    - title: People and places
+      points:
+        - "Users belong to organizations; groups collect users; team roles are filled with groups. Manage people in groups, not one by one."
+        - Users and groups usually come from the company directory (LDAP). The system admin owns the connection; the business admin owns how groups are used.
+        - "Context hierarchy: Site → Organization → Product / Library / Project. Settings, rules and types defined higher up flow down."
+        - Create products and libraries from templates. A shared team serves many contexts; a context team serves one.
+    - title: Types and attributes
+      points:
+        - Subtypes (soft types) model your company's data without code, in Type and Attribute Management.
+        - "Global attributes are reusable across types; local attributes belong to one type. Constraints (range, required, legal values) keep data clean."
+        - Enumerations give pick lists; calculated attributes derive values from others.
+        - Layouts decide which attributes users see on create and information pages.
+    - title: Access control
+      points:
+        - "Policy rules: domain + type + state + participant → permissions. They inherit down the domain hierarchy."
+        - "Granted by one rule and denied by another means denied. Priority, highest first: security label denial, absolute deny, ad hoc grants, rules for a named user, then rules for groups, roles and organizations."
+        - Ad hoc access is for one object; security labels deny everyone who isn't authorized, whatever else is granted.
+        - "Debug \"I can't see it\" with Edit Access Control → View Access Information for that participant. Never fix it with Full Control."
+    - title: Process and defaults
+      points:
+        - "Life cycle templates define states, transitions and phase roles; workflow templates define the process. Reassign Life Cycle moves objects to another template."
+        - Robots automate workflow steps; keep routing expressions short and safe.
+        - "Object initialization rules (OIRs) set defaults when an object is created: number, folder, life cycle, team template. Rules from every level merge; the lower level and the subtype rule win. Define them at organization or site level."
+        - Context templates carry folders, roles, policies and rules into each new product. Preferences can be set and locked at site, organization or context level.
+    - title: Reports and classification
+      points:
+        - Query Builder creates report templates that join objects and filter on attributes; publish them so users can run them.
+        - Pick a few metrics a manager will act on, not every number you can count.
+        - Classification groups parts by what they are, with attributes per class, so engineers find and reuse existing parts instead of creating duplicates.

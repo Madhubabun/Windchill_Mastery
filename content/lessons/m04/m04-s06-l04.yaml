@@ -1,0 +1,385 @@
+id: m04-s06-l04
+subtitle: Number, folder, life cycle, team - filled in before the user even sees the form. Here's the rule behind the magic, and how to fix it when the magic stops.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, oir, object-initialization-rules, defaults, numbering]
+sources:
+  - id: ac
+    where: "Module 7: Describe object initialization rules (OIRs); Manage OIRs; Describe the format of an OIR; Identify components of an OIR; Identify best practices for creating OIRs; Activity: Create an object initialization rule (OIR) for requirements documents; Activity: Create an object to test the attributes applied by its OIR. Module 5: Describe object life cycle resolution"
+  - id: trn-custsec9
+    where: "Section 9: association of life cycle and workflow to a subtype happens through the OIR"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Creating Composite Rules"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/objrules/ObjRuleCompositeRuleCreateRef.html"
+    covers: "Rules merge across context and type hierarchies; lowest level wins; unset values come from parent rules; subtype rule ignored when a parent type rule exists in the current context"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "The Use of Object Type Hierarchy in Rules"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/objrules/ObjRuleObjectTypeHierarchy.html"
+    covers: "Parent type rules apply to subtypes; subtype rules usually take precedence, with listed exceptions"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Object Initialization Rules Table"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/objrules/ObjRuleRef.html"
+    covers: "Table actions (create, download, edit, delete, enable/disable), Enabled column, only enabled rules are used"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "AttrValue Tag Syntax"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/objrules/ObjRuleAttrValueTagRef.html"
+    covers: "AttributeValues and AttrValue structure; folder.id with FolderPathAttributeAlgorithm"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Default Life Cycle Example using the LifeCycleTemplateAttributeAlgorithm"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/objrules_chp/ObjRulesChp_DefaultLCExample.html"
+    covers: "lifeCycle.id with LifeCycleTemplateAttributeAlgorithm"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Numbering Scheme Examples"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/objrules/ObjRuleObjectNumberingExamples.html"
+    covers: "number with NumberGenerator and the GEN SequenceGenerator argument"
+
+blocks:
+  - type: text
+    md: |
+      Picture Priya creating her tenth E-Bike Part of the day. Without help she would have to type a
+      number (which one is free?), pick a folder, choose the right life cycle and the right team.
+      Ten parts, forty chances to get something wrong.
+
+      With an **object initialization rule** (OIR), she picks the type **E-Bike Part**, types a name
+      and a voltage, and clicks Finish. Windchill fills in the rest:
+
+      | Field | Filled with |
+      | --- | --- |
+      | Number | `EB-10050` - next value from the e-bike sequence |
+      | Folder | `/Default/EBike-Parts` |
+      | Life cycle | `E-Bike Part Life Cycle` (lesson 1) |
+      | Team template | the E-Bike Part team template |
+
+      You've built the life cycle and a workflow. The OIR is the glue that hands them to every new
+      object - automatically and identically.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the auto-fill rule for a type in a context" → [[object-initialization-rule]] (OIR)
+      - "the step that works out a value" → *algorithm* (one per attribute in the XML)
+      - "the values handed to the algorithm" → *arguments* (`Arg` tags)
+      - "all the rules that apply, combined" → the *merged* or *composite* rule
+      - "where the next number comes from" → number generator + sequence (see [[numbering-scheme]])
+
+  - type: animation
+    title: How the rule Priya gets is put together
+    diagram:
+      width: 840
+      height: 380
+      groups:
+        - { label: Rules that apply, x: 270, y: 10, w: 290, h: 360, tone: neutral }
+      nodes:
+        - { id: priya, label: Priya, sublabel: New E-Bike Part in E-Bike E1, x: 20, y: 160, w: 210, tone: accent, shape: pill }
+        - { id: site, label: Site · Part, sublabel: out-of-the-box defaults, x: 300, y: 280, w: 230, tone: neutral }
+        - { id: org, label: Acme Mobility · E-Bike Part, sublabel: number · folder · life cycle, x: 300, y: 160, w: 230, tone: primary }
+        - { id: prod, label: E-Bike E1, sublabel: no rule of its own, x: 300, y: 40, w: 230, tone: neutral }
+        - { id: merged, label: Merged rule, sublabel: lowest level wins, x: 610, y: 100, w: 200, tone: success, shape: doc }
+        - { id: part, label: EB-10050, sublabel: In Work · /Default/EBike-Parts, x: 610, y: 250, w: 200, tone: success, shape: doc }
+      edges:
+        - { from: priya, to: prod, label: creates here }
+        - { from: site, to: merged, label: fills the gaps }
+        - { from: org, to: merged, label: wins }
+        - { from: merged, to: part, label: Finish }
+    chapters:
+      - title: Priya picks a type
+        caption: Priya is inside **E-Bike E1** and chooses **E-Bike Part**. The context and the type decide which rules apply.
+        show: [priya, prod, org, site]
+        highlight: [priya]
+        flow: [priya>prod]
+      - title: Rules from every level
+        caption: E-Bike E1 has no rule of its own. Jordan's **Acme Mobility** rule covers E-Bike Part. The **site** rule covers Part - and a rule for a type also applies to its subtypes.
+        show: [priya, prod, org, site]
+        highlight: [org, site]
+      - title: Merge, lowest level wins
+        caption: Windchill builds one **merged** rule. Where both rules set a value, the lower one (subtype, closer context) wins. Values Jordan left out come from the site rule.
+        show: [priya, prod, org, site, merged]
+        highlight: [merged]
+        flow: [org>merged, site>merged]
+      - title: The part is created
+        caption: "On Finish the generator hands out the next value: **EB-10050**, In Work, in `/Default/EBike-Parts`."
+        highlight: [part]
+        flow: [merged>part]
+        seconds: 7
+
+  - type: diagram
+    title: Who wins? Context and type together
+    caption: Rules merge along two ladders - contexts and types. Click each box.
+    diagram:
+      width: 820
+      height: 330
+      groups:
+        - { label: Type Part, x: 20, y: 20, w: 380, h: 290, tone: neutral }
+        - { label: Subtype E-Bike Part, x: 420, y: 20, w: 380, h: 290, tone: accent }
+      nodes:
+        - id: site-part
+          label: Site · Part
+          sublabel: out-of-the-box
+          x: 60
+          y: 230
+          w: 300
+          tone: neutral
+          detail: The rule shipped with Windchill. It applies to Part **and all its subtypes**, in every context, unless something lower overrides a value.
+        - id: org-part
+          label: Acme Mobility · Part
+          sublabel: not created
+          x: 60
+          y: 140
+          w: 300
+          tone: neutral
+          detail: Jordan has no organization rule for plain Part. Plain parts at Acme follow the site rule.
+        - id: prod-part
+          label: E-Bike E1 · Part
+          sublabel: the trap
+          x: 60
+          y: 50
+          w: 300
+          tone: danger
+          detail: |
+            If someone created a **Part** rule inside E-Bike E1, the Help Center warns that a subtype
+            rule from a **higher** context is ignored when a parent type rule exists in the current
+            context. Jordan's E-Bike Part rule would stop applying in E1.
+        - id: org-ebike
+          label: Acme Mobility · E-Bike Part
+          sublabel: Jordan's rule
+          x: 460
+          y: 140
+          w: 300
+          tone: success
+          detail: |
+            EB- numbers, the EBike-Parts folder, the E-Bike Part life cycle and team template. Defined at
+            **organization** level, as the course recommends, so it applies in every Acme product.
+          real: Rules in individual products make moving objects between products harder. Keep OIRs at organization or site level.
+        - id: prod-ebike
+          label: E-Bike E1 · E-Bike Part
+          sublabel: not needed
+          x: 460
+          y: 50
+          w: 300
+          tone: neutral
+          detail: A product-level rule for the subtype would win over the organization rule in E1 - but Jordan avoids product-level rules.
+      edges:
+        - { from: org-ebike, to: site-part, label: unset values from, dashed: true }
+        - { from: prod-part, to: org-ebike, label: blocks, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      OIRs are the cheapest data quality tool you have. A right default is used thousands of times
+      without anyone thinking about it. A wrong default is copied just as faithfully - so one
+      afternoon of testing an OIR saves months of cleaning up misfiled parts.
+
+  - type: walkthrough
+    title: Create the E-Bike Part OIR for Acme Mobility
+    who: An organization administrator
+    where: [Browse, Organizations, "Acme Mobility", Utilities, Object Initialization Rules Administration]
+    steps:
+      - title: Open the utility in the right context
+        where: [Browse, Organizations, "Acme Mobility", Utilities, Object Initialization Rules Administration]
+        md: |
+          The table lists the rules of this context **and** its parents. At the organization you see
+          Acme's rules and the site's - not other organizations' or products'.
+      - title: Start from a working rule
+        where: [Object Initialization Rules table, "Part", Download]
+        md: |
+          Right-click the existing **Part** rule and choose **Download**. Editing a rule that already
+          works beats writing XML from scratch.
+      - title: Point it at the subtype
+        where: [Utilities, Type and Attribute Management, E-Bike Part]
+        md: |
+          Copy the **Internal Name** of the E-Bike Part subtype and put it in place of the class name in
+          the rule's first tag. Then set the values you need - and only those. Unset values come from
+          the parent rules.
+      - title: Create the rule
+        where: [Object Initialization Rules Administration, New Object Initialization Rule]
+        md: |
+          Click **New Object Initialization Rule**, name it `E-Bike Part defaults`, use **Find** to
+          select the E-Bike Part type, and choose the edited XML file. On upload Windchill checks the
+          **syntax only** - not whether the folder or life cycle names are right.
+      - title: Test it
+        where: [Products, "E-Bike E1", Folders, New Part]
+        md: |
+          Create a test part of type **E-Bike Part**. On its information page check the number,
+          folder, state, life cycle and team template that the rule applied.
+    result: |
+      New E-Bike Parts in any Acme product arrive with an EB- number, in `/Default/EBike-Parts`, In
+      Work on the E-Bike Part Life Cycle. The rule shows as enabled in the table - only enabled rules
+      are used.
+
+  - type: text
+    md: |
+      ### What the rule looks like
+
+      An OIR is an XML document. The first tag names the object type; inside, each **AttrValue**
+      names one attribute and the **algorithm** that works out its value, and **Arg** tags hand the
+      algorithm its arguments. This sketch uses only element and class names shown in PTC's
+      documentation; the subtype's internal name is Acme's.
+
+      ```xml
+      <AttributeValues objType="com.acmemobility.EBikePart">
+        <!-- number: constant prefix + next sequence value -->
+        <AttrValue id="number"
+          algorithm="com.ptc.windchill.enterprise.revisionControlled.server.impl.NumberGenerator">
+          <Arg>EB-</Arg>
+          <Arg>{GEN:wt.enterprise.SequenceGenerator:EBPART_seq:5:0}</Arg>
+        </AttrValue>
+        <!-- folder: always starts with /Default, the context's root folder -->
+        <AttrValue id="folder.id"
+          algorithm="com.ptc.core.foundation.folder.server.impl.FolderPathAttributeAlgorithm">
+          <Arg>/Default/EBike-Parts</Arg>
+        </AttrValue>
+        <!-- life cycle: the template name, exactly as listed in Life Cycle Template Administration -->
+        <AttrValue id="lifeCycle.id"
+          algorithm="com.ptc.core.foundation.lifecycle.server.impl.LifeCycleTemplateAttributeAlgorithm">
+          <Arg>E-Bike Part Life Cycle</Arg>
+        </AttrValue>
+      </AttributeValues>
+      ```
+
+      The team template works the same way with the **TeamTemplateAttributeAlgorithm**; copy that
+      block from your downloaded rule rather than typing it. The next section's numbering lesson takes
+      the number part apart.
+
+  - type: callout
+    variant: note
+    title: Names must resolve
+    md: |
+      The rule only names the life cycle template. Windchill looks for a template with that name in
+      the product or library where the object is created, then in its organization, then at the site.
+      If it finds none, users **can't create** that object in the context at all. A typo in a template
+      name looks like a missing button, not like an error message.
+
+  - type: scenario
+    variant: troubleshooting
+    title: "\"My e-bike part has no EB number!\""
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Monday, 9:05. Priya messages Jordan: "I made a new part in E-Bike E1 and the number was a plain
+          ten-digit one, not EB-something. Is the rule broken?" What does Jordan ask first?
+        choices:
+          - label: "Which type did you pick - Part or E-Bike Part?"
+            next: s2
+            good: true
+            feedback: "The type is half the lookup key. Jordan's rule covers E-Bike Part, not Part."
+          - label: "Rewrite the XML from scratch"
+            next: fail-rewrite
+            feedback: "Rewriting a rule that may be fine is guessing, not debugging."
+      - id: s2
+        md: |
+          Priya picked plain **Part**, so the site rule applied - ten-digit sequential numbers. She tries
+          again with **E-Bike Part**... still a plain number. Next check?
+        choices:
+          - label: "Is the rule enabled in the Object Initialization Rules table?"
+            next: s3
+            good: true
+            feedback: "Only enabled rules are used to determine default values."
+          - label: "Restart the server"
+            next: s2-restart
+            feedback: "Rarely the answer, and it interrupts everyone."
+      - id: s2-restart
+        md: |
+          Rosa is not thrilled: a restart interrupts every user. Back to the rule itself - what does the
+          table tell you?
+        choices:
+          - label: "Check the rule's Enabled column"
+            next: s3
+            good: true
+      - id: s3
+        md: |
+          The Enabled column shows it: Jordan uploaded the rule on Friday but left it **disabled**. Jordan
+          enables it. Now Kai, in E-Bike E1, reports something stranger: **E-Bike Part has vanished**
+          from the type list when he creates a part. What is the most likely cause?
+        choices:
+          - label: "The life cycle name in the rule doesn't match any template Windchill can find"
+            next: s4
+            good: true
+            feedback: "If the named life cycle template can't be resolved, users can't create that object in the context."
+          - label: "Kai lost his licence"
+            next: s3-perm
+            feedback: "Then he couldn't create plain parts either."
+      - id: s3-perm
+        md: |
+          Kai creates plain parts fine. Only the E-Bike Part type is affected - and Jordan changed one
+          thing on Friday. Look at what the rule *references*.
+        choices:
+          - label: "Compare the life cycle name in the rule with the Life Cycle Templates table"
+            next: s4
+            good: true
+      - id: s4
+        md: |
+          Found it: the rule says `E-Bike Part Lifecycle`, the template is `E-Bike Part Life Cycle`. The
+          upload passed because Windchill only checks the **syntax**. Jordan fixes the name and E-Bike Part
+          comes back. What does Jordan change in the routine?
+        choices:
+          - label: "Copy names from the utilities instead of typing them, and test-create after every upload"
+            next: win
+            good: true
+            feedback: "Exactly how the course builds rules: copy, paste, test."
+          - label: "Nothing - typos happen"
+            next: partial
+            feedback: "They do. That's why the routine matters."
+      - id: win
+        md: |
+          Jordan writes a one-page "OIR checklist": right type, enabled, every referenced name copied from
+          its utility, folder path starting with /Default, a test create in a real product.
+        outcome: success
+      - id: partial
+        md: |
+          The fix works - until the next rule with a hand-typed team template name. Same Monday, different
+          week.
+        outcome: partial
+      - id: fail-rewrite
+        md: |
+          Jordan rewrites the XML, introduces a typo in the folder path, and now every E-Bike Part
+          creation misbehaves. The original rule was fine - Priya had simply picked the wrong type.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Scattering OIRs across products.** It feels precise to give each product its own rule, but the
+      course recommends organization or site level: rules in individual products can restrict moving
+      objects between products, and - as the diagram showed - a parent type rule in a product can
+      silently switch off a subtype rule defined higher up.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Don't put every attribute tag in the XML - set only what you need and let the rest merge in from
+      the parent rules. Keep each rule file in version control with a comment on why each value exists.
+      When an auditor asks "why does this part go into that folder?", the answer is a file, not a
+      memory.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Jordan's rule is for E-Bike Part at Acme Mobility. The site rule is for Part. Both set the folder. Which folder does a new E-Bike Part in E-Bike E1 get?
+        options: [The site rule's folder, Jordan's folder, Whichever rule was created last, Neither - the user must choose]
+        answer: 1
+        explanation: The rules merge and the lowest level wins - here Jordan's subtype rule in the organization beats the site's Part rule.
+      - kind: truefalse
+        prompt: When you upload an OIR, Windchill checks that the folder and life cycle it names really exist.
+        answer: false
+        explanation: The upload checks the XML syntax only. Whether the values are right is up to your testing.
+      - kind: multi
+        prompt: Which values can an OIR set? (Choose all that apply.)
+        options: [The number, The default folder, The life cycle template, The team template, Who approves a review task]
+        answers: [0, 1, 2, 3]
+        explanation: OIRs set starting values such as number, versioning, folder, life cycle and team template. Who approves comes from workflow roles and teams.
+
+  - type: summary
+    points:
+      - An OIR is an XML rule for one object type, defined in a context, that sets values when an object is created.
+      - A rule for a type also covers its subtypes. All applicable rules merge, and the lowest level wins.
+      - Only enabled rules are used. Uploads are checked for syntax, not for correct names.
+      - A life cycle name that can't be resolved stops users creating that object in the context.
+      - Prefer organization or site level, start from a working rule, and set only what you need.

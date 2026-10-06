@@ -1,0 +1,307 @@
+id: m04-s04-l04
+subtitle: Same data, cleaner screens. Show people the fields they need - in the order they think.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, layouts, types, attributes]
+sources:
+  - id: ac
+    where: "Module 4, Extend Windchill object types; Activity: Create a subtype (modifying layouts, Make default group); Manage attribute visibility"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Creating a New Attribute Layout"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/typeattr/TypeMgrAttrLayoutCreate.html"
+    covers: "A first new layout on a subtype drops all inherited layouts; edit inherited layouts instead; one layout per screen type; All as default; save with Save or Done"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Viewing an Attribute Layout"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/typeattr/TypeMgrAttrLayoutView.html"
+    covers: "Inheritance icon on inherited layouts; default group receives new attributes automatically"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Viewing and Setting Attribute Visibility"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/typeattr/TypeMgrAttrVisibilitySet.html"
+    covers: "Visibility for Create New, Edit and EPM Upload; Hidden and Value Hidden; Name, Number and participant attributes need layout exclusion"
+
+blocks:
+  - type: text
+    md: |
+      E-Bike Part has its new fields. Priya opens **New Part** and sighs: Battery Voltage is at the
+      very bottom, under fields she never uses, including a *Paint Code* field the scooter team added
+      years ago.
+
+      Fields existing is one thing. **Whether** they show and **where** they appear is another.
+      Windchill splits the job in two:
+      - the attribute's **Visibility** tab decides *which* attributes users see on a screen, and *how*;
+      - the type's **Layouts** tab decides *where* they sit - in which group, in which order.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the arrangement of fields on a screen" → *[[layout]]*
+      - "a heading that bundles fields" → *attribute group* (a layout element)
+      - "the group new fields drop into" → *default group* (**Make default group**)
+      - "show or hide a field on create or edit" → *attribute visibility*
+      - "the read-only view of an object" → the [[information-page]]
+
+  - type: diagram
+    title: Visibility decides which, layouts decide where
+    caption: The attributes live on the type. Visibility and layouts shape each screen. Click to explore.
+    diagram:
+      width: 800
+      height: 420
+      groups:
+        - { label: E-Bike Part type, x: 20, y: 20, w: 240, h: 380, tone: neutral }
+        - { label: Screen shaping, x: 300, y: 20, w: 480, h: 380, tone: info }
+      nodes:
+        - id: attrs
+          label: All attributes
+          sublabel: inherited + new
+          x: 40
+          y: 160
+          w: 200
+          h: 64
+          tone: primary
+          shape: cylinder
+          detail: |
+            Number, name and other inherited attributes, Paint Code, and the new Battery Voltage, Motor
+            Power, IP Rating, Pedal Assist Levels and Max Current. **Every** attribute exists on every
+            E-Bike Part, whether a screen shows it or not.
+        - id: vis
+          label: Visibility tab
+          sublabel: which and how
+          x: 330
+          y: 50
+          w: 200
+          tone: accent
+          detail: |
+            Set per attribute for **Create New**, **Edit** and **EPM Upload**. Options include
+            **Hidden** (name and value hidden) and **Value Hidden** (name shown, value hidden). For
+            most types the screens adjust to new attributes automatically if visibility is right -
+            you don't need a layout just to make a field appear.
+        - id: lay
+          label: Layouts tab
+          sublabel: where
+          x: 330
+          y: 170
+          w: 200
+          tone: accent
+          detail: |
+            Layouts arrange attributes in groups for each screen type. Each screen type can be
+            assigned to only one layout; a layout assigned to **All** covers every screen type that
+            has no layout of its own.
+        - id: grp
+          label: Default group
+          sublabel: catches new attributes
+          x: 330
+          y: 290
+          w: 200
+          tone: success
+          detail: |
+            Mark a group with **Make default group** and every new attribute created on the type is
+            added to it automatically. Set it on the parent type and the subtypes inherit it.
+        - id: inh
+          label: Inherited layouts
+          sublabel: from Part
+          x: 580
+          y: 170
+          w: 180
+          tone: warning
+          detail: |
+            E-Bike Part starts with Part's layouts, marked with an inheritance icon. You can **edit**
+            them on the subtype - add the subtype's attributes, move things, add elements - and keep
+            the inheritance. Creating a brand-new layout on the subtype drops **all** inherited ones.
+      edges:
+        - { from: attrs, to: vis }
+        - { from: attrs, to: lay }
+        - { from: lay, to: grp, label: contains }
+        - { from: inh, to: lay, label: starts as, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Users judge a PLM system by its forms. A clean create form with the right fields in a clear
+      group gets filled in properly. A cluttered one gets the minimum, or the wrong fields. Layouts and
+      visibility are the cheapest data-quality tools you have.
+
+  - type: walkthrough
+    title: Group the e-bike fields on E-Bike Part's layouts
+    who: Site or organization administrator (Jordan)
+    where: [Browse, Site, Utilities, Type and Attribute Management, Manage Types]
+    steps:
+      - title: Open the type in edit mode
+        where: [Manage Types, Part, E-Bike Part, Actions, Edit]
+        md: Select **E-Bike Part**, then **Actions → Edit**.
+      - title: Pick a layout
+        where: [E-Bike Part, Layouts tab, Layouts menu]
+        md: |
+          Open the **Layouts** tab and choose a layout from the **Layouts** menu (for example
+          **Default Layout**). An inheritance icon means it comes from Part.
+      - title: Edit the inherited layout - don't replace it
+        where: [Layout, Attribute group]
+        md: |
+          Add an attribute group called **E-Bike Specs** near the top and place **Battery Voltage**,
+          **Motor Power** and **IP Rating** in it. Editing the inherited layout keeps the link to
+          Part's other layouts.
+      - title: Set the default group (optional)
+        where: [Layout, Attribute group, Make default group]
+        md: Select the group and tick **Make default group** if new e-bike attributes should land there automatically.
+      - title: Save
+        where: [Layouts tab, Save]
+        md: Click **Save** (or **Done**). Layout changes aren't stored on the type until you do.
+      - title: Test it
+        where: [Test context, New Part]
+        md: Create a test E-Bike Part and check the E-Bike Specs group, then open its information page.
+    result: The e-bike fields sit together in an E-Bike Specs group, and E-Bike Part still inherits the rest of Part's layouts.
+
+  - type: walkthrough
+    title: Hide Paint Code on the create and edit screens
+    who: Site or organization administrator (Jordan)
+    where: [Type and Attribute Management, Manage Types, E-Bike Part]
+    steps:
+      - title: Select the attribute on the type
+        where: [E-Bike Part, Attributes, Paint Code]
+        md: With E-Bike Part in edit mode, select **Paint Code** on its Attributes tab.
+      - title: Set its visibility
+        where: [Paint Code, Visibility tab]
+        md: On the attribute's **Visibility** tab, set **Create New** and **Edit** to **Hidden**. Save.
+      - title: Mind the exceptions
+        where: [E-Bike Part, Layouts tab]
+        md: |
+          Visibility settings on **Name**, **Number** and user- or participant-related attributes
+          aren't reflected everywhere. To hide one of those, leave it out of the layout for that
+          screen type instead.
+    result: Priya no longer sees Paint Code when she creates or edits an E-Bike Part. The attribute still exists on the type.
+
+  - type: simulation
+    title: Tune E-Bike Part's screens without breaking inheritance
+    intro: |
+      E-Bike Part inherits all of Part's layouts. Make Priya's create screen cleaner - and see what
+      happens if you take the shortcut of creating a brand-new layout on the subtype.
+    headline: "Layouts: {layouts} · E-Bike Specs group: {group} · Paint Code on create: {paint} · Info page layout: {info}"
+    initial: { layouts: inherited from Part, group: none, paint: shown, info: fine }
+    actions:
+      - id: add-group
+        label: Add E-Bike Specs group to the layout
+        when: { group: none }
+        do: [{ set: { group: at the top } }]
+        log: "Battery Voltage, Motor Power and IP Rating now sit together. Layouts: {layouts}."
+        blockedHint: The group is already there.
+      - id: remove-group
+        label: Remove the E-Bike Specs group
+        when: { group: at the top }
+        do: [{ set: { group: none } }]
+        log: Back to one long list of fields.
+        blockedHint: There's no group to remove.
+      - id: hide-paint
+        label: Set Paint Code to Hidden on Create New
+        when: { paint: shown }
+        do: [{ set: { paint: hidden } }]
+        log: Paint Code is off the create screen - a Visibility setting, no layout change needed. The attribute still exists.
+        blockedHint: Paint Code is already hidden.
+      - id: show-paint
+        label: Show Paint Code on Create New again
+        when: { paint: hidden }
+        do: [{ set: { paint: shown } }]
+        log: Paint Code is back on the create screen.
+        blockedHint: Paint Code is already shown.
+      - id: new-layout
+        label: Create a brand-new layout on E-Bike Part
+        when: { layouts: inherited from Part }
+        do: [{ set: { layouts: own (rebuild needed), info: lost - rebuild it, group: none } }]
+        log: "Windchill warns you, then every inherited layout is gone. All of E-Bike Part's layouts now have to be built from scratch - including the information page."
+        blockedHint: E-Bike Part already has its own layouts.
+      - id: rebuild
+        label: Rebuild every layout for E-Bike Part
+        when: { layouts: own (rebuild needed) }
+        do: [{ set: { layouts: own (rebuilt), info: fine } }]
+        log: An afternoon later, all layouts exist again. From now on, changes to Part's layouts no longer reach E-Bike Part.
+        blockedHint: Nothing to rebuild right now.
+      - id: reset
+        label: Reset the scenario
+        when: { layouts: own (rebuilt) }
+        do: [{ set: { layouts: inherited from Part, group: none, paint: shown, info: fine } }]
+        log: Back to the start. Try editing the inherited layout instead.
+        blockedHint: Only after a rebuild.
+    goals:
+      - label: A clean create screen with inheritance intact
+        when: { layouts: inherited from Part, group: at the top, paint: hidden }
+        message: Edit inherited layouts and use Visibility for hiding - the subtype keeps following Part.
+      - label: Feel the cost of a brand-new subtype layout
+        when: { info: lost - rebuild it }
+        message: Your first new layout on a subtype drops all inherited layouts. That's why PTC recommends editing inherited ones.
+
+  - type: callout
+    variant: pitfall
+    title: The "quick" new layout
+    md: |
+      Creating your first new layout on a subtype means **all** layouts inherited from the parent are
+      lost and must be recreated for that subtype - and future changes on the parent stop flowing
+      down. Unless you really need a completely different set of screens, edit the inherited layouts.
+
+  - type: callout
+    variant: pitfall
+    title: Don't hide what's required
+    md: |
+      A **Required** attribute must have a value. If you hide it on **Create New**, users have no
+      field to enter that value in. Before hiding anything, check its constraints - and test the
+      create screen on a test system.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Set **Make default group** on the parent type's layouts before you add new attributes. Every new
+      attribute then appears automatically - on the parent and on every subtype that inherits the
+      layouts. And sit with two real users for ten minutes while they create a part: watch where
+      their eyes go, then design the group order.
+
+  - type: callout
+    variant: note
+    title: Hiding is not protecting
+    md: |
+      Visibility and layouts decide what a screen shows. They are not a security tool. If Voltra
+      Cells must not see cost data, that's an **access control** job, covered in the access control
+      lessons.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Jordan wants Paint Code off the create screen for E-Bike Parts. What's the most direct tool?
+        options:
+          - "The attribute's Visibility tab - set Create New to Hidden"
+          - "Delete the attribute from Part"
+          - "Create a brand-new layout on E-Bike Part"
+          - "An access control rule"
+        answer: 0
+        explanation: The Visibility tab controls which attributes appear on Create New, Edit and EPM Upload, and how.
+      - kind: truefalse
+        prompt: Creating the first new layout on a subtype keeps all the layouts it inherited from its parent.
+        answer: false
+        explanation: Windchill warns that all inherited layouts will be lost and must be created again for the subtype. Edit the inherited layouts instead.
+      - kind: single
+        prompt: Jordan wants every new attribute he adds to Document and its subtypes to appear on screen without editing layouts each time. What does he set?
+        options:
+          - "Make default group on the Document type's layout groups"
+          - "Instantiable = Yes on every subtype"
+          - "A Valid Range constraint"
+          - "Value Hidden on every attribute"
+        answer: 0
+        explanation: New attributes are added to the default group automatically, and subtypes inherit the setting from the parent's layouts.
+      - kind: multi
+        prompt: Which statements are true? (Choose all that apply.)
+        options:
+          - "Visibility controls which attributes are seen and how; Layouts control where"
+          - "Each screen type can be assigned to only one layout on a type"
+          - "To hide Name or Number, leave it out of the layout for that screen type"
+          - "Layout changes are stored the moment you drag a field"
+        answers: [0, 1, 2]
+        explanation: Layout changes are saved to the type only when you click Save or Done.
+
+  - type: summary
+    points:
+      - Visibility decides which attributes a screen shows and how; layouts decide where.
+      - Subtypes inherit layouts - edit them on the subtype instead of creating new ones.
+      - A first new layout on a subtype drops every inherited layout.
+      - Default groups catch new attributes automatically.
+      - Check constraints before hiding a field, and use access control - not layouts - to protect data.

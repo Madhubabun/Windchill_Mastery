@@ -1,0 +1,274 @@
+id: m03-s03-l02
+subtitle: "Brand new? Promote it. Already released and changing? That's a change notice. Here's how to tell, fast."
+version: 1.0.0
+updated: "2026-10-05"
+tags: [promotion-request, change-notice, change-management, decision]
+
+blocks:
+  - type: text
+    md: |
+      Two requests land on Maya's desk on the same Monday:
+
+      1. Priya's **brand-new phone mount** (SC-3500), never released, ready to go.
+      2. Kai wants a **thicker wall on the SC-1048 fold-lock bracket**, which is already
+         Released and sitting in 3,000 scooters.
+
+      Both end with "and then it's Released". So why do they take totally different roads?
+
+      Because one is **first release** and the other is **changing something people already
+      trust**. The first is a job for a **[[promotion-request]]**. The second needs the full
+      change process: a **[[change-request]]** (unless your company allows a fast track) and a
+      **[[change-notice]]** with **[[change-task|change tasks]]**.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "move these versions to a new state" → *promotion* (to a [[promotion-target-state]])
+      - "make a new edition of something released" → *[[revise]]* inside a change
+      - "the formal plan to change released stuff" → *[[change-notice]]* with *[[change-task|change tasks]]*
+      - "what the change touches" → *[[affected-object|affected objects]]*; "what it produces" → *[[resulting-object|resulting objects]]*
+
+  - type: comparison
+    title: Promotion request vs change notice
+    columns: [Promotion request, Change notice]
+    rows:
+      - label: Main job
+        cells: [Move existing versions to a new state, Plan and track a change to released data]
+      - label: Typical trigger
+        cells: [New design is ready for first release, A problem or improvement on something already released]
+      - label: Creates new revisions?
+        cells: [No - it promotes the versions you add, "Yes - the work in change tasks produces new revisions"]
+      - label: Impact analysis
+        cells: [Light - reviewers check the objects, "Heavy - BOM, stock, suppliers, where-used and cost"]
+      - label: Who decides
+        cells: [Reviewers and approvers on the request, "A change board on the change request, then task owners"]
+      - label: Traceability
+        cells: [Who approved which versions and when, "Why it changed, from the problem to the resulting objects"]
+      - label: Speed
+        cells: [Hours to a few days, Days to weeks]
+      - label: Acme example
+        cells: [Releasing the new SC-3500 phone mount, Thickening the released SC-1048 bracket]
+    takeaway: Never released? Promote it. Released and changing? Use the change process.
+
+  - type: diagram
+    title: The two-question test
+    caption: Start at the top. Click each box to see why.
+    diagram:
+      width: 800
+      height: 380
+      nodes:
+        - id: q1
+          label: Ever been Released?
+          sublabel: question 1
+          x: 280
+          y: 20
+          w: 240
+          tone: primary
+          detail: |
+            Look at the object's history. If **no version** was ever Released (or the state your
+            company uses for "production"), nothing downstream depends on it yet.
+        - id: prom
+          label: Promotion request
+          sublabel: first release
+          x: 40
+          y: 150
+          w: 220
+          tone: success
+          shape: pill
+          detail: |
+            Bundle the new objects and promote them. Fast, reviewed and recorded. Example: the
+            new SC-3500 phone mount going from In Work to Released.
+        - id: q2
+          label: Changing form, fit or function?
+          sublabel: question 2
+          x: 480
+          y: 150
+          w: 280
+          tone: warning
+          detail: |
+            If the change could affect how the part fits, works, is made or is bought, it needs
+            a real impact check. Almost every change to released data does.
+        - id: cn
+          label: Change request + notice
+          sublabel: full change process
+          x: 540
+          y: 280
+          w: 220
+          tone: danger
+          shape: pill
+          detail: |
+            Problem report (optional) → change request → board decision → change notice with
+            change tasks. Example: thicker wall on SC-1048.
+        - id: fast
+          label: Fast-track change
+          sublabel: if your company allows it
+          x: 260
+          y: 280
+          w: 240
+          tone: info
+          shape: pill
+          detail: |
+            Some companies allow a change notice **without** a change request for tiny changes,
+            like a typo on a drawing note. Whether and how depends on your company's
+            configuration. It is still a change, not a promotion.
+      edges:
+        - { from: q1, to: prom, label: "no" }
+        - { from: q1, to: q2, label: "yes" }
+        - { from: q2, to: cn, label: "yes" }
+        - { from: q2, to: fast, label: tiny and allowed }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      The wrong tool can cost real money. Promote a change to released data and you skip the
+      board, the stock check and the supplier heads-up: the factory builds a new design while
+      3,000 old brackets sit on the shelf. Push every new part through a full change notice
+      and your launch slips by weeks for paperwork that protects nothing.
+
+  - type: example
+    variant: case-study
+    title: The quiet bracket swap
+    industry: Micromobility
+    md: |
+      An engineer at another scooter maker (not Acme!) needed a slightly longer bolt slot on a
+      released bracket. A change felt like overkill, so he revised the bracket outside any
+      change, then used a promotion request to release the new revision. Two colleagues
+      approved it in an hour.
+
+      Nobody checked the **where-used**. The same bracket was in the cargo model, where the
+      longer slot hit a cable clip. Nobody told the supplier either, who kept shipping the old
+      version for six weeks. The recall review found no change request, no impact analysis
+      and no reason recorded for the change.
+
+      Acme's fix: access rules and the life cycle are set up so that promotion requests can't
+      be used to release a new revision of something that was already released. That part of
+      the job belongs to the change process.
+    takeaway: Promotion records approval. Change management records the why and the impact.
+
+  - type: scenario
+    variant: what-if
+    title: Maya's Monday triage
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Leo asks: "I need the new **SC-3520 charging cover** (never released) and its drawing
+          moved to Released for the pilot build. What should I create?"
+        choices:
+          - label: A promotion request with the part and drawing
+            next: s2
+            good: true
+            feedback: Right. It's first release, so promote it and include the drawing.
+          - label: A change request first
+            next: p1
+            feedback: Nothing released is being changed. A full change process just adds delay here.
+      - id: p1
+        md: |
+          The change board meets on Thursday, so the pilot build slips a week. It works in the end,
+          but Kai asks why a brand-new part needed a board decision.
+        outcome: partial
+      - id: s2
+        md: |
+          Next up, Sam from field service reports that the **SC-1048 fold-lock bracket** (Released,
+          in production) cracks in cold weather. Priya says: "I'll just bump it to B, fix it and
+          promote B. Faster." What do you say?
+        choices:
+          - label: "Go for it, it's faster"
+            next: f1
+            feedback: Fast now, painful later. This changes released data that's in stock and on scooters.
+          - label: "Raise a problem report and route it through a change request and change notice"
+            next: s3
+            good: true
+            feedback: Yes. Released data plus a form-fit-function change means the full change process.
+      - id: f1
+        md: |
+          B gets promoted in a day. Nobody checks stock, suppliers or other products using SC-1048.
+          Three weeks later, two different brackets are mixed on the line and no record explains
+          why B exists.
+        outcome: fail
+      - id: s3
+        md: |
+          The change board approves CR-0350. Maya creates CN-0351 with change tasks for Priya
+          (model and drawing) and Ana (process sheet). Last one: Priya spots a **typo in a note**
+          on the released drawing SC-1048.drw. Your company allows fast-track changes for
+          documentation-only fixes. What now?
+        choices:
+          - label: Use the fast-track change process
+            next: ok
+            good: true
+            feedback: Still a change - just a lighter one. The fix gets a new revision with a recorded reason.
+          - label: Promote the drawing again to fix it
+            next: p2
+            feedback: Promotion can't edit content, and re-releasing a revised drawing outside change control loses the why.
+      - id: ok
+        md: |
+          All three requests used the right tool: promotion for the brand-new cover, the full
+          process for the cracking bracket and the fast track for the typo. Maya's board only
+          spends time where it matters.
+        outcome: success
+      - id: p2
+        md: |
+          The typo is fixed, but there's no change record. At the next audit, nobody can show why
+          SC-1048.drw has a new revision. Use the fast track your company defined instead.
+        outcome: partial
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **"It's a tiny change, so I'll just promote it."** Size doesn't decide the tool. If
+      something was already released, people downstream depend on it. Even tiny changes go
+      through change control (fast track if your company allows it).
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Ask two questions and you'll be right almost every time: **"Was it ever released?"** and
+      **"Could this change affect form, fit or function?"** No to the first means promote. Yes to
+      both means change request and change notice.
+
+  - type: callout
+    variant: note
+    md: |
+      Some companies also use promotion requests between earlier states, like In Work →
+      Prototype, for design reviews before first release. Where the line sits between promotion
+      and change depends on your company's configuration and process rules.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: A new e-bike rack, never released, is ready for production. Which is the usual tool?
+        options: [Change notice, Promotion request, Variance, Problem report]
+        answer: 1
+        explanation: First release of new data is the classic promotion request job. Nothing released is being changed.
+      - kind: single
+        prompt: What's the biggest risk of using a promotion request to release a new revision of an already-released part?
+        options:
+          - It takes too long
+          - It skips impact analysis and the record of why it changed
+          - Windchill deletes the old revision
+          - The part number changes
+        answer: 1
+        explanation: The change process exists to check stock, suppliers and where-used and to record the reason. A promotion skips all of that.
+      - kind: truefalse
+        prompt: A promotion request creates the new revision of the objects it promotes.
+        answer: false
+        explanation: Promotion moves existing versions to a new state. New revisions are created by Revise, usually inside a change task.
+      - kind: multi
+        prompt: Which are good reasons to use the change process? (Choose all that apply.)
+        options:
+          - The part is Released and used in two products
+          - The fix changes the hole pattern
+          - The part has never been released
+          - Suppliers already build the current version
+        answers: [0, 1, 3]
+        explanation: Released data, form-fit-function impact and downstream users all call for change control. A never-released part is usually promoted.
+
+  - type: summary
+    points:
+      - Never released? Use a promotion request to release it.
+      - Released and changing? Use the change process - change request and change notice.
+      - Promotion moves versions to a state. It doesn't create revisions or analyse impact.
+      - The wrong choice either skips safety checks or adds needless delay.
+      - Fast-track and promotion rules depend on your company's configuration.

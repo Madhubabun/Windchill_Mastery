@@ -1,0 +1,378 @@
+id: m04-s06-l01
+subtitle: In Module 3 you rode the rails. Now you lay them - states, transitions, and what happens when you change a track that is already in use.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, lifecycle, states, transitions, phases]
+sources:
+  - id: ac
+    where: "Module 5: Identify process management objects; Describe Windchill life cycles; Identify life cycle types; Describe object life cycle resolution; Create a life cycle; Specify life cycle properties; Add states to a life cycle; Identify life cycle transition types; Create transitions; Describe transition examples; Create a basic life cycle template: example; Define role participation in advanced life cycles; Define access permissions in advanced life cycles; Identify life cycle best practices; Activity: Create a life cycle template; Activity: Create a life cycle state, a user role, and a basic life cycle template. Module 8: Identify permissions needed for set life cycle state operations"
+  - id: trn-custsec9
+    where: "Section 9: Create custom life cycle states and roles using the EnumCustomize utility (release not stated; used only for the version note)"
+
+blocks:
+  - type: text
+    md: |
+      In Module 3 you promoted parts and watched them move from *In Work* to *Released*. That path
+      didn't appear by magic. Someone drew it: which stops exist and which moves are allowed between them.
+
+      At Acme Mobility that someone is **Jordan**. The new **E-Bike E1** division wants its own rails
+      for the new **E-Bike Part** subtype. Kai's wish list, scribbled on a sticky note:
+
+      - parts start **In Work**, where designers edit freely
+      - while a promotion is being reviewed, the part waits in **Under Review** and nobody changes it
+      - **Released** for the factory, and **Obsolete** when a part is retired
+      - a new revision (EB-10021 A → B) must start again in **In Work**
+
+      Today you turn that sticky note into a **life cycle template**.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the map of stops and allowed moves" → life cycle template (see [[life-cycle]])
+      - "one stop on the map" → a [[lifecycle-state]], drawn in the editor as a [[phase]]
+      - "an allowed, named move between stops" → [[transition]] (Promote, Lock, Revise, Set State, Change...)
+      - "rails only" vs "rails plus a process at each stop" → *basic* vs *advanced* life cycle
+      - "start the next big edition" → [[revise]]
+
+  - type: diagram
+    title: The E-Bike Part life cycle Jordan will build
+    caption: Each pill is a state. Each arrow is a transition, labelled with its type. Click a box to see what Jordan configures there.
+    diagram:
+      width: 820
+      height: 380
+      groups:
+        - { label: Editable, x: 20, y: 90, w: 210, h: 120, tone: accent }
+        - { label: Not editable, x: 270, y: 90, w: 530, h: 120, tone: neutral }
+      nodes:
+        - id: inwork
+          label: In Work
+          sublabel: first state
+          x: 45
+          y: 125
+          w: 160
+          tone: accent
+          shape: pill
+          detail: |
+            The first state. Every new E-Bike Part lands here. From In Work, **Promote** leads to
+            Released and **Lock** leads to Under Review while the promotion request is being reviewed.
+          real: Who may edit in each state is normally handled by domain access policies (Module 4, section 5), which the course recommends over per-life-cycle access rules.
+        - id: review
+          label: Under Review
+          sublabel: temporary
+          x: 295
+          y: 125
+          w: 160
+          tone: warning
+          shape: pill
+          detail: |
+            A waiting room. The **Lock** transition only applies to promotion requests: it holds the
+            part here for the duration of the promotion process, so a different set of access policies
+            can apply while reviewers look at it.
+        - id: released
+          label: Released
+          sublabel: what the factory builds
+          x: 470
+          y: 125
+          w: 150
+          tone: success
+          shape: pill
+          detail: |
+            What the factory builds. To change a released part you [[revise]] it instead of editing it.
+            Jordan also ticks **Change** In Work → Released, so a change notice can release parts too.
+        - id: obsolete
+          label: Obsolete
+          sublabel: retired
+          x: 635
+          y: 125
+          w: 150
+          tone: neutral
+          shape: pill
+          detail: |
+            Retired. Jordan allows **Set State** Released → Obsolete, so an authorized user can retire
+            a part with the Set State action.
+        - id: rev
+          label: Revise
+          sublabel: new version starts here
+          x: 295
+          y: 280
+          w: 220
+          tone: info
+          detail: |
+            The **Revise** [[transition]] names the state a new version is created in. Each source state
+            may point to one destination for Revise. Jordan sets Released → In Work, so EB-10021 B starts
+            editable again while A stays Released.
+      edges:
+        - { from: inwork, to: review, label: Lock }
+        - { from: inwork, to: released, label: Promote }
+        - { from: released, to: obsolete, label: Set State }
+        - { from: released, to: rev, dashed: true }
+        - { from: rev, to: inwork, label: Revise }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Transitions decide which actions users even see. The Actions menu on an object only offers the
+      moves the life cycle defines from its current state. Get the template right and "Released means
+      you revise, you don't edit" becomes a guarantee on every single part - not a rule people must
+      remember.
+
+  - type: comparison
+    title: Basic or advanced life cycle?
+    columns: [Basic life cycle, Advanced life cycle]
+    rows:
+      - label: How objects move
+        cells: ["Only through transitions (Promote, Revise, Set State...)", "Transitions plus workflows attached to each state"]
+      - label: Per-state roles and access
+        cells: ["Not part of a basic life cycle - use domain policies", "Possible: grant-only rules for roles, per state"]
+      - label: Performance
+        cells: ["Better during object creation and revision", "Heavier - a workflow may run for each object"]
+      - label: Course recommendation
+        cells: ["Use for most objects", "Only for company-specific processes or special access needs"]
+    takeaway: For E-Bike Parts Jordan picks Basic. The review happens in a promotion request or a change process, not in a workflow owned by every single part.
+
+  - type: walkthrough
+    title: Create the E-Bike Part life cycle template
+    who: An organization administrator (or a site administrator for a site-wide template)
+    where: [Browse, Organizations, "Acme Mobility", Utilities, Life Cycle Template Administration]
+    steps:
+      - title: Open the utility at the right level
+        where: [Browse, Organizations, "Acme Mobility", Utilities, Life Cycle Template Administration]
+        md: |
+          The utility sits in the **Business Administration** section of the Utilities page. The level
+          you open it from is where the template lives: site for the whole system, organization for
+          all of Acme, or one product or library for that context only. Jordan uses the organization.
+      - title: Start a new template
+        where: [Life Cycle Template Administration, New Template]
+        md: |
+          Click **New Template**. Set the type to **Basic**, the name `E-Bike Part Life Cycle` (it must
+          be unique in this context - object initialization rules will refer to it by name) and a
+          description. For the class, the course recommends `wt.fc.WTObject`: the object
+          initialization rule, not the template, decides which objects get it. Leave it enabled.
+      - title: Add the phases
+        where: [Template editor, New Phase]
+        md: |
+          Click **New Phase** once per state, and pick each phase's state from the **State** list:
+          In Work, Under Review, Released, Obsolete. A newly added phase is selected; click the white
+          space around the phases to get back to the template's own fields.
+      - title: Tick the transitions
+        where: [Template editor, "<phase>", Transitions]
+        md: |
+          Select a phase and open its **Transitions** tab. Each row is a transition type; tick the
+          destination states. In Work: Promote → Released, Lock → Under Review, Change → Released,
+          Revise → In Work. Released: Revise → In Work, Set State → Obsolete.
+      - title: Save, inspect, check in
+        where: [Life Cycle Templates table, "E-Bike Part Life Cycle", Check In]
+        md: |
+          Click **Save & Close**. States without transitions are filled with default transitions after
+          the first save, so reopen the template with **Edit** and remove any you don't want. Then
+          right-click the template and choose **Check In** so others can use it.
+    result: |
+      `E-Bike Part Life Cycle` appears in the Life Cycle Templates table, checked in and owned by the
+      Acme Mobility context. It does nothing yet - the object initialization rule in lesson 4 hands it
+      to every new E-Bike Part.
+
+  - type: callout
+    variant: version-note
+    versions: ["13.x course", "Release not stated"]
+    md: |
+      **Missing a state name?** In the 13.x course a site administrator adds it to the **State**
+      custom modeled enumeration (`wt.lifecycle.StateRB`) in Type and Attribute Management, under
+      *Customize Modeled Enumerations*. A supporting customization training of unstated release shows
+      an older route instead: a desktop tool called `enumCustomize`, followed by a server restart. Use
+      the route that matches your release.
+
+  - type: callout
+    variant: note
+    title: Advanced life cycles only
+    md: |
+      In an **advanced** life cycle you can also define roles and access per state. Those rules are
+      grant-only, all roles automatically get Read, and they override ordinary domain deny rules -
+      but never an absolute deny or a security label. Each new advanced state also starts with a
+      Submit workflow (phase) and a Review workflow (gate): click **Clear** on both unless you really
+      want them to run.
+
+  - type: text
+    md: |
+      ### Changing the rails while trains are running
+
+      Six weeks later Kai asks for one more state: **Rework**. Jordan can edit the template (Edit checks
+      it out, Check In makes the change available). But what about the parts that already use it?
+
+      The course is precise about one tool: **Reassign Life Cycle**. A user with administrative
+      permission on an object can drop its life cycle template and replace it with another. If the new
+      template contains the object's current state, the state can be kept. If it doesn't, the object
+      **falls back to the first state** of the new template.
+
+  - type: animation
+    title: Reassigning a life cycle
+    diagram:
+      width: 820
+      height: 330
+      nodes:
+        - { id: tpl, label: New template, sublabel: no Prototype state, x: 40, y: 135, w: 190, tone: primary }
+        - { id: hinge, label: SC-1042 hinge, sublabel: in Released, x: 330, y: 40, w: 180, tone: neutral, shape: doc }
+        - { id: proto, label: SC-2000 frame, sublabel: in Prototype, x: 330, y: 230, w: 180, tone: neutral, shape: doc }
+        - { id: kept, label: Still Released, sublabel: state kept, x: 600, y: 40, w: 180, tone: success }
+        - { id: first, label: Now In Work, sublabel: first state, x: 600, y: 230, w: 180, tone: danger }
+      edges:
+        - { from: tpl, to: hinge, label: reassign }
+        - { from: tpl, to: proto, label: reassign }
+        - { from: hinge, to: kept }
+        - { from: proto, to: first }
+    chapters:
+      - title: A new template
+        caption: Jordan's new scooter template has In Work, Under Review, Released and Obsolete - but **no Prototype** state.
+        show: [tpl, hinge, proto]
+        highlight: [tpl]
+      - title: The state exists
+        caption: SC-1042 is **Released**. The new template has Released too, so the reassign can keep the current state.
+        show: [tpl, hinge, proto, kept]
+        highlight: [hinge, kept]
+        flow: [tpl>hinge, hinge>kept]
+      - title: The state is missing
+        caption: SC-2000 sits in **Prototype**, which the new template doesn't have. It falls back to the **first state**, In Work.
+        highlight: [proto, first]
+        flow: [tpl>proto, proto>first]
+        seconds: 8
+
+  - type: simulation
+    title: Build it, then reassign
+    intro: |
+      Build the E-Bike Part life cycle, survive the first save, check it in - then reassign two scooter
+      parts to it and see which states survive.
+    headline: "Template: {status} · SC-1042: {hinge} · SC-2000: {frame}"
+    initial: { status: Draft, phases: 0, promote: false, lock: false, revise: false, defaults: false, hinge: Released, frame: Prototype }
+    actions:
+      - id: add-phase
+        label: Add the next phase
+        when: { status: Draft, phases: [0, 1, 2, 3] }
+        do: [{ inc: phases }]
+        log: Phase {phases} added (In Work, Under Review, Released, Obsolete - in that order).
+        blockedHint: All four phases are already there.
+      - id: promote
+        label: "Tick Promote: In Work → Released"
+        when: { phases: 4, promote: false }
+        do: [{ set: { promote: true } }]
+        log: Promote ticked. A promotion request can now release an In Work part.
+        blockedHint: Add all four phases first.
+      - id: lock
+        label: "Tick Lock: In Work → Under Review"
+        when: { phases: 4, lock: false }
+        do: [{ set: { lock: true } }]
+        log: Lock ticked. During a promotion the part waits in Under Review.
+        blockedHint: Add all four phases first.
+      - id: revise
+        label: "Tick Revise: Released → In Work"
+        when: { phases: 4, revise: false }
+        do: [{ set: { revise: true } }]
+        log: Revise ticked. A new version of a Released part starts In Work.
+        blockedHint: Add all four phases first.
+      - id: save
+        label: Save & Close
+        when: { status: Draft, promote: true, lock: true, revise: true }
+        do: [{ set: { status: Saved, defaults: true } }]
+        log: Saved. Obsolete had no transitions, so Windchill filled in default ones. Inspect before you check in.
+        blockedHint: Tick Promote, Lock and Revise first.
+      - id: inspect
+        label: Edit and remove unwanted default transitions
+        when: { status: Saved, defaults: true }
+        do: [{ set: { defaults: false } }]
+        log: Unwanted defaults removed. Only the moves Kai asked for remain.
+        blockedHint: Nothing to clean up right now.
+      - id: checkin
+        label: Check In
+        when: { status: Saved, defaults: false }
+        do: [{ set: { status: Checked in } }]
+        log: Checked in. Other admins and object initialization rules can now use the template.
+        blockedHint: Save the template and remove the default transitions first.
+      - id: reassign-hinge
+        label: Reassign SC-1042 (Released) to it
+        when: { status: Checked in, hinge: Released }
+        do: [{ set: { hinge: Released (kept) } }]
+        log: The new template has a Released state, so SC-1042 keeps it.
+        blockedHint: Check the template in first (or SC-1042 is already reassigned).
+      - id: reassign-frame
+        label: Reassign SC-2000 (Prototype) to it
+        when: { status: Checked in, frame: Prototype }
+        do: [{ set: { frame: In Work (first state) } }]
+        log: No Prototype state in the new template - SC-2000 falls back to the first state, In Work.
+        blockedHint: Check the template in first (or SC-2000 is already reassigned).
+      - id: reset
+        label: Start over
+        do: [{ set: { status: Draft, phases: 0, promote: false, lock: false, revise: false, defaults: false, hinge: Released, frame: Prototype } }]
+        log: Blank template, parts back in their old states.
+    goals:
+      - label: Check in a clean template
+        when: { status: Checked in }
+        message: Phases, the transitions you need, and no surprise defaults.
+      - label: Reassign a part whose state exists in the new template
+        when: { hinge: Released (kept) }
+        message: When the current state exists in the new template, it can be kept.
+      - label: Reassign a part whose state is missing
+        when: { frame: In Work (first state) }
+        message: A missing state means the object falls back to the first state of the new template.
+
+  - type: example
+    variant: case-study
+    title: The state that vanished
+    industry: Micromobility
+    md: |
+      Before Jordan joined, an admin "tidied up" the scooter life cycle by building a new template
+      without the little-used **Prototype** state, then reassigned all Scooter S2 parts to it in one go.
+      Thirty parts that sat in Prototype quietly dropped back to **In Work** - the first state - and
+      reappeared on everyone's "still in design" reports. Nobody had asked for that.
+
+      Jordan's rule since then: before reassigning, **count the objects in each state** and make sure
+      every state they sit in exists in the new template. Run it on a test copy first.
+    takeaway: Reassigning a life cycle is a data change, not a settings change. Check states first.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Editing the out-of-the-box life cycles.** The course's advice is clear: keep them as a
+      reference, and build your own with **Save As**. And watch out in advanced life cycles: Promote,
+      Lock and Set State can change an object's state behind a running workflow's back. Revise and
+      Change are safe to use alongside workflows.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Use **as few states as possible**. Every extra state means more transitions to tick and more
+      access rules to write. Sketch the states and arrows with Kai, Maya and Leo **before** opening the
+      editor - the meeting is the hard part.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Kai wants EB-10021 revision B to start editable even though A is Released. Which setting does Jordan change?
+        options: [The Promote transition from Released, The Revise transition from Released, The Lock transition from In Work, The template's class]
+        answer: 1
+        explanation: The Revise transition names the state a new version is created in. Released → In Work gives B an editable start while A stays Released.
+      - kind: truefalse
+        prompt: The Lock transition is only valid for promotion requests and holds the object in an interim state while the promotion is reviewed.
+        answer: true
+        explanation: Lock works with Promote. The object waits in the locked state (Under Review here) for the duration of the promotion process.
+      - kind: multi
+        prompt: Which of these does Jordan set inside a basic life cycle template? (Choose all that apply.)
+        options: [The phases and their states, The transitions between states, A name unique in the context, Which real people are designers on E-Bike E1]
+        answers: [0, 1, 2]
+        explanation: The template defines phases, transitions and its own name. Who does the work comes from teams; basic life cycles don't hold role assignments at all.
+      - kind: single
+        prompt: SC-2000 sits in Prototype. An admin reassigns it to a template that has no Prototype state. Where does it end up?
+        options: [It stays in Prototype, In the first state of the new template, The reassign is refused, In Released]
+        answer: 1
+        explanation: If the new template doesn't contain the current state, the object assumes the first state of the new template.
+      - kind: single
+        prompt: An object initialization rule names `E-Bike Part Life Cycle`. Where does Windchill look for a template with that name first?
+        options: [The site, The organization, The product or library where the object is created, Any context, newest first]
+        answer: 2
+        explanation: The name is resolved in the context where the object is created, then the parent organization, then the site. If none is found, users can't create that object in the context.
+
+  - type: summary
+    points:
+      - A life cycle template is a map of states (drawn as phases) and named transitions.
+      - Transition types include Promote, Lock, Revise, Set State and Change. Only defined moves are offered to users.
+      - Basic life cycles are recommended for most objects. Advanced ones add workflows and per-state role access.
+      - Check the template in, after removing the default transitions the first save adds.
+      - Reassigning keeps a state only if the new template has it - otherwise the object goes to the first state.

@@ -1,0 +1,333 @@
+id: m04-s05-l06
+subtitle: When rules disagree, the higher one wins. Learn the ladder and pick the right kind of "no".
+version: 1.0.0
+updated: "2026-10-05"
+tags: [access-control, deny, absolute-deny, inverse-deny, priorities]
+sources:
+  - id: ac
+    where: "Module 8: Identify access control list resolution principles; Identify participants of an access control rule; Configure permissions for an access control rule; Explicitly deny access to data; Create user-specific rules; Inversely deny access to data; Absolutely deny access to data; Review access control priorities; Implement ad hoc access control; Activity: Create an access control rule"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "How ACLs Work"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/accesscontrol_chp/AccessControlChp_HowACLsWork.html"
+    covers: "Absolute deny to a group beats a grant to an individual user; Owner grants beat denies but not absolute denies; all-except participants are treated like groups"
+
+blocks:
+  - type: text
+    md: |
+      Maya, chairing the change board, sends Jordan a one-liner: *"No supplier may ever delete Acme
+      data. Not by accident, not by exception, not ever."*
+
+      Jordan already knows how to write a **deny**. But Maya said *ever*. A plain deny can be beaten by
+      several kinds of grant. So which "no" does she actually need?
+
+      Windchill doesn't average rules or pick the nearest one. It ranks them. **The highest rule that
+      applies to the object wins.** Learn the ladder and you can predict every result.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "no, unless something ranks higher" → [[deny-rule|deny (−)]]
+      - "no, and nothing can override it" → [[absolute-deny|absolute deny (!)]]
+      - "nobody may, except this group" → [[inverse-deny|inverse deny]] (a deny for *everyone except* a participant)
+      - "whoever owns the object" → the *Owner* pseudo-role
+      - "every Windchill user" → the *All* pseudo-role
+
+  - type: diagram
+    title: The access control priority ladder
+    caption: Higher rungs beat lower ones. Click each rung.
+    diagram:
+      width: 820
+      height: 470
+      nodes:
+        - id: label
+          label: 1 · Security label denial
+          sublabel: unless an agreement covers you
+          x: 200
+          y: 10
+          w: 420
+          h: 52
+          tone: danger
+          detail: |
+            The highest rule in Windchill. If a label denies the user and no agreement covers them, there's
+            no point reading any other rule. Ad hoc access can't get past it either.
+        - id: absolute
+          label: 2 · Absolute deny (!)
+          sublabel: policy rule · cannot be overridden
+          x: 200
+          y: 80
+          w: 420
+          h: 52
+          tone: danger
+          detail: |
+            No grant ranks above it: not a named-user grant, not an Owner grant, not an ad hoc grant. Only
+            removing the rule gives the permission back. It can't be written for pseudo-roles (All, Owner).
+        - id: adhoc
+          label: 3 · Ad hoc grant
+          sublabel: on the object · life cycle or Edit Access Control
+          x: 40
+          y: 160
+          w: 360
+          h: 56
+          tone: success
+          detail: |
+            The highest kind of grant. It beats every policy rule below it, including denies. Only a
+            security label or an absolute deny stops it.
+        - id: owner
+          label: 3 · Owner grant
+          sublabel: policy grant to the Owner pseudo-role
+          x: 420
+          y: 160
+          w: 360
+          h: 56
+          tone: success
+          detail: |
+            Just as high as ad hoc. A grant to Owner beats ordinary denies for whoever owns the object.
+            Owner can only be granted, never denied. The owner is the creator by default, but ownership
+            can be changed.
+        - id: user
+          label: 4 · Rules for a named user
+          sublabel: if a user has both, deny wins
+          x: 200
+          y: 240
+          w: 420
+          h: 56
+          tone: primary
+          detail: |
+            A grant or deny written for one individual user beats rules written for that user's groups.
+            If the same user has both a grant and a deny, the deny wins.
+        - id: group
+          label: 5 · Rules for sets of users
+          sublabel: roles · groups · orgs · All · everyone-except
+          x: 200
+          y: 320
+          w: 420
+          h: 56
+          tone: primary
+          detail: |
+            Context team roles and groups, organization roles and organizations, the All pseudo-role and
+            "everyone except" rules all sit here together. Within this rung, granted by one and denied by
+            another means **not granted**.
+        - id: none
+          label: 6 · Nothing matches
+          sublabel: no entry = no permission
+          x: 200
+          y: 400
+          w: 420
+          h: 52
+          tone: neutral
+          shape: pill
+          detail: If no rule grants the permission for the type or its parent types, the user doesn't have it.
+      edges:
+        - { from: label, to: absolute }
+        - { from: absolute, to: adhoc }
+        - { from: absolute, to: owner }
+        - { from: adhoc, to: user }
+        - { from: owner, to: user }
+        - { from: user, to: group }
+        - { from: group, to: none }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Two admins can write the same "no" and get opposite results, because one used a group deny and the
+      other an absolute deny. Knowing the ladder tells you whether a rule is a *default* someone can
+      make an exception to, or a *guarantee* nobody can. Auditors care a lot about that difference.
+
+  - type: comparison
+    title: Three kinds of "no"
+    columns: [Deny, Inverse deny, Absolute deny]
+    rows:
+      - label: Says
+        cells: ["This participant may not", "Everyone except this participant may not", "This participant may not, full stop"]
+      - label: Beaten by
+        cells: ["Ad hoc grants, Owner grants, and (if written for a group) a grant to the named user", "Same as a group deny", Nothing; only removing the rule]
+      - label: Written for
+        cells: [Any participant, "Everyone except a user, group, role or organization", "Users, groups, roles or organizations, not pseudo-roles"]
+      - label: Acme use
+        cells: ["Suppliers may not download In Work CAD", "Nobody but ACME-CM-Admins may delete Released parts", "Supplier groups may never delete anything"]
+    takeaway: Deny sets a default, inverse deny protects a permission for one trusted group, absolute deny is a guarantee.
+
+  - type: text
+    md: |
+      ### The ladder at work in E-Bike E1
+      **User beats group.** `ACME-Manufacturing` is denied Download on In Work CAD. Ana needs one week of
+      early access for tooling, so Jordan adds a rule granting **Ana** (a named user) Download. Her user
+      rule ranks above her group's deny, so she can download; the rest of manufacturing can't.
+
+      **Inverse deny.** Jordan wants nobody except `ACME-CM-Admins` to delete Released parts. Instead of
+      denying every group one by one, one rule does it: *Part · Released · everyone except ACME-CM-Admins ·
+      Deny Delete*. CM admins keep whatever their own grants give them; everyone else loses Delete.
+
+      **Absolute deny.** For Maya's request: *Part, Document and CAD Document · all states ·
+      `SUP-All` (a group containing every supplier group) · Absolute Deny Delete* at Acme Default. Even if
+      a supplier creates a document and becomes its owner, or someone adds an ad hoc grant, Delete stays
+      denied. Absolute deny doesn't auto-select other permissions, so it only removes Delete.
+
+  - type: scenario
+    variant: what-if
+    title: Which rule wins?
+    start: q1
+    nodes:
+      - id: q1
+        md: |
+          `ACME-Manufacturing` is denied Download on In Work CAD. Jordan adds **Ana · Grant Download** as a
+          named-user rule. **Can Ana download an In Work drawing?**
+        choices:
+          - label: "Yes - a named-user rule beats a group rule"
+            next: q2
+            good: true
+            feedback: Right. Rung 4 beats rung 5.
+          - label: "No - deny always wins"
+            next: q1-wrong
+            feedback: Deny wins between rules on the same rung, not across rungs.
+      - id: q1-wrong
+        md: User-specific rules rank above group rules. Ana's grant overrides her group's deny. (Between two rules for Ana herself, a deny would win.)
+        choices:
+          - { label: Next case, next: q2 }
+      - id: q2
+        md: |
+          Lin (Voltra) has a hand-added **ad hoc** Read grant on In Work drawing EB-10021 rev B. The Supplier
+          role has a regular **Deny Read** on In Work CAD at Acme Default. **Can Lin read rev B?**
+        choices:
+          - label: "Yes - ad hoc ranks above policy denies"
+            next: q3
+            good: true
+            feedback: Correct. Ad hoc grants are the highest grants.
+          - label: "No - the org deny wins"
+            next: q2-wrong
+            feedback: A regular deny sits below ad hoc grants.
+      - id: q2-wrong
+        md: Ad hoc grants beat every policy rule except an absolute deny. Lin can read rev B.
+        choices:
+          - { label: Next case, next: q3 }
+      - id: q3
+        md: |
+          Now the Acme rule is changed to **Absolute Deny Read** for a group containing all suppliers. The ad
+          hoc grant is still there. **Can Lin read rev B?**
+        choices:
+          - label: "No - absolute deny beats ad hoc"
+            next: q4
+            good: true
+            feedback: Exactly. That's what absolute deny is for.
+          - label: "Yes - ad hoc is object-specific so it wins"
+            next: q3-wrong
+            feedback: Not against an absolute deny.
+      - id: q3-wrong
+        md: Absolute deny ranks above every grant. Lin is locked out of rev B until the absolute deny is removed.
+        choices:
+          - { label: Next case, next: q4 }
+      - id: q4
+        md: |
+          Priya created a test document, so she is its **Owner**. Acme Default grants **Owner · Delete**.
+          Her group `ACME-Design` has a regular **Deny Delete** on Released documents. The document is
+          Released. **Can Priya delete it?**
+        choices:
+          - label: "Yes - an Owner grant beats a regular deny"
+            next: q5
+            good: true
+            feedback: Correct. Owner grants sit on the same rung as ad hoc grants.
+          - label: "No - her group is denied"
+            next: q4-wrong
+            feedback: The Owner grant ranks higher than a group deny.
+      - id: q4-wrong
+        md: A grant to the Owner pseudo-role is beaten only by security labels and absolute denies. Priya can delete it. If Acme wanted to stop that, it would need an absolute deny.
+        choices:
+          - { label: Next case, next: q5 }
+      - id: q5
+        md: |
+          Jordan tries to write **All · Absolute Deny Delete** to lock everyone out of deleting Released
+          parts. **What happens?**
+        choices:
+          - label: "It can't be done - absolute deny isn't allowed for pseudo-roles"
+            next: done
+            good: true
+            feedback: Right. Use a real group, or an inverse deny for everyone except a trusted group.
+          - label: "Everyone loses Delete, including admins"
+            next: q5-wrong
+            feedback: The rule can't be created in the first place.
+      - id: q5-wrong
+        md: Absolute deny rules can't be created for pseudo-roles such as All or Owner. Write it for a real group instead.
+        choices:
+          - { label: See my result, next: done }
+      - id: done
+        md: |
+          You climbed the whole ladder: user beats group, ad hoc and Owner beat denies, absolute deny beats
+          every grant, and pseudo-roles can't be absolutely denied. Labels sit above it all.
+        outcome: success
+
+  - type: walkthrough
+    title: Write an absolute deny rule
+    who: An organization administrator
+    where: [Browse, Organizations, "Acme Mobility", Utilities, Policy Administration]
+    steps:
+      - title: Open the right domain
+        where: [Utilities, Business Administration, Policy Administration, "Acme Default"]
+        md: |
+          Open **Policy Administration** from the organization's Utilities page and select the domain
+          the guarantee should cover; for every Acme context, that's Acme's **Default** domain.
+      - title: Start a new rule
+        where: [Policy Administration, Access Control Rules, Create new access control rule]
+        md: On the **Access Control Rules** tab, click **Create new access control rule**.
+      - title: Set type, state and participant
+        where: [New rule, Type, State, Participant]
+        md: |
+          Use **Find** beside **Type** to pick the object type (subtypes are included), choose the
+          **State** (or all states), and use **Find** beside **Participant** to pick `SUP-All`. To aim at
+          everyone *but* a group instead, choose the option to apply the rule to everyone except the
+          selected participant.
+      - title: Set the permission
+        where: [New rule, Absolute Deny, Delete]
+        md: |
+          Select **Absolute Deny** for **Delete** only. Nothing else is auto-selected, so check that no
+          other permission changed. Click **OK**.
+    result: The new row appears in the domain's rule table. No grant of any kind can now give a supplier Delete in any Acme context.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Rules for named users.** They rank above every group rule, so they're very hard to override and
+      easy to forget. PTC's advice is to use them sparingly and manage access with groups. The same goes
+      for denies in general: keep them few.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Before writing an absolute deny, ask: *"Is there any emergency in which we'd want an exception?"*
+      If yes, use a regular deny, which an ad hoc grant can still override in that emergency. If no, an
+      absolute deny is exactly right, and you should write down why.
+
+  - type: quiz
+    questions:
+      - kind: order
+        prompt: Order these from highest priority to lowest.
+        items: [Security label denial, Absolute deny, Ad hoc grant, Rule for a named user, Rule for a group or role]
+        explanation: Labels sit above everything; absolute deny beats every grant; ad hoc (and Owner) grants beat policy rules for users and groups; user rules beat group rules.
+      - kind: single
+        prompt: Ana's group is denied Read, but a rule grants Ana (by name) Read. Result?
+        options: [Ana can read, Ana can't read, It depends on the domain, It depends which rule is newer]
+        answer: 0
+        explanation: A rule for an individual user outranks rules for the user's groups.
+      - kind: single
+        prompt: A group is **absolutely** denied Read, and a rule grants one of its members Read by name. Result?
+        options: [The member can read, The member can't read, Only the owner can read, The member can read only in project contexts]
+        answer: 1
+        explanation: Absolute deny can't be overridden by any grant, including a named-user grant or an ad hoc grant.
+      - kind: truefalse
+        prompt: You can write an absolute deny rule for the Owner pseudo-role.
+        answer: false
+        explanation: Absolute deny rules can't be created for pseudo-roles. Owner can only receive grants.
+      - kind: single
+        prompt: "Jordan wants everyone except ACME-CM-Admins to lose Delete on Released parts, with one rule. Which kind?"
+        options: [An inverse deny (everyone except ACME-CM-Admins), An absolute deny for All, A grant to ACME-CM-Admins, A security label]
+        answer: 0
+        explanation: An inverse deny targets everyone who is not the chosen participant. Absolute deny for All isn't allowed, and a grant alone doesn't take Delete away from others.
+
+  - type: summary
+    points:
+      - The highest applicable rule wins; Windchill ranks rules rather than picking the nearest.
+      - "Ladder: label denial > absolute deny > ad hoc and Owner grants > named-user rules > group, role, org, All and everyone-except rules."
+      - On the same rung, a deny beats a grant; nothing granted means no access.
+      - Inverse deny removes a permission from everyone except one participant; it ranks like a group rule.
+      - Absolute deny is the only "no" that nothing overrides; it can't target pseudo-roles. Use it for true guarantees.

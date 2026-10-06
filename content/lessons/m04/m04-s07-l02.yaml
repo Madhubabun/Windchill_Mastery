@@ -1,0 +1,300 @@
+id: m04-s07-l02
+subtitle: "BAT-48V-13AH or EB-10050? One of them will still make sense in five years."
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, numbering, oir, sequences, smart-numbers]
+sources:
+  - id: ac
+    where: "Module 7: Describe object initialization rules (OIRs); Describe out-of-the-box object numbering scheme rules; Specify custom numbering scheme rules; Identify best practices for creating OIRs"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Numbering Scheme Examples"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/objrules/ObjRuleObjectNumberingExamples.html"
+    covers: "NumberGenerator class name, GEN SequenceGenerator argument (sequence name, total length, pad character); empty AttrConstraint turns off inherited autonumbering"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Syntax for Algorithm Arguments"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/objrules/ObjRuleAlgorithmArgsRef.html"
+    covers: "Arg, Attr, Value and VarRef argument tags; spaces in Arg ignored; VarDef with NumberGenerator"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "About Object Initialization Rules"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/objrules/ObjRuleAbout.html"
+    covers: "Constraints Immutable, Server assigned, Pregenerated, Hidden, Discrete set"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Persistence Datastore Sequence Customization"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/customization/WCCG_Serv_PersistenceMgmt_PersistDatastrSeqCustom.html"
+    covers: "New datastore sequences are added by developers (modeled class or SQL scripts) and run through the Windchill shell"
+
+blocks:
+  - type: text
+    md: |
+      Kai has an idea for e-bike part numbers: "Let's make them **meaningful**! `BAT-48V-13AH` for a
+      48 volt, 13 amp-hour battery. You can read it at a glance!"
+
+      Jordan has seen this movie before. Six months later the supplier changes the cell chemistry, the
+      pack becomes 14 Ah, and now the number lies - or the part needs a new number and every BOM, drawing
+      and ERP record that used it needs updating.
+
+      This lesson covers both halves of the decision: **what** a number should look like, and **how**
+      Windchill hands out the next one automatically using the OIR from the last section.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the rule for what numbers look like" → [[numbering-scheme]]
+      - "a number that describes the part" → [[smart-number]] (significant number)
+      - "a number that's just unique" → *non-significant* or "dumb" number
+      - "the counter in the database" → *sequence*, read by the *number generator*
+      - "Windchill fills it when the object is saved" → the *Server assigned* constraint in the [[object-initialization-rule]]
+
+  - type: comparison
+    title: Smart or dumb?
+    columns: ["Smart (BAT-48V-13AH)", "Dumb (EB-10050)"]
+    rows:
+      - label: Readable at a glance
+        cells: ["Yes - until it's wrong", "No - read the name and attributes instead"]
+      - label: When a property changes
+        cells: ["Number lies or must change everywhere", "Nothing happens - update the attribute"]
+      - label: Running out of codes
+        cells: ["Common - categories fill up or overlap", "Rare - a range of 10,000 numbers, easy to extend"]
+      - label: Who assigns it
+        cells: ["Often a person deciding the code", "The server, from a sequence"]
+      - label: Searching and grouping
+        cells: ["By parsing the number (fragile)", "By attributes and classification (robust)"]
+    takeaway: Put meaning in attributes like Battery Voltage and IP Rating, not in the number. A short prefix (EB-) for the product family is the usual compromise.
+
+  - type: animation
+    title: How EB-10050 is born
+    diagram:
+      width: 820
+      height: 300
+      nodes:
+        - { id: create, label: New E-Bike Part, sublabel: Priya clicks Finish, x: 20, y: 120, w: 170, tone: accent, shape: pill }
+        - { id: oir, label: OIR number rule, sublabel: "EB- + sequence, 5 digits", x: 230, y: 120, w: 180, tone: primary }
+        - { id: seq, label: EBPART_seq, sublabel: database sequence, x: 450, y: 20, w: 170, h: 70, tone: info, shape: cylinder }
+        - { id: num, label: EB-10050, sublabel: server-assigned, x: 450, y: 200, w: 170, tone: success, shape: doc }
+        - { id: erp, label: ERP and drawings, sublabel: use it for years, x: 650, y: 200, w: 150, tone: neutral }
+      edges:
+        - { from: create, to: oir }
+        - { from: oir, to: seq, label: "next value?", bidirectional: true }
+        - { from: oir, to: num, label: "EB- + 10050" }
+        - { from: num, to: erp, dashed: true }
+    chapters:
+      - title: A create request
+        caption: Priya creates an E-Bike Part in E-Bike E1. She doesn't type a number - the rule makes it **server assigned**.
+        show: [create, oir]
+        highlight: [create]
+        flow: [create>oir]
+      - title: Ask the sequence
+        caption: The OIR's number generator asks the database **sequence** `EBPART_seq` for its next value - **10050**. A sequence hands out each value once.
+        show: [create, oir, seq]
+        highlight: [seq]
+        flow: [oir>seq]
+      - title: Build the number
+        caption: "The rule glues the prefix to the padded value: **EB-** + **10050** = `EB-10050`."
+        show: [create, oir, seq, num]
+        highlight: [num]
+        flow: [oir>num]
+      - title: A number for life
+        caption: The number goes onto BOMs, drawings and ERP records. That's why it should never need to change - and why meaning belongs in attributes.
+        highlight: [erp]
+        flow: [num>erp]
+
+  - type: walkthrough
+    title: Set up EB- auto-numbering
+    who: Jordan (organization administrator), with a developer or Rosa (system admin) for the sequence
+    where: [Browse, Organizations, "Acme Mobility", Utilities, Object Initialization Rules Administration]
+    steps:
+      - title: Decide the pattern and range
+        where: [Whiteboard]
+        md: |
+          Agree with Kai, Ana (ERP) and Maya: prefix `EB-`, five digits, range **EB-10000 to EB-19999**.
+          Check the ERP's maximum number length and allowed characters now, not after go-live.
+      - title: Get the sequence added
+        where: [Windchill shell, "developer's task"]
+        md: |
+          A new database sequence `EBPART_seq` is added by someone with datastore access. PTC documents
+          two ways: a modeled Java class that generates the DDL, or hand-written SQL scripts for Oracle
+          or SQL Server - both run through the Windchill shell. Start it **above** any EB number already
+          typed by hand.
+      - title: Point the organization's E-Bike Part rule at it
+        where: [Object Initialization Rules Administration, "E-Bike Part defaults", Download]
+        md: |
+          Download Acme Mobility's E-Bike Part rule and set the number to the `EB-` prefix plus
+          `EBPART_seq` (see the snippet). The rule lives at **organization** level, not in E-Bike E1:
+          the course recommends organization or site level because product-level rules can restrict
+          moving objects between products.
+      - title: Make the number server assigned
+        where: [Object Initialization Rules Administration, "E-Bike Part defaults"]
+        md: |
+          In the same rule, add the **Server assigned** constraint for the number (copy its block from an
+          existing rule that uses it), so the value is generated when the part is saved. Upload the rule
+          and check it is enabled.
+      - title: Test and record
+        where: [Browse, Products, "E-Bike E1", Folders, New Part]
+        md: |
+          Create two test E-Bike Parts and check the numbers follow each other. Write the scheme, the
+          sequence name and the range in the admin handbook.
+    result: Every new E-Bike Part in any Acme product gets the next EB- number automatically.
+
+  - type: text
+    md: |
+      The number part of the rule. It uses only the element names, class names and generator syntax
+      shown in PTC's documentation; the sequence name is Acme's.
+
+      ```xml
+      <AttrValue id="number"
+        algorithm="com.ptc.windchill.enterprise.revisionControlled.server.impl.NumberGenerator">
+        <Arg>EB-</Arg>
+        <Arg>{GEN:wt.enterprise.SequenceGenerator:EBPART_seq:5:0}</Arg>
+      </AttrValue>
+      ```
+
+      The first **Arg** is a constant. Inside the curly brackets: the generator, the **sequence name**,
+      the **length** of the generated part (5) and the **pad character** (0). With a sequence starting
+      at 10050, the first number is `EB-10050`. Constants, attribute values and default values can sit on
+      either side of the generated value - and spaces inside an Arg are ignored, so use a hyphen where you
+      want a separator.
+
+      **Out of the box**, parts, documents, CAD documents and end items get plain sequential numbers ten
+      digits long, and change objects five digits. An empty `AttrConstraint` for the number turns
+      autonumbering off in a context, so users type numbers by hand.
+
+  - type: callout
+    variant: version-note
+    versions: ["13.x"]
+    md: |
+      **CAD documents:** the course notes that autonumbered CAD documents get the file extension added
+      to the number by default, and points to the **Auto Associate Truncate Number File Extension**
+      preference to change that. Check how your CAD numbers look before you promise the ERP a format.
+
+  - type: scenario
+    variant: challenge
+    title: The numbering meeting
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Kai pitches `BAT-48V-13AH`. Ana (manufacturing) says the ERP needs numbers to stay stable for
+          years. Leo wants to find every IP67 part quickly. What does Jordan propose?
+        choices:
+          - label: "Dumb EB- numbers, with Battery Voltage, capacity and IP Rating as attributes"
+            next: s2
+            good: true
+            feedback: "Stable numbers for Ana, searchable attributes for Leo, a readable name for Kai."
+          - label: "Kai's smart numbers - they are easier to read"
+            next: s1-smart
+            feedback: "Readable today. Let's see next year."
+      - id: s1-smart
+        md: |
+          Eight months later Voltra Cells upgrades the pack to 14 Ah. The part is the same fit, form and
+          function... but its number says 13AH. Ana's ERP and 40 drawings use it. What now?
+        choices:
+          - label: "Switch to dumb numbers plus attributes for new parts and stop encoding properties"
+            next: s2
+            good: true
+            feedback: "Expensive lesson, right fix."
+          - label: "Keep the wrong number - everyone knows"
+            next: fail
+            feedback: "A number that lies is worse than one that says nothing."
+      - id: s2
+        md: |
+          Agreed - EB-10000 to EB-19999. Rosa asks: "Some EB numbers were typed by hand in the pilot.
+          Where should the sequence start?"
+        choices:
+          - label: "Above the highest EB number already in use"
+            next: s3
+            good: true
+            feedback: "No clashes on the day the sequence catches up."
+          - label: "At 10000 - it's the start of the range"
+            next: s2-clash
+            feedback: "Unless nothing exists yet, that's a collision waiting to happen."
+      - id: s2-clash
+        md: |
+          On the day the sequence reaches 10021, Priya's create fails with a uniqueness error - EB-10021
+          already exists. Rosa moves the sequence to 10050. Lesson learned?
+        choices:
+          - label: "Always check existing numbers before starting a sequence"
+            next: s3
+            good: true
+      - id: s3
+        md: |
+          Two weeks in, Maya notices gaps: EB-10057 and EB-10058 don't exist. She asks whether parts were
+          deleted. What does Jordan answer?
+        choices:
+          - label: "Gaps can happen - a sequence promises not to repeat, not to be gapless. Test creates use up numbers too."
+            next: win
+            good: true
+            feedback: "Exactly. Never promise gapless numbers to auditors or ERP."
+          - label: "Something is wrong - reset the sequence to fill the gaps"
+            next: fail-reset
+            feedback: "Resetting a sequence backwards is how duplicate numbers are born."
+      - id: win
+        md: |
+          Acme's numbering is boring in the best way: stable, automatic, unique. Meaning lives in
+          attributes and classification, where it can change without breaking anything.
+        outcome: success
+      - id: fail
+        md: |
+          Every new engineer now learns "BAT-48V-13AH is actually 14 Ah". Searches by number give wrong
+          answers, and the next change will make it worse.
+        outcome: fail
+      - id: fail-reset
+        md: |
+          The reset hands out EB-10057 - fine - and then EB-10059, which already exists. Creates fail
+          until Rosa moves the sequence forward again. Gaps were never the problem.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Testing numbering in production.** Every test create consumes a real number, and moving a
+      sequence backwards to "clean up" sets up a collision with numbers already used. Test in a test
+      system, and accept that gaps happen.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Give each object family its **own sequence and prefix** (parts, documents, CAD) only if the
+      business really needs to tell them apart by number. One shared sequence is simpler to run - and
+      the object type already tells you what something is.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Why does Jordan prefer EB-10050 over BAT-48V-13AH?
+        options:
+          - Dumb numbers are shorter
+          - A property can change without the number becoming wrong
+          - Windchill cannot store letters in numbers
+        answer: 1
+        explanation: Meaning belongs in attributes. When the capacity changes, you update an attribute - not a number used by BOMs, drawings and ERP.
+      - kind: single
+        prompt: What makes Windchill generate the number when the part is saved, instead of the user typing it?
+        options: [A preference, A Server assigned constraint in the OIR, An access rule, The life cycle template]
+        answer: 1
+        explanation: The OIR generates the value, and its Server assigned constraint has it generated when the object is saved.
+      - kind: truefalse
+        prompt: Gaps in an auto-numbered sequence, such as a missing EB-10057, prove parts were deleted.
+        answer: false
+        explanation: A sequence promises unique values, not gapless ones - test creates, for example, use numbers up too.
+      - kind: multi
+        prompt: Which steps belong to setting up EB- auto-numbering? (Choose all that apply.)
+        options:
+          - Agree the prefix and range with ERP owners
+          - Have the database sequence added, starting above existing numbers
+          - Reference the sequence in the organization's E-Bike Part OIR
+          - Reset the sequence monthly to fill gaps
+        answers: [0, 1, 2]
+        explanation: Agree the scheme, create the sequence in the right place and wire it into the OIR. Never move a sequence backwards.
+
+  - type: summary
+    points:
+      - Smart numbers encode facts that change. Prefer dumb numbers plus attributes.
+      - Auto-numbering is an OIR number generator reading a database sequence.
+      - A developer or system admin adds the sequence - start it above existing numbers.
+      - Keep the rule at organization level and make the number Server assigned.
+      - Numbers are unique, not gapless. Never reset a sequence backwards.

@@ -1,0 +1,298 @@
+id: m04-s02-l02
+subtitle: A new product in minutes, already set up the Acme way - if you pick the right template.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, contexts, templates, products, libraries]
+sources:
+  - id: ac
+    where: "Module 3, Identify context creators; Create products and libraries (templates, Private Access); Organize content in folders; Compare contexts (product and library characteristics); Activity notes on creating product and library contexts"
+  - id: ac
+    where: "Module 9, Describe Windchill templates; Describe context templates; Describe product, library, and organization templates; Activity notes on saving a product as a context template (Save as Template, Templates page)"
+  - id: ac
+    where: "Module 6, Assign a shared team to an application context"
+
+blocks:
+  - type: text
+    md: |
+      The e-bike division starts on Monday. Kai wants the **E-Bike E1** product ready, with folders, a team
+      and the right rules - and Jordan wants it to look exactly like every other Acme product, so nobody has to
+      relearn anything.
+
+      The trick is the **context template**: a saved recipe for a new product or library. Pick a good recipe
+      and the new context is born ready. Pick a bare one and you spend a week bolting things on.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a saved recipe for a new product or library" → *context template* (product template, library template)
+      - "people allowed to create new products" → members of the *Product Creators* group
+      - "people allowed to create new libraries" → members of the *Library Creators* group
+      - "the person in charge of a product" → *Product Manager* (a team role)
+      - "the product/library's own team" → [[context-team]]
+
+  - type: diagram
+    title: What a context template carries
+    caption: A template is a bundle of starting settings. Click each piece.
+    diagram:
+      width: 800
+      height: 330
+      nodes:
+        - id: tpl
+          label: Acme Product Template
+          sublabel: context template
+          x: 290
+          y: 20
+          w: 220
+          tone: primary
+          shape: doc
+          detail: |
+            A context template sets up a new product's or library's **initial** configuration. Templates belong to a
+            context (here, Acme Mobility) and only people who can create products see product templates. Context
+            templates can also carry a business setup from one Windchill installation to another.
+        - id: folders
+          label: Folders and domains
+          sublabel: the context structure
+          x: 20
+          y: 150
+          w: 170
+          tone: accent
+          detail: The starting folder structure (and its default domains), so every Acme product has the same layout and people find things by habit.
+        - id: roles
+          label: Team and roles
+          sublabel: context participation
+          x: 215
+          y: 150
+          w: 170
+          tone: accent
+          detail: The context roles the new product's team starts with, plus team templates. For example, a custom "Systems Manager" role can appear in every new product this way.
+        - id: policies
+          label: Access policies
+          sublabel: the big one
+          x: 410
+          y: 150
+          w: 170
+          tone: accent
+          detail: Default access rules, mostly written to the context's team roles. In the shipped templates this is the most significant administrative content.
+        - id: prefs
+          label: Rules and defaults
+          sublabel: OIRs · life cycles · prefs
+          x: 605
+          y: 150
+          w: 175
+          tone: accent
+          detail: Object initialization rules, data types and document templates, life cycle and workflow templates, and default preference settings.
+        - id: e1
+          label: E-Bike E1
+          sublabel: new product
+          x: 290
+          y: 260
+          w: 220
+          tone: success
+          detail: The result - a product that inherits Acme's organization settings **and** starts with the template's folders, roles and rules. No parts or documents are copied in - only configuration.
+      edges:
+        - { from: tpl, to: folders }
+        - { from: tpl, to: roles }
+        - { from: tpl, to: policies }
+        - { from: tpl, to: prefs }
+        - { from: folders, to: e1, dashed: true }
+        - { from: roles, to: e1, dashed: true }
+        - { from: policies, to: e1, dashed: true }
+        - { from: prefs, to: e1, dashed: true }
+
+  - type: comparison
+    title: Which template?
+    columns: [Out-of-the-box template, Company template, Template saved from an existing context]
+    rows:
+      - label: Comes from
+        cells: ["Shipped with Windchill (e.g. General Product)", Copied from a shipped template and adapted by the business admin, "Save as Template from a context that already works well"]
+      - label: Contents
+        cells: ["A basic setup: roles, folders and an example of access control", "Company folders, roles and rules", "Whatever that context had - folders, roles, rules, quirks included"]
+      - label: Best for
+        cells: [Reference and quick trials, Every real product or library, Bootstrapping a company template]
+      - label: Risk
+        cells: [Every product ends up adjusted by hand differently, Must be kept up to date, Copies one product's special cases into all new ones]
+    takeaway: PTC's advice - use standard templates that match your policies, and copy and modify rather than editing the shipped ones, which stay as reference.
+
+  - type: comparison
+    title: Product or library?
+    columns: [Product, Library]
+    rows:
+      - label: Purpose
+        cells: [All the data for one physical product or product line, Common objects shared across several product lines]
+      - label: Acme example
+        cells: [E-Bike E1, Acme Standard Parts]
+      - label: Typical team
+        cells: [The product's engineers and reviewers, Small author team; many readers]
+      - label: Who may create one
+        cells: [Members of the Product Creators group, Members of the Library Creators group]
+      - label: Typical template
+        cells: [Acme Product Template, Acme Library Template]
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Templates are how a company scales. With a good one, the 20th product is set up as carefully as the first,
+      audits find the same structure everywhere, and engineers moving between products feel at home on day one.
+
+  - type: walkthrough
+    title: Create a product from a template
+    who: A member of the organization's Product Creators group
+    where: [Browse, Products, New Product]
+    steps:
+      - title: Open the full products list
+        where: [Navigator, Browse, Products, View All]
+        md: In the Navigator choose **Browse**, open the products tab and click **View All** to get the full list with its actions.
+      - title: Start the new product
+        where: [Products, New Product]
+        md: |
+          Click **New Product**. If you don't see it, you're probably not in the organization's Product Creators group -
+          ask an organization admin.
+      - title: Name it and pick the template
+        md: |
+          Name: **E-Bike E1**. Template: **Acme Product Template**. Add a description that says what the product covers.
+          Leave **Private Access** at No unless this product needs its own, more restrictive access rules. If Acme uses a
+          shared team for e-bikes, select it here - see the next lesson, because it is normally decided at creation.
+      - title: Finish and check
+        where: [Products, "E-Bike E1", Team]
+        md: |
+          Click **OK**. Open the new product's **Team** page: as the creator, Kai is automatically in the Product Manager
+          role. Open **Folders** and confirm the template's folders are there.
+      - title: Add context-specific folders
+        where: [Products, "E-Bike E1", Folders, New Folder]
+        md: |
+          Add what's unique to this product, such as a *Battery Safety* folder, with **New Folder**. By default only
+          product and library managers can create folders.
+    result: E-Bike E1 appears in the products list with Acme's standard folders and team roles, and Kai as its manager.
+
+  - type: walkthrough
+    title: Create a library
+    who: A member of the organization's Library Creators group
+    where: [Browse, Libraries, New Library]
+    steps:
+      - title: Start the new library
+        where: [Navigator, Browse, Libraries, View All, New Library]
+        md: Open the libraries tab, click **View All**, then **New Library**.
+      - title: Name it and pick the template
+        md: Choose the type, give it a name, pick your company's library template, and describe what belongs in it.
+    result: The library appears in the libraries list, with its creator in the Library Manager role. Products can now *use* its parts instead of copying them.
+
+  - type: walkthrough
+    title: Find and maintain context templates
+    who: Organization administrator
+    steps:
+      - title: Open the organization's templates
+        where: [Navigator, Browse, Organizations, "Acme Mobility", Templates]
+        md: |
+          The **Templates** page lists every template available from this context. Use the view list at the top to switch
+          between kinds - for example **Product Templates** or **Library Templates**.
+      - title: Capture a good context as a template
+        where: [Products, "<well-run product>", Details, Actions, Save as Template]
+        md: |
+          On a well-run product's details page, choose **Actions → Save as Template** and name it. It captures the
+          context's structure, roles, policies, rules and defaults - but none of its parts or documents. Clean the context
+          up first (remove one-off roles and folders).
+    result: Your company templates are listed on the Templates page and offered in the New Product and New Library windows.
+
+  - type: simulation
+    title: Stand up E-Bike E1
+    intro: |
+      Try both recipes. Create E-Bike E1 from the general template, see what's missing, then start again with
+      Acme's template and finish the job properly.
+    headline: "E-Bike E1 · created: {created} · template: {template} · folders: {folders} · team: {team}"
+    initial: { created: "no", template: "-", team: empty, folders: "-" }
+    actions:
+      - id: general
+        label: Pick General Product template
+        when: { created: "no" }
+        do: [{ set: { template: General Product, folders: basic } }]
+        log: General template selected. You'll get a basic setup - none of Acme's conventions.
+        blockedHint: The product already exists. Start again to pick another template.
+      - id: acme
+        label: Pick Acme Product Template
+        when: { created: "no" }
+        do: [{ set: { template: Acme Product, folders: Acme standard } }]
+        log: Acme template selected. Folders, roles and context rules will match every other Acme product.
+        blockedHint: The product already exists. Start again to pick another template.
+      - id: create
+        label: Create the product
+        when: { created: "no", template: [General Product, Acme Product] }
+        do: [{ set: { created: "yes" } }]
+        log: E-Bike E1 created from {template} with {folders} folders. Kai is its Product Manager; everything else is inherited from Acme Mobility.
+        blockedHint: Pick a template first.
+      - id: folder
+        label: Add a Battery Safety folder
+        when: { created: "yes", folders: [basic, Acme standard] }
+        do: [{ set: { folders: "Acme standard + Battery Safety" } }]
+        log: The product-specific folder is added. Only this product has it.
+        blockedHint: Create the product first (or the folder is already there).
+      - id: team
+        label: Fill the team roles with groups
+        when: { created: "yes", team: empty }
+        do: [{ set: { team: groups added } }]
+        log: ACME-Engineering, ACME-Quality and ACME-Manufacturing now fill the product's roles.
+        blockedHint: Create the product first (or the team is already filled).
+      - id: restart
+        label: Start again (remove the trial product)
+        when: { created: "yes" }
+        do: [{ set: { created: "no", template: "-", team: empty, folders: "-" } }]
+        log: Trial product removed. In real life, trial contexts belong on a test system, not in production.
+        blockedHint: There is no product yet.
+    goals:
+      - label: Create a trial E-Bike E1 from the General Product template
+        when: { created: "yes", template: General Product }
+        message: It works - but the folders and roles don't match Acme's other products. Someone would have to fix them by hand.
+      - label: Create E-Bike E1 from Acme's template, add its own folder and fill the team
+        when: { created: "yes", template: Acme Product, folders: "Acme standard + Battery Safety", team: groups added }
+        message: Born ready. The template did the standard work; you only added what's unique to the e-bike.
+
+  - type: example
+    variant: case-study
+    title: Seven products, seven layouts
+    industry: Micromobility
+    md: |
+      Before Jordan joined, Acme's products were all created from the general template and then "fixed up" by
+      whoever needed them. Scooter S2 had a *CAD* folder, the older S1 had *Models*, and a third product had both.
+      Reviewers couldn't find drawings, and an audit flagged inconsistent access rules.
+
+      Jordan built **Acme Product Template** from the best-run product with Save as Template, cleaned out its special
+      cases, had Kai and Leo review it, and made it the template product creators use. E-Bike E1 is the first product
+      born from it.
+    takeaway: A template is a product decision, not just an admin shortcut - review it like one.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Treating a template as a live link.** A template sets up a context's *initial* configuration. Our sources don't
+      describe template edits flowing into contexts that already exist, so don't count on it: when you improve the
+      template, plan how you'll bring older products in line, and check them directly.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      **Keep the Product Creators group small.** If anyone can create products, you'll get "Test", "Test2" and
+      "Kai's scratch" in production. A short list of trusted creators plus a request process keeps the products list clean.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Acme needs a home for standard screws and connectors that both Scooter S2 and E-Bike E1 will reuse. What should Jordan create?
+        options: [A second product, A library from Acme's library template, A project, A folder inside Scooter S2]
+        answer: 1
+        explanation: Reusable items shared across product lines belong in a library, so every product uses one shared copy instead of keeping its own.
+      - kind: truefalse
+        prompt: Creating a product from a template saved from Scooter S2 also copies Scooter S2's documents and parts.
+        answer: false
+        explanation: A context template carries configuration - folders, roles, policies, rules, defaults. The documents of the original context stay where they are.
+      - kind: single
+        prompt: Kai creates E-Bike E1. Who is its Product Manager right after creation?
+        options: [Jordan, as business administrator, "Kai - the creator starts as the manager", Nobody until roles are filled, The site administrator]
+        answer: 1
+        explanation: The user who creates a context is initially its manager. The role can later be given to someone else.
+
+  - type: summary
+    points:
+      - Products and libraries are created from context templates that carry folders, roles, policies and rules - never data.
+      - Use a reviewed company template for real contexts; keep shipped templates as reference.
+      - Creating products and libraries needs membership of the Product Creators or Library Creators group; the creator becomes manager.
+      - Templates live on the organization's Templates page; Save as Template captures a good context.

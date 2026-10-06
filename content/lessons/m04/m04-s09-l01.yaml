@@ -1,0 +1,354 @@
+id: m04-s09-l01
+subtitle: Acme owns 14 different M6 screws. Nobody meant to. Here's how a good tree stops that.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [classification, reuse, parts, business-admin]
+sources:
+  - id: pl
+    where: "Windchill PartsLink Classification: overview; PartsLink capabilities; Implementation considerations; Implementation strategy; Classification structure; Classification attributes; Create and update classification structures; Create and update classification attributes; The classification autonaming rule; Installation and configuration overview"
+  - id: ac
+    where: "Describe object typing capabilities; Manage reusable attributes; Optional servers (indexing required for Parts Classification)"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Classification Nodes"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wcclassreuse/WCClassReuseClassNodeAbout.html"
+    covers: "Do not use the same attribute on a classification node and an object type"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Classification Attributes"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wcclassreuse/WCClassReuseAttrTab.html"
+    covers: "Inherited vs local attributes, edit mode, removing attributes loses data"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Classification Constraints"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wcclassreuse/WCClassReuseConstraintsAbout.html"
+    covers: "Constraint types for classification attributes (Required, Enumerated Value List, Valid Range...)"
+
+blocks:
+  - type: text
+    md: |
+      Priya needs an M6 × 20 screw for the E-bike battery tray. She searches for "screw M6". Results:
+      *"SCREW, M6x20"*, *"M6 SCR 20MM"*, *"Cap screw 6mm"*... and three that might be the same thing.
+      She gives up and creates a new part. Now there are **fifteen**.
+
+      Names are written by humans, so they're messy. **Classification** fixes that by sorting parts
+      into a shared tree of part *kinds* - and giving each kind the same few properties, filled in the
+      same way. Then you find a screw by *what it is*, not by how someone spelled it.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "sorting a part by what it physically is" → [[classification]]
+      - "the company's family tree of part kinds" → [[classification-structure]]
+      - "one branch or leaf, like Machine screws" → [[classification-node]]
+      - "a property only that kind of part has, like thread size" → [[classification-attribute]]
+      - "using a part that already exists" → [[part-reuse]]
+
+  - type: diagram
+    title: Acme's first classification tree
+    caption: General at the top, specific at the bottom. Attributes flow down. Click any node.
+    diagram:
+      width: 840
+      height: 450
+      groups:
+        - { label: "Upper levels - grouping (set as not instantiable)", x: 10, y: 10, w: 820, h: 275, tone: neutral }
+        - { label: "End nodes - instantiable, parts are classified here", x: 10, y: 300, w: 820, h: 140, tone: success }
+      nodes:
+        - id: root
+          label: Acme Parts
+          sublabel: root
+          x: 340
+          y: 25
+          w: 160
+          tone: primary
+          detail: |
+            The root of the [[classification-structure]]. Attributes defined here are inherited by
+            **every** node, so keep them to the few that truly apply to all parts - or define none.
+        - id: mech
+          label: Mechanical
+          x: 130
+          y: 110
+          w: 160
+          tone: primary
+          detail: |
+            A grouping node. Nobody should classify a part as just "Mechanical" - it's too vague to help
+            anyone find anything. Jordan sets its **Instantiable** property to *No*, so it can't be
+            picked as a part's classification.
+        - id: elec
+          label: Electrical
+          x: 550
+          y: 110
+          w: 160
+          tone: primary
+          detail: A grouping node for batteries, motors, connectors and harnesses.
+        - id: fast
+          label: Fasteners
+          sublabel: "+ Material, Finish"
+          x: 20
+          y: 210
+          w: 170
+          tone: accent
+          detail: |
+            Adds **Material** (steel 8.8, stainless A2...) and **Finish** (zinc, black oxide...). Every
+            node below Fasteners inherits them.
+          real: Give Material an enumerated value list, not free text - otherwise "stainless", "SS" and "A2" become three values.
+        - id: bear
+          label: Bearings
+          sublabel: "+ Bore, Outer dia."
+          x: 210
+          y: 210
+          w: 170
+          tone: accent
+          detail: Bore and outer diameter in millimetres - with a unit, so a search for "bore 10 mm" works.
+        - id: screw
+          label: Machine screws
+          sublabel: "+ Thread, Length, Drive"
+          x: 20
+          y: 330
+          w: 180
+          tone: success
+          detail: |
+            An end node, set as instantiable. A screw classified here has five classification attributes: Material and Finish
+            (inherited from Fasteners) plus **Thread size** (M3...M10), **Length** (mm) and **Drive**
+            (hex, Torx, Phillips).
+          real: This is the node that ends the 14-screws problem - every M6 × 20 hex screw now looks identical in search.
+        - id: nut
+          label: Nuts
+          sublabel: "+ Thread, Type"
+          x: 220
+          y: 330
+          w: 150
+          tone: success
+          detail: Thread size plus Type (hex, nylon-insert, flange). Material and Finish are inherited.
+        - id: batt
+          label: Battery packs
+          sublabel: "+ Voltage, Ah, Chemistry"
+          x: 420
+          y: 210
+          w: 190
+          tone: accent
+          detail: |
+            Nominal voltage, capacity (Ah) and cell chemistry. EB-10021, the E1's 36 V pack from Voltra
+            Cells, is classified here.
+        - id: motor
+          label: Motors
+          sublabel: "+ Power, Mount"
+          x: 640
+          y: 210
+          w: 170
+          tone: accent
+          detail: Rated power (W) and mount type (hub, mid-drive).
+        - id: hub
+          label: Hub motors
+          x: 560
+          y: 330
+          w: 140
+          tone: success
+          detail: Leaf node. Inherits Power and Mount from Motors; adds nothing yet - that's fine.
+        - id: mid
+          label: Mid-drive motors
+          x: 715
+          y: 330
+          w: 115
+          tone: success
+          detail: Leaf node. If Mount is already a node split, consider dropping the Mount attribute from Motors - never store the same fact twice.
+        - id: lion
+          label: Li-ion packs
+          x: 420
+          y: 330
+          w: 120
+          tone: success
+          detail: Leaf node under Battery packs, inheriting Voltage, Ah and Chemistry.
+      edges:
+        - { from: root, to: mech }
+        - { from: root, to: elec }
+        - { from: mech, to: fast }
+        - { from: mech, to: bear }
+        - { from: fast, to: screw }
+        - { from: fast, to: nut }
+        - { from: elec, to: batt }
+        - { from: elec, to: motor }
+        - { from: batt, to: lion }
+        - { from: motor, to: hub }
+        - { from: motor, to: mid }
+
+  - type: animation
+    title: Why the tree finds what names can't
+    diagram:
+      width: 820
+      height: 300
+      nodes:
+        - { id: priya, label: Priya, sublabel: needs M6 × 20, x: 20, y: 120, w: 130, tone: accent, shape: pill }
+        - { id: names, label: Name search, sublabel: "\"screw M6\"", x: 210, y: 30, w: 170, tone: warning }
+        - { id: messy, label: 23 fuzzy hits, sublabel: "same screw? maybe?", x: 440, y: 30, w: 170, tone: danger }
+        - { id: tree, label: Tree + attributes, sublabel: Machine screws, x: 210, y: 200, w: 170, tone: primary }
+        - { id: one, label: 1 exact match, sublabel: "SC-7106 · M6 × 20 hex", x: 440, y: 200, w: 170, tone: success, shape: doc }
+        - { id: reuse, label: Reused, sublabel: no new part, x: 660, y: 200, w: 140, tone: success, shape: pill }
+      edges:
+        - { from: priya, to: names }
+        - { from: names, to: messy }
+        - { from: priya, to: tree }
+        - { from: tree, to: one, label: "M6 · 20 mm · hex" }
+        - { from: one, to: reuse }
+    chapters:
+      - title: Searching by name
+        caption: Priya types "screw M6". Names depend on who typed them and when.
+        show: [priya, names, messy]
+        highlight: [messy]
+        flow: [priya>names, names>messy]
+      - title: The duplicate is born
+        caption: Can't tell which hit is right? People create a new part - and the company pays to qualify, stock and buy one more screw.
+        show: [priya, names, messy]
+        highlight: [priya]
+      - title: Searching by kind
+        caption: Instead, Priya opens **Machine screws** and filters Thread = M6, Length = 20, Drive = hex.
+        show: [priya, names, messy, tree, one]
+        highlight: [tree, one]
+        flow: [priya>tree, tree>one]
+      - title: Reuse wins
+        caption: One exact, released part. She adds it to the battery tray. Zero new part numbers.
+        show: [priya, names, messy, tree, one, reuse]
+        highlight: [reuse]
+        flow: [one>reuse]
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Each new part number has hidden costs: someone qualifies the supplier, purchasing negotiates a
+      price, the warehouse stocks another bin, and service keeps a spare for years. Industry rules of
+      thumb put that at hundreds to thousands per part over its life. PTC pitches PartsLink on exactly
+      this: less duplication, lower inventory and maintenance cost, and faster design. Classification is
+      the cheapest way to make **[[part-reuse|reuse]]** easier than reinventing.
+
+  - type: comparison
+    title: Part type or classification?
+    columns: [Part type / subtype, Classification node]
+    rows:
+      - label: Answers
+        cells: ["What business object is this, and which rules apply?", "What physical kind of thing is this?"]
+      - label: Acme example
+        cells: ["E-Bike Part (Battery Voltage, Motor Power, IP Rating)", "Machine screws (Thread, Length, Drive)"]
+      - label: Drives
+        cells: ["Numbering, life cycle, access, layouts", "Finding, comparing and reusing parts"]
+      - label: How many
+        cells: ["A handful of types", "Dozens to hundreds of nodes"]
+      - label: Changes
+        cells: ["Rarely - affects business rules", "Grows as the catalogue grows"]
+    takeaway: "Types decide how a part behaves. Classification decides how it's found. Don't build a type for every kind of screw - and PTC advises not putting the same attribute on both a type and a classification node."
+
+  - type: example
+    variant: case-study
+    title: The 14 screws
+    industry: Micromobility
+    md: |
+      When the E-bike division started, Jordan ran a quick report on the **Acme Standard Parts** library
+      and both products: 14 parts described an M6 machine screw of some length - 5 of them were
+      genuinely identical M6 × 20 hex screws with different names. Ana (manufacturing) confirmed the
+      factory stocked four separate bins for them.
+
+      **What Jordan did**
+      1. Workshop with Priya, Ana and Kai: list the 30 **purchased** part kinds Acme buys most - a pilot
+         set, not the whole catalogue.
+      2. Drew a tree **three levels deep** (group → family → leaf) - nothing deeper for now.
+      3. For each leaf, picked **3-6 attributes** people actually search on, with units and
+         enumerated lists.
+      4. Classified the top 300 library parts first, not all 9,000 parts.
+      5. Marked the duplicates for replacement through the normal change process, keeping one.
+
+      **Result.** In the E1's first quarter, 61% of fasteners and bearings in its structure were reused
+      library parts, against 34% on the Scooter S2 at the same stage.
+    takeaway: Start small - the parts you buy most, a shallow tree, a few searchable attributes - and grow it.
+
+  - type: walkthrough
+    title: Add a node to the classification tree
+    who: A member of the Classification Administrators group (Jordan)
+    where: [Navigator, Browse, Classification Administration, Manage Classifications]
+    steps:
+      - title: Open Manage Classifications
+        where: [Navigator, Browse, Classification Administration, Manage Classifications]
+        md: |
+          Classification is administered from its own **Classification Administration** area, not from a
+          product. Only members of the classification administrators group can change the structures.
+      - title: Pick the structure
+        where: [Manage Classifications, Namespaces, Parts]
+        md: |
+          The **namespace** list names the classification structure. Choose the one used for parts
+          (documents can have their own). Expand the tree down to the parent you want - here
+          *Mechanical → Fasteners*.
+      - title: Insert the node
+        where: [Classification Tree, "Fasteners", Insert Node]
+        md: |
+          Right-click the parent and choose **Insert Node**. Give it an internal name, a display name
+          (*Washers*) and a description. Set **Instantiable** to *Yes* if parts may be classified into it
+          directly; leave grouping nodes non-instantiable.
+      - title: Add its attributes
+        where: ["Washers", Actions, Edit, Attributes, Add attribute to class]
+        md: |
+          Put the node in **edit mode**, open the **Attributes** tab and add attributes to the class.
+          Classification attributes are reusable (global) attributes managed in Type and Attribute
+          Management, so pick an existing one - Inner diameter, Outer diameter - before creating
+          another. Use units, and constraints such as an enumerated value list, a valid range or
+          *Required*.
+    result: |
+      Washers appears under Fasteners, inherits Material and Finish, shows its own attributes on the
+      Attributes tab, and can be picked when someone classifies a part.
+
+  - type: callout
+    variant: version-note
+    versions: ["All releases"]
+    md: |
+      Classification comes from **Windchill PartsLink**, an additional module installed as an add-on.
+      It needs Windchill's index search (Solr) running, plus some one-time setup by an administrator,
+      including a *classification binding attribute* on the Part and Document types in Type and Attribute
+      Management. Whole structures can be exported (CSV or XML) and imported from the Classification
+      Tree's Actions menu, and PTC ships a demo structure that can be loaded as a starting point.
+
+  - type: callout
+    variant: pitfall
+    title: The tree that mirrors the org chart
+    md: |
+      Don't build nodes like "Kai's team parts" or "Supplier Voltra" or "Scooter S2 parts". Teams,
+      suppliers and products change; what a part **is** doesn't. Also avoid trees 8 levels deep - users
+      get lost and classify into the wrong leaf. Three or four levels is plenty for most companies.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      For every attribute you're tempted to add, ask: "Would someone **search** or **compare** on this?"
+      If not, it belongs in a document or a description, not a classification attribute. Fewer,
+      well-constrained attributes beat 25 optional free-text fields nobody fills in.
+
+      Then go one step further: a node can carry an **autonaming rule** that builds the part name from
+      the node name and key attribute values. *"Machine screw M6 × 20 hex"* every time - the 14-names
+      problem can't come back. And if several child nodes share an attribute, move it up to the parent
+      so they all inherit it.
+
+  - type: flashcards
+    cards:
+      - front: Classification
+        back: Putting a part into a node of a shared tree of part kinds, so it gets standard attributes and becomes findable.
+      - front: Classification structure
+        back: The company-wide tree of classification nodes, general at the top and specific at the leaves.
+      - front: Classification node
+        back: One branch or leaf of the tree, such as Machine screws. Has its own and inherited attributes.
+      - front: Inheritance in the tree
+        back: An attribute defined on a node applies to every node below it.
+      - front: Classification attribute
+        back: A property for one kind of part (Thread size for screws), usually constrained by a list, range or unit.
+      - front: Type vs classification
+        back: Type decides rules (numbering, life cycle, access). Classification decides how a part is found and compared.
+      - front: Why classify?
+        back: To make reuse easy and stop duplicate parts, which cost money to qualify, buy, stock and service.
+      - front: Instantiable
+        back: A node property. Only instantiable nodes can be picked as a part's classification; grouping nodes are set to No.
+      - front: A good first tree
+        back: Shallow (3-4 levels), based on what parts are, with 3-6 searchable attributes per leaf.
+
+  - type: summary
+    points:
+      - Classification sorts parts by what they are, so they're found by properties, not by spelling.
+      - The tree goes general → specific; attributes are inherited downward.
+      - Types drive business rules; classification drives findability and reuse.
+      - Start shallow with the parts you buy most and 3-6 searchable attributes per leaf.
+      - Nodes are maintained in Classification Administration → Manage Classifications by classification administrators.

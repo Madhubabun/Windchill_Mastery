@@ -1,0 +1,241 @@
+id: m04-s04-l05
+subtitle: Borrow a value, compute a value, store a value - or write code. Pick the right kind of attribute.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, attributes, alias-attribute, modeled-attribute, reusable-attribute]
+sources:
+  - id: ac
+    where: "Module 4, Describe global object attributes; Describe local object attributes; Describe calculated object attributes; Describe alias object attributes; Describe modeled object attributes; Add attributes to an object type: workflow; Create reusable attributes; Activity: Create reusable attributes; Activity: Add attributes to a subtype"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Calculated Attribute Formulas"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/typeattr/TypeMgrAttrFormula.html"
+    covers: "Calculated values are recalculated after a create or edit action is processed"
+
+blocks:
+  - type: text
+    md: |
+      Ana has a new wish. Every e-bike battery part has a matching **specification document** with
+      the same name, and the spec's description holds the one-line safety summary. She wants that
+      summary **on the part's information page** - without anyone copying it across.
+
+      Jordan now knows four ways to put a value on an object, and a fifth one that needs a developer.
+      Choosing the right one is what separates a tidy data model from a maintenance headache:
+
+      - **store it** on the object (global or local attribute),
+      - **compute it** from the object's own fields (calculated attribute),
+      - **borrow it** from a related object (alias attribute),
+      - or **code it** (modeled attribute).
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a field definition in the shared library" → *[[reusable-attribute]]* (on a type: a *[[global-attribute]]*)
+      - "a field stored on the type's own table" → *[[local-attribute]]*
+      - "a field computed by formula" → *[[calculated-attribute]]*
+      - "a field that shows a value from a related object" → *[[alias-attribute]]*
+      - "a field built in Java" → *[[modeled-attribute]]*
+
+  - type: comparison
+    title: Five kinds of attribute
+    columns: [Where the value comes from, Number of values, "Code needed?", Acme example]
+    rows:
+      - label: Global
+        cells: ["Stored, based on a reusable definition", "Zero or more", "No", "Battery Voltage on E-Bike and scooter parts"]
+      - label: Local
+        cells: ["Stored in a column of the type's table", "Zero or one", "No (columns added with AddColumns)", "Pedal Assist Levels"]
+      - label: Calculated
+        cells: ["A formula over other attributes; not stored directly", "Zero to many", "No", "Max Current = power ÷ voltage"]
+      - label: Alias
+        cells: ["An attribute on a related object, via a mapping", "Zero to many", "No", "Safety summary from the matching spec document"]
+      - label: Modeled
+        cells: ["Whatever the Java code does", "As coded", "Yes", "A value checked against a supplier's system"]
+    takeaway: Store what people own, compute what is derived, borrow what lives elsewhere - and code only as a last resort.
+
+  - type: diagram
+    title: How an alias attribute finds its value
+    caption: The alias follows a mapping from the current object to related objects and brings one attribute back. Click each box.
+    diagram:
+      width: 800
+      height: 360
+      nodes:
+        - id: part
+          label: EB-10021 battery pack
+          sublabel: "Name: EB Battery 48V"
+          x: 20
+          y: 140
+          w: 200
+          h: 64
+          tone: primary
+          detail: |
+            The **current** object. The alias attribute *Safety Summary* lives on E-Bike Part and starts
+            from one of the part's own attributes - here its **Name**.
+        - id: mapping
+          label: Mapping property
+          sublabel: match · type · attribute
+          x: 290
+          y: 140
+          w: 200
+          h: 64
+          tone: accent
+          shape: pill
+          detail: |
+            Written in the alias attribute's **Mapping** property with operators and the **internal
+            names** of types and attributes. It says: take this part's name, find **documents** whose
+            title matches it, and return their **description**. The Help Center lists the operators.
+        - id: doc
+          label: Battery spec document
+          sublabel: "Title: EB Battery 48V"
+          x: 560
+          y: 60
+          w: 220
+          h: 64
+          tone: info
+          shape: doc
+          detail: The related object. Its title matches the part's name, so it's picked up by the mapping.
+        - id: value
+          label: Safety Summary
+          sublabel: shown on the part
+          x: 560
+          y: 230
+          w: 220
+          h: 64
+          tone: success
+          detail: |
+            The document's description, displayed on the part wherever the alias attribute is in a
+            layout - for example the information page or a table. If two documents match, you get two
+            values; if none match, none.
+      edges:
+        - { from: part, to: mapping, label: name }
+        - { from: mapping, to: doc, label: "title matches" }
+        - { from: doc, to: value, label: description }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Copying the same text onto two objects guarantees that one copy goes stale. An alias attribute
+      keeps **one** source of truth - the spec document - and simply shows it where people need it.
+      That's exactly what auditors and safety reviewers want to see.
+
+  - type: example
+    variant: real-world
+    title: The tempting Java field
+    industry: Micromobility
+    md: |
+      Kai asks for a field that checks each battery cell's certificate number against Voltra Cells'
+      online register. Jordan looks through the configurable options: a stored attribute can hold the
+      number, a Regular Expression constraint can check its format - but **no** configurable attribute
+      can call Voltra's system.
+
+      That's the textbook case for a **modeled attribute**: something configuration can't do, like
+      validating against a third-party system. Jordan writes it up for a developer, and notes that it
+      adds cost now and complexity at every upgrade - so the rest of the battery data stays configured.
+    takeaway: A modeled attribute is fine when configuration truly can't do the job - and only then.
+
+  - type: walkthrough
+    title: Create a reusable attribute for the safety rating
+    who: Site or organization administrator (Jordan)
+    where: [Browse, Site, Utilities, Type and Attribute Management, Manage Reusable Attributes]
+    steps:
+      - title: Open the reusable attribute library
+        where: [Type and Attribute Management, Manage Reusable Attributes, Root]
+        md: |
+          Expand **Manage Reusable Attributes** and then **Root**. Look around first - Windchill ships
+          many attributes you can reuse.
+      - title: Make or pick an organizer
+        where: [Root, right-click, New Attribute Organizer]
+        md: Right-click **Root** and choose **New Attribute Organizer**, or reuse *Acme Electrical* from earlier.
+      - title: Create the attribute
+        where: [Acme Electrical, right-click, New Reusable Attribute]
+        md: |
+          Right-click the organizer and choose **New Reusable Attribute**. Fill in:
+          - **Internal Name** - no spaces, for example `BatterySafetyClass`
+          - **Data Type** - here **String**. Other choices include Boolean, Integer, Real Number,
+            Real Number with Units (needs a quantity of measure), Reference (needs the referenced
+            class name) and URL
+          - **Display Name** - *Battery Safety Class*; spaces and special characters are fine
+          - **Description** - if you leave it empty, the internal name is used
+          - **Logical Identifier** - optional and unique across the site; developers use it to reach the
+            attribute, and it also lets the attribute be searched on. Often the same as the internal name.
+      - title: Save and check where it's visible
+        where: [Acme Electrical, Battery Safety Class]
+        md: |
+          Click **OK**. Select the attribute to see its properties; its **Actions** menu lets you edit,
+          delete or cut it. Created at **site** level, it is available to every organization; created
+          in an organization, it stays private to that organization.
+    result: Battery Safety Class sits in the Acme Electrical organizer, ready to be added to E-Bike Part - or any other type - as a global attribute.
+
+  - type: callout
+    variant: note
+    title: What the New Attribute dialog offers
+    md: |
+      When you create an attribute on a type, Windchill only offers the kinds that type supports -
+      for example **Local**, **Global**, **Alias** and **Calculated**. A sixth kind, **translated
+      text**, appears only if Windchill Service Information Manager or Windchill Service Parts is
+      installed. Modeled attributes never appear here: they come from code.
+
+  - type: callout
+    variant: pitfall
+    title: An alias that matches nothing
+    md: |
+      An alias attribute depends on the mapping and on the data. If a spec document's title is
+      *EB Battery 48 V* and the part is *EB Battery 48V*, nothing matches and the field is empty.
+      Agree naming rules for the linked objects, and test the alias on real data before you rely on it.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Before asking for a modeled attribute, run through the list: can a global attribute store it?
+      A constraint check it? A formula compute it? An alias borrow it? PTC's guidance is that modeled
+      attributes are for what configured attributes **cannot** do - like statistical analysis or
+      checking an external system.
+
+  - type: flashcards
+    cards:
+      - front: "Reusable attribute"
+        back: "An attribute definition in Manage Reusable Attributes. Added to a type, it becomes a global attribute."
+      - front: "Properties of a new reusable attribute"
+        back: "Internal name (no spaces), data type, display name, description (defaults to the internal name) and an optional, site-unique logical identifier."
+      - front: "Logical identifier"
+        back: "A site-unique name developers use to reach the attribute; it also lets the attribute be searched on."
+      - front: "Alias attribute"
+        back: "Shows a value from an attribute on a related object, found through a mapping of internal names."
+      - front: "Calculated vs alias"
+        back: "Calculated computes from the object's own attributes by formula. Alias borrows a value from a related object."
+      - front: "Modeled attribute"
+        back: "A Java-coded attribute. Infinitely flexible, but costly and adds upgrade complexity - use only when configuration can't do it."
+      - front: "Site vs organization reusable attributes"
+        back: "Site-level ones are available to all organizations; organization-level ones stay private to that organization."
+      - front: "Translated text attribute"
+        back: "Shows translations of a source text attribute; only with Windchill Service Information Manager or Service Parts installed."
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Ana wants the spec document's description shown on the matching part, with no copying. Which attribute kind fits?
+        options: [An alias attribute, A calculated attribute, A local attribute, A modeled attribute]
+        answer: 0
+        explanation: Alias attributes map to an attribute on a related object and display its value on the current type.
+      - kind: single
+        prompt: Which need justifies a modeled attribute?
+        options:
+          - "Validating a value against a supplier's external system"
+          - "Storing a battery voltage"
+          - "Showing a related document's description"
+          - "Computing current from power and voltage"
+        answer: 0
+        explanation: The other three are covered by global, alias and calculated attributes. Modeled attributes are for what configuration can't do.
+      - kind: truefalse
+        prompt: A reusable attribute created in Acme's organization context is automatically available to every other organization on the site.
+        answer: false
+        explanation: Reusable attributes created in an organization stay private to it. Create them at site level to share them with all organizations.
+
+  - type: summary
+    points:
+      - Five kinds - global, local, calculated, alias and modeled.
+      - Alias attributes borrow a value from a related object through a mapping of internal names.
+      - Calculated attributes compute from the object's own attributes; modeled ones need Java.
+      - Reusable attributes are defined once with internal name, data type, display name and a logical identifier.
+      - Code a modeled attribute only when no configurable kind can do the job.

@@ -23,8 +23,10 @@
 
 **Content**: Module 1 (Fundamentals of Windchill & PLM) is complete: 19 lessons, 4 section
 checkpoints and a capstone. Module 2 (Product Data Management & Core Features) is complete: 23
-lessons, 4 section checkpoints and a capstone. Both have cheat sheets; the glossary has 104
-terms. Modules 3–7 are outlined.
+lessons, 4 section checkpoints and a capstone. Module 3 (Change & Configuration Management) is
+complete: 20 lessons, 5 section checkpoints and a capstone. Module 4 (Business Administration) is
+complete: 38 lessons, 9 section checkpoints and a capstone. All four have cheat sheets; the
+glossary has 209 terms. The other modules are outlined.
 
 ## Not done yet / known limits
 
@@ -33,7 +35,7 @@ terms. Modules 3–7 are outlined.
 - **No server-sent push.** Reminders are local notifications scheduled on the phone.
 - **The APK has not been run on a physical device or emulator** in the build environment. Its
   page loading was tested by emulating the app's file serving in a phone-sized browser.
-- **Modules 3–7 need lessons.** Write them in `content/lessons/mNN/` following
+- **Modules 5–7 need lessons.** Write them in `content/lessons/mNN/` following
   CONTENT_AUTHORING.md; the platform picks them up automatically.
 - Videos: the `video` block exists, but no videos are produced yet.
 - Analytics are per learner (Insights tab). There's no admin dashboard across learners.

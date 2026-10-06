@@ -1,0 +1,258 @@
+id: m04-s01-l04
+subtitle: Hide the buttons people don't need - without touching a single permission.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, participants, profiles, licenses, user-interface]
+sources:
+  - id: ac
+    where: "Module 1, business administrator tasks (create profiles); Module 2, Describe profiles; Create a user account (assign groups and profiles in the New User wizard)"
+  - id: ac
+    where: "Module 10, Identify PTC Windchill license groups; Identify license profiles; Describe license profiles and standard profile interaction"
+  - id: ac
+    where: "Appendix A, Create a user profile (profiles limit display only; not a substitute for access control)"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Managing Standard Profiles"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/profilemgmt/ProfileMgmtAbout.html"
+    covers: "Profiles control actions, tabs and attributes; how several standard profiles merge; changes apply at next login"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Creating a New Profile"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/profilemgmt/ProfileMgmtProfileCreate.html"
+    covers: "Site or Organizations Profiles page; the four New Profile steps; organization profile overriding a same-named site profile"
+
+blocks:
+  - type: text
+    md: |
+      Leo's quality reviewers open a test report in Windchill and see... forty actions. They need about five.
+      Every extra button is a chance to click the wrong one, and a reason to call Jordan.
+
+      Jordan's answer isn't to take permissions away. It's to change **what they see**. Windchill does that with a
+      [[profile]]: a named set of "show this, hide that" settings for actions, tabs and attributes, attached to the
+      users, groups or organizations it should apply to.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a show/hide setting for a kind of user" → [[profile]]
+      - "a profile you build yourself" → *standard profile*
+      - "the profile that matches a license, maintained by PTC" → *license profile*
+      - "the group that says which license someone uses" → [[license-group]]
+      - "the rules that decide what someone may actually do" → *access control*
+
+  - type: diagram
+    title: What decides what Leo sees
+    caption: Three layers stack up. Only one of them is security. Click each box.
+    diagram:
+      width: 820
+      height: 380
+      nodes:
+        - id: leo
+          label: Leo
+          sublabel: quality engineer
+          x: 330
+          y: 20
+          w: 160
+          tone: success
+          shape: pill
+          detail: Leo is in `ACME-Quality`, in his license group, and associated (through his group) with Acme's reviewer profile.
+        - id: lic
+          label: License group
+          sublabel: → license profile
+          x: 30
+          y: 140
+          w: 220
+          tone: info
+          detail: |
+            Adding Leo to a [[license-group]] entitles him to that license. Each license group has a matching **license
+            profile** that makes the licensed features visible - and keeps the features of licenses he doesn't have out of
+            sight. License profiles are maintained by PTC: you can't edit, delete or export them.
+        - id: std
+          label: Standard profile
+          sublabel: Acme Quality Reviewer
+          x: 300
+          y: 140
+          w: 220
+          tone: accent
+          detail: |
+            A profile Jordan builds. It can **hide** licensed features Leo doesn't need. It can never show him features
+            beyond his license.
+        - id: acl
+          label: Access control
+          sublabel: policies and team roles
+          x: 570
+          y: 140
+          w: 220
+          tone: danger
+          detail: |
+            The real security layer: access rules and team roles decide what Leo may read, modify or delete. A profile
+            neither grants nor removes any of that.
+        - id: ui
+          label: What Leo's screen shows
+          sublabel: actions · tabs · attributes
+          x: 300
+          y: 280
+          w: 220
+          tone: primary
+          detail: |
+            The result. An action normally appears only if his license includes it, no profile hides it **and** he has
+            permission to use it. Profile changes show up the next time he logs in.
+      edges:
+        - { from: leo, to: lic }
+        - { from: leo, to: std }
+        - { from: leo, to: acl }
+        - { from: lic, to: ui, label: shows licensed }
+        - { from: std, to: ui, label: hides extras }
+        - { from: acl, to: ui, label: allows or denies }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Simpler screens mean faster work and fewer mistakes - but the bigger win is administrative. Picture Acme with
+      hundreds of products, where quality reviewers may only work on test reports. Without profiles you might tweak
+      roles and rules in every product. With one group (`ACME-Quality`), one set of organization-level access rules
+      and one profile, the job is done once. PTC points out this approach is easier on both admins and system
+      performance.
+
+  - type: comparison
+    title: Standard profile vs license profile
+    columns: [Standard profile, License profile]
+    rows:
+      - label: Who maintains it
+        cells: [Site or organization administrators, "PTC - it can't be altered, deleted or exported"]
+      - label: What it's for
+        cells: [Simplifying the screen for a kind of user, Matching the screen to a purchased license]
+      - label: How people get it
+        cells: ["Associate users, groups or organizations with it", Add the user to the matching license group]
+      - label: Can it go beyond the license?
+        cells: [No - it can only hide, It defines what the license shows]
+      - label: Reuse
+        cells: [Build from scratch or from a saved copy, Can be saved as a standard profile to reuse its settings]
+    takeaway: License profiles say what someone *could* see; standard profiles trim it down to what they *need* to see.
+
+  - type: comparison
+    title: Profile vs access control
+    columns: [Profile, Access control]
+    rows:
+      - label: Controls
+        cells: ["Visibility of actions, tabs and attributes", "Permissions such as read, modify, delete"]
+      - label: Grants a permission?
+        cells: [Never, Yes]
+      - label: Stops a permitted action?
+        cells: [No - it only hides the button, Yes - by denying the permission]
+      - label: Use it for
+        cells: [Clarity and focus, Security and confidentiality]
+    takeaway: If it must be impossible, use access control. If it should just be out of the way, use a profile.
+
+  - type: walkthrough
+    title: Create a standard profile and associate a group
+    who: Organization administrator (or site administrator for site-wide profiles)
+    where: [Organizations, "Acme Mobility", Profiles]
+    steps:
+      - title: Open the organization's profiles
+        where: [Navigator, Browse, Organizations, "Acme Mobility", Profiles]
+        md: |
+          Open the **Profiles** page of the organization (site administrators use **Site → Profiles**). At organization
+          level you see the organization's profiles and the ones inherited from the site.
+      - title: Start a new profile
+        where: [Profiles, New Profile]
+        md: |
+          Click the new profile icon. **Define Details**: name it `Acme Quality Reviewer`, describe who it's for, and keep
+          **Enable for use** ticked so it can be found and used. The name must be unique and can't match a license profile.
+      - title: Choose the visible actions
+        where: [New Profile, Set Action Visibility]
+        md: Tick the actions and areas of the interface reviewers need; clear the ones they don't.
+      - title: Choose the visible attributes
+        where: [New Profile, Set Attribute Visibility]
+        md: Select the attributes that should appear for profile members.
+      - title: Add members
+        where: [New Profile, Select Members]
+        md: |
+          Add **`ACME-Quality`** - a group, not individual reviewers - and finish. You can also give a profile to one user
+          on the profiles page of the New User wizard.
+    result: |
+      The profile is listed on Acme's Profiles page. Leo and the other quality engineers see the trimmed interface the next
+      time they log in.
+
+  - type: callout
+    variant: note
+    title: When several profiles apply
+    md: |
+      A user or group can be associated with more than one profile. Windchill **merges** the settings of all their
+      standard profiles, and the most generous one wins: if one profile hides an action and another shows it, the user
+      sees it. Within an organization, an organization profile with the same name as a site profile takes its place.
+      And no standard profile ever shows features beyond the user's licenses.
+
+  - type: example
+    variant: real-world
+    title: The reviewer who saw too little
+    industry: Micromobility
+    md: |
+      Jordan's first reviewer profile hid the **Check Out** action, and that seemed to work. Then Leo was asked to
+      fix a typo in a test procedure and couldn't find a way to edit it. Jordan's first instinct - "he has no
+      permission" - was wrong: Leo's permissions were fine. A *second* profile from an old pilot, still associated
+      with Leo directly, didn't show Check Out either.
+
+      Jordan removed the leftover direct association, kept profiles on groups only, and wrote down which group gets
+      which profile.
+    takeaway: When something is "missing", check profiles as well as permissions - and keep profile membership on groups so it stays traceable.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Using a profile as a security wall.** Hiding the Delete action takes no permission away. Profiles only limit what
+      is displayed; they don't prevent someone from carrying out an action they have permission for. Confidential data
+      needs access control; profiles are for focus, not protection.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      **Start from what PTC already built.** You can save a license profile as a standard profile and trim from there,
+      instead of ticking hundreds of boxes from scratch. And keep license groups tidy: license compliance only holds when
+      the people who have a license are in the matching license group.
+
+  - type: quiz
+    questions:
+      - kind: truefalse
+        prompt: Jordan hides the Delete action for Voltra's engineers with a profile. That guarantees they can't delete anything.
+        answer: false
+        explanation: Profiles control what is displayed, not what is permitted. To make deletion impossible, use access control.
+      - kind: single
+        prompt: Leo is in two standard profiles. One hides the Revise action; the other shows it. What does Leo see?
+        options: [Revise is hidden, Revise is shown, Windchill asks Leo to choose a profile, Revise is shown only in products]
+        answer: 1
+        explanation: Settings from all standard profiles are merged and the least restrictive wins, so the action is shown - as long as his license includes it.
+      - kind: single
+        prompt: Ana needs the features of an extra Windchill license that Acme bought for her. What does Jordan do?
+        options: [Edit the license profile to include Ana, Add Ana to the matching license group, Create a standard profile that shows those features, Give Ana a site administrator account]
+        answer: 1
+        explanation: License profiles can't be edited. Adding the user to the license group extends the license profile to her - and keeps license usage compliant.
+      - kind: multi
+        prompt: Which can a standard profile control? (Choose all that apply.)
+        options: [Which actions appear, Which tabs appear, Which attributes appear, Whether the user may modify a part]
+        answers: [0, 1, 2]
+        explanation: Profiles control the visibility of actions, tabs and attributes. Whether a user may modify a part is decided by access control.
+
+  - type: flashcards
+    title: Profiles deck
+    cards:
+      - front: Profile
+        back: "A named show/hide setting for actions, tabs and attributes, attached to users, groups or organizations."
+      - front: Standard vs license profile
+        back: "Standard: built by admins to simplify. License: maintained by PTC, matches a license, can't be edited."
+      - front: License group
+        back: "Membership entitles a user to a license and extends the matching license profile to them."
+      - front: Is a profile access control?
+        back: "No. It never grants a permission and never blocks a permitted action."
+      - front: Two standard profiles disagree
+        back: "Settings are merged; the least restrictive wins."
+      - front: When do profile changes apply?
+        back: "The next time the user logs in."
+
+  - type: summary
+    points:
+      - Profiles control what people see (actions, tabs, attributes), never what they may do.
+      - License profiles follow license groups and are maintained by PTC; standard profiles trim the screen further.
+      - "Create standard profiles on the organization's (or site's) Profiles page; associate groups, not individuals."
+      - Pair one group, organization-level access rules and one profile instead of tweaking every context.

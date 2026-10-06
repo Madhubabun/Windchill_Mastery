@@ -1,0 +1,280 @@
+id: m04-s06-l05
+subtitle: "Prototypes count 1, 2, 3. Production counts A, B, C. One life cycle setting decides which - and it never counts backwards."
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, versioning, version-series, lifecycle, oir]
+sources:
+  - id: ac
+    where: "Module 5: Define a version series; Define state-based versioning: example; Manage promotion preferences (Automatic Revision Mode). Module 7: Describe object initialization rules (OIRs); Identify versioning scheme rules; Harvard versioning schemes; Describe file-based and state-based versioning"
+
+blocks:
+  - type: text
+    md: |
+      Ana in manufacturing has a request. "When I see **EB-10021 B** on the shop floor, I want to know
+      it's a production revision. But engineering burns through dozens of prototype revisions before
+      launch - and every one of them takes a letter. By launch day the battery pack will be at
+      revision **K**."
+
+      Kai's idea: count prototypes with **numbers** (1, 2, 3...) and only start **letters** (A, B...)
+      once the part has been released for production. Windchill can do exactly that. It's called
+      **state-based versioning**, and it is set up in two places: the object initialization rule and
+      the life cycle template.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "how revision labels are counted" → *versioning scheme* (Windchill uses *Harvard series*)
+      - "the counting style chosen for one state" → [[version-series]]
+      - "let the state decide the counting style" → [[state-based-versioning]]
+      - "letters for revisions, numbers for iterations (A.1, A.2, B.1)" → the *Mil Std* series
+      - "numbers for both (1.1, 1.2, 2.1)" → the *Numeric* series
+
+  - type: diagram
+    title: Two settings, one result
+    caption: State-based versioning needs both settings. Click each box.
+    diagram:
+      width: 820
+      height: 360
+      nodes:
+        - id: oir
+          label: OIR for E-Bike Part
+          sublabel: "series: StateBased"
+          x: 30
+          y: 40
+          w: 230
+          tone: primary
+          detail: |
+            The object initialization rule sets the versioning scheme for the type. For state-based
+            versioning, the algorithm argument is `wt.series.HarvardSeries.StateBased`. Without it, the
+            life cycle's per-state series are **ignored**.
+        - id: lc
+          label: Life cycle template
+          sublabel: a series per state
+          x: 30
+          y: 230
+          w: 230
+          tone: accent
+          detail: |
+            In the life cycle template, each state can optionally name a version series. The choices
+            for state-based versioning are **Numeric** and **Mil Std**.
+        - id: inwork
+          label: In Work
+          sublabel: Numeric (1, 2, 3...)
+          x: 340
+          y: 40
+          w: 190
+          tone: info
+          shape: pill
+          detail: The first state. Its series sets the **initial** scheme, so a new E-Bike Part starts at version 1.
+        - id: released
+          label: Released
+          sublabel: Mil Std (A, B, C...)
+          x: 340
+          y: 230
+          w: 190
+          tone: success
+          shape: pill
+          detail: A revision made **while the part is Released** follows this state's series. The first one starts the letters.
+        - id: result
+          label: "1 → 2 → 3 → A → B"
+          sublabel: the part's history
+          x: 590
+          y: 135
+          w: 200
+          tone: success
+          shape: doc
+          detail: Numbers while revising in In Work, letters from the first revision made in Released - and letters for good after that.
+      edges:
+        - { from: oir, to: lc, label: switches on }
+        - { from: lc, to: inwork }
+        - { from: lc, to: released }
+        - { from: inwork, to: result }
+        - { from: released, to: result }
+
+  - type: text
+    md: |
+      ### The three rules of state-based versioning
+
+      1. **The first state decides the start.** A new object gets the series of the first state in its
+         life cycle.
+      2. **The state you revise in decides the next label.** Promoting does not change the version -
+         only creating a new version does, and it uses the series of the state the object was in when
+         it was revised.
+      3. **No going back.** Once a new series has started, the old one is never used again for that
+         object - even if it is later demoted to a state that names the old series.
+
+  - type: comparison
+    title: "EB-10021 Battery pack, step by step"
+    columns: [What happens, State afterwards, Version]
+    rows:
+      - label: Priya creates it
+        cells: ["Created in In Work (Numeric)", "In Work", "1"]
+      - label: Revised in In Work
+        cells: ["New version uses In Work's series", "In Work", "2"]
+      - label: Promoted to Released
+        cells: ["State changes, version doesn't", "Released", "2"]
+      - label: Revised in Released
+        cells: ["New version uses Released's series (Mil Std); the Revise transition puts it back In Work", "In Work", "A"]
+      - label: Revised in In Work again
+        cells: ["Mil Std has started - Numeric is never used again", "In Work", "B"]
+    takeaway: The series follows the state where the revision happens - and only moves forward.
+
+  - type: comparison
+    title: The four Harvard versioning schemes
+    columns: [How labels look, How you assign it]
+    rows:
+      - label: Standard alphabetic
+        cells: ["A, B ... Z, then AA, AB ... - the out-of-the-box default", "OIR argument wt.series.HarvardSeries (letters can be tuned in wt.properties)"]
+      - label: Standard integer
+        cells: ["1, 2, 3 ...", "OIR argument wt.series.HarvardSeries plus a change in wt.properties"]
+      - label: File-based
+        cells: ["Whatever a versioning XML file loaded into the database defines", "OIR argument wt.series.HarvardSeries.[SeriesName]"]
+      - label: State-based
+        cells: ["Series per life cycle state (Numeric, Mil Std seeds)", "OIR argument wt.series.HarvardSeries.StateBased"]
+    takeaway: State-based is an extension of file-based versioning. Both are defined in a versioning XML file.
+
+  - type: walkthrough
+    title: Switch E-Bike Parts to state-based versioning
+    who: Jordan (organization administrator), with Rosa for anything in wt.properties or the versioning XML file
+    where: [Browse, Organizations, "Acme Mobility", Utilities]
+    steps:
+      - title: Set the scheme in the OIR
+        where: [Utilities, Object Initialization Rules Administration, E-Bike Part defaults]
+        md: |
+          Download the E-Bike Part rule and set the versioning algorithm's argument to
+          `wt.series.HarvardSeries.StateBased`. Copy the versioning block from an existing rule rather
+          than typing it. Upload the edited rule.
+      - title: Pick a series per state
+        where: [Utilities, Life Cycle Template Administration, E-Bike Part Life Cycle, Edit]
+        md: |
+          Edit the life cycle template, select each phase and choose its version series: **Numeric** for
+          In Work, **Mil Std** for Released. A state without its own series doesn't need one.
+      - title: Check in and test
+        where: [Products, "E-Bike E1", Folders, New Part]
+        md: |
+          Check the template in. Create a test E-Bike Part (expect version 1), revise it, promote it,
+          and revise it again in Released (expect A).
+    result: New E-Bike Parts start at 1 and switch to letters on their first revision in Released. Existing parts keep their history.
+
+  - type: callout
+    variant: note
+    title: Promotion that also revises
+    md: |
+      Promoting alone never changes the version. If Acme wants the letter series to start **as part of**
+      a promotion, the **Promotion Process → Automatic Revision Mode** preference has an option to
+      automatically revise only the promotion candidates whose versioning scheme changed.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      A revision label is a promise to the shop floor and to customers. "Letters mean production"
+      only works if the system enforces it. State-based versioning puts that rule into the life cycle
+      instead of into people's heads.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Setting series in the life cycle but not in the OIR.** If the object type isn't set to
+      state-based versioning in its OIR, Windchill uses the OIR's series and **ignores** the series in
+      each state - with no warning. Also: never delete or modify seeds, values or series in the
+      versioning XML file. You may only add. Existing objects may be using what is already there.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Agree on the switch-over point with manufacturing and the ERP owners before you configure it.
+      The first revision made in the lettered state is the moment "A" is born - make sure everyone
+      knows which state that is.
+
+  - type: simulation
+    title: Count the versions
+    intro: |
+      EB-10021 uses the E-Bike Part Life Cycle with **Numeric** in In Work and **Mil Std** in Released.
+      Revise, promote and demote, and watch which counter moves.
+    headline: "{state} · numeric counter {num} · letter {letter} · series in use: {series}"
+    initial: { state: In Work, num: 1, letter: none, series: Numeric }
+    actions:
+      - id: revise-num
+        label: Revise (in In Work)
+        when: { state: In Work, series: Numeric, num: [1, 2, 3, 4, 5] }
+        do: [{ inc: num }]
+        log: New version {num}. Revised in In Work, whose series is Numeric.
+        blockedHint: Only while In Work and still on the Numeric series (this sandbox stops at 6 - use Start over).
+      - id: revise-letter-inwork
+        label: Revise (in In Work, letters started)
+        when: { state: In Work, series: Mil Std, letter: [A, B, C, D, E] }
+        do: [{ nextLetter: letter }]
+        log: New version {letter}. Mil Std has started, so Numeric is never used again - even in In Work.
+        blockedHint: Letters haven't started yet - revise in Released first. (This sandbox stops at F - use Start over.)
+      - id: promote
+        label: Promote to Released
+        when: { state: In Work }
+        do: [{ set: { state: Released } }]
+        log: Now Released. The version label did not change - promotion never changes it.
+        blockedHint: It's already Released.
+      - id: revise-released-first
+        label: Revise (in Released)
+        when: { state: Released, series: Numeric }
+        do: [{ set: { letter: A, series: Mil Std, state: In Work } }]
+        log: New version A. Revised in Released, whose series is Mil Std. The Revise transition puts the new version In Work.
+        blockedHint: Promote to Released first.
+      - id: revise-released-next
+        label: Revise again (in Released)
+        when: { state: Released, series: Mil Std, letter: [A, B, C, D, E] }
+        do: [{ nextLetter: letter }, { set: { state: In Work } }]
+        log: New version {letter}, created In Work.
+        blockedHint: Promote to Released first. (This sandbox stops at F - use Start over.)
+      - id: demote
+        label: Set state back to In Work
+        when: { state: Released }
+        do: [{ set: { state: In Work } }]
+        log: Back in In Work. The series in use stays {series}.
+        blockedHint: It's already In Work.
+      - id: reset
+        label: Start over
+        do: [{ set: { state: In Work, num: 1, letter: none, series: Numeric } }]
+        log: Fresh part at version 1.
+    goals:
+      - label: Reach version 3 before release
+        when: { num: 3 }
+        message: Revising in In Work counts with the Numeric series.
+      - label: Start the letters
+        when: { letter: A }
+        message: The first revision made in Released starts Mil Std.
+      - label: Reach version B
+        when: { letter: B }
+        message: Once letters start, every new version is a letter - wherever you revise.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: EB-10021 is at version 2 in In Work (Numeric) and is promoted to Released (Mil Std). What is its version right after the promotion?
+        options: ["2", "A", "3", "2.A"]
+        answer: 0
+        explanation: Promotion changes the state, not the version. Only a new version picks up the series of the state it was revised in.
+      - kind: truefalse
+        prompt: After EB-10021 reaches version A, Jordan demotes it to In Work and revises it. The new version is 3, because In Work uses Numeric.
+        answer: false
+        explanation: Once a new series has started, the old one is never used again for that object. The next version is B.
+      - kind: single
+        prompt: Jordan sets Numeric and Mil Std per state, but new parts still get A, B, C. What is missing?
+        options:
+          - The OIR doesn't set the type to state-based versioning
+          - The parts need a server restart
+          - Mil Std must be the first state
+        answer: 0
+        explanation: Without wt.series.HarvardSeries.StateBased in the OIR, the life cycle's per-state series are ignored and the OIR's series applies.
+      - kind: multi
+        prompt: Which are true about the versioning XML file behind file-based and state-based series? (Choose all that apply.)
+        options: [You may add seeds and series, You may delete series nobody likes, It defines the Numeric and MILSTD seeds out of the box, Changing existing values is safe]
+        answers: [0, 2]
+        explanation: Add only. Deleting or modifying series or values can break objects that already use them.
+
+  - type: summary
+    points:
+      - A version series can be set per life cycle state - Numeric or Mil Std for state-based versioning.
+      - It only works if the type's OIR uses wt.series.HarvardSeries.StateBased.
+      - The first state sets the starting series; the state you revise in sets the next label.
+      - Promotion never changes the version, and a started series never goes back.
+      - In the versioning XML file, add - never delete or modify.

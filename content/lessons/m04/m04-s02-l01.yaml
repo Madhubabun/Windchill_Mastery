@@ -1,0 +1,278 @@
+id: m04-s02-l01
+subtitle: Site, organization, product, library, project - one family tree, and settings flow down it like water.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, contexts, inheritance, site, organization]
+sources:
+  - id: ac
+    where: "Module 3, Describe how contexts contain data; Identify relationships between contexts (site, organization and sub-organization levels); Compare contexts; Identify context creators"
+  - id: ac
+    where: "Module 2, Identify best practices for organizations, users, and groups (single organization recommendation); Activity notes on organizations inheriting site templates and groups"
+  - id: ac
+    where: "Module 7, Describe object initialization rules; Manage OIRs (merged rules, levels, subtype precedence); Identify best practices for creating OIRs"
+  - id: ac
+    where: "Module 8, Identify domain and cabinet administrative objects (objects inherit rules of parent domains); Describe the Windchill private domain architecture"
+  - id: ac
+    where: "Module 4, Manage object subtypes (Type and Attribute Management from Site or Organization Utilities); Module 5, Manage promotion preferences (locked preferences, Site/Organization/Product/Library Utilities); Appendix A, Manage preferences"
+
+blocks:
+  - type: text
+    md: |
+      In Module 1 you learned that every object lives in exactly one [[context]]. Now you're on the admin side, and
+      the big idea changes: contexts aren't just *addresses*, they're **layers of settings**.
+
+      Think of a block of flats. The building has rules for everyone (no fireworks). Each floor can add its own
+      (quiet after 10 pm on floor 3). Each flat decides the rest. Windchill works the same way:
+
+      - The [[site]] is the building.
+      - The [[organization-context|organization]] is a floor - Acme Mobility's floor.
+      - **Products, libraries, projects and programs** are the flats.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the whole building - settings for everyone" → [[site]]
+      - "your company's floor" → [[organization-context]]
+      - "one product line's flat" → [[product-context|product]]
+      - "the shared storeroom of reusable parts" → [[library]]
+      - "a team space that follows a plan" → [[project-context|project]]
+      - "the flats where user data lives" → *application contexts* (or sub-organization level contexts)
+
+  - type: diagram
+    title: Acme's context family tree
+    caption: Settings defined higher up become defaults for everything below. Click each level.
+    diagram:
+      width: 820
+      height: 400
+      groups:
+        - { label: Application contexts, x: 20, y: 220, w: 780, h: 160, tone: neutral }
+      nodes:
+        - id: site
+          label: Site
+          sublabel: the whole server
+          x: 320
+          y: 20
+          w: 180
+          tone: neutral
+          detail: |
+            The [[site]] - the root, one per installation. Its policies, templates and preferences are defaults for
+            **every** organization and context. Usually only administrators work here, and changes are rare and careful.
+        - id: org
+          label: Acme Mobility
+          sublabel: organization
+          x: 320
+          y: 120
+          w: 180
+          tone: primary
+          detail: |
+            The [[organization-context]]. Jordan's main workbench: Acme's groups, access policies, initialization rules,
+            templates and shared teams. It inherits the site's policies, and everything Acme creates inherits from it.
+            Like the site, it is usually only visited by administrators.
+          real: PTC recommends a single organization context for an average-sized installation. Several organizations make sense for large, separate divisions that share little data.
+        - id: s2
+          label: Scooter S2
+          sublabel: product
+          x: 40
+          y: 260
+          w: 170
+          tone: accent
+          detail: A product holds everything about one product or product line. It inherits Acme's settings and its manager can add context-specific ones - its team, folders, rules.
+        - id: e1
+          label: E-Bike E1
+          sublabel: product (new)
+          x: 230
+          y: 260
+          w: 170
+          tone: accent
+          detail: The new e-bike product. Same inheritance as Scooter S2; its own team and folders.
+        - id: lib
+          label: Acme Standard Parts
+          sublabel: library
+          x: 420
+          y: 260
+          w: 190
+          tone: success
+          detail: |
+            A [[library]] of items shared across product lines - screws, bearings, connectors. Built almost exactly like a
+            product, but its content isn't unique to one product.
+        - id: proj
+          label: Voltra Cell Dev
+          sublabel: project
+          x: 630
+          y: 260
+          w: 160
+          tone: info
+          detail: |
+            A [[project-context|project]] for joint battery-cell work with Voltra Cells. Its main job is tracking a plan of
+            deliverables and milestones. Projects sit directly in an organization - never inside another project.
+      edges:
+        - { from: site, to: org, label: inherits }
+        - { from: org, to: s2 }
+        - { from: org, to: e1 }
+        - { from: org, to: lib }
+        - { from: org, to: proj }
+        - { from: e1, to: lib, label: uses parts, dashed: true }
+
+  - type: text
+    md: |
+      **What flows down the tree?** Defining things high up keeps administration simple: a rule set at a higher level
+      becomes the default for everything below it, unless a lower level writes its own.
+
+      | Setting | Where it's managed | How lower levels interact |
+      | --- | --- | --- |
+      | Types and attributes | Site or organization Utilities | Used by the contexts below |
+      | Life cycle and workflow templates | Site, organization, and context | Organizations inherit the site's; a context's managers can add their own |
+      | Object initialization rules (numbering, life cycle, folder...) | Any level | Rules from all levels are **merged**; a lower context's rule for the same type wins. PTC recommends defining them at organization or site level |
+      | Preferences | Any level | Apply to all lower contexts - unless **locked** (made non-overridable) higher up |
+      | Access rules | Domains linked to each context | An object inherits the rules of its domain **and all its parent domains** - they add up |
+
+      Two patterns to remember: **"lower wins"** for initialization rules and preferences (unless a lock says no), and
+      **"everything adds up"** for access rules. Each gets its own section later in this module.
+
+  - type: animation
+    title: How Windchill picks a numbering rule
+    diagram:
+      width: 820
+      height: 340
+      nodes:
+        - { id: site, label: Site, sublabel: "Part: default sequence", x: 320, y: 20, w: 200, tone: neutral }
+        - { id: org, label: Acme Mobility, sublabel: "Part: SC-", x: 140, y: 120, w: 200, tone: primary }
+        - { id: orgsub, label: Acme Mobility, sublabel: "E-Bike Part: EB-", x: 500, y: 120, w: 200, tone: primary }
+        - { id: s2, label: Scooter S2, sublabel: no rules of its own, x: 140, y: 230, w: 200, tone: accent }
+        - { id: e1, label: E-Bike E1, sublabel: no rules of its own, x: 500, y: 230, w: 200, tone: accent }
+        - { id: lock, label: Locked preference, sublabel: set at organization, x: 20, y: 20, w: 200, tone: danger, shape: pill }
+      edges:
+        - { from: s2, to: org, label: merge }
+        - { from: e1, to: orgsub, label: merge }
+        - { from: org, to: site, label: merge }
+        - { from: orgsub, to: site, label: merge }
+        - { from: lock, to: org, dashed: true }
+    chapters:
+      - title: Every new instance starts with site rules
+        caption: Out of the box, the **site** has initialization rules for parts, documents and more - parts get plain sequential numbers.
+        show: [site]
+        highlight: [site]
+        seconds: 5
+      - title: Acme overrides for its parts
+        caption: Acme Mobility writes its own **Part** rule (SC- numbers). An organization rule overrides the site rule for the same type.
+        show: [site, org]
+        highlight: [org]
+        flow: [org>site]
+        seconds: 6
+      - title: Kai creates a part in Scooter S2
+        caption: Scooter S2 has no rules of its own, so the merged result comes from Acme and the site. The part gets an **SC-** number.
+        show: [site, org, s2]
+        highlight: [s2]
+        flow: [s2>org]
+        seconds: 6
+      - title: A subtype rule is more specific
+        caption: Acme also writes a rule for the **E-Bike Part** subtype. A rule for a subtype takes precedence over the rule for its parent type.
+        show: [site, org, orgsub, s2, e1]
+        highlight: [orgsub]
+        seconds: 6
+      - title: Priya creates an E-Bike Part in E-Bike E1
+        caption: The merged rules say **EB-** - so the part becomes **EB-10022**. Both rules live at organization level, as PTC recommends.
+        show: [site, org, orgsub, s2, e1]
+        highlight: [e1]
+        flow: [e1>orgsub]
+        seconds: 6
+      - title: Locks stop the override
+        caption: Preferences work like the rules above, with one extra - a higher level can make a value **non-overridable**. Below it, the preference is visible but can't be changed.
+        show: [site, org, orgsub, s2, e1, lock]
+        highlight: [lock]
+        seconds: 7
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Inheritance is how one business admin can run fifty products. Set it once at organization level and every
+      new product gets it for free. Get it wrong at organization level, and you get it wrong fifty times. That's
+      why Jordan always asks **"which level should this live at?"** before changing anything.
+
+  - type: example
+    variant: real-world
+    title: The numbering rule in the wrong place
+    industry: Micromobility
+    md: |
+      When E-Bike E1 started, an eager admin changed Acme's organization-level **Part** rule to EB- numbers "to save
+      time". The next morning, new scooter parts were being numbered EB- too.
+
+      Jordan put the Part rule back to SC- and wrote the EB- rule for the **E-Bike Part** subtype instead - still at
+      organization level. E-bike parts got EB- numbers, scooter parts kept SC-, and no product needed rules of its own.
+      That matters later: PTC warns that rules defined inside individual products can restrict moving objects between
+      products.
+    takeaway: Make rules as specific as the need (subtype, not everything) and keep them at organization or site level.
+
+  - type: walkthrough
+    title: Find where a context's settings live
+    who: Business administrator
+    steps:
+      - title: Open the organization's Utilities
+        where: [Navigator, Browse, Organizations, "Acme Mobility", Utilities]
+        md: |
+          Organization-level tools - Participant Administration, Type and Attribute Management, Object Initialization
+          Rules Administration, Preference Management and more - are on the organization's **Utilities** page.
+      - title: Open a product's Utilities
+        where: [Navigator, Browse, Products, "E-Bike E1", Utilities]
+        md: |
+          Each product and library has its own **Utilities** page with context-scoped tools. Object Initialization Rules
+          Administration here shows the product's rules plus the organization's and the site's - handy for seeing the
+          merged picture.
+      - title: Site level (site admins only)
+        where: [Site, Utilities]
+        md: Site-level utilities affect every organization. Most business administration happens one level down.
+    result: You know the three doors - site, organization and context Utilities - and which one changes how much.
+
+  - type: callout
+    variant: note
+    title: Private contexts break the access chain on purpose
+    md: |
+      When a product, library, project or program is created with **Private Access**, it doesn't inherit access rules
+      from the organization's usual domains. It hangs under a more restrictive *Private* domain instead, so its access
+      rules must be written for it. More on domains in the access control section.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Changing something at site level "because that's where the admin menu is".** A site change reaches every
+      organization and context on the server. Unless you truly mean everyone, work at organization or context level.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      **Keep a "settings map".** A simple table: setting → level it lives at → why. When someone asks "why do e-bike
+      parts get EB- numbers?", the answer is one lookup away - and new admins learn the tree in an hour.
+
+  - type: quiz
+    questions:
+      - kind: order
+        prompt: Order Acme's contexts from the top of the tree down.
+        items: [Site, Acme Mobility organization, E-Bike E1 product]
+        explanation: The site holds organizations, and organizations hold application contexts such as products, libraries, projects and programs.
+      - kind: single
+        prompt: Acme has an organization-level rule for Part (SC-) and one for the E-Bike Part subtype (EB-). Priya creates an E-Bike Part. Which numbering applies?
+        options: [SC- from the Part rule, EB- from the subtype rule, The site default, Whichever rule was created last]
+        answer: 1
+        explanation: When rules exist for both a type and its subtype, the subtype rule takes precedence.
+      - kind: truefalse
+        prompt: A preference made non-overridable at organization level can still be changed in each product.
+        answer: false
+        explanation: A locked preference is visible lower down but can't be edited there. That's the point of a lock.
+      - kind: single
+        prompt: Acme wants every product, current and future, to follow the same access rule for released drawings. Where should Jordan define it?
+        options: [In each product separately, At Acme Mobility organization level, In the Acme Standard Parts library, In a project]
+        answer: 1
+        explanation: Objects inherit the rules of their domain and all its parent domains, so an organization-level rule reaches every product created under it - except private contexts, which deliberately skip those rules.
+      - kind: multi
+        prompt: Which are application contexts? (Choose all that apply.)
+        options: [Scooter S2 product, Acme Standard Parts library, Voltra Cell Dev project, The site]
+        answers: [0, 1, 2]
+        explanation: Products, libraries, projects and programs are where user data lives. The site and organization are the layers above them.
+
+  - type: summary
+    points:
+      - "Site → organization → products, libraries, projects and programs: the context tree."
+      - Settings defined higher up become defaults for everything below.
+      - "Lower wins for initialization rules and preferences (unless locked); access rules add up through parent domains."
+      - Keep rules at organization or site level and as specific as the need.

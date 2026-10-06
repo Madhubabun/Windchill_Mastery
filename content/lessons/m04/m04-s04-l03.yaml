@@ -1,0 +1,331 @@
+id: m04-s04-l03
+subtitle: Pick-lists that never drift, and fields that fill themselves in.
+version: 1.0.0
+updated: "2026-10-05"
+tags: [business-admin, attributes, enumeration, calculated-attribute]
+sources:
+  - id: ac
+    where: "Module 4, Create global enumerations; Activity: Create enumerations; Describe calculated object attributes; Add attributes to an object type: workflow; Constrain strings to a set of values; Activity: Add attributes to a subtype"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Viewing and Editing Enumerations"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/typeattr/TypeMgrGlobalEnumEnumInfo.html"
+    covers: "Available for selection and Removed from selection list tables; entries in use stay unchanged when removed from selection"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Viewing and Editing Entry Properties"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/typeattr/TypeMgrGlobalEnumEntryViewEdit.html"
+    covers: "An enumeration entry's internal name cannot be edited"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Calculated Attribute Formulas"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/typeattr/TypeMgrAttrFormula.html"
+    covers: "Formulas use internal names; operators and functions; recalculation after create or edit; (Unassignable) and isNull()"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Attribute Constraint Rules"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/typeattr/TypeMgrAttrConstraintRuleRef.html"
+    covers: "Calculated attributes always have an Immutable constraint"
+
+blocks:
+  - type: text
+    md: |
+      Look at what people typed for **IP Rating** during the pilot, before there was a list:
+
+      > IP65 · ip65 · IP-65 · IP 65 · 65 · "splash proof" · IP56 (typo)
+
+      Seven spellings of two facts. A report on "how many IP65 parts?" is now a guessing game.
+
+      Two tools fix this kind of mess:
+      - A **global enumeration** - a managed pick-list. Users choose IP54, IP65 or IP67. Nothing else.
+      - A **calculated attribute** - a field Windchill fills in from other fields, like a
+        spreadsheet formula. Nobody can type it wrong because nobody types it.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a managed pick-list" → *global [[enumeration]]* (kept in an *enumeration organizer*)
+      - "one value in the list" → *entry* (internal name + display name)
+      - "only allow values from the list" → an *Enumerated Value List* [[attribute-constraint|constraint]]
+      - "a field computed by a formula" → *[[calculated-attribute]]*
+
+  - type: diagram
+    title: Anatomy of the IP Rating enumeration
+    caption: An enumeration is a list of entries. The attribute uses it through a constraint. Click to explore.
+    diagram:
+      width: 800
+      height: 380
+      nodes:
+        - id: enum
+          label: IP Rating list
+          sublabel: global enumeration
+          x: 20
+          y: 150
+          w: 180
+          h: 64
+          tone: primary
+          detail: |
+            Defined once in Type and Attribute Management, inside an organizer such as *Acme
+            Enumerations*. It doesn't know which attributes use it - it's simply the shared place
+            where the list is maintained.
+        - id: e54
+          label: IP54
+          sublabel: "internal name: IP54"
+          x: 260
+          y: 40
+          w: 220
+          tone: info
+          shape: pill
+          detail: |
+            Each **entry** has an *internal name* (can't be edited once created), a *display name*
+            (what users see) and an optional description. Entries sit in either **Available for
+            selection** or **Removed from selection list**.
+        - id: e65
+          label: IP65
+          sublabel: "internal name: IP65"
+          x: 260
+          y: 150
+          w: 220
+          tone: info
+          shape: pill
+          detail: Dust-tight and protected against water jets. The most common rating at Acme.
+        - id: e67
+          label: IP67
+          sublabel: "internal name: IP67"
+          x: 260
+          y: 260
+          w: 220
+          tone: info
+          shape: pill
+          detail: Dust-tight and survives temporary immersion. Used for the EB-10021 battery pack.
+        - id: attr
+          label: "IP Rating attribute"
+          sublabel: on E-Bike Part
+          x: 560
+          y: 150
+          w: 210
+          h: 64
+          tone: accent
+          detail: |
+            The attribute gets an **Enumerated Value List** constraint that uses the IP Rating
+            enumeration, and its selection list style is set to a drop-down.
+      edges:
+        - { from: enum, to: e54 }
+        - { from: enum, to: e65 }
+        - { from: enum, to: e67 }
+        - { from: e65, to: attr, label: constraint, dashed: true }
+
+  - type: comparison
+    title: Ways to limit a string to a list
+    columns: [Where the list lives, "Enforced?"]
+    rows:
+      - label: Legal Value List
+        cells: ["In the constraint on one type and attribute", "Yes"]
+      - label: Suggested Value List
+        cells: ["In the constraint on one type and attribute", "No - users may type another value"]
+      - label: Enumerated Value List
+        cells: ["In a global enumeration shared by any attribute", "Yes"]
+      - label: External Enumerated Value List
+        cells: ["In an external system such as ERP (needs Java coding)", "Yes"]
+    takeaway: Same values on several types? Use a global enumeration. Values differ per type? A legal value list on each type may fit better.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Certification bodies, customers and ERP all want IP ratings as **exact** values. A managed
+      list makes every report, filter and interface simple - and adding IP68 later is one admin
+      change, not a data clean-up.
+
+  - type: walkthrough
+    title: Build the IP Rating enumeration and attach it
+    who: Site or organization administrator (Jordan)
+    where: [Browse, Site, Utilities, Type and Attribute Management]
+    steps:
+      - title: Create an organizer
+        where: [Manage Global Enumerations, Root, right-click, New Enumeration Organizer]
+        md: Expand **Manage Global Enumerations**, right-click **Root** and choose **New Enumeration Organizer**, for example *Acme Enumerations*.
+      - title: Create the enumeration
+        where: [Acme Enumerations, right-click, New Enumeration]
+        md: Right-click the organizer, choose **New Enumeration** and enter an internal name (`IP_Rating`), a display name and a description.
+      - title: Add the entries
+        where: [IP Rating, Available for selection, Create a new entry]
+        md: |
+          With IP Rating selected, click **Create a new entry** under **Available for selection**.
+          Type `IP54` as internal and display name and click **Apply**; repeat for `IP65` and `IP67`,
+          finishing with **OK**. Then **Done**.
+      - title: Attach it to the attribute
+        where: [Manage Types, E-Bike Part, Attributes, IP Rating, Constraints]
+        md: |
+          On E-Bike Part (in edit mode), set IP Rating's **Selection List Style** to **Drop Down**.
+          On its **Constraints** tab, click **Create a new constraint**, choose **Enumerated Value
+          List**, then **Use existing global enumeration** and pick IP Rating. **Save**.
+      - title: Check the form
+        where: [Test context, New Part]
+        md: Create an E-Bike Part in a test context. IP Rating is a drop-down with three choices.
+    result: IP Rating shows a drop-down of IP54, IP65 and IP67 on e-bike parts. Typed variations are no longer possible.
+
+  - type: simulation
+    title: Manage the IP Rating list without breaking old parts
+    intro: |
+      **EB-10007** (an old motor) is rated **IP54**. Product management wants new parts to be at
+      least IP65, and a new display needs **IP68**. Change the list, then rate a new part, **EB-10022**.
+      Watch what happens to EB-10007 each time.
+    headline: "IP54 entry: {ip54} · IP68 entry: {ip68} · EB-10007 = {oldPart} · EB-10022 = {newPart}"
+    initial: { ip54: Available, ip68: Not in list, oldPart: IP54, newPart: "(empty)", freeText: never tried }
+    actions:
+      - id: retire54
+        label: Move IP54 to Removed from selection list
+        when: { ip54: Available }
+        do: [{ set: { ip54: Removed from selection } }]
+        log: IP54 is hidden from new choices. EB-10007 still shows {oldPart} - entries already in use stay unchanged.
+        blockedHint: IP54 is already removed from selection.
+      - id: restore54
+        label: Move IP54 back to Available for selection
+        when: { ip54: Removed from selection }
+        do: [{ set: { ip54: Available } }]
+        log: IP54 is back in the drop-down for new and edited parts.
+        blockedHint: IP54 is already available.
+      - id: add68
+        label: Create an IP68 entry
+        when: { ip68: Not in list }
+        do: [{ set: { ip68: Available } }]
+        log: IP68 added. Every attribute whose constraint uses the IP Rating enumeration offers it - no change to the types themselves.
+        blockedHint: IP68 is already in the list.
+      - id: hide68
+        label: Move IP68 to Removed from selection list
+        when: { ip68: Available }
+        do: [{ set: { ip68: Removed from selection } }]
+        log: IP68 is hidden from new choices. Parts already rated IP68 keep their value.
+        blockedHint: IP68 isn't available right now.
+      - id: show68
+        label: Move IP68 back to Available for selection
+        when: { ip68: Removed from selection }
+        do: [{ set: { ip68: Available } }]
+        log: IP68 is back in the drop-down.
+        blockedHint: IP68 is already available (or not created yet).
+      - id: pick54
+        label: Rate EB-10022 as IP54
+        when: { ip54: Available }
+        do: [{ set: { newPart: IP54 } }]
+        log: EB-10022 = IP54. Allowed, because IP54 is still available for selection.
+        blockedHint: IP54 isn't in the drop-down any more - removed entries can't be chosen when creating or editing.
+      - id: pick67
+        label: Rate EB-10022 as IP67
+        when: {}
+        do: [{ set: { newPart: IP67 } }]
+        log: EB-10022 = IP67.
+      - id: pick68
+        label: Rate EB-10022 as IP68
+        when: { ip68: Available }
+        do: [{ set: { newPart: IP68 } }]
+        log: EB-10022 = IP68.
+        blockedHint: IP68 isn't available for selection yet. Create it (or move it back) first.
+      - id: typeit
+        label: "Type \"ip 68\" by hand"
+        when: {}
+        do: [{ set: { freeText: rejected } }]
+        log: "No free text: the drop-down only offers the enumeration's available entries. EB-10022 stays {newPart}."
+    goals:
+      - label: Stop new IP54 ratings while EB-10007 keeps IP54
+        when: { ip54: Removed from selection, oldPart: IP54 }
+        message: Removing an entry from the selection list hides it for create and edit without touching existing data.
+      - label: Rate EB-10022 as IP68
+        when: { newPart: IP68 }
+        message: One new entry, available everywhere the list is used.
+
+  - type: text
+    md: |
+      ### Calculated attributes: let Windchill do the maths
+
+      Ana needs the **maximum motor current** for every e-bike part to size cables and connectors.
+      It's simply power divided by voltage. Typing it by hand invites mistakes and goes stale the
+      moment someone changes the motor. So Jordan adds a **calculated attribute**:
+
+      > **Max Current (A)** = Motor Power ÷ Battery Voltage
+
+      | Part | Motor Power | Battery Voltage | Max Current (calculated) |
+      | --- | --- | --- | --- |
+      | EB-10031 hub motor, city | 250 W | 36 V | 6.9 A |
+      | EB-10032 hub motor, cargo | 500 W | 48 V | 10.4 A |
+      | EB-10033 mid-drive, trail | 750 W | 52 V | 14.4 A |
+
+      Change EB-10032's motor to 750 W and, once the edit is saved, its Max Current becomes 15.6 A.
+      Calculated attributes can also join strings - for example a label built from a part's name
+      and IP rating.
+
+  - type: walkthrough
+    title: Create the Max Current calculated attribute
+    who: Site or organization administrator (Jordan)
+    where: [Type and Attribute Management, Manage Types, E-Bike Part]
+    steps:
+      - title: Start a new attribute
+        where: [E-Bike Part, Attributes, Create a new attribute]
+        md: On E-Bike Part (in edit mode), click **Create a new attribute**, enter an internal name such as `MaxCurrent` and choose **Calculated** as the attribute type.
+      - title: Write the formula
+        where: [Max Current, Formula]
+        md: |
+          Refer to other attributes by their **internal names**, not their display names - for
+          example `MotorPower / BatteryVoltage`. Formulas support `+ - * /`, comparisons, logic and
+          functions such as `round()`, `min()`, `max()` and `isNull()`. Names containing special
+          characters such as dashes go inside `${...}`.
+      - title: Handle empty inputs
+        where: [Max Current, Formula]
+        md: |
+          If an input has no value, the result shows **(Unassignable)**. Wrap the formula with
+          `isNull()` checks, or make the inputs **Required** (previous lesson).
+      - title: Test it
+        where: [Test context, "<test part>", Edit]
+        md: Edit a test E-Bike Part to 500 W and 48 V and save. Max Current shows about 10.4 after the edit is processed.
+    result: E-Bike Parts show Max Current as a read-only value that follows Motor Power and Battery Voltage.
+
+  - type: callout
+    variant: note
+    title: What "calculated" means in practice
+    md: |
+      - The value is **recalculated after** a create or edit action is processed - not live while
+        the user types.
+      - A calculated attribute always carries an **Immutable** constraint: nobody edits it directly.
+      - It is **not stored directly** in the database. Check how search and reports treat it on your
+        system before promising Ana a "Max Current over 12 A" report.
+
+  - type: callout
+    variant: pitfall
+    title: Deleting a pick-list value that's in use
+    md: |
+      To retire **IP54**, don't delete it. Move it to **Removed from selection list**: parts that
+      already use it keep their value, and nobody can choose it for new or edited parts. Entry
+      internal names can't be edited, so pick them carefully the first time.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Use a calculated attribute only for values that are **truly derived**. If the number comes from
+      a test (measured current), it's a real attribute with its own owner, not a formula.
+
+  - type: flashcards
+    cards:
+      - front: "Global enumeration"
+        back: "A Windchill object storing a list of legal values. Attributes use it through an Enumerated Value List constraint."
+      - front: "Enumeration entry"
+        back: "Internal name (can't be edited), display name, optional description."
+      - front: "Retire a value safely"
+        back: "Move the entry to Removed from selection list. Objects already using it keep the value."
+      - front: "Legal vs Suggested Value List"
+        back: "Both list values on one type and attribute. Legal is enforced; Suggested lets users type something else."
+      - front: "Calculated attribute"
+        back: "A value derived by formula from other attributes; always Immutable; not stored directly."
+      - front: "How formulas name attributes"
+        back: "By internal name, not display name. Special characters go inside ${...}."
+      - front: "(Unassignable)"
+        back: "What a calculated attribute shows when an input is empty - handle it with isNull() or Required inputs."
+      - front: "When is a calculated value updated?"
+        back: "After the create or edit action is processed - not while the user is typing."
+
+  - type: summary
+    points:
+      - Global enumerations turn free text into a managed pick-list that any attribute can use.
+      - Retire entries by removing them from the selection list - existing data is untouched.
+      - Entry internal names can't be edited; pick them carefully.
+      - Calculated attributes derive values by formula, using internal names, and are always Immutable.
+      - Handle empty inputs, and check search and reports, before relying on a calculated value.
