@@ -1,0 +1,319 @@
+id: m05-s04-l04
+subtitle: Give background work its own engines, decide which engine runs which queue, and give the heaviest workflows their own lane.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, queues, background-method-server, queue-groups, workflow-queues, performance]
+sources:
+  - id: ac
+    where: "Module 16: Configure a background method server; Configure a single method server; Configure multiple background method servers; Distribute background queues; Optimize background queues"
+  - id: ac
+    where: "Appendix A: Describe workflow queues; Describe pool queues; Describe pool queues: example; Monitor workflow queue entries; Configure queue pooling; Configure queue pooling: example; Describe dedicated queues; Configure dedicated queues; Tag dedicated workflow queues; Configure additional publishing queues"
+  - id: ac
+    where: "Module 13: Describe the xconfmanager utility (setting and propagating properties)"
+  - id: trn-config
+    where: "Implementing Dedicated Workflow Queues; Implementing Workflow Queue Pooling (older release; used only where the course manual agrees: dedicatedQueueMode, the Set dedicated queue checkbox, userWorkPoolSize, restart after the change)"
+versionNotes:
+  - versions: ["Windchill+"]
+    md: |
+      Windchill+ is delivered as software as a service and PTC runs its servers, so method server layout
+      and `wt.properties` launch commands are PTC's concern there. This lesson describes customer-run
+      (on-premises) installations, as the course manual does.
+  - versions: ["Older releases"]
+    md: |
+      The supporting training exercises were written for an older release and show generated queue names
+      for pooled and dedicated workflow queues. The 13.x course manual doesn't list those names, so this
+      lesson doesn't either; check Queue Management on your own system to see what was created.
+
+blocks:
+  - type: text
+    md: |
+      Thursday, 10:00, design review week. Priya and eleven designers check in Scooter S2 changes. Two
+      hundred publish jobs and a burst of workflow tasks hit the queues, and at the same moment 300 people
+      are searching and opening parts. Everything feels slow, for everyone.
+
+      The fix isn't "more hardware" first. It's **separation**: user clicks on one set of engines,
+      background work on another, and the heaviest background work on its own engine or even its own
+      machine. Windchill supports exactly that with [[background-method-server|background method servers]]
+      and **queue groups**.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "an engine for user clicks only" → [[method-server|method server]] with `wt.queue.executeQueues=false`
+      - "an engine for queue work only" → [[background-method-server|background method server]]
+      - "a label saying which engine runs a queue" → *queue group* (`wt.queue.queueGroup`)
+      - "several copies of a workflow queue sharing the load" → *queue pooling*
+      - "a private workflow lane for one template" → [[dedicated-queue|dedicated queue]]
+
+  - type: diagram
+    title: Acme's split - foreground, visualization and everything else
+    caption: Queues carry a group name; each background method server runs the groups it's assigned. Click any box.
+    diagram:
+      width: 840
+      height: 440
+      groups:
+        - { label: wc-app01 (users), x: 20, y: 20, w: 250, h: 400, tone: primary }
+        - { label: wc-app02 (background), x: 300, y: 20, w: 520, h: 400, tone: accent }
+      nodes:
+        - id: sm
+          label: Server manager
+          sublabel: starts and monitors
+          x: 45
+          y: 50
+          w: 200
+          tone: neutral
+          detail: |
+            Starts every service listed in `wt.manager.monitor.services`, using each one's launch command
+            `wt.manager.cmd.<service_name>`. A new background method server that isn't in that list
+            never starts.
+        - id: ms
+          label: MethodServer
+          sublabel: executeQueues=false
+          x: 45
+          y: 200
+          w: 200
+          h: 64
+          tone: primary
+          detail: |
+            Handles every user request. `wt.queue.executeQueues=false` stops queue processing here, so a
+            publishing burst can't slow down searches and check-ins.
+        - id: vis
+          label: VisualizationMS
+          sublabel: "group: default"
+          x: 330
+          y: 60
+          w: 210
+          h: 64
+          tone: accent
+          detail: |
+            A background method server for visualization work. The manual's example runs the `default` group
+            here, and suggests placing visualization processing on a cluster node with a better graphics
+            processor.
+        - id: nonvis
+          label: NonVisBackgroundMS
+          sublabel: "group: group1 · runs Solr"
+          x: 330
+          y: 250
+          w: 210
+          h: 64
+          tone: accent
+          detail: |
+            A background method server for all other queues. **Only one** background method server in the
+            whole system (all clusters) may run the embedded Tomcat with the Solr web application; in the
+            manual's example it's this one, and it's disabled in the others.
+        - id: qdef
+          label: Publisher queues
+          sublabel: "group: default"
+          x: 590
+          y: 60
+          w: 210
+          h: 64
+          tone: warning
+          detail: Queues that aren't assigned to any group automatically belong to the `default` group.
+        - id: qg1
+          label: Workflow, email, indexing...
+          sublabel: "group: group1"
+          x: 590
+          y: 250
+          w: 210
+          h: 64
+          tone: warning
+          detail: |
+            Assigned to `group1` in Queue Management (edit the queue's Group attribute) or with a
+            `wt.queue.<queue name>=<group name>` property.
+        - id: orphan
+          label: "Queue in group2"
+          sublabel: no server runs group2
+          x: 590
+          y: 350
+          w: 210
+          h: 56
+          tone: danger
+          detail: Assigning a queue to a group that no background method server runs **halts that queue's execution**.
+      edges:
+        - { from: sm, to: ms }
+        - { from: sm, to: vis }
+        - { from: sm, to: nonvis }
+        - { from: vis, to: qdef, label: runs }
+        - { from: nonvis, to: qg1, label: runs }
+        - { from: orphan, to: nonvis, dashed: true, label: "not run" }
+
+  - type: comparison
+    title: How many method servers for queues?
+    columns: [One method server for everything, Method server + one background MS, Several background MSs with queue groups]
+    rows:
+      - label: Who runs queues
+        cells: [The same server that serves users, "BackgroundMethodServer only (installation default)", Each background MS runs its assigned groups]
+      - label: Effect of a queue burst on users
+        cells: [Users slow down, "Users not slowed, given enough resources", "Users not slowed; heavy queues also isolated from each other"]
+      - label: If the queue server goes offline
+        cells: [Everything stops, All queue processing stops, Other servers keep processing; a group on two servers keeps running]
+      - label: Placement
+        cells: [One machine, Can move to another machine in a cluster, "Per server - e.g. visualization on a node with a better graphics processor"]
+      - label: Best for
+        cells: [Training and development only - faster restarts, Typical production starting point, Larger or scalable production systems]
+    takeaway: A single method server is not recommended for production; most scalable set-ups use one or more background method servers.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Without separation, your slowest background job sets the pace for everyone's clicks, and your busiest
+      user hour delays every email and thumbnail. With background method servers, the manual's point is
+      that each side stops blocking the other, as long as each has enough computing resources. Queue groups
+      then let you put the heavy work where the hardware suits it.
+
+  - type: walkthrough
+    title: Add two background method servers and distribute queues
+    who: System administrator (Rosa), on-premises
+    steps:
+      - title: Decide the groups
+        md: |
+          Decide where each queue should run. That gives you the number of queue groups. Acme uses
+          `default` (visualization) and `group1` (everything else). The manual lists the groups in a property
+          such as `wt.manager.cmd.param.5=default,group1,group2`.
+      - title: Write a launch command per background server
+        md: |
+          For each new service, create `wt.manager.cmd.<service_name>`, reusing the defaults of the shipped
+          `wt.manager.cmd.BackgroundMethodServer` command and overriding only what differs. The key nested
+          values are `wt.method.serviceName` (the new name), `wt.queue.executeQueues=true` and
+          `wt.queue.queueGroup` (its group or groups, comma separated). Add the matching launcher property
+          for each service, as the manual shows.
+      - title: Tell the server manager to start them
+        md: |
+          List every service in `wt.manager.monitor.services`, for example
+          `MethodServer VisualizationMS NonVisBackgroundMS`.
+      - title: Keep queues off the user-facing server
+        md: |
+          `wt.queue.executeQueues=false` stops queue processing on the regular method server. It overrides
+          any group setting: a server with `false` runs no queues at all.
+      - title: Solr on exactly one
+        md: |
+          Only one background method server in the whole system may run the embedded Tomcat with Solr.
+          Disable it in the others; the manual's example clears a numbered `param` of that server's launch
+          command.
+      - title: Size the heap
+        md: |
+          `wt.method.maxHeap` sets method server heap; the service named *BackgroundMethodServer* uses
+          `wt.method.bg.maxHeap` instead. Other background servers need their own override (the manual shows
+          one through a numbered `param` of the launch command), which also lets you give each a different size.
+      - title: Assign queues to groups
+        where: [Site, Utilities, Queue Management, "<queue>", View information, Actions, Edit]
+        md: |
+          Edit each queue's **Group** attribute in Queue Management, or set `wt.queue.<queue name>=<group name>`.
+          Unassigned queues fall into `default`.
+      - title: Apply and restart
+        md: Set the properties with xconfmanager, propagate them, and restart Windchill. Check in Queue Management that every queue runs.
+    result: Users get their own method server; visualization and other queue work run on separate background servers.
+
+  - type: text
+    md: |
+      ### Inside one server: tuning queue throughput
+      - `wt.queue.execEntriesCount`: how many entries are fetched from the database per call (default **12**).
+        Under heavy queue load, raising it means fewer database calls; the manual suggests testing increases
+        of 100% or more. For pool queues it also sets the thread pool size unless one is set per queue.
+      - `wt.queue.PoolQueue.<queue_name>.ThreadPoolSize`: threads for one pool queue, for example 4 for
+        `WfUserWorkQueue`. Pool queue threads live inside the one method server that runs the queue, so a
+        single queue runs entries in parallel on one node only.
+
+      ### Workflow queues: pooling and dedicated lanes
+      | | Queue pooling | Dedicated queues |
+      | --- | --- | --- |
+      | Idea | Several copies of `WfUserWorkQueue` and/or `WfPropagationQueue` share all workflows | Workflows from tagged templates get their own UserWork and/or Propagation queue |
+      | Switch on | `wt.workflow.engine.userWorkPoolSize` and `wt.workflow.engine.propagationPoolSize` | `wt.workflow.engine.dedicatedQueueMode` = `none` (default), `userWork`, `Propagation` or `All`, then restart the method servers |
+      | Per template | No | Check out the workflow template, select **Set dedicated queue** on the Template Properties tab, check in |
+      | How work spreads | Workflow processes push entries into the pooled queues in turn (round robin) | A long line of robots from one template waits in its own queue; other templates keep flowing |
+      | Use it when | You want fault tolerance or to run workflow queues on different background servers | One template is heavy or has long-running robots |
+
+      Two more switches: `wt.workflow.engine.dedicatedQueue=true` tags **new** templates as dedicated
+      (existing ones aren't changed), and `wt.workflow.engine.dedicatedQueuePerProcess=true` gives every
+      process of a dedicated template its own queue. That one is global; there's no per-template setting.
+
+  - type: scenario
+    variant: what-if
+    title: The queue that stopped after the split
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Rosa adds a third group, `vis2`, for a new `PublisherQueue2`, and edits the queue's Group to `vis2`
+          in Queue Management. Next morning PublisherQueue2 has 400 Ready entries and none ran. What's
+          the most likely cause?
+        choices:
+          - label: No running background method server has vis2 in its wt.queue.queueGroup
+            next: s2
+            good: true
+            feedback: A queue in a group that no background method server runs doesn't execute.
+          - label: PublisherQueue2 needs a higher Failure Retries value
+            next: f1
+            feedback: Failure Retries only matter after an entry fails. These never started.
+          - label: Pool queues don't guarantee order
+            next: f1
+            feedback: Publisher processing queues aren't the issue here, and order doesn't explain zero progress.
+      - id: f1
+        md: |
+          Rosa changes it; nothing moves. She compares the queue's group with the launch commands and finds
+          no server lists `vis2`.
+        choices:
+          - { label: Fix the group assignment, next: s2 }
+      - id: s2
+        md: |
+          Rosa adds `vis2` to VisualizationMS's `wt.queue.queueGroup` and restarts. Kai then asks: *"Can we
+          also put vis2 on NonVisBackgroundMS, just in case?"* What should Rosa say?
+        choices:
+          - label: Only if we deliberately want high-availability queue processing
+            next: s3
+            good: true
+            feedback: The manual says to run one group on several background servers only when configuring high availability queue processing.
+          - label: Sure, more servers on a group is always faster
+            next: p1
+            feedback: Not a performance knob - it's a high-availability choice.
+      - id: p1
+        md: |
+          Rosa checks the manual first: the same group on more than one background method server is meant
+          for high availability queue processing, not as a general speed-up. She makes it a deliberate
+          design decision with Kai instead of a "just in case".
+        outcome: partial
+      - id: s3
+        md: |
+          PublisherQueue2 drains within the hour. Rosa writes the group map (queue → group → server) into
+          the runbook so nobody adds a queue to an orphan group again.
+        outcome: success
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **A new background method server that never starts.** Writing the `wt.manager.cmd.<service_name>`
+      launch command isn't enough: the service must also be listed in `wt.manager.monitor.services`.
+      And if two background servers both run Solr, you've broken the "only one" rule.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Don't jump straight to queue pooling. The manual points out that workflow queue entries already run in
+      parallel; pooling is worth it for fault tolerance or to spread workflow queues across background
+      servers. For one notorious template with long expression robots, a **dedicated queue** is the sharper tool.
+
+  - type: flashcards
+    cards:
+      - front: wt.queue.executeQueues=false
+        back: Stops queue processing on that method server - and overrides any queue group set for it.
+      - front: Two things a new background method server needs
+        back: "A launch command wt.manager.cmd.<service_name> and an entry in wt.manager.monitor.services."
+      - front: Queue with no group
+        back: Automatically in the default group, run by the background method server that has default.
+      - front: Queue assigned to a group no server runs
+        back: Its execution halts.
+      - front: Solr and background method servers
+        back: Only one background method server across the whole system runs the embedded Tomcat with Solr.
+      - front: dedicatedQueueMode values
+        back: "none (default), userWork, Propagation, All - then set Has Dedicated Queue on the template."
+
+  - type: summary
+    points:
+      - A default install has MethodServer for users and BackgroundMethodServer for queues; a single server is for training or development only.
+      - executeQueues=false on the user-facing server; executeQueues=true plus a queueGroup on each background server.
+      - New background servers need a launch command and a place in wt.manager.monitor.services.
+      - Queues join groups in Queue Management or by property; unassigned queues are in default; orphan groups halt queues.
+      - One group on several servers is for high availability; Solr runs on exactly one background server.
+      - Workflow queues can be pooled for fault tolerance or load spreading, or dedicated to one heavy template.

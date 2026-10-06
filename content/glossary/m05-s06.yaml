@@ -1,0 +1,49 @@
+# New glossary terms introduced in section m05-s06 (Clustering and high availability).
+- id: windchill-cluster
+  term: Windchill cluster
+  plain: Several Windchill servers that work together and look like one to users.
+  definition: A group of Windchill servers, managed together, that can be reached as a single unit through a load balancer and one common name. Each request (an HTTP request or RMI call) goes to one of the servers. The servers share one database and a caching mechanism kept in step by their server managers. Clusters are used for performance, scalability and reliability, mostly in large implementations.
+  aka: [Clustered configuration, Cluster]
+  related: [cluster-node, load-balancer, master-node, failover, high-availability, server-manager]
+
+- id: cluster-node
+  term: Cluster node
+  plain: One of the Windchill servers inside a cluster.
+  definition: A Windchill server that takes part in a cluster. It runs like an ordinary Windchill server, with its own server manager and method servers, except that it shares the database and the caching mechanism with the other nodes. A node is either the main cache node or a cache client (secondary node). Background method servers can be placed on a separate node to give queue processing its own machine.
+  aka: [Cache client, Secondary node]
+  related: [windchill-cluster, master-node, method-server, server-manager]
+
+- id: master-node
+  term: Main cache node
+  plain: The node whose server manager keeps every node's cache in step.
+  definition: The cluster node whose server manager holds the main cache role and synchronizes the caches of all the other nodes. In an identical-nodes cluster the role is chosen by negotiation between server managers, generally the first node started. In a dedicated main node cluster the administrator names it. If it becomes unreachable, another server manager takes over automatically, and the old one rejoins as secondary. The 13.1.2.0 Help Center says main cache. The 13.0.2.0 course manual says primary cache. Older training says master.
+  aka: [Main server manager, Primary cache, Master node, Cluster master]
+  related: [windchill-cluster, cluster-node, server-manager, failover]
+
+- id: load-balancer
+  term: Load balancer (load balancing router)
+  plain: The front door of a cluster that decides which server handles each request.
+  definition: The device or software in front of a Windchill cluster that takes client requests and spreads them over the available Windchill servers. To the rest of the network it looks like a single Windchill server. For Windchill it must enforce affinity (client host or session), including for tunneled HTTP and HTTPS traffic. It can send traffic to web servers, which then forward to the method servers over AJP.
+  aka: [Load balancing router, Load balancing switch]
+  related: [windchill-cluster, sticky-session, web-server, servlet-engine]
+
+- id: sticky-session
+  term: Affinity (sticky sessions)
+  plain: Keeping one user's requests on the same server, where their session lives.
+  definition: A load balancer setting that sends related requests to the same servlet engine and method server, so the servlet engine's session data and multi-step operations work. Windchill requires either client host affinity (all requests from one client host for a period of time go to one node; the simplest to set up) or session affinity (requests in one session go to one node; more precise and the best match for servlet engines).
+  aka: [Session affinity, Client host affinity, Host affinity]
+  related: [load-balancer, servlet-engine, windchill-cluster]
+
+- id: failover
+  term: Failover
+  plain: When something breaks, the work moves to a part that still runs.
+  definition: Moving work to a surviving component when one fails. In a Windchill cluster, when a node or application server fails, requests are directed to the remaining servers; if the main cache node becomes unreachable, another server manager becomes main automatically. Within one node, the server manager restarts a method server that has died. Failover does not cover the shared database, which needs its own redundancy.
+  aka: [Fail-over]
+  related: [windchill-cluster, high-availability, master-node, server-manager]
+
+- id: high-availability
+  term: High availability
+  plain: Designing the system so users can keep working when a part fails or is being maintained.
+  definition: A design goal of keeping Windchill usable through failures and maintenance, typically by clustering Windchill servers behind a load balancer, adding redundancy to the database and web tiers, and running the same background queue group on more than one background method server (high availability queue processing). It costs more hardware and admin effort than a single-server or multi-tiered setup.
+  aka: [HA]
+  related: [windchill-cluster, failover, load-balancer, background-queue]

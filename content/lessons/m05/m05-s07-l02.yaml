@@ -1,0 +1,314 @@
+id: m05-s07-l02
+subtitle: A fresh install works. A hardened install survives the internet, the auditors and the next security advisory.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, security, hardening, patches, audit, jmx, checklist]
+sources:
+  - id: ac
+    where: "Module 11: Install Windchill (System password encryption by the PSI). Module 15: Tune Windchill servers (WCA prompts for authenticated non-SSL and anonymous remote JMX access, default n). Module 18: Populate JMX-Administrators. Module 19: Maintain the system (monthly tasks; Generate throughput and security audit reports; Apply maintenance patches and updates; Types of Windchill releases; Maintain multiple Windchill environments). Appendix A: Run security auditing and usage reports"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Best Practices for Securing Your Windchill Solution"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCSysAdminWCConsiderSecureInfrastructure/WCConsiderSecureInfrastructure_SecurityBestPractice.html"
+    covers: "Trusted network; HTTPS and HSTS; 256-bit encryption key length; Oracle TDE; removing sample code and API docs from web directories; WEB-INF not web-accessible; secure RMI and firewalls; CSRF protection on by default; password policy and lockout default; changing default account passwords; removing leavers; directory listing; audit event recording; rate limiting; log management; secure customization"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Single Sign-on Authentication"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCAdvDeployGuide/WCAdvDepAuth_ConfigAltAuth_SSO.html"
+    covers: "Short session and OAuth token lifetimes (30 minutes recommended)"
+versionNotes:
+  - versions: ["Windchill+"]
+    md: |
+      On Windchill+ PTC runs and patches the servers, web server and database, so most of the server-side checklist
+      is PTC's job. The customer side still owns people and data: leavers, licence and group membership, access
+      rules and reviewing audit reports. Our sources don't list the exact split - check your Windchill+ agreement.
+
+blocks:
+  - type: text
+    md: |
+      Windchill at Acme has been live for a year. Then **Lena** forwards an email at 07:40: a security advisory
+      for a component in the Windchill stack. "Are we affected? When can we patch? And while we're at it - can you
+      show me our hardening checklist?"
+
+      **Rosa** has the first answer in an hour, because she prepared the second one long ago. That's what this
+      lesson is: the checklist, and the calm routine for advisory day.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "closing every door you don't need and locking the rest" → [[hardening]]
+      - "a record of who did what that changed Windchill data" → [[security-audit-report]]
+      - "the email list that gets Windchill's server alerts" → **JMX-Administrators**
+      - "PTC's small, frequent fix bundles" → **Critical Patch Sets (CPS)**, next to maintenance and major releases
+      - "the list of versions that are certified to work together" → the Windchill **software matrix**
+
+  - type: diagram
+    title: The layers Rosa hardens
+    caption: Security isn't one switch. Click each layer to see what the sources say to do there.
+    diagram:
+      width: 820
+      height: 430
+      nodes:
+        - id: net
+          label: Network
+          sublabel: firewall · trusted zone
+          x: 30
+          y: 30
+          w: 240
+          tone: info
+          detail: |
+            **PTC Help Center supplement:** deploy Windchill only in a controlled, trusted network; secure RMI with
+            firewall rules; enforce **rate limiting** with a firewall or load balancer rather than relying only on
+            Apache settings.
+        - id: web
+          label: Web server
+          sublabel: wc-web01
+          x: 290
+          y: 30
+          w: 240
+          tone: accent
+          detail: |
+            **PTC Help Center supplement:** serve Windchill over **HTTPS** (TLS) and add **HSTS**; keep directory
+            listing off; make sure the `WEB-INF` directory can't be reached from a browser; remove sample code,
+            implementation examples and API docs from web-accessible folders on production.
+        - id: auth
+          label: Sign-in
+          sublabel: passwords · SSO
+          x: 550
+          y: 30
+          w: 240
+          tone: primary
+          detail: |
+            **PTC Help Center supplement:** a strong password policy (length, mixed characters, no user or
+            organization name, expiry, lockout - by default 5 wrong attempts lock the account for 15 minutes);
+            change the passwords of default accounts such as `wcadmin` or `demo`; keep SSO sessions and OAuth
+            tokens short (30 minutes recommended).
+        - id: app
+          label: Windchill server
+          sublabel: wc-app01 · wc-app02
+          x: 30
+          y: 170
+          w: 240
+          tone: accent
+          detail: |
+            **Course manual:** the PSI encrypts system passwords that would otherwise sit in plain text in installed
+            files - so record passwords in a secure place outside the Windchill folders. The WCA asks whether to
+            enable *authenticated (non-SSL)* and *anonymous* remote JMX access; both default to **n**. Leave them
+            off unless you have a reason. **Help Center:** CSRF protection is on by default; raising the encryption
+            key length from 128 to 256 bits is recommended.
+        - id: data
+          label: Database + vault
+          sublabel: wc-db01
+          shape: cylinder
+          x: 290
+          y: 170
+          w: 240
+          tone: neutral
+          detail: |
+            **PTC Help Center supplement:** encrypt data at rest - for Oracle, Transparent Data Encryption (TDE).
+            You can also stop audit records being purged by removing delete rights on the audit tables for the
+            Windchill database user. That is a DBA job for **Omar**, following the Help Center steps.
+        - id: people
+          label: People
+          sublabel: leavers · admins
+          x: 550
+          y: 170
+          w: 240
+          tone: warning
+          detail: |
+            **PTC Help Center supplement:** remove users from Windchill when they leave (Delete from Windchill in
+            Participant Administration), so a reused username can't inherit old access. Keeping the
+            Administrators group small is general good practice.
+        - id: watch
+          label: Watch and record
+          sublabel: audit · logs · alerts
+          x: 30
+          y: 310
+          w: 370
+          tone: success
+          detail: |
+            **Course manual:** security auditing keeps a history of who changed what, plus security events such as
+            privilege changes, team changes and access denials. Login and Logout events are on by default
+            on-premises. Populate **JMX-Administrators** after install so server alerts reach a real mailbox.
+            **Help Center:** record more critical events, protect log files with OS permissions and watch web logs
+            for unusual 40x/50x spikes.
+        - id: patch
+          label: Patch and test
+          sublabel: CPS · matrix · test system
+          x: 420
+          y: 310
+          w: 370
+          tone: danger
+          detail: |
+            **Course manual:** evaluate patches for Windchill, Java, the database, the OS and hosts regularly; check
+            every version against the Windchill software matrix (never update Java automatically); validate on a
+            test system; back up first and know the rollback; apply in a maintenance window.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      A default install is built to *work*, not to face hostile traffic. In real companies the Windchill server
+      ends up holding years of design IP, supplier drawings and export-controlled data. Auditors (ISO 27001,
+      TISAX in automotive supply chains, customer security questionnaires) will ask for the checklist, the
+      evidence and the patch history. "We installed it and it runs" is not an answer they accept.
+
+  - type: text
+    md: |
+      ### Rosa's hardening checklist (cheat sheet)
+
+      Print it, tick it on every new or rebuilt server, and repeat it after major upgrades.
+
+      | # | Check | Source |
+      | --- | --- | --- |
+      | 1 | Windchill sits in a trusted network zone; RMI secured with firewall rules | Help Center |
+      | 2 | HTTPS on the web server, HSTS on | Help Center |
+      | 3 | Sample code, examples and API docs removed from web folders on production | Help Center |
+      | 4 | `WEB-INF` not reachable from a browser; directory listing off | Help Center |
+      | 5 | Default account passwords changed (`wcadmin`, `demo`); password policy and lockout set | Help Center |
+      | 6 | System passwords recorded in a secure vault outside the Windchill folders | Course manual |
+      | 7 | Remote JMX: authenticated non-SSL and anonymous access left at **n** | Course manual |
+      | 8 | JMX-Administrators populated with a team mailing list | Course manual |
+      | 9 | Audit events: Login/Logout plus the critical events Lena needs; audit tables protected from deletion | Course manual + Help Center |
+      | 10 | Encryption: 256-bit key length; database encryption at rest | Help Center |
+      | 11 | Rate limiting at the firewall or load balancer | Help Center |
+      | 12 | Leavers removed from Windchill, not only from the directory | Help Center |
+      | 13 | SSO session and OAuth token lifetimes short (30 min recommended) | Help Center |
+      | 14 | Patch routine: matrix check → test system → backup → maintenance window | Course manual |
+      | 15 | Monthly: run audit and usage reports, monitor licence usage, review admins | Course manual |
+
+  - type: example
+    variant: case-study
+    title: Advisory day at Acme
+    industry: Micromobility
+    md: |
+      The advisory names a component version range. Rosa follows a routine Acme wrote in advance. (Steps 1-3 and 7
+      are **general IT practice**; steps 4-6 follow the course manual's patch guidance.)
+
+      1. **Triage (first hour).** Is the affected component in Acme's stack, and which version runs on wc-web01,
+         wc-app01/02, wc-db01, wc-fs-lakeside and wc-cad01? Rosa keeps a component inventory, so this is a lookup,
+         not a hunt.
+      2. **Exposure.** Is the vulnerable part reachable from outside the trusted network? HQ users only, or also the
+         Lakeside WAN and the VPN?
+      3. **Mitigate now.** Until a fix is tested, Lena's team tightens firewall rules for the affected port.
+      4. **Find the fix.** Check PTC's release vehicles (maintenance release or Critical Patch Set) and the
+         third-party vendor. Check the software matrix before upgrading anything - including Java.
+      5. **Test.** Apply on the test system that was cloned from production. Run the usual smoke tests.
+      6. **Deploy.** Back up, note the rollback steps, patch production in the agreed maintenance window.
+      7. **Close out.** Confirm the new versions, update the inventory, write two lines for Lena's audit file.
+
+      Total: mitigated the same day, patched in the next maintenance window, evidence on file.
+    takeaway: Advisories are stressful only if you start from zero. An inventory, a test system and a written routine turn them into a checklist.
+
+  - type: walkthrough
+    title: Respond to a security advisory
+    who: Rosa (system administrator) with Lena (IT security) and Omar (DBA)
+    steps:
+      - title: Confirm you're affected
+        md: |
+          Match the advisory's product and version range against your inventory of every Windchill host and
+          component (Windchill, Java, web server, database, OS). *General IT practice.*
+      - title: Assess exposure and rate the risk
+        md: |
+          Decide with security how reachable and how severe it is for *your* network. That sets the deadline.
+          *General IT practice.*
+      - title: Apply a temporary mitigation if needed
+        md: Firewall rule, disabled feature or restricted access while the real fix is tested. *General IT practice.*
+      - title: Get the fix and check compatibility
+        md: |
+          Get the PTC release (maintenance release or CPS) or third-party patch. Check the versions against the
+          Windchill software matrix - the course manual warns never to update Java automatically.
+      - title: Validate on a test system
+        md: Apply it to a non-production environment first, ideally one cloned or rehosted from production.
+      - title: Back up, then patch production
+        md: Take a backup, keep the rollback instructions to hand, and apply in a maintenance window.
+      - title: Record and review
+        md: |
+          Update the inventory, record what changed and when, and check audit reports and logs for anything odd
+          during the exposure window. *General IT practice.*
+    result: The advisory is closed with a timeline, a tested fix and evidence for the next audit.
+
+  - type: scenario
+    variant: what-if
+    title: "\"Just update Java on production, it's only a security fix\""
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Friday 16:00. A new Java security update is out. A colleague suggests letting the server's automatic
+          updates install it on wc-app01 and wc-app02 over the weekend. What does Rosa do?
+        choices:
+          - label: Turn on automatic updates - security first
+            next: f1
+            feedback: The course manual says you should never update Java automatically. An uncertified version can stop Windchill.
+          - label: Check the Java version against the Windchill software matrix first
+            next: s2
+            good: true
+            feedback: Compatibility first - that's what the course manual asks for every component update.
+      - id: s2
+        md: The new Java version is listed as compatible for Acme's Windchill release. Next?
+        choices:
+          - label: Install on production immediately
+            next: p1
+            feedback: Compatible on paper isn't tested at Acme. Skipping the test system is how surprises happen.
+          - label: Apply on the test system, smoke-test, then schedule production with a backup and rollback plan
+            next: ok
+            good: true
+            feedback: Exactly the course manual's routine.
+      - id: ok
+        md: "**Safe and fast.** Patched in the next maintenance window, tested, with a way back."
+        outcome: success
+      - id: p1
+        md: "**Lucky, maybe.** It probably works - but if a customization breaks, production is down on Monday with no tested rollback."
+        outcome: partial
+      - id: f1
+        md: "**Outage risk.** An automatic Java update on Windchill servers can leave you with an uncertified combination and a system that won't start."
+        outcome: fail
+
+  - type: scenario
+    variant: what-if
+    title: What if Rosa skipped the checklist?
+    start: q1
+    nodes:
+      - id: q1
+        md: |
+          A penetration tester reports they could open sample code pages and API documentation on production, and
+          sign in as `demo` with its original password. Which fixes come from the Help Center's best practices?
+        choices:
+          - label: Remove sample code and API docs from web folders, and change default account passwords
+            next: good
+            good: true
+            feedback: Both are on the Help Center list. Default accounts like wcadmin and demo are a classic first target.
+          - label: Rename the server so nobody finds it
+            next: bad
+            feedback: Hiding isn't hardening. The pages and the default password would still be there.
+      - id: good
+        md: "**Fixed properly** - and Rosa adds items 3 and 5 of the checklist to the new-server build steps so it can't happen again."
+        outcome: success
+      - id: bad
+        md: "**Not fixed.** Security through obscurity buys a few days at best."
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    title: Logging everything, forever
+    md: |
+      Verbose logging feels safe, but the Help Center advises enabling extra logging only while troubleshooting and
+      turning it off afterwards, protecting log files with OS permissions and watching for unusual growth. Huge logs
+      hide the one line that matters and can fill the disk.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Ask Omar to take away **delete** rights on the audit tables from the Windchill database user (the Help Center
+      describes the procedure). Then nobody - not even a compromised admin account - can quietly purge the trail.
+      Plan audit-log purging through the Audit Log Purge Manager with security's agreement instead.
+
+  - type: summary
+    points:
+      - "Hardening is layered: network, web server, sign-in, Windchill server, database, people, monitoring and patching."
+      - "Help Center best practices: HTTPS + HSTS, remove samples and API docs, protect WEB-INF, change default passwords, password policy, rate limiting, encryption."
+      - "Course manual: PSI encrypts system passwords; keep remote JMX (non-SSL, anonymous) off by default; populate JMX-Administrators."
+      - "Security auditing records who changed what; Login and Logout are audited by default on-premises."
+      - "Patches: check the software matrix, never auto-update Java, test first, back up, patch in a window."
+      - "Advisory day: confirm, assess, mitigate, fix, test, deploy, record - with an inventory ready in advance."

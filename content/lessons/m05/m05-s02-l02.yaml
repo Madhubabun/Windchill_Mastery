@@ -1,0 +1,358 @@
+id: m05-s02-l02
+subtitle: Red text, flat lines and an inbox that tells you before users do. Learn to read Windchill's own vital signs.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, monitoring, server-status, jmx, jconsole, alerts]
+sources:
+  - id: ac
+    where: "Module 19: Configure notification settings; Perform monitoring and maintenance activities; Monitor system health using dashboards; Monitor server processes; Activity: Monitor Windchill system performance; Monitor the system using JMX clients; Activity: Monitor Windchill performance using JConsole; Investigate and respond to notifications and alerts; Check performance using monitoring tools"
+  - id: ac
+    where: "Module 13: Identify JMX clients. Module 18: Populate JMX-Administrators"
+versionNotes:
+  - versions: ["Windchill+"]
+    md: |
+      Windchill+ is delivered as software as a service and PTC runs its servers. The JConsole steps and the
+      alert set-up commands in this lesson are for installations your company runs itself (on-premises).
+
+blocks:
+  - type: text
+    md: |
+      Monday, 8:40. Kai messages Rosa: *"Windchill feels sticky this morning, is it just me?"* Rosa could
+      guess. Or she could open the page that Windchill keeps for exactly this moment: the **Server Status**
+      page, where every server process reports its memory, users, database calls and response times, and
+      anything over its limit turns **red**.
+
+      Even better: Rosa wants Windchill to **email her first**, before Kai has to. That's what JMX alerts are for.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the health page inside Windchill" → *Server Status* page (Site → Utilities)
+      - "the page of extra diagnostic tools" → *Monitoring Tools*
+      - "a value over its limit" → a value that exceeded its *threshold* (shown in red)
+      - "Java's built-in remote control and sensor system" → [[jmx|JMX]] and its *MBeans*
+      - "a desktop app for looking inside a Java process" → [[jconsole|JConsole]]
+      - "the admins' email list for alerts" → the *JMX-Administrators* email list
+
+  - type: diagram
+    title: Where the vital signs come from
+    caption: Every Windchill Java process publishes MBeans. Three different windows read them. Click each box.
+    diagram:
+      width: 820
+      height: 420
+      groups:
+        - { label: Windchill processes (wc-app01), x: 20, y: 20, w: 250, h: 380, tone: neutral }
+        - { label: Ways to look, x: 300, y: 20, w: 250, h: 380, tone: accent }
+        - { label: People, x: 580, y: 20, w: 220, h: 380, tone: success }
+      nodes:
+        - id: sm
+          label: Server manager
+          sublabel: MBeans
+          x: 40
+          y: 60
+          w: 210
+          tone: primary
+          detail: The [[server-manager|server manager]] publishes MBeans with its own status and thresholds. Its heap, CPU and uptime appear on the Server Status page.
+        - id: ms
+          label: Method servers
+          sublabel: MBeans
+          x: 40
+          y: 170
+          w: 210
+          tone: primary
+          detail: |
+            Each [[method-server|method server]] publishes Windchill MBeans plus the standard Java ones for
+            memory, threads, garbage collection and CPU. Threshold values are stored as MBean attributes.
+        - id: fs
+          label: File servers
+          sublabel: status OK?
+          x: 40
+          y: 280
+          w: 210
+          tone: primary
+          detail: File servers report their availability too. The Server Status page lists them at the bottom; in JConsole they appear under the Monitors folder.
+        - id: status
+          label: Server Status page
+          sublabel: in the browser
+          x: 320
+          y: 60
+          w: 210
+          tone: accent
+          detail: |
+            The at-a-glance view. Grouped by process type (server manager, method server, directory server,
+            file server). Red means over threshold. Many values are links that open a graph, because the
+            measurements are persisted in the database.
+          real: Rosa's first click every morning, and the first place to look when someone says "slow".
+        - id: jcon
+          label: JConsole
+          sublabel: JMX client
+          x: 320
+          y: 170
+          w: 210
+          tone: accent
+          detail: |
+            A JMX client bundled with the Java SDK. Open it from a Windchill Shell with
+            `windchill wt.util.jmx.SMJconsole` (when Windchill runs as a service) and browse the MBean tree.
+            VisualVM and other JMX clients can do the same job.
+        - id: mail
+          label: Email alerts
+          sublabel: JMX notifications
+          x: 320
+          y: 280
+          w: 210
+          tone: warning
+          detail: |
+            Windchill's Java processes come pre-programmed with error-based and performance-threshold
+            notifications. They are emailed to the **JMX-Administrators** list through the SMTP mail host.
+        - id: rosa
+          label: Rosa
+          sublabel: system administrator
+          x: 600
+          y: 170
+          w: 180
+          tone: success
+          shape: pill
+          detail: Reads the Server Status page daily, uses JConsole for deeper digging and filters alert emails into a folder she reviews often.
+      edges:
+        - { from: sm, to: status }
+        - { from: ms, to: status }
+        - { from: fs, to: status }
+        - { from: ms, to: jcon }
+        - { from: ms, to: mail, label: threshold crossed }
+        - { from: status, to: rosa }
+        - { from: jcon, to: rosa }
+        - { from: mail, to: rosa, label: email }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Users report problems late and vaguely ("it's slow"). The Server Status page gives you numbers, history
+      and the exact process that is struggling. Alerts turn the system from something you have to watch into
+      something that taps you on the shoulder, which matters when you are also looking after backups, upgrades
+      and a remote site like Lakeside.
+
+  - type: walkthrough
+    title: Read the Server Status page
+    who: A site administrator (Rosa)
+    where: [Navigator, Browse, Site, Utilities, Server Status]
+    steps:
+      - title: Open the page
+        where: [Navigator, Browse, Site, Utilities, System Administration, Server Status]
+        md: |
+          In the Navigator choose **Browse → Site → Utilities**, then **Server Status** in the System
+          Administration section. It opens in a separate browser window.
+      - title: Check the time window
+        where: [Server Status, page footer]
+        md: |
+          The timestamps at the bottom tell you when the data was collected. Make sure you're looking at
+          *now*, not a cached view from an hour ago.
+      - title: Scan for red
+        where: [Server Status]
+        md: |
+          Red values have crossed a threshold. Typical areas: **memory in use**, available system memory,
+          current active users, database calls (in JDBC calls, in JDBC connection wait, in JNDI calls, in
+          remote cache calls), servlet requests (active sessions, completed requests, average response time,
+          maximum and average concurrency), time in garbage collection and CPU used by the process.
+      - title: Compare Recent with Baseline
+        where: [Server Status, Main Server Manager or Method Server table]
+        md: |
+          **Recent** covers a short interval up to now. **Baseline** covers everything since the last baseline
+          reset from a JMX client, or since the process started. A Recent value far above Baseline is a change
+          worth chasing. Instant values such as memory in use and uptime have no baseline.
+      - title: Click a value to see its history
+        where: [Server Status, Memory In Use, Heap]
+        md: |
+          Values shown as links open a graph over time. For example, the **Heap** value opens the method
+          server's heap memory usage since start-up. Current Active Users opens users over a date range.
+      - title: Check the file servers
+        where: [Server Status, File Servers, Available]
+        md: |
+          Click **Available** next to File Servers. Acme's Lakeside file server should show status **OK**.
+      - title: Go deeper from Monitoring Tools
+        where: [Server Status, Monitoring Tools]
+        md: |
+          The **Monitoring Tools** link (top right) lists Log Levels, Log File Viewer, Persisted Log Events,
+          Windchill Cache Statistics, Method Context and Servlet Request Samples, Cluster-wide Stack Traces,
+          Top SQL Sample Intervals, Java Process Information and more. You'll use several of them in the
+          next lessons.
+    result: |
+      In two minutes Rosa knows which process is struggling, whether it's new (Recent vs Baseline), and
+      where to dig next. In a cluster the page shows the processes on every node.
+
+  - type: callout
+    variant: note
+    title: A red value is a question, not a verdict
+    md: |
+      When a value turns red, either something in the system needs fixing **or** the threshold is set too
+      low for your site. Thresholds are MBean attribute values, PTC may adjust the defaults over time, and you
+      can change a threshold to reflect how your system normally runs. If you're unsure which it is, PTC
+      Technical Support can help.
+
+  - type: comparison
+    title: What each JConsole tab is for
+    columns: [Shows, Rosa uses it to…]
+    rows:
+      - label: Overview
+        cells: ["Heap memory, threads, classes and CPU", "Get a quick picture of one process"]
+      - label: Memory
+        cells: ["How memory is being used", "Watch the heap during a busy period"]
+      - label: Threads
+        cells: ["Every thread in the JVM", "See what is alive or stuck"]
+      - label: VM Summary
+        cells: ["Java parameters and operating system data", "Confirm settings made with xconfmanager were applied"]
+      - label: MBeans
+        cells: ["The MBean tree (com.ptc and standard Java)", "Logging, properties, email options and monitors"]
+      - label: Windchill
+        cells: ["Servlet requests and method contexts", "See what the method server is working on"]
+    takeaway: The Server Status page is the dashboard; JConsole is the engine bay.
+
+  - type: walkthrough
+    title: Make sure alerts reach a person
+    who: Rosa, from a Windchill Shell on each Windchill server
+    where: [Windchill Shell, codebase folder]
+    steps:
+      - title: Use a list address, not people
+        where: [Your mail system]
+        md: |
+          Ask IT for a distribution list such as `windchill-admins@acme.example`. PTC recommends a list address
+          rather than individual addresses in each Windchill component, so a holiday or a new hire doesn't
+          silently break alerting.
+      - title: Populate the JMX-Administrators list
+        where: [Windchill Shell, "<Windchill>/codebase"]
+        md: |
+          The list is **empty after installation**. From the codebase folder run
+          `ant -f modifyMBeanConfig.xml setEmailList -DemailAddresses="windchill-admins@acme.example"`.
+          This sets it for the server manager and method servers on that system. (You can also edit it in
+          JConsole under **Emailer → EmailLists → JMX-Administrators**, or give the address when the
+          Windchill Configuration Assistant asks for it.)
+      - title: Check the mail host
+        where: [Windchill Shell]
+        md: |
+          JMX notifications use the SMTP host in the `wt.mail.mailhost` property by default. Check it with
+          `xconfmanager -d wt.mail.mailhost`. If the Windchill host isn't a mail server, this must point at one
+          or no alert will ever leave the machine.
+      - title: Hand the database alerts to Omar
+        where: [Oracle Enterprise Manager or SQL Server Management Studio]
+        md: |
+          Database alerts live in the database tools, not in Windchill. Omar configures Oracle Enterprise
+          Manager notifications, or Database Mail and operators in SQL Server Management Studio, so tablespace
+          and log problems also reach the team.
+      - title: Filter and read them
+        where: [Your mail client]
+        md: |
+          Alerts cover areas such as active users, logging, memory thresholds, process CPU time and summaries.
+          Route them into one folder and review it often. They are only useful if somebody reads them.
+    result: Threshold and error notifications from every Windchill Java process now land in the admins' shared inbox.
+
+  - type: simulation
+    title: Monday 8:40, "Windchill feels sticky"
+    intro: |
+      Help Rosa answer Kai with facts, and make sure that next time Windchill warns the team first.
+      Some buttons are tempting shortcuts. Watch the headline.
+    headline: "Server Status: {page} · heap value: {heap} · JMX-Administrators: {list} · mail host: {mailhost}"
+    initial:
+      page: closed
+      heap: not checked
+      list: empty
+      mailhost: not checked
+    actions:
+      - id: open
+        label: Open Site → Utilities → Server Status
+        when: { page: closed }
+        do: [{ set: { page: open } }]
+        log: The page opens. One method server's Memory In Use → Heap is shown in red.
+      - id: graph
+        label: Click the red Heap value
+        when: { page: open, heap: [not checked, hidden by a raised threshold] }
+        do: [{ set: { heap: graphed } }]
+        log: The heap usage graph since start-up climbs steadily from 7:30, when the Lakeside shift logged on.
+        blockedHint: Open the Server Status page first (or you've already graphed it).
+      - id: compare
+        label: Compare Recent with Baseline
+        when: { heap: graphed }
+        do: [{ set: { heap: "compared: Recent far above Baseline" } }]
+        log: Recent is far above Baseline. Something changed this morning - a real lead for tuning, not a guess.
+        blockedHint: Look at the graph first so you know which value you're comparing.
+      - id: hide
+        label: Raise the heap threshold so it stops being red
+        when: { page: open, heap: [not checked, graphed] }
+        do: [{ set: { heap: hidden by a raised threshold } }]
+        log: The value turns black. Kai's problem hasn't changed at all. Thresholds can be tuned, but only after you understand the cause.
+        blockedHint: Open the Server Status page first.
+      - id: people
+        label: Put Rosa's personal address in the JMX-Administrators list
+        when: { list: empty }
+        do: [{ set: { list: Rosa only } }]
+        log: Works until Rosa is on holiday. PTC recommends a list address instead.
+      - id: dl
+        label: "Run ant -f modifyMBeanConfig.xml setEmailList with the admins' list"
+        when: { list: [empty, Rosa only] }
+        do: [{ set: { list: windchill-admins list } }]
+        log: The server manager and method servers on this system now send alerts to the shared admin list.
+      - id: mail
+        label: "Check wt.mail.mailhost with xconfmanager -d"
+        when: { mailhost: not checked }
+        do: [{ set: { mailhost: points at Acme's SMTP server } }]
+        log: The property names Acme's SMTP relay. Without it, notifications would have nowhere to go.
+    goals:
+      - label: Kai gets an answer based on facts
+        when: { heap: "compared: Recent far above Baseline" }
+        message: You found which process, which value and when it changed. That's the start of the tuning work in lesson 4.
+      - label: Alerts will reach the team next time
+        when: { list: windchill-admins list, mailhost: points at Acme's SMTP server }
+        message: A shared list plus a working mail host. Windchill can now tap the team on the shoulder.
+
+  - type: example
+    variant: real-world
+    title: The alerts nobody received
+    industry: Micromobility
+    md: |
+      A company like Acme went live with Windchill, and for a year nobody got a single alert. Everyone assumed
+      that meant all was well. In fact the JMX-Administrators list had never been filled in after installation.
+      The first sign of trouble was a method server that had been hitting its memory threshold for weeks.
+    takeaway: Silence from a monitoring system you never tested isn't the same as good news.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Relying on alerts alone.** A hung or unresponsive component doesn't always raise an error, so it may
+      never send an email. Keep a short daily look at the Server Status page in your routine, and check the
+      components themselves when something seems off.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Before a known busy period (a release weekend, a big CAD load), note the Baseline values. Afterwards
+      you can compare like with like instead of trusting memory. Values are persisted in the database, so the
+      graphs also let you look back at what happened yesterday.
+
+  - type: flashcards
+    title: Monitoring deck
+    cards:
+      - front: Where is the Server Status page?
+        back: "Site → Utilities → Server Status (System Administration section)."
+      - front: Red value on Server Status
+        back: "The value has exceeded its threshold. Investigate the system, or the threshold may be too low."
+      - front: Recent vs Baseline
+        back: "Recent covers a short interval up to now. Baseline covers everything since the last reset or process start."
+      - front: Where are thresholds stored?
+        back: "As attribute values in JMX MBeans. You can adjust them."
+      - front: JMX
+        back: "Java Management Extensions: Java's standard way to monitor and manage an application through MBeans."
+      - front: "Open JConsole when Windchill runs as a service"
+        back: "In a Windchill Shell: windchill wt.util.jmx.SMJconsole"
+      - front: JMX-Administrators list
+        back: "The email list that receives Windchill's JMX alerts. Empty after installation; fill it with a list address."
+      - front: Mail host for JMX alerts
+        back: "Taken from the wt.mail.mailhost property by default."
+      - front: Why still check manually?
+        back: "A hung component doesn't always raise an error, so it may never send an alert."
+
+  - type: summary
+    points:
+      - The Server Status page (Site → Utilities) shows every server process's health; red means over threshold.
+      - Compare Recent with Baseline and click values for history graphs; Monitoring Tools holds the deeper tools.
+      - JMX exposes Windchill's MBeans; JConsole (windchill wt.util.jmx.SMJconsole) is the bundled client.
+      - Fill the JMX-Administrators list with a distribution list and make sure wt.mail.mailhost points at an SMTP server.
+      - Alerts don't catch everything. Keep a daily manual look in your routine.

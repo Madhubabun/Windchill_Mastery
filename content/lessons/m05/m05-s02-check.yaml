@@ -1,0 +1,135 @@
+id: m05-s02-check
+subtitle: Prove you can change settings safely, read Windchill's vital signs, tune with evidence and get help fast.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, properties, monitoring, performance, logs, checkpoint]
+sources:
+  - id: ac
+    where: "Module 13: Identify system administration utilities; Invoke actions with the Windchill command; Run commands from the Windchill Shell; Describe the site.xconf file; Identify JMX clients; Describe the xconfmanager utility; Identify xconfmanager options; Create a custom xconf file; Describe Windchill Configuration Assistant (WCA)"
+  - id: ac
+    where: "Module 15: Configure the server heap sizes; Capture a Java thread dump for Windchill; Set the Windchill cache sizes; Set the database properties; Limit the search results; Optimize Java garbage collection; Review Windchill Configuration Assistant (WCA); Calculate recommended values; Roll back the configuration changes"
+  - id: ac
+    where: "Module 18: Describe the Windchill logging mechanism; Set Windchill log levels; Populate JMX-Administrators; View Windchill log files; Describe system error reporting; Work with the Persisted Log Events page; Gather system configuration information"
+  - id: ac
+    where: "Module 19: Configure notification settings; Monitor server processes; Activity: Monitor Windchill system performance; Monitor the system using JMX clients; Review application server logs"
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **properties, monitoring and performance**: site.xconf and xconfmanager, the Server Status
+      page and alerts, logs and log levels, JVM and database tuning, the Windchill Shell, the Windchill
+      Configuration Assistant and error reporting. Score 80% to pass. Every answer explains itself.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: Rosa must change a property on wc-app01. Which sequence does PTC recommend?
+        options:
+          - Edit wt.properties in a text editor, then restart
+          - "Open a Windchill Shell, run xconfmanager -s <name>=<value> -p, then restart Windchill"
+          - Change the value on properties.html, then restart
+          - Run windchill status, then edit db.properties
+        answer: 1
+        explanation: xconfmanager records the change in site.xconf, backs up the files and propagates the value. Windchill reads the updated property files when it restarts.
+      - kind: multi
+        prompt: What happens when Rosa runs xconfmanager -s wt.fv.verbose=true -p? (Choose all that apply.)
+        options:
+          - A backup of the xconf and property files is made
+          - The property element is written to site.xconf
+          - The change is propagated to wt.properties
+          - Every running method server picks up the value immediately
+        answers: [0, 1, 2]
+        explanation: The value is recorded, backed up and propagated, but running method servers only use it after a restart.
+      - kind: single
+        prompt: On the Server Status page, a method server's heap value is shown in red. What does that mean?
+        options:
+          - The method server has crashed
+          - The value has exceeded its threshold - investigate the system or check whether the threshold is too low
+          - The value has not been measured yet
+          - The JMX-Administrators list is empty
+        answer: 1
+        explanation: Red marks a value over its threshold. Thresholds are MBean attribute values, so either the system needs attention or the threshold needs adjusting.
+      - kind: single
+        prompt: After installation, Windchill's JMX alert emails reach nobody. What is the most likely missing step?
+        options:
+          - Running windchill version
+          - Populating the JMX-Administrators email list (and having a working SMTP host in wt.mail.mailhost)
+          - Raising the root logger to DEBUG
+          - Running the System Configuration Collector
+        answer: 1
+        explanation: The JMX-Administrators address and the SMTP host are not filled in during installation. Use a list address, for example with ant -f modifyMBeanConfig.xml setEmailList.
+      - kind: single
+        prompt: Out of the box, which events does Windchill write to its log files?
+        options: [Every level, "ERROR and FATAL only", "WARN and above", "INFO and above"]
+        answer: 1
+        explanation: Only ERROR and FATAL are stored by default. Raise one specific logger briefly when you need more detail.
+      - kind: single
+        prompt: Rosa needs DEBUG detail for one area of the method server. What is the safest approach?
+        options:
+          - Set the root logger to DEBUG in log4jMethodServer.properties
+          - Raise one logger on the Log Levels page, reproduce the problem, then set it back
+          - Turn wt.logs.enabled off and on again
+          - Ask users to send screenshots instead
+        answer: 1
+        explanation: Raising the root logger turns on DEBUG for all loggers and usually hurts performance. One logger, briefly, then reset.
+      - kind: single
+        prompt: "A server has 16 CPU cores and runs 1 server manager, 4 method servers and 1 background method server. How many parallel garbage collection threads per JVM does the course formula give?"
+        options: ["1", "2", "3", "8"]
+        answer: 1
+        explanation: "16 cores ÷ 6 JVMs = 2.67. Drop the decimal → 2. The result is then kept between 1 and 8."
+      - kind: single
+        prompt: Method servers spend more and more time in JDBC connection wait at peak hours. Which properties control how many database connections each method server holds?
+        options:
+          - wt.method.minHeap and wt.method.maxHeap
+          - wt.pom.minDbConnections and wt.pom.maxDbConnections
+          - wt.cache.size.SessionCache
+          - com.ptc.windchill.search.queryLimit
+        answer: 1
+        explanation: Each method server holds between wt.pom.minDbConnections (default 5) and wt.pom.maxDbConnections (default 15) connections. Measure, change one thing, measure again.
+      - kind: single
+        prompt: Rosa ran WCA's configureWindchill target with propagation and the server got slower. Which target rolls that back?
+        options: [restoreWindchill, configureTomcat, propagateWindchill, "-projecthelp"]
+        answer: 0
+        explanation: restoreWindchill rolls back the changes made when configureWindchill was last run, using the latest backup files.
+      - kind: order
+        prompt: Put the path from a user's error email to the log line in order.
+        items:
+          - Open the URL in the error email
+          - Read the Persisted Log Events page for that request id
+          - Open Log Event Details with the Details icon
+          - Click the timestamp to open the Log File Viewer
+        explanation: The servlet request id links each page to the next, ending at the first occurrence of the event in the right log file.
+
+  - type: flashcards
+    title: Properties, monitoring and performance deck
+    cards:
+      - front: site.xconf
+        back: "The record of every site property change. Property files are propagated from it."
+      - front: "xconfmanager -d / -s / -t / -p"
+        back: "Display the value and where it's set / set it / name the target file (new properties) / propagate."
+      - front: .xconf-backup
+        back: "Folder where xconfmanager and JMX clients back up xconf and property files before each change."
+      - front: Server Status page
+        back: "Site → Utilities → Server Status. Red = over threshold. Compare Recent with Baseline."
+      - front: JMX-Administrators
+        back: "Email list for Windchill alerts and error reports. Empty after install; use a distribution list."
+      - front: Most important Windchill log
+        back: "The method server log: MethodServer-<pid>-log4j.log in the logs folder."
+      - front: Time in garbage collection
+        back: "Should stay under about 5%."
+      - front: Windchill Shell
+        back: "Sets the environment for Windchill commands. Run all server-side tools from it."
+      - front: WCA
+        back: "Windchill Configuration Assistant: calculates heap, method server count, caches and connections. Values in windchillconfigurator.xconf."
+      - front: System Configuration Collector
+        back: "Site → Utilities. Collects logs and settings for PTC by category; collect and save lets you review first."
+
+  - type: summary
+    points:
+      - Change properties with xconfmanager from a Windchill Shell; site.xconf is the record and a restart applies the change.
+      - The Server Status page and JMX alerts show Windchill's health; fill the JMX-Administrators list.
+      - Logs live per process; raise one logger briefly when you need detail.
+      - Tune with a goal and measurements; WCA calculates the settings and can roll them back.
+      - Error reports lead from request id to log line; the SCC packages evidence for PTC.

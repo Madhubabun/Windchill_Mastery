@@ -1,0 +1,331 @@
+id: m05-s07-l01
+subtitle: Lena wants one corporate sign-in for everything. Rosa has to pick the right protocol - and she only gets to pick one.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, security, authentication, sso, saml, oidc, oauth, ldap]
+sources:
+  - id: ac
+    where: "Module 1: Windchill architecture (administrative directory and enterprise directory server). Module 11: Describe LDAP integration; Identify optional servers; Identify LDAP requirements. Module 12: Start/stop the web server (Leveraging single sign-on)"
+  - id: hc-sso
+    label: PTC Help Center supplement
+    title: "Single Sign-on Authentication"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCAdvDeployGuide/WCAdvDepAuth_ConfigAltAuth_SSO.html"
+    covers: "SAML or OpenID Connect for SSO; only one SSO protocol per Windchill system; SAML and OAuth can be combined; OAuth 2.0 for Windchill REST Services (client credentials and authorization code flows); PingFederate as central authorization server and its licensing; 30-minute session and token timeout recommendation"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Security Assertion Markup Language (SAML) Authentication"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCAdvDeployGuide/WCAdvDepAuth_ConfigSAMLAuth.html"
+    covers: "Browser, Shibboleth Service Provider on PTC HTTP Server and Identity Provider; signed SAML assertions; REMOTE_USER; IdP redirecting to the enterprise directory; embedded-browser and Arbortext Editor limitations"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "OpenID Connect Authentication Support"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCAdvDeployGuide/WCAdvDepAuth_OIDC.html"
+    covers: "OIDC as an identity layer on OAuth 2.0; Apache module mod_auth_openidc; client ID, secret and redirect URL at the IdP; choose SAML or OIDC, not both"
+versionNotes:
+  - versions: ["13.1.2.0"]
+    md: |
+      The SSO facts here come from the 13.1.2.0 Help Center (PTC Help Center supplement). The course manual (13.0.2.0)
+      only mentions single sign-on in passing, so check the Help Center for your exact release before a project.
+  - versions: ["Windchill+"]
+    md: |
+      On Windchill+ PTC runs the servers, so the web-server and Service Provider configuration is not yours to do.
+      The Help Center notes that PTC Cloud deployments include PingFederate licensing, while on-premises customers
+      license and run their own authorization server. Which IdP options a Windchill+ tenant gets is not covered by
+      our sources - ask PTC.
+
+blocks:
+  - type: text
+    md: |
+      Monday at Acme Mobility. **Lena**, the IT security lead, has a new rule: *every* business app signs in
+      through the corporate identity system. One login, multi-factor on top, and when someone leaves, one switch
+      turns everything off.
+
+      **Rosa** owns Windchill. Today Acme users type a Windchill username and password that are checked against
+      the company directory. Lena wants that replaced by **single sign-on**. Rosa opens the Help Center and finds
+      three acronyms: **SAML**, **OpenID Connect** and **OAuth 2.0**. Which one? And can she have all three?
+
+      Spoiler: for signing people in, she picks **one**. Let's see why.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "proving you are who you say you are" → [[authentication]]
+      - "log in once, get into many apps" → [[single-sign-on]]
+      - "the system that checks your password and vouches for you" → [[identity-provider]] (IdP)
+      - "the app that trusts the IdP's word" → **service provider** (SP); for SAML on Windchill this is the Shibboleth SP
+      - "an XML 'this is Priya' note, signed by the IdP" → [[saml]] assertion
+      - "a signed token that says who you are" → [[openid-connect]] (OIDC)
+      - "a token that lets a program call an API" → [[oauth-2]]
+      - "the company address book of people" → [[directory-server]], spoken through [[ldap]]
+
+  - type: diagram
+    title: Who checks whom at Acme
+    caption: Click each box. The web server is the gate - Windchill trusts whoever the gate lets in.
+    diagram:
+      width: 820
+      height: 440
+      groups:
+        - { label: Acme users and tools, x: 20, y: 20, w: 180, h: 400, tone: neutral }
+        - { label: "Windchill (wc-web01, wc-app01)", x: 230, y: 20, w: 330, h: 400, tone: accent }
+        - { label: Corporate identity, x: 590, y: 20, w: 210, h: 400, tone: info }
+      nodes:
+        - id: browser
+          label: Browser
+          sublabel: Priya at HQ
+          x: 40
+          y: 70
+          w: 140
+          tone: primary
+          detail: |
+            A person in a web browser. With SSO the browser is **redirected** to the identity provider to sign in,
+            then comes back carrying proof. Priya never types her password into Windchill itself.
+        - id: rest
+          label: REST client
+          sublabel: ERP integration
+          x: 40
+          y: 300
+          w: 140
+          tone: primary
+          detail: |
+            A program, not a person - for example an integration calling Windchill REST Services (WRS). The Help
+            Center says Windchill can protect WRS with [[oauth-2]]: the **client credentials** flow for
+            machine-to-machine calls, and the **authorization code** flow for interactive clients acting for a user.
+        - id: web
+          label: Web server + SP
+          sublabel: PTC HTTP Server
+          x: 260
+          y: 70
+          w: 160
+          tone: accent
+          detail: |
+            The gate. For [[saml]], the **Shibboleth Service Provider** is installed with PTC HTTP Server. For
+            [[openid-connect]], Apache handles the protocol with the `mod_auth_openidc` module. Either way the
+            web server passes the signed-in user name on to Windchill (the Help Center describes it as
+            `REMOTE_USER`).
+          real: "The course manual lists a web-app regeneration step with `-DprotocolAuthOnly=true` when you adapt Windchill for SSO. Follow the Help Center procedure for your release - don't run it from memory."
+        - id: wc
+          label: Windchill server
+          sublabel: method servers
+          x: 260
+          y: 200
+          w: 160
+          tone: accent
+          detail: |
+            Windchill trusts the identity the web server hands it, then applies its own rules: groups, teams,
+            access control, [[license-group|license groups]]. SSO answers *who are you*; Windchill still decides
+            *what may you do*.
+        - id: ldap
+          label: Directory (LDAP)
+          sublabel: users and groups
+          x: 260
+          y: 330
+          w: 160
+          tone: neutral
+          shape: cylinder
+          detail: |
+            Windchill needs an LDAPv3 [[directory-server]] (Active Directory or another v3-compliant directory)
+            for its users and groups - SSO does not remove it. The course manual notes that Windchill can
+            authenticate against a corporate LDAP through a JNDI adapter, and that **Windchill will not start** if
+            that adapter can't reach the corporate LDAP at start-up.
+        - id: idp
+          label: Identity provider
+          sublabel: corporate IdP
+          x: 620
+          y: 70
+          w: 160
+          tone: info
+          detail: |
+            The [[identity-provider]] checks the password (plus MFA, if Lena turns it on) and issues the signed
+            assertion or token. The Help Center says the IdP can itself redirect authentication to the enterprise
+            directory, and gives PingFederate and Microsoft Entra ID as IdP examples.
+        - id: cas
+          label: Authorization server
+          sublabel: e.g. PingFederate
+          x: 620
+          y: 300
+          w: 160
+          tone: info
+          detail: |
+            For OAuth 2.0, PTC specifies **PingFederate** as the central authorization server (CAS) that manages
+            trust between PTC products and issues tokens. PTC does **not** supply that licence for on-premises
+            deployments - Acme would buy and run it.
+      edges:
+        - { from: browser, to: web, label: HTTPS }
+        - { from: web, to: idp, label: "redirect: sign in", dashed: true, bidirectional: true }
+        - { from: web, to: wc, label: user name }
+        - { from: wc, to: ldap, label: users and groups }
+        - { from: rest, to: cas, label: get token }
+        - { from: rest, to: web, label: "API call + token" }
+        - { from: idp, to: ldap, label: may check, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Every separate password is a door. SSO gives security teams one place to enforce strong sign-in and
+      multi-factor, and one place to **switch someone off** when they leave. For Windchill that matters: it holds
+      the crown jewels - CAD models, drawings, supplier specs. Auditors often ask, "If an engineer quits on Friday,
+      can they still download the E-Bike E1 drawings on Saturday?" SSO plus a clean leaver process makes the answer
+      a confident *no*.
+
+  - type: comparison
+    title: SAML vs OpenID Connect vs OAuth 2.0 in Windchill
+    columns: [SAML, OpenID Connect, OAuth 2.0]
+    rows:
+      - label: What it answers
+        cells: ["Who is this person? (sign-in)", "Who is this person? (sign-in)", "May this client call this API?"]
+      - label: Typical user
+        cells: [People in a browser, People in a browser, Programs calling Windchill REST Services]
+      - label: What travels
+        cells: [A signed XML assertion, "A token (OIDC is an identity layer on top of OAuth 2.0)", An access token]
+      - label: Windchill side
+        cells: [Shibboleth Service Provider with PTC HTTP Server, "Apache module mod_auth_openidc", Windchill REST Services with a central authorization server]
+      - label: Counts as Windchill's SSO protocol?
+        cells: ["Yes - pick this or OIDC", "Yes - pick this or SAML", "No - it secures API access"]
+      - label: Can it sit next to the others?
+        cells: [Yes with OAuth, "Not with SAML (choose one)", Yes with SAML]
+    takeaway: SAML and OIDC compete for the same job, so a system runs one of them. OAuth 2.0 does a different job and can sit next to SAML.
+
+  - type: text
+    md: |
+      ### Why only one SSO protocol per system?
+
+      The Help Center is blunt: **only one SSO authentication protocol can be configured for a single Windchill
+      system**, and for OIDC it says you choose SAML *or* OIDC, not both. Think about where the decision happens.
+      A browser asks wc-web01 for a page. The web server has to decide *right then* where to send an unknown
+      visitor: to the SAML IdP via the Shibboleth SP, or to the OIDC provider via `mod_auth_openidc`. One front
+      door, one bouncer. Two bouncers arguing at the same door would give users loops, double prompts and
+      confusing failures - and give attackers more surface.
+
+      OAuth 2.0 is different: it doesn't sign a person into the web UI. It protects API calls through Windchill
+      REST Services. That's why the Help Center allows **SAML plus OAuth** on the same system.
+
+  - type: example
+    variant: case-study
+    title: Rosa picks a protocol
+    industry: Micromobility
+    md: |
+      Lena's identity platform speaks both SAML and OIDC. Rosa lists what Windchill must serve:
+
+      - Engineers and planners in browsers at HQ and the Lakeside plant → need SSO.
+      - The ERP integration that reads released parts every night → needs API access, no person present.
+      - Creo users and the Arbortext team → Rosa notes the SAML page warns about limitations with embedded browsers
+        and Arbortext Editor, and books a test before go-live.
+
+      Rosa's proposal: **SAML** for people (Acme's other engineering apps already use it, so Lena's team knows the
+      set-up), plus **OAuth 2.0** for the ERP integration, with the authorization server Lena's team already
+      licenses. OIDC stays on the shelf - not because it's worse, but because a system gets one.
+      She also sets session and token lifetimes to the Help Center's recommended **30 minutes** at the service
+      provider and the authorization server.
+    takeaway: Choose the SSO protocol by what your identity team already runs well, then add OAuth only where programs need API access.
+
+  - type: scenario
+    variant: what-if
+    title: "\"Can we just switch on OIDC as well?\""
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Three months after the SAML go-live, a new analytics team says their tools prefer OpenID Connect. They ask
+          Rosa to "add OIDC next to SAML" on production Windchill. What does Rosa answer?
+        choices:
+          - label: "Yes - configure mod_auth_openidc next to the Shibboleth SP"
+            next: f1
+            feedback: The Help Center says one SSO protocol per Windchill system. You'd be building an unsupported setup on production.
+          - label: "Not as a second SSO protocol. Ask what they need: people signing in, or programs calling APIs?"
+            next: s2
+            good: true
+            feedback: Right question. The answer decides whether this is an SSO request at all.
+          - label: Switch the whole system to OIDC tonight
+            next: f2
+            feedback: Changing the SSO protocol touches every user and needs testing in a non-production system first.
+      - id: s2
+        md: |
+          It turns out the analytics tools never show a Windchill page. They pull data through Windchill REST
+          Services on a schedule. What fits?
+        choices:
+          - label: OAuth 2.0 client credentials through the authorization server
+            next: ok
+            good: true
+            feedback: Machine-to-machine API access is exactly the OAuth 2.0 job, and SAML plus OAuth is a supported combination.
+          - label: Give the tool a shared admin username and password
+            next: f3
+            feedback: A shared admin account can't be traced to anyone, never expires on its own and has far more rights than needed.
+      - id: ok
+        md: |
+          **Sorted.** People keep SAML sign-in; the analytics tool gets short-lived OAuth tokens. Lena gets an audit
+          trail per client, and Rosa never runs two SSO protocols.
+        outcome: success
+      - id: f1
+        md: |
+          **Unsupported.** Two protocols competing at the web server is exactly what the Help Center rules out.
+          Expect redirect loops and a hard conversation with PTC Support.
+        outcome: fail
+      - id: f2
+        md: |
+          **Risky.** Maybe OIDC is right one day, but a protocol swap is a planned project: test system first,
+          IdP changes, every client checked, a rollback plan.
+        outcome: partial
+      - id: f3
+        md: |
+          **Security debt.** It works today and fails the next audit. Use a proper OAuth client with only the
+          access it needs.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    title: SSO doesn't replace the directory
+    md: |
+      Teams sometimes plan to "switch off LDAP" once SSO is live. Windchill still needs its LDAPv3 directory for
+      users and groups. And remember the course manual's warning: if Windchill authenticates against a corporate
+      LDAP through the JNDI adapter and can't reach it at start-up, **Windchill won't start**. Put the directory on
+      the outage-impact list.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Keep a **break-glass plan** agreed with Lena before go-live: what happens when the IdP is down? Who can still
+      reach the server to troubleshoot, and how? Write it down and rehearse it on the test system. The details
+      depend on your SSO design, so take them from the Help Center procedure you followed - not from guesswork.
+
+  - type: quiz
+    title: Check your understanding
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Which two protocols can Windchill use for single sign-on of people in a browser?
+        options: [SAML and OpenID Connect, OAuth 2.0 and LDAP, SAML and LDAP, OpenID Connect and Kerberos]
+        answer: 0
+        explanation: The Help Center lists SAML or OpenID Connect for SSO. OAuth 2.0 secures REST API access, and LDAP is the directory protocol.
+      - kind: truefalse
+        prompt: One Windchill system can run SAML and OpenID Connect SSO at the same time.
+        answer: false
+        explanation: Only one SSO authentication protocol can be configured per Windchill system - SAML or OIDC.
+      - kind: truefalse
+        prompt: Windchill can use SAML for browser sign-in and OAuth 2.0 for REST clients on the same system.
+        answer: true
+        explanation: The Help Center explicitly allows SAML authentication together with OAuth. They do different jobs.
+      - kind: single
+        prompt: For SAML, which component on the Windchill side receives the IdP's signed assertion?
+        options: [The Shibboleth Service Provider with PTC HTTP Server, The database server, The method server directly, The LDAP directory]
+        answer: 0
+        explanation: The Shibboleth SP is installed with PTC HTTP Server. It validates the assertion and hands the user name on to Windchill.
+      - kind: single
+        prompt: A nightly integration needs to read parts through Windchill REST Services with no person present. Which OAuth 2.0 flow fits?
+        options: [Client credentials, Authorization code, SAML redirect, Anonymous access]
+        answer: 0
+        explanation: Client credentials is the machine-to-machine flow. Authorization code is for interactive clients acting for a user.
+      - kind: single
+        prompt: What session timeout does the Help Center recommend at the service provider?
+        options: [30 minutes, 8 hours, 24 hours, No timeout]
+        answer: 0
+        explanation: Keep it as short as practical; 30 minutes is the recommended value for both the SP session and OAuth tokens.
+
+  - type: summary
+    points:
+      - "Authentication proves who you are; Windchill still decides what you may do (groups, access rules, licences)."
+      - "For SSO of people, Windchill uses SAML (Shibboleth SP with PTC HTTP Server) or OpenID Connect (Apache mod_auth_openidc)."
+      - "Only one SSO protocol per Windchill system: one front door, one decision about where to send a visitor."
+      - "OAuth 2.0 secures Windchill REST Services for programs and can sit alongside SAML."
+      - "PTC specifies PingFederate as the central authorization server; on-premises customers license it themselves."
+      - "SSO does not remove the LDAPv3 directory - and an unreachable corporate LDAP can stop Windchill from starting."

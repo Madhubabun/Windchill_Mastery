@@ -1,0 +1,316 @@
+id: m05-s05-l01
+subtitle: Five quiet minutes a day stop the 2 a.m. phone call. Rosa's daily, weekly and monthly rhythm for keeping Windchill healthy.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, maintenance, checklist, maintenance-window, monitoring]
+sources:
+  - id: ac
+    where: "Module 19: Identify system challenges; Perform monitoring and maintenance activities; Identify frequency of monitoring; Identify daily administrative tasks; Perform and verify scheduled system backup; Monitor the operating system; Monitor network health; Check database schema statistics; Identify weekly administrative tasks; Perform database maintenance; Identify monthly administrative tasks; Apply maintenance patches and updates; Maintain multiple Windchill environments; Activity: Detect and analyze system health issues"
+  - id: ac
+    where: "Module 16: Activity: Manage publishing queues in Windchill (Queue Management navigation). Module 14: Activity: Examine the vault configuration (File Server Administration navigation)"
+versionNotes:
+  - versions: ["Windchill+", "PTC Cloud Services"]
+    md: The checklist in this lesson is for systems your company runs itself (on-premises or in your own cloud account). With PTC Cloud Services, PTC performs ongoing application management, performance tuning and updates, and Windchill+ is delivered as software as a service. Which server-level checks remain yours there is set by your service agreement, not by this course.
+
+blocks:
+  - type: text
+    md: |
+      Monday, 7:40 at Acme Mobility HQ. Rosa has a coffee and a list. Nobody has complained yet,
+      and that is exactly the point: the list is how she finds problems **before** Kai's team does.
+
+      Windchill is not one program. It is a web server, Windchill servers, a database, a directory
+      server, file vaults at HQ and Lakeside, queues and CAD workers - and any of them can quietly go
+      wrong. Alerts catch a lot, but a **hanging** component often raises no error at all. So PTC's
+      guidance is a rhythm of checks: some daily, some weekly, some monthly. How often exactly depends
+      on your company and how Windchill is deployed.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the quiet slot when I'm allowed to stop things" → [[maintenance-window]]
+      - "the copy we restore from" → scheduled system backup (full + incremental)
+      - "the page that shows how the servers are doing" → **Server Status** page (site Utilities)
+      - "jobs waiting to run in the background" → [[background-queue|background queues]]
+      - "the database's guess at how big tables are" → **schema statistics**
+      - "the read-only health report tool" → Windchill Diagnostic Utility (**WinDU**)
+
+  - type: diagram
+    title: Rosa's maintenance rhythm
+    caption: Three rings of checks. Click each box to see what is in it.
+    diagram:
+      width: 820
+      height: 380
+      groups:
+        - { label: Every day, x: 20, y: 20, w: 250, h: 340, tone: accent }
+        - { label: Every week, x: 285, y: 20, w: 250, h: 340, tone: info }
+        - { label: Every month, x: 550, y: 20, w: 250, h: 340, tone: neutral }
+      nodes:
+        - id: d-backup
+          label: Backup verified
+          sublabel: the #1 daily task
+          x: 40
+          y: 70
+          w: 210
+          tone: danger
+          detail: |
+            Check last night's scheduled backup ran and its output looks right. PTC calls this the
+            most critical daily task: no system should go live until backup and recovery are set up
+            **and** tested. Usual pattern: a full backup weekly and incremental backups daily.
+        - id: d-watch
+          label: Watch the system
+          sublabel: availability · queues · vaults
+          x: 40
+          y: 160
+          w: 210
+          tone: accent
+          detail: |
+            Availability of each component, [[background-queue|queues]] (stopped queues, failed
+            entries), the status of file vaults, CPU and memory of Windchill processes, and network health.
+        - id: d-read
+          label: Read the signals
+          sublabel: logs · stats · PTC emails
+          x: 40
+          y: 250
+          w: 210
+          tone: accent
+          detail: |
+            System and database logs, whether database schema statistics are being updated, and the
+            PTC Technical Support subscription emails for the products you run.
+        - id: w-vault
+          label: Vault housekeeping
+          sublabel: BLOBs · unreferenced files
+          x: 305
+          y: 70
+          w: 210
+          tone: info
+          detail: |
+            Look for content that is still sitting in the database as BLOBs when it should be in a
+            [[vault]], and remove unreferenced vault files **after** each backup (section 3 covers how).
+        - id: w-perf
+          label: Performance checks
+          sublabel: monitoring tools
+          x: 305
+          y: 160
+          w: 210
+          tone: info
+          detail: |
+            Use the monitoring tools for each tier (web server, Java processes, directory, database) and
+            compare against values from a time when the system performed well. Large installations may
+            do this daily.
+        - id: w-db
+          label: Database upkeep
+          sublabel: indexes · advisor tips · disks
+          x: 305
+          y: 250
+          w: 210
+          tone: info
+          detail: |
+            Act on database tool recommendations, rebuild or reorganise fragmented indexes, add disk
+            space. On Windows servers, defragment disks. Many companies do index work at the weekend.
+        - id: m-health
+          label: Health and integrity
+          sublabel: benchmarks · WinDU · replication test
+          x: 570
+          y: 70
+          w: 210
+          tone: neutral
+          detail: |
+            Run performance benchmarks, database diagnostics (WinDU first, then the repair utility
+            WinRU for what it finds), and a replication test if you use remote file servers.
+        - id: m-people
+          label: People and licences
+          sublabel: principals · cabinets · licences
+          x: 570
+          y: 160
+          w: 210
+          tone: neutral
+          detail: |
+            Resolve disconnected users, clean up personal cabinets and work of deleted users, and monitor
+            licence usage and expiry dates.
+        - id: m-change
+          label: Change and copies
+          sublabel: patches · WCA · clone to test
+          x: 570
+          y: 250
+          w: 210
+          tone: neutral
+          detail: |
+            Apply tested maintenance patches, re-check settings with the Windchill Configuration
+            Assistant, review CAD client settings, purge obsolete data, produce throughput and audit
+            reports, and clone or rehost production to a test server.
+      edges: []
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Neglected maintenance shows up as outages, lost data and lost hours - and because Windchill
+      produces so much data, the root cause is then hard to find. A boring checklist turns "the system
+      is slow and nobody knows why" into "the index queue has been stopped since Thursday".
+
+  - type: comparison
+    title: The cheat sheet
+    columns: [Daily, Weekly, Monthly]
+    rows:
+      - label: Data safety
+        cells: ["Verify last night's backup", "Remove unreferenced vault files after the backup", "Clone production to a test server (or quarterly)"]
+      - label: Running system
+        cells: ["Availability, queues, vault status, CPU and memory", "Monitoring tools per tier", "Performance benchmark against your baseline"]
+      - label: Database
+        cells: ["Logs and schema statistics", "Index maintenance and advisor recommendations", "Diagnostics with WinDU, then WinRU"]
+      - label: Vaults and sites
+        cells: ["Vault status", "BLOBs that were not vaulted", "Replication test"]
+      - label: People and licences
+        cells: ["PTC support emails", "-", "Disconnected users, deleted users' cabinets, licence usage"]
+      - label: Change
+        cells: ["-", "-", "Tested patches, WCA review, CAD client settings, purge"]
+    takeaway: Daily is about catching trouble, weekly about keeping things tidy, monthly about staying healthy as data grows.
+
+  - type: walkthrough
+    title: Rosa's daily round (about 15 minutes)
+    who: Windchill system administrator (site administrator)
+    where: [Browse, Site, Utilities]
+    steps:
+      - title: Confirm last night's backup
+        where: [Backup tool, Last night's job]
+        md: |
+          Check the job finished and the output files look sane (at minimum, sizes similar to the
+          previous night). If Oracle runs in archive log mode, check that redo logs are archiving
+          properly. On SQL Server, neglected log backups end in a "transaction log is full" error that
+          stops database activity - so log backups are part of this check too.
+      - title: Open Server Status
+        where: [Browse, Site, Utilities, Server Status]
+        md: |
+          In the Navigator choose **Browse → Site → Utilities**, then **Server Status** in the System
+          Administration section. Red values have passed a threshold - investigate them.
+      - title: Check the queues
+        where: [Browse, Site, Utilities, Queue Management]
+        md: |
+          Look for stopped queues and failed entries, especially busy ones such as indexing,
+          visualization and workflow. Section 4 covers what to do with a failed entry.
+      - title: Check the vaults
+        where: [Browse, Site, Utilities, File Server Administration, Vault Configuration]
+        md: |
+          Confirm vaults show the status you expect (enabled, not unexpectedly read-only) at HQ and on
+          wc-fs-lakeside.
+      - title: Look at the servers and the network
+        where: [Operating system tools]
+        md: |
+          CPU should average roughly 40-60% with peaks of 80% or less; physical memory should peak
+          under 80%. For the network, aim for average utilisation under 50% (peaks under 80%) and packet
+          loss under 0.1% on the LAN and 0.2% on the WAN. A simple `ping` to critical hosts helps when
+          nothing better is available.
+      - title: Read the logs and the mail
+        where: [Windchill logs, Database alert log, PTC support emails]
+        md: |
+          Scan Windchill and database logs for new errors, confirm the database statistics jobs ran,
+          and skim the PTC Technical Support subscription emails for anything that affects Acme's release.
+    result: |
+      Rosa has a short note: backup OK, one failed publishing entry, Lakeside vault fine, CPU normal.
+      If something looks off, she has caught it before the 9:00 rush.
+
+  - type: text
+    md: |
+      ### Planning a maintenance window
+
+      Some work must not happen while 200 engineers are checking in: cold backups, patches, index
+      rebuilds, diagnostics. That work goes into a **[[maintenance-window]]** - a slot everyone agreed
+      on in advance, often overnight or at the weekend. The course material points to a few anchors:
+
+      - Oracle's automatic maintenance jobs (statistics, segment and SQL tuning advisors) run in
+        maintenance windows scheduled overnight - your window must not clash with them.
+      - Patches are checked against the Windchill software matrix, validated on a test system first,
+        and only then applied to production **during a maintenance window**. Back up before patching;
+        many patches include rollback instructions.
+      - WinDU can run on production, ideally during a maintenance window.
+      - If replica vaults are backed up at all, do it when activity is lowest.
+
+  - type: scenario
+    variant: challenge
+    title: Saturday night at Acme
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Rosa has a four-hour window on Saturday night. On the list: a critical patch set (already
+          tested on the test server last week), a cold backup, and Omar's index rebuild. In which order?
+        choices:
+          - label: Cold backup first, then the patch, then the index rebuild
+            next: s2
+            good: true
+            feedback: A fresh backup before any change is your way back if the patch goes wrong.
+          - label: Patch first so there's time to fix problems, backup at the end
+            next: f1
+            feedback: If the patch breaks something, the newest clean backup is from before the window - plus whatever changed since.
+      - id: f1
+        md: |
+          The patch fails half way and its rollback instructions assume a backup taken right before
+          patching. Rosa restores Friday night's backup and loses Saturday's work from the Lakeside
+          weekend shift.
+        outcome: fail
+      - id: s2
+        md: |
+          Backup done, patch applied. Omar's index rebuild finishes early. Kai asks to start using the
+          system straight away. What does Rosa do before opening the doors?
+        choices:
+          - label: A quick smoke test and a look at Server Status and the queues, then announce it's back
+            next: win
+            good: true
+            feedback: Close the window deliberately - check before users find problems for you.
+          - label: Open it immediately; it's done when the jobs are done
+            next: p1
+            feedback: Nobody checked that publishing queues restarted after the patch.
+      - id: p1
+        md: |
+          Monday morning, the publishing queues are still stopped and there are 400 waiting jobs. No
+          data was lost, but Priya's team had no viewables for half a day.
+        outcome: partial
+      - id: win
+        md: |
+          Rosa notes the times in her log for the next window plan. Users start on time, nothing is
+          waiting in the queues, and the next window can be planned with real numbers.
+        outcome: success
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **"The backup job is green, so we're fine."** A job can succeed and still produce something you
+      can't restore. The course is clear: verify backup output regularly, from checking file sizes up
+      to a full restore on a test system. Lesson 3 of this section is exactly that drill.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Write a short comment into the server logs when you start and end maintenance work. The
+      **Log Comment** page under Monitoring Tools stores a comment in the server manager and method
+      server logs - so whoever reads the logs later knows the restart at 23:10 was planned.
+
+  - type: flashcards
+    title: Maintenance rhythm deck
+    cards:
+      - front: The most critical daily task
+        back: "Perform and verify the scheduled system backup."
+      - front: Usual backup pattern
+        back: "Full backup weekly, incremental backups daily."
+      - front: CPU and memory rule of thumb
+        back: "CPU average about 40-60%, peaks 80% or less; physical memory peaks below 80%."
+      - front: Network rule of thumb
+        back: "Utilisation under 50% average and 80% peak; packet loss under 0.1% (LAN) or 0.2% (WAN)."
+      - front: When to remove unreferenced vault files
+        back: "Weekly, after each backup."
+      - front: WinDU then WinRU
+        back: "WinDU is read-only and reports problems; WinRU runs repair tasks for what it found."
+      - front: Where tested patches go to production
+        back: "In a maintenance window, after validation on a test system and a backup."
+      - front: Why keep a test environment
+        back: "Reproduce issues on production data, train people, rehearse backup and recovery, test patches and settings."
+      - front: Maintenance window
+        back: "An agreed quiet slot for work that disturbs users: cold backups, patches, index rebuilds."
+
+  - type: summary
+    points:
+      - Alerts do not catch everything - a hanging component may raise no error, so checks run on a rhythm.
+      - Daily is led by verifying the backup, then availability, queues, vaults, CPU, memory, logs, statistics, network and PTC emails.
+      - Weekly is housekeeping - unvaulted BLOBs, unreferenced files after backup, performance checks and database maintenance.
+      - Monthly keeps health as data grows - benchmarks, WinDU and WinRU, replication test, users and licences, patches and a fresh test clone.
+      - Disruptive work goes into an agreed maintenance window, starting with a backup and ending with checks.

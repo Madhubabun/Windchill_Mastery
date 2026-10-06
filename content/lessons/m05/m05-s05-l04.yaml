@@ -1,0 +1,344 @@
+id: m05-s05-l04
+subtitle: Switch everything off and copy, or copy while it runs? Compare cold and hot backups, and learn why pausing the queues makes a hot backup safer.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, backup, cold-backup, hot-backup, background-queues]
+sources:
+  - id: ac
+    where: "Module 17: Identify types of backups; Perform a cold backup; Recover from a cold backup; Perform a hot backup; Suspend background queues; Describe Oracle backup and recovery; Identify vault backup and recovery best practices"
+  - id: ac
+    where: "Module 16: Activity: Manage publishing queues in Windchill (Queue Management: stop and start queues). Module 12: Start/stop Windchill"
+versionNotes:
+  - versions: ["Windchill+", "PTC Cloud Services"]
+    md: Choosing between hot and cold backups, and stopping queues for them, is a task for whoever runs the servers. On Windchill+ and PTC Cloud Services that is PTC; the course manual describes the on-premises procedure.
+
+blocks:
+  - type: text
+    md: |
+      Rosa's cold backup every Saturday night works beautifully: everything stops, everything is
+      copied, everything matches. Then the Lakeside plant adds a weekend shift, and Kai asks: "Can
+      Windchill stay up while you back it up?"
+
+      It can. But the moment users and background jobs keep working **during** the copy, keeping the
+      database, directory and vaults in step becomes your job. That's the whole difference between a
+      [[cold-backup]] and a [[hot-backup]].
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "everything off, then copy" → [[cold-backup]]
+      - "copy while users can still work" → [[hot-backup]]
+      - "a complete copy" → **full backup**; "just the changes since last time" → **incremental** (also called differential)
+      - "pause the background job lines" → suspend (stop) [[background-queue|background queues]] in **Queue Management**
+
+  - type: comparison
+    title: Cold vs hot at a glance
+    columns: [Cold backup, Hot backup]
+    rows:
+      - label: System state
+        cells: ["Shut down - no transactions running", "Available to users (read-only or read-write)"]
+      - label: Downtime
+        cells: ["Planned downtime needed", "None or very little"]
+      - label: Consistency between repositories
+        cells: ["Almost no chance of sync problems", "Must be engineered - changes can happen mid-backup"]
+      - label: Database method
+        cells: ["Stop the database and copy its data and control files", "Use the database's own hot-backup technique for a valid snapshot"]
+      - label: Directory server
+        cells: ["Copy its files while nothing modifies it", "Export the directory's database"]
+      - label: Vaults
+        cells: ["Copy the folders", "Copy the folders with the vault read-only during the copy"]
+      - label: Advanced forms
+        cells: ["-", "Replication and failover systems"]
+      - label: Best for
+        cells: ["Simplest and most stable - if a window is acceptable", "Sites that can't stop - like a weekend shift"]
+    takeaway: Cold is simple and safe but costs downtime. Hot keeps people working but you have to design the consistency in.
+
+  - type: animation
+    title: Two backups, step by step
+    caption: Play it to see the order of each backup.
+    diagram:
+      width: 820
+      height: 400
+      groups:
+        - { label: Cold backup, x: 20, y: 20, w: 380, h: 360, tone: neutral }
+        - { label: Hot backup, x: 420, y: 20, w: 380, h: 360, tone: accent }
+      nodes:
+        - id: c-stop
+          label: Stop all
+          sublabel: web · Windchill · DB · LDAP
+          x: 40
+          y: 70
+          w: 160
+          tone: danger
+          detail: Stop the web server, then Windchill, then the database, then the directory server. Windchill goes first so it can't leave half-finished operations across the repositories.
+        - id: c-copy
+          label: Copy directories
+          sublabel: home · DB · LDAP · vaults
+          x: 220
+          y: 70
+          w: 160
+          tone: warning
+          shape: doc
+          detail: Copy the home and data directories of each component - Windchill home, database, directory server, local and remote file server storage - to the backup location.
+        - id: c-start
+          label: Restart all
+          sublabel: services back up
+          x: 130
+          y: 290
+          w: 160
+          tone: success
+          detail: Restart every service. Everything in the backup is from the same quiet moment.
+        - id: h-pause
+          label: Pause queues
+          sublabel: + local content caching
+          x: 440
+          y: 70
+          w: 160
+          tone: warning
+          detail: |
+            Back up installation and configuration files if needed, then disable queues and local
+            content caching. Optional, but it reduces synchronization problems on recovery.
+        - id: h-ldap
+          label: Export LDAP
+          sublabel: directory export
+          x: 620
+          y: 70
+          w: 160
+          tone: info
+          shape: cylinder
+          detail: Back up the directory server by exporting its database.
+        - id: h-db
+          label: DB hot backup
+          sublabel: database's own method
+          x: 620
+          y: 180
+          w: 160
+          tone: info
+          shape: cylinder
+          detail: Use a standard hot-backup technique for your database. A plain file-system snapshot of a running database may not be valid.
+        - id: h-vault
+          label: Copy vaults
+          sublabel: local then remote
+          x: 620
+          y: 290
+          w: 160
+          tone: info
+          shape: cylinder
+          detail: Local cache and master vaults (replica optional), then remote cache and master vaults (replica optional) - each read-only while it's copied.
+        - id: h-resume
+          label: Restart queues
+          sublabel: + local content caching
+          x: 440
+          y: 290
+          w: 160
+          tone: success
+          detail: Start the queues and local content caching again. Forgetting this step is the classic Monday-morning surprise.
+      edges:
+        - { from: c-stop, to: c-copy }
+        - { from: c-copy, to: c-start }
+        - { from: h-pause, to: h-ldap }
+        - { from: h-ldap, to: h-db }
+        - { from: h-db, to: h-vault }
+        - { from: h-vault, to: h-resume }
+    chapters:
+      - title: Cold - stop everything
+        caption: Web server, **Windchill**, database, directory. Windchill stops early so no operation is left half-done.
+        show: [c-stop]
+        highlight: [c-stop]
+        flow: []
+        seconds: 6
+      - title: Cold - copy and restart
+        caption: With nothing running, a plain copy of each directory is consistent. Then restart.
+        show: [c-stop, c-copy, c-start]
+        highlight: [c-copy, c-start]
+        flow: [c-stop>c-copy, c-copy>c-start]
+        seconds: 7
+      - title: Hot - pause background work
+        caption: Users keep working, but you pause **queues** and **local content caching** to cut down surprise changes.
+        show: [c-stop, c-copy, c-start, h-pause]
+        highlight: [h-pause]
+        flow: []
+        seconds: 6
+      - title: Hot - directory, database, vaults
+        caption: Export LDAP, take the database's own hot backup, then copy vaults read-only, local then remote.
+        show: [c-stop, c-copy, c-start, h-pause, h-ldap, h-db, h-vault]
+        highlight: [h-ldap, h-db, h-vault]
+        flow: [h-pause>h-ldap, h-ldap>h-db, h-db>h-vault]
+        seconds: 8
+      - title: Hot - resume
+        caption: Restart queues and caching. Done without logging anyone out.
+        highlight: [h-resume]
+        flow: [h-vault>h-resume]
+        seconds: 6
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Many manufacturers run shifts around the clock, so "everyone log off at 22:00" stops being
+      possible. Knowing exactly **what** can drift during a hot backup - and how to stop it drifting -
+      is what lets you offer 24/7 Windchill without gambling with the backup.
+
+  - type: text
+    md: |
+      ### Why pause the queues?
+
+      Even when nobody is logged in, Windchill's [[background-queue|background queues]] keep working:
+      indexing, publishing, replication, workflow. Some of that work changes things **outside** the
+      database while your backup is half done.
+
+      The course's example is the **index queue**: you want the list of index queue entries in the
+      database to match what the search engine has actually indexed. Pause the queue and the two stay
+      in step. Queues whose work lives entirely inside the database are less worrying - a database
+      restore brings their entries back in sync with the data.
+
+      You don't have to stop every queue. Some sites stop some, others all; the point is to minimise
+      chances of the repositories disagreeing.
+
+  - type: walkthrough
+    title: Suspend queues before a hot backup, resume after
+    who: Site administrator
+    where: [Browse, Site, Utilities, Queue Management]
+    steps:
+      - title: Open Queue Management
+        where: [Browse, Site, Utilities, Queue Management]
+        md: |
+          In the Navigator click **Browse**, open the **Site** tab, click **Utilities**, and in the
+          System Administration section click **Queue Management**. It is only available at site level.
+      - title: Stop the queues you chose
+        where: [Queue Management, Stop]
+        md: |
+          Select the checkboxes of the queues in your backup plan - for example the indexing and
+          publishing queues - and click **Stop** on the toolbar. Note which ones you stopped.
+      - title: Run the hot backup
+        where: [Backup tools]
+        md: |
+          Export the directory, take the database hot backup and copy the vaults (read-only during the copy).
+      - title: Start the same queues again
+        where: [Queue Management, Start]
+        md: |
+          Back in Queue Management, select the same queues and click **Start**. Check that waiting
+          entries begin to move.
+    result: The backup ran with background work paused, and every queue you stopped is running again.
+
+  - type: callout
+    variant: note
+    title: Scripting it
+    md: |
+      Clicking through Queue Management at 01:00 isn't a plan. The course mentions that Java code
+      compiled into `codebase/ext` can stop and start the background queues as part of a scripted
+      backup, and points to PTC's technical brief *Windchill Backup and Recovery Execution Featuring
+      NetApp Storage Solutions* for details. The code itself is not part of this course.
+
+  - type: simulation
+    title: Run Saturday's hot backup
+    intro: |
+      You're Rosa. Lakeside's weekend shift is working. Run a hot backup in the right order - and see
+      what happens if you skip pausing the queues.
+    headline: "Stage: {stage} · Queues: {queues} · Paused during backup: {pausedDuring}"
+    initial: { stage: Ready, queues: Running, pausedDuring: "No" }
+    actions:
+      - id: pause
+        label: Stop queues and local content caching
+        when: { stage: Ready, queues: Running }
+        do: [{ set: { queues: Stopped, pausedDuring: "Yes" } }]
+        log: Queues and local content caching paused. Users can still work; background changes are on hold.
+        blockedHint: Pause before the backup starts - and only once.
+      - id: ldap
+        label: Export the directory server
+        when: { stage: Ready }
+        do: [{ set: { stage: Directory exported } }]
+        log: "Directory exported. Queues are {queues}."
+        blockedHint: The directory export is the first copy - and it's already done.
+      - id: db
+        label: Take the database hot backup
+        when: { stage: Directory exported }
+        do: [{ set: { stage: Database backed up } }]
+        log: The database's own hot-backup method produced a valid snapshot.
+        blockedHint: Export the directory first.
+      - id: vaults
+        label: Copy local and remote vaults (read-only during copy)
+        when: { stage: Database backed up }
+        do: [{ set: { stage: Vaults copied } }]
+        log: Cache and master vaults at HQ and Lakeside copied.
+        blockedHint: Back up the database first.
+      - id: resume
+        label: Start queues and local content caching
+        when: { stage: Vaults copied, queues: Stopped }
+        do: [{ set: { stage: Finished, queues: Running } }]
+        log: Queues are running again and work held during the backup is processed.
+        blockedHint: Only after the vaults are copied - and only if you stopped them.
+      - id: finish
+        label: Close the backup job
+        when: { stage: Vaults copied, queues: Running }
+        do: [{ set: { stage: Finished } }]
+        log: Backup closed. Queues ran the whole time - index entries may not match the search engine on restore.
+        blockedHint: Restart the queues you stopped first, then the job is finished.
+      - id: reset
+        label: Start over
+        when: { stage: [Directory exported, Database backed up, Vaults copied, Finished] }
+        do: [{ set: { stage: Ready, queues: Running, pausedDuring: "No" } }]
+        log: Fresh Saturday night.
+        blockedHint: You're already at the start.
+    goals:
+      - label: Safe hot backup with queues back on
+        when: { stage: Finished, pausedDuring: "Yes", queues: Running }
+        message: Paused, backed up in order, resumed. That's the course's hot-backup sequence.
+      - label: See the risky version
+        when: { stage: Finished, pausedDuring: "No" }
+        message: It worked, but background work ran during the copy. A restore may show indexes or vault content out of step.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Forgetting to restart.** A stopped publishing or indexing queue doesn't complain - it just
+      collects entries. Put "start queues and local content caching" in the backup script itself, and
+      make "queues running" part of Monday's daily check.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Whenever you change a properties file or other configuration file, back it up **immediately** -
+      don't wait for the weekly full backup. A cold or hot backup only protects the configuration that
+      existed when it ran.
+
+  - type: quiz
+    title: Check your understanding
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Which statement best describes a cold backup of Windchill?
+        options: ["Users stay logged in, vaults are read-only", "Only the database is stopped", "Web server, Windchill and database are stopped and nothing modifies the directory", "Only changes since the last backup are copied"]
+        answer: 2
+        explanation: A cold backup is taken with no transactions running - application servers and database stopped and the directory server not being modified.
+      - kind: order
+        prompt: Put the cold backup steps in order.
+        items: [Stop the web server, Stop Windchill, Stop the database, Stop the directory server, Copy home and data directories, Restart all services]
+        explanation: Windchill stops before the platform components it uses, so no operation is left half-done across repositories.
+      - kind: truefalse
+        prompt: Stopping queues before a hot backup is mandatory - Windchill refuses to back up otherwise.
+        answer: false
+        explanation: It's optional. Windchill doesn't enforce it, but pausing queues and local content caching reduces synchronization problems on recovery.
+      - kind: single
+        prompt: Why does the course single out the index queue?
+        options: [Its entries in the database should match what the search engine has indexed, It is the slowest queue, It deletes vault files, It stores users]
+        answer: 0
+        explanation: Index work touches the search engine outside the database. Pausing it keeps queue entries and search index in step.
+      - kind: single
+        prompt: Omar wants to back up the running Oracle database by snapshotting its data files at file-system level. What's the concern?
+        options: [None, What's in memory may not match the files so the copy may not be valid, Oracle forbids snapshots, The snapshot would include the vaults]
+        answer: 1
+        explanation: A running database may hold work in memory that isn't in its files yet. Use a standard database hot-backup technique instead.
+      - kind: multi
+        prompt: Which belong in a hot backup? (Choose all that apply.)
+        options: [Export the directory server, Database hot backup, "Local and remote cache and master vaults", Stop the database, Restart queues and local content caching at the end]
+        answers: [0, 1, 2, 4]
+        explanation: Stopping the database is what makes a backup cold. A hot backup keeps it running and uses the database's own hot-backup method.
+
+  - type: summary
+    points:
+      - A cold backup stops web server, Windchill, database and directory, then copies everything - simple, stable, needs downtime.
+      - A hot backup runs while users work; consistency has to be designed in.
+      - The course's hot sequence is config files, pause queues and caching, export LDAP, database hot backup, local then remote vaults, resume.
+      - Pause queues in Queue Management (Site, Utilities) - especially those that touch something outside the database, like indexing.
+      - Always restart what you paused, and back up configuration files right after you change them.

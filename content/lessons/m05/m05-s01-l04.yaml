@@ -1,0 +1,220 @@
+id: m05-s01-l04
+subtitle: Fifty people opening Word files and fifty people spinning big Creo assemblies are not the same load. Weighted active users is how PTC counts the difference.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, sizing, hardware, capacity-planning, weighted-active-users]
+sources:
+  - id: ac
+    where: "Module 11: Calculate hardware sizing requirements; Determine weighted active users; Windchill Sizing Calculator; Describe the monolithic (single-tiered) configuration; Describe the multi-tiered configuration; Describe the Windchill server (multiple method servers per host)"
+  - id: ac
+    where: "Module 19: Performance Advisor dashboard (Sizing Recommendations gadget)"
+versionNotes:
+  - versions: ["All releases"]
+    md: |
+      Hardware figures (cores and memory per number of weighted active users) are release-specific and are
+      published by PTC in its hardware sizing guidelines technical brief, not in this course. The Windchill
+      Sizing Calculator link in the 13.x course manual points to a Windchill 11.0 reference document, so
+      check with PTC for the version that matches your release. This lesson teaches the method only.
+  - versions: ["Windchill+"]
+    md: |
+      On [[windchill-plus|Windchill+]] PTC sizes and runs the infrastructure. Weighted active users is
+      still a useful way to describe your expected load when talking to PTC.
+
+blocks:
+  - type: text
+    md: |
+      IT asks Rosa a blunt question: *"How big do wc-app01 and wc-db01 need to be?"*
+
+      Her first instinct is to count people - Acme has about 150 Windchill users. But Rosa knows that a
+      purchasing clerk checking a document and Priya opening a 2,000-part Creo assembly put very different
+      loads on the server. PTC's sizing method counts **who is working at the same time** and **how heavy
+      their work is**. The result is a single number: **weighted active users**.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "people using the system at the same moment" → **concurrent users** (active users)
+      - "how much heavier one kind of user is than another" → **weighting factor**
+      - "concurrent users, adjusted for how heavy their work is" → [[weighted-active-users]] (WAU)
+      - "PTC's spreadsheet for estimating server size" → **Windchill Sizing Calculator**
+      - "PTC's published hardware table" → **Hardware Sizing Guidelines** technical brief
+
+  - type: diagram
+    title: From people to hardware
+    caption: Sizing is a pipeline - count, weigh, add up, then read the guideline for each tier. Click each step.
+    diagram:
+      width: 820
+      height: 420
+      groups:
+        - { label: Count and weigh, x: 20, y: 20, w: 300, h: 380, tone: neutral }
+        - { label: Read the guideline, x: 520, y: 20, w: 280, h: 380, tone: info }
+      nodes:
+        - id: cad
+          label: Concurrent CAD users
+          sublabel: × 3.0 (moderate CAD)
+          x: 40
+          y: 70
+          w: 260
+          tone: accent
+          detail: The manual's example weighting factor for a user who regularly works with **moderately sized CAD data** is **3.0**. Heavy CAD work drives far more server load per person.
+        - id: docs
+          label: Concurrent document users
+          sublabel: × 1.0 (create and upload)
+          x: 40
+          y: 170
+          w: 260
+          tone: primary
+          detail: A user who **creates and uploads a document** has the standard weighting factor of **1.0**.
+        - id: other
+          label: Other roles
+          sublabel: factor from PTC's guide
+          x: 40
+          y: 270
+          w: 260
+          tone: neutral
+          detail: The course manual doesn't give factors for other roles (for example people who mostly view). Take them from PTC's current sizing guidelines or the Sizing Calculator, which estimates with roles such as **Standard CAD User** and **General Consumer** - don't guess.
+        - id: wau
+          label: Weighted active users
+          sublabel: sum of all groups
+          x: 340
+          y: 170
+          w: 160
+          h: 70
+          tone: warning
+          detail: Add the weighted counts together. This single number is what PTC's sizing guidance is based on.
+        - id: apptier
+          label: Application tier
+          sublabel: cores · memory
+          x: 540
+          y: 90
+          w: 240
+          tone: primary
+          detail: The sizing guideline gives a minimum CPU (cores) and memory recommendation for the application server for a given number of weighted active users.
+        - id: dbtier
+          label: Database tier
+          sublabel: cores · memory
+          x: 540
+          y: 200
+          w: 240
+          shape: cylinder
+          tone: info
+          detail: A separate minimum recommendation for the database server.
+        - id: mono
+          label: Monolithic?
+          sublabel: add both tiers together
+          x: 540
+          y: 310
+          w: 240
+          tone: danger
+          detail: For a monolithic installation, add the application tier's cores and memory to the database tier's - one machine has to carry both.
+      edges:
+        - { from: cad, to: wau }
+        - { from: docs, to: wau }
+        - { from: other, to: wau, dashed: true }
+        - { from: wau, to: apptier }
+        - { from: wau, to: dbtier }
+        - { from: apptier, to: mono, dashed: true }
+        - { from: dbtier, to: mono, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Undersized servers make Windchill feel broken: slow check-ins, timeouts, frustrated designers who
+      start keeping files on their desktops. Oversized servers waste budget. Counting named users gets both
+      wrong, because it ignores *when* people work and *what* they do. Weighting by role gets you a number
+      you can defend to IT and finance.
+
+  - type: example
+    variant: case-study
+    title: Rosa sizes Acme's production system
+    industry: Micromobility
+    md: |
+      Rosa doesn't count Acme's 150 named users - she asks: *at the busiest hour, who is working, and on
+      what?* Kai's engineering calendar says the peak is Tuesday morning design reviews.
+
+      | Group at peak hour | Concurrent | Factor | Weighted |
+      | --- | --- | --- | --- |
+      | Creo designers (Priya's team), moderate CAD | 25 | 3.0 | 75 |
+      | Engineers and quality creating and uploading documents | 45 | 1.0 | 45 |
+      | **Total** | **70** | | **120 WAU** |
+
+      Seventy people online, but a load like 120 standard users - because the CAD work counts triple.
+
+      Purchasing and the Lakeside plant mostly *view*. The course manual gives no factor for that role,
+      so Rosa models them in the Windchill Sizing Calculator as **General Consumer** rather than inventing
+      a number.
+
+      She reads 120 WAU against PTC's hardware sizing guidelines for her release, once for wc-app01 and
+      once for wc-db01. For the small **monolithic** test box she adds the two tiers' figures together.
+      Finally she books a review with PTC Global Services, as the manual recommends, to refine the result.
+    takeaway: Size for the busiest hour and the heaviest work - not for the head count.
+
+  - type: comparison
+    title: How the number drives the configuration
+    columns: [What it tells you, Course manual basis]
+    rows:
+      - label: Core and memory minimums
+        cells: ["How big each tier's servers must be", "Sizing graphic per number of WAU, for application and database servers"]
+      - label: One box or several
+        cells: ["Monolithic only while load is small", "Not typically recommended above about 100 named users; resources compete, especially database and Windchill"]
+      - label: When to go multi-tiered
+        cells: ["Tuning and more RAM no longer help", "Example: a monolithic system grown to 120 named users moves to multi-tiered"]
+      - label: More method servers
+        cells: ["Scaling a host further", "Several method server processes can run per host; one is usually a background method server"]
+      - label: Cluster
+        cells: ["Large deployments needing scale and failover", "Clustered configuration for large implementations"]
+    takeaway: WAU sets the hardware; growth in WAU tells you when to change the topology.
+
+  - type: callout
+    variant: note
+    title: Check the estimate after go-live
+    md: |
+      Sizing before installation is an estimate. After go-live, the **Performance Advisor** dashboard has a
+      **Sizing Recommendations** gadget that recommends CPU cores and memory based on the last 30 days of
+      actual Windchill usage (it needs a PTC global support account). Compare it with your original
+      estimate every few months.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Sizing on named users or on today's head count.** Named users don't tell you concurrency or
+      workload, and next year's E-Bike program will add CAD users. Count concurrent users at the peak,
+      weigh them by role, and add the growth you already know about.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Build the WAU table with the business, not alone. Kai knows when design reviews happen; Jordan knows
+      which roles are coming. Keep the table with the installation plan - when performance questions come
+      up later, you can show what the hardware was sized for.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: "At peak, Acme's Lakeside plant has 10 users regularly working with moderately sized CAD data and 20 users creating and uploading documents. Using the manual's example factors, how many weighted active users is that?"
+        options: ["30", "50", "60", "90"]
+        answer: 1
+        explanation: 10 × 3.0 = 30 for CAD, plus 20 × 1.0 = 20 for documents, gives 50 weighted active users.
+      - kind: single
+        prompt: Why does the sizing method weight CAD users more heavily?
+        options: [CAD licenses cost more, CAD work puts much more load on the servers per user, CAD users are always online, PTC requires it for Creo only]
+        answer: 1
+        explanation: Weighting addresses the big difference in server load between simple transactions and complex ones such as working with CAD data.
+      - kind: truefalse
+        prompt: For a monolithic installation, you add the application tier's cores and memory to the database tier's.
+        answer: true
+        explanation: One machine carries both tiers, so the manual says to add the two recommendations together.
+      - kind: single
+        prompt: Rosa needs a weighting factor for users who mostly view data. The course manual doesn't give one. What should she do?
+        options: [Use 0.5 - it sounds about right, Use PTC's current sizing guidelines or the Sizing Calculator's roles, Leave those users out, Count them as CAD users to be safe]
+        answer: 1
+        explanation: Take factors from PTC's sizing material for your release - the calculator estimates with roles such as General Consumer. Inventing a factor makes the whole estimate guesswork.
+
+  - type: summary
+    points:
+      - PTC sizes hardware on weighted active users - concurrent users multiplied by a weighting factor for their role, then added up.
+      - The manual's examples are 1.0 for creating and uploading documents and 3.0 for moderate CAD work.
+      - Read the WAU total against PTC's hardware sizing guidelines for the application and database tiers; for monolithic, add the two.
+      - Take any other figures from PTC's current material for your release; the calculator link in the manual is an 11.0 document.
+      - Growing WAU tells you when to move from monolithic to multi-tiered, add method servers, or cluster - and Performance Advisor checks the estimate after go-live.

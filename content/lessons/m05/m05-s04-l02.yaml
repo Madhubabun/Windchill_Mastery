@@ -1,0 +1,421 @@
+id: m05-s04-l02
+subtitle: Priya checks in a frame and a 3D thumbnail appears minutes later. Follow the job all the way, then fix the worker that won't start.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, visualization, wvs, worker-agent, cad-worker, publishing]
+sources:
+  - id: ac
+    where: "Appendix A: Describe Windchill Visualization Services (WVS); Describe the WVS architecture; Configure WVS; Evaluate the visualization publishing system size; Evaluate the CAD worker hardware; Calculate the number of CAD workers; Optimize the visualization publishing system; Administer worker agents; View and manage WVS publication jobs; View WVS job statistics; Describe the WVS Publisher; Configure publisher queues and jobs"
+  - id: ac
+    where: "Module 16: Identify out-of-the-box background queues 2 (PublisherQueues); Activity: Manage publishing queues in Windchill"
+  - id: ac
+    where: "Module 11: Describe the Windchill architecture components (visualization workers); single-tier configuration note on visualization workers as a Windows service. Module 15: Configure a distributed file server worker"
+  - id: ac
+    where: "Module 19: Monitor queues using JMX clients (EntryExecutionTimeThresholdSec and the CAD worker)"
+versionNotes:
+  - versions: ["Windchill+"]
+    md: |
+      Windchill+ is delivered as software as a service and PTC runs its servers. Installing worker
+      hosts, editing `wvs.properties` and the Worker Agent set-up below describe customer-run
+      (on-premises) installations; the supplied sources don't cover how publishing workers are
+      provided on Windchill+.
+
+blocks:
+  - type: text
+    md: |
+      Priya checks in the **E-Bike E1** frame assembly from Creo. Four minutes later a little 3D
+      thumbnail sits on its information page, and Kai opens it in Creo View on a laptop with no CAD
+      installed.
+
+      Nobody clicked "publish". Behind that thumbnail is a relay race: a service that notices the
+      check-in, a set of waiting rooms, a dispatcher, a CAD session on another machine, and a loader
+      that files the result. When the thumbnail *doesn't* show up, Rosa needs to know which runner
+      dropped the baton.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the whole make-it-viewable machine" → [[wvs|Windchill Visualization Services (WVS)]]
+      - "the light 3D copy anyone can open" → [[representation]] (shown as a [[thumbnail]])
+      - "one request to convert something" → *publish job*
+      - "the waiting rooms and work lanes for jobs" → [[publisher-queue|publisher queues]]
+      - "the dispatcher for the conversion machines" → [[worker-agent|Worker Agent]]
+      - "the machine running CAD to do the conversion" → [[cad-worker|CAD worker]]
+
+  - type: animation
+    title: From check-in to thumbnail
+    diagram:
+      width: 840
+      height: 420
+      groups:
+        - { label: Windchill server (wc-app01), x: 160, y: 20, w: 470, h: 380, tone: neutral }
+        - { label: Worker host (wc-cad01), x: 650, y: 120, w: 175, h: 140, tone: accent }
+      nodes:
+        - id: priya
+          label: Priya checks in
+          sublabel: E1 frame assembly
+          x: 10
+          y: 40
+          w: 140
+          tone: primary
+          detail: A check-in from the CAD integration is an *event*. Events are one of the sources that start publishing.
+        - id: publisher
+          label: WVS Publisher
+          sublabel: creates the job
+          x: 180
+          y: 40
+          w: 170
+          tone: info
+          detail: |
+            Controls publishing. It responds to user requests and events, picks a publisher that understands
+            the data type and creates a **publish job**. It also manages clash (interference detection) and
+            print jobs.
+        - id: waiting
+          label: PublisherQueueH/M/L
+          sublabel: waiting rooms
+          x: 180
+          y: 150
+          w: 170
+          tone: warning
+          detail: |
+            Three prioritized waiting queues. The job lands in High, Medium or Low depending on its job type
+            and source. Jobs move on from High first, then Medium, then Low.
+        - id: processing
+          label: PublisherQueue1
+          sublabel: processing lane
+          x: 180
+          y: 260
+          w: 170
+          tone: warning
+          detail: |
+            The numbered processing queue where the job is actually executed. You can add PublisherQueue2,
+            3 and so on; as a rule, one per CAD worker.
+        - id: agent
+          label: Worker Agent
+          sublabel: dispatcher
+          x: 420
+          y: 260
+          w: 180
+          tone: info
+          detail: |
+            Manages one or more configured workers and hands them the conversion work. It also moves files
+            to and from remote and distributed workers.
+        - id: worker
+          label: CAD worker
+          sublabel: Creo View Adapter
+          x: 665
+          y: 160
+          w: 145
+          h: 70
+          tone: accent
+          detail: |
+            Opens the native CAD data with the adapter, following its **recipe** (`.rcp`) settings, and
+            produces the lightweight Creo View viewable.
+        - id: loader
+          label: WVS Loader
+          sublabel: files the result
+          x: 420
+          y: 150
+          w: 180
+          tone: info
+          detail: Loads the converted data into Windchill and, when required, creates 2D and 3D thumbnails.
+        - id: rep
+          label: Representation
+          sublabel: + thumbnail
+          x: 420
+          y: 40
+          w: 180
+          tone: success
+          detail: Stored with the published object. Clicking the thumbnail opens it in Creo View.
+        - id: kai
+          label: Kai views it
+          sublabel: Creo View
+          x: 665
+          y: 40
+          w: 145
+          tone: primary
+          detail: Kai can view and mark up the design without a CAD licence.
+      edges:
+        - { from: priya, to: publisher, label: event }
+        - { from: publisher, to: waiting, label: job }
+        - { from: waiting, to: processing, label: H then M then L }
+        - { from: processing, to: agent }
+        - { from: agent, to: worker, label: convert }
+        - { from: worker, to: agent, label: viewable }
+        - { from: agent, to: loader }
+        - { from: loader, to: rep }
+        - { from: rep, to: kai }
+    chapters:
+      - title: An event starts it
+        caption: Priya's **check-in** is an event. The **WVS Publisher** notices it and creates a **publish job**.
+        show: [priya, publisher]
+        highlight: [publisher]
+        flow: [priya>publisher]
+        seconds: 6
+      - title: The job waits its turn
+        caption: The job goes into a prioritized **waiting queue** - High, Medium or Low, set by its job type and source.
+        show: [priya, publisher, waiting]
+        highlight: [waiting]
+        flow: [publisher>waiting]
+        seconds: 6
+      - title: Into a processing lane
+        caption: Jobs feed into the numbered **processing queue** (PublisherQueue1) - High first, then Medium, then Low.
+        show: [priya, publisher, waiting, processing]
+        highlight: [processing]
+        flow: [waiting>processing]
+        seconds: 6
+      - title: The dispatcher picks a worker
+        caption: The **Worker Agent** sends the work, with the files, to a configured **CAD worker** on wc-cad01.
+        show: [priya, publisher, waiting, processing, agent, worker]
+        highlight: [agent, worker]
+        flow: [processing>agent, agent>worker]
+        seconds: 7
+      - title: The worker converts
+        caption: The adapter opens the CAD data using its **recipe** and returns a lightweight **viewable**.
+        show: [priya, publisher, waiting, processing, agent, worker]
+        highlight: [worker]
+        flow: [worker>agent]
+        seconds: 6
+      - title: The Loader files it
+        caption: The **WVS Loader** stores the result and creates **thumbnails**. Kai opens it in Creo View.
+        highlight: [loader, rep, kai]
+        flow: [agent>loader, loader>rep, rep>kai]
+        seconds: 7
+
+  - type: diagram
+    title: Three job types, three queue sets
+    caption: WVS runs more than publishing. Each job type has its own set of queues. Click a set.
+    diagram:
+      width: 800
+      height: 300
+      nodes:
+        - id: wvs
+          label: WVS Publisher
+          x: 300
+          y: 20
+          w: 200
+          tone: info
+          detail: Creates three kinds of WVS job, all managed and processed through Windchill background queues.
+        - id: default
+          label: Default set
+          sublabel: PublisherQueueH/M/L/1
+          x: 20
+          y: 150
+          w: 230
+          h: 64
+          tone: primary
+          detail: |
+            **Publish jobs.** The default queue set (its set name is empty) always exists: `PublisherQueueH`,
+            `PublisherQueueM`, `PublisherQueueL` and `PublisherQueue1`.
+        - id: clash
+          label: CLASH set
+          sublabel: PublisherQueueCLASH...
+          x: 285
+          y: 150
+          w: 230
+          h: 64
+          tone: warning
+          detail: |
+            **Clash jobs** from interference management, processed by the configured clash workers through
+            `PublisherQueueCLASHH/M/L` and `PublisherQueueCLASH1`.
+        - id: print
+          label: PRINT set
+          sublabel: PublisherQueuePRINT...
+          x: 550
+          y: 150
+          w: 230
+          h: 64
+          tone: accent
+          detail: |
+            **Print jobs** from the Batch Print action (server-side printing with watermarks), processed by
+            print workers through the PRINT queue set.
+        - id: more
+          label: Your own sets
+          sublabel: declared in wvs.properties
+          x: 285
+          y: 240
+          w: 230
+          h: 50
+          tone: neutral
+          detail: Additional queue sets must be declared in the `publish.publishqueue.setnames` property in `wvs.properties`. Use them to keep categories of jobs apart.
+      edges:
+        - { from: wvs, to: default }
+        - { from: wvs, to: clash }
+        - { from: wvs, to: print }
+        - { from: default, to: more, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      CAD data is usually published after every check-in, so in many companies the publisher queues are
+      the busiest queues in the system, full of long-running jobs. Too few workers and designers wait
+      hours for viewables; reviewers then open stale ones. Too many on too little hardware and every job
+      slows down. Sizing workers is a real capacity decision, and PTC asks you to keep re-checking it as
+      the load changes.
+
+  - type: example
+    variant: case-study
+    title: How many CAD workers does Acme need?
+    industry: Micromobility
+    md: |
+      The manual's sizing formula is **workers = 1.2 × (V × RT) / 86,400**, where *V* is the daily volume
+      of files of a CAD type, *RT* the average seconds to open and regenerate one, and 86,400 the seconds
+      in a day. The 1.2 adds headroom.
+
+      Rosa measures Creo assemblies at Acme: about **3,000 a day**, averaging **60 seconds** each.
+
+      1.2 × (3,000 × 60) / 86,400 = 216,000 / 86,400 = **2.5 → 3 workers**.
+
+      Hardware guidance from the manual: at least **2 CPU cores per CAD instance**, enough RAM to open the
+      largest assembly without paging (minimum 4 GB, sized to 8 GB for the host), a 64-bit OS, and SSDs
+      where possible. CPU clock speed has the biggest effect on throughput. For multi-core machines the
+      tuning guidance is about **one worker per 1.5 cores**, aiming at roughly 90% CPU use. So wc-cad01
+      gets more cores, three workers are configured on it, and Rosa adds **PublisherQueue2** and
+      **PublisherQueue3** so there's one processing queue per worker.
+    takeaway: Size workers from measured volume and response time, then match processing queues to workers.
+
+  - type: walkthrough
+    title: Add a worker and check it's healthy
+    who: Site administrator (Rosa)
+    where: [Site, Utilities, Worker Agent Administration]
+    steps:
+      - title: Install and prepare the worker first
+        md: |
+          On wc-cad01, install the Creo View Adapter and create its **recipe** with the adapter
+          configuration utility. Workers are installed and configured *before* they're added in Windchill.
+      - title: Gather three facts
+        md: |
+          You need the **WVS Worker Agent server host name and port**, the **worker location** (host), and
+          the **complete path to the worker script**.
+      - title: Open Worker Agent Administration
+        where: [Browse, Site, Utilities, Worker Agent Administration]
+        md: Open the site **Utilities** page and click **Worker Agent Administration**.
+      - title: Add the worker, save, reload
+        where: [Worker Agent Administration]
+        md: |
+          Enter the configuration, **save** it and **reload the Worker Agent**. The worker now appears in
+          the table. Use its **Configure** link later to update or remove it.
+      - title: Start and test it
+        where: [Worker Agent Administration, "<worker>"]
+        md: Use the row's actions to **start** the worker and **test** that it's set up properly.
+      - title: Watch real jobs
+        where: [Site, Utilities, WVS Job Monitor]
+        md: |
+          Open **WVS Job Monitor** from the site Utilities page and filter on *Failed Jobs* or
+          *Executing Jobs*. A failed job can be **resubmitted** or deleted. From the site-level monitor,
+          **Actions → Job Statistics** shows success and failure rates by authoring tool and each worker's
+          busy time.
+    result: The worker shows in Worker Agent Administration, passes its test, and new publish jobs complete in the Job Monitor.
+
+  - type: scenario
+    variant: troubleshooting
+    title: The worker that won't start
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Over the weekend IT rebuilt **wc-cad01** and reinstalled the Creo View Adapter into a new folder.
+          Monday: no thumbnails, `PublisherQueue1` has a growing line of Ready entries, and in Worker Agent
+          Administration the worker won't start. Where does Rosa look first?
+        choices:
+          - label: Check the worker's configuration against the new install
+            next: s2
+            good: true
+            feedback: Something changed on the host, so check the facts the configuration depends on.
+          - label: Reset every entry in PublisherQueue1
+            next: f1
+            feedback: The entries are fine. Nothing can run them.
+          - label: Raise the method server heap
+            next: f1
+            feedback: Memory isn't the symptom here; a worker that won't start is.
+      - id: f1
+        md: |
+          Nothing changes. The jobs are waiting for a worker; until a worker runs, every job just waits.
+          Back to the worker.
+        choices:
+          - { label: Check the worker configuration, next: s2 }
+      - id: s2
+        md: |
+          Using the worker's **Configure** link, Rosa compares the three key facts. Host name and Worker
+          Agent port are right, but the **path to the worker script** still points at the old folder. She
+          corrects it. What now?
+        choices:
+          - label: Save the configuration, reload the Worker Agent, then start and test the worker
+            next: s3
+            good: true
+            feedback: A saved change isn't used until the Worker Agent reloads.
+          - label: Save and wait for it to pick up the change
+            next: p1
+            feedback: The manual's sequence includes reloading the Worker Agent.
+      - id: p1
+        md: |
+          Ten minutes later the worker still hasn't started. Rosa reloads the Worker Agent, starts the
+          worker and runs the test.
+        choices:
+          - { label: Continue, next: s3 }
+      - id: s3
+        md: |
+          The worker starts, but the test fails and jobs fail in the Job Monitor. Rosa opens the **worker
+          log** and starts the worker in **verbose** mode for more detail. The log shows the worker daemon
+          refusing to run a program. IT had also moved the adapter onto a new drive. Which setting is that?
+        choices:
+          - label: The executable allow-list in wvs.properties
+            next: s4
+            good: true
+            feedback: "`worker.exe.whitelist.prefixes` limits what the worker daemon may execute, by path prefix."
+          - label: The publish job priorities
+            next: p2
+            feedback: Priorities decide order, not whether a worker may run a program.
+      - id: p2
+        md: |
+          Priorities only change which waiting queue a job uses. Rosa re-reads the log: it's an execution
+          that was refused, which points at the security allow-list.
+        choices:
+          - { label: Check the allow-list, next: s4 }
+      - id: s4
+        md: |
+          Rosa adds the new drive's prefix to `worker.exe.whitelist.prefixes` with xconfmanager, applies the
+          change, and re-tests. Green. She also confirms `auth.properties` still exists in the Windchill
+          root so the worker can use **trusted host authentication** for publishing, print and clash jobs.
+          Within an hour the Ready entries in PublisherQueue1 are gone.
+        outcome: success
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Putting the CAD worker on the Windchill server "to save a box".** CAD conversion is heavy and
+      competes with the method servers for CPU and memory. In a single-machine (monolithic) set-up, the
+      manual also warns not to run the visualization worker as a Windows service, for performance
+      reasons. Keep workers on their own host, like wc-cad01.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      - Watch `EntryExecutionTimeThresholdSec` on the publishing queues (via JMX). When single jobs start
+        taking too long, the manual's advice is to check the CAD worker first.
+      - For a remote site with its own file server, like **Lakeside**, a **distributed file server
+        worker** lets publishing happen next to the files instead of dragging heavy CAD across the WAN.
+      - Huge top-level assemblies that keep failing? See the next lesson: publish them as a positioning
+        assembly or keep them out of publishing.
+
+  - type: flashcards
+    cards:
+      - { front: The three main WVS components, back: "Publisher (creates jobs), Worker Agent (manages workers), Loader (stores results and thumbnails)." }
+      - front: Default publish queues
+        back: "Waiting queues PublisherQueueH, M and L, plus the processing queue PublisherQueue1."
+      - front: CAD worker sizing formula
+        back: "1.2 × (V × RT) / 86,400 - daily volume times average seconds per file, plus 20% headroom, over one day."
+      - front: How many processing queues?
+        back: As a rule, one numbered PublisherQueue per CAD worker; adjust from publishing statistics.
+      - front: Three facts needed to add a worker
+        back: "Worker Agent server host and port, the worker location, and the full path to the worker script. Then save and reload the Worker Agent."
+
+  - type: summary
+    points:
+      - WVS = Publisher (creates jobs) + Worker Agent (runs workers) + Loader (stores results and thumbnails).
+      - A publish job waits in PublisherQueueH/M/L, runs in a numbered PublisherQueue, and is converted by a CAD worker.
+      - Separate queue sets exist for publish, CLASH and PRINT jobs.
+      - Size workers with 1.2 × (V × RT) / 86,400 and give each worker its own processing queue.
+      - A worker that won't start - check its configuration, reload the Worker Agent, test, read the worker log, check the allow-list and trusted host authentication.
+      - WVS Job Monitor and Job Statistics show failed jobs and each worker's load.

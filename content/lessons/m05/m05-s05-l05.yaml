@@ -1,0 +1,271 @@
+id: m05-s05-l05
+subtitle: Vaults hold the files your engineers can't recreate. Map them, freeze them for the copy, and prove afterwards that every file the database expects is really there.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, vaults, backup, wcontentverify, read-only, file-server]
+sources:
+  - id: ac
+    where: "Module 17: Review Windchill file vaults; Back up file vaults; Mirror the local cache vault; Rebuild replica vaults; Identify vault backup and recovery best practices; Generate vault backup information; Use the WContentVerify tool; Set Read Only mode for vaults"
+  - id: ac
+    where: "Module 19: Monitor file vaults; Identify BLOBs that have not been vaulted. Module 14: Activity: Examine the vault configuration (File Server Administration navigation); Revault data"
+versionNotes:
+  - versions: ["Windchill+", "PTC Cloud Services"]
+    md: File servers, vault folders and the tools in this lesson are run by whoever operates the servers - on Windchill+ and PTC Cloud Services that is PTC. The course manual describes the on-premises procedure.
+
+blocks:
+  - type: text
+    md: |
+      Rosa opens the HQ vault folder on disk. Thousands of files with names like hashes, no
+      subfolders, nothing that says "Scooter S2 frame". Only the [[database]] knows which file belongs
+      to which object.
+
+      That's why backing up a [[vault]] is easy (copy the folders) **and** risky (copy them at the
+      wrong moment, or forget one folder, and nobody notices until a restore). This lesson gives you
+      three tools: a **map** of where the vault folders live, a **freeze** while you copy them, and a
+      **checker** afterwards.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "where on disk each vault folder is mounted" → vault mounting information (written to `MountInfo.log`)
+      - "freeze the vault while I copy it" → [[vault-read-only-mode]]
+      - "the checker that compares vault files with the database" → [[wcontentverify|WContentVerify]]
+      - "content stored inside the database instead of a vault" → **BLOBs**
+      - "move content between storage locations" → **revaulting**
+
+  - type: diagram
+    title: Map, freeze, copy, check
+    caption: The four moves for a safe vault backup. Click each box.
+    diagram:
+      width: 820
+      height: 300
+      nodes:
+        - id: map
+          label: Map
+          sublabel: MountInfo.log
+          x: 20
+          y: 110
+          w: 170
+          tone: info
+          shape: doc
+          detail: |
+            The File Server Administrator can generate all vault mounting information into
+            `MountInfo.log` in Windchill's logs directory. Now you know which physical directories to copy.
+            For cache vaults, `CCS_BackupFilesList` lists files still waiting to go to the main server.
+        - id: freeze
+          label: Freeze
+          sublabel: vault read-only
+          x: 225
+          y: 110
+          w: 170
+          tone: warning
+          detail: |
+            Set the vault to Read Only in Vault Configuration so Windchill and the backup tool don't fight
+            over files. New content goes elsewhere meanwhile (see below).
+        - id: copy
+          label: Copy
+          sublabel: file-system backup
+          x: 430
+          y: 110
+          w: 170
+          tone: primary
+          shape: cylinder
+          detail: |
+            A plain file-system backup of each folder. Files never change after upload and names are
+            sequential, so incremental copies are simple. Then switch the vault back to normal.
+        - id: check
+          label: Check
+          sublabel: WContentVerify
+          x: 635
+          y: 110
+          w: 170
+          tone: success
+          detail: |
+            After a recovery (or on a schedule), run WContentVerify to confirm the database and vaults agree.
+      edges:
+        - { from: map, to: freeze }
+        - { from: freeze, to: copy }
+        - { from: copy, to: check }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      A missing vault file looks fine in every list and search - until someone opens it. In a company
+      like Acme that's usually a supplier asking for a drawing on a deadline. Checking vault content
+      against the database turns that silent failure into a report you read on your own schedule.
+
+  - type: walkthrough
+    title: Set a vault read-only for its backup
+    who: Site administrator
+    where: [Browse, Site, Utilities, File Server Administration, Vault Configuration]
+    steps:
+      - title: Open Vault Configuration
+        where: [Browse, Site, Utilities, File Server Administration, Vault Configuration]
+        md: |
+          In the Navigator click **Browse → Site → Utilities**. In the System Administration section
+          open **File Server Administration**, then **Vault Configuration**. Sites, vaults and folders
+          appear in a tree on the left.
+      - title: Make the vault read-only
+        where: [Vault Configuration, "<the vault>", Object, Update]
+        md: |
+          Select the vault, choose **Object → Update**, tick **Read Only** and click **OK**.
+      - title: Copy the vault folders
+        where: [Backup tool]
+        md: |
+          Back up the physical folders listed in your mount information.
+      - title: Put the vault back to normal
+        where: [Vault Configuration, "<the vault>", Object, Update]
+        md: |
+          Clear **Read Only** and click **OK**.
+      - title: Tidy up what arrived meanwhile
+        where: [Vault Configuration]
+        md: |
+          For a **local** vault, run a revaulting operation so content stored as BLOBs during the backup
+          moves into the vault. For a **remote** cache or master vault, run a replication job so
+          Lakeside has everything it should.
+    result: The vault was frozen only while it was being copied, and the content that arrived in the meantime is back where it belongs.
+
+  - type: comparison
+    title: What read-only does to new content
+    columns: [Local vault (HQ), Remote cache or master vault (Lakeside)]
+    rows:
+      - label: While read-only
+        cells: ["Content that would have been vaulted is stored as BLOBs in the database", "Uploads go directly to the master site instead of the replica"]
+      - label: After the backup
+        cells: ["Set the vault back to normal and run a revaulting operation", "Set it back to normal and run a replication job"]
+      - label: Watch out
+        cells: ["Read-only for the whole database backup puts that content in the redo logs and lengthens recovery", "A replication job running when the vault goes read-only fails and retries later"]
+    takeaway: Freeze each vault only for its own copy, then put the content that arrived meanwhile back in its place.
+
+  - type: text
+    md: |
+      ### WContentVerify: does the vault match the database?
+
+      [[wcontentverify|WContentVerify]] is a command-line Java tool you start from the **Windchill Shell**:
+
+      ```
+      windchill wt.fv.tools.WContentVerify -usage
+      ```
+
+      `-usage` lists all its options. The tool checks for:
+
+      - vault directories that are missing,
+      - database records that point to content the vault doesn't have,
+      - files whose real size differs from the size the database expects.
+
+      Results come out as XML, and the tool can also email them to one or more people. Each problem
+      names the **business object** affected - so Rosa can tell Kai exactly which part's CAD file is gone.
+
+  - type: callout
+    variant: note
+    title: Two neighbours of WContentVerify
+    md: |
+      **Extra files** are a different story: when an object is deleted, its vault file stays on disk
+      until someone removes unreferenced files, so a restored vault may hold files no object uses.
+      During recovery, **move** them rather than delete, so their origin can be confirmed.
+      And content that never reached a vault shows up as BLOBs in the database - part of the weekly checks.
+      Section 3 covers the clean-up tools.
+
+  - type: scenario
+    variant: what-if
+    title: What if Rosa freezes the wrong thing?
+    start: q1
+    nodes:
+      - id: q1
+        md: |
+          Omar's database hot backup takes 3 hours; the HQ vault copy takes 40 minutes. Rosa thinks:
+          "Safest is to keep the HQ vault read-only for the whole 3 hours." What happens?
+        choices:
+          - label: New content goes to BLOBs and the redo logs for 3 hours, making recovery slower
+            next: q2
+            good: true
+            feedback: Right - the course says it shouldn't be necessary to keep the vault read-only for the whole database backup.
+          - label: Users can't check in for 3 hours
+            next: q2
+            feedback: Not quite - check-ins still work; their content just goes to BLOBs in the database instead of the vault.
+      - id: q2
+        md: |
+          Next week Rosa freezes the HQ vault only for its 40-minute copy. Afterwards she sets it back
+          to normal. What else is on her list?
+        choices:
+          - label: Run a revaulting operation so the BLOB content moves into the vault
+            next: q3
+            good: true
+            feedback: Otherwise that content stays in the database.
+          - label: Nothing; Windchill moves it by itself immediately
+            next: q4
+            feedback: Not by itself - the course says to push it out with a revaulting operation.
+      - id: q4
+        md: |
+          On Friday's weekly check, Rosa finds a few hundred content items still stored as BLOBs. She runs
+          the revault and adds it to the backup runbook.
+        outcome: partial
+      - id: q3
+        md: |
+          Now Lakeside. Rosa sets the **remote cache vault** on wc-fs-lakeside read-only for its copy. A
+          replication job was running at that moment. What happens to it, and what does she do afterwards?
+        choices:
+          - label: The job fails and retries later; after the backup she runs a replication job anyway
+            next: q5
+            good: true
+            feedback: Exactly what the course describes. The extra replication run makes sure Lakeside has all its content.
+          - label: The job corrupts the vault
+            next: q4b
+            feedback: No - it fails cleanly and tries again later.
+      - id: q4b
+        md: |
+          Rosa checks: the vault is fine, the job is simply waiting to retry. She still runs a replication
+          job after the backup to be sure.
+        outcome: partial
+      - id: q5
+        md: |
+          While read-only, Lakeside uploads went straight to the HQ master site. The post-backup
+          replication job brings them back to Lakeside. Nothing lost, nothing slow.
+        outcome: success
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Mounting the vault and its mirror at the same time.** Mirroring a vault to a second device
+      (rsync, Unison, SAN replication) is a great way to lose almost nothing. But Windchill should have
+      direct access to **only one** of the two devices; mounting both in parallel isn't tested and isn't
+      recommended. If the primary fails, switch the mount.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Regenerate the mount information after every vault or folder change and store `MountInfo.log`
+      **with** the backup set. During a restore at 3 a.m. you won't want to reconstruct from memory which
+      folder was mounted where. Replica vaults are normally not backed up at all - if you need to rebuild
+      one, Vault Configuration can reset replication to the replica.
+
+  - type: flashcards
+    title: Vault backup deck
+    cards:
+      - front: WContentVerify
+        back: "Command-line tool (Windchill Shell) that checks vault content against database metadata."
+      - front: What WContentVerify reports
+        back: "Missing vault directories, database records pointing to missing content, file size mismatches."
+      - front: WContentVerify output
+        back: "XML, optionally emailed to recipients, naming the business objects affected."
+      - front: Set a vault read-only
+        back: "Vault Configuration → select vault → Object → Update → Read Only → OK."
+      - front: Local vault read-only - where does new content go?
+        back: "Into BLOBs in the database. Revault after the backup."
+      - front: Remote cache or master vault read-only - where do uploads go?
+        back: "Directly to the master site. Run a replication job after the backup."
+      - front: MountInfo.log
+        back: "Vault mounting information generated by the File Server Administrator, in Windchill's logs directory."
+      - front: CCS_BackupFilesList
+        back: "Lists cache vault files still to be copied to the main server; output in a ccs_backup log."
+      - front: Extra files found during recovery
+        back: "Move them, don't delete, until their origin is confirmed."
+
+  - type: summary
+    points:
+      - Vault folders hold hashed files only the database can identify, so they must be backed up consistently with it.
+      - Map the folders (MountInfo.log, CCS_BackupFilesList for cache vaults), freeze, copy, then check.
+      - Read-only sends new local content to BLOBs (revault afterwards) and remote uploads to the master site (replicate afterwards).
+      - Keep a vault read-only only for its own copy, not the whole database backup.
+      - WContentVerify reports missing directories, missing content and size mismatches, naming the objects affected.

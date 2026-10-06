@@ -1,0 +1,441 @@
+id: m05-cap
+subtitle: The weekend backup went fine. So why is the Lakeside plant furious at 07:30 on Monday?
+version: 1.0.0
+updated: "2026-10-06"
+tags: [capstone, system-admin, monitoring, queues, visualization, replication, incident-report]
+sources:
+  - id: ac
+    where: "Module 16: Manage queues; Describe queue entry states; Develop a queue maintenance routine; Identify queue performance issues. Module 17: Set Read Only mode for vaults; Rebuild replica vaults. Module 18: View Windchill log files. Module 19: Investigate and respond to notifications and alerts; Monitor queues using Queue Management; Monitor queues using JMX clients; Monitor file vaults; Review application server logs"
+  - id: ac
+    where: "Appendix A: View and manage WVS publication jobs; Manage publishing and thumbnail generation; Replicate Windchill content: overview; Describe content replication architecture; Schedule replication"
+
+blocks:
+  - type: text
+    md: |
+      **Monday, 07:30.** Rosa's phone is already buzzing. It's Ana's team at the **Lakeside plant**,
+      Acme's remote manufacturing site:
+
+      > "Windchill is *crawling* this morning. Opening the Scooter S2 drawings takes minutes, not
+      > seconds. And Priya's new parts from Friday have **no thumbnails**. Did something break over the
+      > weekend?"
+
+      At HQ everything feels normal. The only thing that happened over the weekend was the planned
+      **backup**, and Omar (the database admin) says it finished clean.
+
+      You are Rosa. Find the causes, fix them, and write the incident report so this never happens
+      again. Everything you need is in Module 5.
+
+  - type: callout
+    variant: note
+    title: Your mission checklist
+    md: |
+      1. **Read the monitoring and logs** to find where the bottleneck is.
+      2. **Clear the stuck publishing queue** so thumbnails and viewables come back.
+      3. **Check replication** to the Lakeside file server.
+      4. **Write a short incident report** with prevention steps.
+
+  - type: callout
+    variant: terms
+    title: Plain words → admin words
+    md: |
+      | Plain words | Official term |
+      | --- | --- |
+      | "The to-do lists the server works through in the background" | [[background-queue|Background queues]], managed in the Queue Management utility; each job is a [[queue-entry|queue entry]] |
+      | "The machine that turns CAD files into 3D previews" | [[cad-worker|CAD worker]], driven by [[wvs|Windchill Visualization Services (WVS)]] |
+      | "The list of preview jobs and how they went" | WVS Job Monitor |
+      | "Lakeside's local copy of the files" | A [[replica-vault|replica vault]] on the Lakeside [[file-server|file server]] |
+      | "Copying files to Lakeside on a timetable" | Content replication with a replication schedule |
+      | "The server's diary" | Method server and server manager logs |
+
+  - type: diagram
+    title: Where Monday's problems could be hiding
+    caption: Click each box. Something in this picture changed over the weekend.
+    diagram:
+      width: 820
+      height: 420
+      groups:
+        - { label: HQ, x: 20, y: 20, w: 470, h: 380, tone: neutral }
+        - { label: Lakeside plant, x: 560, y: 20, w: 240, h: 380, tone: info }
+      nodes:
+        - id: app
+          label: wc-app01
+          sublabel: Windchill server
+          x: 50
+          y: 60
+          w: 170
+          tone: primary
+          detail: |
+            The main Windchill server. Its [[method-server|method servers]] answer users and run the
+            [[background-queue|background queues]]. Each method server and the server manager write
+            their own log in the Windchill `logs` directory, for example a `MethodServer-<pid>-log4j.log`.
+          real: When remote users complain but HQ is fine, the main server is rarely the whole story. Check it anyway; it's where the logs and alerts live.
+        - id: queue
+          label: Publishing queue
+          sublabel: background queue
+          x: 50
+          y: 170
+          w: 170
+          tone: warning
+          detail: |
+            Visualization jobs wait here before a CAD worker converts them. Entries move through states
+            such as **Ready**, **Executing**, **Completed**, **Failed** and **Severe**. A **Severe** entry
+            means something unexpected happened while it ran, and it **stops the whole queue**.
+          real: One bad job can stop every thumbnail behind it. That's why the queue is on your daily check list.
+        - id: cad
+          label: wc-cad01
+          sublabel: CAD worker
+          x: 290
+          y: 170
+          w: 170
+          tone: accent
+          detail: |
+            The [[cad-worker|CAD worker]] does the actual conversion into lightweight Creo View
+            representations and thumbnails. Its jobs are visible in the **WVS Job Monitor**.
+        - id: vault
+          label: Master vault
+          sublabel: HQ file system
+          x: 290
+          y: 290
+          w: 170
+          shape: cylinder
+          tone: neutral
+          detail: |
+            The main copies of all content live in the HQ [[vault|vaults]]. Replication copies them on a
+            schedule to the remote file server.
+        - id: db
+          label: wc-db01
+          sublabel: database
+          x: 50
+          y: 290
+          w: 170
+          shape: cylinder
+          tone: neutral
+          detail: Metadata lives only here, in one database. The file server never stores metadata, only file content.
+        - id: fs
+          label: wc-fs-lakeside
+          sublabel: file server
+          x: 590
+          y: 170
+          w: 180
+          tone: success
+          detail: |
+            A Windchill file server: a subset of a full installation that only manages content. Its
+            [[replica]] vault holds copies of HQ files, so Lakeside users download them locally.
+          real: If the file a Lakeside user wants isn't in the replica yet, Windchill serves it from another site, which for Lakeside means across the slow WAN link.
+        - id: users
+          label: Lakeside users
+          sublabel: Ana's team
+          x: 590
+          y: 300
+          w: 180
+          shape: pill
+          tone: info
+          detail: Their preferred file server is wc-fs-lakeside. Metadata still comes from HQ; file content should come from next door.
+      edges:
+        - { from: app, to: queue, label: jobs }
+        - { from: queue, to: cad, label: publish }
+        - { from: app, to: db }
+        - { from: vault, to: fs, label: replication (WAN), dashed: true }
+        - { from: users, to: fs, label: content }
+        - { from: users, to: app, label: metadata, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Remote sites are where Windchill problems hurt first. PTC estimates that **downloading content
+      causes most user performance problems**, which is exactly why replication exists. When a
+      replica falls behind, the remote site quietly falls back to pulling files across the WAN, and
+      the first sign you get is a frustrated phone call, not an error message.
+
+  - type: walkthrough
+    title: "Step 1: Read the evidence before touching anything"
+    who: Rosa, site administrator
+    steps:
+      - title: Read the weekend's notification emails
+        md: |
+          Windchill reports problems through JMX notifications sent by email when it's set up
+          correctly: failed queue entries, queue load thresholds, memory and more. Rosa filters her
+          inbox for the weekend and finds a **failed entry** notification for a publishing queue, sent
+          on Saturday night.
+      - title: Open Queue Management
+        where: [Site, Utilities, Queue Management]
+        md: |
+          The table lists every queue with its **Status**, whether it's enabled, and counts of
+          **Total**, **Waiting** and **Severe/Failed** entries. One publishing queue shows **Stopped**,
+          with hundreds of waiting entries and one severe entry.
+      - title: Look inside the stopped queue
+        where: [Queue Management, "<publishing queue>", View Information]
+        md: |
+          On the queue's information page, sort the Queue Entries table by **Status**. The severe entry
+          is a publish job for the **Scooter S2 top-level assembly**, a huge, static assembly. Since
+          that entry went **Severe**, the queue has been stopped and every other job waits behind it.
+      - title: Confirm in the WVS Job Monitor and the logs
+        where: [Site, Utilities, WVS Job Monitor]
+        md: |
+          Switch the view to **Failed Jobs** and open the job's details; **Save Job Log** keeps a copy
+          for the report. Then check the method server log in the Windchill `logs` directory for the
+          same time stamp.
+      - title: Check the file server side
+        where: [Site, Utilities, File Server Administration, Vault Configuration]
+        md: |
+          Vault Configuration shows whether each vault is **Enabled**, **Read Only** or **Synchronized**.
+          The Lakeside replica vault is still marked **Read Only**. That flag was set for Saturday's
+          backup... and never cleared.
+    result: Two separate causes, one weekend. The publishing queue stopped on a severe entry, and the Lakeside replica vault was left read-only after the backup, so the weekend replication job failed.
+
+  - type: animation
+    title: Why Lakeside got slow
+    diagram:
+      width: 820
+      height: 300
+      nodes:
+        - { id: backup, label: Saturday backup, x: 30, y: 40, w: 170, tone: neutral }
+        - { id: ro, label: Replica set Read Only, x: 30, y: 180, w: 170, tone: warning }
+        - { id: job, label: Replication job, x: 320, y: 40, w: 170, tone: danger }
+        - { id: replica, label: Lakeside replica, x: 320, y: 180, w: 170, shape: cylinder, tone: neutral }
+        - { id: hq, label: HQ vault, x: 610, y: 40, w: 170, shape: cylinder, tone: neutral }
+        - { id: user, label: Lakeside user, x: 610, y: 180, w: 170, shape: pill, tone: info }
+      edges:
+        - { from: backup, to: ro }
+        - { from: ro, to: replica }
+        - { from: job, to: replica, dashed: true }
+        - { from: user, to: replica }
+        - { from: hq, to: user, label: WAN }
+    chapters:
+      - title: The backup protects the vault
+        caption: Rosa's runbook sets the vault **Read Only** during the backup, so files don't change while they're copied.
+        show: [backup, ro, replica]
+        highlight: [ro]
+        flow: [backup>ro, ro>replica]
+        seconds: 6
+      - title: Replication runs into a locked door
+        caption: A replication job that runs while the vault is read-only **fails** and tries again later. It keeps failing while the flag stays on.
+        show: [backup, ro, replica, job]
+        highlight: [job]
+        flow: [job>replica]
+        seconds: 6
+      - title: Monday morning
+        caption: Friday's new files never reached Lakeside. When a file isn't in the preferred replica, Windchill serves it from another site, so it crawls over the **WAN**.
+        highlight: [user, hq]
+        flow: [user>replica, hq>user]
+        seconds: 7
+
+  - type: scenario
+    variant: troubleshooting
+    title: "Step 2: Clear the stuck publishing queue"
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          The publishing queue is **Stopped** with one **Severe** entry (the Scooter S2 top-level
+          assembly) and hundreds of **Ready** entries behind it. Kai wants thumbnails back *now*.
+          What do you do first?
+        choices:
+          - label: Start the queue right away
+            next: s1a
+            feedback: The Ready entries would run, but you haven't decided what to do with the severe one yet. Decide first.
+          - label: Decide what to do with the severe entry, then start the queue
+            next: s2
+            good: true
+            feedback: Right. Failed and severe entries are yours to examine; for each one you decide to delete it or reset it.
+          - label: Restart the whole Windchill server
+            next: fail1
+            feedback: A restart throws away the evidence and fixes nothing. The queue would still hold a severe entry.
+      - id: s1a
+        md: |
+          The other jobs start flowing again, but the severe entry still sits in the queue. Later
+          someone resets it to Ready without thinking... and the big assembly fails again the same way.
+          You'll need to deal with it anyway.
+        choices:
+          - label: Go back and handle the severe entry properly
+            next: s2
+            good: true
+            feedback: Better late than never.
+      - id: s2
+        md: |
+          The job failed because the top-level assembly is enormous. It's static, rarely changes, and is
+          too big to publish comfortably. Resetting it to Ready as it is would just repeat the failure.
+          What's the lasting fix?
+        choices:
+          - label: In Publish and Thumbnail Control, set the assembly to publish as a positioning assembly, then resubmit it
+            next: s3
+            good: true
+            feedback: |
+              Exactly what positioning assemblies are for: huge, static top-level assemblies that fail
+              to publish normally. The worker then publishes just the structure file and links to the
+              sub-assemblies' own representations.
+          - label: Delete the entry and forget about it
+            next: s2b
+            feedback: The queue will run, but nobody will ever get a viewable for that assembly, and the next check-in brings the same failure back.
+      - id: s2b
+        md: Deleting it unblocks the queue but leaves the cause in place. Next time Priya checks in that assembly, the queue stops again.
+        outcome: partial
+      - id: s3
+        md: |
+          You add the assembly to the publish-controlled objects as a positioning assembly, delete the
+          severe entry, **start** the queue, and resubmit the failed job from the WVS Job Monitor.
+          The waiting entries drain, and thumbnails start appearing on Priya's Friday parts.
+        outcome: success
+      - id: fail1
+        md: A full restart takes Windchill away from everyone at HQ in the middle of the morning, and the queue comes back still holding its severe entry.
+        outcome: fail
+
+  - type: walkthrough
+    title: "Step 3: Get Lakeside back in sync"
+    who: Rosa, site administrator
+    where: [Site, Utilities, File Server Administration]
+    steps:
+      - title: Clear the read-only flag
+        where: [File Server Administration, Vault Configuration]
+        md: Select the Lakeside replica vault, choose **Object → Update**, clear **Read Only**, and click **OK**.
+      - title: Replicate now
+        where: [File Server Administration, Replication Scheduler]
+        md: |
+          Replication can run immediately or on a schedule. Run the Lakeside job now rather than waiting
+          for tonight's window. After a backup that set a vault read-only, a replication run is needed
+          anyway so the remote file server has all the right content.
+      - title: Check that it caught up
+        md: |
+          In the **System Configuration Collector**, the **Replication Status Report** shows jobs and
+          their status, and **Items Pending For Sync** lists objects still waiting for the replica.
+          When the list is empty, ask Ana's team to open the Scooter S2 drawings again.
+    result: Lakeside users download from their local file server again, and opening drawings is back to seconds.
+
+  - type: simulation
+    title: Monday-morning control room
+    intro: |
+      Fix both problems in a sensible order and send the incident report. Watch the log; some
+      buttons only make sense once you know what's going on.
+    headline: "Queue {queue} · severe entry {severe} · Lakeside vault {vault} · replication {replication}"
+    initial: { evidence: none, queue: Stopped, severe: open, vault: Read Only, replication: failed, report: none }
+    actions:
+      - id: read
+        label: Read alerts, Queue Management and Vault Configuration
+        when: { evidence: none }
+        do: [{ set: { evidence: found } }]
+        log: "Found it: publishing queue stopped by a severe entry; Lakeside replica vault still Read Only after the backup."
+      - id: positioning
+        label: Publish the big assembly as a positioning assembly and remove the severe entry
+        when: { evidence: found, severe: open }
+        do: [{ set: { severe: handled } }]
+        log: Publish control updated and the severe entry removed. The cause won't repeat on the next check-in.
+        blockedHint: Gather the evidence first, or it's already handled.
+      - id: reset
+        label: Reset the severe entry to Ready and start the queue
+        when: { queue: Stopped, severe: open }
+        do: [{ set: { queue: Stopped } }]
+        log: The same assembly fails the same way, goes Severe again and stops the queue again. Fix the cause first.
+        blockedHint: Nothing to reset.
+      - id: start
+        label: Start the publishing queue
+        when: { queue: Stopped, severe: handled }
+        do: [{ set: { queue: Running } }]
+        log: Queue running. Waiting entries drain and thumbnails reappear.
+        blockedHint: Handle the severe entry first.
+      - id: replicate-early
+        label: Run the Lakeside replication job
+        when: { vault: Read Only }
+        do: [{ set: { replication: failed } }]
+        log: The job fails again. A replica vault set to Read Only can't receive the files.
+        blockedHint: Not needed now.
+      - id: clear-read-only
+        label: Clear Read Only on the Lakeside replica vault
+        when: { evidence: found, vault: Read Only }
+        do: [{ set: { vault: Enabled } }]
+        log: Lakeside replica vault is writable again.
+        blockedHint: Gather the evidence first, or it's already done.
+      - id: replicate
+        label: Replicate to Lakeside now
+        when: { vault: Enabled, replication: failed }
+        do: [{ set: { replication: synchronized } }]
+        log: Replication complete. Items Pending For Sync is empty; Lakeside downloads locally again.
+        blockedHint: Clear the read-only flag first, or it's already in sync.
+      - id: report
+        label: Send the incident report
+        when: { queue: Running, replication: synchronized, report: none }
+        do: [{ set: { report: sent } }]
+        log: Report sent to Kai, Ana, Omar and Lena with causes, fixes and prevention steps.
+        blockedHint: Fix both problems before you report them as fixed.
+    goals:
+      - label: Thumbnails flowing again
+        when: { queue: Running }
+        message: Publishing queue running with the cause handled.
+      - label: Lakeside back in sync
+        when: { replication: synchronized }
+        message: Replica writable and replicated.
+      - label: Incident closed
+        when: { report: sent }
+        message: Both causes fixed and documented. That's a professional Monday.
+
+  - type: callout
+    variant: pitfall
+    title: The fix that becomes the next incident
+    md: |
+      Setting a vault **Read Only** for a backup is a legitimate choice. Forgetting to set it back is
+      the incident. Any temporary change in a backup runbook needs a matching "undo" step, followed by
+      a replication run, in the same runbook.
+
+  - type: callout
+    variant: pro-tip
+    title: Let the system tell you first
+    md: |
+      JMX can notify you on failed queue entries and on queue thresholds (total entries, waiting
+      Ready entries, and how long one entry takes to run). Tune those thresholds for your busiest
+      queues and route the emails to a mailbox someone actually reads at weekends.
+
+  - type: exercise
+    title: "Step 4: Write the incident report"
+    environment: paper
+    goal: |
+      Write a one-page incident report Kai, Ana, Omar and Lena can read in two minutes.
+    steps:
+      - "**Summary**: what users saw, which site, and for how long."
+      - "**Timeline**: backup start, vault set read-only, failed replication, severe publish entry, Monday call, each fix."
+      - "**Root causes**: the severe entry that stopped the publishing queue; the replica vault left read-only."
+      - "**Fixes applied**: positioning assembly + queue restart + resubmitted job; read-only cleared + replication run."
+      - "**Prevention**: add *clear read-only and replicate* to the backup runbook; review failed and severe queue entries on a weekly routine; keep the queue notification emails routed to the on-call admin; check Queue Management and Vault Configuration first thing after every maintenance weekend."
+      - "**Evidence**: the saved WVS job log, the queue information page, the Replication Status Report."
+    expected: |
+      A short report with two separate root causes, the evidence for each, and prevention steps that
+      change a process (the runbook, the routine, the alerting), not just "be more careful".
+
+  - type: quiz
+    title: Capstone check
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: What does a **Severe** queue entry do besides failing itself?
+        options: [Nothing else, It stops the queue it was executing in, It deletes the other entries, It restarts the method server]
+        answer: 1
+        explanation: An unexpected problem during execution sets the entry to Severe and stops its queue, so everything behind it waits until an administrator acts.
+      - kind: single
+        prompt: A Lakeside user opens a file that isn't in the Lakeside replica yet. What happens?
+        options: [The download fails with an error, Windchill serves it from another site according to the proximity list, The user must ask an admin to copy it, It is rebuilt by the CAD worker]
+        answer: 1
+        explanation: The replica is tried first; if the content isn't there, it comes from another site. For a remote plant that usually means across the slower WAN, which is why users feel it as "slow" rather than "broken".
+      - kind: truefalse
+        prompt: A replication job that runs while the target vault is Read Only fails and is attempted again later.
+        answer: true
+        explanation: That's why a backup runbook that sets vaults read-only must clear the flag afterwards and run replication.
+      - kind: order
+        prompt: Put Rosa's Monday in a sensible order.
+        items:
+          - Read alerts, Queue Management and Vault Configuration
+          - Handle the severe entry's cause and start the publishing queue
+          - Clear Read Only on the Lakeside replica vault
+          - Run replication to Lakeside and confirm nothing is pending
+          - Send the incident report with prevention steps
+        explanation: Evidence first, then each fix, then verification, then the report. The two fixes are independent, but both come after you know what you're fixing.
+      - kind: multi
+        prompt: Which prevention steps change the *process* so this can't silently repeat? (Choose all that apply.)
+        options: [Add "clear read-only, then replicate" to the backup runbook, Review failed and severe queue entries on a routine, Route queue notification emails to someone on call, Tell everyone to be more careful]
+        answers: [0, 1, 2]
+        explanation: The first three change what happens next time. "Be careful" changes nothing you can check.
+
+  - type: summary
+    points:
+      - Start with evidence - alerts, Queue Management, the WVS Job Monitor, Vault Configuration and the logs - before changing anything.
+      - A Severe entry stops its queue. Fix the cause (here, publishing a huge static assembly as a positioning assembly), then start the queue and resubmit.
+      - A replica vault left Read Only makes replication fail, and remote users silently fall back to downloading over the WAN.
+      - Every temporary change in a runbook needs its undo step, followed by a replication run after backups.
+      - A good incident report names each root cause, the evidence and process-level prevention.

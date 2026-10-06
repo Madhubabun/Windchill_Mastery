@@ -1,0 +1,66 @@
+# New glossary terms introduced in section m05-s05 (Maintenance, backup and recovery).
+- id: cold-backup
+  term: Cold backup
+  plain: A backup taken while everything is switched off, so nothing can change mid-copy.
+  definition: A backup made while the system is shut down and no transactions are running. For Windchill this means the web server, Windchill (server manager and method servers) and the database are stopped and nothing is modifying the directory server, then the home and data directories of each component, including the vault folders, are copied. It is the simplest and most stable way to get database, directory and vaults in step, but it needs planned downtime.
+  aka: [Offline backup]
+  related: [hot-backup, maintenance-window, vault, database]
+
+- id: hot-backup
+  term: Hot backup
+  plain: A backup taken while Windchill is still running for users.
+  definition: A backup made while the system stays available, in read-only or read-write mode. Because users and background processes can change the database, directory and vaults during the copy, a hot backup needs care to keep them consistent, for example pausing background queues and local content caching, using the database's own hot-backup technique and setting vaults read-only during the vault copy. Replication and failover systems are advanced forms of hot backup.
+  aka: [Online backup]
+  related: [cold-backup, vault-read-only-mode, background-queue, database]
+
+- id: recovery-point-objective
+  term: Recovery point objective (RPO)
+  plain: How much recent work the business can afford to lose in a disaster.
+  definition: A general IT term, not a Windchill setting. The RPO is the maximum acceptable age of the data you get back after a failure. An RPO of 24 hours means losing up to a day of check-ins is tolerable; a shorter RPO needs more frequent backups or a continuous record of changes, such as database archive or transaction logs plus mirrored vaults.
+  aka: [RPO]
+  related: [recovery-time-objective, disaster-recovery-runbook]
+
+- id: recovery-time-objective
+  term: Recovery time objective (RTO)
+  plain: How long the business can live without the system before it must be back.
+  definition: A general IT term, not a Windchill setting. The RTO is the maximum acceptable time from a failure until users can work again. It covers restoring every repository, rolling the database forward, checking consistency and testing, so it is only believable once a restore has actually been timed in a drill.
+  aka: [RTO]
+  related: [recovery-point-objective, disaster-recovery-runbook]
+
+- id: wcontentverify
+  term: WContentVerify
+  plain: A checker that confirms every file the database expects is really in the vault, at the right size.
+  definition: A command-line Java tool, launched from the Windchill Shell, that checks vault content against the metadata in the database. It reports missing vault directories, database records that point to content not found in the vault, and files whose size differs from what the database expects. Output is XML, can also be emailed to recipients, and names the business objects affected. Running it with -usage lists its options.
+  related: [vault, database, metadata]
+
+- id: vault-read-only-mode
+  term: Vault read-only mode
+  plain: A switch that stops Windchill writing new files into a vault while you copy it.
+  definition: A setting on a vault in the Vault Configuration utility (Object, Update, Read Only). While a local vault is read-only, new content that would have been vaulted is stored as BLOBs in the database instead and can be revaulted afterwards; while a remote cache or master vault is read-only, uploads go straight to the master site and a replication job should be run afterwards. Used to avoid file-access conflicts between Windchill and a backup tool.
+  related: [vault, hot-backup, replica]
+
+- id: system-health-kpi
+  term: System health KPI
+  plain: One number you watch every day that tells you whether Windchill is healthy.
+  definition: A key performance indicator for Windchill health, grouped by the web, application and database tiers plus the system and network underneath. Common ones include availability, user response time, background queue entry counts and processing time, Java heap use, garbage collection time, thread count, search response time, failed transaction rate, LDAP response time, CPU, disk space, disk I/O, latency and bandwidth. Companies can add their own.
+  aka: [KPI]
+  related: [performance-advisor, background-queue, method-server]
+
+- id: performance-advisor
+  term: Windchill Performance Advisor
+  plain: A PTC-hosted dashboard that turns your Windchill's diagnostic data into charts and advice.
+  definition: A dashboard powered by ThingWorx that shows an aggregated view of diagnostic data collected from your Windchill servers, with gadgets such as connected servers, clients, customization analysis, license usage, business object growth, recommendations and sizing recommendations. The data is sent to PTC, and a copy is kept under the Windchill installation's utilities folder. It is set up during installation or later from the site Utilities page, and viewing the dashboard needs a PTC global support account.
+  related: [thingworx, system-health-kpi]
+
+- id: maintenance-window
+  term: Maintenance window
+  plain: An agreed quiet time when admins may stop or change the system.
+  definition: A scheduled period, usually overnight or at the weekend, set aside for work that disturbs users or needs the system quiet - cold backups, patches already tested on a test system, index rebuilds, diagnostics and database maintenance jobs. Oracle's automatic maintenance tasks, for example, run in maintenance windows scheduled overnight.
+  related: [cold-backup, disaster-recovery-runbook]
+
+- id: disaster-recovery-runbook
+  term: Disaster recovery runbook
+  plain: The written, step-by-step plan for bringing Windchill back after a disaster.
+  definition: A company's own document listing who does what, in which order, to restore Windchill from backup - stopping components, restoring the database, directory and vaults to the same point, checking consistency, restarting and testing - with contacts, locations of backups and target RPO and RTO. It is only trustworthy once it has been rehearsed on a test or cloned system.
+  aka: [DR runbook, Recovery plan]
+  related: [recovery-point-objective, recovery-time-objective, cold-backup, hot-backup]

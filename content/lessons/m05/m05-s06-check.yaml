@@ -1,0 +1,111 @@
+id: m05-s06-check
+subtitle: Prove you can explain Acme's cluster, choose when to build one and predict what happens when a node fails.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, cluster, high-availability, checkpoint]
+sources:
+  - id: ac
+    where: "Module 11: Describe the monolithic (single-tiered) configuration; Describe the multi-tiered configuration; Describe the clustered configuration; Describe the Windchill server. Module 15: Compare Windchill configuration schemes; Describe the cluster configuration; thread dumps (Cluster-wide Stack Traces); Clean the caches. Module 16: background method servers in a clustered environment; high availability queue processing. Module 19: Server Status page in a cluster"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Installing and Configuring a Cluster Windchill Environment"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCAdvDeployGuide/WCAdvDepClusterConfig_ServerClustConfigOview.html"
+    covers: "Main cache node and failover; identical nodes vs dedicated main node clusters; load balancing router; client host and session affinity"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Advanced Windchill Configurations"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCAdvDeployGuide/WCAdvDepAdv_LoadBalMultMethodServers.html"
+    covers: "Round-robin balancing of initial client connections across method servers"
+  - id: trn-cluster
+    where: "Cluster nodes; Advantages of a cluster. Older release: used only where ac or the Help Center agrees"
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **clustering and high availability**: what each part of a cluster does, when a
+      cluster is the right call, how requests are balanced and what happens when something fails.
+      Score 80% to pass. Every answer explains itself.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: What is a Windchill cluster?
+        options: ["A group of Windchill servers, managed together, that clients reach as a single unit", A database with several replicas, A set of file vaults at different sites, Several method servers on one host]
+        answer: 0
+        explanation: A cluster is a group of Windchill servers that can be reached as one unit through a load balancer. Several method servers on one host is just a normal node with more engines.
+      - kind: multi
+        prompt: Which three advantages does the manual give for a cluster over a single server? (Choose all that apply.)
+        options: [Performance, Scalability, Reliability, Lower hardware cost]
+        answers: [0, 1, 2]
+        explanation: "Performance (less competition per node), scalability (add servers as load grows) and reliability (requests go to the remaining servers if one fails). Lower hardware cost is the monolithic layout's selling point."
+      - kind: single
+        prompt: Which statement about the database in a Windchill cluster is true?
+        options: [Each node has its own database copy, A single database stores the data for the entire cluster, The main cache node replaces the database, The load balancer caches the database]
+        answer: 1
+        explanation: All nodes share one database. That's why the database needs its own redundancy, for example a clustered database solution.
+      - kind: single
+        prompt: In a 13.1.2.0 identical-nodes cluster, how is the main cache node chosen?
+        options: [The administrator must set it on every restart, "By negotiation between server managers, generally the first node started", "By the load balancer, based on traffic", By the database]
+        answer: 1
+        explanation: The server managers negotiate the main cache role. In a dedicated main node cluster you name the main node instead.
+      - kind: truefalse
+        prompt: If the main cache node becomes unreachable, the remaining nodes can't sync caches until an administrator steps in.
+        answer: false
+        explanation: Another server manager automatically becomes the main server manager. When the former main returns, it takes secondary status.
+      - kind: single
+        prompt: Acme's Lakeside team sees random-looking session problems on a healthy cluster. The load balancer is set to plain round robin. What's the most likely cause?
+        options: [Too few method servers, No client host or session affinity at the load balancer, The database is too small, A missing file vault]
+        answer: 1
+        explanation: Windchill's servlet engines require client host or session affinity, so related requests keep reaching the node that holds the session data.
+      - kind: single
+        prompt: "A shop has 120 named users, is slow after tuning, can add one or two servers, and has no 24/7 or high availability need. What fits best?"
+        options: [A three-node cluster, A multi-tiered configuration, Stay monolithic, Windchill on each user's laptop]
+        answer: 1
+        explanation: This is the manual's own example for moving to a multi-tiered layout. Clustering is for when you need both scale and high availability.
+      - kind: order
+        prompt: Put a user's request through Acme's cluster in order.
+        items: [The client sends the request to the cluster name, The load balancer picks a node, The web server forwards it to that node, "The node's server manager has assigned the session to a method server, which does the work", The method server reads and writes the shared database]
+        explanation: One name, then the load balancer, then the web server, then a method server on the chosen node, which uses the one shared database.
+      - kind: single
+        prompt: A foreground method server on wc-app01 crashes, but the host is fine. What happens first?
+        options: [The whole cluster restarts, The server manager detects it and tries to restart it automatically, The load balancer deletes the node, The main cache moves to the database]
+        answer: 1
+        explanation: The server manager watches its method servers and restarts one that has died. Other nodes keep serving requests in the meantime.
+      - kind: multi
+        prompt: Which steps reduce the impact of losing one node? (Choose all that apply.)
+        options: [Run the same background queue group on background method servers on two nodes, Configure affinity on the load balancer, Practise failover in a test environment, Put all queues on the node most likely to be patched]
+        answers: [0, 1, 2]
+        explanation: Same queue group on two nodes is high availability queue processing. Affinity keeps sessions stable. Practising failover is on the manual's list of reasons to keep a test environment. Putting all queues on one node is a single point of failure.
+
+  - type: flashcards
+    title: Clustering and high availability
+    cards:
+      - front: Windchill cluster
+        back: Several Windchill servers that act as one, behind a load balancer and one common name, sharing one database and a caching mechanism.
+      - front: Load balancer (load balancing router)
+        back: Spreads client requests over the cluster's nodes and looks like a single Windchill server to the network.
+      - front: Main cache node
+        back: The node whose server manager keeps every node's cache in step. Older material says master or primary cache.
+      - front: Main cache failover
+        back: If the main cache node is unreachable, another server manager takes over automatically. The old one rejoins as secondary.
+      - front: Client host vs session affinity
+        back: Host affinity sends one client host to one node for a period of time and is easiest. Session affinity follows the session and is more precise.
+      - front: Balancing inside one node
+        back: The server manager shares initial client connections round robin over its method servers. An overloaded server can redirect a call.
+      - front: High availability queue processing
+        back: Running the same queue group on more than one background method server, so queues keep running if one node is down.
+      - front: The cluster's single point of failure
+        back: The shared database, and a single load balancer. Make them redundant separately.
+      - front: Monolithic vs multi-tiered vs clustered
+        back: "One box / tiers on separate hosts / several Windchill servers behind a load balancer."
+      - front: See every node at once
+        back: "Site → Utilities → Server Status shows processes on all machines in the cluster. Monitoring Tools → Cluster-wide Stack Traces covers every node."
+
+  - type: summary
+    points:
+      - A cluster is several Windchill servers acting as one, sharing a database and a cache kept in step by the main cache node.
+      - Cluster when you need both capacity and high availability. Otherwise split the tiers.
+      - The load balancer needs client host or session affinity. Inside a node, the server manager balances method servers.
+      - Node, method server and main cache failures are covered. The shared database is not.

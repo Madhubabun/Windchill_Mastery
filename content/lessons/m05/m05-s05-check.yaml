@@ -1,0 +1,94 @@
+id: m05-s05-check
+subtitle: Prove you can keep Acme's Windchill healthy, back it up consistently and bring it back after a disaster.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, maintenance, backup, recovery, checkpoint]
+sources:
+  - id: ac
+    where: "Module 17: Back up and recover Windchill data: overview; Identify types of backups; Perform a cold backup; Recover from a cold backup; Perform a hot backup; Suspend background queues; Describe Oracle Archive log mode; Back up and restore SQL Server; Back up file vaults; Rebuild replica vaults; Identify vault backup and recovery best practices; Generate vault backup information; Use the WContentVerify tool; Set Read Only mode for vaults"
+  - id: ac
+    where: "Module 19: Identify daily, weekly and monthly administrative tasks; Perform and verify scheduled system backup; Monitor system health using KPIs; Monitor system health using dashboards; Monitor server processes; Review Windchill Performance Advisor; Monitor system availability; Apply maintenance patches and updates; Maintain multiple Windchill environments"
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **maintenance, backup and recovery**: the maintenance rhythm, consistent backups,
+      RPO and RTO, hot and cold backups, vault tools and system health. Score 80% to pass. Every answer
+      explains itself, so a miss still teaches you something.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: Which daily task does PTC call the most critical?
+        options: [Checking system logs, Performing and verifying the scheduled system backup, Monitoring network health, Reviewing PTC support emails]
+        answer: 1
+        explanation: Backup verification comes first. No system should go to production until backup and recovery procedures are set up and validated.
+      - kind: single
+        prompt: A patch set fixes a critical issue. What is the right path to production?
+        options: [Apply it to production straight away, "Check compatibility, validate on a test system, back up, then apply in a maintenance window", Apply it during business hours so users can test it, Wait for the next major release]
+        answer: 1
+        explanation: Patches are checked against the software matrix, validated on a test system and applied to production in a maintenance window, after a backup.
+      - kind: multi
+        prompt: Which are primary repositories that must be in every Windchill backup? (Choose all that apply.)
+        options: [Database, LDAP directory server, Master and cache vaults, Search engine indexes, Windchill installation and configuration files]
+        answers: [0, 1, 2, 4]
+        explanation: Search indexes are secondary - rebuilt from primary data. The others hold original data that can't be recreated.
+      - kind: single
+        prompt: The business says "we can lose at most one hour of work". Which objective is that?
+        options: [Recovery point objective, Recovery time objective, Maintenance window, Baseline]
+        answer: 0
+        explanation: The RPO is how much data you may lose; the RTO is how long you may be down. Both are general IT targets, not Windchill settings.
+      - kind: single
+        prompt: Acme's Oracle database was set up with Windchill's Oracle Configuration Utility and never changed. Why can't it meet a one-hour RPO?
+        options: [Archive log mode is disabled so you can't roll forward past the last backup, The utility deletes backups after a day, Oracle can't be backed up while Windchill runs, The flash recovery area is mandatory]
+        answer: 0
+        explanation: The utility configures archive mode disabled. Archived redo logs are what let you roll the database forward to a point in time.
+      - kind: order
+        prompt: Put the hot backup steps in the course's order.
+        items: [Back up configuration files and pause queues and local content caching, Export the directory server, Take the database hot backup, Copy local then remote vaults, Restart queues and local content caching]
+        explanation: Pausing background work first and resuming it last minimises changes that could leave the repositories out of step.
+      - kind: truefalse
+        prompt: Setting a local vault read-only during its backup blocks users from checking in.
+        answer: false
+        explanation: Check-ins continue. Content that would have been vaulted is stored as BLOBs instead, and is revaulted after the vault is set back to normal.
+      - kind: single
+        prompt: After a restore, Rosa wants to know whether every file the database expects is in the vaults at the right size. Which tool?
+        options: [WinRU, Queue Management, WContentVerify, Performance Advisor]
+        answer: 2
+        explanation: WContentVerify checks for missing vault directories, missing content and size mismatches, naming the affected business objects.
+      - kind: single
+        prompt: During a recovery drill Rosa finds vault files no object points to. What does the course advise?
+        options: [Delete them immediately, Import them as new documents, Ignore them forever, Move them aside until their origin is confirmed]
+        answer: 3
+        explanation: Move, don't delete, so you can confirm where they came from before removing them permanently.
+      - kind: single
+        prompt: Where does Rosa enable Windchill Performance Advisor after installation?
+        options: ["Site → Utilities → Performance Advisor for PTC Windchill", Queue Management, The Vault Configuration window, The Server Status page's Monitoring Tools]
+        answer: 0
+        explanation: It is configured during installation or later from the site Utilities page. Data is sent to PTC, with a copy kept on your server.
+
+  - type: flashcards
+    title: Maintenance, backup and recovery deck
+    cards:
+      - front: Daily, weekly, monthly in one line each
+        back: "Daily: verify backup and watch the system. Weekly: vault and database housekeeping. Monthly: benchmarks, diagnostics, patches, test clone."
+      - front: Maintenance window
+        back: "An agreed quiet slot for disruptive work: cold backups, tested patches, index rebuilds."
+      - front: Cold backup
+        back: "Web server, Windchill, database and directory stopped; copy everything. Simple, consistent, needs downtime."
+      - front: Hot backup
+        back: "Taken while users work. Pause queues and caching, export LDAP, database hot backup, copy vaults, resume."
+      - front: RPO vs RTO
+        back: "RPO: how much data you may lose. RTO: how long you may be down."
+      - front: Archive log mode
+        back: "Oracle archives redo logs so the database can roll forward past the last backup. Strongly recommended for production."
+      - front: WContentVerify
+        back: "Windchill Shell tool checking vault content against database metadata; XML output, optional email."
+      - front: Vault read-only
+        back: "Local vault: new content to BLOBs, revault later. Remote vault: uploads to master site, replicate later."
+      - front: Restore phases
+        back: "Stop, restore one consistent set, start (DB and directory first), prove it."
+      - front: Performance Advisor
+        back: "ThingWorx-powered dashboard of diagnostic data sent to PTC; needs a PTC global support account."

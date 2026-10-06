@@ -1,0 +1,275 @@
+id: m05-s02-l04
+subtitle: Memory, garbage collection, caches and database connections. Find the real bottleneck, change one thing and prove it helped.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, performance, tuning, jvm, heap, garbage-collection, caches, database]
+sources:
+  - id: ac
+    where: "Module 15: Tune the Windchill server: overview; Configure the server heap sizes; Capture a Java thread dump for Windchill; Set the Windchill cache sizes; Set the database properties; Limit the search results; Optimize Java garbage collection; Determine the number of method servers; Optimize WAN performance"
+  - id: ac
+    where: "Module 19: Monitor server processes; Activity: Monitor Windchill system performance (Recent and Baseline values, Windchill Cache Statistics, Cluster-wide Stack Traces, Log Comment); Check performance using monitoring tools; Monitor the operating system; Execute performance benchmarks"
+versionNotes:
+  - versions: ["Windchill+"]
+    md: |
+      Windchill+ is delivered as software as a service; PTC runs and tunes its servers. JVM, cache and database
+      connection tuning as described here is for installations your company runs itself.
+
+blocks:
+  - type: text
+    md: |
+      Back to Monday's sticky Windchill. Rosa found a method server with its heap in the red and Recent far above
+      Baseline. Kai's suggestion: *"Just give it more memory!"* Omar's suggestion: *"It's always the database."*
+
+      Maybe. Tuning is a tempting place to guess. This lesson gives Rosa the map of where Windchill spends memory,
+      threads and database connections, and a habit that separates tuning from guessing: **set a goal, measure,
+      change one thing, measure again.**
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the memory a Java process uses for its objects" → [[java-heap|Java heap]]
+      - "Java's automatic clean-up of unused objects" → [[garbage-collection|garbage collection (GC)]]
+      - "a snapshot of what every thread is doing right now" → [[thread-dump|thread dump]] (thread stack trace)
+      - "data kept in memory so Windchill doesn't ask the database again" → a *cache* (a *hit* is found, a *miss* isn't)
+      - "the method server's open lines to the database" → *database connections* (JDBC)
+
+  - type: diagram
+    title: Where the memory and connections go on wc-app01
+    caption: Every box is a JVM with its own heap, and every method server holds its own database connections. Click to explore.
+    diagram:
+      width: 820
+      height: 440
+      groups:
+        - { label: "wc-app01 physical memory", x: 20, y: 20, w: 560, h: 400, tone: neutral }
+        - { label: Database tier, x: 610, y: 20, w: 190, h: 400, tone: accent }
+      nodes:
+        - id: os
+          label: Operating system
+          sublabel: reserved memory
+          x: 40
+          y: 60
+          w: 160
+          tone: neutral
+          detail: The operating system and anything else on the host need memory too. Never allocate more total heap to Windchill's JVMs than the machine actually has.
+        - id: sm
+          label: Server manager
+          sublabel: own heap
+          x: 40
+          y: 170
+          w: 160
+          tone: primary
+          detail: "Heap set by `wt.manager.minHeap` and `wt.manager.maxHeap`. A JVM of its own; it starts the method servers."
+        - id: bg
+          label: Background MS
+          sublabel: own heap
+          x: 40
+          y: 280
+          w: 160
+          tone: primary
+          detail: "The background method server's heap equals the method server heap by default. Set `wt.method.bg.minHeap` and `wt.method.bg.maxHeap` only if it needs a different size."
+        - id: ms1
+          label: Method server 1
+          sublabel: heap shared with Tomcat
+          x: 240
+          y: 60
+          w: 310
+          tone: primary
+          detail: |
+            Heap set by `wt.method.minHeap` and `wt.method.maxHeap`. The Tomcat servlet engine runs as threads
+            **inside** the method server, so one heap is shared by both. Contains Windchill's caches
+            (principals, access control lists, domains, sessions and many more).
+          real: The more live objects the heap holds, the longer each garbage collection pause, and users feel those pauses.
+        - id: ms2
+          label: Method server 2
+          sublabel: heap shared with Tomcat
+          x: 240
+          y: 170
+          w: 310
+          tone: primary
+          detail: "`wt.manager.monitor.start` sets how many method servers the server manager starts. Each one is a separate JVM with its own heap, caches and database connections, so each extra method server costs memory."
+        - id: cache
+          label: Caches in each MS
+          sublabel: hits vs misses
+          x: 240
+          y: 280
+          w: 310
+          tone: info
+          detail: |
+            Caches should be big enough to avoid repeated database queries. A high ratio of **misses to hits**
+            usually means a cache is too small. Check them on Monitoring Tools → **Windchill Cache Statistics**,
+            which shows each cache's entries, capacity, hits and misses.
+        - id: db
+          label: Database
+          sublabel: wc-db01
+          x: 630
+          y: 170
+          w: 150
+          tone: accent
+          shape: cylinder
+          detail: |
+            Each method server keeps between `wt.pom.minDbConnections` (default 5) and `wt.pom.maxDbConnections`
+            (default 15) connections open. More connections allow more statements to run in parallel. Each
+            connection also has a JDBC statement cache (`wt.pom.statementCacheSize`, default 50).
+      edges:
+        - { from: sm, to: ms1, label: starts }
+        - { from: sm, to: ms2 }
+        - { from: ms1, to: db, label: "5–15 conns" }
+        - { from: ms2, to: db, label: "5–15 conns" }
+        - { from: bg, to: db, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Tuning by instinct is how systems end up with huge heaps that make garbage collection pauses longer, or
+      dozens of method servers fighting over CPU. Every change has a cost somewhere else. A clear goal and
+      before-and-after numbers are what let Rosa tell Kai *"it's fixed"* and mean it.
+
+  - type: text
+    md: |
+      **Start with the goal, not the knob**
+
+      PTC's guidance is to decide what you're tuning for before you touch anything:
+
+      | Goal | Where to look first |
+      | --- | --- |
+      | More total throughput | The whole configuration: number of method servers, heap sizes, cache sizes, database connections |
+      | Faster response for one transaction | That transaction, for example wildcard search queries |
+      | A general "everything is slow" problem | Disk, memory, CPU and network use |
+
+      Signs to watch for on the Server Status page and in the operating system:
+      - **Memory:** heap in use staying high; time in garbage collection above about **5%**.
+      - **Threads:** active threads above their threshold; a thread dump shows what they're stuck on.
+      - **Database connections:** time **in JDBC connection wait** rising (method servers queueing for a connection).
+      - **Host:** CPU averaging well over 40–60% with peaks above 80%, or physical memory peaking above 80%.
+
+  - type: text
+    md: |
+      **Garbage collection threads: the arithmetic**
+
+      Several JVMs share the same CPUs, and during a full garbage collection each JVM uses parallel threads.
+      Too many and they fight each other. The rule the course gives: **CPU cores ÷ number of JVMs, drop the
+      decimal, no more than 8 and no fewer than 1.**
+
+      Example: 24 cores and 5 JVMs (one server manager, three method servers, one background method server) →
+      24 ÷ 5 = 4.8 → **4** threads. The [[windchill-configuration-assistant|Windchill Configuration Assistant]]
+      asks for this value, and PTC recommends WCA for heap sizes and cache sizes too (lesson 6).
+
+  - type: callout
+    variant: note
+    title: Capturing a thread dump
+    md: |
+      When Windchill seems to hang or slows down under load, a [[thread-dump|thread dump]] shows where threads are
+      stuck: deadlock, memory pressure or contention. Ways to get one:
+      - **Server Status → Monitoring Tools → Cluster-wide Stack Traces** (all server managers and method servers on every node), or the link for one method server.
+      - In a Windchill Shell: `windchill wt.util.jmx.GetClusterStacks > cluster_stacks.txt`
+      - A JMX client such as JConsole or VisualVM, or standard Java or operating system commands.
+
+      Take two or three a short time apart. A thread stuck in the same place each time is a strong lead.
+
+  - type: example
+    variant: case-study
+    title: The Monday morning heap
+    industry: Micromobility
+    md: |
+      **Goal.** Rosa writes it down first: *"Average response time during 8:00–10:00 back under the level we see
+      on a normal Tuesday."* The Baseline column and last month's graphs give her that number.
+
+      **Measure.** On Monday the Server Status page shows one method server with heap in the red, time in garbage
+      collection well above 5% and rising time in JDBC connection wait. Windchill Cache Statistics shows the
+      principal cache with many more misses than the others. A thread dump shows many threads waiting on database calls.
+
+      **Think.** Acme added 300 users at the Lakeside plant last month. More users means more principals (users and
+      groups) to cache, more sessions and more concurrent database work. Nobody re-ran the Windchill Configuration
+      Assistant after the change, even though PTC recommends it after major changes in users, groups or contexts.
+
+      **Change one thing.** In the next maintenance window Rosa re-runs WCA, reviews its proposed heap, cache and
+      connection values, adds a **Log Comment** ("WCA re-run after Lakeside onboarding") and restarts.
+
+      **Measure again.** The following Monday she compares the same numbers. Garbage collection time is back under
+      5%, connection wait is low, response time matches the Tuesday baseline.
+    takeaway: Goal, numbers, one change, the same numbers again. The comment in the log makes the story easy to follow later.
+
+  - type: scenario
+    variant: what-if
+    title: '"Just give it more memory"'
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Heap is in the red on one method server and users say search is slow. Kai wants Rosa to double
+          `wt.method.maxHeap` tonight. wc-app01 already runs a server manager, three method servers and a
+          background method server. What does Rosa do first?
+        choices:
+          - label: Check total memory first - heaps of all JVMs plus the OS must fit in physical RAM
+            next: s2
+            good: true
+            feedback: Right. Each method server is its own JVM. Doubling one setting multiplies across all of them.
+          - label: Double it now; more memory can't hurt
+            next: fail1
+            feedback: It can, if the machine doesn't have it.
+      - id: s2
+        md: |
+          The numbers say doubling would overcommit the host. Rosa looks closer: time in garbage collection is high,
+          and Top SQL Sample Intervals shows one search query returning huge result sets. What next?
+        choices:
+          - label: Check the search and query limits - a huge result set fills the heap
+            next: s3
+            good: true
+            feedback: Good. Unbounded queries cost database work, method server memory and garbage collection.
+          - label: Add two more method servers instead
+            next: partial1
+            feedback: More JVMs means more memory and more garbage collection threads competing for CPU.
+      - id: s3
+        md: |
+          `wt.pom.queryLimit` is still at its default of -1 (no limit). The course recommends setting it to a value
+          high enough for every realistic result, for example 20,000, so one runaway query can't destabilise the
+          system. Rosa plans the change with xconfmanager, a Log Comment and a restart, and books a measurement for the
+          next busy morning.
+        outcome: success
+      - id: partial1
+        md: |
+          Things improve a little for a day, then the host starts paging memory to disk and everything gets slower.
+          Rosa rolls back and starts measuring properly.
+        outcome: partial
+      - id: fail1
+        md: |
+          After the restart the operating system runs short of memory. The server is slower than before, and the
+          real cause (an unbounded search) is still there.
+        outcome: fail
+
+  - type: callout
+    variant: note
+    title: Three limits that protect the heap
+    md: |
+      - `com.ptc.windchill.search.queryLimit` limits search results (default 5000). Lower can be faster but may
+        hide results; users see a message when results are incomplete.
+      - `wt.pom.paging.snapshotQueryLimit` limits paged queries, such as browsing a very large folder. Keep it lower
+        than `wt.pom.queryLimit`.
+      - `wt.pom.queryLimit` limits nearly every database query (default -1, no limit). Over the limit, Windchill returns
+        a truncated result wrapped in an exception.
+
+      The search limit overrides the paging limit; if neither is set, `wt.pom.queryLimit` applies.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Changing five things at once.** If Rosa raises the heap, adds a method server, grows three caches and
+      changes database connections in one window, and things improve (or get worse), she can't tell which change
+      did it. One change per measurement cycle, written down with a Log Comment.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      For the Lakeside plant, slowness can be the **WAN**, not the server. The course lists remote file servers with
+      replicated content, WAN accelerators, and traffic prioritisation as the levers for distant sites, and PTC
+      recommends a remote file server for every location that manages CAD data. Check where the slowness is before
+      tuning the JVMs at HQ.
+
+  - type: summary
+    points:
+      - Decide the tuning goal first; throughput, one transaction and general slowness point to different knobs.
+      - Each server manager, method server and background method server is a JVM with its own heap; Tomcat shares the method server heap. All heaps must fit in physical memory.
+      - "Watch time in GC (under about 5%), heap in use, JDBC connection wait and cache misses; take thread dumps when things hang."
+      - "GC threads per JVM: cores ÷ JVMs, rounded down, between 1 and 8. Use WCA for heap and cache sizes."
+      - Set query limits so one runaway query can't take down the system. Change one thing, then measure again.

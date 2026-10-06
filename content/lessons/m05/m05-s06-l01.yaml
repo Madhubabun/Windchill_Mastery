@@ -1,0 +1,356 @@
+id: m05-s06-l01
+subtitle: One web address, several Windchill servers behind it. Here's who does what in a cluster, and when Acme actually needs one.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, architecture, cluster, high-availability, scalability]
+sources:
+  - id: ac
+    where: "Module 11: Describe the Windchill architecture; Describe the web server; Describe the Windchill server; Describe the monolithic (single-tiered) configuration; Describe the multi-tiered configuration; Describe the clustered configuration. Module 15: Compare Windchill configuration schemes; Describe the cluster configuration; thread dumps (Cluster-wide Stack Traces); Clean the caches. Module 16: background method servers in a clustered environment; embedded Tomcat with Solr on a single background method server. Appendix A: CAD worker sizing (dedicated cluster node for back-end processing)"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Installing and Configuring a Cluster Windchill Environment"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCAdvDeployGuide/WCAdvDepClusterConfig_ServerClustConfigOview.html"
+    covers: "Main cache node and cache clients; main server manager chosen by negotiation (generally the first node started); identical nodes cluster vs dedicated main node cluster; background queue processing on the main nodes in a dedicated main cluster; router appears as a single Windchill server; wt.cache.main.hostname and wt.cache.main.secondaryHosts"
+  - id: trn-cluster
+    where: "Cluster nodes (load balancer, slave nodes, cluster master); Advantages of a cluster; Windchill caching characteristics. Older release, master/slave naming: used only where ac or the Help Center agrees"
+versionNotes:
+  - versions: ["13.1.2.0"]
+    md: |
+      The 13.1.2.0 Help Center calls the cache coordinator the **main cache** (main server manager) and the
+      other nodes **cache clients** or secondary nodes, with properties such as `wt.cache.main.hostname`.
+      The 13.0.2.0 course manual says **primary cache**. Older training material says **master** and
+      **slave** and shows `wt.cache.master.*` property names. Same idea, newer names: use the names your
+      release's documentation uses.
+  - versions: ["windchill-plus"]
+    md: |
+      Windchill+ is delivered as software as a service, so PTC runs the servers. The course material doesn't
+      describe how Windchill+ is laid out internally, so planning and running a cluster is an on-premises
+      (or customer-managed cloud) task.
+
+blocks:
+  - type: text
+    md: |
+      Acme Mobility started with one Windchill server, **wc-app01**. Then E-Bike E1 launched, the Lakeside
+      plant came online and Kai's team doubled. Now every restart of wc-app01 means *everyone* stops working,
+      and Monday mornings feel like rush hour on a one-lane road.
+
+      Rosa's idea: add **wc-app02** and let both servers share the work, behind **one** web address. Users
+      never learn there are two servers. That's a **cluster**. Before Rosa orders hardware, she needs to know
+      what each box in a cluster does, and whether Acme really needs one.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "several Windchill servers that act like one" → [[windchill-cluster]]
+      - "one server inside the cluster" → [[cluster-node]]
+      - "the traffic cop at the front door" → [[load-balancer]] (the course manual says *load balancing router*)
+      - "the node that keeps everyone's cache in step" → [[master-node|main cache node]]
+      - "the engine that does the work on each node" → [[method-server]], supervised by the [[server-manager]]
+      - "staying up when a part breaks" → [[high-availability]] and [[failover]]
+
+  - type: diagram
+    title: Acme's two-node cluster
+    caption: Click each box. Users only ever see one name; everything right of the load balancer is the cluster.
+    diagram:
+      width: 900
+      height: 440
+      groups:
+        - { label: "The cluster (one name: wc-cluster)", x: 160, y: 20, w: 560, h: 400, tone: neutral }
+        - { label: Shared data tier, x: 735, y: 20, w: 150, h: 400, tone: info }
+      nodes:
+        - id: users
+          label: Users
+          sublabel: browser · Creo · WGM
+          x: 15
+          y: 190
+          w: 130
+          shape: pill
+          tone: accent
+          detail: |
+            Priya in a browser, Kai in Creo, a [[workgroup-manager]] session at Lakeside. They all type or use
+            the same address. They never pick a server and never need to know how many there are.
+        - id: lb
+          label: Load balancer
+          sublabel: wc-cluster
+          x: 175
+          y: 190
+          w: 140
+          tone: primary
+          detail: |
+            The [[load-balancer]] takes each request and hands it to one of the Windchill servers behind it.
+            To the rest of the network it looks like a **single Windchill server**. The nodes share one
+            common DNS name, so clients keep coming back to the cluster rather than to one machine.
+          real: It can be a hardware switch or software. The course material doesn't tie Windchill to one product.
+        - id: web
+          label: wc-web01
+          sublabel: web server
+          x: 340
+          y: 190
+          w: 140
+          tone: neutral
+          detail: |
+            The [[web-server]] in front of the application servers. One web server can serve several
+            application servers (one-to-many), or each node can have its own (one-to-one). Large clusters
+            often use two web servers in front of three or more application servers. The choice is usually
+            driven by **security** requirements more than by physical need.
+        - id: app1
+          label: wc-app01
+          sublabel: main cache · queues
+          x: 510
+          y: 60
+          w: 190
+          h: 70
+          tone: success
+          detail: |
+            A [[cluster-node]]. Its [[server-manager]] currently holds the **main cache** role: it keeps the
+            caches on every node in step. Rosa also runs the background method server here, so queue work
+            (publishing, notifications) has its own machine, which the manual lists as an advantage of
+            background method servers in a cluster.
+          real: In an identical-nodes cluster any node can become the main cache. Generally it's the first node started.
+        - id: app2
+          label: wc-app02
+          sublabel: cache client
+          x: 510
+          y: 300
+          w: 190
+          h: 70
+          tone: success
+          detail: |
+            Another [[cluster-node]]: its own server manager and foreground [[method-server|method servers]]
+            with the embedded servlet engine. It works like a normal Windchill server, except that it
+            **shares the database and the caching mechanism** with the other nodes.
+        - id: db
+          label: wc-db01
+          sublabel: one database
+          x: 750
+          y: 60
+          w: 120
+          h: 70
+          shape: cylinder
+          tone: warning
+          detail: |
+            **A single database stores the data for the entire cluster.** Every node reads and writes the same
+            data. That's why a node can be swapped out but the database can't, unless Omar uses a clustered
+            database solution, which the manual mentions as a way to make the database more reliable too.
+        - id: ldap
+          label: Directory
+          sublabel: LDAP
+          x: 750
+          y: 300
+          w: 120
+          h: 70
+          shape: cylinder
+          tone: neutral
+          detail: The [[ldap]] [[directory-server]] that holds users and groups. The course manual lists it as one of the segments of a typical cluster.
+      edges:
+        - { from: users, to: lb, label: one address }
+        - { from: lb, to: web }
+        - { from: web, to: app1 }
+        - { from: web, to: app2 }
+        - { from: app1, to: app2, label: cache sync, dashed: true, bidirectional: true }
+        - { from: app1, to: db }
+        - { from: app2, to: db }
+        - { from: app2, to: ldap }
+
+  - type: animation
+    title: One click, one trip through the cluster
+    caption: Follow Priya's search from her browser to the database and back.
+    diagram:
+      width: 900
+      height: 440
+      groups:
+        - { label: "The cluster (one name: wc-cluster)", x: 160, y: 20, w: 560, h: 400, tone: neutral }
+        - { label: Shared data tier, x: 735, y: 20, w: 150, h: 400, tone: info }
+      nodes:
+        - { id: users, label: Priya, sublabel: browser, x: 15, y: 190, w: 130, shape: pill, tone: accent }
+        - { id: lb, label: Load balancer, sublabel: wc-cluster, x: 175, y: 190, w: 140, tone: primary }
+        - { id: web, label: wc-web01, sublabel: web server, x: 340, y: 190, w: 140, tone: neutral }
+        - { id: app1, label: wc-app01, sublabel: main cache · queues, x: 510, y: 60, w: 190, h: 70, tone: success }
+        - { id: app2, label: wc-app02, sublabel: cache client, x: 510, y: 300, w: 190, h: 70, tone: success }
+        - { id: db, label: wc-db01, sublabel: one database, x: 750, y: 60, w: 120, h: 70, shape: cylinder, tone: warning }
+        - { id: ldap, label: Directory, sublabel: LDAP, x: 750, y: 300, w: 120, h: 70, shape: cylinder, tone: neutral }
+      edges:
+        - { from: users, to: lb }
+        - { from: lb, to: web }
+        - { from: web, to: app1 }
+        - { from: web, to: app2 }
+        - { from: app1, to: app2, label: cache sync, dashed: true, bidirectional: true }
+        - { from: app1, to: db }
+        - { from: app2, to: db }
+        - { from: app2, to: ldap }
+    chapters:
+      - title: One address
+        caption: Priya searches for EB-10021. Her browser talks to **wc-cluster**, which looks like a single Windchill server.
+        show: [users, lb]
+        highlight: [users]
+        flow: [users>lb]
+        seconds: 5
+      - title: The load balancer picks
+        caption: The [[load-balancer]] hands the request on. It decides which node gets the work; Priya never knows.
+        show: [users, lb, web, app1, app2]
+        highlight: [lb]
+        flow: [lb>web]
+        seconds: 6
+      - title: A node does the work
+        caption: This time **wc-app02** gets it. Its [[server-manager]] has already given Priya's session to one of its [[method-server|method servers]].
+        show: [users, lb, web, app1, app2]
+        highlight: [app2]
+        flow: [web>app2]
+        seconds: 6
+      - title: Same data everywhere
+        caption: wc-app02 queries **the** database, the same one wc-app01 uses. One database holds the data for the whole cluster.
+        show: [users, lb, web, app1, app2, db, ldap]
+        highlight: [db]
+        flow: [app2>db]
+        seconds: 6
+      - title: Caches stay in step
+        caption: When something cached changes on one node, the server managers pass it through the **main cache** on wc-app01, so wc-app02 never serves stale data.
+        highlight: [app1, app2]
+        flow: [app2>app1, app1>app2]
+        seconds: 7
+      - title: The answer goes home
+        caption: The result flows back the same way. To Priya it was just one fast search on "Windchill".
+        highlight: [users]
+        flow: [app2>db, web>app2, lb>web, users>lb]
+        seconds: 6
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      The manual sums up a cluster in three words: **performance, scalability, reliability**.
+      Performance, because each node's processes compete with fewer others. Scalability, because when load
+      grows you add another Windchill server. Reliability, because when one server fails, requests can go to
+      the ones still running. The manual places clusters in large implementations, up to thousands of users on a
+      global scale, where one server going down costs real money.
+
+  - type: comparison
+    title: Three ways to lay out Windchill
+    columns: [Monolithic, Multi-tiered, Clustered]
+    rows:
+      - label: What runs where
+        cells: ["Everything on one host: Windchill, web server, database", "Tiers split across hosts, for example database on its own server", "Several Windchill servers behind a load balancer, one shared database"]
+      - label: Typical use
+        cells: ["Development, test, small installations", "Most production systems", "Large implementations"]
+      - label: Size guidance from the manual
+        cells: ["PTC doesn't typically recommend it beyond about 100 named users", "Recommended for all production: separate web and application server from the database", "Chosen for scale and fault tolerance rather than a user count"]
+      - label: If one Windchill server dies
+        cells: ["Windchill is down until it restarts", "Windchill is down until it restarts", "Other nodes keep serving requests"]
+      - label: Grow by
+        cells: ["Adding RAM, CPU, I/O to the one box", "Scaling each tier up or out", "Adding more Windchill servers"]
+      - label: Admin effort
+        cells: ["Lowest", "Medium", "Highest: load balancer, node properties, cache roles, every node to maintain"]
+    takeaway: "Clustering is the answer to 'we need more capacity and we can't afford downtime', not to 'it's a bit slow'."
+
+  - type: text
+    md: |
+      **How to choose.** The manual gives a neat test case. A small single-server installation grows to
+      120 named users and gets slow. It has been tuned and given more RAM and I/O. It can add only one or two
+      servers, doesn't need 24/7 failover or high availability, and must keep data on-premises. The answer
+      there is **multi-tiered**, not a cluster. Moving the database to its own server alone gave about 30%
+      more performance in PTC's sample multi-user workloads.
+
+      Cluster when you need **both** more capacity than one application server can give **and**
+      [[high-availability]]: users who can't stop when a server is patched or crashes.
+
+  - type: scenario
+    variant: challenge
+    title: Rosa's architecture call
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Today Acme has about 90 named users on one monolithic server. Kai says things are getting slow.
+          Nobody works nights, and a short outage now and then is acceptable. What should Rosa propose first?
+        choices:
+          - label: Split the tiers. Move the database to wc-db01
+            next: s2
+            good: true
+            feedback: Right. PTC recommends separating the database for production, and it is the cheapest big win.
+          - label: Build a three-node cluster right away
+            next: over
+            feedback: That buys failover Acme doesn't need yet, plus a lot of admin work.
+          - label: Keep the single server and just add RAM forever
+            next: stuck
+            feedback: Tuning helps, but the database and Windchill keep competing for the same box.
+      - id: s2
+        md: |
+          Two years later: 600 users, the Lakeside plant runs two shifts, and a 20-minute restart on a weekday
+          stops a production line. One Windchill server is at its limit even after tuning. Now what?
+        choices:
+          - label: Cluster wc-app01 and wc-app02 behind a load balancer
+            next: win
+            good: true
+            feedback: Now Acme needs both capacity and staying up. That's exactly what a cluster is for.
+          - label: Buy a bigger single server
+            next: half
+            feedback: More capacity, but a crash or patch still takes everyone down.
+      - id: win
+        md: |
+          Rosa designs a two-node cluster sharing wc-db01, with the background queues on one node. Next lesson:
+          what the load balancer does when a node dies.
+        outcome: success
+      - id: half
+        md: Faster, yes. But when that big server is patched on a Tuesday, Lakeside still stops. Capacity without high availability.
+        outcome: partial
+      - id: over
+        md: The cluster works, but Rosa now maintains a load balancer and three nodes for 90 users who were happy with a short outage. Over-engineered.
+        outcome: fail
+      - id: stuck
+        md: Performance keeps sliding, because the database and Windchill fight for the same CPUs and memory.
+        outcome: fail
+
+  - type: example
+    variant: real-world
+    title: The visualization node
+    industry: Micromobility
+    md: |
+      A company like Acme ran a dozen CAD workers publishing viewables for every check-in. Publishing load
+      made the user-facing server sluggish. The manual's advice for installations like that is a
+      **dedicated cluster node** for back-end processing. That can be as simple as one foreground server
+      for users and one back-end server for the queue work. Their "cluster" was mainly about
+      separating work, not about hundreds of users.
+    takeaway: A cluster can be about separating kinds of work, not only about raw user count.
+
+  - type: callout
+    variant: pitfall
+    title: "\"We're clustered, so nothing can take us down\""
+    md: |
+      The nodes are redundant. **The database is not**: one database stores the data for the whole cluster.
+      If wc-db01 stops, every node stops. Same for the load balancer if there's only one of it. List your
+      single points of failure. The manual mentions clustered databases, and web servers behind a load
+      balancing switch, as ways to add redundancy to those tiers too.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Think "cluster-wide" for routine jobs. When Rosa cleans the caches on a cluster, she stops services
+      on **all** nodes, not just one. Only **one** background method server in the whole system, across
+      all clusters, should run the embedded Tomcat with the Solr search application. Disable it on the others.
+
+  - type: quiz
+    questions:
+      - kind: multi
+        prompt: Which of these do the nodes of a Windchill cluster share? (Choose all that apply.)
+        options: [One database, A caching mechanism kept in step by the server managers, One common DNS name for clients, One single method server]
+        answers: [0, 1, 2]
+        explanation: Nodes share the database, the caching mechanism and the cluster's name. Each node runs its own server manager and method servers. That's the point of having several.
+      - kind: single
+        prompt: In a 13.1.2.0 identical-nodes cluster, which node becomes the main cache?
+        options: [Always the node with the most RAM, "The one chosen by negotiation between server managers, generally the first node started", The load balancer, The database server]
+        answer: 1
+        explanation: Server managers negotiate the main cache role, usually landing on the first node started. In a dedicated main node cluster the admin names the main node instead.
+      - kind: single
+        prompt: "150 named users, slow, already tuned, can add one server, no 24/7 requirement. What does the manual's reasoning suggest?"
+        options: [A cluster, A multi-tiered configuration, Stay monolithic, Move to more method servers on the same box]
+        answer: 1
+        explanation: Without a need for failover or high availability, splitting the tiers (especially moving the database off) is the right step. Cluster when you need capacity and high availability.
+
+  - type: summary
+    points:
+      - A Windchill cluster is several Windchill servers that act as one, behind a load balancer and one common name.
+      - Each node runs its own server manager and method servers but shares one database and a caching mechanism.
+      - One server manager holds the main cache role and keeps every node's cache in step. 13.1.2.0 calls it main cache, older material says master or primary cache.
+      - "Clusters give performance, scalability and reliability, at the cost of more admin work."
+      - Choose a multi-tiered layout for growth without 24/7 needs. Cluster when you need capacity and high availability.
+      - The shared database and a single load balancer remain single points of failure unless you make them redundant too.

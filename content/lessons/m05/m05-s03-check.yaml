@@ -1,0 +1,103 @@
+id: m05-s03-check
+subtitle: Prove you can decide where Acme's files live, get them to Lakeside fast and keep the vaults tidy.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, file-vaults, replication, checkpoint]
+sources:
+  - id: ac
+    where: "Module 14: file vault types, vaulting strategies, forcing a single vault, automatic folder creation, file threshold, default system target vault, cache vault, domains and vaulting rules, revaulting, maintaining vaults, removing unreferenced files"
+  - id: ac
+    where: "Appendix A: content replication, file servers, central vs remote vaulting, proximity list, preferred file server, ad hoc and local replication, file server installation and registration, replica vaults, replication rules and schedules, replication properties"
+  - id: ac
+    where: "Module 19: weekly tasks (BLOBs not vaulted, unreferenced files), automatic replica vault cleanup, unreferenced file report"
+  - id: trn-config
+    where: "Configuring File Vaults for External Storage; Creating Vaulting Rules; Configuring Replication Vaults; Creating Replication Rules; Installing the File Server (older release; used only where the 13.0 course manual agrees)"
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **file vaulting and replication**: vault types and rules, revaulting, file servers,
+      replication versus caching, and safe cleanup. Score 80% to pass. Every answer explains itself.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: Where does Windchill keep a vaulted document's metadata?
+        options: [In the vault next to the file, In the database, which points to the file, In the cache vault only, On the file server]
+        answer: 1
+        explanation: Vaulting moves only the file content outside the database. Metadata stays in the database and links to the file.
+      - kind: single
+        prompt: Acme has no need to separate content. What vault design does PTC recommend?
+        options: [One vault per product, One vault for all content, A vault per life cycle state, Store everything as BLOBs]
+        answer: 1
+        explanation: A single vault is simpler to configure and maintain and often performs better. Use a database query if you need storage per context.
+      - kind: truefalse
+        prompt: With `wt.fv.forceContentToVault=true`, Windchill still applies vaulting rules to choose between vaults.
+        answer: false
+        explanation: Single-vault mode ignores vaulting rules, refuses a second vault, and the method server won't start if more than one vault exists.
+      - kind: single
+        prompt: Rosa changes the vaulting rule for released E-Bike E1 CAD. What moves the files that already exist?
+        options: [The next check-in, Revaulting, Replication, Remove unreferenced files]
+        answer: 1
+        explanation: Rules affect new content. Revaulting relocates existing files - and leaves the old copies behind as unreferenced files.
+      - kind: multi
+        prompt: What makes a vault folder turn read-only? (Choose all that apply.)
+        options: [It reaches the file threshold, Its disk runs out of space, A user deletes a document, Revaulting starts]
+        answers: [0, 1]
+        explanation: The file threshold (50,000 by default, give or take 10%) or a full file system turns the folder read-only; the next folder then takes new files.
+      - kind: single
+        prompt: Which statement about the wc-fs-lakeside file server is true?
+        options: [It has its own database, It stores content only and no metadata, It replaces the main site for Lakeside users, It doesn't need any configuration at HQ]
+        answer: 1
+        explanation: A file server is a content-only subset of Windchill. It must be registered at the main site and its replica vaults configured there.
+      - kind: single
+        prompt: Lakeside's file server is running, but Lakeside users still download over the WAN. Most likely cause?
+        options: [The file threshold is too low, Their Preferred File Server preference doesn't point to Lakeside, The cache vault is full, Ad hoc caching is set to 2]
+        answer: 1
+        explanation: Users must set their Preferred File Server to the local site. It's a personal preference that can easily be changed.
+      - kind: single
+        prompt: A Lakeside user asks for a document no replication rule covers. Ad hoc caching is enabled. What happens next?
+        options: [The request fails, The file is delivered and cached on the preferred file server and new iterations are sent for a set period, A permanent replication rule is created, The document is revaulted to Lakeside]
+        answer: 1
+        explanation: Ad hoc replication caches the file locally and predictive replication keeps sending new iterations - three months by default.
+      - kind: order
+        prompt: Put Rosa's safe unreferenced-file cleanup in order.
+        items: [Back up the database and the vault files, Preview with the WinDU Unreferenced Files Report, Run Remove unreferenced files with the move option, Read the RemoveUnreferencedFiles log and spot-check content]
+        explanation: Removal can be permanent, so back up first, preview the scale, move rather than delete the first time, then verify.
+      - kind: truefalse
+        prompt: By default, a replica vault's automatic cleanup rule deletes the matching files immediately.
+        answer: false
+        explanation: By default it only unreferences them. They're removed by a later Remove unreferenced files run, unless `wt.fv.master.deleteUnreferencedFilesOnAutoVaultCleanup` is true.
+
+  - type: flashcards
+    title: Vaulting and replication checkpoint deck
+    cards:
+      - front: Cache vault
+        back: "Waiting room for new uploads; synced to the main vault every three hours by default. One per site."
+      - front: Main vault
+        back: "Permanent home of the main copy of a file."
+      - front: Vaulting rule
+        back: "Per domain: object class + life cycle state → vault."
+      - front: Default system target
+        back: "Main vault for content no rule covers (when wt.fv.useVaultsForAllContent is true)."
+      - front: Revaulting
+        back: "Moves existing files after rule changes; copies, doesn't delete. Schedule it off-hours."
+      - front: File threshold
+        back: "Max files per folder (default 50,000, ±10%); full folder goes read-only."
+      - front: File server
+        back: "Content-only Windchill subset near remote users. No database, no metadata."
+      - front: Proximity list
+        back: "Per file server: other sites from nearest to farthest, used to find the closest up-to-date copy."
+      - front: Ad hoc caching flag
+        back: "0 = off, 1 = only where a rule exists, 2 = always (default target if no rule)."
+      - front: Unreferenced file
+        back: "A vault file no object points to. Clean up after backups, move before delete."
+
+  - type: summary
+    points:
+      - Vaults keep the bytes, the database keeps the metadata and pointers.
+      - One vault is the default choice; rules and revaulting handle real separation needs.
+      - File servers bring content near remote users; rules, schedules and ad hoc caching fill them.
+      - Clean up unreferenced files safely and watch for full folders.

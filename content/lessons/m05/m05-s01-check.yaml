@@ -1,0 +1,105 @@
+id: m05-s01-check
+subtitle: Prove you can plan, install, verify, size and run Acme's Windchill - from topology to patch night.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, installation, checkpoint]
+sources:
+  - id: ac
+    where: "Module 11: Windchill architecture; optional servers; system, OS, prerequisite, LDAP and client requirements; platform requirements activity; hardware sizing and weighted active users; on-premises, third-party cloud and PTC Cloud Services; monolithic, multi-tiered and clustered configurations; installation process, planning, types and prerequisites; PSI; installation log files; recover an installation; installation summary; Windchill+ and the CCD utility"
+  - id: ac
+    where: "Module 12: Identify Windchill services; start/stop Apache, Oracle, SQL Server and Windchill; run Apache and Windchill as Windows services"
+  - id: ac
+    where: "Module 19: Monitor system availability; Activity: Verify Windchill system components availability"
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **installation and configuration**: topologies and requirements, the PTC Solution
+      Installer, post-installation checks, sizing with weighted active users, deployment options and
+      starting and stopping services. Score 80% to pass. Every answer explains itself.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: Acme's production system will serve about 150 named users. Lena wants the internet-facing server kept away from the database. Which layout fits PTC's guidance?
+        options: [Monolithic on one large server, "Multi-tiered: web server in a DMZ, separate application and database servers", Monolithic with a second network card, Two monolithic servers side by side]
+        answer: 1
+        explanation: PTC recommends separating web/application from the database for all production systems and doesn't typically recommend monolithic above about 100 named users. A DMZ web server adds the security Lena wants.
+      - kind: single
+        prompt: Where does Rosa confirm which operating system and database versions are supported for the exact Windchill release she plans?
+        options: [The PSI's welcome screen, The platform support (software) matrix for that release, The Windchill home page, Any recent course manual]
+        answer: 1
+        explanation: The software matrix on PTC's support site lists the certified combinations for each release and can be exported as a dated PDF.
+      - kind: single
+        prompt: In a multi-tiered fresh installation, where does the PSI run first?
+        options: [On the application server, On the database server, On the web server only, On the client workstation]
+        answer: 1
+        explanation: The PSI runs on the database server first, then on the application server, with a staging area both can read and write.
+      - kind: single
+        prompt: An installation failed because of a typo in the LDAP settings. What is the recommended recovery?
+        options: [Delete the installation directory and start over, "Fix the cause and run the PSI again on the same machine, choosing to recover the failed installation", Edit the encrypted property files by hand, Run the PSI on a different server]
+        answer: 1
+        explanation: Running the PSI again on the same machine offers Recover Failed Installation, so you can correct the information that caused the failure and continue.
+      - kind: single
+        prompt: Where are the installer's log files once installation is under way?
+        options: ["`<installation directory>/installer/logs`", The Windchill home page, The database, The web server's document root]
+        answer: 0
+        explanation: Two logs per session (`*_InstallLog.xml` and `*_PtcInstall.log`) are written to `installer/logs`. Before you click Install they sit in the operating system's temp folder.
+      - kind: order
+        prompt: Put Rosa's bottom-up smoke test in order.
+        items: [Connect to the database with SQL*Plus or the SQL Server client, Open the web server's root test page, Open the Info*Engine admin JSP, Open `/Windchill/wtcore/test.html`, Sign in at `/Windchill`]
+        explanation: Each layer depends on the ones below it, so testing upwards makes the first failure point at the broken layer.
+      - kind: single
+        prompt: "At peak, 15 users regularly work with moderately sized CAD data and 30 users create and upload documents. Using the course manual's example factors, how many weighted active users is that?"
+        options: ["45", "60", "75", "135"]
+        answer: 2
+        explanation: 15 × 3.0 = 45 plus 30 × 1.0 = 30, which makes 75 weighted active users.
+      - kind: single
+        prompt: Which deployment option still leaves Acme (or its partner) deploying and managing Windchill, but on rented infrastructure?
+        options: [PTC Cloud Services, Windchill+, Third-party cloud such as Azure or AWS, None of them]
+        answer: 2
+        explanation: A third-party cloud is Infrastructure as a Service. PTC Cloud Services and Windchill+ are the options where PTC runs the application.
+      - kind: single
+        prompt: After Oracle maintenance, which order brings Acme's system back correctly?
+        options: [Windchill first then the database, "Database (listener and instance) and LDAP first, then `windchill start`", "Only `windchill start` - it starts the database for you", Web server first then reboot]
+        answer: 1
+        explanation: Windchill is started after the other services, especially the database and LDAP. `windchill start` starts only the server manager and method servers.
+      - kind: multi
+        prompt: Rosa sets Windchill up as a Windows service on a monolithic test server. Which statements are true? (Choose all that apply.)
+        options: [The service should depend on at least LDAP, the database and the web server, Under the default system account it can't reach network shares without permission changes, The visualization worker should also run as a Windows service there, The service starts as soon as the install command runs]
+        answers: [0, 1, 3]
+        explanation: Set the three dependencies, fix permissions for network shares, and expect the service to start immediately. For performance, the visualization worker should not be a Windows service on a monolithic installation.
+
+  - type: flashcards
+    title: Installation and configuration deck
+    cards:
+      - front: Monolithic configuration
+        back: "Everything on one server. For development, testing and small systems; not typically recommended above about 100 named users."
+      - front: Multi-tiered configuration
+        back: "Web/application separated from the database - PTC's recommendation for all production systems."
+      - front: Platform support matrix
+        back: "PTC's per-release list of certified operating systems, databases, browsers and third-party products. Export a dated PDF."
+      - front: PTC Solution Installer (PSI)
+        back: "PTC's installer for fresh installations, updates and upgrades. It installs the web server and encrypts system passwords."
+      - front: Update vs upgrade
+        back: "Update adds products, languages or a maintenance release. Upgrade moves between releases."
+      - front: Installer logs
+        back: "`installer/logs` - `*_InstallLog.xml` and `*_PtcInstall.log`, numbered from 000 on repeat runs."
+      - front: Weighted active users
+        back: "Concurrent users × role weighting factor, added up. Manual examples are 1.0 for documents and 3.0 for moderate CAD."
+      - front: Monolithic sizing
+        back: "Add the application tier's cores and memory to the database tier's."
+      - front: CCD utility
+        back: "From 12.1.2.0 onwards, the only supported way to deploy customizations and configurations to Windchill+."
+      - front: Start order
+        back: "Database and LDAP (plus the web server) first, then `windchill start`."
+
+  - type: summary
+    points:
+      - Choose the topology from the load and PTC's guidance, and check every component against the matrix.
+      - Plan, clear the prerequisites, run the PSI in the right order and keep the logs and summary.
+      - Verify bottom-up before loading data; finish the post-installation jobs.
+      - Size with weighted active users and PTC's current guidelines; choose a deployment option by who should run Windchill.
+      - Start services bottom-up and Windchill last; use Windows services with dependencies set.

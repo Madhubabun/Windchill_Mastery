@@ -1,0 +1,300 @@
+id: m05-s07-l03
+subtitle: Every Windchill user needs a licence, and every licence comes through a group. Rosa keeps the count honest.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, licensing, license-groups, license-profiles, reporting, compliance]
+sources:
+  - id: ac
+    where: "Module 10: Identify PTC Windchill PLM licenses; Identify PTC Windchill license groups; Manage user licenses; Identify license profiles; Describe license profiles and standard profile interaction; Describe a Windchill license; Obtain a Windchill license file; Identify license types; Use the License Management utility; View license information; View license-related notifications; View a license usage report; Activate licenses. Module 19: Monitor license usage. Appendix A: Run security auditing and usage reports (License Usage Reporting, Usage Reporting). Module 15: Participant Administration path"
+versionNotes:
+  - versions: ["Windchill+"]
+    md: |
+      The course manual recommends letting customers manage their own users' licence assignments, especially in
+      Windchill cloud-based and Windchill+ environments, using organization-level groups nested in the site licence
+      groups. Licence file activation on Windchill+ is not covered by our sources.
+
+blocks:
+  - type: text
+    md: |
+      Quarter-end at Acme. Finance asks **Rosa** two questions: "How many Windchill licences do we use?" and "Why
+      couldn't the new Lakeside planner log in on Tuesday?"
+
+      Both answers live in the same place. Windchill only lets people use what Acme has paid for, and it decides
+      that through **group membership**. Get the groups right and licensing is boring. Get them wrong and people
+      either can't work or Acme is out of compliance.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the group that says which licence someone uses" → [[license-group]]
+      - "the PTC-made screen filter that matches a licence" → [[license-profile]]
+      - "a licence seat that belongs to one person" → [[named-user-license|Named User licence]]
+      - "a pool of seats, one per person per day" → **Active Daily User** licence
+      - "the admin tool for activating and watching licences" → [[license-management-utility]]
+      - "test and admin accounts that don't use up a seat" → **Windchill License Exclusion** group
+
+  - type: diagram
+    title: How a licence reaches Kai
+    caption: Click each box. Licences flow from PTC, through the server, through groups, to people.
+    diagram:
+      width: 820
+      height: 420
+      groups:
+        - { label: Server, x: 20, y: 20, w: 240, h: 380, tone: neutral }
+        - { label: Site groups, x: 290, y: 20, w: 250, h: 380, tone: accent }
+        - { label: People, x: 570, y: 20, w: 230, h: 380, tone: success }
+      nodes:
+        - id: file
+          label: Licence
+          sublabel: locked to server ID
+          x: 40
+          y: 60
+          w: 200
+          shape: doc
+          tone: info
+          detail: |
+            Windchill needs a valid licence to run. The licence holds all of Acme's entitlements and is locked to the
+            Windchill server through a unique server ID - monolithic or cluster alike. It can be retrieved online or
+            imported manually.
+        - id: lmu
+          label: License Management
+          sublabel: Site > Utilities
+          x: 40
+          y: 220
+          w: 200
+          tone: accent
+          detail: |
+            The [[license-management-utility]] activates and renews licences, tracks consumption, shows notifications
+            and generates reports. When online, Windchill checks with PTC at start-up and every 24 hours.
+        - id: author
+          label: PTC Author
+          sublabel: licence group
+          x: 310
+          y: 60
+          w: 210
+          tone: accent
+          detail: |
+            The **PTC Author** licence is the base set of capabilities and a prerequisite for every licence except PTC
+            Contributor and the PTC SLM package licences. So a BOM Management user belongs in **both** the Author and
+            the BOM Management licence groups.
+        - id: bom
+          label: PTC BOM Management
+          sublabel: licence group
+          x: 310
+          y: 170
+          w: 210
+          tone: accent
+          detail: Each licence group has a matching [[license-profile]] that shows the features of that licence. Membership extends the profile to the user.
+        - id: excl
+          label: License Exclusion
+          sublabel: site only
+          x: 310
+          y: 290
+          w: 210
+          tone: warning
+          detail: |
+            The **Windchill License Exclusion** group licenses a user without counting them in the purchased total -
+            for testing and administration. It exists only at site level, and the group must itself be added to the
+            licence groups whose access it needs.
+        - id: kai
+          label: Kai
+          sublabel: engineering lead
+          x: 590
+          y: 110
+          w: 190
+          tone: success
+          detail: Kai is in PTC Author and PTC BOM Management. He sees the actions of both licence profiles - unless a standard profile hides some.
+        - id: testuser
+          label: test-integration
+          sublabel: test account
+          x: 590
+          y: 290
+          w: 190
+          tone: neutral
+          detail: A test account Rosa uses on production checks. Through the exclusion group it doesn't use up a paid seat.
+      edges:
+        - { from: file, to: lmu, label: activated in }
+        - { from: lmu, to: author, label: counts seats }
+        - { from: lmu, to: bom, label: counts seats }
+        - { from: author, to: kai }
+        - { from: bom, to: kai }
+        - { from: excl, to: testuser }
+        - { from: excl, to: author, label: member of, dashed: true }
+
+  - type: comparison
+    title: Named User vs Active Daily User
+    columns: [Named User, Active Daily User]
+    rows:
+      - label: How seats work
+        cells: [One seat per member of the licence group, "A pool: Windchill takes a seat when someone signs in that day"]
+      - label: Group size limit
+        cells: [Membership capped at the purchased count, No limit on members]
+      - label: When it's full
+        cells: ["No more users, groups or members of nested groups can be added", Further users can't sign in until the daily reset]
+      - label: Daily reset
+        cells: [Not applicable, "At 00:00 GMT the available count returns to the purchased total"]
+      - label: Licence types
+        cells: [Perpetual or subscription, Subscription only]
+      - label: Group name
+        cells: [The licence group, "Ends in \"Active Daily License\" (not available for every licence)"]
+    takeaway: In both of the Active Daily and Named User groups? The user can sign in at any time.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Licences are a real budget line and a contract. Over-assign and Acme is out of compliance at the next true-up;
+      under-assign and a planner sits idle. PTC's own wording is clear: compliance is only in place when the users
+      licences were bought for are in the matching licence groups.
+
+  - type: walkthrough
+    title: Activate, assign and audit licences
+    who: Rosa (site administrator)
+    where: [Site, Utilities, License Management]
+    steps:
+      - title: Open License Management
+        where: [Site, Utilities, License Management]
+        md: The utility has tabs including **License Information**, **License Notifications**, **Report** and **Settings**.
+      - title: Activate the licence
+        where: [License Management, Settings]
+        md: |
+          **Retrieve license online**: enter the PTC username and password, set retry attempts (1-20, default 5)
+          and retry interval (1-30 minutes, default 5), save, then **Get License**. Or **Import license from a
+          file**: request the file through PTC eSupport (License Management, PTC Licensing Tool), then upload the
+          capability response file. With a manual import, entitlement changes are also manual.
+      - title: Check what you own
+        where: [License Management, License Information]
+        md: |
+          The **License Details** table shows each feature's name, total quantity, available quantity and
+          expiration date. An available count of **0** means the count is used up - nobody more can be added to
+          that licence group.
+      - title: Assign a licence
+        where: [Site, Utilities, Participant Administration]
+        md: |
+          Add the user (or a user-defined group) to the right licence group - and to **PTC Author** as well when
+          the licence needs it. To let an organization admin manage it, Rosa nests an organization-level group
+          such as *Acme BOM Users* inside the site licence group; Jordan then just edits that group.
+      - title: Run a usage report
+        where: [License Management, Report]
+        md: |
+          Pick a period in **Select Period** and click **Generate**. `LicensingReport.html` shows registered and
+          active users, a licence usage summary per group, detailed usage per user, Active Daily usage per day and
+          licence feature usage including expiry.
+      - title: Watch the notifications
+        where: [License Management, License Notifications]
+        md: |
+          Members of the Administrators group get a sign-in message - and a bell icon - when the licence expires
+          within 30 days, has expired, or no valid licence is configured.
+    result: Licences active, users in the right groups and a report Finance can read.
+
+  - type: simulation
+    title: A day in Acme's Active Daily pool
+    intro: |
+      Acme bought **2** Active Daily User seats for an occasional-use licence. Priya, Kai and Omar are all members of
+      the Active Daily licence group. Sign people in and watch the pool. The reset happens at 00:00 GMT.
+    headline: "Seats used today: {used} of 2 · {clock}"
+    initial: { used: 0, priyaIn: false, kaiIn: false, omarIn: false, clock: "09:00 GMT", reset: false }
+    actions:
+      - id: priya
+        label: Priya signs in
+        when: { priyaIn: false, used: [0, 1] }
+        do: [{ inc: used }, { set: { priyaIn: true } }]
+        log: Priya takes a seat for today. Seats used - {used} of 2.
+        blockedHint: Either Priya already has today's seat, or the pool is empty until 00:00 GMT.
+      - id: kai
+        label: Kai signs in
+        when: { kaiIn: false, used: [0, 1] }
+        do: [{ inc: used }, { set: { kaiIn: true } }]
+        log: Kai takes a seat for today. Seats used - {used} of 2.
+        blockedHint: Either Kai already has today's seat, or the pool is empty until 00:00 GMT.
+      - id: omar
+        label: Omar signs in
+        when: { omarIn: false, used: [0, 1] }
+        do: [{ inc: used }, { set: { omarIn: true } }]
+        log: Omar takes a seat for today. Seats used - {used} of 2.
+        blockedHint: The pool is at its entitled limit. Omar can't sign in until the count resets at 00:00 GMT.
+      - id: priyaagain
+        label: Priya signs in again after lunch
+        when: { priyaIn: true }
+        do: [{ set: { clock: "13:30 GMT" } }]
+        log: Priya already holds today's seat, so she gets straight back in. Still {used} of 2.
+        blockedHint: Priya hasn't taken a seat yet today.
+      - id: midnight
+        label: Fast-forward to 00:00 GMT
+        do: [{ set: { used: 0, priyaIn: false, kaiIn: false, omarIn: false, clock: "00:00 GMT (next day)", reset: true } }]
+        log: Midnight GMT. The available count resets to the full 2 seats. Everyone starts fresh.
+    goals:
+      - label: Fill the pool
+        when: { used: 2 }
+        message: Two seats used. The third person who tries today is turned away - that's the Active Daily limit.
+      - label: Re-enter without using a seat
+        when: { priyaIn: true, clock: "13:30 GMT" }
+        message: A seat lasts for the whole GMT day, so signing in again costs nothing.
+      - label: See the daily reset
+        when: { reset: true }
+        message: At 00:00 GMT the pool refills. Someone who signs in at 23:30 GMT only gets about 30 minutes from that seat.
+
+  - type: callout
+    variant: pitfall
+    title: Profiles can hide, never grant
+    md: |
+      A [[license-profile]] is maintained by PTC and can't be edited (you can save it as a standard profile to reuse
+      its settings). A standard profile can **hide** licensed actions a user doesn't need - it can never show actions
+      beyond the licence. If someone "can't see" a feature, check licence groups first, then profiles.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Put licence checks in the monthly routine, as the course manual does: for Named User licences watch the group
+      membership count, for Active Daily watch actual consumption over 24 hours, and watch expiry dates. Pair it with
+      the **Usage Reporting** tool, which counts unique users by year, month, week, day or 30-minute interval and can
+      email a monthly report.
+
+  - type: quiz
+    title: Check your understanding
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: How does a user get a Windchill licence?
+        options: [By membership of a licence group, By having a license profile assigned directly, By signing in through SSO, By being created in the directory]
+        answer: 0
+        explanation: The user must be licensed through licence group membership. The matching licence profile then applies.
+      - kind: single
+        prompt: The Named User PDMLink licence count is 10 and 10 users are in the group. What happens when Rosa adds an eleventh?
+        options: [It's blocked until someone is removed, It works and Acme is billed later, The oldest user is removed automatically, It works for the rest of the day only]
+        answer: 0
+        explanation: At capacity no more users, groups or members of a nested group can be added. Removing someone frees a licence.
+      - kind: truefalse
+        prompt: The Windchill License Exclusion group can be created in any organization context.
+        answer: false
+        explanation: It exists only at site level, and must itself be added to the licence groups it needs.
+      - kind: single
+        prompt: Kai was bought a PTC BOM Management licence. Which groups should he be in?
+        options: [PTC Author and PTC BOM Management, PTC BOM Management only, PTC Contributor and PTC BOM Management, Administrators]
+        answer: 0
+        explanation: PTC Author is the base and a prerequisite to all licences except Contributor and the SLM package licences.
+      - kind: single
+        prompt: Where does Rosa find the License Management utility?
+        options: [Site > Utilities > License Management, Organization > Teams, Browse > Products, The Windchill Shell only]
+        answer: 0
+        explanation: The course manual gives Site > Utilities > License Management for the License Information page.
+
+  - type: flashcards
+    cards:
+      - { front: License group, back: The site group whose members are entitled to a Windchill licence. }
+      - { front: License profile, back: "PTC-maintained, not editable; shows the features of the matching licence." }
+      - { front: Named User, back: "One seat per group member; the group is capped at the purchased count." }
+      - { front: Active Daily User, back: "A seat pool; a seat lasts the GMT day; resets at 00:00 GMT." }
+      - { front: License Exclusion group, back: "Site-only group for test and admin users that don't count against purchased licences." }
+      - { front: Online licence sync, back: Windchill checks with PTC at start-up and every 24 hours. }
+      - { front: Available count of 0, back: The licence count is used up - no more users can be added to that licence group. }
+      - { front: Licence expiry warning, back: Administrators get a sign-in message and a bell icon when the licence expires within 30 days. }
+
+  - type: summary
+    points:
+      - "Every Windchill user needs a licence, and licences are assigned only through licence group membership."
+      - "Each licence group has a PTC-maintained licence profile; standard profiles can hide but never grant features."
+      - "PTC Author is the base licence for almost everything else - add users to both groups."
+      - "Named User caps group size at the purchased count; Active Daily User is a daily pool that resets at 00:00 GMT."
+      - "The License Management utility (Site > Utilities) activates, shows details and notifications, and generates usage reports."
+      - "Use org-level groups nested in licence groups so organization admins can manage assignments."

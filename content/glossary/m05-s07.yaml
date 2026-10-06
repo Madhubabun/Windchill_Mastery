@@ -1,0 +1,73 @@
+# New glossary terms introduced in section m05-s07 (Security and licensing).
+- id: authentication
+  term: Authentication
+  plain: Proving to a system that you really are who you say you are.
+  definition: The check that confirms a user's or client's identity before anything else happens. In Windchill, users and groups live in an LDAPv3 directory server; sign-in can be checked against that directory or delegated to a corporate identity provider through single sign-on, with the web server passing the signed-in user name on to Windchill. Authentication answers "who are you?"; Windchill's groups, access rules and licence groups still decide what that person may do.
+  related: [single-sign-on, identity-provider, ldap, directory-server]
+
+- id: single-sign-on
+  term: Single sign-on (SSO)
+  plain: Log in once with your company account and get into many apps.
+  definition: A set-up where users sign in at a central identity provider and every connected application trusts that sign-in. Windchill can take part in SSO using either SAML or OpenID Connect, and only one SSO authentication protocol can be configured for a single Windchill system (PTC Help Center 13.1.2.0). OAuth 2.0 for Windchill REST Services can be configured alongside SAML.
+  aka: [SSO]
+  related: [saml, openid-connect, oauth-2, identity-provider, authentication]
+
+- id: saml
+  term: SAML
+  plain: An SSO standard where the identity provider sends a signed XML note saying who you are.
+  definition: Security Assertion Markup Language, an XML-based standard for exchanging signed authentication assertions between an identity provider and a service provider. For Windchill the service provider is the Shibboleth Service Provider installed with PTC HTTP Server; it validates the signed assertion and passes the user name to Windchill. It is one of the two SSO protocols Windchill supports, and can be combined with OAuth 2.0 for REST access.
+  aka: [Security Assertion Markup Language]
+  related: [single-sign-on, identity-provider, openid-connect]
+
+- id: openid-connect
+  term: OpenID Connect (OIDC)
+  plain: A token-based SSO standard built on top of OAuth 2.0.
+  definition: An identity layer on the OAuth 2.0 framework in which the identity provider authenticates the user and issues tokens; the user never gives credentials to the application. For Windchill, Apache handles the protocol with the mod_auth_openidc module, configured with the IdP's client ID, secret and redirect URL. A Windchill system uses either SAML or OIDC for SSO, not both.
+  aka: [OIDC]
+  related: [single-sign-on, oauth-2, identity-provider, saml]
+
+- id: oauth-2
+  term: OAuth 2.0
+  plain: A standard that gives a program a short-lived token to call an API, instead of a password.
+  definition: An authorization framework in which a client gets an access token from an authorization server and presents it to the protected resource. Windchill supports OAuth 2.0 to secure access through Windchill REST Services, with the client credentials flow for machine-to-machine calls and the authorization code flow for interactive clients. PTC specifies PingFederate as the central authorization server; on-premises customers license it themselves. The Help Center recommends token lifetimes of about 30 minutes.
+  aka: [OAuth]
+  related: [openid-connect, single-sign-on, identity-provider]
+
+- id: identity-provider
+  term: Identity provider (IdP)
+  plain: The trusted system that checks your login and vouches for you to other apps.
+  definition: The service that authenticates users and issues SAML assertions or OIDC tokens that applications such as Windchill trust. It can in turn check credentials against the enterprise directory. The PTC Help Center gives PingFederate and Microsoft Entra ID as IdP examples.
+  aka: [IdP]
+  related: [single-sign-on, saml, openid-connect, directory-server]
+
+- id: hardening
+  term: Hardening
+  plain: Closing every door you don't need and locking the ones you keep.
+  definition: Reducing a system's attack surface through secure configuration. For Windchill the PTC Help Center best practices include a trusted network, HTTPS with HSTS, removing sample code and API docs from web folders, protecting WEB-INF, changing default account passwords, a strong password policy, encryption, rate limiting, audit event recording and log management. The course manual adds encrypted system passwords, remote JMX access left off by default and a tested patch routine.
+  related: [security-audit-report, authentication]
+
+- id: security-audit-report
+  term: Security audit report
+  plain: A report of who did what that changed Windchill data, and of security events.
+  definition: A report built on Windchill's security auditing feature, which keeps a historical record of who caused changes in the database and of security-related events such as privilege changes, team changes and access denials. Login and Logout events are recorded by default in an on-premises installation. Administrators create and view reports with the Security Audit Reporting tool, save queries, and purge old records with the Audit Log Purge Manager.
+  aka: [Security auditing]
+  related: [hardening]
+
+- id: license-management-utility
+  term: License Management utility
+  plain: The admin page where you activate Windchill licences and watch how many are used.
+  definition: A site utility (Site > Utilities > License Management) for activating and renewing licences, tracking consumption, saving licence settings, viewing notifications and generating usage reports. Its tabs include License Information (the License Details table of quantities and expiry), License Notifications, Report (LicensingReport.html) and Settings (retrieve a licence online or import a capability response file). When online, Windchill synchronizes entitlements with PTC at start-up and every 24 hours.
+  related: [license-group, license-profile, named-user-license]
+
+- id: license-profile
+  term: License profile
+  plain: A PTC-made screen filter that shows only the features a licence includes.
+  definition: A profile that matches a licence group and enables the features of that licence while keeping unlicensed actions out of the user interface. License profiles are maintained by PTC and cannot be edited, though one can be saved as a standard profile to reuse its settings. Users get it through membership of the matching license group; standard profiles can hide licensed features but never grant more.
+  related: [license-group, profile]
+
+- id: named-user-license
+  term: Named User licence
+  plain: A licence seat that belongs to one specific person.
+  definition: A Windchill licence model where each member of the Named User licence group uses one seat, so membership is capped at the purchased count. At capacity no more users or groups can be added to the group, nor users to a group nested in it; removing a user frees a seat. The other model is Active Daily User, a pool of seats taken per person per GMT day. Perpetual licences use the Named model; subscriptions support both.
+  aka: [Named User license]
+  related: [license-group, license-management-utility]

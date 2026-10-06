@@ -1,0 +1,336 @@
+id: m05-s04-l03
+subtitle: Publish what people need, when they need it, and stop the 40,000-part monster from eating every worker.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, visualization, wvs, publish-rules, job-scheduler, publishing]
+sources:
+  - id: ac
+    where: "Appendix A: Configure WVS; View and manage WVS publication jobs; Administer the WVS Job Scheduler; Manage publishing and thumbnail generation; Configure Creo View and Publish Rules; Visualize large assemblies with QuickView; Identify WVS configuration properties; Describe publish job types and sources; Set up the publish job priority; Configure publisher queues and jobs"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Enabling Publish Rules"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WVSPublishRules/WVSPublishRulesEnable.html"
+    covers: "publish.usesPublishRules in wvs.properties (space-separated authoring applications, e.g. PROE); triggers checkin, schedule, create-representation, unknown-source; unknown-source needed when publish.republishonepmdocumentchange is true"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Configuring Publish Rules"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WVSPublishRules/WVSPublishRulesCreate.html"
+    covers: "rules root element, authoring-application, additional-files with a PDF file entry; loading the file through Visualization Configuration Administration as site administrator; changes take effect on load"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Evaluating Publish Rules"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WVSPublishRules/WVSPublishRulesEvaluate.html"
+    covers: "evaluation order, one publish job per matching publish element, no match means no job, values are case sensitive, fall-through not recommended"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Using Conditions in Publish Rules"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WVSPublishRules/WVSPublishRulesRecentEnhance.html"
+    covers: "condition, attribute (value or regex), and/or/not, if condition containing publish elements, epmdoc_* attribute names"
+versionNotes:
+  - versions: ["Windchill+"]
+    md: |
+      Windchill+ is delivered as software as a service and PTC runs its servers. Editing `wvs.properties`
+      with xconfmanager applies to on-premises installations. The supplied sources don't say which of the
+      publishing utilities below a Windchill+ customer administers.
+  - versions: ["All releases"]
+    md: |
+      The manual notes that publish job types and sources are documented in `wvs.properties.xconf` and
+      change from release to release. Check that file in your own installation before setting priorities.
+
+blocks:
+  - type: text
+    md: |
+      Two requests reach Rosa in the same week.
+
+      Kai: *"Manufacturing wants a **PDF of every Creo drawing**, automatically. And can the old drawings
+      get one too?"*
+
+      Priya: *"The Scooter S2 top-level assembly fails to publish every night and blocks the queue for
+      an hour each time."*
+
+      Both are about **when and how publishing happens**. Out of the box, CAD data typically publishes
+      after check-in. WVS gives you levers to change that: who goes first, what never publishes, what gets
+      published on a schedule, and, with **publish rules**, exactly which objects publish on which trigger
+      and what extra files come out.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "what started the job" (check-in, the UI, a schedule) → *job source*
+      - "what's being published" (CAD document, document, part structure...) → *job type*
+      - "who goes first" → *publish job priority* (H, M or L [[publisher-queue|waiting queue]])
+      - "book a publish job for later or for every night" → [[wvs-job-scheduler|WVS Job Scheduler Administration]]
+      - "never publish this one" → *Publish and Thumbnail Control*
+      - "an XML rule book for what publishes when" → [[publish-rule|publish rules]]
+
+  - type: text
+    md: |
+      ### Your levers, from simplest to most precise
+      | Lever | What it decides | Where |
+      | --- | --- | --- |
+      | **Job priority** | Which waiting queue (H, M, L) a job of a given *type + source* enters. Jobs feed into processing queues High first. | `publish.publishqueue.priorities.<type>.<source>` in `wvs.properties` |
+      | **Job Scheduler** | Publish, thumbnail, print, clash or cleanup jobs run now or at a set time, once or repeatedly, in one context | WVS Job Scheduler Administration |
+      | **Publish and Thumbnail Control** | Specific CAD documents are never published, get no thumbnail, or publish as a positioning assembly | WVS Job Monitor (site level) → Actions |
+      | **Publish rules** | Which objects publish on which trigger, and which extra files (such as PDF) are made | Visualization Configuration Administration + `wvs.properties` |
+
+      **Priority details from the manual.** If no property exists for a type + source pair, Windchill
+      looks for the same type with source 0, then for type 0 and source 0. You can't re-prioritize one
+      individual job or prioritize per user; the manual's workaround is for a site administrator to
+      **suspend** lower-priority entries ahead in the numbered PublisherQueue. Note that the manual's
+      sample line spells the property `publish.publisherqueue.priorities...` while its format line says
+      `publish.publishqueue.priorities...`; confirm the exact name in `wvs.properties.xconf` before you set it.
+
+  - type: walkthrough
+    title: Stop one huge assembly from publishing
+    who: Site administrator (Rosa)
+    where: [Site, Utilities, WVS Job Monitor, Actions, Publish and Thumbnail Control]
+    steps:
+      - title: Open the WVS Job Monitor at site level
+        where: [Browse, Site, Utilities, WVS Job Monitor]
+        md: |
+          The admin tools (*Prohibit Publishing*, *Job Statistics*, *Publish and Thumbnail Control*)
+          appear in the **Actions** menu only when the monitor is opened from **Site → Utilities**, not
+          from Quick Links.
+      - title: Open Publish and Thumbnail Control
+        where: [WVS Job Monitor, Actions, Publish and Thumbnail Control]
+        md: The search and prohibition list are limited to the current context.
+      - title: Pick the CAD document and the control
+        md: |
+          Type the CAD document's number (or click **Search**), add a description, and choose the control.
+          **Prohibit publishing** is selected by default: the document won't publish, not even on check-in
+          from Workgroup Manager. Other options: *prohibit thumbnail creation only*, *publish as positioning
+          assembly*, *publish as extended positioning assembly*.
+      - title: Add it
+        md: Click **Add**. The document appears in the **Publish Controlled Objects** table with its control type.
+      - title: Undo later
+        md: To let it publish again, delete it from the Publish Controlled Objects table.
+    result: The S2 top-level assembly no longer ties up a worker every night.
+
+  - type: callout
+    variant: note
+    title: Positioning assembly - the middle way
+    md: |
+      For massive, static top-level assemblies that rarely change, are too big for CAD memory or fail to
+      publish normally, **publish as positioning assembly** makes the worker download only the top-level
+      assembly file and publish just the Creo View structure (PVS), linking to the sub-assemblies' and
+      parts' own representations. Viewers still see the whole product. For browser viewing of very large
+      assemblies, publish rules can also produce compressed **QuickView** viewables, at some loss of detail.
+
+  - type: walkthrough
+    title: Publish all old drawings in E-Bike E1 overnight
+    who: Administrator of the context
+    where: [WVS Job Scheduler Administration]
+    steps:
+      - title: Open the Job Scheduler in the right context
+        md: |
+          Open **WVS Job Scheduler Administration** in **E-Bike E1**. The scheduler works in the context
+          where the job exists: a job created in E1 only publishes E1's data.
+      - title: Choose job type and job
+        md: |
+          Set **Job Type** to *Publish Job*, then pick a job from the **Job** list, for example
+          *PublishAllEPMDocuments*. (Other job types: Interference Detection, Print, Thumbnail, Cleanup.)
+      - title: Choose when
+        md: Run it **now** or at a **set time** (say 22:00), and **once** or **repeatedly** at an interval.
+      - title: Schedule it
+        md: Click **Schedule**. The job appears in the **Scheduled Jobs** table.
+      - title: Add a cleanup schedule too
+        md: |
+          Create a *Cleanup Job* using **DeleteCompletedJobs** or **DeleteCompletedSuccessfulJobs** so finished
+          WVS jobs don't pile up in the queues. Out of the box, completed entries in PublisherQueue1 (and
+          2, if it exists) are **not** removed, because the job log you see in the Job Monitor is stored in
+          the queue entry. Deleting the entry deletes that log, so decide how long you need it.
+    result: Old drawings publish overnight while workers are free, and completed jobs are cleaned up on a schedule.
+
+  - type: text
+    md: |
+      ### Publish rules: the precise lever
+      Publish rules are an XML file. Business administrators normally manage them; on many teams Rosa
+      sets them up with Jordan. They do three things: control **what** publishes for each trigger, create
+      a business object (for example a WTDocument holding a published PDF), and **generate extra file
+      types** during publishing.
+
+      A rules file is built from a few pieces (fragments, not a complete file):
+
+      ```xml
+      <!-- which authoring application the rules apply to -->
+      <authoring-application name="PROE"> ... </authoring-application>
+
+      <!-- a named test on the CAD document's attributes -->
+      <condition name="Creo drawing">
+        <attribute name="epmdoc_docType" value="Drawing" />
+      </condition>
+
+      <!-- when the condition is true, create a publish job on these triggers -->
+      <if condition="Creo drawing">
+        <publish on="checkin" />
+        <publish on="schedule" />
+      </if>
+
+      <!-- extra outputs, such as a PDF -->
+      <additional-files name="standard_files">
+        <file output-prefix="pdf" type="pdf" display-label="PDF" default="true" />
+      </additional-files>
+      ```
+
+      How the pieces are nested and how a `publish` element asks for the PDF set are shown in the Help
+      Center's *Examples of Publish Rules XML Files*; copy that structure rather than guessing.
+
+      **Rules of evaluation** (Help Center): every matching `publish` element creates **one publish job**;
+      if nothing matches, **no job** is created. Values are **case sensitive** (`Drawing` is not
+      `drawing`). Triggers include `checkin`, `schedule`, `create-representation` (the New Representation
+      wizard) and `unknown-source` (other events, such as republish on change). Conditions can combine
+      `<and>`, `<or>` and `<not>`, and match on attributes such as `epmdoc_lifeCycleState`.
+
+  - type: simulation
+    title: Build Kai's PDF rule
+    intro: |
+      You're Rosa. Kai wants: **every Creo drawing gets a PDF when it's checked in, and the nightly
+      scheduled job makes PDFs for older drawings too.** Parts and assemblies should publish as before,
+      without PDFs. Switch rules on, shape the rule, load it, and watch the log for consequences.
+    headline: "Rules for PROE: {enabled} · Matches: {condition} · Publish on: {trigger} · PDF: {pdf} · File loaded: {loaded}"
+    initial: { enabled: "Off", condition: Nothing yet, trigger: Nothing yet, pdf: "No", loaded: "No" }
+    actions:
+      - id: enable
+        label: Set publish.usesPublishRules=PROE (xconfmanager)
+        when: { enabled: "Off" }
+        do: [{ set: { enabled: "On" } }]
+        log: Publish rules are now evaluated for Creo (PROE) data. Without this, a rules file isn't used for that application.
+        blockedHint: Rules are already on for PROE.
+      - id: cond-drawing
+        label: "Condition: epmdoc_docType = Drawing"
+        when: { condition: [Nothing yet, Every Creo document] }
+        do: [{ set: { condition: Creo drawings, loaded: "No" } }]
+        log: The condition now matches drawings only. Remember the value is case sensitive. Changed rules must be loaded again.
+        blockedHint: The rule already matches drawings.
+      - id: cond-all
+        label: No condition (match every Creo document)
+        when: { condition: [Nothing yet, Creo drawings] }
+        do: [{ set: { condition: Every Creo document, loaded: "No" } }]
+        log: Careful - with a PDF this sends every part and assembly through PDF generation too. That's not what Kai asked for, and matching without conditions (fall-through) isn't a recommended practice.
+        blockedHint: The rule already matches every document.
+      - id: trig-checkin
+        label: "Publish on: checkin"
+        when: { trigger: [Nothing yet, schedule, checkin + schedule] }
+        do: [{ set: { trigger: checkin, loaded: "No" } }]
+        log: Drawings that match publish when checked in. Old drawings never get a PDF unless someone checks them in again.
+        blockedHint: Already publishing on check-in only.
+      - id: trig-schedule
+        label: "Publish on: schedule"
+        when: { trigger: [Nothing yet, checkin, checkin + schedule] }
+        do: [{ set: { trigger: schedule, loaded: "No" } }]
+        log: Only jobs from the WVS Job Scheduler create publish jobs for matching drawings. New check-ins of drawings now get nothing from this rule.
+        blockedHint: Already publishing on schedule only.
+      - id: trig-both
+        label: "Publish on: checkin and schedule"
+        when: { trigger: [Nothing yet, checkin, schedule] }
+        do: [{ set: { trigger: checkin + schedule, loaded: "No" } }]
+        log: Two publish elements inside the same if. A matching check-in creates a job, and so does the nightly scheduled job.
+        blockedHint: Both triggers are already in the rule.
+      - id: pdf-on
+        label: Add a PDF additional file
+        when: { pdf: "No" }
+        do: [{ set: { pdf: "Yes", loaded: "No" } }]
+        log: An additional-files set with a PDF entry is defined. Publishing can now create PDFs alongside the viewable.
+        blockedHint: The PDF output is already defined.
+      - id: pdf-off
+        label: Remove the PDF additional file
+        when: { pdf: "Yes" }
+        do: [{ set: { pdf: "No", loaded: "No" } }]
+        log: No extra files - viewables only.
+        blockedHint: There's no PDF output to remove.
+      - id: load
+        label: Load the file in Visualization Configuration Administration
+        when: { loaded: "No", enabled: "On" }
+        do: [{ set: { loaded: "Yes" } }]
+        log: "Loaded at site level: create a configuration, open it, Add File, select the XML. Changes take effect immediately."
+        blockedHint: Turn publish rules on for PROE first - or the current version is already loaded.
+      - id: reset
+        label: Start over
+        when: { enabled: "On" }
+        do: [{ set: { enabled: "Off", condition: Nothing yet, trigger: Nothing yet, pdf: "No", loaded: "No" } }]
+        log: Back to the start.
+        blockedHint: Nothing to reset yet.
+    goals:
+      - label: PDFs for new drawings on check-in
+        when: { enabled: "On", condition: Creo drawings, trigger: checkin, pdf: "Yes", loaded: "Yes" }
+        message: Half of Kai's request. Old drawings still need the schedule trigger.
+      - label: "Kai's full request: check-in and nightly schedule"
+        when: { enabled: "On", condition: Creo drawings, trigger: checkin + schedule, pdf: "Yes", loaded: "Yes" }
+        message: New drawings get PDFs on check-in, old ones through a scheduled publish job. Now book that job in the Job Scheduler.
+
+  - type: walkthrough
+    title: Load a publish rules file
+    who: Site administrator
+    where: [Utilities, Visualization Configuration Administration]
+    steps:
+      - title: Switch rules on for the authoring application
+        md: |
+          Set `publish.usesPublishRules` in `wvs.properties` with xconfmanager. Its value is a space-separated
+          list of authoring application names, for example `PROE` for Creo.
+      - title: Open Visualization Configuration Administration
+        where: [Site, Utilities, Business Administration, Visualization Configuration Administration]
+        md: Logged on as site administrator, open it from the **Business Administration** section of the Utilities page.
+      - title: Create a configuration
+        md: Click the create icon, name the configuration, and click **Create**.
+      - title: Add the rules file
+        md: |
+          Click the configuration's name to open its **Files** pane, click **Add File**, browse to your XML
+          file and add it. Changes are realized as soon as the file is loaded. An error message means the
+          rules have a problem to investigate.
+      - title: Change rules later
+        md: Delete the old file from the configuration and add the revised one.
+    result: The rules apply to the next matching check-in or scheduled job.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Republish on change with no matching trigger.** If `publish.republishonepmdocumentchange` is
+      `true`, the Help Center says your rules need a `publish on="unknown-source"` element, or the jobs
+      expected from state-change actions won't be submitted. When a rule "does nothing", check the
+      triggers and the case of every value first.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Rule changes take effect the moment you load the file, so try them on a test system first. Then
+      watch the **WVS Job Monitor** for a day: compare publish jobs created per check-in before and after,
+      and use **Job Statistics** to see whether the extra PDFs slowed the workers.
+
+  - type: quiz
+    title: Check your understanding
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Priya's huge Scooter S2 top assembly fails to publish every night and doesn't need frequent updates. What's the most fitting control?
+        options: [Raise its job priority to High, "Publish it as a positioning assembly (or prohibit publishing) via Publish and Thumbnail Control", Delete PublisherQueue1, Turn off publish rules]
+        answer: 1
+        explanation: Positioning assembly publishing is meant for massive static top-level assemblies that rarely change or fail normal publishing; prohibiting stops it publishing entirely. A higher priority would only make it block the queue sooner.
+      - kind: single
+        prompt: A publish rule has two publish elements (checkin and schedule) inside one if. A matching drawing is checked in. How many publish jobs does that check-in create from this rule?
+        options: ["None", "One", "Two", "One per CAD worker"]
+        answer: 1
+        explanation: A job is created for each publish element whose trigger matches. Only the checkin element matches a check-in, so one job.
+      - kind: truefalse
+        prompt: In a publish rule condition, value="drawing" will match a document whose type is Drawing.
+        answer: false
+        explanation: Parameters and values in publish rules are case sensitive.
+      - kind: single
+        prompt: Rosa schedules PublishAllEPMDocuments from the E-Bike E1 context. What gets published?
+        options: [Every CAD document on the site, CAD documents in E-Bike E1 only, Only checked-out documents, Only documents with no representation]
+        answer: 1
+        explanation: WVS Job Scheduler Administration works in the context where the job exists.
+      - kind: single
+        prompt: How does a job end up in PublisherQueueH rather than PublisherQueueL?
+        options: [The user picks it, Its job type and job source combination maps to H in wvs.properties, Large files always go to H, The worker chooses]
+        answer: 1
+        explanation: Priority is set per type + source combination in wvs.properties. There's no per-user or per-job priority.
+
+  - type: summary
+    points:
+      - Publishing is started by events (such as check-in), manual requests from the UI or scheduled jobs.
+      - Job type + source decides the H/M/L waiting queue; High feeds the processing queues first.
+      - WVS Job Scheduler books publish, thumbnail, print, clash and cleanup jobs in one context.
+      - Publish and Thumbnail Control prohibits publishing or thumbnails, or switches to positioning assembly.
+      - Publish rules (on per authoring application, loaded in Visualization Configuration Administration) decide what publishes on which trigger and add files such as PDF.
+      - Every matching publish element makes one job, no match means no job, and values are case sensitive.

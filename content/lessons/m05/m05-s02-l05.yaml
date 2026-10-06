@@ -1,0 +1,187 @@
+id: m05-s02-l05
+subtitle: One shell, one command, and the right environment every time. The admin's home base on the server.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, windchill-shell, windchill-command, utilities, command-line]
+sources:
+  - id: ac
+    where: "Module 13: Identify system administration utilities; Invoke actions with the Windchill command; Run commands from the Windchill Shell; Activity: Execute commands using the Windchill Shell; Activity: Manage Windchill properties using JConsole; Identify xconfmanager options; Activity: Modify properties using xconfmanager"
+  - id: ac
+    where: "Module 15: Capture a Java thread dump for Windchill; Identify WCA command syntax. Module 18: Set Windchill log levels; Populate JMX-Administrators"
+versionNotes:
+  - versions: ["Windchill+"]
+    md: |
+      The Windchill Shell runs on the Windchill server itself. On Windchill+ (software as a service) PTC runs the
+      servers, so this lesson applies to installations your company runs itself.
+
+blocks:
+  - type: text
+    md: |
+      Rosa's predecessor left a folder of scripts that "sometimes work". The reason they only *sometimes* work:
+      they were run from a plain command prompt, where Java, paths and Windchill's environment variables may or
+      may not be set.
+
+      Windchill solves this with two small tools that every admin uses daily: the **windchill** command and the
+      **Windchill Shell**. Run server-side utilities from the shell and the environment is right every time.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a command window with Windchill's environment already set up" → [[windchill-shell|Windchill Shell]]
+      - "the command that starts, stops and reports on Windchill" → [[windchill-command|windchill command]] (in the Windchill `bin` folder)
+      - "the property-changing tool" → [[xconfmanager]]
+      - "the monitoring and management clients" → [[jmx|JMX]] clients such as [[jconsole|JConsole]]
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Many admin tasks (changing properties, collecting thread dumps, re-running the configuration assistant)
+      run as Java code on the server. Run them in the wrong environment and they fail in confusing ways, or worse,
+      half-work. PTC recommends running **all** server-side Windchill applications, tools and utilities from the
+      Windchill Shell.
+
+  - type: comparison
+    title: The four system administration utilities
+    columns: [What it is, Typical use]
+    rows:
+      - label: windchill command
+        cells: ["A command in the bin folder that invokes Windchill actions and can act as a Java wrapper", "Start, stop, status, version, open a shell, run a Windchill class"]
+      - label: Windchill Shell
+        cells: ["A command window with the correct Windchill environment variables", "Home base for every other command-line utility"]
+      - label: xconfmanager
+        cells: ["Command-line property manager", "Display, set and propagate properties"]
+      - label: JMX clients
+        cells: ["Tools that read and act on Windchill's MBeans", "Monitoring, alerts, log levels, emailing logs"]
+    takeaway: Open the shell first; everything else runs inside it.
+
+  - type: walkthrough
+    title: Rosa's first look at a server
+    who: Rosa, logged on to wc-app01
+    where: [Start menu, Windchill folder, Windchill Shell]
+    steps:
+      - title: Open a Windchill Shell
+        where: [Start menu, Windchill folder, Windchill Shell]
+        md: |
+          Installation creates a **Windchill Shell** shortcut (desktop, Programs folder or Start menu). It runs
+          `windchill.exe` from the Windchill `bin` folder with the `shell` action and the right Java. From any
+          command prompt you can also type `windchill shell`.
+      - title: See what the command can do
+        where: [Windchill Shell]
+        md: Type `windchill -h` for the list of actions and options.
+      - title: Which versions are installed?
+        where: [Windchill Shell]
+        md: |
+          `windchill version` lists the versions of the installed Windchill components and the language packs
+          (under "Non-Default Locale Support"). Useful before an upgrade or a support call.
+      - title: Is it running?
+        where: [Windchill Shell]
+        md: |
+          `windchill status` reports the status of the Windchill server, including information such as current
+          free memory.
+      - title: Query properties without opening files
+        where: [Windchill Shell]
+        md: |
+          `windchill properties wt.properties?wt.env.*` lists the environment variables the shell uses. For a
+          single property and the xconf files that set it, use `xconfmanager -d <property name>`.
+      - title: Stop and start (in a maintenance window)
+        where: [Windchill Shell]
+        md: |
+          `windchill stop` and `windchill start` stop and start the server manager (and with it the method
+          servers). Lesson 6 of section 1 covers the full start and stop order for all services.
+    result: In five commands Rosa knows what's installed, whether it's healthy and how the shell is configured.
+
+  - type: text
+    md: |
+      **The windchill command as a Java wrapper**
+
+      Like `java`, the windchill command can take a class name and run it, but with Windchill's environment set
+      up. That's how several admin utilities are started:
+
+      | Command (in a Windchill Shell) | What it does |
+      | --- | --- |
+      | `windchill wt.util.jmx.SMJconsole` | Opens JConsole connected to Windchill when it runs as a service (lesson 2) |
+      | `windchill wt.util.jmx.GetClusterStacks > cluster_stacks.txt` | Saves stack traces of all server managers and method servers to a file (lesson 4) |
+      | `wt.util.jmx.SetLogLevel` | A command-line utility for setting logger levels in chosen processes (options in the Help Center) |
+
+      Other utilities you'll run from the same shell:
+      - `xconfmanager` (lesson 1).
+      - `ant -f WindchillConfigAssistant.xml …` in `<Windchill>/utilities/wca` for the Windchill Configuration Assistant (lesson 6).
+      - `ant -f modifyMBeanConfig.xml setEmailList …` in the codebase folder to fill the JMX-Administrators list (lesson 2).
+
+  - type: example
+    variant: real-world
+    title: The script that only worked for one person
+    industry: Micromobility
+    md: |
+      At a company like Acme, a nightly property-check script ran fine when one admin started it by hand and
+      failed every night from the scheduler. Her command prompt happened to have the right Java on its path; the
+      scheduler's didn't. Wrapping the script so it ran through the windchill command fixed it for good.
+    takeaway: The environment is part of the command. Let the Windchill Shell set it.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Running utilities from a plain command prompt.** It may even work today, but it depends on whatever
+      environment that window happens to have. If a utility behaves strangely, the first question is: *was it run
+      from a Windchill Shell?*
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Keep a short "first five commands" note for each server (`-h`, `version`, `status`, a properties check and
+      the log folder location). When you're called at 7 a.m. about an outage, you'll be faster working from a
+      checklist than from memory.
+
+  - type: flashcards
+    title: Shell and command deck
+    cards:
+      - front: Windchill Shell
+        back: "A command window with Windchill's environment variables set. PTC recommends running all server-side tools from it."
+      - front: Open a new Windchill Shell from a prompt
+        back: "windchill shell"
+      - front: windchill -h
+        back: "Lists the windchill command's actions and options."
+      - front: windchill version
+        back: "Shows installed Windchill component versions and language packs."
+      - front: windchill status
+        back: "Shows the Windchill server's status, including free memory."
+      - front: windchill stop / windchill start
+        back: "Stop and start the server manager and its method servers."
+      - front: windchill as a Java wrapper
+        back: "Pass a class name, e.g. windchill wt.util.jmx.SMJconsole, to run it with the Windchill environment."
+      - front: Where is the windchill command?
+        back: "In the bin folder of the Windchill installation."
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Why does PTC recommend running server-side utilities from the Windchill Shell?
+        options:
+          - It runs them faster
+          - It sets up the correct Windchill environment variables first
+          - It is the only window that can read log files
+          - It automatically restarts Windchill afterwards
+        answer: 1
+        explanation: The shell sets up the environment that Windchill commands and scripts need, so utilities behave the same every time.
+      - kind: single
+        prompt: Rosa needs to know which language packs are installed. Which command?
+        options: [windchill status, windchill version, "windchill -h", xconfmanager -d]
+        answer: 1
+        explanation: windchill version lists component versions and language packs under Non-Default Locale Support.
+      - kind: truefalse
+        prompt: The windchill command can run a Windchill Java class, such as wt.util.jmx.GetClusterStacks, with the Windchill environment set up.
+        answer: true
+        explanation: It acts as a Java wrapper, accepting a class as an argument and running it in the properly set-up environment.
+      - kind: multi
+        prompt: Which of these are Windchill system administration utilities named in the course? (Choose all that apply.)
+        options: [windchill command, Windchill Shell, xconfmanager, JMX clients, properties.html]
+        answers: [0, 1, 2, 3]
+        explanation: properties.html is a reference page that documents properties. The four utilities are the windchill command, the Windchill Shell, xconfmanager and JMX clients.
+
+  - type: summary
+    points:
+      - Four admin utilities - the windchill command, the Windchill Shell, xconfmanager and JMX clients.
+      - Open a Windchill Shell first (shortcut or windchill shell); PTC recommends running all server-side tools from it.
+      - "windchill -h, version, status, stop and start cover the daily basics."
+      - The windchill command also runs Windchill classes such as wt.util.jmx.SMJconsole and wt.util.jmx.GetClusterStacks.

@@ -1,0 +1,349 @@
+id: m05-s01-l06
+subtitle: Windchill is a stack of services. Start them bottom-up, stop Windchill first, and let Windows do it for you at boot.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, services, start-stop, windows-service, operations]
+sources:
+  - id: ac
+    where: "Module 12: Identify Windchill services; Start/stop the Apache web server; Start/stop the Oracle server; Start/stop SQL Server; Start/stop Windchill; Run Apache as a Windows service; Run Windchill as a Windows service; Activity: Identify Windchill-related services and components"
+  - id: ac
+    where: "Module 11: Describe the monolithic (single-tiered) configuration (Windows service dependencies; visualization worker); Describe LDAP integration; Describe the Windchill server (automatic method server restart)"
+versionNotes:
+  - versions: ["Windchill+"]
+    md: |
+      On [[windchill-plus|Windchill+]] PTC runs the servers, so you never start or stop these services. This
+      lesson applies to on-premises and self-hosted cloud installations.
+  - versions: ["All releases"]
+    md: |
+      The course manual lists the SQL Server services twice with slightly different names. This lesson uses
+      the detailed list from its "Start/stop SQL Server" topic: SQL Server, SQL Server Agent and SQL Server
+      Browser.
+
+blocks:
+  - type: text
+    md: |
+      Thursday night, 22:00. Omar needs to patch the Oracle database on **wc-db01**. Rosa's job: take
+      Windchill down cleanly, let Omar work, and bring everything back before the Lakeside plant's early
+      shift signs in at 05:30.
+
+      "Windchill" isn't one program. It's a small stack of services, each with its own start and stop
+      method, and they have to come up **in the right order** - or Windchill simply won't start.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the programs that make up Windchill" → **Windchill services** (web server, LDAP, database, Windchill server)
+      - "Windchill itself" → the [[server-manager]] plus one or more [[method-server|method servers]]
+      - "Oracle's front door / Oracle itself" → **listener service** / **instance service**
+      - "start Windchill from Windows' Services panel" → [[windchill-service|Windchill as a Windows service]]
+      - "start this only after those" → **service dependencies**
+
+  - type: diagram
+    title: What must be running - and in which order
+    caption: Start from the bottom. Windchill comes last, after the database and LDAP. Click each layer.
+    diagram:
+      width: 820
+      height: 430
+      nodes:
+        - id: db
+          label: Database
+          sublabel: Oracle or SQL Server
+          x: 40
+          y: 300
+          w: 220
+          shape: cylinder
+          tone: info
+          detail: |
+            **Oracle**: the listener service **and** the instance service must both be running.
+            **SQL Server**: the SQL Server service (the database engine, also called the instance service),
+            SQL Server Agent (runs scheduled jobs and alerts) and SQL Server Browser.
+          real: In PTC's training environment these appear as an Oracle TNS listener service and an Oracle instance service.
+        - id: ldap
+          label: LDAP directory
+          sublabel: one process
+          x: 300
+          y: 300
+          w: 220
+          shape: cylinder
+          tone: info
+          detail: The directory server starts a single process or service. If Windchill is set up to use a corporate LDAP that it can't reach at startup, Windchill will not start.
+        - id: web
+          label: Web server
+          sublabel: Apache · one process
+          x: 560
+          y: 300
+          w: 220
+          tone: accent
+          detail: The Apache-based web server starts a single process or service. Without it, users can't reach Windchill even if the servers behind it are running.
+        - id: wc
+          label: Windchill server
+          sublabel: windchill start
+          x: 260
+          y: 120
+          w: 300
+          h: 70
+          tone: primary
+          detail: |
+            The server manager and method servers. Start them **after** the other services - especially the
+            database and LDAP - with `windchill start` in a Windchill Shell; `windchill stop` stops both.
+            A JMX client such as JConsole can also do it, but that's not the usual way.
+        - id: opt
+          label: Optional services
+          sublabel: e.g. Solr search
+          x: 300
+          y: 20
+          w: 220
+          tone: neutral
+          detail: A production system usually has optional components too, such as the Solr search engine. Indexing and visualization can be down while users still work.
+      edges:
+        - { from: db, to: wc, label: first }
+        - { from: ldap, to: wc, label: first }
+        - { from: web, to: wc, label: users in }
+        - { from: wc, to: opt, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Most "Windchill is down" calls after a maintenance window are really "something underneath came up
+      late or not at all". An admin who knows the stack and its order fixes it in minutes; one who doesn't
+      reboots everything twice and hopes.
+
+  - type: comparison
+    title: Start and stop commands by component
+    columns: [Windows, UNIX]
+    rows:
+      - label: Web server (Apache)
+        cells: ["Run `httpd.exe` from `HTTPServer\\bin`; Ctrl+C in its console to stop. If it's a Windows service, use the Services panel.", "`apachectl start` / `apachectl stop`"]
+      - label: Oracle
+        cells: ["Listener and instance services in the Services panel", "`lsnrctl start` / `lsnrctl stop` for the listener; Oracle's `dbstart` and `dbshut` scripts (UNIX only) for the database"]
+      - label: SQL Server
+        cells: ["Services panel or SQL Server Configuration Manager", "Not covered here"]
+      - label: Windchill server
+        cells: ["`windchill start` / `windchill stop` in a Windchill Shell, or the Windchill Windows service", "`windchill start` / `windchill stop` in a Windchill Shell"]
+    takeaway: The Services panel is the easy button on Windows - once everything is set up as a service.
+
+  - type: walkthrough
+    title: A planned database maintenance window
+    who: Rosa (Windchill) and Omar (database)
+    where: [wc-app01, Windchill Shell]
+    steps:
+      - title: Warn users
+        where: [Email, Lakeside shift lead]
+        md: Tell users, including Lakeside, when Windchill will be unavailable.
+      - title: Stop Windchill first
+        where: [wc-app01, Windchill Shell]
+        md: |
+          Run `windchill stop` (or stop the Windchill service in the Services panel). Stopping the
+          application before its database is general good practice - the manual gives the start order,
+          and stopping in reverse is its mirror image.
+      - title: Hand over to the DBA
+        where: [wc-db01, Services]
+        md: |
+          Omar stops the Oracle instance and listener services, patches, and starts both again. On UNIX he
+          would use `lsnrctl` and Oracle's `dbshut` / `dbstart` scripts.
+      - title: Check LDAP and the web server
+        where: [Services]
+        md: Make sure the directory server and the web server services are running.
+      - title: Start Windchill last
+        where: [wc-app01, Windchill Shell]
+        md: Run `windchill start` (or start the Windchill service). Then run the bottom-up smoke test from the post-installation lesson.
+    result: Windchill is back, tested, and Lakeside signs in at 05:30 none the wiser.
+
+  - type: simulation
+    title: Patch night at Acme
+    intro: |
+      Production is live. Get Omar's database patched and bring Windchill back. Try doing things in the
+      wrong order - the hints explain why Windchill objects.
+    headline: "DB {database} · LDAP {ldap} · Web {webServer} · Windchill {windchill} · Patched: {patched}"
+    initial: { database: Running, ldap: Running, webServer: Running, windchill: Running, patched: false }
+    actions:
+      - id: stop-wc
+        label: windchill stop
+        when: { windchill: Running }
+        do: [{ set: { windchill: Stopped } }]
+        log: Server manager and method servers stopped. Users are out.
+        blockedHint: Windchill is already stopped.
+      - id: stop-db
+        label: Stop database services
+        when: { database: Running, windchill: Stopped }
+        do: [{ set: { database: Stopped } }]
+        log: Listener and instance services stopped.
+        blockedHint: Stop Windchill first - pulling the database out from under running method servers is asking for trouble.
+      - id: patch
+        label: Omar patches the database
+        when: { database: Stopped, windchill: Stopped }
+        do: [{ set: { patched: true } }]
+        log: Patch applied to wc-db01.
+        blockedHint: Omar needs Windchill stopped and the database services down before patching.
+      - id: start-db
+        label: Start database services
+        when: { database: Stopped }
+        do: [{ set: { database: Running } }]
+        log: Listener and instance services running.
+        blockedHint: The database is already running.
+      - id: stop-ldap
+        label: Stop LDAP
+        when: { ldap: Running, windchill: Stopped }
+        do: [{ set: { ldap: Stopped } }]
+        log: Directory server stopped.
+        blockedHint: Stop Windchill before taking its directory away.
+      - id: start-ldap
+        label: Start LDAP
+        when: { ldap: Stopped }
+        do: [{ set: { ldap: Running } }]
+        log: Directory server running.
+        blockedHint: LDAP is already running.
+      - id: stop-web
+        label: Stop web server
+        when: { webServer: Running }
+        do: [{ set: { webServer: Stopped } }]
+        log: Web server stopped. Nobody can reach Windchill from a browser.
+        blockedHint: The web server is already stopped.
+      - id: start-web
+        label: Start web server
+        when: { webServer: Stopped }
+        do: [{ set: { webServer: Running } }]
+        log: Web server running.
+        blockedHint: The web server is already running.
+      - id: start-wc
+        label: windchill start
+        when: { windchill: Stopped, database: Running, ldap: Running }
+        do: [{ set: { windchill: Running } }]
+        log: Server manager and method servers started.
+        blockedHint: Windchill won't start yet - make sure it is stopped and that the database and LDAP are both running first.
+    goals:
+      - label: Get the database patched
+        when: { patched: true }
+        message: Windchill stopped first, then the database - Omar could patch safely.
+      - label: Bring everything back
+        when: { patched: true, database: Running, ldap: Running, webServer: Running, windchill: Running }
+        message: Database and LDAP first, Windchill last, web server up - Lakeside can sign in.
+
+  - type: walkthrough
+    title: Run Windchill as a Windows service
+    who: Rosa, Windows administrator on wc-app01
+    where: [wc-app01, Windchill Shell]
+    steps:
+      - title: Install the service
+        where: [Windchill Shell]
+        md: |
+          From a Windchill Shell run
+          `ant -buildfile <Windchill_Home>\opt\ntservice\WindchillService.xml install -DserviceName=<ServiceName>`.
+          `<Windchill_Home>` is the installation directory and `<ServiceName>` a unique name you choose.
+          The service starts as soon as the command finishes.
+      - title: Manage it from Services
+        where: [Windows, Services, "<ServiceName>"]
+        md: The service appears in the Windows Services panel under your name. Start and stop Windchill there from now on.
+      - title: Set its dependencies
+        where: [Windows, Services, "<ServiceName>"]
+        md: |
+          On a single server, make the Windchill service depend on (at least) the **LDAP**, **database**
+          and **web server** services, so Windows starts them first at boot. How you configure a service
+          dependency is a Windows administration task; the course manual doesn't give the steps.
+      - title: Fix network access
+        where: [Windows, Services, "<ServiceName>"]
+        md: |
+          A service running under the default system account can't reach shared network resources (for
+          example a vault on a file share). Change the permissions so it can.
+      - title: Know how to remove it
+        where: [Windchill Shell]
+        md: |
+          `ant -buildfile <Windchill_Home>\opt\ntservice\WindchillService.xml uninstall -DserviceName=<ServiceName>`
+          removes the service. If any software path contains spaces, put it in quotes.
+    result: Windchill starts with the server at boot, after the services it needs.
+
+  - type: callout
+    variant: note
+    title: The web server can be a service too
+    md: |
+      Apache runs as an application by default. To make it a Windows service, run
+      `ant -f config.xml installService -DserviceName=<ServiceName>` from the Apache root directory, or
+      `httpd -k install -n <ServiceName>` from `Apache/bin`. The matching uninstall commands use
+      `uninstallService` and `httpd -k uninstall -n <ServiceName>`.
+
+  - type: scenario
+    variant: what-if
+    title: The reboot that broke Monday
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Acme's small test server (monolithic, Windows Server) was rebooted for Windows updates. Windchill
+          is set up as a Windows service. It's now 08:00 and Windchill isn't running, but the database,
+          LDAP and web server services all are. What's the most likely cause?
+        choices:
+          - label: The Windchill service started before the services it depends on
+            next: s2
+            good: true
+            feedback: Without dependencies, Windows may start Windchill before the database or LDAP is ready.
+          - label: The Windows updates removed Windchill
+            next: fail1
+            feedback: Unlikely - and you'd reinstall for nothing.
+      - id: s2
+        md: Rosa starts the Windchill service by hand and it comes up. How does she stop this happening next time?
+        choices:
+          - label: Add LDAP, database and web server as dependencies of the Windchill service
+            next: s3
+            good: true
+            feedback: That's the manual's minimum for a monolithic Windows-service setup.
+          - label: Also make the visualization worker a Windows service so everything starts together
+            next: s4
+            feedback: On a monolithic installation the visualization worker should not run as a Windows service, for performance reasons.
+      - id: s3
+        md: |
+          With dependencies set, the next reboot brings everything up in order. Rosa adds "check Windchill
+          service dependencies" to her post-install checklist.
+        outcome: success
+      - id: s4
+        md: Startup order is still unfixed, and the visualization worker now competes for resources on the one box. Half a fix.
+        outcome: partial
+      - id: fail1
+        md: Rosa spends the morning reinstalling. The next reboot fails the same way - the service order was never fixed.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Testing the service from a console and assuming it behaves the same.** A running service gets a
+      different environment from a console window, and under the default system account it can't reach
+      network shares. Test the service itself - stop it and start it from the Services panel.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Don't panic if a single method server dies. The server manager notices and tries to restart it
+      automatically - a few minutes of downtime, no admin action needed. Check the logs afterwards to find
+      out *why* it died.
+
+  - type: flashcards
+    title: Windchill services deck
+    cards:
+      - front: The four primary Windchill components
+        back: "Web server, LDAP server, database, and Windchill servers (server manager plus one or more method servers)."
+      - front: Oracle services Windchill needs
+        back: "The listener service and the instance service."
+      - front: SQL Server services Windchill needs
+        back: "SQL Server (instance service), SQL Server Agent and SQL Server Browser."
+      - front: Start Windchill
+        back: "`windchill start` in a Windchill Shell, after the database and LDAP are up."
+      - front: Stop Windchill
+        back: "`windchill stop` in a Windchill Shell - stops the server manager and method servers."
+      - front: Apache on UNIX
+        back: "`apachectl start` / `apachectl stop`."
+      - front: Oracle listener on UNIX
+        back: "`lsnrctl start` / `lsnrctl stop`."
+      - front: Install Windchill as a Windows service
+        back: "Run the WindchillService.xml Ant build file with `install -DserviceName=<name>` from a Windchill Shell. It starts immediately."
+      - front: Monolithic Windows-service dependencies
+        back: "At least LDAP, database and web server."
+      - front: Service can't see the vault share
+        back: "The default system account can't reach network shares - change the permissions."
+
+  - type: summary
+    points:
+      - Windchill needs the web server, LDAP, the database (Oracle listener and instance, or the SQL Server services) and the Windchill servers.
+      - Start the database and LDAP first and Windchill last with `windchill start`; stop Windchill first with `windchill stop`.
+      - On Windows the Services panel manages everything once it's set up as services; on UNIX use `apachectl`, `lsnrctl` and Oracle's scripts.
+      - Install Windchill as a Windows service with the WindchillService.xml Ant build file, and set LDAP, database and web server as dependencies.
+      - A service has its own environment and, under the system account, no access to network shares.

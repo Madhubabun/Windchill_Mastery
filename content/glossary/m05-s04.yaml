@@ -1,0 +1,68 @@
+# New glossary terms introduced in section m05-s04 (Queues and visualization services).
+- id: queue-entry
+  term: Queue entry
+  plain: One job waiting in, or worked through, a background queue.
+  definition: A single processing task held in a Windchill background queue, for example one email to send or one publish job. Each entry has a state (Ready, Executing, Completed, Failed, Severe, Suspended or Rescheduled). Only Ready entries are picked up for execution. Administrators review Failed and Severe entries in the Queue Management utility and either reset them to Ready or delete them.
+  aka: [Queue entry state]
+  related: [background-queue, process-queue, schedule-queue, pool-queue]
+
+- id: process-queue
+  term: Process queue
+  plain: A queue that works through its jobs strictly in the order they arrived.
+  definition: One of the three Windchill background queue types. A process queue executes its entries in the order they were added (first in, first out). New queues created in Queue Management, such as extra numbered publishing queues, can be created as process queues.
+  related: [background-queue, schedule-queue, pool-queue, queue-entry]
+
+- id: schedule-queue
+  term: Schedule queue
+  plain: A queue that runs each job at the time it was booked for.
+  definition: One of the three Windchill background queue types. A schedule queue executes entries according to their scheduled execution time rather than arrival order. The out-of-the-box commonScheduleQueue, for example, collects low-volume housekeeping entries.
+  related: [background-queue, process-queue, pool-queue, queue-entry]
+
+- id: pool-queue
+  term: Pool queue
+  plain: A queue that runs many jobs side by side, as soon as there's room, with no guaranteed finishing order.
+  definition: One of the three Windchill background queue types. A pool queue collects its entries and runs each one independently as resources become available, using a main thread that starts worker threads in the same method server. The order of completion is not guaranteed. All workflow queues are pool queues; thread pool size can be set per queue.
+  related: [background-queue, process-queue, schedule-queue, dedicated-queue, workflow]
+
+- id: dedicated-queue
+  term: Dedicated workflow queue
+  plain: A private workflow lane for one heavy workflow template, so it can't jam everyone else's workflows.
+  definition: A workflow queue tied to specific workflow templates. Dedicated queue processing is switched on with a wt.properties setting (for user work, propagation or both) and then the template's Has Dedicated Queue flag is set. Long-running robots from that template then wait in their own queue instead of the shared workflow queues.
+  related: [pool-queue, workflow-template, workflow-robot, background-queue]
+
+- id: background-method-server
+  term: Background method server
+  plain: A method server that does only behind-the-scenes queue work, never user clicks.
+  definition: A method server started with queue execution switched on and dedicated to processing background queues, while the regular method server handles client requests with queue execution switched off. A default installation configures one, named BackgroundMethodServer. Several can be configured, each assigned one or more queue groups, to spread queue work or place it on another machine.
+  related: [method-server, background-queue, server-manager]
+
+- id: wvs
+  term: Windchill Visualization Services (WVS)
+  plain: The part of Windchill that runs the whole "make it viewable" machine.
+  definition: The Windchill services that convert CAD, document and other data into neutral, lightweight representations. WVS has three main components. The Publisher receives requests and events and creates jobs. The Worker Agent manages the CAD workers that do the conversion. The Loader stores the results, including thumbnails, in Windchill. It also processes interference detection (clash) and batch print jobs. Its settings live in wvs.properties.
+  related: [visualization-publishing, worker-agent, cad-worker, publisher-queue, representation]
+
+- id: worker-agent
+  term: Worker Agent
+  plain: The dispatcher that hands conversion jobs to the CAD workers and keeps them running.
+  definition: The WVS service that manages one or more configured workers and uses them to convert native data into Creo View viewables for publishing, batch interference detection and batch print. Workers are installed, then added in the site-level Worker Agent Administration utility, where administrators start, stop and test workers and view their logs.
+  related: [wvs, cad-worker, publisher-queue]
+
+- id: publisher-queue
+  term: Publisher queue
+  plain: The waiting rooms and work lanes that publish jobs move through.
+  definition: The background queues WVS creates to manage publishing, clash and print jobs. Each queue set has three prioritized waiting queues (High, Medium, Low), for example PublisherQueueH, M and L, and one or more numbered processing queues, for example PublisherQueue1, where jobs are actually executed. Jobs are fed to the numbered queues from High, then Medium, then Low. As a rule, the number of processing queues matches the number of CAD workers.
+  aka: [Publishing queue, PublisherQueue]
+  related: [wvs, background-queue, cad-worker, worker-agent]
+
+- id: wvs-job-scheduler
+  term: WVS Job Scheduler Administration
+  plain: The calendar where you book publish, print, thumbnail and clean-up jobs.
+  definition: A Windchill utility for creating and running print, publish, thumbnail, interference detection and cleanup jobs, either immediately or at a set time, once or repeatedly. It works in the context where the job is created, so a publish job scheduled in a product publishes that product's data only. Cleanup jobs can delete completed WVS jobs to keep queue size under control.
+  related: [wvs, publisher-queue, visualization-publishing]
+
+- id: publish-rule
+  term: Publish rule
+  plain: A rule file that says what gets published, when, and what extra files to make.
+  definition: An XML rule set that controls publishing and post-publish behaviour. Publish rules can match on the authoring application and on conditions such as document type or life cycle state, choose which triggers (check-in, schedule, new representation and others) create a publish job, and generate additional files such as PDF. Rules are switched on per authoring application in wvs.properties and loaded through Visualization Configuration Administration.
+  related: [wvs, visualization-publishing, representation, cad-document]

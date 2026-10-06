@@ -1,0 +1,270 @@
+id: m05-s02-l06
+subtitle: Let Windchill measure the server and propose heap, cache and connection settings. Then know exactly how to undo it.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, wca, configuration-assistant, tuning, properties]
+sources:
+  - id: ac
+    where: "Module 15: Review Windchill Configuration Assistant (WCA); Identify files that are affected by WCA; Identify WCA command syntax; Calculate recommended values; Propagate values from intermediate properties; Roll back the configuration changes; Determine the number of method servers; Optimize Java garbage collection; Activity: Identify and set properties using the Windchill Configuration Assistant (WCA)"
+  - id: ac
+    where: "Module 13: Describe Windchill Configuration Assistant (WCA). Module 19: Identify monthly administrative tasks; Evaluate system settings using Windchill Configuration Assistant (WCA)"
+versionNotes:
+  - versions: ["Windchill+"]
+    md: |
+      WCA runs on the Windchill server from a Windchill Shell. On Windchill+ (software as a service) PTC runs and
+      tunes the servers, so this lesson applies to installations your company runs itself.
+
+blocks:
+  - type: text
+    md: |
+      wc-app02 just got a memory upgrade, and Lakeside brought 300 new users. Rosa could work out heap sizes,
+      method server counts, cache sizes and database connections by hand: a spreadsheet, a calculator and a lot
+      of second-guessing.
+
+      Or she can let the **Windchill Configuration Assistant (WCA)** look at the server's real memory and CPU and
+      calculate recommended values for her. She still decides, and she still needs to know how to roll back.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the tool that measures the server and suggests settings" → [[windchill-configuration-assistant|Windchill Configuration Assistant (WCA)]]
+      - "WCA's own settings file" → `windchillconfigurator.xconf` in `<Windchill>/utilities/wca/conf/windchill`
+      - "WCA's default inputs and ratios" → `Configurator.properties` in `<Windchill>/utilities/wca`
+      - "a named job you ask WCA to do" → an *ant target*, for example `configureWindchill` or `restoreWindchill`
+      - "WCA asks you about every value" → *interactive mode* (the default); "WCA just accepts its own values" → *unattended mode*
+
+  - type: diagram
+    title: Order wins - how WCA's values meet yours
+    caption: Propagation reads site.xconf from top to bottom. Click each box to see who wins.
+    diagram:
+      width: 820
+      height: 430
+      groups:
+        - { label: site.xconf (read top to bottom), x: 20, y: 20, w: 400, h: 390, tone: accent }
+      nodes:
+        - id: early
+          label: Manual setting
+          sublabel: "above the WCA reference"
+          x: 50
+          y: 60
+          w: 340
+          tone: warning
+          detail: A property you set manually that appears **before** the ConfigurationRef for windchillconfigurator.xconf. If WCA sets the same property, **WCA's value wins**.
+        - id: ref
+          label: ConfigurationRef → WCA file
+          sublabel: added when WCA is installed
+          x: 50
+          y: 170
+          w: 340
+          tone: primary
+          detail: |
+            Installing WCA adds a `ConfigurationRef` element to site.xconf. When xconfmanager propagates, it reaches
+            this element, applies everything in `windchillconfigurator.xconf`, then carries on with the next element.
+        - id: late
+          label: Manual setting
+          sublabel: "below the WCA reference"
+          x: 50
+          y: 280
+          w: 340
+          tone: success
+          detail: A property set manually **after** the WCA ConfigurationRef. If WCA sets the same property, **your manual value wins**.
+        - id: wcafile
+          label: windchillconfigurator.xconf
+          sublabel: WCA's calculated values
+          x: 480
+          y: 170
+          w: 300
+          tone: info
+          shape: doc
+          detail: Where WCA stores the property values it calculates. Open it in a text editor to see exactly what WCA set.
+        - id: out
+          label: Property files
+          sublabel: "wt.properties · db.properties …"
+          x: 480
+          y: 310
+          w: 300
+          tone: success
+          shape: doc
+          detail: |
+            WCA can recommend values in `wt.properties`, `db.properties` and the service properties, plus the
+            `methodServerMBeanConfig.xml` and `serverManagerMBeanConfig.xml` files in `codebase/WEB-INF`, and
+            Tomcat's `config.properties`. It never touches database-side tuning parameters.
+      edges:
+        - { from: early, to: ref, label: then }
+        - { from: ref, to: late, label: then }
+        - { from: ref, to: wcafile, label: includes }
+        - { from: late, to: out, label: propagate }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      WCA bases its numbers on the actual server: free RAM, CPU cores, expected users. Skipping it shows up
+      literally in the logs: if the initial run never happened, the method server logs carry a loud warning that WCA
+      hasn't been used and performance issues may result. Re-running it after big changes keeps settings matched to
+      reality instead of to the day of installation.
+
+  - type: text
+    md: |
+      **When to run WCA**
+      - Automatically during installation: the PTC Solution Installer runs WCA after loading base data, **only if
+        the Base Data option is selected**.
+      - After major changes in the number of users, groups or contexts.
+      - After hardware changes such as more memory or CPU.
+      - As a monthly check of property settings (it's on PTC's monthly maintenance list).
+
+      **What it calculates** (examples from a run): the percentage of memory to reserve for the operating system
+      and to give Windchill, the server manager and method server heaps, the number of method servers (from the
+      CPU-to-method-server ratio in `Configurator.properties`, for example four method servers for twelve cores),
+      whether to have a background method server, parallel garbage collection threads, cache sizes, database
+      connections, query limits and the JMX administrators' email addresses.
+
+  - type: walkthrough
+    title: Run WCA interactively and propagate
+    who: Rosa, in a maintenance window on wc-app02
+    where: [Windchill Shell, "<Windchill>/utilities/wca"]
+    steps:
+      - title: Reboot, then start only what WCA needs
+        where: [Server]
+        md: |
+          PTC recommends rebooting first so operating system buffers and Windchill caches are cleared and WCA can
+          measure free RAM accurately. Then start only the database and any non-Windchill third-party products that
+          normally run on this server.
+      - title: Make sure Windchill is stopped
+        where: [Windchill Shell]
+        md: Open a Windchill Shell and run `windchill stop` if the server manager is running.
+      - title: Go to the WCA folder
+        where: [Windchill Shell, "<Windchill>/utilities/wca"]
+        md: Change to `<Windchill>/utilities/wca`. Run `ant -f WindchillConfigAssistant.xml -projecthelp` to list the targets.
+      - title: Calculate and propagate
+        where: [Windchill Shell]
+        md: |
+          Run `ant -f WindchillConfigAssistant.xml configureWindchill -Dpropagate=true`. Interactive mode is the
+          default: at each prompt press Enter to accept the recommended value in brackets, or type your own.
+          Without `-Dpropagate=true`, WCA only calculates and writes `windchillconfigurator.xconf`.
+      - title: Review before you start
+        where: [Text editor, windchillconfigurator.xconf]
+        md: Open `windchillconfigurator.xconf` and check the values WCA wrote. This is your record of what changed.
+      - title: Start and measure
+        where: [Windchill Shell]
+        md: Run `windchill start`, add a Log Comment describing the run, and compare the Server Status numbers with your baseline.
+    result: New heap, method server, cache and connection settings based on wc-app02's real hardware, recorded in one file.
+
+  - type: comparison
+    title: WCA targets you'll use
+    columns: [What it does, Notes]
+    rows:
+      - label: configure
+        cells: ["Calculates values for Windchill and Tomcat", "Writes to the intermediate files"]
+      - label: configureWindchill
+        cells: ["Calculates values for Windchill only", "Add -Dpropagate=true to apply them"]
+      - label: configureTomcat
+        cells: ["Calculates Tomcat values", "Sets JSP compilation mode to prod (fewer recompiles); dev is for development systems"]
+      - label: propagate / propagateWindchill / propagateTomcat / propagateApache
+        cells: ["Calls xconfmanager to push calculated values into property files", "Use after a calculate-only run"]
+      - label: restore / restoreWindchill / restoreTomcat
+        cells: ["Rolls back to the values before WCA propagated", "Uses the latest backup files"]
+    takeaway: "Unattended runs add -Dinteractive=false; -D[Property]=[Value] overrides an input."
+
+  - type: walkthrough
+    title: Roll back a WCA change
+    who: Rosa, when the new settings make things worse
+    where: [Windchill Shell, "<Windchill>/utilities/wca"]
+    steps:
+      - title: Check the backups first
+        where: [WCA backup files]
+        md: |
+          Every run of a calculating target creates a separate backup file, and the restore targets use the
+          **latest** ones. Make sure those hold the values you want to go back to.
+      - title: Run the matching restore target
+        where: [Windchill Shell, "<Windchill>/utilities/wca"]
+        md: |
+          `restoreWindchill` undoes the last `configureWindchill` run; `restoreTomcat` undoes `configureTomcat`;
+          `restore` rolls back Windchill, Apache and Tomcat settings together.
+      - title: Restart and confirm
+        where: [Windchill Shell]
+        md: Restart Windchill and check the values with `xconfmanager -d` and the VM Summary tab in JConsole.
+    result: The server is back on the settings it had before the last WCA propagation.
+
+  - type: scenario
+    variant: what-if
+    title: The value that kept coming back
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Rosa set `wt.cache.size.WTPrincipalCache` with xconfmanager last month. After today's WCA run with
+          propagation, the property file shows WCA's number instead. Why?
+        choices:
+          - label: Rosa's setting sits above the WCA ConfigurationRef in site.xconf
+            next: s2
+            good: true
+            feedback: Exactly. Values are applied in site.xconf order, so WCA's later include wins.
+          - label: WCA deletes all manual settings
+            next: s1b
+            feedback: It doesn't delete them. Think about order.
+      - id: s1b
+        md: |
+          Rosa opens site.xconf: her setting is still there, but above the WCA ConfigurationRef. What's really going on?
+        choices:
+          - label: Order - the WCA include is applied after her line, so it overrides
+            next: s2
+            good: true
+            feedback: Right. Position decides.
+      - id: s2
+        md: What's the cleanest way to make sure WCA manages this value from now on - or that Rosa's value wins?
+        choices:
+          - label: Decide who owns it. Either give the value to WCA at its prompt, or keep it in a custom xconf linked below the WCA reference
+            next: win
+            good: true
+            feedback: One owner per property, in a place that makes the order obvious.
+          - label: Edit wt.properties directly after every WCA run
+            next: fail
+            feedback: That brings back every problem from lesson 1.
+          - label: Run restoreWindchill twice to go back two runs
+            next: partial
+            feedback: Restore uses the latest backup files, and it doesn't answer the real question of who owns the value.
+      - id: win
+        md: |
+          Rosa enters her preferred value at WCA's WTPrincipal Cache Size prompt and notes in the change log that WCA
+          owns cache sizes. No more surprises.
+        outcome: success
+      - id: partial
+        md: |
+          Restore works from the latest backup files; the course doesn't describe stepping back through older runs this
+          way. Either way, she has undone today's tuning without fixing the ownership problem.
+        outcome: partial
+      - id: fail
+        md: |
+          The hand edit is lost from the record and gets out of step with site.xconf. Next month nobody can tell which
+          value is meant to be live.
+        outcome: fail
+
+  - type: callout
+    variant: note
+    title: WCA values and xconfmanager
+    md: |
+      xconfmanager doesn't manage the values WCA sets: to change them, PTC says to re-run WCA. For just a couple of
+      changes the course also describes a quicker route: edit `windchillconfigurator.xconf` directly and propagate with
+      `xconfmanager -f`, which is easier than stepping through every interactive prompt. Either way, keep a record.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Running WCA on a busy, long-running server.** Without a reboot, operating system buffers and caches make
+      free RAM look smaller than it really is, and WCA calculates smaller values. Reboot first, start only the
+      database and other non-Windchill products, then run it.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Do a calculate-only run first (no `-Dpropagate=true`), read `windchillconfigurator.xconf`, and discuss big changes
+      with Omar (database connections) before you propagate. Calculation is free; propagation is a change.
+
+  - type: summary
+    points:
+      - WCA measures memory and CPU and recommends heap sizes, method server count, GC threads, cache sizes, connections and more.
+      - It stores values in windchillconfigurator.xconf, linked into site.xconf by a ConfigurationRef; order in site.xconf decides who wins.
+      - "Run it from <Windchill>/utilities/wca with ant -f WindchillConfigAssistant.xml and a target; interactive by default, propagate only with -Dpropagate=true."
+      - Reboot first, then run after installation, big user or hardware changes, and as a monthly check.
+      - Roll back with restoreWindchill, restoreTomcat or restore. They use the latest backup files.

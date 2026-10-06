@@ -1,0 +1,336 @@
+id: m05-s01-l02
+subtitle: Plan, run the installer on the right machines in the right order, and know exactly what to do when step 23 of 40 fails.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [system-admin, installation, psi, logs, recovery]
+sources:
+  - id: ac
+    where: "Module 11: Describe the Windchill installation process; Plan the installation (1 and 2); Identify installation types; Identify installation prerequisites; Work with the PTC Solution Installer (PSI); System password encryption; Identify installation log files; Recover an installation; Review the installation summary; Identify prerequisite software"
+versionNotes:
+  - versions: ["Windchill+"]
+    md: |
+      On [[windchill-plus|Windchill+]] PTC deploys and operates the servers, so you don't run the PTC
+      Solution Installer against production. Your configurations and customizations reach Windchill+
+      through the [[windchill-plus-ccd|CCD utility]] (see the deployment options lesson).
+
+blocks:
+  - type: text
+    md: |
+      The servers are racked: **wc-db01** for the database, **wc-app01** for Windchill, **wc-web01** for
+      the web server. Rosa has the installation media and a free weekend.
+
+      The installer itself is friendly - it asks questions and does the work. What decides whether the
+      weekend goes well is everything *around* it: the plan, the prerequisites, the order of the machines,
+      and knowing where the logs are when something goes red.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the Windchill setup wizard" → [[ptc-solution-installer|PTC Solution Installer (PSI)]]
+      - "the folder where the downloaded install images wait" → **staging directory** (staging area)
+      - "install from scratch / add something / move to a new release" → **fresh installation / update / upgrade**
+      - "the page that lists every choice before it installs" → **Installation Summary**
+      - "pick up where the failed attempt stopped" → **Recover Failed Installation**
+
+  - type: animation
+    title: The installation, start to finish
+    caption: Three phases - plan, run the installers, then advanced configuration.
+    diagram:
+      width: 820
+      height: 400
+      groups:
+        - { label: 1. Plan and prepare, x: 20, y: 20, w: 220, h: 360, tone: neutral }
+        - { label: 2. Run the installers, x: 260, y: 20, w: 320, h: 360, tone: primary }
+        - { label: 3. Advanced configuration, x: 600, y: 20, w: 200, h: 360, tone: success }
+      nodes:
+        - id: plan
+          label: Plan
+          sublabel: solutions · machines · DB
+          x: 40
+          y: 70
+          w: 180
+          shape: doc
+          tone: neutral
+          detail: Decide which solutions and optional products to install, the installation type, the database (new or existing), the machines, and check the software matrix.
+        - id: prereq
+          label: Prerequisites
+          sublabel: rights · firewall · LDAP
+          x: 40
+          y: 180
+          w: 180
+          tone: warning
+          detail: Administrator rights, installation and staging directories, security features that block the installer, enterprise LDAP preparation, accurate server time and date.
+        - id: staging
+          label: Staging area
+          sublabel: mapped network drive
+          x: 40
+          y: 290
+          w: 180
+          shape: cylinder
+          tone: neutral
+          detail: A common place for the downloaded images. For a multi-tiered install, either create one on each server or use a network drive mapped to both, with read and write permission.
+        - id: dbhost
+          label: wc-db01
+          sublabel: PSI run 1 · database
+          x: 290
+          y: 90
+          w: 260
+          shape: cylinder
+          tone: info
+          detail: In a multi-tiered installation the PSI runs on the database server **first**.
+        - id: apphost
+          label: wc-app01
+          sublabel: PSI run 2 · Windchill + web server
+          x: 290
+          y: 200
+          w: 260
+          tone: primary
+          detail: Then the PSI runs on the application server. It prompts for solutions, platform components, directories, database and LDAP settings - and installs the web server for you.
+        - id: logs
+          label: installer/logs
+          sublabel: InstallLog.xml · PtcInstall.log
+          x: 290
+          y: 300
+          w: 260
+          shape: doc
+          tone: neutral
+          detail: Every run writes two log files under the installation directory's `installer/logs` folder. Repeat runs get sequence numbers starting at 000.
+        - id: post
+          label: Post-install
+          sublabel: license · file server · service
+          x: 620
+          y: 180
+          w: 160
+          tone: success
+          detail: Retrieve and configure the license, then optional work such as a remote file server or running Windchill as a Windows service.
+      edges:
+        - { from: plan, to: prereq }
+        - { from: prereq, to: staging }
+        - { from: staging, to: dbhost, label: images }
+        - { from: dbhost, to: apphost, label: then }
+        - { from: apphost, to: logs, dashed: true }
+        - { from: apphost, to: post }
+    chapters:
+      - title: Plan first
+        caption: Decide **what** you install, **where**, and with **which database** - and check the software matrix.
+        show: [plan]
+        highlight: [plan]
+        seconds: 6
+      - title: Clear the runway
+        caption: Admin rights, firewall, LDAP groups, server clock - and a **staging area** both servers can read and write.
+        show: [plan, prereq, staging]
+        highlight: [prereq, staging]
+        flow: [plan>prereq, prereq>staging]
+        seconds: 7
+      - title: Database server first
+        caption: In a multi-tiered install, run the PSI on **wc-db01** before the application server.
+        show: [plan, prereq, staging, dbhost]
+        highlight: [dbhost]
+        flow: [staging>dbhost]
+        seconds: 6
+      - title: Then the application server
+        caption: The PSI on **wc-app01** installs Windchill and the web server, prompting only for what your choices need.
+        show: [plan, prereq, staging, dbhost, apphost]
+        highlight: [apphost]
+        flow: [dbhost>apphost]
+        seconds: 7
+      - title: Everything is logged
+        caption: Two log files per session in `installer/logs`. Keep them - PTC Support will ask for them.
+        show: [plan, prereq, staging, dbhost, apphost, logs]
+        highlight: [logs]
+        flow: [apphost>logs]
+        seconds: 6
+      - title: Advanced configuration
+        caption: License, then optional extras like a file server or a Windows service.
+        highlight: [post]
+        flow: [apphost>post]
+        seconds: 6
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      An installation that "mostly worked" is the most expensive kind: you find the missing piece weeks
+      later, with real data in the system. A written plan, a clean prerequisite list and saved logs turn a
+      risky weekend into a repeatable procedure - one you will need again for the test system, for
+      updates and for disaster recovery.
+
+  - type: comparison
+    title: Which installation type?
+    columns: [Fresh installation, Update, Upgrade]
+    rows:
+      - label: When
+        cells: ["First install of the platform components", "Add to an existing installation", "Move from one release to another"]
+      - label: Examples
+        cells: ["Acme's new production system", "Optional product, extra language, maintenance release", "Moving to a newer major release"]
+      - label: What the PSI shows
+        cells: ["Prompts for everything your selections need", "Only the panels needed for what you add", "Not covered in detail by the course manual"]
+      - label: Watch out for
+        cells: ["Run the PSI on every machine in the plan; manual steps may follow", "Maintenance releases count as updates, not upgrades", "Check the Windchill Supported Upgrade Paths document first"]
+    takeaway: A maintenance release is an update. Only a move between releases is an upgrade.
+
+  - type: walkthrough
+    title: Run a multi-tiered fresh installation
+    who: Rosa, with administrator rights on each server
+    where: [wc-db01, wc-app01, PTC Solution Installer]
+    steps:
+      - title: Prepare each machine
+        where: [Server, Administrator account]
+        md: |
+          Log on with **administrator** permissions. Check the server **time and date** - some bundled
+          third-party products rely on them. On Windows, choose the installation directory carefully: it
+          matters for running the server as a Windows service later.
+      - title: Remove blockers
+        where: [Windows Server, Firewall]
+        md: |
+          On Windows Server, the manual says to disable the **Windows Firewall** and **Internet Explorer
+          Enhanced Security Configuration** before running the PSI, to avoid port and permission problems.
+          Agree this with Lena (security) in advance and plan when protections go back on.
+      - title: Prepare the enterprise LDAP
+        where: [Active Directory, Base distinguished name for users]
+        md: |
+          If you connect to an enterprise LDAP and load base data, make sure the out-of-the-box Windchill
+          group names - such as **Administrators**, **Type Administrators**, **Workflow Authors** - don't
+          already exist under the base DN you give for user entries.
+      - title: Set up the staging area
+        where: [Network drive, Staging directory]
+        md: Put the downloaded images in a staging area. For two servers, map one network drive on both, with read and write permission.
+      - title: Run the PSI on the database server
+        where: [wc-db01, PTC Solution Installer]
+        md: Start the PSI on **wc-db01** first and install the database components (or point to Omar's existing database).
+      - title: Run the PSI on the application server
+        where: [wc-app01, PTC Solution Installer]
+        md: |
+          Pick the Windchill solution and optional products, the platform components, then answer the
+          prompts: language, admin settings, installation and staging directories, database and LDAP
+          settings.
+      - title: Review the summary and install
+        where: [PTC Solution Installer, Installation Summary, Install]
+        md: |
+          The summary shows every value you entered or accepted by default, plus estimated disk space.
+          Read it, then click **Install**. The summary is saved as `PTCSolnInstaller-installer.properties`
+          and `summary.html` in the `installer` folder.
+    result: |
+      Both servers are installed, the logs are in `installer/logs`, and the summary files record exactly
+      what was chosen. Next: post-installation checks and the license.
+
+  - type: callout
+    variant: note
+    title: Passwords are encrypted - record them elsewhere
+    md: |
+      The PSI encrypts an initial set of system passwords that would otherwise sit in plain text in
+      Windchill and Info*Engine files. Good for security - but you can no longer open a file to "look up"
+      a password. Set up a secure place **outside** the Windchill directories to record passwords set
+      during installation and later. The Help Center explains the encryption mechanism.
+
+  - type: comparison
+    title: Where the installer writes its logs
+    columns: [Location, Notes]
+    rows:
+      - label: After you click Install
+        cells: ["`<installation directory>/installer/logs`", "Two files per session: `<short name>_InstallLog.xml` and `<short name>_PtcInstall.log`"]
+      - label: Before you click Install (Windows)
+        cells: ["The folder in `%TMP%`", "Usually the user's local Temp folder"]
+      - label: Before you click Install (UNIX)
+        cells: ["`/var/tmp` or `/tmp`", "If that isn't writable, the XML log goes to the user's home directory"]
+      - label: Repeat runs
+        cells: ["Same `installer/logs` folder", "Older logs are kept with a sequence number starting at 000"]
+    takeaway: If an install fails, note where its logs are before you do anything else.
+
+  - type: scenario
+    variant: what-if
+    title: The install fails halfway
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Saturday, 14:20. The PSI on **wc-app01** stops with an error while configuring the database
+          connection. What does Rosa do first?
+        choices:
+          - label: Note the log location and read the logs
+            next: s2
+            good: true
+            feedback: Right. The logs tell you what failed, and PTC Support will want them if you open a case.
+          - label: Delete the installation folder and start again
+            next: fail1
+            feedback: You'd throw away the logs and the recovery option.
+      - id: s2
+        md: |
+          The `PtcInstall.log` shows the database password Rosa typed was wrong. She fixes it with Omar.
+          Now what?
+        choices:
+          - label: Run the PSI again on wc-app01
+            next: s3
+            good: true
+            feedback: Running the PSI again on the same machine lets you recover the failed installation.
+          - label: Run the PSI on a different server
+            next: fail2
+            feedback: Recovery only works when you run the PSI again on the same machine.
+      - id: s3
+        md: |
+          After the language, Before You Begin and license panels, a **Recover Failed Installation** message
+          appears. This is the only failed install on this machine. Rosa clicks...
+        choices:
+          - label: "Yes - recover the most recent failed installation"
+            next: s4
+            good: true
+            feedback: Yes recovers the latest failed installation directly.
+          - label: "No - then choose Recover and pick the installation"
+            next: s5
+            feedback: That works too, and it's the path when more than one install has failed. Slightly longer here.
+      - id: s4
+        md: |
+          The PSI shows the installation information. Rosa corrects the database password and continues.
+          The install completes from where it failed.
+        outcome: success
+      - id: s5
+        md: |
+          Rosa selects **Recover**, picks the wc-app01 installation, corrects the password and continues.
+          Same result, one extra screen.
+        outcome: partial
+      - id: fail1
+        md: |
+          The folder is gone, and so are the logs. Rosa starts over, hits the same password problem an hour
+          later and has nothing to send PTC Support.
+        outcome: fail
+      - id: fail2
+        md: Recovery isn't offered on another server. Rosa ends up with half an installation on wc-app01 and a new one elsewhere.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Forgetting the order in a multi-tiered install.** The database server comes first, then the
+      application server - and the staging area must be reachable, read and write, from both. Many
+      "mysterious" failures are just a staging share mapped read-only on one machine.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Treat `PTCSolnInstaller-installer.properties`, `summary.html` and the log files as part of the
+      system's documentation. Copy them into Acme's change record. When you build the test system or
+      rebuild after a disaster, you know every value you chose.
+
+  - type: quiz
+    questions:
+      - kind: order
+        prompt: Put the phases of a Windchill installation in order.
+        items: [Plan the installation and check prerequisites, Run the PSI on the database server, Run the PSI on the application server, Retrieve and configure the license]
+        explanation: Planning and prerequisites come first; in a multi-tiered install the PSI runs on the database server before the application server; licensing is part of advanced configuration afterwards.
+      - kind: single
+        prompt: Acme wants to add a language pack to its running Windchill. Which installation type is this?
+        options: [Fresh installation, Update to an existing installation, Upgrade, None - languages are added in a browser]
+        answer: 1
+        explanation: Updates add optional products, languages or maintenance releases. Upgrades move between releases.
+      - kind: truefalse
+        prompt: After the PSI encrypts system passwords, an admin can still read them from Windchill's property files.
+        answer: false
+        explanation: Encrypted passwords can't be read from the files, which is why you need a secure place outside Windchill to record them.
+
+  - type: summary
+    points:
+      - Installation has three phases - plan and prerequisites, run the installers, advanced configuration.
+      - Choose fresh installation, update (products, languages, maintenance releases) or upgrade (between releases).
+      - In a multi-tiered install run the PSI on the database server first, with a staging area both servers can read and write.
+      - Logs live in `installer/logs`; the summary is saved as `PTCSolnInstaller-installer.properties` and `summary.html`.
+      - If an install fails, read the logs, fix the cause and run the PSI again on the same machine to recover.
