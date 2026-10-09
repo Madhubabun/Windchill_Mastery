@@ -26,8 +26,9 @@ checkpoints and a capstone. Module 2 (Product Data Management & Core Features) i
 lessons, 4 section checkpoints and a capstone. Module 3 (Change & Configuration Management) is
 complete: 20 lessons, 5 section checkpoints and a capstone. Module 4 (Business Administration) is
 complete: 38 lessons, 9 section checkpoints and a capstone. Module 5 (System Administration) is
-complete: 31 lessons, 7 section checkpoints and a capstone. All five have cheat sheets; the
-glossary has 287 terms. The other modules are outlined.
+complete: 31 lessons, 7 section checkpoints and a capstone. Module 6 (Migration & Data
+Management) is complete: 17 lessons, 5 section checkpoints and a capstone. All six have cheat
+sheets; the glossary has 358 terms. The other modules are outlined.
 
 ## Not done yet / known limits
 

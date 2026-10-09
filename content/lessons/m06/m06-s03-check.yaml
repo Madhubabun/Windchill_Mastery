@@ -1,0 +1,174 @@
+id: m06-s03-check
+subtitle: Packages, deliveries, mapping, reconciliation and replication - exchanging data without losing track of it.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [migration, packages, mapping, received-delivery, checkpoint]
+sources:
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Packages: Sending Side"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/packages/PackageSendSide.html"
+    covers: "Sending-side steps and order; package types"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Format Options"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/packages/PackageFormatOptions.html"
+    covers: "Export Only vs PTC Windchill format and its limits"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Packages: Receiving Side"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/packages/PackageReceiveSide.html"
+    covers: "Receiving steps; read-only imported objects; unmapped values make imports fail"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Best Practices for Working with Packages"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/packages/PackageBestPractice.html"
+    covers: "No unlocking after first delivery; full vs incremental; incremental deletes; collector and collection rules"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Defining Received Delivery Mapping"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/packages/ReceivedDeliveryDefineMap.html"
+    covers: "Mapping kinds and levels; mapping does not change business intent"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Best Practices for Working with Received Deliveries"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/packages/ReceivedDeliveryBestPractice.html"
+    covers: "Preview first; don't change mappings after the first delivery; review the import summary report and logs"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Importing Received Delivery Files"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/packages/ReceivedDeliveryImport.html"
+    covers: "Import statuses; import in export order by Source Zip Creation Time"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Mapping Through Special Rules"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/ExpImpPolicyRules_Chp/ExpImpPolicyRulesChp_MapThroughSpecialRule.html"
+    covers: "Never map MCAD document numbers"
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **packages and mapping**, following Nia as she sends K1 data to Voltra Cells,
+      receives jigs from Hexa Tooling and keeps Acme Asia in step. Score 80% to pass. Every answer
+      explains itself.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: order
+        prompt: Put Nia's sending-side steps for Voltra's package in order.
+        items:
+          - Create the package in the Kestrel Cargo K1 product
+          - Set content with collection rules and filters
+          - Review the content internally and lock the package
+          - Create a delivery naming Voltra and the medium
+          - Create the Export Only ZIP and send it
+        explanation: Content is set and frozen first. The ZIP can only be created after the package is locked, and it belongs to a delivery with a recipient and a medium.
+      - kind: single
+        prompt: Voltra Cells has no Windchill. What should its package ZIP be?
+        options:
+          - "Export Only, with a manifest and offline viewer if useful"
+          - "PTC Windchill format"
+          - "A replication package"
+          - "A JAR from Import/Export Management"
+        answer: 0
+        explanation: Export Only gives a CONTENTS folder plus an optional manifest.txt and offline viewer, which anyone can open. The other routes need Windchill on the receiving side.
+      - kind: truefalse
+        prompt: After the first delivery, Nia can unlock the package to add a forgotten drawing, as long as she relocks it.
+        answer: false
+        explanation: After the first delivery a package can't be unlocked without creating a new iteration or revision of it. That's why the internal review comes before locking.
+      - kind: multi
+        prompt: Which statements about the PTC Windchill format are true? (Choose all that apply.)
+        options:
+          - "The ZIP contains importData and METADATA folders"
+          - "Importable deliveries need the same major and minor release on both sides"
+          - "Objects from Project or Program contexts can't be included"
+          - "Anyone who can create a package can create this format"
+        answers: [0, 1, 2]
+        explanation: Only members of the PLM Connector Importable Package license group can create PTC Windchill format. The other three are the format's rules.
+      - kind: single
+        prompt: Hexa's delivery uses a folder that doesn't exist at Acme. Nia imports without mapping it. What happens?
+        options:
+          - "The import fails until the folder is mapped or created at Acme"
+          - "The objects go to the product's root folder"
+          - "Windchill creates the folder automatically"
+          - "The objects import but stay invisible"
+        answer: 0
+        explanation: Values such as folders and life cycle states need a valid mapping or equivalent. Map the value in Mapping Management, or create the missing folder.
+      - kind: multi
+        prompt: Which of these are good mapping practice? (Choose all that apply.)
+        options:
+          - "Define mappings from the preview's conflict report before importing"
+          - "Change mappings freely after the first delivery to keep folders tidy"
+          - "Use mapping to resolve conflicts, not to change what the source data means"
+          - "Remove obsolete mappings regularly"
+        answers: [0, 2, 3]
+        explanation: PTC recommends defining mappings during the preview and cleaning out obsolete ones. Mappings shouldn't change after the first delivery from a source, and mapping is not meant to alter business intent.
+      - kind: single
+        prompt: Priya suggests renumbering Hexa's CAD documents with a COPY_AS mapping rule. What does Nia say?
+        options:
+          - "No: mapping MCAD document numbers breaks assembly references and can't be reliably reverted"
+          - "Yes, COPY_AS is designed for that"
+          - "Yes, but only for drawings"
+          - "Only if the rule file is generalized rather than client-based"
+        answer: 0
+        explanation: PTC explicitly warns against mapping number attributes for MCAD documents. Assemblies rely on those numbers.
+      - kind: single
+        prompt: The import status is Imported and the logs show no errors, but the summary counts 408 objects where Hexa said 412. What's the right reading?
+        options:
+          - "A finding to investigate: objects may have been left out on the sending side"
+          - "A rounding difference that can be ignored"
+          - "Proof that four objects failed to import"
+          - "A sign the mapping is wrong"
+        answer: 0
+        explanation: Objects filtered out before the ZIP was built never appear in the logs. Reconciliation means explaining every difference before sign-off.
+      - kind: single
+        prompt: Acme Asia, Acme's own second Windchill, needs the K1 product kept up to date weekly. What fits?
+        options:
+          - "A replication package: full delivery first, then incrementals based on the previous one"
+          - "A new standard Export Only package each week"
+          - "Import/Export Management of the whole site each week"
+          - "Copying the database"
+        answer: 0
+        explanation: Replication packages replicate product or library design data to a second internal Windchill with detailed metadata, and incrementals carry only what changed.
+      - kind: truefalse
+        prompt: Importing an incremental delivery can delete objects on the target.
+        answer: true
+        explanation: An incremental delivery includes delete and move information since its base delivery, and the import performs those deletes. Import deliveries in export order.
+
+  - type: flashcards
+    title: Packages and mapping deck
+    cards:
+      - front: "Package"
+        back: "A tracked bundle of objects for a recipient outside your Windchill: content, lock, deliveries, ZIPs."
+      - front: "Initially selected object"
+        back: "An object the package starts from. Collection rules gather the rest; prefer rules over hand-picking."
+      - front: "Lock a package"
+        back: "Freezes content. Needed before creating ZIPs. No unlocking after the first delivery without a new iteration or revision."
+      - front: "Delivery"
+        back: "One shipment of a locked package: a recipient plus a medium (project share, email link or attachment, download site, physical media)."
+      - front: "Export Only format"
+        back: "ZIP with a CONTENTS folder, optional manifest.txt and offline viewer. No Windchill needed."
+      - front: "PTC Windchill format"
+        back: "Importable ZIP (importData + METADATA). Same major.minor release; no Project/Program or non-owned objects; license group needed."
+      - front: "Received Delivery Management"
+        back: "Upload, preview and import package ZIPs. Imported objects arrive read-only. PDMLink only."
+      - front: "Mapping kinds"
+        back: "Context, Owning Organization, View, Folder, Life Cycle, Security Label. Version mapping via a system-wide property."
+      - front: "Mapping levels"
+        back: "Site, organization, product, library. Lower levels override higher ones."
+      - front: "Golden mapping rules"
+        back: "Resolve conflicts, don't change meaning. Don't change mappings after the first delivery. Never map MCAD numbers."
+      - front: "Reconciliation"
+        back: "General practice: compare counts, content, links and values with the source, and explain every difference."
+      - front: "Replication package"
+        back: "Copies product or library design data to your own second Windchill; full, then incrementals that can delete on the target."
+
+  - type: summary
+    points:
+      - "Send side: create, set content, lock, deliver, build the ZIP."
+      - Export Only for recipients without Windchill; PTC Windchill format for a Windchill at the same major and minor release.
+      - "Receive side: upload, preview, map, import; objects arrive read-only."
+      - Map to resolve conflicts, keep mappings stable, never map MCAD numbers.
+      - Reconcile and sign off every batch; use replication packages for your own second Windchill.

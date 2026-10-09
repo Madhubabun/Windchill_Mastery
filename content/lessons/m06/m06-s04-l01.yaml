@@ -1,0 +1,328 @@
+id: m06-s04-l01
+subtitle: Thirty thousand loose files and one folder called FINAL_v3. Turn them into structure you can trust.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [migration, file-share, legacy-pdm, duplicates, orphans, cad]
+sources:
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Windchill Bulk Migrator Installation"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCInstallConfigGuide/WCInstall_BulkMigrator.html"
+    covers: "Windchill Bulk Migrator is an optional product for permanent one-way migration into Windchill using Extract, Transform, Load and Validate (ETLV); its configuration and use are in a separate guide"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "CAD Data Management in Windchill"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/cadx/CADxDMOview.html"
+    covers: "CAD documents hold a model or drawing file as primary content and form CAD structures; bulk loading of Creo, CATIA V5, NX and Autodesk Inventor data uses Windchill Bulk Migrator with ETLV"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Association Usage Examples"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/ManagingCADandPartRelationships/MCPR_AssociationUsageExamples.html"
+    covers: "Owner, Image and Content associations between CAD documents and parts; several CAD files can represent one part number"
+
+blocks:
+  - type: text
+    md: |
+      Nia opens `\\kestrel-fs01\engineering` for the first time. It is huge. Folders named
+      `K1_new`, `K1_new_NEW`, `OLD_DO_NOT_USE` (last modified: yesterday). Some files sit in
+      Kestrel's old PDM, but many newer designs never made it in.
+
+      On a file share, there is no "part", no "revision", no "who approved this". There are just
+      **files** and their **names**, dates and folders. Every bit of structure and history you want in
+      Windchill has to be **rebuilt** from clues.
+
+      Good news: CAD files carry the best clue of all. An assembly file *knows* which components it
+      uses. Start there.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "moving designs out of shared folders into PLM" → *[[file-share-migration]]*
+      - "a file nothing uses and nobody claims" → *[[orphan-file]]*
+      - "the same design saved twice under different names" → *[[duplicate-file]]*
+      - "a link that points at something that isn't there" → *[[broken-reference]]*
+      - "an assembly needs its parts to open" → *[[cad-dependency]]*
+      - "the managed CAD file in Windchill" → *[[cad-document]]*
+
+  - type: callout
+    variant: note
+    title: Where this comes from
+    md: |
+      This lesson teaches general migration practice for file shares and older PDM systems; it is
+      not a PTC procedure. The Windchill-specific facts (Windchill Bulk Migrator, CAD documents,
+      CAD-to-part associations) come from the PTC Help Center pages listed as this lesson's sources.
+
+  - type: diagram
+    title: From a pile of files to a structure
+    caption: Rebuild works outward from the CAD references, then sorts what's left. Click each box.
+    diagram:
+      width: 800
+      height: 440
+      groups:
+        - { label: Source, x: 20, y: 20, w: 220, h: 400, tone: neutral }
+        - { label: Analyse, x: 270, y: 20, w: 250, h: 400, tone: warning }
+        - { label: Decide and load, x: 550, y: 20, w: 230, h: 400, tone: success }
+      nodes:
+        - id: share
+          label: File share
+          sublabel: kestrel-fs01
+          x: 40
+          y: 80
+          w: 180
+          shape: cylinder
+          tone: neutral
+          detail: |
+            About 30,000 CAD files, PDFs and spreadsheets. Folder names hint at products, but folders
+            were copied and renamed for years. Treat folder names as **hints, not truth**.
+        - id: oldpdm
+          label: Kestrel's old PDM
+          sublabel: partial metadata
+          x: 40
+          y: 260
+          w: 180
+          shape: cylinder
+          tone: neutral
+          detail: |
+            Holds numbers, revisions and states for the older designs. Newer K1 work was saved
+            straight to the share. Where both exist, compare them before trusting either.
+        - id: scan
+          label: Read CAD references
+          sublabel: who uses whom
+          x: 290
+          y: 60
+          w: 210
+          tone: primary
+          detail: |
+            Assemblies and drawings store references to the files they use. Reading those references
+            from the **top-level assemblies down** gives you real structure, not guessed structure.
+          real: Start from the assemblies the business says are current (here, the shipping K1), not from the folder tree.
+        - id: dupes
+          label: Find duplicates
+          sublabel: same design, two names
+          x: 290
+          y: 180
+          w: 210
+          tone: warning
+          detail: |
+            `KC-4120.prt` and `KC-4120_final2.prt`: same geometry, or not? Compare content, not just
+            names. Decide which copy is the **master** and which assemblies must be re-pointed.
+        - id: orphans
+          label: Find orphans
+          sublabel: used by nothing
+          x: 290
+          y: 300
+          w: 210
+          tone: warning
+          detail: |
+            Files no assembly or drawing references and no product claims. Some are junk; some are
+            the only copy of a spare part design. Each one needs a decision, not a default.
+        - id: load
+          label: Load the keepers
+          sublabel: with their references
+          x: 570
+          y: 80
+          w: 190
+          tone: success
+          detail: |
+            Load each assembly **together with** everything it references, so Windchill can build the
+            CAD structure. For Creo, CATIA V5, NX and Autodesk Inventor data, PTC's route for bulk
+            loading is the **Windchill Bulk Migrator** (ETLV).
+        - id: archive
+          label: Archive the rest
+          sublabel: read-only, outside PLM
+          x: 570
+          y: 220
+          w: 190
+          tone: info
+          detail: |
+            Orphans nobody claims and superseded copies go to a read-only archive with an index. Not
+            deleted, not migrated. If someone needs one later, it can still be found.
+        - id: report
+          label: Exceptions list
+          sublabel: owner per item
+          x: 570
+          y: 340
+          w: 190
+          tone: danger
+          shape: doc
+          detail: |
+            Every broken reference, unresolved duplicate and unclaimed orphan, with a named person
+            who will decide. This list is part of the sign-off.
+      edges:
+        - { from: share, to: scan }
+        - { from: oldpdm, to: scan, dashed: true, label: compare }
+        - { from: scan, to: dupes }
+        - { from: scan, to: orphans }
+        - { from: dupes, to: load, label: master picked }
+        - { from: orphans, to: archive, label: unclaimed }
+        - { from: orphans, to: load, label: claimed, dashed: true }
+        - { from: dupes, to: report, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      A file share hides its mess because nobody sees all of it at once. A PLM system shows
+      everything: every duplicate becomes a second "part" in search, every broken link becomes an
+      assembly that won't open. If you load the mess, Windchill doesn't fix it. It **publishes** it to
+      the whole company, with a nice interface.
+
+  - type: comparison
+    title: "Cheat sheet: file share vs legacy PDM as a source"
+    columns: [File share, Legacy PDM]
+    rows:
+      - label: Structure
+        cells: ["Only inside CAD files (assembly and drawing references)", "Stored as relationships - but check them against the CAD files"]
+      - label: Numbers
+        cells: ["From file names - often inconsistent", "A number field - usually more reliable"]
+      - label: Revisions
+        cells: ["Guessed from names and dates (_revB, _v3, final)", "Revision labels and history exist"]
+      - label: Status
+        cells: ["Unknown - which file is released?", "States exist - map them to Windchill states"]
+      - label: Typical mess
+        cells: ["Duplicates, orphans, copies of copies", "Stale records, files changed outside the PDM"]
+      - label: Your first job
+        cells: ["Rebuild structure from CAD references", "Profile and reconcile metadata with the files"]
+    takeaway: A file share gives you files and no facts. A legacy PDM gives you facts you still have to check.
+
+  - type: example
+    variant: case-study
+    title: The K1 rear frame, three ways
+    industry: Cargo bikes
+    md: |
+      Nia's profiling finds **three** files that all claim to be the K1 rear frame:
+      `KC-4120.prt`, `KC-4120_final2.prt` and `rear_frame_tomas.prt`.
+
+      - She reads references from the current K1 top assembly: it uses `KC-4120_final2.prt`.
+      - Older K1 drawings point at `KC-4120.prt`. The old PDM lists KC-4120 at revision B with that
+        file.
+      - `rear_frame_tomas.prt` is used by nothing. Tomas remembers it: a stiffer frame tested for a
+        heavier K1 variant that was cancelled. **Orphan.**
+
+      **Decision (agreed with Kai, Acme's lead engineer):** the geometry in `KC-4120_final2.prt`
+      becomes the latest version of KC-4120. The revision-B file is kept as earlier history because
+      released drawings point at it. Tomas's frame goes to the archive, indexed, with a note.
+
+      The result: one KC-4120 in Windchill, assemblies that open, history that makes sense, and
+      nothing silently thrown away.
+    takeaway: Let CAD references pick the winner, let a human confirm it, and write the decision down.
+
+  - type: scenario
+    variant: what-if
+    title: What if two files have the same name?
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          During the dry run, the load reports two different files both named `KC-4305.prt`, from
+          two different folders. Two K1 assemblies use them. What do you do?
+        choices:
+          - label: Compare the two files and check which assemblies use which
+            next: s2
+            good: true
+            feedback: Right. Same name doesn't mean same design. Find out first.
+          - label: Keep the newest file and drop the other
+            next: fail1
+            feedback: Newest isn't always right - and one assembly may need the other version.
+          - label: Rename one to KC-4305_2 and load both
+            next: partial1
+            feedback: Everything loads, but now Windchill has two parts for one number's worth of history.
+      - id: s2
+        md: |
+          They differ: one has an extra mounting hole. Assembly A (current K1) uses the newer one;
+          assembly B (an old service kit) uses the older one. What now?
+        choices:
+          - label: Ask Kai whether these are revisions of one part or two different parts
+            next: win
+            good: true
+            feedback: That's an engineering decision, so an engineer makes it.
+          - label: Decide yourself - it's only a hole
+            next: partial2
+            feedback: Fit, form or function may have changed. That's not the migration team's call.
+      - id: win
+        md: |
+          Kai says the hole changed fit, so the older design gets a new number in the KC-4000 range
+          and the service kit is re-pointed to it. Both assemblies open, and the decision sits in the
+          exceptions list with Kai's name on it.
+        outcome: success
+      - id: partial1
+        md: |
+          The load runs, but search now shows a confusing `KC-4305_2` that nobody recognises. You will
+          clean it up later - after users have already referenced it.
+        outcome: partial
+      - id: partial2
+        md: |
+          You guess right this time. But nothing records **why**, so when the service team asks in a
+          year, nobody can answer.
+        outcome: partial
+      - id: fail1
+        md: |
+          The service kit assembly opens with the wrong frame. Nobody notices until a spare part is
+          ordered and doesn't fit.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    title: Trusting folder names
+    md: |
+      `OLD_DO_NOT_USE` was last edited yesterday. `RELEASED` contains work-in-progress. Folder
+      names describe what someone **intended** years ago, not what the files are now. Use CAD
+      references and the legacy PDM's records as evidence, and folder names only as hints.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Freeze the source before the final run. Agree a date after which nobody saves to
+      `\\kestrel-fs01\engineering` (make it read-only), or your carefully profiled data changes
+      under you. Profile again right after the freeze so the final load uses the numbers you
+      actually tested.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: On a file share, where is the most reliable evidence of product structure?
+        options:
+          - "The references stored inside assembly and drawing files"
+          - "The folder names"
+          - "The file modification dates"
+          - "The file sizes"
+        answer: 0
+        explanation: CAD assemblies and drawings record which files they use. Folders and dates are hints at best, because people copy, rename and touch files all the time.
+      - kind: single
+        prompt: Profiling finds a CAD file that no assembly or drawing uses and no product claims. What is it, and what's the safe default?
+        options:
+          - "An orphan file - get an owner's decision, and archive it if nobody claims it"
+          - "A duplicate file - delete it"
+          - "A broken reference - load it anyway"
+          - "A family table - ignore it"
+        answer: 0
+        explanation: Orphans need a decision. Some are junk, some are the only copy of something useful. Archiving with an index keeps it findable without polluting Windchill.
+      - kind: truefalse
+        prompt: Windchill Bulk Migrator is PTC's route for bulk loading Creo, CATIA V5, NX and Autodesk Inventor data.
+        answer: true
+        explanation: The Help Center lists those four CAD sources for bulk loading with Windchill Bulk Migrator, using its Extract, Transform, Load and Validate approach.
+      - kind: multi
+        prompt: Two files claim to be the same part. Which steps are good practice? (Choose all that apply.)
+        options:
+          - "Compare their content, not just their names"
+          - "Check which assemblies and drawings reference each one"
+          - "Have an engineer decide whether they are one part or two"
+          - "Keep whichever file is newest"
+        answers: [0, 1, 2]
+        explanation: Evidence first (content and references), then an engineering decision. "Newest wins" breaks every assembly that still needs the older one.
+
+  - type: flashcards
+    cards:
+      - { front: File share migration, back: "Moving designs from shared folders into PLM - structure and history must be rebuilt from clues." }
+      - { front: Orphan file, back: "A file nothing references and nobody claims. Needs an owner's decision; archive if unclaimed." }
+      - { front: Duplicate file, back: "The same design saved more than once under different names or folders. Pick a master and re-point users." }
+      - { front: Best clue for structure, back: "References stored inside CAD assemblies and drawings - read them from the top-level assembly down." }
+
+  - type: summary
+    points:
+      - File shares have files, not facts. Structure and history must be rebuilt from evidence.
+      - Read CAD references from the current top-level assemblies down; folder names are only hints.
+      - Every duplicate and orphan gets a decision with a named owner - not a silent default.
+      - Load assemblies together with what they reference; archive what nobody claims, don't delete it.
+      - For Creo, CATIA V5, NX and Inventor bulk loads, PTC's tool is Windchill Bulk Migrator (ETLV).

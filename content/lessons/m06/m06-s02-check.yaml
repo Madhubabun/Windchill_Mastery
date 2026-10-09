@@ -1,0 +1,154 @@
+id: m06-s02-check
+subtitle: Bulk migrator, load utilities and Import/Export Management - which tool, which file, which conflict.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [migration, windchill-bulk-migrator, load-files, import-export, checkpoint]
+sources:
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Windchill Bulk Migrator Installation"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCInstallConfigGuide/WCInstall_BulkMigrator.html"
+    covers: "WBM is for permanent, one-way migration; ETLV stages"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "CAD Data Management in Windchill"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/cadx/CADxDMOview.html"
+    covers: "WBM bulk loading supports Creo, CATIA V5, NX and Autodesk Inventor"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Overview of Load Utilities"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/WCDataLoadGuide/WCDataLoad_IntroOviewLoadUtility.html"
+    covers: "LoadFromFile vs LoadFileSet; Windchill Loader; load utilities process only XML; Exchange as default container"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Using the LoadFromFile Utility"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/WCDataLoadGuide/WCDataLoad_LoadLegacyUseLoadFromFileUtility.html"
+    covers: "-CONT_PATH; only site administrators should run it"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Converting CSV Files to XML Format Files"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/WCDataLoadGuide/WCDataLoad_UseCSV2XML_ConvertCSVFilesXMLFormat.html"
+    covers: "CSV must match csvmapfile.txt; validate against standardX20.dtd"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Working with the Import/Export Management Utility"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/exportimport/ExportImportAbout.html"
+    covers: "JAR files; no change control information; UFID; identity conflicts and Resolve Overridable Conflicts"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Mapping Through Special Rules"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/ExpImpPolicyRules_Chp/ExpImpPolicyRulesChp_MapThroughSpecialRule.html"
+    covers: "Rule priority; COPY_AS and IGNORE; do not map MCAD document numbers"
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **migration and loading tools**, built around Nia moving Kestrel Cycles' CAD
+      files, purchased-parts spreadsheet and Acme Asia's assembly instructions into Acme's
+      Windchill. Score 80% to pass. Every answer explains itself.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: Which tool family is built for a permanent, one-way migration of Kestrel's legacy PDM and CAD data into Windchill?
+        options:
+          - "Windchill Bulk Migrator"
+          - "Import/Export Management"
+          - "The Windchill Loader"
+          - "CSV2XML"
+        answer: 0
+        explanation: The Windchill Bulk Migrator is a collection of tools for permanent, one-way migration into Windchill. Import/Export Management moves data between Windchill sites; the Windchill Loader loads solution base data; CSV2XML only converts files.
+      - kind: order
+        prompt: Put the Windchill Bulk Migrator's approach in order.
+        items: [Extract, Transform, Load, Validate]
+        explanation: ETLV - pull data from the sources, map it to fit Windchill, load it into the database and vaults, then validate.
+      - kind: multi
+        prompt: Which CAD sources does Windchill Bulk Migrator bulk loading support? (Choose all that apply.)
+        options: [Creo, CATIA V5, NX, Autodesk Inventor]
+        answers: [0, 1, 2, 3]
+        explanation: The Help Center lists all four - Creo, CATIA V5, NX and Autodesk Inventor - for bulk loading with WBM.
+      - kind: single
+        prompt: Nia has 400 purchased parts in a CSV file. What's the right path into Windchill?
+        options:
+          - "Convert with CSV2XML, validate the XML, then load with LoadFromFile"
+          - "Point LoadFromFile directly at the CSV"
+          - "Import the CSV in Import/Export Management"
+          - "Load the CSV with the Windchill Loader"
+        answer: 0
+        explanation: The load utilities process only XML. CSV2XML converts CSV prepared against csvmapfile.txt; validating against standardX20.dtd catches format errors before the load.
+      - kind: single
+        prompt: Rosa needs to load six related XML data files in one go. Which utility fits?
+        options: [LoadFileSet, LoadFromFile, CSV2XML, Import/Export Management]
+        answer: 0
+        explanation: LoadFileSet loads multiple data files. LoadFromFile loads one.
+      - kind: truefalse
+        prompt: Without -CONT_PATH, LoadFromFile loads data into the Exchange container, which is the site.
+        answer: true
+        explanation: Exchange is the default target. Always pass -CONT_PATH when the data belongs in an organization, product or library.
+      - kind: multi
+        prompt: Which statements about LoadFromFile are true? (Choose all that apply.)
+        options:
+          - "Only site administrators should run it"
+          - "The data file must be on the method server host"
+          - "The server manager and method server must be running"
+          - "It reads JAR files exported from another Windchill"
+        answers: [0, 1, 2]
+        explanation: LoadFromFile is a user-authenticated process for site administrators, reads an XML data file on the server and needs the servers running. JAR files belong to Import/Export Management.
+      - kind: single
+        prompt: Production already has KC-2510 A.1; the incoming JAR has KC-2510 A.1 with a different UFID. What happens, and what's one fix?
+        options:
+          - "The import fails; use Resolve Overridable Conflicts or a policy or rule file"
+          - "The import overwrites production's copy; nothing to fix"
+          - "The import creates KC-2510 A.2 automatically"
+          - "The import skips the object silently; re-export it"
+        answer: 0
+        explanation: Same name, number, version and iteration with a different UFID fails the import. The Resolve Overridable Conflicts checkbox, or a policy or rule file that changes the identity values, gets past it.
+      - kind: truefalse
+        prompt: Exporting the Acme Asia documents also carries their change requests and change notices.
+        answer: false
+        explanation: Import/Export Management moves content and metadata, but not the information required for change control.
+      - kind: single
+        prompt: A mapping rule could rename incoming numbers. Which objects does PTC warn you never to renumber this way?
+        options:
+          - "MCAD documents"
+          - "Documents"
+          - "Purchased parts"
+          - "Folders"
+        answer: 0
+        explanation: Mapping the number attribute of MCAD documents breaks assembly references and can't be reliably reverted.
+
+  - type: flashcards
+    title: Migration and loading tools deck
+    cards:
+      - front: "Windchill Bulk Migrator"
+        back: "PTC's toolset for permanent, one-way migration into Windchill using ETLV. An optional product."
+      - front: "ETLV"
+        back: "Extract, Transform, Load, Validate."
+      - front: "LoadFromFile"
+        back: "Loads one XML data file. Site administrators only; servers running; file on the server."
+      - front: "LoadFileSet"
+        back: "Loads multiple data files."
+      - front: "Windchill Loader"
+        back: "Loads data for installed Windchill solutions (via installed.properties and LoaderConfiguration.properties); can add users and groups to LDAP."
+      - front: "CSV2XML"
+        back: "Converts CSV files - laid out per csvmapfile.txt - into XML load files."
+      - front: "-CONT_PATH"
+        back: "Names the target container. Default: Exchange (the site)."
+      - front: "Import/Export Management"
+        back: "Moves content and metadata between Windchill sites as JAR files. No change control information."
+      - front: "UFID"
+        back: "Unique Federated Identifier = local id + domain + site."
+      - front: "Rule priority"
+        back: "Resolve Overridable Conflicts > client rule file > generalized rule file > wt.properties."
+      - front: "Never map this"
+        back: "The number attribute of MCAD documents - it breaks assembly references."
+
+  - type: summary
+    points:
+      - Windchill Bulk Migrator for the big one-way move; load utilities for XML load files; Import/Export Management between Windchill sites.
+      - Load utilities read only XML - convert CSV with CSV2XML and validate.
+      - Pass -CONT_PATH or the data lands in the Exchange container.
+      - Same business identity with a different UFID fails an import until you resolve the conflict.
+      - Rule and policy files shape imports; never remap MCAD document numbers.

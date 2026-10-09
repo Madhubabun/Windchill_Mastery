@@ -1,0 +1,53 @@
+# New glossary terms introduced in section m06-s01 (Migration strategy).
+# These are general migration-practice terms; Windchill-specific facts come from the PTC Help Center
+# pages cited by the section's lessons (Windchill Bulk Migrator Installation; Upgrade Overview).
+- id: legacy-system
+  term: Legacy system
+  plain: The old system you are moving data out of.
+  definition: The existing system (a PDM or PLM system, a file share or a mix) that holds the data a migration moves into Windchill. After cutover it is usually switched to read-only, archived or retired. Its data must be profiled and often cleansed before it moves, because it reflects years of habits the new system won't share.
+  related: [migration-scope, data-profiling, pdm]
+
+- id: migration-scope
+  term: Migration scope
+  plain: The written list of what moves, how much history, and what stays behind.
+  definition: The agreed, signed-off definition of a migration - which products, object types and files move, how much version history comes with them, and what is archived or left behind. A fuzzy scope is one of the most common reasons migrations overrun. The scope is owned by the business, not only by IT.
+  related: [legacy-system, data-profiling, data-cleansing, migration-dry-run]
+
+- id: migration-dry-run
+  term: Migration dry run
+  plain: A full practice migration on a copy, before the real one.
+  definition: A rehearsal of the whole migration (extract, transform, load and validate) into a non-production environment, using real data volumes rather than a hand-picked sample. Dry runs find data and mapping problems early, measure how long the cutover will take and are repeated until the result passes the agreed checks.
+  aka: [Trial migration, mock migration]
+  related: [migration-scope, data-cleansing, big-bang-migration]
+
+- id: big-bang-migration
+  term: Big bang migration
+  plain: Everything moves in one cutover, then everyone switches.
+  definition: A migration strategy in which all in-scope data moves in a single cutover window, after which all users work in the new system and the legacy system becomes read-only. It is the shortest approach overall and avoids running two systems, but concentrates all risk in one window, so it depends on full-volume dry runs.
+  related: [phased-migration, coexistence-migration, migration-dry-run]
+
+- id: phased-migration
+  term: Phased migration
+  plain: Moving data in waves - one product line, site or data set at a time.
+  definition: A migration strategy that moves data in several waves, each with its own freeze, load and validation. It spreads risk and lets the team learn on lower-risk data first, but the project runs longer and waves must be planned so that objects that reference each other move together. Each object should have exactly one master system at any moment.
+  aka: [Wave migration]
+  related: [big-bang-migration, coexistence-migration, migration-scope]
+
+- id: coexistence-migration
+  term: Coexistence migration
+  plain: Both systems stay live for a while and people use both.
+  definition: A migration strategy in which the legacy system and Windchill are both in active use for a period, with work split between them. It needs clear rules for which system is the master of each object and an integration or synchronisation approach to keep them consistent; that integration is a separate design. PTC describes Windchill Bulk Migrator as a tool for permanent, one-way migration, not two-way sync.
+  related: [big-bang-migration, phased-migration, legacy-system]
+
+- id: data-profiling
+  term: Data profiling
+  plain: Counting and checking what is really in the old data.
+  definition: Analysing legacy data before migration to measure its content and quality - object counts by type and product, duplicates, missing attributes, number formats, states in use, unreferenced files, age and broken references. The results size the project and drive the decision for each bucket of data - migrate, cleanse, archive or leave behind. Profile again shortly before cutover, because data drifts while people keep working.
+  related: [data-cleansing, migration-scope, legacy-system, metadata]
+
+- id: data-cleansing
+  term: Data cleansing
+  plain: Fixing, merging or removing bad data before it moves.
+  definition: Correcting legacy data problems found by profiling - for example merging duplicates, normalising number formats or filling missing attributes. Fixes only a person can make are best done in the legacy system before extraction; rule-based fixes fit the transform step, so every dry run repeats them. Every cleansing rule is logged with its reason, approver and the number of objects it touched.
+  aka: [Data cleanup, data scrubbing]
+  related: [data-profiling, migration-dry-run, numbering-scheme]
