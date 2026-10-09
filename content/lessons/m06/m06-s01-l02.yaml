@@ -1,0 +1,357 @@
+id: m06-s01-l02
+subtitle: One weekend, several waves or two systems side by side. Each works. Each can also hurt you.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [migration, strategy, big-bang, phased, coexistence, planning]
+sources:
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Windchill Bulk Migrator Installation"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCInstallConfigGuide/WCInstall_BulkMigrator.html"
+    covers: "Windchill Bulk Migrator is a set of tools for permanent, one-way migration of data into Windchill using an Extract, Transform, Load and Validate (ETLV) approach"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Upgrade Overview"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCUpgradeGuide/WCUpgrade_OverviewSteps_10x.html"
+    covers: "An upgrade exports the whole source database and LDAP and imports them into the target as one ordered sequence of steps, fixing errors before moving on"
+
+blocks:
+  - type: text
+    md: |
+      Nia has the scope draft for Kestrel. Now the big question from Acme's leadership:
+      *"When do Kestrel's engineers switch to Windchill? All at once?"*
+
+      There are three classic answers. Move everything in **one go**. Move it in **waves**. Or run
+      **both systems side by side** for a while. None of them is "the right one". The right one
+      depends on how much data there is, how busy the engineers are and how long the old system can
+      stay alive.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "everything moves in one cutover, then the old system goes read-only" → *[[big-bang-migration]]*
+      - "move it in waves: one product line, site or data set at a time" → *[[phased-migration]]*
+      - "both systems stay live for a while and people use both" → *[[coexistence-migration]]*
+      - "the old system we're leaving" → *[[legacy-system]]*
+
+  - type: callout
+    variant: note
+    title: Where this comes from
+    md: |
+      This lesson teaches general migration practice used across PLM projects; it is not a PTC
+      procedure. The Windchill-specific facts (what Windchill Bulk Migrator is for, how an upgrade
+      moves a database) come from the PTC Help Center pages listed as this lesson's sources.
+
+  - type: diagram
+    title: Three shapes of a migration
+    caption: Each row is a timeline from left to right. Click a box to see what happens in that period.
+    diagram:
+      width: 800
+      height: 420
+      groups:
+        - { label: Big bang, x: 20, y: 20, w: 760, h: 110, tone: danger }
+        - { label: Phased, x: 20, y: 150, w: 760, h: 110, tone: info }
+        - { label: Coexistence, x: 20, y: 280, w: 760, h: 120, tone: warning }
+      nodes:
+        - id: bb-prep
+          label: Prepare and rehearse
+          sublabel: legacy still in use
+          x: 40
+          y: 55
+          w: 300
+          h: 56
+          tone: neutral
+          detail: |
+            Months of profiling, mapping and **dry runs**, while everyone keeps working in the legacy
+            system. Every dry run uses the full data set, because the real run will.
+        - id: bb-cut
+          label: Cutover
+          sublabel: one freeze window
+          x: 360
+          y: 55
+          w: 160
+          h: 56
+          tone: danger
+          detail: |
+            The legacy system is frozen, all data moves, it is validated and Windchill goes live for
+            everyone. If something big goes wrong, the whole cutover is at risk.
+        - id: bb-live
+          label: Everyone in Windchill
+          sublabel: legacy read-only
+          x: 540
+          y: 55
+          w: 220
+          h: 56
+          tone: success
+          detail: |
+            One system of record from day one. No sync, no "which system is right?". The old system is
+            kept read-only (or archived) for reference.
+        - id: ph-w1
+          label: Wave 1
+          sublabel: low-risk data first
+          x: 40
+          y: 185
+          w: 220
+          h: 56
+          tone: info
+          detail: |
+            Start with a contained, lower-risk set, for example discontinued products that people only
+            look up. The team learns the process on data where mistakes hurt less.
+        - id: ph-w2
+          label: Wave 2
+          sublabel: next product line
+          x: 290
+          y: 185
+          w: 220
+          h: 56
+          tone: info
+          detail: |
+            Each wave gets its own short freeze, load and validation. Lessons from wave 1 make wave 2
+            faster. Plan waves so that data which references each other (an assembly and its parts)
+            moves **in the same wave**.
+        - id: ph-w3
+          label: Final wave
+          sublabel: busiest data last
+          x: 540
+          y: 185
+          w: 220
+          h: 56
+          tone: success
+          detail: |
+            The busiest, most important product moves when the process is proven. Then the legacy
+            system goes read-only. The cost: the project runs longer and both systems are partly live
+            in between.
+        - id: co-both
+          label: Both systems live
+          sublabel: rules for who owns what
+          x: 40
+          y: 315
+          w: 460
+          h: 60
+          tone: warning
+          detail: |
+            Some work happens in the legacy system, some in Windchill. You need clear ownership rules
+            (which system is the master for each object) and some **integration or sync** to keep them
+            consistent. That integration is a project of its own.
+        - id: co-end
+          label: Retire legacy
+          sublabel: eventually
+          x: 540
+          y: 315
+          w: 220
+          h: 60
+          tone: success
+          detail: |
+            Coexistence is a bridge, not a destination. Agree up front what has to be true before the
+            legacy system is switched off, or it never is.
+      edges:
+        - { from: bb-prep, to: bb-cut }
+        - { from: bb-cut, to: bb-live }
+        - { from: ph-w1, to: ph-w2 }
+        - { from: ph-w2, to: ph-w3 }
+        - { from: co-both, to: co-end, dashed: true }
+
+  - type: comparison
+    title: "Cheat sheet: big bang vs phased vs coexistence"
+    columns: [Big bang, Phased, Coexistence]
+    rows:
+      - label: How it works
+        cells: ["All data moves in one cutover", "Data moves in waves (by product line, site or data type)", "Both systems stay live; data and work are split for a period"]
+      - label: Best when
+        cells: ["Data set is modest; users are few; the legacy system must end on a fixed date", "Data is large or varied; you want to learn on low-risk data first", "Switch-off is impossible for a while (contracts, a product mid-launch, a partner still on the old system)"]
+      - label: Duration
+        cells: ["Shortest overall", "Longer: several cutovers", "Longest; can drag on with no end date"]
+      - label: Risk profile
+        cells: ["Concentrated in one weekend", "Spread over waves; each wave is smaller", "Ongoing: data drift between two masters"]
+      - label: Extra work
+        cells: ["Full-volume dry runs", "Wave planning; references that cross waves", "Integration or sync; ownership rules; double support"]
+      - label: Users experience
+        cells: ["One switch day; training must land before it", "Teams switch at different times", "People work in two systems and must know which is right"]
+      - label: Typical trap
+        cells: ["No fallback if the cutover goes badly", "An assembly in wave 2 needs parts from wave 3", "The temporary bridge becomes permanent"]
+    takeaway: Big bang concentrates risk, phased spreads it, coexistence stretches it out. Choose the risk you can manage.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      The strategy decides the whole project plan: how many freezes the engineers face, how many dry
+      runs you need, whether you have to build an integration, and how long you pay for two systems.
+      Pick it late and the plan gets rebuilt halfway through.
+
+  - type: text
+    md: |
+      **What the Windchill side tells you.** PTC describes **Windchill Bulk Migrator** as a set of
+      tools for the *permanent, one-way* migration of data into Windchill, using Extract, Transform,
+      Load and Validate. That fits big bang and phased approaches well: each wave is one more one-way
+      move. None of the PTC sources used in this course describes a two-way sync with a legacy system,
+      so if you choose coexistence, treat the integration as a separate design you must specify and
+      test yourself.
+
+      You have already seen a big-bang-shaped move inside Windchill itself: a Windchill **upgrade**
+      exports the whole source database and LDAP and imports them into the target in one ordered
+      sequence. Nobody upgrades "one product at a time".
+
+  - type: example
+    variant: real-world
+    title: Kestrel by the numbers
+    industry: Cargo bikes
+    md: |
+      Nia lists the facts that drive the choice:
+
+      - **Engineers:** about 25 at Kestrel, all in one building.
+      - **Data:** three product lines. The **Kestrel Cargo K1** (in production, changed every week), the
+        **K0 Classic** (discontinued, looked up for spare parts) and a **K2 prototype** (early design).
+      - **Legacy deadline:** support for Kestrel's old PDM ends in nine months.
+      - **Factory:** the K1 has a production ramp-up next spring. No surprises allowed then.
+      - **Integration:** nobody has, or wants to build, a link between Kestrel's old PDM and Windchill.
+
+      No integration and a hard end date push coexistence off the table. The rest of the lesson is the
+      choice between one go and waves.
+    takeaway: Write the constraints down first; they usually make the decision for you.
+
+  - type: scenario
+    variant: challenge
+    title: Nia's recommendation
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Acme's CIO wants a recommendation by Friday. Using the facts above (25 engineers, three
+          product lines, nine months of legacy support, no integration, K1 ramp-up in spring), what
+          does Nia propose?
+        choices:
+          - label: "Coexistence: keep K1 in the old PDM and start K2 in Windchill"
+            next: f-coexist
+            feedback: "That needs a link between the systems nobody plans to build, and support ends in nine months."
+          - label: "Phased: K0 Classic first, then K2, then K1 well before the ramp-up"
+            next: s2
+            good: true
+            feedback: "Low-risk data first lets the team learn, and the busiest product moves when the process is proven."
+          - label: "Big bang next month to get it over with"
+            next: f-rush
+            feedback: "One month is not enough to profile, map and rehearse anything."
+      - id: s2
+        md: |
+          The CIO likes waves. During planning, Tomas mentions that some **K2 prototype assemblies reuse
+          K1 frame parts** (KC-1210 to KC-1240). K2 is wave 2, K1 is wave 3. What does Nia do?
+        choices:
+          - label: "Move the shared K1 frame parts into wave 2 with the K2 assemblies"
+            next: s3
+            good: true
+            feedback: "Data that references each other moves together. The frame parts arrive once, in wave 2."
+          - label: "Load K2 assemblies now and add the missing parts in wave 3"
+            next: f-broken
+            feedback: "For months the K2 assemblies would be incomplete in Windchill."
+          - label: "Copy the frame parts twice: once in wave 2 and again in wave 3"
+            next: f-dupes
+            feedback: "Now Windchill has two versions of the truth for the same part."
+      - id: s3
+        md: |
+          Shared parts move with wave 2. For the time between waves 2 and 3, engineers might change those
+          frame parts in the old PDM. What rule does Nia set?
+        choices:
+          - label: "Once a part has moved, Windchill is its master; the old copy is read-only"
+            next: win
+            good: true
+            feedback: "One master per object at any moment. No silent drift."
+          - label: "Let engineers update whichever system is open"
+            next: f-drift
+            feedback: "Two masters for one part is exactly the problem waves were meant to avoid."
+      - id: f-coexist
+        md: |
+          Without an integration, people copy changes between systems by hand. Within weeks, the K1 frame
+          in the old PDM and the K2 frame in Windchill disagree, and support for the old PDM still ends in
+          nine months. Coexistence needs a sync design; this project doesn't have one.
+        outcome: fail
+      - id: f-rush
+        md: |
+          The load runs on unprofiled data with no dry run. Duplicate parts and unmapped states surface
+          on go-live day, all at once, for every product. It's the Kestrel story from the last lesson again.
+        outcome: fail
+      - id: f-broken
+        md: |
+          K2 assemblies open with missing frame components for four months. Designers stop trusting the
+          migrated data and keep working in the old PDM, which breaks the wave plan.
+        outcome: partial
+      - id: f-dupes
+        md: |
+          After wave 3, KC-1215 exists twice with different histories. Someone has to work out which one
+          the K2 and K1 assemblies should use, by hand.
+        outcome: partial
+      - id: f-drift
+        md: |
+          A frame tube length is changed in the old PDM after its part moved. Windchill never hears
+          about it. The K2 prototype is built with the old length.
+        outcome: fail
+      - id: win
+        md: |
+          Three waves, each with its own dry run, freeze and validation. Shared parts move once, with
+          the first product that needs them, and every object has exactly one master at any time. K1
+          moves two months before ramp-up, with the process already rehearsed twice.
+        outcome: success
+
+  - type: callout
+    variant: pitfall
+    title: Waves cut along the wrong line
+    md: |
+      Splitting waves by *department* or *folder* looks tidy, but data doesn't respect org charts.
+      Assemblies reuse parts across products, drawings point at models in other folders. Before you
+      fix the waves, list the references that cross them and move those objects together.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Write a **one-master rule** into the plan: for every object, at every moment, exactly one
+      system is allowed to change it. It works for phased and coexistence approaches alike, and it
+      turns "which one is right?" from an argument into a lookup.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Which situation fits a big bang migration best?
+        options:
+          - "A modest data set, a few dozen users and a fixed date when the legacy system must end"
+          - "Huge, varied data across five sites with different readiness"
+          - "A partner who must keep using the legacy system for two more years"
+          - "A team that wants to learn the process on low-risk data first"
+        answer: 0
+        explanation: Big bang works when the data and user base are small enough to move and rehearse in one go. Large, varied data favours waves; a partner stuck on the old system forces some coexistence.
+      - kind: multi
+        prompt: What does coexistence add to a migration project? (Choose all that apply.)
+        options:
+          - "An integration or sync approach between the systems"
+          - "Rules for which system is master for each object"
+          - "Support for two systems at once"
+          - "A guarantee the project ends sooner"
+        answers: [0, 1, 2]
+        explanation: Coexistence keeps both systems live, so you need a way to keep them consistent, clear ownership rules and double support. It usually makes the project longer, not shorter.
+      - kind: truefalse
+        prompt: PTC describes Windchill Bulk Migrator as a tool for two-way synchronisation between a legacy system and Windchill.
+        answer: false
+        explanation: PTC describes it as a set of tools for permanent, one-way migration into Windchill (Extract, Transform, Load, Validate). A coexistence sync is a separate design the sources don't cover.
+      - kind: single
+        prompt: In a phased migration, an assembly planned for wave 2 uses parts planned for wave 3. What is the usual fix?
+        options:
+          - "Move the shared parts into wave 2 so they travel with the assembly"
+          - "Load the assembly now and accept missing components until wave 3"
+          - "Load the parts in both waves"
+          - "Cancel the phased plan and switch to coexistence"
+        answer: 0
+        explanation: Objects that reference each other should move together. Loading them twice creates duplicates; waiting leaves broken structures for months.
+
+  - type: flashcards
+    cards:
+      - { front: Big bang migration, back: "All data moves in one cutover; then everyone works in the new system. Shortest, but all risk in one window." }
+      - { front: Phased migration, back: "Data moves in waves (product line, site, data type). Risk is spread, but the project runs longer." }
+      - { front: Coexistence migration, back: "Both systems stay live for a period. Needs integration or sync and one-master rules." }
+      - { front: One-master rule, back: "For every object at every moment, exactly one system may change it." }
+
+  - type: summary
+    points:
+      - Big bang moves everything in one cutover; phased moves waves; coexistence runs both systems for a while.
+      - Constraints (data size, users, legacy end date, integration budget) usually decide the strategy.
+      - Windchill Bulk Migrator is for permanent one-way migration, which suits big bang and phased plans.
+      - Coexistence needs an integration or sync design of its own; the PTC sources here don't specify one.
+      - In any approach, move referencing data together and give every object exactly one master.
