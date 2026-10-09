@@ -1,0 +1,254 @@
+id: m06-s05-l03
+subtitle: Every customization is a promise to re-test it on the next release. Know how many promises you've made.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [upgrade, customization, wtsafearea, customer-build, developer]
+sources:
+  - id: cust
+    where: "Module 1, Why customize Windchill (configuration vs customization; types of customization; considerations); Updates and server maintenance; What may be changed when you customize Windchill; Best practices; Customer build. Module 2, wtSafeArea (siteMod, ptcOrig, ptcCurrent; best practices; wtCustom; swmaint.xml)"
+  - id: hc-upgrade
+    label: PTC Help Center supplement
+    title: "Upgrade Overview"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCUpgradeGuide/WCUpgrade_OverviewSteps_10x.html"
+    covers: "Customizations are applied on the target system (step 6) after it is set up and verified, before the database import"
+
+versionNotes:
+  - versions: ["13.0.2.4"]
+    md: |
+      The customization facts come from PTC's *Introduction to Windchill Customization* course guide
+      (13.0.2.4). For the exact handling of safe-area files and text tailoring in your release, PTC
+      points to the Help Center section on setting up a directory structure for managing customized
+      files and text tailoring.
+
+blocks:
+  - type: text
+    md: |
+      Rosa's upgrade plan has a step 6 that looks innocent: *apply customizations on the target*.
+      Then Kai asks a fair question: "Which customizations? How many do we have?"
+
+      Nobody knows the full answer. Over the years Acme has changed the logo, added a menu action,
+      written a listener that sends part data to ERP and tweaked dozens of display labels. Each of
+      those is something the new release might break.
+
+      This lesson is about counting them **before** the upgrade, and guessing honestly how much work
+      each one will be.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "settings changed in the UI or admin tools, no code" → *configuration*
+      - "added or changed Java code or code-base files" → *customization*
+      - "the folder that protects your changed PTC files" → *[[wtsafearea|wtSafeArea]]*
+      - "your edited copy / PTC's original / PTC's newer copy" → *[[sitemod|siteMod]]* / *[[ptcorig|ptcOrig]]* / *[[ptccurrent|ptcCurrent]]*
+      - "where changed display text goes" → *[[wtcustom|wtCustom]]*
+      - "exactly what you have deployed" → *[[customer-build|customer build]]*
+
+  - type: diagram
+    title: How wtSafeArea protects a changed PTC file
+    caption: Click each folder. The Windchill installer used for updates and upgrades checks the safe area so your changes aren't overwritten.
+    diagram:
+      width: 800
+      height: 400
+      groups:
+        - { label: "<Windchill>/wtSafeArea", x: 20, y: 20, w: 520, h: 360, tone: info }
+        - { label: Not in wtSafeArea, x: 570, y: 20, w: 210, h: 360, tone: neutral }
+      nodes:
+        - id: ptcorig
+          label: ptcOrig
+          sublabel: PTC's original
+          x: 50
+          y: 80
+          w: 200
+          tone: neutral
+          shape: doc
+          detail: Before you change a PTC file for the first time, put its **original** here. It is your baseline for every later comparison.
+        - id: sitemod
+          label: siteMod
+          sublabel: your version
+          x: 310
+          y: 80
+          w: 200
+          tone: accent
+          shape: doc
+          detail: |
+            Your modified version of the PTC file - the one you want to run in production. PTC's best
+            practice: a header comment with **why** you overrode it and the exact PTC release it was
+            based on (maintenance release and CPS), plus `// BEGIN CUSTO` and `// END CUSTO` around
+            changed code.
+        - id: ptccurrent
+          label: ptcCurrent
+          sublabel: PTC's newer version
+          x: 180
+          y: 250
+          w: 200
+          tone: warning
+          shape: doc
+          detail: |
+            When an update or upgrade brings a newer PTC version of a file you have in siteMod, the
+            installer copies that newer version here instead of overwriting yours. A file appearing
+            here is your signal: PTC changed something you also changed.
+        - id: wtcustom
+          label: wtCustom
+          sublabel: display text only
+          x: 590
+          y: 110
+          w: 170
+          tone: primary
+          detail: |
+            For text tailoring of RBInfo resource files, laid out like `<Windchill>/src`. Holds **only**
+            the changed or added values, never a full copy. It is not under wtSafeArea.
+        - id: swmaint
+          label: swmaint.xml
+          sublabel: Ant script in bin
+          x: 590
+          y: 250
+          w: 170
+          tone: success
+          detail: |
+            PTC's Ant script for managing files in siteMod, installed in `<Windchill>/bin`. To list its
+            targets, run `ant -f bin/swmaint.xml -projecthelp` from a [[windchill-shell|Windchill shell]].
+      edges:
+        - { from: ptcorig, to: sitemod, label: you edit a copy }
+        - { from: sitemod, to: ptccurrent, label: installer finds a match, dashed: true }
+        - { from: swmaint, to: sitemod, label: manages, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      PTC's customization course is blunt: customization raises cost twice, once to build it and
+      again to maintain it. Updates and upgrades must take it into account, and a customization that
+      isn't maintained can fail after one. Companies that can't list their customizations can't
+      estimate their upgrade.
+
+  - type: comparison
+    title: "Cheat sheet: what touches your customizations"
+    columns: [Updates and server maintenance, Upgrades and major platform changes]
+    rows:
+      - label: Examples
+        cells: ["Critical Patch Set; certificate update; hardware resizing", "New Windchill release (for example 12.1 to 13.1); Oracle to SQL Server; monolithic to clustered; Windows to Linux"]
+      - label: Impact
+        cells: ["Little to none on planning and source control", "Significant"]
+      - label: Affects customizations when
+        cells: ["A patch fixes a bug your code touches (retest); or the CPS changes a file in wtSafeArea", "Plan for it: end-to-end testing; code changes may be needed"]
+      - label: Plan it
+        cells: ["As routine maintenance", "Several months ahead; as part of a new release in your release planning"]
+    takeaway: A CPS is a check. An upgrade is a project.
+
+  - type: text
+    md: |
+      ### Cheat sheet: the customization inventory
+
+      PTC lists what a customization may change. Use it as the rows of your inventory spreadsheet,
+      and record for each item: what was changed, where it lives, who owns it, and whether it is
+      configuration or code.
+
+      | Area | Items to list |
+      | --- | --- |
+      | Properties | xconf files |
+      | Data model | soft types; soft attributes; object initialization rules |
+      | Text | RB files (and wtCustom) |
+      | Processes | life cycle templates; workflow templates |
+      | People and access | groups; users; teams; roles; access control rules |
+      | Templates | product, library and project templates; document and CAD document templates |
+      | Search | indexing policies |
+      | Code | Java; JSP; Info*Engine tasks |
+
+      Add one more column: **is the file in siteMod?** If yes, check ptcCurrent after the new
+      release is installed on the target.
+
+  - type: example
+    variant: case-study
+    title: Three customizations, three very different bills
+    industry: Micromobility (fictional)
+    md: |
+      Rosa and Kai sort Acme's inventory using PTC's customization types.
+
+      1. **The Acme logo** - a *lightweight* customization: well documented, a few lines. Re-apply and
+         look at it. Estimate: an hour.
+      2. **"Send to supplier" menu action** - a *user interface* customization. The PTC file it
+         changes is in siteMod with a proper header comment. After installing the new release on
+         the target, a newer version of that file shows up in **ptcCurrent**. Kai compares ptcOrig,
+         ptcCurrent and siteMod to see what PTC changed and carries Acme's marked
+         `BEGIN CUSTO / END CUSTO` blocks across. Estimate: two days with testing.
+      3. **ERP part-transfer listener** - a *server* and *integration* customization written years
+         ago. No header comment, no markers, and the developer has left. Kai has to rediscover what it
+         does before he can test it. Estimate: "two weeks, maybe more".
+
+      The difference between 2 and 3 isn't the code. It's the paperwork.
+    takeaway: Header comments and CUSTO markers turn an upgrade from archaeology into a checklist.
+
+  - type: scenario
+    variant: what-if
+    title: What if the inventory is skipped?
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          The upgrade is in three months. Management asks Rosa to "skip the paperwork" and just apply
+          the customizations on the target in step 6. What does she do?
+        choices:
+          - label: Build the inventory from the customer build first
+            next: s2
+            good: true
+            feedback: The customer build is meant to record base version, maintenance release, temp patches, customizations and configurations - exactly what step 6 needs.
+          - label: Copy the whole old code base onto the target
+            next: fail1
+            feedback: That would mix old PTC files into the new release. Customizations go on the target one by one, from your records.
+      - id: s2
+        md: |
+          The customer build lists 14 customizations. Three files in siteMod now also have a version in
+          ptcCurrent on the target. Which do Rosa and Kai estimate as the highest rework?
+        choices:
+          - label: The three files with a ptcCurrent version, plus any undocumented code
+            next: win
+            good: true
+            feedback: Those are where PTC and Acme changed the same thing, or where nobody knows what was changed.
+          - label: The display labels in wtCustom
+            next: partial
+            feedback: Worth a check, but wtCustom holds only changed values and is usually the quick part.
+      - id: win
+        md: |
+          The estimate is credible, the risky items are tested first on the test system, and step 6
+          takes the planned time. The inventory becomes the next customer build's record.
+        outcome: success
+      - id: partial
+        md: The labels are fine, but the three conflicting files surface in testing two weeks before go-live. The plan slips.
+        outcome: partial
+      - id: fail1
+        md: The target now runs a mix of old and new PTC files. Errors appear in places nobody customized. Start step 6 again.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    title: Editing PTC files in place
+    md: |
+      A PTC file changed in its normal location, with no copy in ptcOrig and no version in siteMod,
+      gives the installer's safe-area check nothing to protect or compare. Use the wtSafeArea structure for every changed
+      PTC file - PTC lists it as a best practice for exactly this reason.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Ask first whether you need the customization at all. PTC's course suggests user enablement,
+      workarounds or process changes as alternatives. An upgrade is a good moment to retire a
+      customization that configuration can now replace - every one you drop is one you never
+      re-test again.
+
+  - type: flashcards
+    cards:
+      - { front: Configuration vs customization, back: "Configuration uses the UI and admin tools with no code. Customization adds or changes Java code or code-base files." }
+      - { front: wtSafeArea, back: "Folder structure the installer checks during updates and upgrades so your changed PTC files aren't overwritten." }
+      - { front: siteMod, back: "Your modified version of a PTC file - the one you run in production." }
+      - { front: ptcOrig, back: "PTC's original file, saved before your first change." }
+      - { front: ptcCurrent, back: "A newer PTC version copied in by the installer when siteMod has the same file." }
+      - { front: wtCustom, back: "Text tailoring for RBInfo files; only the changed values; not inside wtSafeArea." }
+      - { front: Customer build, back: "Base version + maintenance release + temp patches + customizations + configurations. Versioned." }
+
+  - type: summary
+    points:
+      - Inventory every customization before an upgrade, using PTC's list of what customizations change.
+      - Updates (like a CPS) rarely affect customizations; upgrades always need end-to-end testing.
+      - wtSafeArea keeps your changes safe; a file in ptcCurrent means PTC changed something you changed too.
+      - Header comments and BEGIN/END CUSTO markers make rework estimable.
+      - The customer build records exactly what is deployed, so step 6 of the upgrade is repeatable.

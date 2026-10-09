@@ -1,0 +1,126 @@
+# New glossary terms introduced in section m06-s05 (Rehosting and upgrades).
+- id: rehosting
+  term: Rehosting
+  plain: Giving a copy of production a new home in test or development, then telling it where it now lives.
+  definition: Updating a test or development environment's configuration and data after its host changes, typically when production data has been duplicated to test and development systems. It covers changes of host name, Windchill installation directory and hardware platform, and lets teams validate changes on realistic data with less risk. PTC states that rehosting is not an alternative to upgrading. (Source - the 12.0.2.0 Help Center page on rehosting.)
+  related: [windchill-rehost-utility, windchill-upgrade]
+
+- id: windchill-rehost-utility
+  term: Windchill Rehost Utility
+  plain: PTC's tool for rehosting a cloned Windchill environment.
+  definition: The PTC-supplied utility that updates a Windchill environment for a new host name, installation directory or hardware platform. Its step-by-step procedure is in a separate Windchill Rehosting Utility Guide on the PTC Support site rather than in the Help Center.
+  related: [rehosting]
+
+- id: windchill-upgrade
+  term: Upgrade (Windchill)
+  plain: Moving your Windchill, with all its data, to a newer release.
+  definition: The process of moving a Windchill installation to a newer release. PTC's upgrade overview builds a new target system, moves the source system's database, LDAP data and vaults to it, applies customizations, runs the Upgrade Manager and validates the result, in ten ordered steps where every error is fixed before moving on. PTC's customization course treats upgrades as major changes that need months of planning and end-to-end testing.
+  related: [source-system, target-system, upgrade-manager, critical-patch-set, rehosting]
+
+- id: source-system
+  term: Source system
+  plain: The Windchill you're upgrading from.
+  definition: In a Windchill upgrade, the existing system being upgraded. It is patched to its latest Critical Patch Set and checked with WinDU and WinRU before its database and LDAP are exported and its vaults copied to the target system.
+  related: [target-system, windchill-upgrade, windu, winru]
+
+- id: target-system
+  term: Target system
+  plain: The new Windchill install you're upgrading to.
+  definition: In a Windchill upgrade, the newly installed system on the new release. It is set up and verified first, then receives the customizations and the database imported from the source system, which the Upgrade Manager then upgrades.
+  related: [source-system, windchill-upgrade, upgrade-manager]
+
+- id: upgrade-manager
+  term: Upgrade Manager
+  plain: The tool that converts your old database to the new release, one phase at a time.
+  definition: The Windchill tool, run on the target system after the database import, that collects configuration information and upgrades the database in phases (for example Initialize Upgrade and Gather Upgrade Properties). Test mode is for trial upgrades and offers Run Upgrade to Completion; Production mode disables that option. Interactive, Yes by default, pauses after each phase. It fails in the LoadNewData phase if a life cycle template's Visibility is set to Hide.
+  related: [windchill-upgrade, test-upgrade, target-system, life-cycle-template]
+
+- id: critical-patch-set
+  term: Critical Patch Set (CPS)
+  plain: A bundle of fixes for the Windchill release you already run.
+  definition: A PTC maintenance update for an existing Windchill release. Applying the latest CPS to the source system is the first step of an upgrade. PTC's customization course classes a CPS as an update with little impact on planning, unless it fixes a bug that needs retesting or changes a file in wtSafeArea.
+  aka: [CPS]
+  related: [windchill-upgrade, wtsafearea]
+
+- id: windu
+  term: Windchill Diagnostic Utility (WinDU)
+  plain: The health check you run on the old system before an upgrade.
+  definition: A Windchill utility whose upgrade-mandatory tasks are run on the source system in step 2 of an upgrade. Every issue it reports is fixed with the Windchill Repair Utility before the database is exported.
+  aka: [WinDU]
+  related: [winru, source-system, windchill-upgrade]
+
+- id: winru
+  term: Windchill Repair Utility (WinRU)
+  plain: The tool that fixes what the health check found.
+  definition: A Windchill utility used in step 2 of an upgrade to repair the issues the Windchill Diagnostic Utility reports on the source system.
+  aka: [WinRU]
+  related: [windu, source-system]
+
+- id: test-upgrade
+  term: Test upgrade
+  plain: A practice upgrade on a copy, so the real one holds no surprises.
+  definition: A trial run of the upgrade, done with the Upgrade Manager in Test mode, where Run Upgrade to Completion is available. Running trials on a recent copy of production (refreshed by rehosting) and timing each step is general practice for planning the real cutover.
+  aka: [Trial upgrade]
+  related: [upgrade-manager, rehosting, cutover-plan]
+
+- id: wtsafearea
+  term: wtSafeArea
+  plain: The protected folder for PTC files you've changed, so updates don't wipe your changes.
+  definition: PTC's recommended folder structure, under the Windchill installation directory, for managing customized copies of out-of-the-box files. The Windchill installer used for updates and upgrades checks it and preserves customizations. It contains siteMod, ptcOrig and ptcCurrent; PTC's swmaint.xml Ant script in the bin folder helps manage siteMod.
+  aka: [Safe area]
+  related: [sitemod, ptcorig, ptccurrent, wtcustom]
+
+- id: sitemod
+  term: siteMod
+  plain: Your edited version of a PTC file.
+  definition: The wtSafeArea sub-folder that holds the site's modified version of each PTC file you want to run in production. PTC recommends a header comment giving the reason and the exact PTC release it was based on, and BEGIN CUSTO / END CUSTO comments around changed code.
+  related: [wtsafearea, ptcorig, ptccurrent]
+
+- id: ptcorig
+  term: ptcOrig
+  plain: PTC's original file, kept before you changed it.
+  definition: The wtSafeArea sub-folder for the original PTC version of a file. You place the original here before modifying the file for the first time, and put your changed version in siteMod.
+  related: [wtsafearea, sitemod, ptccurrent]
+
+- id: ptccurrent
+  term: ptcCurrent
+  plain: PTC's newer version of a file you've also changed - your cue to compare.
+  definition: The wtSafeArea sub-folder that receives a newer PTC version of a file when an update or upgrade installer finds a matching file in siteMod. Its appearance shows that PTC changed a file you have customized.
+  related: [wtsafearea, sitemod, ptcorig]
+
+- id: wtcustom
+  term: wtCustom
+  plain: Where your changed screen text lives.
+  definition: A folder for text tailoring of RBInfo resource files, structured like the Windchill src directory. Files there contain only the modified and added values, not unchanged ones. It is not a sub-folder of wtSafeArea.
+  related: [wtsafearea]
+
+- id: customer-build
+  term: Customer build
+  plain: The exact recipe of what's installed - release, patches, and your own changes.
+  definition: The combination of base version, maintenance release, temporary patches, customizations and configurations deployed at a site. Builds are versioned and tracked with their known and fixed issues. PTC software is easy to restore; customizations are not, which is why the build record matters before an upgrade.
+  related: [wtsafearea, windchill-upgrade]
+
+- id: cutover-plan
+  term: Cutover plan
+  plain: The hour-by-hour script for switching everyone to the new system.
+  definition: A project's written plan for the switch-over to an upgraded or migrated system - data freeze, each step with owner and rehearsed duration, checkpoints, the go/no-go meeting, validation, rollback trigger, communication and hypercare. General project practice, not a PTC procedure.
+  related: [go-no-go-criteria, rollback-plan, hypercare, maintenance-window]
+
+- id: go-no-go-criteria
+  term: Go/no-go criteria
+  plain: The yes-or-no checks that decide whether you switch over.
+  definition: Conditions agreed before a cutover that must all be met, with evidence, before users move to the new system - for example all steps finished with no open errors, key use cases passing and enough time left to roll back. General project practice.
+  aka: [Go/no-go decision]
+  related: [cutover-plan, rollback-plan]
+
+- id: rollback-plan
+  term: Rollback plan
+  plain: How you get back to the old system if the switch goes wrong.
+  definition: The written trigger and steps for returning users to the previous system if a cutover is a no-go. Because a Windchill upgrade builds a separate target system, the source system still exists, so not switching is the simplest rollback before go-live. General project practice.
+  related: [cutover-plan, go-no-go-criteria, cold-backup, disaster-recovery-runbook]
+
+- id: hypercare
+  term: Hypercare
+  plain: Extra-close support for the first days or weeks after go-live.
+  definition: A short period after go-live when a named support team watches the new system closely, tracks every issue on one list and fixes problems quickly. General project practice.
+  related: [cutover-plan]

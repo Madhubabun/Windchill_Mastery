@@ -53,7 +53,7 @@
 - id: container-path
   term: Container path (CONT_PATH)
   plain: The address of the context where loaded data should land.
-  definition: The target container for a load, given to LoadFromFile with -CONT_PATH, for example /wt.inf.container.OrgContainer=MyOrg/wt.pdmlink.PDMLinkProduct=Prod for a product or /wt.inf.container.OrgContainer=MyOrg/wt.inf.library.WTLibrary=Lib for a library. If it is left out, data goes to the Exchange container, which is the site.
+  definition: The target container for a load, given to LoadFromFile with -CONT_PATH. The path names the organization first, then the product or library inside it, each as a container class and its name. If it is left out, data goes to the Exchange container, which is the site.
   aka: [CONT_PATH]
   related: [loadfromfile, site, product-context, library, organization]
 

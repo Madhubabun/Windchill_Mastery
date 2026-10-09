@@ -28,7 +28,7 @@ complete: 20 lessons, 5 section checkpoints and a capstone. Module 4 (Business A
 complete: 38 lessons, 9 section checkpoints and a capstone. Module 5 (System Administration) is
 complete: 31 lessons, 7 section checkpoints and a capstone. Module 6 (Migration & Data
 Management) is complete: 17 lessons, 5 section checkpoints and a capstone. All six have cheat
-sheets; the glossary has GLOSSARY_COUNT terms. The other modules are outlined.
+sheets; the glossary has 358 terms. The other modules are outlined.
 
 ## Not done yet / known limits
 
