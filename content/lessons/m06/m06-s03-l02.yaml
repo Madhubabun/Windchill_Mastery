@@ -1,0 +1,454 @@
+id: m06-s03-l02
+subtitle: Their folders, states and views are not yours. Translate them once, on purpose, and keep the translation stable.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [migration, mapping, received-delivery, mapping-management, data-exchange]
+sources:
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Defining Received Delivery Mapping"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/packages/ReceivedDeliveryDefineMap.html"
+    covers: "Mapping translates source values to target values to resolve conflicts, not to change business intent; mapping kinds; open from Mapping Management or the preview window; site, organization, product or library level with overrides; source values from the conflict report"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Mapping Management Table"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/packages/ReceivedDeliveryImportMappingMgmtTableRef.html"
+    covers: "Utilities -> Mapping Management path; source system columns; Define Mapping, Edit, Delete, Download Resolutions"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Packages: Receiving Side"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/packages/PackageReceiveSide.html"
+    covers: "Import fails when values such as life cycle states or folders have no valid mapping; fix by mapping or creating them"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Best Practices for Working with Received Deliveries"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/packages/ReceivedDeliveryBestPractice.html"
+    covers: "Define mappings in the preview first; fix type, attribute and versioning-scheme mismatches; life cycle template mapping; don't change mappings after the first delivery; remove obsolete mappings; save and reuse resolutions"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Best Practices for Working with Packages"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/packages/PackageBestPractice.html"
+    covers: "Recipient needs matching optional products, custom subtypes, attributes, mapping definitions and versioning schemes"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Mapping Through Special Rules"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/ExpImpPolicyRules_Chp/ExpImpPolicyRulesChp_MapThroughSpecialRule.html"
+    covers: "Import/Export Management mapping rule elements COPY, COPY_AS, IGNORE, IGNORE_PARENT; warning against mapping MCAD document numbers"
+
+versionNotes:
+  - versions: ["13.1.2.0"]
+    md: |
+      Checked against the 13.1.2.0 Help Center. Most received-delivery mapping pages were read in the
+      **Windchill+** edition of that Help Center. The mapping kinds and levels below are taken from
+      those pages; exact field labels in the Define Mapping window can differ by release.
+
+blocks:
+  - type: text
+    md: |
+      Hexa Tooling's ZIP of K1 frame jigs is uploaded. Nia runs the preview and the conflict report
+      lights up:
+
+      - Hexa files jigs in a folder called **/Jigs/Customer Work**. Acme has no such folder.
+      - Hexa's objects use a life cycle called **Hexa Tooling LC**. Acme has never heard of it.
+      - Hexa uses a **Tooling** view. Acme's views are different.
+
+      None of this is wrong. It's just *Hexa's* vocabulary. Before anything can be imported, Nia has
+      to translate it into *Acme's* vocabulary. That translation is called **mapping**, and the rules
+      for doing it well are what this lesson is about.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the dry run that lists what clashes" → *[[preview-import|Preview Received Delivery Import]]* and its *conflict report*
+      - "a translation from their value to ours" → *[[delivery-mapping|received delivery mapping]]*
+      - "where all those translations live" → *[[mapping-management|Mapping Management]]*
+      - "the sending Windchill, as Acme sees it" → a *source system*, with a unique *Source System Identifier*
+      - "the uploaded ZIP" → a *[[received-delivery]]*
+
+  - type: diagram
+    title: How a Hexa value becomes an Acme value
+    caption: Click each box. The conflict report feeds Mapping Management, which translates values at the right level before the import runs.
+    diagram:
+      width: 820
+      height: 430
+      groups:
+        - { label: "Hexa's values (source)", x: 10, y: 10, w: 230, h: 410, tone: neutral }
+        - { label: Mapping Management, x: 270, y: 10, w: 280, h: 410, tone: info }
+        - { label: "Acme's values (target)", x: 580, y: 10, w: 230, h: 410, tone: success }
+      nodes:
+        - id: src-folder
+          label: /Jigs/Customer Work
+          sublabel: Folder
+          x: 30
+          y: 60
+          w: 190
+          tone: neutral
+          detail: A folder path from Hexa's system. Acme has no folder by that name, so the preview reports a **conflict**.
+        - id: src-lc
+          label: Hexa Tooling LC
+          sublabel: Life Cycle
+          x: 30
+          y: 170
+          w: 190
+          tone: neutral
+          detail: Hexa's life cycle template. PTC recommends mapping **life cycle templates** so states land on something Acme understands.
+        - id: src-view
+          label: Tooling
+          sublabel: View
+          x: 30
+          y: 280
+          w: 190
+          tone: neutral
+          detail: A view name Acme doesn't use. View is one of the mapping kinds.
+        - id: report
+          label: Conflict report
+          sublabel: from the preview
+          x: 300
+          y: 50
+          w: 220
+          tone: warning
+          shape: doc
+          detail: The **Preview Received Delivery Import** window lists source values with no valid equivalent. Those are the source values you map.
+        - id: levels
+          label: "Site › Org › Product"
+          sublabel: where a mapping is defined
+          x: 300
+          y: 170
+          w: 220
+          tone: primary
+          detail: |
+            Mappings can be defined at **site**, **organization**, **product** or **library** level.
+            A lower level can override a higher one, so a product-level mapping beats an organization
+            one for that product.
+        - id: kinds
+          label: Mapping kinds
+          sublabel: Context · Org · View · Folder · LC · Label
+          x: 300
+          y: 290
+          w: 220
+          h: 70
+          tone: info
+          detail: |
+            Context, Owning Organization, View, Folder, Life Cycle and Security Label. Version mapping
+            is handled separately, by a system-wide property.
+        - id: tgt-folder
+          label: /Tooling
+          sublabel: in Kestrel Cargo K1
+          x: 600
+          y: 60
+          w: 190
+          tone: success
+          detail: An existing Acme folder that means the same thing. Nia maps the Hexa folder to it.
+        - id: tgt-lc
+          label: Acme supplier LC
+          sublabel: existing template
+          x: 600
+          y: 170
+          w: 190
+          tone: success
+          detail: An Acme life cycle template with an equivalent meaning. If none exists, the alternative is to create what's missing at Acme.
+        - id: tgt-view
+          label: Design
+          sublabel: Acme view
+          x: 600
+          y: 280
+          w: 190
+          tone: success
+          detail: The Acme view the jig data belongs in, agreed with Kai before mapping.
+      edges:
+        - { from: src-folder, to: report }
+        - { from: src-lc, to: report }
+        - { from: src-view, to: report }
+        - { from: report, to: levels, label: source values }
+        - { from: levels, to: kinds }
+        - { from: kinds, to: tgt-folder, label: Folder }
+        - { from: kinds, to: tgt-lc, label: Life Cycle }
+        - { from: kinds, to: tgt-view, label: View }
+
+  - type: callout
+    variant: note
+    title: Values are mapped. Types and attributes are matched.
+    md: |
+      Mapping Management translates **values** of the kinds above. It does not invent missing
+      **types**, **attributes** or **versioning schemes**. For an importable package, the receiving
+      site needs the optional products the sender used, the same custom subtypes and attributes, and
+      versioning schemes that match the source. PTC's advice: fix type, attribute and versioning-scheme
+      mismatches **before** you import. In practice that means a conversation with the sender's admin
+      and some [[type-and-attribute-management|Type and Attribute Management]] work at Acme, long
+      before the first ZIP arrives.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Every mapping you save becomes a permanent part of how a partner's data enters your system.
+      Map Hexa's life cycle to the wrong Acme template and every future jig arrives in the wrong
+      state. Mapping is also **not** a tool for rewriting the partner's meaning: PTC states it exists
+      to resolve conflicts, not to change the business intent of the source data.
+
+  - type: text
+    md: |
+      ### Build a mapping specification first
+
+      Before touching Mapping Management, Nia writes a short **mapping specification** and gets Kai
+      (engineering) and Jordan (business admin) to agree it. This is general migration practice, not
+      a Windchill object, but it saves arguments later.
+
+      | Kind | Source value (Hexa) | Target value (Acme) | Level | Why | Agreed by |
+      | --- | --- | --- | --- | --- | --- |
+      | Folder | /Jigs/Customer Work | /Tooling | Product: Kestrel Cargo K1 | Jigs for K1 only | Kai |
+      | Life Cycle | Hexa Tooling LC | Acme supplier LC | Organization | Same for every supplier | Jordan |
+      | View | Tooling | Design | Organization | Jigs are design data at Acme | Kai |
+      | Context | (Hexa's product) | Kestrel Cargo K1 | Product | Where the jigs belong | Nia |
+
+      Two habits make the spec useful: every source value in the conflict report gets a row, and
+      every row says **why**. The "why" is what stops someone "tidying up" a mapping later.
+
+  - type: walkthrough
+    title: Define a received delivery mapping
+    who: An administrator of the product, library, organization or site where the mapping applies (Nia)
+    where: [Utilities, Mapping Management]
+    steps:
+      - title: Start from the preview
+        where: [Received Delivery Management, Preview Received Delivery Import]
+        md: |
+          Run the preview for Hexa's received delivery and read the **conflict report**. Every
+          unresolved source value there needs a mapping or a new target value.
+      - title: Open Mapping Management
+        where: ["Products, Libraries, Organizations or Site", Utilities, Mapping Management]
+        md: |
+          Open it at the level you decided in the spec (here the *Kestrel Cargo K1* product for the
+          folder). Business admins can also reach it from Business Administration Utilities at
+          organization and site level. You can also open mapping directly from the preview window.
+      - title: Find the source system
+        where: [Mapping Management, Source system row]
+        md: |
+          Each row is a source system you've received deliveries from, shown with its Last Known
+          Domain, **Source System Identifier** (unique per installation) and Windchill Version. Pick
+          Hexa's row.
+      - title: Define the mapping
+        where: [Mapping Management, Define Mapping]
+        md: |
+          Choose the mapping kind (Folder, Life Cycle, View and so on), enter the **source value** as
+          the conflict report shows it, and pick the **target value** at Acme. Repeat for each row of
+          the spec.
+      - title: Preview again
+        where: [Received Delivery Management, Preview Received Delivery Import]
+        md: Rerun the preview. The conflict report should now be empty for everything you mapped.
+      - title: Keep a copy of the resolutions
+        where: [Mapping Management, Download Resolutions]
+        md: |
+          Download the resolutions as a CSV file and store it with the spec. To load such a file back,
+          it has to be converted with CSV2XML first; Windchill ships a template at
+          `<Windchill>\loadFiles\ConflictResolutions.csv`.
+    result: Hexa's folder, life cycle and view now translate cleanly, and the next delivery from Hexa will reuse the same mappings.
+
+  - type: simulation
+    title: Make Hexa's delivery importable
+    intro: |
+      Hexa's received delivery is uploaded with status **Ready**. Three source values have no match
+      at Acme. Try importing too early if you like, then fix it properly. Watch the headline.
+    headline: "Status: {status} · preview: {preview} · folder: {folder} · life cycle: {lifecycle} · view: {view} · resolved {resolved}/3"
+    initial:
+      status: Ready
+      preview: not run
+      folder: unknown
+      lifecycle: unknown
+      view: unknown
+      resolved: 0
+    actions:
+      - id: import-blind
+        label: Import now and skip the preview
+        when: { preview: not run, status: Ready }
+        do: [{ set: { status: "Unsuccessful: Import Failure" } }]
+        log: The import stops. Folder, life cycle and view values from Hexa have no valid equivalent at Acme. Nothing useful was created.
+        blockedHint: You've already tried that, or the preview is done.
+      - id: run-preview
+        label: Run Preview Received Delivery Import
+        when: { preview: not run }
+        do: [{ set: { preview: run, folder: conflict, lifecycle: conflict, view: conflict } }]
+        log: "Conflict report: /Jigs/Customer Work (Folder), Hexa Tooling LC (Life Cycle) and Tooling (View) have no match."
+      - id: map-folder
+        label: Map /Jigs/Customer Work to /Tooling
+        when: { preview: run, folder: conflict }
+        do: [{ set: { folder: mapped to /Tooling } }, { inc: resolved }]
+        log: Folder mapping saved at product level. Jigs will land in the existing /Tooling folder of Kestrel Cargo K1.
+        blockedHint: Run the preview first so you know the exact source value, or the folder is already resolved.
+      - id: create-folder
+        label: Create a /Jigs/Customer Work folder at Acme
+        when: { preview: run, folder: conflict }
+        do: [{ set: { folder: created at Acme } }, { inc: resolved }]
+        log: The folder now exists at Acme, so the value matches. Valid too, but Acme now has a folder named after Hexa's habits.
+        blockedHint: Run the preview first, or the folder is already resolved.
+      - id: map-lifecycle
+        label: Map Hexa Tooling LC to Acme supplier LC
+        when: { preview: run, lifecycle: conflict }
+        do: [{ set: { lifecycle: mapped } }, { inc: resolved }]
+        log: Life cycle template mapped at organization level. Every supplier delivery can use the same rule.
+        blockedHint: Run the preview first, or the life cycle is already resolved.
+      - id: map-view
+        label: Map view Tooling to Design
+        when: { preview: run, view: conflict }
+        do: [{ set: { view: mapped } }, { inc: resolved }]
+        log: View mapping saved. Jig data will sit in Acme's Design view.
+        blockedHint: Run the preview first, or the view is already resolved.
+      - id: import-partial
+        label: Import with conflicts still open
+        when: { preview: run, resolved: [0, 1, 2], status: [Ready, "Unsuccessful: Import Failure"] }
+        do: [{ set: { status: "Unsuccessful: Import Failure" } }]
+        log: Import fails again. Any value without a valid mapping or equivalent stops it. Check the headline for what's still open.
+        blockedHint: Run the preview first, or everything is already resolved.
+      - id: import-clean
+        label: Import into Kestrel Cargo K1
+        when: { preview: run, resolved: 3, status: [Ready, "Unsuccessful: Import Failure"] }
+        do: [{ set: { status: Imported (read-only) } }]
+        log: "Import complete. Hexa's jigs are in Kestrel Cargo K1 as read-only objects. A failed delivery can be imported again, so the earlier failure did no lasting harm."
+        blockedHint: Resolve all three conflicts first.
+    goals:
+      - label: See the conflict report
+        when: { preview: run }
+        message: The preview tells you exactly which source values need work. Always start here.
+      - label: Resolve all three conflicts
+        when: { resolved: 3 }
+        message: Every source value now has a valid target, by mapping or by creating it.
+      - label: Import successfully
+        when: { status: Imported (read-only) }
+        message: "Preview, map, preview, import: that's the rhythm for every received delivery."
+
+  - type: text
+    md: |
+      ### The other kind of mapping: rule files in Import/Export Management
+
+      If you move data with the **Import/Export Management** utility (JAR files, previous section)
+      instead of packages, mapping works differently: you write a **mapping rule file** that changes
+      the XML of the import or export. Its rule elements are **COPY** (the default), **COPY_AS**
+      (replace a value with a new one, for example number 2222 becomes Local_2222), **IGNORE** and
+      **IGNORE_PARENT**, optionally limited to one type such as WTPart. Use either a mapping rule file
+      or a policy file in one transaction, not both.
+
+  - type: scenario
+    variant: what-if
+    title: Three weeks later, Hexa sends delivery number two
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Hexa's second ZIP arrives. Before Nia previews it, Kai stops by: *"Can you change the folder
+          mapping so new jigs go to /Tooling/Jigs instead of /Tooling? It's tidier."* What does Nia do?
+        choices:
+          - label: "Edit the existing folder mapping before importing"
+            next: f1
+            feedback: Tidier today, but it breaks a PTC best practice.
+          - label: "Keep the mapping, log Kai's request against the spec and preview delivery two as normal"
+            next: s2
+            good: true
+            feedback: PTC advises not changing mappings after the first delivery from a source.
+      - id: s2
+        md: |
+          The preview shows one new conflict: Hexa has started using a life cycle called **Hexa Rapid
+          LC** that wasn't in delivery one. Every other value matches the existing mappings. What now?
+        choices:
+          - label: "Agree a target for Hexa Rapid LC with Jordan and add a new mapping row for it"
+            next: s3
+            good: true
+            feedback: A new source value gets a new, agreed row in the spec and a new mapping. Existing mappings stay as they are.
+          - label: "Import anyway and fix it afterwards"
+            next: f2
+            feedback: An unmapped value makes the import fail.
+          - label: "Map Hexa Rapid LC to whatever template is closest, without asking"
+            next: f3
+            feedback: Mapping must not change the business intent of the source data.
+      - id: s3
+        md: |
+          While you wait for Jordan, Priya asks: *"Hexa's CAD documents are numbered HX-. Can't we just
+          use a COPY_AS rule to renumber them KC-3xxx on the way in?"*
+        choices:
+          - label: "No. Never map number attributes of MCAD documents"
+            next: win
+            good: true
+            feedback: PTC warns it breaks assembly references and can't be reliably reverted.
+          - label: "Sure, it's only a text change"
+            next: f4
+            feedback: For CAD it isn't. The numbers are what the assemblies point to.
+      - id: f1
+        md: |
+          Delivery two now lands in a different folder from delivery one, and nobody can say which
+          rule was used for which object. PTC's best practice is not to change mappings after the
+          first delivery from a source, because later deliveries build on the earlier ones.
+        outcome: fail
+      - id: f2
+        md: |
+          Status goes to **Unsuccessful: Import Failure**. The value still has no valid equivalent. You
+          end up doing the mapping anyway, just later and under more pressure.
+        outcome: fail
+      - id: f3
+        md: |
+          The import runs, but Hexa's "rapid" jigs now look like fully approved tooling at Acme. Mapping
+          is for resolving conflicts, not for changing what the source data means.
+        outcome: partial
+      - id: f4
+        md: |
+          The renumbered assemblies can no longer find their components, and there's no reliable way to
+          undo it. PTC's mapping rule documentation warns against exactly this.
+        outcome: fail
+      - id: win
+        md: |
+          Stable mappings, one new agreed row for the new value, and CAD numbers left alone. Delivery two
+          imports cleanly and lands exactly where delivery one did.
+        outcome: success
+
+  - type: callout
+    variant: pitfall
+    title: Don't change mappings after the first delivery
+    md: |
+      Once the first delivery from a source is imported, leave its mappings alone. If a mapping
+      really is wrong, treat it as a planned change: agree it, test it on a test system such as
+      wc-test01 first, and record it in the spec. And remember the separate, harder rule for
+      Import/Export mapping rule files: **never map MCAD document numbers**.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Put mappings that apply to every partner (like a supplier life cycle) at **organization**
+      level, and product-specific ones (like a folder) at **product** level, where they override the
+      higher level. Save and reuse conflict resolutions, and **remove obsolete mappings** regularly so
+      the table stays readable.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: multi
+        prompt: Which of these are received delivery mapping kinds? (Choose all that apply.)
+        options: [Folder, Life Cycle, View, Part number, Security Label]
+        answers: [0, 1, 2, 4]
+        explanation: The kinds are Context, Owning Organization, View, Folder, Life Cycle and Security Label. Part numbers aren't remapped there, and remapping CAD numbers in rule files is explicitly warned against.
+      - kind: single
+        prompt: The preview shows a life cycle state value with no equivalent at Acme. What happens if Nia imports anyway?
+        options:
+          - "The import fails until the value is mapped or created at Acme"
+          - "Windchill silently uses the default state"
+          - "The objects import but are hidden"
+          - "The value is copied and created automatically"
+        answer: 0
+        explanation: Values such as life cycle states and folders need a valid mapping or equivalent. Fix it by mapping it or by creating the missing value.
+      - kind: truefalse
+        prompt: A product-level mapping can override an organization-level mapping for the same source value.
+        answer: true
+        explanation: Mappings can be defined at site, organization, product or library level, and lower levels can override higher ones.
+      - kind: single
+        prompt: Hexa uses a custom subtype that Acme doesn't have. What's the right fix?
+        options:
+          - "Create the matching subtype and attributes at Acme before importing"
+          - "Map it in Mapping Management with a Type mapping"
+          - "Use a COPY_AS rule on the received delivery"
+          - "Import and let Windchill create the subtype"
+        answer: 0
+        explanation: Type is not a mapping kind. The recipient needs matching custom subtypes and attributes, and PTC advises fixing type and attribute mismatches before import.
+
+  - type: summary
+    points:
+      - Mapping translates a sender's values into yours to resolve conflicts, never to change their meaning.
+      - "Kinds: Context, Owning Organization, View, Folder, Life Cycle, Security Label. Types and attributes must be matched instead."
+      - "Rhythm: preview, read the conflict report, map or create missing values, preview again, import."
+      - Mappings live in Utilities → Mapping Management at site, organization, product or library level; lower levels override higher.
+      - Keep mappings stable after the first delivery, and never map MCAD document numbers.
