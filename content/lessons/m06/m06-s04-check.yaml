@@ -1,0 +1,148 @@
+id: m06-s04-check
+subtitle: File shares, another PLM and CAD - can you bring Kestrel's data home without breaking it?
+version: 1.0.0
+updated: "2026-10-06"
+tags: [migration, file-share, plm, cad, checkpoint]
+sources:
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Windchill Bulk Migrator Installation"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCInstallConfigGuide/WCInstall_BulkMigrator.html"
+    covers: "Permanent one-way migration; Extract, Transform, Load and Validate"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "CAD Data Management in Windchill"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/cadx/CADxDMOview.html"
+    covers: "Bulk loading of Creo, CATIA V5, NX and Autodesk Inventor data with Windchill Bulk Migrator"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Association Usage Examples"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/ManagingCADandPartRelationships/MCPR_AssociationUsageExamples.html"
+    covers: "Association kinds, which pass attributes, one Owner plus Image for repeated routings"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Mapping Through Special Rules"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/ExpImpPolicyRules_Chp/ExpImpPolicyRulesChp_MapThroughSpecialRule.html"
+    covers: "Do not map number attributes for MCAD documents"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Working with the Import/Export Management Utility"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/exportimport/ExportImportAbout.html"
+    covers: "Export does not include change control information"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Best Practices for Working with Packages"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/packages/PackageBestPractice.html"
+    covers: "Family table members as a special CAD relationship not to filter out"
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **migrating from other systems**: Kestrel's file share, Kestrel's old PDM and
+      the K1's CAD data. Score 80% to pass. Every answer explains itself, so a wrong answer still
+      teaches you something.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: Nia needs the real structure of the K1 from a file share. Where does she start?
+        options:
+          - "References inside the current top-level assemblies, read downward"
+          - "The folder tree, one folder per product"
+          - "The newest files by date"
+          - "A list of file names sorted alphabetically"
+        answer: 0
+        explanation: CAD assemblies and drawings record what they use. Folders and dates were copied and touched for years, so they're hints at most.
+      - kind: single
+        prompt: "`rear_frame_tomas.prt` is used by no assembly and no product claims it. What's the right handling?"
+        options:
+          - "Treat it as an orphan: ask an owner, and archive it with an index if nobody claims it"
+          - "Delete it - unused files are junk"
+          - "Load it into the K1 product just in case"
+          - "Rename it to an Acme number"
+        answer: 0
+        explanation: Orphans need a decision with a named owner. Archiving keeps rare but valuable files findable without filling Windchill with clutter.
+      - kind: multi
+        prompt: "Two files claim to be KC-4305. Which steps are good practice? (Choose all that apply.)"
+        options:
+          - "Compare the files' content"
+          - "Check which assemblies reference each file"
+          - "Let an engineer decide if they are revisions of one part or two parts"
+          - "Load both and fix it after go-live"
+        answers: [0, 1, 2]
+        explanation: Gather evidence, then let engineering decide, and record the decision. Loading both publishes the confusion to the whole company.
+      - kind: single
+        prompt: Kestrel's old PDM uses the state Frozen. What does the data-model mapping need?
+        options:
+          - "Exactly one agreed target state in Acme's life cycle"
+          - "A new Frozen state added to every Acme life cycle"
+          - "Nothing - states are copied as text"
+          - "A TBD to be resolved during cutover"
+        answer: 0
+        explanation: Each legacy value needs one target. Copying legacy states into Acme's model creates two processes, and TBDs at load time cause failed or wrong loads.
+      - kind: single
+        prompt: "Which product is the best candidate for latest-only migration plus an archive?"
+        options:
+          - "A discontinued Kestrel trailer nobody changes anymore"
+          - "The K1, active and in the field, where service needs each released revision"
+          - "A regulated product under audit"
+          - "Any product with more than one revision"
+        answer: 0
+        explanation: Latest-only is cheap and clean when nobody needs old revisions in PLM. Active, regulated or service-heavy products usually justify bringing released history.
+      - kind: truefalse
+        prompt: Open change workflows can normally be migrated with their approval position intact, so the cut-off date doesn't matter.
+        answer: false
+        explanation: Workflow state rarely translates between systems - even Windchill-to-Windchill export leaves change control information out. Close or cancel changes before the freeze and re-create the rest in Windchill.
+      - kind: truefalse
+        prompt: PTC warns against mapping the number attribute of MCAD documents during import.
+        answer: true
+        explanation: It breaks assembly references and can't be reliably reverted. Keep CAD numbers as they are.
+      - kind: multi
+        prompt: "Which must be loaded together with the K1 top assembly? (Choose all that apply.)"
+        options:
+          - "The components it uses"
+          - "The generic of any family table whose instances it uses"
+          - "Drawings that show its components"
+          - "Every file in the same folder"
+        answers: [0, 1, 2]
+        explanation: References travel together - components, family table generics and the drawings that point at them. Folder neighbours aren't references.
+      - kind: single
+        prompt: The rear brake cable is routed twice, so there are two CAD files for one part. How should they associate to part KC-4480?
+        options:
+          - "One file Owner, the other Image"
+          - "Both Owner"
+          - "Both Content"
+          - "Create a second part for the second file"
+        answer: 0
+        explanation: PTC's routing example uses one Owner and Image for the others; the build groups both occurrences under one usage with quantity 2.
+      - kind: order
+        prompt: Put Nia's CAD validation steps in order.
+        items:
+          - "Choose test assemblies on purpose, including the ugly ones"
+          - "Write down what correct looks like for each one"
+          - "Have an engineer open them in a fresh workspace"
+          - "Log every missing component or empty drawing with an owner"
+          - "Sign off only when blockers are cleared"
+        explanation: Pick, define expected results, test by opening, record exceptions, then sign off. Defining "correct" before you test stops you from accepting whatever you see.
+
+  - type: flashcards
+    cards:
+      - { front: File share migration, back: "Rebuilding structure and history from loose files - CAD references are the best evidence." }
+      - { front: Orphan file, back: "Referenced by nothing and claimed by nobody. Decide with an owner; archive if unclaimed." }
+      - { front: Duplicate file, back: "Same design saved under several names. Pick a master and re-point the assemblies." }
+      - { front: Data-model mapping, back: "The agreed translation of legacy types, states, revision labels and values into Windchill's model." }
+      - { front: Latest-only migration, back: "Only the current version moves; older history stays in a searchable archive." }
+      - { front: Full-history migration, back: "Every version moves in order - more effort, worth it for active or regulated products." }
+      - { front: In-flight work, back: "Changes and approvals still open at cutover. Close, cancel or re-create - don't migrate the workflow position." }
+      - { front: Family table, back: "A generic CAD model plus variant instances. Instances depend on the generic." }
+      - { front: Broken reference, back: "A link to a file that never arrived. Found by opening assemblies, not by reading logs." }
+      - { front: MCAD numbers, back: "Never map them during import - PTC warns it breaks references and can't be reliably reverted." }
+
+  - type: summary
+    points:
+      - File shares give files, not facts - rebuild structure from CAD references and decide every duplicate and orphan.
+      - Another PLM needs a data-model mapping with no TBDs, and a history decision per product line.
+      - In-flight changes are closed, cancelled or re-created - not migrated mid-workflow.
+      - CAD moves in packs, keeps its numbers and is proven by opening real assemblies.

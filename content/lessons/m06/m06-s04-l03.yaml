@@ -1,0 +1,347 @@
+id: m06-s04-l03
+subtitle: CAD files travel in packs. Move the whole pack, keep the numbers, then prove it by opening the assembly.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [migration, cad, references, family-table, associations, validation]
+sources:
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "CAD Data Management in Windchill"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/cadx/CADxDMOview.html"
+    covers: "CAD documents and CAD structures; users work through Windchill Workgroup Manager or Creo Parametric with a registered primary server and an active workspace; bulk loading of Creo, CATIA V5, NX and Autodesk Inventor data with Windchill Bulk Migrator (ETLV)"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Windchill Bulk Migrator Installation"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCInstallConfigGuide/WCInstall_BulkMigrator.html"
+    covers: "Optional product for permanent one-way migration; Extract, Transform, Load and Validate"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Association Usage Examples"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/ManagingCADandPartRelationships/MCPR_AssociationUsageExamples.html"
+    covers: "Owner, Contributing Image, Image, Contributing Content and Content associations; which pass attributes; cable routing example with one Owner and several Image associations grouped under one Uses link"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Mapping Through Special Rules"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/ExpImpPolicyRules_Chp/ExpImpPolicyRulesChp_MapThroughSpecialRule.html"
+    covers: "Do not map number attributes for MCAD documents: it breaks assembly references and can't be reliably reverted"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Best Practices for Working with Packages"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/packages/PackageBestPractice.html"
+    covers: "Collection rules should include all dependents; don't filter out objects needed for correct display; watch special CAD relationships such as family table members"
+versionNotes:
+  - versions: ["Windchill+"]
+    md: |
+      The CAD data management overview used here is the Windchill+ 13.1.2.0 page; the association
+      and package pages are the on-premises 13.1.2.0 pages. The concepts in this lesson are the
+      same on both. Whether Windchill Bulk Migrator is available to you depends on your deployment
+      and licensing: it is an optional product chosen at installation.
+
+blocks:
+  - type: text
+    md: |
+      Parts and documents can move one by one. **CAD can't.** A K1 assembly is a web of files: the
+      top assembly uses sub-assemblies, which use components, which may be instances of a family
+      table, with drawings pointing at all of them. Load half the web and the other half is useless.
+
+      CAD migration has three rules Nia repeats until the team is sick of them:
+
+      1. **Move references together.**
+      2. **Never renumber CAD.**
+      3. **It isn't migrated until it opens.**
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "this CAD file needs that one to open" → *[[cad-dependency]]*
+      - "one generic model with a table of variants" → *[[family-table]]*
+      - "the model that drives a part's structure" → *[[owner-association]]*
+      - "a CAD file that shows the part but doesn't drive it" → *[[image-association]]*
+      - "extra CAD content, like a drawing, attached to a part" → *[[content-association]]*
+      - "a link pointing at a file that never arrived" → *[[broken-reference]]*
+
+  - type: diagram
+    title: What travels with the K1 top assembly
+    caption: Everything inside the dashed zone must load in the same batch. Click each box.
+    diagram:
+      width: 800
+      height: 440
+      groups:
+        - { label: Load together, x: 20, y: 20, w: 520, h: 400, tone: warning }
+        - { label: Windchill parts, x: 560, y: 20, w: 220, h: 400, tone: info }
+      nodes:
+        - id: top
+          label: k1_top.asm
+          sublabel: top assembly
+          x: 40
+          y: 60
+          w: 170
+          shape: doc
+          tone: primary
+          detail: The current K1 top assembly. Nia starts every load batch from a top-level assembly the business says is current.
+        - id: frame
+          label: kc-4120.prt
+          sublabel: rear frame
+          x: 40
+          y: 190
+          w: 170
+          shape: doc
+          tone: primary
+          detail: A component. If it's missing, the top assembly opens with a hole where the frame should be.
+        - id: generic
+          label: bolt_generic.prt
+          sublabel: family table generic
+          x: 240
+          y: 60
+          w: 170
+          shape: doc
+          tone: accent
+          detail: |
+            One generic model with a table of variants (M6x20, M6x30...). The assembly uses
+            **instances**, and the instances depend on the generic. Load the instances without the
+            generic and they can't be rebuilt. PTC's package best practices name family table members
+            as a special CAD relationship not to filter out.
+        - id: instance
+          label: bolt M6x20
+          sublabel: instance
+          x: 240
+          y: 190
+          w: 170
+          shape: doc
+          tone: accent
+          detail: Used in the frame assembly 14 times. It's a row in the generic's family table, not a stand-alone file design.
+        - id: drawing
+          label: kc-4120.drw
+          sublabel: drawing
+          x: 140
+          y: 320
+          w: 170
+          shape: doc
+          tone: neutral
+          detail: The drawing references the frame model. Load the drawing without the model and it shows nothing.
+        - id: cable
+          label: brake cable x2
+          sublabel: two routings
+          x: 360
+          y: 320
+          w: 160
+          shape: doc
+          tone: neutral
+          detail: The rear brake cable is routed twice, so the CAD tool needs two files with unique names - but it's one part number. See the case study.
+        - id: p-top
+          label: Part KC-4100
+          sublabel: K1 top part
+          x: 580
+          y: 60
+          w: 180
+          tone: info
+          detail: Associated to `k1_top.asm` with an **Owner** association, so the assembly drives the part structure.
+        - id: p-frame
+          label: Part KC-4120
+          sublabel: frame part
+          x: 580
+          y: 190
+          w: 180
+          tone: info
+          detail: Owner association to the frame model; the drawing joins it with a **Content** association.
+        - id: p-cable
+          label: Part KC-4480
+          sublabel: brake cable
+          x: 580
+          y: 320
+          w: 180
+          tone: info
+          detail: One routing file is the **Owner**, the other is an **Image**. The build groups both occurrences into one usage with quantity 2.
+      edges:
+        - { from: top, to: frame, label: uses }
+        - { from: top, to: instance, label: uses }
+        - { from: instance, to: generic, label: instance of }
+        - { from: drawing, to: frame, label: shows, dashed: true }
+        - { from: top, to: cable, label: uses }
+        - { from: top, to: p-top, label: Owner, dashed: true }
+        - { from: frame, to: p-frame, label: Owner, dashed: true }
+        - { from: cable, to: p-cable, label: Owner + Image, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Engineers judge the whole migration by one test: *does my assembly open?* If the K1 top
+      assembly opens with three missing bolts, nobody cares that 29,997 other files are perfect.
+      Trust in the new system is won or lost on the first CAD open.
+
+  - type: comparison
+    title: "CAD-to-part associations to plan in your mapping"
+    columns: [Typical use, "Passes attributes to part?"]
+    rows:
+      - label: Owner
+        cells: ["The primary CAD document that drives the part's structure", "Yes"]
+      - label: Contributing Image
+        cells: ["Multi-CAD secondary associations and flexible components", "Yes"]
+      - label: Image
+        cells: ["Multi-CAD secondary associations and flexible components; part still joins its parent's structure", "No"]
+      - label: Contributing Content
+        cells: ["Multi-CAD cases where secondary attributes matter to the BOM", "Yes"]
+      - label: Content
+        cells: ["Extra descriptive CAD content - for example a model's drawing", "No"]
+    takeaway: Legacy systems rarely store these kinds. Decide the rule per file type before load, or every CAD file defaults to one kind.
+
+  - type: example
+    variant: case-study
+    title: The brake cable that became two parts
+    industry: Cargo bikes
+    md: |
+      In the first dry run, the K1 top part showed **two** brake cable parts: KC-4480 and a new
+      KC-4481 nobody recognised. The cause: the cable is routed twice in the assembly, so Kestrel
+      had two files (`brake_cable.prt` and `brake_cable_1.prt`). The load script created a part for
+      each file.
+
+      Nia checked PTC's association examples. They cover exactly this: several routing files can
+      represent **one** part number - one routing gets the **Owner** association, the others get
+      **Image**. The structure build then groups both occurrences under a single usage with the right
+      quantity.
+
+      She added a rule to the mapping: routing files with the same base name map to one part, first
+      one Owner, the rest Image. Second dry run: one KC-4480, quantity 2.
+    takeaway: CAD files and part numbers aren't one-to-one. Plan the associations, don't let the loader guess.
+
+  - type: scenario
+    variant: what-if
+    title: What if we just renumber the CAD to Acme's scheme?
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Jordan asks: "Acme numbers start with EB- and SC-. Can't we rename all KC- CAD documents to
+          an Acme range during the load? One mapping rule, done."
+        choices:
+          - label: No - keep CAD numbers as they are; give new Acme parts or attributes for the business view
+            next: win
+            good: true
+            feedback: PTC's mapping rules documentation warns exactly against this.
+          - label: Yes - add a mapping rule that rewrites the number attribute
+            next: fail1
+            feedback: That's the case PTC warns against for MCAD documents.
+          - label: Rename them after the load, once everything is in
+            next: partial1
+            feedback: Better than a bulk rule at import, but it's a big extra project with its own risk.
+      - id: win
+        md: |
+          KC- CAD numbers stay. Acme references Kestrel data through the part structure and adds
+          Acme numbers only on **new** designs. The assemblies open on the first try.
+        outcome: success
+      - id: fail1
+        md: |
+          PTC's guidance on mapping rules is explicit: don't map number attributes for MCAD
+          documents. It breaks assembly references and can't be reliably reverted. Half the K1
+          assemblies now open with missing components, and there's no clean undo.
+        outcome: fail
+      - id: partial1
+        md: |
+          Possible in principle, but every rename touches assemblies and drawings that reference the
+          file, needs CAD-aware tooling and its own test cycle. Most teams decide it isn't worth it.
+        outcome: partial
+
+  - type: comparison
+    title: "Cheat sheet: CAD migration do and don't"
+    columns: [Do, "Don't"]
+    rows:
+      - label: Batching
+        cells: ["Load a top assembly with every file it references", "Load by folder or by file type"]
+      - label: Family tables
+        cells: ["Load the generic with its instances", "Filter instances out as \"just variants\""]
+      - label: Numbers
+        cells: ["Keep CAD numbers as they are", "Map MCAD number attributes - references break"]
+      - label: Associations
+        cells: ["Set a rule per case (Owner/Image/Content)", "Let every file default to one kind"]
+      - label: Tool
+        cells: ["Use Windchill Bulk Migrator for Creo/CATIA V5/NX/Inventor bulk loads", "Hand-load thousands of CAD files"]
+      - label: Validation
+        cells: ["Open real assemblies and drawings in the CAD tool", "Trust load logs and file counts alone"]
+    takeaway: Three rules - move references together, never renumber CAD, prove it by opening it.
+
+  - type: exercise
+    title: Plan the K1 open test
+    environment: paper
+    goal: |
+      Write a validation plan proving that migrated Kestrel CAD data works for engineers - not just
+      that it arrived.
+    steps:
+      - "Pick 5 test assemblies on purpose: the K1 top assembly, the biggest sub-assembly, one with a family table, one with the twice-routed brake cable, and the oldest one Tomas worries about."
+      - "For each, list what *correct* looks like: number of components, drawings that must show geometry, and the expected part structure."
+      - "Plan who opens them: Priya, working through Creo Parametric or Windchill Workgroup Manager with the test server registered as primary and a fresh workspace active."
+      - "Add checks on the Windchill side: CAD structure complete, part structure built with the right associations and quantities (brake cable quantity 2)."
+      - "Write the pass rule: any missing component or empty drawing is a blocker, logged on the exceptions list with an owner."
+    expected: |
+      A one-page plan with named assemblies, expected results, a named tester and a clear blocker
+      rule. It goes into the dry-run checklist and the final sign-off.
+
+  - type: callout
+    variant: pitfall
+    title: Validating only what you loaded
+    md: |
+      A missing file doesn't show up in "objects loaded". It shows up as a [[broken-reference]] when
+      someone opens the assembly. Count what the top assemblies **expect** (from their references),
+      not just what the loader created.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Let someone who **didn't** run the load do the open test, starting from a **fresh
+      workspace**. Priya doesn't know which files "should" be there, so she notices what's missing -
+      and nothing left over from earlier test rounds gets mixed into what she opens.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Why must a CAD assembly be loaded together with the files it references?
+        options:
+          - "Without them the assembly can't open correctly and the CAD structure is incomplete"
+          - "Windchill charges per load batch"
+          - "Drawings are always loaded first"
+          - "Folders must be created in order"
+        answer: 0
+        explanation: An assembly is defined by the files it uses. Missing components or generics become broken references.
+      - kind: truefalse
+        prompt: Mapping the number attribute of MCAD documents during import is a safe way to move Kestrel CAD into Acme's numbering scheme.
+        answer: false
+        explanation: PTC warns against mapping MCAD number attributes. It breaks assembly references and can't be reliably reverted.
+      - kind: single
+        prompt: A cable routed twice is stored as two CAD files but is one part. Which associations fit?
+        options:
+          - "One file Owner, the other Image"
+          - "Both files Owner"
+          - "Both files Content"
+          - "No associations - parts and CAD stay separate"
+        answer: 0
+        explanation: PTC's example uses one Owner and Image for the other routings. The build groups the occurrences under one usage with the right quantity.
+      - kind: multi
+        prompt: Which associations pass attributes between the CAD document and the part? (Choose all that apply.)
+        options: [Owner, Contributing Image, Contributing Content, Image, Content]
+        answers: [0, 1, 2]
+        explanation: Owner and the two Contributing kinds pass attributes. Image and Content don't.
+      - kind: single
+        prompt: What's the strongest proof that migrated CAD works?
+        options:
+          - "An engineer opens real assemblies and drawings in the CAD tool and they're complete"
+          - "The load log shows zero errors"
+          - "File counts match the share"
+          - "Every CAD document has a thumbnail"
+        answer: 0
+        explanation: Counts and logs are necessary but not enough. Opening assemblies catches broken references, missing family table generics and empty drawings.
+
+  - type: flashcards
+    cards:
+      - { front: Three CAD migration rules, back: "Move references together. Never renumber CAD. It isn't migrated until it opens." }
+      - { front: Family table, back: "One generic CAD model plus a table of variant instances. Instances depend on the generic - load them together." }
+      - { front: Mapping MCAD numbers, back: "Don't. PTC warns it breaks assembly references and can't be reliably reverted." }
+      - { front: Owner + Image, back: "Several CAD files, one part: one file drives the part (Owner), the others just represent it (Image)." }
+
+  - type: summary
+    points:
+      - CAD moves in packs - assemblies, components, family table generics and drawings load together.
+      - Never map MCAD number attributes; PTC warns it breaks references and can't be reliably undone.
+      - Plan Owner, Image, Contributing and Content associations instead of letting the loader guess.
+      - Windchill Bulk Migrator is PTC's bulk route for Creo, CATIA V5, NX and Inventor data.
+      - Validate by opening real assemblies in a fresh workspace, and count what assemblies expect, not just what loaded.
