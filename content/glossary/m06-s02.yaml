@@ -1,0 +1,90 @@
+# New glossary terms introduced in section m06-s02 (Migration and loading tools).
+- id: windchill-bulk-migrator
+  term: Windchill Bulk Migrator
+  plain: PTC's heavy-duty toolset for moving a legacy system's data into Windchill, once and for good.
+  definition: A collection of PTC tools for the permanent, one-way migration of data into Windchill, using the Extract, Transform, Load and Validate (ETLV) approach. Bulk loading with it supports migrating Creo, CATIA V5, NX and Autodesk Inventor data. On-premises it is an optional product chosen during installation; its set-up is described in the separate Windchill Bulk Migrator Installation and Usage Guide.
+  aka: [WBM]
+  related: [etlv, load-file, import-export-management]
+
+- id: etlv
+  term: ETLV (Extract, Transform, Load, Validate)
+  plain: Pull the data out, reshape it, put it in, prove it's right.
+  definition: The approach used by the Windchill Bulk Migrator. Extract pulls data from one or more source systems; Transform maps and reshapes it to fit the target Windchill set-up; Load puts it into the Windchill database and file vaults; Validate checks the result as part of the method.
+  aka: [Extract Transform Load Validate]
+  related: [windchill-bulk-migrator, vault, database]
+
+- id: load-file
+  term: Load file
+  plain: A file of records that a Windchill load command reads to create objects.
+  definition: A data file processed by the Windchill load utilities such as LoadFromFile and LoadFileSet. The load utilities process only XML files, so data prepared as CSV is converted first with CSV2XML. PTC recommends validating XML load files against standardX20.dtd before loading; their content is case-sensitive.
+  aka: [Data file, XML load file]
+  related: [loadfromfile, loadfileset, csv2xml]
+
+- id: loadfromfile
+  term: LoadFromFile
+  plain: The command that loads one XML data file into Windchill.
+  definition: A Windchill load utility (wt.load.LoadFromFile) that loads a single data file. The LoadFromFile framework reads the file, turns its records into name-value pairs and passes them to object loaders that create objects, set attributes and save them. Options are -d (the data file on the method server host; required), -u and -p (optional user and password) and -CONT_PATH (the target container). The server manager and method server must be running, and only site administrators should run it.
+  related: [load-file, loadfileset, container-path, method-server, server-manager]
+
+- id: loadfileset
+  term: LoadFileSet
+  plain: The load command for several data files at once.
+  definition: A Windchill load utility that loads multiple data files, where LoadFromFile loads one.
+  related: [loadfromfile, load-file]
+
+- id: windchill-loader
+  term: Windchill Loader
+  plain: The loader that puts a Windchill solution's base data into the system.
+  definition: A load utility that loads data for any installed Windchill solution. It reads the installed solutions from installed.properties and their load sets - XML files listing the data files to load - from LoaderConfiguration.properties. Besides initializing the database, it adds users and groups to the LDAP directory.
+  related: [load-file, ldap, database]
+
+- id: csv2xml
+  term: CSV2XML
+  plain: The converter that turns a spreadsheet-style CSV file into XML load files.
+  definition: A Windchill utility (wt.load.util.CSV2XML) that converts CSV files into XML files for the load utilities. Options include -input, -output, -root, -encoding, -mapfile, -delimiter and -preservespace. The CSV must match the record definitions in csvmapfile.txt and contain all required data.
+  related: [csvmapfile, load-file, loadfromfile]
+
+- id: csvmapfile
+  term: csvmapfile.txt
+  plain: The rule book that says which columns each kind of CSV load record needs.
+  definition: A file in the Windchill loadFiles directory that defines the layouts CSV load data must follow. CSV2XML uses it, and its -mapfile option takes the file's absolute path.
+  related: [csv2xml, load-file]
+
+- id: container-path
+  term: Container path (CONT_PATH)
+  plain: The address of the context where loaded data should land.
+  definition: The target container for a load, given to LoadFromFile with -CONT_PATH, for example /wt.inf.container.OrgContainer=MyOrg/wt.pdmlink.PDMLinkProduct=Prod for a product or /wt.inf.container.OrgContainer=MyOrg/wt.inf.library.WTLibrary=Lib for a library. If it is left out, data goes to the Exchange container, which is the site.
+  aka: [CONT_PATH]
+  related: [loadfromfile, site, product-context, library, organization]
+
+- id: import-export-management
+  term: Import/Export Management
+  plain: The utility that packs objects into a file in one Windchill and unpacks them in another.
+  definition: A Windchill utility that moves complete content and metadata between sites. Export writes JAR files; import expands them into the local database, after which the objects can be modified like any others. It is on the Utilities page of the site, organizations, products and libraries, and for business administrators also under Business Administration Utilities. Exported data does not include change control information.
+  related: [ufid, mapping-rule-file, ixb-policy-file, overridable-conflict]
+
+- id: ufid
+  term: Unique Federated Identifier (UFID)
+  plain: An object's passport number across Windchill systems.
+  definition: The identity Import/Export Management uses to recognise an object, made of its local id, domain and site. A new revision, version or iteration changes it; a change of life cycle state does not. If an incoming object has the same name, number, version and iteration as a local one but a different UFID, the import fails unless the conflict is resolved.
+  aka: [UFID]
+  related: [import-export-management, overridable-conflict, domain, site]
+
+- id: mapping-rule-file
+  term: Mapping rule file
+  plain: A rule list that rewrites or blocks values as data is exported or imported.
+  definition: A file of rules applied to the XML import and export files of Import/Export Management. Each rule copies a value (COPY, the default), replaces it (COPY_AS), or ignores it (IGNORE, IGNORE_PARENT), optionally only for one type, with * as a wildcard. Client rule files are chosen in the UI and take priority over generalized rule files kept in the registry. PTC warns never to map the number attribute of MCAD documents.
+  related: [import-export-management, ixb-policy-file, overridable-conflict]
+
+- id: ixb-policy-file
+  term: Import/export policy file
+  plain: A file that decides what actions to take on data during an import or export.
+  definition: An XSL file used with Import/Export Management to govern the actions taken on attribute data, as opposed to mapping rule files, which change the XML files themselves. PTC advises using either a policy file or mapping rules in a transaction, not both. A policy file can also be used to resolve identity conflicts.
+  aka: [Policy file]
+  related: [mapping-rule-file, import-export-management]
+
+- id: overridable-conflict
+  term: Overridable conflict
+  plain: An import clash Windchill lets you push past instead of failing.
+  definition: A conflict during an import that can be resolved by selecting Resolve Overridable Conflicts in the Import window; that checkbox has the highest priority over rule files and wt.properties. It is one way past the failure caused by an incoming object with the same name, number, version and iteration as a local one but a different UFID. Policy or rule files are the alternative.
+  related: [ufid, import-export-management, mapping-rule-file]

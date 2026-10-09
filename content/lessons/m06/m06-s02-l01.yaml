@@ -1,0 +1,260 @@
+id: m06-s02-l01
+subtitle: Thousands of CAD files, one direction, no way back. Meet the toolset built for exactly that.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [migration, windchill-bulk-migrator, etlv, cad-migration, tools]
+sources:
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Windchill Bulk Migrator Installation"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCInstallConfigGuide/WCInstall_BulkMigrator.html"
+    covers: "WBM is a collection of tools for permanent, one-way migration into Windchill; Extract, Transform, Load and Validate (ETLV); optional product chosen at install; post-install set-up is in the separate Windchill Bulk Migrator Installation and Usage Guide"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "CAD Data Management in Windchill"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/cadx/CADxDMOview.html"
+    covers: "Bulk loading supports Creo, CATIA V5, NX and Autodesk Inventor migration with the Windchill Bulk Migrator and the ETLV method"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Overview of Load Utilities"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/WCDataLoadGuide/WCDataLoad_IntroOviewLoadUtility.html"
+    covers: "Load utilities (LoadFromFile, LoadFileSet, Windchill Loader, CSV2XML) process XML files only; legacy migration has historically been labor-intensive"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Working with the Import/Export Management Utility"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/exportimport/ExportImportAbout.html"
+    covers: "Import/Export Management moves content and metadata between Windchill sites in JAR files"
+
+versionNotes:
+  - versions: ["13.1.2.0"]
+    md: |
+      The Windchill Bulk Migrator facts come from the on-premises 13.1.2.0 installation guide, where
+      it is an optional product picked during installation. The CAD bulk-loading statement comes
+      from the **Windchill+** edition of the 13.1.2.0 Help Center. How bulk migration is set up for
+      a Windchill+ customer is not covered by these pages: ask PTC before you plan around it.
+
+blocks:
+  - type: text
+    md: |
+      Nia has done the homework from the last section. She knows Kestrel's scope: about
+      **40,000 CAD files** for the Kestrel Cargo K1 and older models, a few thousand part records in
+      Kestrel's old PDM, and a pile of spreadsheets.
+
+      Now the question everyone asks in the kick-off meeting: *"So... which button do we press?"*
+
+      There isn't one button. Windchill gives you **three families of tools** for getting data in,
+      and they are built for very different jobs. Pick the wrong one and you spend weeks fighting
+      it. This lesson starts with the heavy lifter: the **Windchill Bulk Migrator**.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the heavy-duty toolset for moving a whole legacy system in, once" → *[[windchill-bulk-migrator]]* (WBM)
+      - "pull it out, reshape it, put it in, prove it's right" → *[[etlv]]* (Extract, Transform, Load, Validate)
+      - "a file of records that a load command reads" → *[[load-file]]*
+      - "moving objects between two Windchill systems as JAR files" → *[[import-export-management]]*
+
+  - type: diagram
+    title: The four ETLV stages
+    caption: The Windchill Bulk Migrator follows Extract, Transform, Load and Validate. Click each stage to see what happens there for Kestrel.
+    diagram:
+      width: 800
+      height: 400
+      groups:
+        - { label: Source systems, x: 20, y: 20, w: 200, h: 360, tone: neutral }
+        - { label: Windchill Bulk Migrator (ETLV), x: 240, y: 20, w: 360, h: 360, tone: info }
+        - { label: Acme Windchill, x: 620, y: 20, w: 160, h: 360, tone: success }
+      nodes:
+        - id: old-pdm
+          label: "Kestrel's old PDM"
+          sublabel: parts and CAD records
+          x: 40
+          y: 80
+          w: 160
+          shape: cylinder
+          tone: neutral
+          detail: |
+            One source system. The Help Center says data can be extracted from **one or more**
+            source systems, so the old PDM and the file share can both feed the same migration.
+        - id: file-share
+          label: File share
+          sublabel: kestrel-fs01
+          x: 40
+          y: 240
+          w: 160
+          shape: doc
+          tone: neutral
+          detail: |
+            `\\kestrel-fs01\engineering` - CAD files that never made it into the old PDM. Section 4
+            looks at how to deal with file shares in detail.
+        - id: extract
+          label: Extract
+          sublabel: pull data out
+          x: 260
+          y: 80
+          w: 150
+          tone: primary
+          detail: Data is pulled out of the source systems. Nothing changes in Windchill yet.
+        - id: transform
+          label: Transform
+          sublabel: map to Windchill
+          x: 430
+          y: 80
+          w: 150
+          tone: accent
+          detail: |
+            The extracted data is mapped and transformed so it fits **Acme's** Windchill set-up:
+            types, attributes, states, folders, contexts. This is where most of the thinking happens.
+          real: Teams typically spend far more time on mapping decisions than on the load itself.
+        - id: load
+          label: Load
+          sublabel: database + vaults
+          x: 260
+          y: 240
+          w: 150
+          tone: warning
+          detail: The transformed data goes into the Windchill **database** (metadata) and the **file vaults** (the CAD files themselves).
+        - id: validate
+          label: Validate
+          sublabel: prove it worked
+          x: 430
+          y: 240
+          w: 150
+          tone: success
+          detail: |
+            Validation is part of the method, not an afterthought. For CAD, the practical test is
+            that assemblies open complete in Windchill - Section 4 covers this.
+        - id: target
+          label: Acme production
+          sublabel: Kestrel Cargo K1
+          x: 640
+          y: 160
+          w: 120
+          h: 70
+          shape: cylinder
+          tone: success
+          detail: The migrated data lands in the *Kestrel Cargo K1* product context. Migration with WBM is **permanent and one-way** - there is no sync back to the old PDM.
+      edges:
+        - { from: old-pdm, to: extract }
+        - { from: file-share, to: extract }
+        - { from: extract, to: transform }
+        - { from: transform, to: load }
+        - { from: load, to: validate }
+        - { from: validate, to: target, label: sign-off }
+
+  - type: text
+    md: |
+      ### What the Help Center tells us about WBM
+
+      - It is a **collection of tools**, not a single command.
+      - It is built for **permanent, one-way** migration of data **into** Windchill. Think "move house",
+        not "keep two houses in sync".
+      - It follows the **ETLV** approach: Extract, Transform, Load, Validate.
+      - For CAD, bulk loading with WBM supports migrating **Creo, CATIA V5, NX and Autodesk Inventor**
+        data.
+      - It is an **optional product**: on-premises, you pick *Windchill Bulk Migrator* under the
+        optional products when installing. The set-up after installation is described in a separate
+        PTC guide, the *Windchill Bulk Migrator Installation and Usage Guide*.
+
+      That last point matters for planning: if WBM isn't installed on wc-test01 yet, Rosa needs to add
+      it before Nia's first dry run.
+
+  - type: comparison
+    title: Three ways to get data into Windchill
+    columns: [Windchill Bulk Migrator, Load utilities, Import/Export Management]
+    rows:
+      - label: Built for
+        cells: ["Permanent one-way migration from legacy systems", "Loading records from XML load files", "Moving objects between Windchill sites"]
+      - label: Typical input
+        cells: ["Extracts from source systems (PDM and CAD data)", "XML files (CSV converted with CSV2XML)", "JAR files exported from another Windchill"]
+      - label: Method
+        cells: ["Extract, Transform, Load, Validate", "Command-line utilities such as LoadFromFile", "Export window and Import window"]
+      - label: CAD data
+        cells: ["Creo, CATIA V5, NX, Inventor bulk loading", "Not what they are for in this course", "Yes, including CAD document structures"]
+      - label: Where you run it
+        cells: ["Optional product with its own guide", "Server command line (site administrators)", "Utilities page of a site, organization, product or library"]
+      - label: Kestrel use
+        cells: ["The 40,000 CAD files and their PDM records", "Small metadata sets from spreadsheets", "Bringing in documents Acme Asia already holds in its own Windchill"]
+    takeaway: WBM for the big one-way move, load utilities for structured records, Import/Export Management between Windchill systems.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Tool choice decides your timeline. A team that tries to push 40,000 CAD files through
+      hand-built load files is signing up for months of scripting and re-work. A team that fires up
+      a bulk migration toolset for 30 spreadsheet rows is over-engineering. Matching the tool to the
+      job is the first real decision a migration lead makes.
+
+  - type: example
+    variant: case-study
+    title: Splitting the Kestrel move across tools
+    industry: Micromobility
+    md: |
+      Nia sorts Kestrel's data into buckets and gives each one a tool:
+
+      | Bucket | Volume | Tool |
+      | --- | --- | --- |
+      | K1 CAD models, assemblies and drawings (Creo, plus some Inventor from an older line) | ~40,000 files | Windchill Bulk Migrator |
+      | Purchased parts list KC-2000 to KC-2400 from a spreadsheet | ~400 rows | CSV → CSV2XML → LoadFromFile |
+      | K1 assembly instructions Acme Asia already wrote in its own Windchill | about 20 documents | Import/Export Management, Acme Asia → Acme production |
+
+      Tomas raises an eyebrow: "Why not one tool for everything?" Nia's answer: because the
+      spreadsheet has no CAD files to carry, and the assembly instructions already live in a Windchill system. Each
+      tool does one job well.
+    takeaway: A real migration often uses all three families - each for the data it was built for.
+
+  - type: callout
+    variant: pitfall
+    title: "\"One-way\" really means one-way"
+    md: |
+      WBM is for a **permanent** move. If the business expects Kestrel's old PDM to stay live and
+      be kept in step with Windchill for a year, that is a coexistence design, and the sources here
+      don't describe a WBM feature for it. Settle that question in planning, before anyone builds
+      transforms.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Treat the **Transform** stage as the project, not the load. Write the mapping (old field →
+      new attribute, old state → new life cycle state, old folder → new folder) as a reviewed
+      document. When the dry run fails, that document is where you fix it.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Kestrel's 40,000 Creo and Inventor files must move into Acme's Windchill for good. Which tool family fits?
+        options:
+          - "Windchill Bulk Migrator"
+          - "LoadFromFile with one load file"
+          - "Import/Export Management"
+          - "Copy the files into the vault folder by hand"
+        answer: 0
+        explanation: WBM is PTC's toolset for permanent, one-way bulk migration and supports Creo, CATIA V5, NX and Inventor bulk loading. Import/Export Management moves data between Windchill sites, and nobody should touch vault folders by hand.
+      - kind: order
+        prompt: Put the WBM stages in order.
+        items: [Extract, Transform, Load, Validate]
+        explanation: Pull data from the sources, reshape it to fit Windchill, load it into the database and vaults, then prove it is right.
+      - kind: truefalse
+        prompt: The Windchill Bulk Migrator is designed to keep a legacy PDM and Windchill synchronised in both directions.
+        answer: false
+        explanation: The Help Center describes WBM as being for permanent, one-way migration into Windchill.
+
+  - type: flashcards
+    cards:
+      - { front: Windchill Bulk Migrator (WBM), back: "PTC's collection of tools for permanent, one-way migration of data into Windchill." }
+      - { front: ETLV, back: "Extract, Transform, Load, Validate - the WBM approach." }
+      - { front: Transform stage, back: "Map and reshape extracted data so it fits the target Windchill set-up." }
+      - { front: Load stage, back: "Data goes into the Windchill database and the file vaults." }
+      - { front: WBM CAD sources, back: "Creo, CATIA V5, NX and Autodesk Inventor." }
+      - { front: How WBM is installed, back: "As an optional product at install time; set-up is in its own installation and usage guide." }
+      - { front: Load utilities vs WBM, back: "Load utilities read XML load files; WBM is the full ETLV toolset for bulk legacy migration." }
+
+  - type: summary
+    points:
+      - Windchill has three families of tools for bringing data in - pick by the job, not by habit.
+      - The Windchill Bulk Migrator is a toolset for permanent, one-way migration into Windchill.
+      - It follows Extract, Transform, Load and Validate; validation is part of the method.
+      - It supports bulk loading of Creo, CATIA V5, NX and Inventor data.
+      - It is an optional product with its own installation and usage guide.

@@ -1,0 +1,300 @@
+id: m06-s02-l03
+subtitle: Pack objects into a JAR, unpack them in another Windchill, and know what to do when two objects claim the same name.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [migration, import-export, jar, ufid, conflicts, mapping-rules]
+sources:
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Working with the Import/Export Management Utility"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/exportimport/ExportImportAbout.html"
+    covers: "Moves content and metadata between sites as JAR files; what export covers; no change control information; import does not overwrite objects with the same status by default; UFID (local id, domain, site) and when it changes; same number, version and iteration with a different UFID fails; Resolve Overridable Conflicts; mapping rule, context mapping and policy files; where to find the utility"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Exporting"
+    url: "https://support.ptc.com/help/windchill/r13.1.1.0/en/Windchill_Help_Center/exportimport/ExportImportExportAbout.html"
+    covers: "Who can export and the read access needed; Utilities > Import/Export Management > Export; export options (file name, mapping rule file, policy file, export action, configuration specification, time period, detailed status log, jar of jars, preview)"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Mapping Through Special Rules"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/ExpImpPolicyRules_Chp/ExpImpPolicyRulesChp_MapThroughSpecialRule.html"
+    covers: "Mapping rules change the XML import and export files; policy files act on attribute data; client and generalized rule files; priority order; COPY, COPY_AS, IGNORE, IGNORE_PARENT; examples; warning against mapping MCAD document numbers"
+
+versionNotes:
+  - versions: ["13.1.1.0", "13.1.2.0"]
+    md: |
+      The export options come from the **13.1.1.0** Help Center page (no English 13.1.2.0 version of
+      that page was found). The other pages were read in the **Windchill+** edition of the 13.1.2.0
+      Help Center. Exact option labels can differ by release; the walkthrough names the options
+      the pages describe, not every button.
+
+blocks:
+  - type: text
+    md: |
+      Before the acquisition closed, **Acme Asia** - Acme's separate Windchill installation - had
+      already written about 20 assembly-instruction documents for the Kestrel Cargo K1, numbered
+      **KC-2500 to KC-2520**. Nia wants them in Acme's main production system, with their content
+      *and* their attributes.
+
+      Both ends are Windchill, so there's no need to extract, transform and reload. Windchill can
+      **pack objects up** in one system and **unpack them** in another. The utility for it is
+      **Import/Export Management**.
+
+      Easy, right? Mostly. The tricky part is what happens when the receiving system already has
+      something that looks like the same object.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the utility that packs and unpacks objects between Windchill sites" → *[[import-export-management]]*
+      - "the zipped bundle it produces" → a JAR file (Java archive; opens with any ZIP tool)
+      - "the object's passport number across systems" → *[[ufid]]* (Unique Federated Identifier)
+      - "a clash you're allowed to override at import" → *[[overridable-conflict]]*
+      - "rules that rewrite or block values on the way" → *[[mapping-rule-file]]*
+      - "rules for what actions to take on the data" → *[[ixb-policy-file]]*
+
+  - type: animation
+    title: A document's trip from Acme Asia to Acme production
+    diagram:
+      width: 800
+      height: 360
+      groups:
+        - { label: Acme Asia Windchill, x: 20, y: 20, w: 240, h: 320, tone: neutral }
+        - { label: Acme production Windchill, x: 540, y: 20, w: 240, h: 320, tone: info }
+      nodes:
+        - id: src-doc
+          label: KC-2510 A.1
+          sublabel: "UFID: id + domain + site"
+          x: 40
+          y: 80
+          w: 200
+          shape: doc
+          tone: primary
+          detail: The assembly instruction for the front box hinge, with its content file and attributes.
+        - id: export
+          label: Export
+          sublabel: Import/Export Management
+          x: 40
+          y: 220
+          w: 200
+          tone: accent
+          detail: Run by an administrator with read access to the object and all its attributes.
+        - id: jar
+          label: kestrel_docs.jar
+          sublabel: content + metadata
+          x: 310
+          y: 150
+          w: 180
+          shape: doc
+          tone: warning
+          detail: A JAR file holding the objects' content and metadata. It does **not** include change control information.
+        - id: import
+          label: Import
+          sublabel: Import window
+          x: 560
+          y: 220
+          w: 200
+          tone: accent
+          detail: Expands the JAR and places the objects in the local database. Rule files and the Resolve Overridable Conflicts option apply here.
+        - id: tgt-doc
+          label: KC-2510 A.1
+          sublabel: in Kestrel Cargo K1
+          x: 560
+          y: 80
+          w: 200
+          shape: doc
+          tone: success
+          detail: Once imported, the document can be modified like any other object.
+      edges:
+        - { from: src-doc, to: export }
+        - { from: export, to: jar }
+        - { from: jar, to: import }
+        - { from: import, to: tgt-doc }
+    chapters:
+      - title: The source object
+        caption: KC-2510 lives in Acme Asia. Its **UFID** combines its local id, its domain and its site.
+        show: [src-doc]
+        highlight: [src-doc]
+        seconds: 5
+      - title: Export to a JAR
+        caption: Export writes **content and metadata** into a JAR file. Change control information stays behind.
+        show: [src-doc, export, jar]
+        highlight: [jar]
+        flow: [src-doc>export, export>jar]
+        seconds: 6
+      - title: Import on the other side
+        caption: Import expands the JAR into the local database. Mapping rules or a policy file can adjust it on the way.
+        show: [src-doc, export, jar, import]
+        highlight: [import]
+        flow: [jar>import]
+        seconds: 6
+      - title: Ready to use
+        caption: The document now lives in production and **can be modified** like any local object.
+        flow: [import>tgt-doc]
+        highlight: [tgt-doc]
+        seconds: 5
+
+  - type: text
+    md: |
+      ### What travels, what doesn't
+
+      Export can cover the contents of folders and cabinets, product structures, CAD document
+      structures and documents. Documents referenced by the objects you export come along too. You
+      can also limit an export to objects created or modified in a **date and time range** - handy
+      for sending only what changed since last time.
+
+      What does **not** travel: the **change control** information. Change requests and change
+      notices that drove KC-2510's history stay in Acme Asia.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Expectations kill trust. If Kai expects to see the change history behind every Acme Asia
+      document after the import and finds none, the migration "lost data" in his eyes. Tell
+      stakeholders up front what Import/Export Management carries and what it leaves behind.
+
+  - type: text
+    md: |
+      ### Identity and conflicts
+
+      Every object has a **UFID**: its local id plus the domain plus the site. A new revision,
+      version or iteration gives a new UFID; a change of life cycle state does not.
+
+      People, though, identify objects by **business identity** - number, version and iteration.
+      The trouble starts when those disagree:
+
+      | Situation in production | What happens on import |
+      | --- | --- |
+      | Same object already there with identical status | By default it is **not overwritten** |
+      | Same name, number, version and iteration, but a **different UFID** | The import **fails** |
+
+      To get past that failure you can tick **Resolve Overridable Conflicts** in the Import window,
+      or use a policy file or mapping rule file to change the UFID or the name, number, version and
+      iteration. How other attribute conflicts behave depends on the attribute and the import options.
+
+  - type: comparison
+    title: Your tools for shaping an import or export
+    columns: [What it does, Kestrel example]
+    rows:
+      - label: Mapping rule file
+        cells: ["Changes the XML import or export files - transform or block attribute data", "Rename an incoming number or drop an attribute nobody uses"]
+      - label: Context mapping file
+        cells: ["Controls which context imported objects land in", "Put the Acme Asia documents in Kestrel Cargo K1"]
+      - label: Policy file
+        cells: ["Governs the actions taken on attribute data (XSL)", "Decide how imported objects are created or modified"]
+      - label: Resolve Overridable Conflicts
+        cells: ["Checkbox in the Import window that overrides conflicts it can", "Get past an identity clash on a test import"]
+    takeaway: PTC's mapping-rules page advises using either a mapping rule file or a policy file in a transaction, not both.
+
+  - type: callout
+    variant: note
+    title: Mapping rules in one minute
+    md: |
+      A rule file says what to do with each value: **COPY** (the default), **COPY_AS** (replace a
+      value with a new one), **IGNORE** or **IGNORE_PARENT**. A rule can be limited to one type,
+      such as WTPart, and `*` works as a wildcard. PTC's examples include turning number 2222 into
+      Local_2222 and remapping views, folders, life cycles and attribute values.
+
+      Rule files come in two kinds: **client** files you pick in the UI (any name) and
+      **generalized** `.xml` files under `codebase/registry/ixb` in `export_settings` or
+      `import_settings`. If several apply, the order of priority is: the **Resolve Overridable
+      Conflicts** checkbox, then the client rule file, then the generalized rule file, then
+      `wt.properties`.
+
+  - type: walkthrough
+    title: Export the assembly instructions from Acme Asia
+    who: Site, organization, product or library administrator with read access to the objects and all their attributes
+    where: [Utilities, Import/Export Management, Export]
+    steps:
+      - title: Open the utility
+        where: [Products, "<product>", Utilities, Import/Export Management]
+        md: Open the **Utilities** page of the site, organization, product or library that holds the documents and choose **Import/Export Management**. Business administrators can also reach it from **Business Administration Utilities** at site or organization level.
+      - title: Start an export
+        where: [Import/Export Management, Export]
+        md: Choose **Export** and give the file a name ending in `.jar`, for example `kestrel_docs.jar`.
+      - title: Choose the options
+        where: [Export]
+        md: |
+          Pick what applies: an optional **mapping rule file** or **policy file**, the **export
+          action** (None, System default or Check out), the **configuration specification**, a
+          **time period** filter, a **detailed status log**, and whether to **export top-level
+          objects in a jar of jars** (each top-level object in its own transaction).
+      - title: Preview, then run
+        where: [Export, Preview]
+        md: Use the preview to check the object list - all 21 documents, nothing extra - then run the export.
+    result: kestrel_docs.jar holds the documents' content and metadata, ready to transfer.
+
+  - type: walkthrough
+    title: Import the JAR into Acme production
+    who: Administrator of the target context (Rosa, with Nia)
+    where: [Products, Kestrel Cargo K1, Utilities, Import/Export Management]
+    steps:
+      - title: Try it on test first
+        where: [wc-test01]
+        md: Import into wc-test01 before production so conflicts show up where they're harmless.
+      - title: Open the Import window
+        where: [Utilities, Import/Export Management]
+        md: Open **Import/Export Management** in the Kestrel Cargo K1 product and start an import with `kestrel_docs.jar`.
+      - title: Add rules if needed
+        where: [Import window]
+        md: Attach a mapping rule file or a policy file if values must change on the way in. Use a context mapping file to control where objects land.
+      - title: Decide about conflicts
+        where: [Import window, Resolve Overridable Conflicts]
+        md: Tick **Resolve Overridable Conflicts** only after you know which conflicts exist and agree that overriding them is right.
+      - title: Check the result
+        where: [Browse, Products, Kestrel Cargo K1]
+        md: Open a few imported documents and compare number, version, iteration and content with Acme Asia.
+    result: The documents are in production and can be edited like any other object.
+
+  - type: callout
+    variant: pitfall
+    title: Never remap MCAD document numbers
+    md: |
+      PTC warns against mapping the **number** attribute of MCAD documents with mapping rules: it
+      breaks assembly references and can't be reliably reverted. Rename parts or documents if you
+      must, but leave CAD numbers alone.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Keep each rule file in version control next to a one-line note of why it exists. Six months
+      later, when someone asks why KC-2510 arrived in a different folder, the answer is one file away.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Production already has a manually created KC-2510 A.1. The JAR from Acme Asia contains KC-2510 A.1 with a different UFID. What happens with default settings?
+        options:
+          - "The import fails"
+          - "Production's copy is silently overwritten"
+          - "Both copies are kept side by side"
+          - "The incoming document gets the next iteration"
+        answer: 0
+        explanation: Same name, number, version and iteration with a different UFID makes the import fail. Resolve it with Resolve Overridable Conflicts or a policy or rule file.
+      - kind: multi
+        prompt: What makes up a UFID? (Choose all that apply.)
+        options: [The local id, The domain, The site, The life cycle state]
+        answers: [0, 1, 2]
+        explanation: A UFID combines local id, domain and site. Changing the life cycle state does not change it; a new revision, version or iteration does.
+      - kind: truefalse
+        prompt: Exported JAR files include the change requests and change notices behind each object.
+        answer: false
+        explanation: Data exported and imported with Import/Export Management does not include the information needed for change control.
+      - kind: order
+        prompt: "Several rule sources apply to one import. Order them from highest priority to lowest."
+        items:
+          - Resolve Overridable Conflicts checkbox
+          - Client rule file picked in the UI
+          - Generalized rule file in the registry
+          - wt.properties
+        explanation: The checkbox wins, then a client file, then a generalized file, then wt.properties.
+
+  - type: summary
+    points:
+      - Import/Export Management moves content and metadata between Windchill sites in JAR files.
+      - It is on the Utilities page of a site, organization, product or library.
+      - Change control information doesn't travel.
+      - The UFID is local id + domain + site; same number, version and iteration with a different UFID fails the import.
+      - Mapping rule files, context mapping files and policy files shape the data; never remap MCAD numbers.
