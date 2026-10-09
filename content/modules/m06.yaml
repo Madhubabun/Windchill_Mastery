@@ -2,3 +2,33 @@ id: m06
 theme: rose
 icon: migrate
 tagline: "Move data in safely and survive upgrades."
+cheatsheet:
+  sections:
+    - title: Strategy
+      points:
+        - "Assess before you move: profile the legacy data for duplicates, orphans, missing references and messy values, then decide what to clean, migrate or archive."
+        - "Big bang suits small, self-contained data with a hard date. Phased suits many product lines. Coexistence keeps two systems live and needs a sync design."
+        - "Freeze the source at a set time so the extract holds what people last saved. Rehearse with a full dry run on test."
+    - title: Tools
+      points:
+        - "Windchill Bulk Migrator: tools for permanent, one-way bulk migration using Extract, Transform, Load and Validate (ETLV). Bulk CAD loading covers Creo, CATIA V5, NX and Inventor."
+        - "Load utilities take XML only: LoadFromFile loads one file, LoadFileSet loads many, Windchill Loader loads solution data. Convert CSV first with CSV2XML."
+        - "Import/Export Management (Utilities page) moves content and metadata in JAR files. Same number, version and iteration with a different UFID means the import fails."
+    - title: Packages and mapping
+      points:
+        - "Package flow: create, collect, filter, lock, create delivery, build the ZIP, send. A package can't be unlocked after its first delivery without a new iteration or revision."
+        - "Export Only = view without Windchill. PTC Windchill format = importable as a received delivery, at the same major and minor release."
+        - "Replication packages copy product or library data to another internal Windchill. Incremental deliveries carry only changes, including deletions."
+        - "Receive: upload in Received Delivery Management, preview, define mapping in Mapping Management, import. Don't change mappings after the first delivery."
+        - "Never remap the number of MCAD documents: assembly references depend on it."
+    - title: Validation
+      points:
+        - "Prove it: counts per type, content opens, structures complete, attributes match the mapping, logs and import summary reviewed."
+        - "No sign-off without evidence, and an engineer who knows the data checks a sample."
+    - title: Rehosting and upgrades
+      points:
+        - "Rehosting updates a cloned environment (production copied to test or dev) for a new host name, install directory or hardware. It isn't an alternative to upgrading."
+        - "Upgrade order: latest CPS, WinDU then WinRU, export database and LDAP, copy vaults, set up target, apply customizations, import database, run Upgrade Manager, final steps, validate."
+        - "Upgrade Manager runs in Test or Production mode. A life cycle template set to Hide makes it fail."
+        - "Keep customized PTC files in wtSafeArea (siteMod, ptcOrig, ptcCurrent) so updates and upgrades preserve them; text tailoring goes in wtCustom."
+        - "Cutover needs go and no-go criteria, a rollback plan and hypercare after go-live."
