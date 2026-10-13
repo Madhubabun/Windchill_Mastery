@@ -52,3 +52,36 @@
   definition: An Incremental Design Exchange file, an XML format based on the ProSTEP EDMD schema. It records changed board objects (outline, components, holes, keep-in and keep-out areas) with both their base and their current state, so either side can review and accept the change. A baseline IDX describes the whole board; incremental IDX files describe changes since then.
   aka: [EDMD IDX, Incremental Design Exchange]
   related: [ecad-mcad-collaboration]
+
+- id: family-table-verification
+  term: Verification status (family table)
+  plain: Whether Creo has actually rebuilt a family table row and confirmed it works.
+  definition: Shows whether a family table member has been verified, that is regenerated in Creo (Tools, Verify in the Family Table editor). Windchill also uploads instances that were never verified, so the Verification Status column of the Family tab on an information page is the place to check before a release. Family tables migrated from an older release show their status correctly only after they are saved and uploaded in the current release.
+  aka: [Verified instance, Not verified]
+  related: [family-table-instance, generic-model]
+
+- id: generic-driven-attribute
+  term: Generic-driven attribute
+  plain: A value every member of a family shares because it comes from the parent model.
+  definition: An attribute set in the generic of a Creo family table that is not a column in the table, so every instance uses the generic's value. Adding, changing or deleting it in Windchill's Edit Attributes page needs every family member checked out; a Confirm window lists the extra members and checks them out when you accept.
+  related: [table-driven-attribute, generic-model, family-table-instance]
+
+- id: table-driven-attribute
+  term: Table-driven attribute
+  plain: A value that has its own column in the family table, so each size can differ.
+  definition: An attribute that is a column in a Creo family table. It is inherited while an instance's cell still shows an asterisk (the generic's value) and independent once the instance has its own value. Changing either kind needs only that instance checked out, and giving an inherited value a value of its own makes it independent.
+  aka: [Inherited table-driven attribute, Independent table-driven attribute]
+  related: [generic-driven-attribute, family-table-instance]
+
+- id: authoring-application
+  term: Authoring application
+  plain: The CAD tool a designer actually draws in, such as SOLIDWORKS or NX.
+  definition: In Windchill Workgroup Manager, the CAD application where design work happens. It is one of the four parts of the Workgroup Manager architecture, together with the Workgroup Manager client, the server workspace and the Windchill database. You register it with Tools, Application Management; only one version of a given application can be registered at a time.
+  aka: [CAD application]
+  related: [workgroup-manager, pdm-action]
+
+- id: pdm-action
+  term: PDM action
+  plain: A Windchill command like Check In or Update that you run from inside your CAD tool.
+  definition: A data management command, such as Check In, Check Out, Update or Upload, that can be started from the Workgroup Manager client, from commands added to the CAD application, or from a web browser. Most actions exist for every CAD tool, but some are specific to one, for example Save Modified Instances for SOLIDWORKS or Lock and Unlock for a subset of tools.
+  related: [workgroup-manager, authoring-application, check-in, check-out]

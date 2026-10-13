@@ -1,0 +1,341 @@
+id: m07-s11-l03
+subtitle: Leo's rule finally gets code. It must fire on every state change in E-Bike E1 - and stay silent everywhere else.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [customization, developer, architect, events, listeners, server-side]
+sources:
+  - id: trn-advdev
+    where: "Section 11: Introduction to Windchill events and services (pre- and post-events, PRE_CHECKIN, PRE_STORE, PersistenceManagerEvent list); Section 12: Customization event listener and register a listener (StandardListenService with anonymous ServiceEventListenerAdapter, notifyVetoableEvent, WorkInProgressServiceEvent.generateEventKey(POST_CHECKIN), getOriginalCopy); Create a program for Windchill listeners to work only for specific containers (WTDocumentListenerAdapter: KeyedEvent, getEventTarget, getEventType, LifeCycleServiceEvent.SET_STATE, WTDocument target, PersistenceHelper.manager.navigate from getMaster() with WTPartReferenceLink.ROLE_AOBJECT_ROLE, veto by throwing; StandardWTDocumentListenerService registering with getManagerService().addEventListener and LifeCycleServiceEvent.generateEventKey(SET_STATE))"
+  - id: trn-code
+    where: "ReassignFunctionalOwnerValidator.java: reading a document's context with getContainer()"
+  - id: cust
+    where: "Module 1: Types of Windchill customization (Windchill server customization: event listeners)"
+  - id: hc-svc-event
+    label: PTC Help Center supplement
+    title: "Service Event Management"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/customization/WCCG_Serv_DevelopServerLogic_ServEventMgmt.html"
+    covers: "Subscribing with wt.services.ManagerService.addEventListener and a key; listeners implement KeyedEventListener or extend ServiceEventListenerAdapter; subscribers called in no particular order, synchronously, in the emitter's thread and transaction; veto by throwing from notifyVetoableEvent and the emitter rolls back; pre-events for validation and veto, post-events for follow-on work"
+  - id: hc-svc-mgmt
+    label: PTC Help Center supplement
+    title: "Service Management"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/customization/WCCG_Serv_DevelopServerLogic_ServMgmt.html"
+    covers: "performStartupProcess as the place to subscribe to service events; ManagerService synchronous dispatch of vetoable and non-vetoable events"
+
+blocks:
+  - type: text
+    md: |
+      Leo's rule, in his words: *"An E1 document doesn't move through its life cycle until it's linked to a
+      part. No exceptions - not from the browser, not from a workflow, not from a loader."*
+
+      Theo's [[windchill-service-class|rules service]] from lesson 1 is running. Now it needs a
+      [[event-listener|listener]] that hears every life cycle state change, ignores everything that isn't an
+      E1 document, follows the reference link with the persistence manager from lesson 2, and says **no** when
+      the link is missing.
+
+      The hard part isn't the veto. It's making sure the listener stays *quiet* for the thousands of state
+      changes that have nothing to do with E1.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "Windchill announcing that something is about to happen or just happened" → [[keyed-event|event]] (pre-event / post-event)
+      - "the label that says which event you want" → **event key** (from `generateEventKey`)
+      - "the object the event is about" → **event target** (`getEventTarget()`)
+      - "saying no to a pre-event" → **veto** (throw from `notifyVetoableEvent`)
+      - "where the object lives - E-Bike E1, Scooter S2, a library" → [[context]] (in code, the object's **container**)
+
+  - type: animation
+    title: One state change, one veto
+    diagram:
+      width: 840
+      height: 420
+      groups:
+        - { label: "Same thread, same transaction", x: 190, y: 20, w: 630, h: 380, tone: accent }
+      nodes:
+        - id: caller
+          label: Any caller
+          sublabel: UI · workflow · loader
+          x: 20
+          y: 170
+          w: 150
+          tone: neutral
+          detail: The state change can start anywhere. The rule lives on the server, so every path meets it.
+        - id: lc
+          label: Life cycle service
+          sublabel: emits SET_STATE
+          x: 210
+          y: 60
+          w: 170
+          tone: primary
+          detail: Before it commits the change, the life cycle service emits a `LifeCycleServiceEvent` with type `SET_STATE`.
+        - id: mgr
+          label: ManagerService
+          sublabel: calls each subscriber
+          x: 210
+          y: 260
+          w: 170
+          tone: primary
+          detail: The manager service keeps a list of subscribers per event key and calls them one by one, in no particular order, with ordinary synchronous Java calls.
+        - id: filters
+          label: Acme filters
+          sublabel: type · class · context
+          x: 420
+          y: 60
+          w: 180
+          tone: warning
+          detail: Cheap checks first - is it SET_STATE, is the target a WTDocument, is its context E-Bike E1? Any "no" means return immediately and let the change go on.
+        - id: rule
+          label: Link check
+          sublabel: navigate reference link
+          x: 420
+          y: 260
+          w: 180
+          tone: accent
+          detail: "`PersistenceHelper.manager.navigate` from the document's **master** along `WTPartReferenceLink.ROLE_AOBJECT_ROLE`. No result means no linked part."
+        - id: veto
+          label: Veto
+          sublabel: throw an exception
+          x: 640
+          y: 160
+          w: 160
+          tone: danger
+          detail: Throwing from `notifyVetoableEvent` vetoes the event. The emitter rolls back its database work, so the document keeps its old state, and the caller sees the exception's message.
+      edges:
+        - { from: caller, to: lc, label: set state }
+        - { from: lc, to: mgr, label: event }
+        - { from: mgr, to: filters, label: notifyVetoableEvent }
+        - { from: filters, to: rule, label: E1 document }
+        - { from: rule, to: veto, label: no link }
+        - { from: veto, to: caller, label: error message, dashed: true }
+    chapters:
+      - title: Someone changes a state
+        caption: Browser, workflow robot or loader - it doesn't matter where it starts.
+        show: [caller, lc]
+        highlight: [caller]
+        flow: ["caller>lc"]
+        seconds: 5
+      - title: The event goes out
+        caption: The life cycle service emits `SET_STATE` **before** the change is committed.
+        show: [caller, lc, mgr]
+        highlight: [lc]
+        flow: ["lc>mgr"]
+        seconds: 5
+      - title: Subscribers are called in turn
+        caption: Same thread, same transaction as the caller. No queue, no "later".
+        show: [caller, lc, mgr, filters]
+        highlight: [mgr]
+        flow: ["mgr>filters"]
+        seconds: 6
+      - title: Filters keep it quiet
+        caption: Not a document? Not in E-Bike E1? Return. That's most events, and it must be fast.
+        show: [caller, lc, mgr, filters, rule]
+        highlight: [filters]
+        flow: ["filters>rule"]
+        seconds: 6
+      - title: The rule decides
+        caption: Navigate the reference link from the master. No part found? Throw.
+        highlight: [rule, veto]
+        flow: ["rule>veto", "veto>caller"]
+        seconds: 7
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      A listener runs inside *everyone's* transaction for its event. Subscribe too broadly or filter too late,
+      and a rule meant for one product slows every state change in the company - or, worse, blocks work in a
+      context nobody asked you to touch. Narrow listeners are what make server rules acceptable to the people
+      running production.
+
+  - type: comparison
+    title: "Cheat sheet: events you'll meet in the training"
+    columns: [When it fires, Typical use]
+    rows:
+      - label: PRE_STORE / POST_STORE
+        cells: ["New object about to be created / created", "Validate or default values before the first save; follow-on work after"]
+      - label: PRE_MODIFY / POST_MODIFY
+        cells: ["Object about to be modified / modified", "Check or react to attribute changes"]
+      - label: PRE_DELETE / POST_DELETE
+        cells: ["Object about to be deleted / deleted", "Block deletes that break a rule"]
+      - label: PRE_CHECKIN / POST_CHECKIN
+        cells: ["Check-in about to happen / done (work in progress events)", "The training's first listener prints the checked-in object"]
+      - label: SET_STATE
+        cells: ["Life cycle state change (LifeCycleServiceEvent)", "Leo's rule"]
+    takeaway: The first set comes from PersistenceManagerEvent; the training lists more, such as PRE_INSERT, CLEANUP_LINK and COPY_LINK. Pre-events can veto, post-events follow up.
+
+  - type: text
+    md: |
+      ### The listener, with three filters
+
+      Theo writes a named adapter class. The training also shows an anonymous inner class inside the
+      service; a named class is easier to test and review.
+
+      ```java
+      package com.acme.windchill.services;
+
+      import java.util.Set;
+
+      import wt.doc.WTDocument;
+      import wt.events.KeyedEvent;
+      import wt.fc.PersistenceHelper;
+      import wt.fc.QueryResult;
+      import wt.lifecycle.LifeCycleServiceEvent;
+      import wt.part.WTPartReferenceLink;
+      import wt.services.ServiceEventListenerAdapter;
+
+      public class AcmeDocLinkRule extends ServiceEventListenerAdapter {
+
+          // Contexts where Leo's rule applies
+          private static final Set<String> RULE_CONTEXTS = Set.of("E-Bike E1");
+
+          public AcmeDocLinkRule(String serviceName) {
+              super(serviceName);
+          }
+
+          @Override
+          public void notifyVetoableEvent(Object event) throws Exception {
+              // Filter 1: only keyed SET_STATE events
+              if (!(event instanceof KeyedEvent)) {
+                  return;
+              }
+              KeyedEvent keyed = (KeyedEvent) event;
+              if (!LifeCycleServiceEvent.SET_STATE.equals(keyed.getEventType())) {
+                  return;
+              }
+              // Filter 2: only documents
+              Object target = keyed.getEventTarget();
+              if (!(target instanceof WTDocument)) {
+                  return;
+              }
+              WTDocument doc = (WTDocument) target;
+              // Filter 3: only the E-Bike E1 context
+              // getContainer() is used on documents in the training's sample code;
+              // confirm getName() on the container in your release's Javadoc
+              if (!RULE_CONTEXTS.contains(doc.getContainer().getName())) {
+                  return;
+              }
+              // The rule: a part must reference this document's master
+              QueryResult parts = PersistenceHelper.manager.navigate(doc.getMaster(),
+                      WTPartReferenceLink.ROLE_AOBJECT_ROLE, WTPartReferenceLink.class);
+              if (!parts.hasMoreElements()) {
+                  throw new Exception("Acme rule: link " + doc.getNumber()
+                          + " to a part before changing its state.");
+              }
+          }
+      }
+      ```
+
+      ### Subscribe it - and only for its own key
+
+      The **first** filter really happens at subscription. In the service's startup hook Theo asks for the
+      `SET_STATE` key only, so the manager service never even calls him for check-ins or modifications.
+
+      ```java
+      // in StandardAcmeRulesService
+      @Override
+      protected synchronized void performStartupProcess() throws ManagerException {
+          AcmeDocLinkRule docRule = new AcmeDocLinkRule(getName());
+          getManagerService().addEventListener(docRule,
+                  LifeCycleServiceEvent.generateEventKey(LifeCycleServiceEvent.SET_STATE));
+      }
+      ```
+
+      Then: compile, restart the method server (the service is already registered from lesson 1), and test
+      in E-Bike E1 and in Scooter S2.
+
+  - type: callout
+    variant: note
+    title: A gap in the training, stated honestly
+    md: |
+      The training's section is titled *listeners that work only for specific containers*, but its sample
+      code filters by event type and object class only. The context check above uses `getContainer()` on a
+      document, which appears in the training's sample validator code. Reading the context's **name** with
+      `getName()` is not shown on a container in the sources - check it in the Javadoc for your release
+      before you rely on it (lesson 4 shows how).
+
+  - type: scenario
+    variant: what-if
+    title: What if the rule spreads?
+    start: s1
+    nodes:
+      - id: s1
+        md: Two weeks in, Leo is happy. Then Kai asks for the same rule in **Scooter S2**. What does Theo change?
+        choices:
+          - label: Add Scooter S2 to the list of rule contexts, test, redeploy
+            next: s2
+            good: true
+            feedback: The filter is data, not structure. One entry, one test cycle.
+          - label: Copy the listener class and register a second service for Scooter S2
+            next: partial1
+            feedback: It works, but now two classes, two services and two numbers do one job.
+      - id: s2
+        md: Next, someone suggests subscribing to every PRE_MODIFY too, "to catch attribute edits as well". Good idea?
+        choices:
+          - label: No - first ask what edit must be blocked; subscribe only to that event and filter early
+            next: win
+            good: true
+            feedback: Every subscription runs inside everybody's transactions. Broad keys need a very good reason.
+          - label: Yes - more events, more safety
+            next: fail1
+            feedback: The listener now runs on every modification of every object in the system.
+      - id: win
+        md: Two products protected, one class, one service, one narrow subscription. The method server log stays quiet.
+        outcome: success
+      - id: partial1
+        md: Rule works in both products, but the next change has to be made twice - and one copy will be forgotten.
+        outcome: partial
+      - id: fail1
+        md: Saves get slower across all contexts, and a bug in the new branch blocks edits in a library nobody planned to touch.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Doing work before filtering.** If `navigate` or any query runs before the type, class and context
+      checks, every state change in the company pays for Leo's rule. Filter first, query last.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Make veto messages tell users what to **do**: "link EB-D0042 to a part before changing its state" beats
+      "operation not allowed". It's the only thing they'll see, and a clear message saves a support ticket.
+
+  - type: example
+    variant: real-world
+    title: The test that matters most
+    industry: Micromobility
+    md: |
+      Theo's test plan has four rows, not one: an unlinked E1 document (blocked), a linked E1 document
+      (allowed), an unlinked Scooter S2 document (allowed) and an E1 **part** state change (allowed - not a
+      document). Three of the four check that the listener stays quiet.
+    takeaway: Test where the rule must not fire as carefully as where it must.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Where is the narrowest, cheapest filter for a listener?
+        options: [The event key it subscribes with, An if-statement after a query, The UI action, The workflow template]
+        answer: 0
+        explanation: Subscribing only to the SET_STATE key means the manager service never calls the listener for other events.
+      - kind: truefalse
+        prompt: Listeners are queued and run after the user's transaction commits.
+        answer: false
+        explanation: They're called synchronously, in the same thread and transaction as the code that emitted the event.
+      - kind: multi
+        prompt: Which belong inside notifyVetoableEvent for Leo's rule? (Choose all that apply.)
+        options: [Check the event type is SET_STATE, Check the target is a WTDocument, Check the document's context, Navigate the reference link from the document's master, Show a pop-up dialog]
+        answers: [0, 1, 2, 3]
+        explanation: Server listeners can't draw UI. They filter, check and - if needed - throw; the exception message is what the user sees.
+      - kind: single
+        prompt: What happens when the listener throws during SET_STATE?
+        options: [The event is vetoed and the state change is rolled back, The state changes and a warning is logged, The listener is unsubscribed, The method server restarts]
+        answer: 0
+        explanation: Throwing from notifyVetoableEvent vetoes the event and the emitter rolls back its work.
+
+  - type: summary
+    points:
+      - Windchill services emit keyed events - pre-events before a change, post-events after it.
+      - A listener extends ServiceEventListenerAdapter and is subscribed in performStartupProcess with addEventListener and an event key.
+      - Listeners run synchronously in the caller's thread and transaction; throwing from notifyVetoableEvent vetoes and rolls back.
+      - Limit a listener in layers - the event key, then type and class checks, then the object's context - before any query.
+      - Keep contexts as data, keep subscriptions narrow, and test where the rule must stay silent.

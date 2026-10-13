@@ -52,3 +52,23 @@
   definition: A class (com.ptc.core.lwc.server.PersistableAdapter) that wraps an object, or a new object of a given type, for an operation such as display, update or create. You load() the attributes you need by internal name, then get() or set() values; apply() writes the values back to the object and the persistence manager stores the change, or persist() saves a newly created object. It replaced LWCNormalizedObject in Windchill 10.2 and later.
   aka: [LWCNormalizedObject (older name)]
   related: [global-attribute, soft-type, persistable]
+
+- id: persistence-manager
+  term: Persistence manager (PersistenceHelper.manager)
+  plain: The front door your code uses to find, save, change and follow links between stored objects.
+  definition: The server API reached through wt.fc.PersistenceHelper.manager. Code passes it a QuerySpec to find objects, asks it to navigate a link from an object along a role, and calls save or modify to store new or changed objects. Its find method runs the query with access control, so the results respect the user's permissions. For server-only work the training also shows a non-access-controlled query method on PersistenceServerHelper.manager, which must be used with care.
+  aka: [PersistenceHelper]
+  related: [queryspec, query-result, persistable]
+
+- id: advanced-query-check
+  term: Advanced query check
+  plain: A safety catch that stops queries which could slip past access control, unless server code deliberately turns it off.
+  definition: Windchill detects query features that can bypass access control, such as sub-selects, MINUS or INTERSECT compound queries, external tables, aggregate functions (for example COUNT or MAXIMUM) and the ROWNUM keyword, and throws an AdvancedQueryAccessException. Server-side code that has a legitimate need can call setAdvancedQueryEnabled(true) on the query before running it. The setting cannot be made from client code.
+  aka: [AdvancedQueryAccessException, advancedQueryEnabled]
+  related: [queryspec, persistence-manager, access-control-rule]
+
+- id: operation-identifier
+  term: Operation identifier
+  plain: A tag that tells PersistableAdapter whether you are only reading, updating or creating.
+  definition: An object passed to PersistableAdapter when it is constructed that names the operation the attributes are loaded for. The training uses DisplayOperationIdentifier to read values, UpdateOperationIdentifier to change values on an existing (checked-out) object and CreateOperationIdentifier to fill in a new object of a given type before persisting it.
+  related: [persistable-adapter]

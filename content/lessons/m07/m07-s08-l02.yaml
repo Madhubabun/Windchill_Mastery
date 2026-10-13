@@ -1,0 +1,320 @@
+id: m07-s08-l02
+subtitle: Before Acme can move, every custom file gets a verdict. Keep it, rework it or swap it for configuration.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [windchill-plus, cloud-readiness, customization, configuration, guardrails, developer]
+sources:
+  - id: ac
+    where: "Module 11: Describe Windchill+ (determine whether an existing on-premises implementation is ready to be converted); Deploy Windchill+ with the CCD utility (example items developed on a development system); Appendix: Windchill Bulk Migrator (on-premises to Windchill+ migration through PTC Professional Services or partners)"
+  - id: pf
+    where: "Module 1: Identify the scope and design of the Pacesetter (100% OOTB configuration and supported customizations); Pacesetter Accelerator Deployment Package follows Windchill+ guidelines and guardrails; Module 3: organization-level preferences easier to manage in Windchill+"
+  - id: cust
+    where: "Module 1: What is the difference between customization and configuration?; Considerations when customizing Windchill; Types of Windchill customization; What may be changed when you customize Windchill?"
+  - id: catalog
+    where: "Windchill+ curriculum: Implement Windchill+"
+  - id: hc-wcplus-guardrails
+    label: PTC Help Center supplement
+    title: "Windchill+ Guidelines and Guardrails"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/customization/AutomatedBuildDeploy_Plus_Azure_plusPrinciples_wncplus.html"
+    covers: "Weigh value against complexity; build only on allowed customizations; formal release process and roadmap; test cases; modeled enumerations and text tailoring"
+  - id: hc-wcplus-allowed
+    label: PTC Help Center supplement
+    title: "Allowed Customization"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/customization/AllowedCust_Select.html"
+    covers: "Windchill classes and listed Java packages allowed; listed third-party JARs only; never overwrite OOTB files except a short list; outbound HTTPS calls allowed"
+  - id: hc-wcplus-disallowed
+    label: PTC Help Center supplement
+    title: "Disallowed Customization"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/customization/DisallowedCust_Select.html"
+    covers: "Warning and disallowed patterns, their error texts and the October 2027 and October 2028 enforcement dates; MVC builders, actions, action models and WRS as replacements"
+  - id: hc-wcplus-access
+    label: PTC Help Center supplement
+    title: "Windchill+ Access, Deployment, and Configuration"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/WCAdminGettingStarted/WCAdminGetStartAccDepConf.html"
+    covers: "Data modelling with Type and Attribute Management first; ACLs not through BAC, load files preferred; container configuration in development discouraged"
+  - id: hc-ccd-onprem
+    label: PTC Help Center supplement
+    title: "Code and Configuration Deployment Utility for Windchill Customization"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/customization/CCD_for_Windchill_Customization.html"
+    covers: "On-premises CCD to align customizations with Windchill+ standards; Oracle only with Windchill+; customer-run process"
+  - id: hc-ccd-workflow
+    label: PTC Help Center supplement
+    title: "Workflow (Deploying Code and Configuration Package)"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/customization/AutomatedBuildDeploy_Plus_Azure_CCD_deployment_wncplus_2.html"
+    covers: "Validation results pass, pass with warnings, fail; warnings may become errors; unit test and code coverage warnings"
+versionNotes:
+  - versions: ["Windchill+"]
+    md: |
+      Enforcement dates in this lesson (October 2027 for listed JSP tags, October 2028 for workflow templates with
+      embedded Java) come from the Windchill+ 13.1.2.0 Help Center. Check the current Disallowed Customization page
+      before planning, as PTC notes that more warnings will become errors.
+
+blocks:
+  - type: text
+    md: |
+      Acme's on-premises Windchill has grown for years. There's a custom ERP feed, a dashboard page somebody
+      wrote in JSP, workflows full of inline Java and a hand-edited PTC file nobody dares to touch. Leadership
+      wants [[windchill-plus|Windchill+]]. PTC's course guide puts the first step bluntly: **determine whether the
+      existing on-premises implementation is ready to be converted.**
+
+      Theo (developer) and Jordan (business admin) take one afternoon per week for a month. Every custom item
+      gets one of three verdicts: **keep**, **rework**, or **replace with configuration**.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "settings changed in the UI or admin tools, no code" → **configuration**
+      - "added or changed Java code or files" → [[windchill-customization|customization]]
+      - "PTC's house rules for Windchill+" → [[windchill-plus-guardrails|guidelines and guardrails]]
+      - "code patterns Windchill+ warns about or refuses" → [[windchill-plus-disallowed-customization|disallowed customization]]
+      - "the automatic check when you submit a package" → package **validation** (pass, pass with warnings, fail)
+
+  - type: diagram
+    title: The readiness triage
+    caption: Every custom item goes through the same three questions. Click each box.
+    diagram:
+      width: 820
+      height: 420
+      nodes:
+        - id: inventory
+          label: Inventory
+          sublabel: every custom item
+          x: 20
+          y: 170
+          w: 150
+          tone: neutral
+          shape: doc
+          detail: |
+            List everything that isn't out of the box. PTC's customization course lists the usual suspects: xconf
+            files, OIRs, soft types and attributes, RB files, life cycle and workflow templates, groups, teams,
+            roles, access control rules, context templates, indexing policies and code (Java, JSP, Info*Engine).
+        - id: q-config
+          label: Config can do it?
+          sublabel: UI or admin tools
+          x: 220
+          y: 60
+          w: 180
+          tone: info
+          detail: |
+            Could a subtype, attribute, OIR, life cycle, workflow template or preference meet the need? The
+            customization course also asks whether user enablement, a workaround or a process change would do.
+        - id: q-allowed
+          label: Allowed on W+?
+          sublabel: check the lists
+          x: 220
+          y: 180
+          w: 180
+          tone: info
+          detail: |
+            Compare the code with PTC's **Allowed Customization** and **Disallowed Customization** pages. Some
+            patterns only warn for now; others are refused outright.
+        - id: q-value
+          label: Worth the cost?
+          sublabel: value vs complexity
+          x: 220
+          y: 300
+          w: 180
+          tone: info
+          detail: |
+            The guardrails ask you to weigh business value against added complexity and to prefer what keeps
+            upgrades easy. A nice-to-have customization that blocks migration is a good one to retire.
+        - id: replace
+          label: Replace with config
+          sublabel: ships in a BAC package
+          x: 460
+          y: 60
+          w: 200
+          tone: success
+          detail: Turn it into configuration on the dev system and carry it in a [[bac-package|BAC package]] or load files.
+        - id: keep
+          label: Keep as code
+          sublabel: ships in a CCD module
+          x: 460
+          y: 180
+          w: 200
+          tone: accent
+          detail: Allowed customization stays code, rebuilt as a module in a [[ccd-package|CCD package]] with unit tests.
+        - id: rework
+          label: Rework or retire
+          sublabel: disallowed pattern
+          x: 460
+          y: 300
+          w: 200
+          tone: danger
+          detail: Rewrite it on a supported approach (for example WRS instead of Info*Engine, MVC builders instead of custom JSP), or drop it.
+        - id: ready
+          label: Ready to move
+          x: 700
+          y: 180
+          w: 100
+          tone: success
+          shape: pill
+          detail: Only when every item has a verdict and a home (BAC, load file or CCD module) is the implementation ready.
+      edges:
+        - { from: inventory, to: q-config }
+        - { from: inventory, to: q-allowed }
+        - { from: inventory, to: q-value }
+        - { from: q-config, to: replace, label: "yes" }
+        - { from: q-allowed, to: keep, label: "yes" }
+        - { from: q-allowed, to: rework, label: "no" }
+        - { from: q-value, to: rework, label: low value }
+        - { from: replace, to: ready }
+        - { from: keep, to: ready }
+        - { from: rework, to: ready, dashed: true }
+
+  - type: comparison
+    title: Common on-premises habits and their Windchill+ replacements
+    columns: [Status on Windchill+, What to do instead]
+    rows:
+      - label: Custom Info*Engine tasks or adapters
+        cells: ["Disallowed", "Use Windchill REST Services for data retrieval and integration"]
+      - label: Custom UI pages in JSP · AngularJS · GWT
+        cells: ["Disallowed (some listed JSP tags only warn until October 2027)", "Build tables and trees with MVC builders; add UI with actions and action models"]
+      - label: Editing or overwriting a PTC (OOTB) file
+        cells: ["Disallowed, except a short list of files PTC allows", "Copy the file and change the copy"]
+      - label: Workflow templates with embedded Java
+        cells: ["Warning until October 2028, then blocked", "Externalize the expressions into a Java class in a CCD module"]
+      - label: Custom modeled classes · own DB tables
+        cells: ["Disallowed (unauthorized hard modelling)", "Subtypes and global attributes in Type and Attribute Management"]
+      - label: JDBC straight into the Windchill database
+        cells: ["Disallowed", "Supported APIs or configured reports"]
+      - label: Container ACLs exported in BAC
+        cells: ["Not permitted through BAC on Windchill+", "Load files inside the CCD package"]
+      - label: Internal or deprecated APIs
+        cells: ["Warning", "Replace with supported APIs"]
+    takeaway: Most refused patterns have a supported twin. The work is the rewrite, not the hunt for a loophole.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Every custom item you carry into SaaS has a **lifetime cost**: PTC's customization course names higher
+      build and maintenance costs and the risk that code breaks at the next update. On Windchill+ there is an
+      extra cost: if it isn't allowed, it **won't deploy at all**. A clean readiness pass is cheaper than a
+      blocked go-live.
+
+  - type: example
+    variant: case-study
+    title: Acme's readiness inventory
+    industry: Micromobility
+    md: |
+      Theo and Jordan's spreadsheet ended up with eight rows:
+
+      | Item | Verdict | Home on Windchill+ |
+      | --- | --- | --- |
+      | E-Bike Part subtype, attributes, OIR, life cycle | Configuration already | BAC package |
+      | E1 Release workflow with inline Java | Rework | Externalized class in `com.acme.workflow`, CCD module |
+      | Custom Info*Engine task feeding ERP | Rework | WRS-based integration (see the ERP section) |
+      | JSP "E1 dashboard" page | Rework | MVC builder table plus an action in an action model |
+      | Hand-edited PTC actions file | Rework | Custom actions file in the module's resources |
+      | `AcmeBatteryCell` modeled class with its own table | Replace | Subtype with global attributes |
+      | Nightly JDBC report against Oracle | Replace | Report template built with Query Builder |
+      | Container ACLs for the E1 product | Move | Load files in the CCD package |
+
+      Two items surprised them. The battery class had been written years ago "because subtypes were slow",
+      and nobody had checked since. And the JSP dashboard was used by three people; they agreed to retire it
+      and rebuild it later only if anyone missed it.
+    takeaway: Half of Acme's customizations turned into configuration or disappeared. The rest got smaller.
+
+  - type: callout
+    variant: version-note
+    versions: ["Windchill+"]
+    md: |
+      **Warnings have deadlines.** Using internal or deprecated APIs raises a warning today. Listed JSP tags
+      (for example `describeTable` and `describeColumn`) warn until **October 2027**; workflow templates with
+      embedded Java warn until **October 2028**. After those dates, CCD packages containing them are blocked.
+
+  - type: scenario
+    variant: what-if
+    title: The package that passed... with warnings
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Theo submits `acme-ccd-2026-01` to the INT pipeline. The email says **Pass with warnings**:
+          *"Use of deprecated API"* and *"The workflow E1 Release in the container E-Bike E1 is not externalized."*
+          The deployment is scheduled. What does he do?
+        choices:
+          - label: Nothing. It passed and it's scheduled.
+            next: p1
+            feedback: It will deploy, but PTC says warnings must be reviewed and corrected, and some will become errors.
+          - label: Let it deploy to INT and open two backlog items with a target release
+            next: s2
+            good: true
+            feedback: Good. INT is for testing anyway, and the warnings get owners and dates.
+          - label: Cancel everything until all warnings are fixed
+            next: p2
+            feedback: Safe, but you lose a test cycle for warnings that don't block yet.
+      - id: s2
+        md: |
+          Next sprint, Theo externalizes the workflow expressions into a class and swaps the deprecated call for a
+          supported one. Meanwhile Jordan wants to add the old `AcmeBatteryCell` modeled class to the package
+          "just for now". The next validation will say...
+        choices:
+          - label: "Fail: unauthorized hard modelling"
+            next: s3
+            good: true
+            feedback: Right. Custom modeled objects are disallowed, so the package fails validation and the deployment is cancelled.
+          - label: "Pass with warnings: deprecated API"
+            next: f1
+            feedback: Hard modelling isn't a warning. It's refused.
+      - id: s3
+        md: |
+          Jordan rebuilds the battery data as a subtype with global attributes in Type and Attribute Management,
+          exports it in the BAC package, and `acme-ccd-2026-02` passes clean.
+        outcome: success
+      - id: p1
+        md: The package deploys. Eighteen months later the same warnings are blockers, right before a big release.
+        outcome: partial
+      - id: p2
+        md: Nothing is broken, but INT testing slips a sprint and the business loses confidence in the timeline.
+        outcome: partial
+      - id: f1
+        md: The package fails validation, the deployment is cancelled and the team is surprised. Read the disallowed list before packaging.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Treating "pass with warnings" as "done".** The package deploys, so the warnings get forgotten. PTC says
+      to review and correct them and to watch release notes, because unit-test and code-coverage warnings can
+      also escalate into blockers.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Use CCD **on-premises now**. PTC positions on-premises CCD as a way to align customizations with Windchill+
+      standards and prepare for a possible move to SaaS. If your test system already deploys everything as CCD
+      packages on Oracle (Windchill+ supports Oracle only), most of the readiness work is behind you. Start
+      from out-of-the-box configuration the way PTC's PLM Foundation Pacesetter does: 100% OOTB configuration and
+      supported customizations, aligned with the Windchill+ guardrails.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Acme's ERP feed is a custom Info*Engine task. What is the Windchill+ answer?
+        options: [Keep it; Info*Engine is part of Windchill, Package it as a CCD module, Rebuild the integration on Windchill REST Services, Run it from the server command line]
+        answer: 2
+        explanation: Custom Info*Engine tasks, webjects, web services and adapters are disallowed on Windchill+. PTC points to Windchill REST Services for data retrieval.
+      - kind: multi
+        prompt: Which items are disallowed outright (not just warnings) on Windchill+? (Choose all that apply.)
+        options: [Custom modeled objects with their own tables, JDBC queries against the Windchill database, Use of a deprecated API, Overwriting an OOTB file not on PTC's allowed list]
+        answers: [0, 1, 3]
+        explanation: Deprecated APIs raise a warning for now. Hard modelling, JDBC access and overwriting non-allowed OOTB files are disallowed.
+      - kind: single
+        prompt: Theo needs to change a PTC-supplied XML file that is not on the allowed list. What does PTC tell him to do?
+        options: [Edit it in place, Copy the file and modify the copy, Ask PTC for backend access, Put the edited file in siteMod]
+        answer: 1
+        explanation: The rule is "never overwrite the OOTB files" except a short list. Create a copy and change that.
+      - kind: truefalse
+        prompt: On Windchill+, container ACLs should travel in the BAC package.
+        answer: false
+        explanation: PTC does not recommend BAC for container ACLs and does not permit ACLs through BAC on Windchill+. Use load files in the CCD package.
+
+  - type: summary
+    points:
+      - Readiness means every custom item has a verdict (keep, rework, replace with configuration) and a home.
+      - Configuration (types, attributes, OIRs, life cycles, workflows, preferences) travels in BAC packages; allowed code travels in CCD modules.
+      - Info*Engine customizations, custom JSP/AngularJS/GWT UIs, hard modelling, JDBC access and overwriting OOTB files are disallowed. Use WRS, MVC builders, actions and subtypes instead.
+      - Some patterns only warn today but have dates after which packages are blocked.
+      - Practise with CCD on-premises (on Oracle) before you move.

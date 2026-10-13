@@ -59,3 +59,28 @@
   definition: A Windchill quality module for medical device companies that helps meet the FDA's Part 830 UDI requirements. You create, edit and review UDIs, generate HL7 documents and submit them to the FDA's Global Unique Device Identification Database (GUDID), then track submissions and follow-ups. A UDI can be linked to one part, while a part can have many UDIs.
   aka: [UDI]
   related: [part, windchill-quality]
+
+- id: associated-process-object
+  term: Associated Process Objects
+  plain: Linked records that move and close together through their processes - parent and child.
+  definition: A table on change objects (and on CAPA, nonconformance and customer experience records) listing other objects linked with parent and child process links. Process links support closing the linked objects together through the workflow when each is in the right state. Which object types may be linked is set by the administrator's change association rules.
+  related: [associated-reference-object, change-request, change-notice, capa]
+
+- id: associated-reference-object
+  term: Associated Reference Objects
+  plain: A "see also" link between records - no process rules attached.
+  definition: A table on change objects and quality records that lists objects linked only as references, with no process rules behind the link. When a CAPA request is created from a nonconformance, customer experience or another CAPA, the source record is listed here, although for nonconformances and customer experiences an administrator must first add a business rule for that reference link to show.
+  related: [associated-process-object, capa, nonconformance, customer-experience]
+
+- id: regulatory-submission
+  term: Regulatory submission
+  plain: The paperwork package you send to a regulator, tracked inside Windchill.
+  definition: A Windchill quality record that tracks and maintains what an organization submits to regulatory agencies, such as a 510(k) or a certification filing. Its default life cycle is In Progress, Completed and Cancelled, it can carry an expiration date, and completed or expired submissions can be iterated or revised for follow-ups. The course guide calls the module Windchill Regulatory Hub.
+  aka: [Regulatory Hub, Regulatory Master]
+  related: [customer-experience, unique-device-identification, windchill-quality]
+
+- id: quality-audit
+  term: Audit (Windchill Audit Management)
+  plain: A planned check that a team or supplier really follows its processes - with the evidence stored.
+  definition: A Windchill quality record for planning, running and reporting internal (first-party) and supplier (second-party) audits, as ISO 9001 requires. Auditors work from master audit checklists, results are kept per question so years can be compared, and the default states run from Audit Request through Plan and Scope, Conduct Audit, Summary Report and Manage Response to Closed. Audits can be associated with CAPAs and nonconformances.
+  related: [capa, nonconformance, windchill-quality]

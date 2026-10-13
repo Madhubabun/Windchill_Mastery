@@ -1,0 +1,290 @@
+id: m07-s08-l01
+subtitle: Same Windchill, different deal. Who runs the servers, who ships changes and who decides when the next patch lands?
+version: 1.0.0
+updated: "2026-10-13"
+tags: [windchill-plus, saas, cloud, on-premises, upgrades, responsibilities]
+sources:
+  - id: ac
+    where: "Module 11: Describe Windchill+ (SaaS delivery; implementation steps; QA organization administrator or CCD structure); Module 10: Identify PTC Windchill license groups (customer-managed licence assignment in Windchill+); Appendix: Windchill Bulk Migrator (on-premises to Windchill+ SaaS migration)"
+  - id: pf
+    where: "Module 1: Pacesetter Accelerator Deployment Package (CCD, Windchill+ guidelines and guardrails); Module 3: preferences set at organization level are easier to manage in Windchill+"
+  - id: catalog
+    where: "Windchill+ curriculum: Implement Windchill+; Business Administration in Windchill+"
+  - id: cust
+    where: "Module 1: Updates and server maintenance; upgrades and major platform changes"
+  - id: hc-wcplus-access
+    label: PTC Help Center supplement
+    title: "Windchill+ Access, Deployment, and Configuration"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/WCAdminGettingStarted/WCAdminGetStartAccDepConf.html"
+    covers: "INT, QA and PROD environments; local development environments; front-end vs backend access; CCD as the only deployment methodology; Business Administrator role, its service request, group and SLA exclusion"
+  - id: hc-wcplus-release
+    label: PTC Help Center supplement
+    title: "Windchill+ Release Management"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/WCAdminGettingStarted/rtf_ReleaseManagement.html"
+    covers: "Develop, Integration, QA, Production release cycle; PTC-provisioned pipelines; backup before each deployment; retention and restore"
+  - id: hc-wcplus-catalog
+    label: PTC Help Center supplement
+    title: "Windchill+ Service Catalog"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/WCAdminGettingStarted/WCAdminGettingStartedServiceCatalog.html"
+    covers: "Service requests; self-service automated build deployment; CPS updates scheduled with target version and dates and published on the Windchill+ Upgrade and Update calendar; temp patches; SSO setup; rehost from production"
+  - id: hc-wcplus-guardrails
+    label: PTC Help Center supplement
+    title: "Windchill+ Guidelines and Guardrails"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/customization/AutomatedBuildDeploy_Plus_Azure_plusPrinciples_wncplus.html"
+    covers: "Changes made directly with administrative utilities on PTC-hosted instances are not promoted and not kept during upgrades"
+  - id: hc-release-types
+    label: PTC Help Center supplement
+    title: "Types of Windchill Releases"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCUpdateExistingIntallConfig/WCUpdInstall_CustomerUpdates.html"
+    covers: "Security update patch, critical patch set, maintenance release and major release contents"
+versionNotes:
+  - versions: ["12.1.2.0+"]
+    md: |
+      From Windchill 12.1.2.0 onwards the [[windchill-plus-ccd|CCD utility]] is the only supported tool for
+      deploying customizations and configurations to [[windchill-plus|Windchill+]].
+  - versions: ["Windchill+"]
+    md: |
+      Environment names, retention windows and service timings in this lesson come from the Windchill+ 13.1.2.0
+      Help Center. Your own subscription agreement with PTC is what actually applies.
+
+blocks:
+  - type: text
+    md: |
+      Acme Mobility's leadership wants to stop running servers. Rosa (system admin) is half relieved, half
+      nervous. Jordan (business admin) asks the question nobody else does: *"If PTC runs it, how do I
+      change a life cycle on Monday morning?"* Theo (developer) wants to know where his Java goes.
+
+      In Module 5 you met the four places Windchill can live. This lesson zooms in on
+      the two ends: **on-premises** (Acme runs everything) and [[windchill-plus|Windchill+]] (PTC runs it as
+      **software as a service**). The question is no longer *where* it runs but **who does which job**, and
+      **how change gets in**.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "Windchill as a subscription that PTC operates" → [[windchill-plus|Windchill+]] (SaaS)
+      - "PTC's test systems your changes pass through" → **INT** (integration), **QA** and **PROD** environments
+      - "the route a release takes through them" → [[windchill-plus-pipeline|deployment pipeline]]
+      - "the only door for code and configuration" → [[windchill-plus-ccd|Code and Configuration Deployment (CCD)]]
+      - "asking PTC to do something for you" → a **service request**
+      - "a bundle of urgent fixes" → a **critical patch set (CPS)**
+
+  - type: diagram
+    title: Who does what on Windchill+
+    caption: The line between Acme and PTC. Click each box to see who owns it.
+    diagram:
+      width: 820
+      height: 430
+      groups:
+        - { label: Acme does this, x: 20, y: 20, w: 370, h: 390, tone: accent }
+        - { label: PTC does this, x: 430, y: 20, w: 370, h: 390, tone: primary }
+      nodes:
+        - id: dev
+          label: Local dev systems
+          sublabel: on-prem or portal VM
+          x: 50
+          y: 60
+          w: 300
+          tone: accent
+          detail: |
+            All development and configuration starts on **your own** development environment: a virtual
+            machine you host or one on the PTC cloud portal. PTC recommends two: a *source* where you make
+            changes and a *target* where you test that the CCD package deploys cleanly.
+        - id: pkg
+          label: CCD packages
+          sublabel: code + config + BAC
+          x: 50
+          y: 150
+          w: 300
+          tone: accent
+          detail: |
+            You build, validate and submit [[ccd-package|CCD packages]]. CCD is the only supported deployment
+            methodology for Windchill+, so every change you want to keep travels this way.
+        - id: approve
+          label: Test and approve
+          sublabel: you are the gatekeeper
+          x: 50
+          y: 240
+          w: 300
+          tone: accent
+          detail: |
+            After each deployment your approvers test it and decide: approve and promote, or reject and restore.
+            PTC does not decide that your release is good. You do.
+        - id: users
+          label: Users and licences
+          sublabel: org-level groups
+          x: 50
+          y: 330
+          w: 300
+          tone: accent
+          detail: |
+            PTC's course guide calls customer-managed licence assignment a best practice, especially on
+            Windchill+: the organization administrator adds users to organization-level groups that sit inside
+            the licence groups.
+        - id: infra
+          label: Servers and database
+          sublabel: no backend access
+          x: 460
+          y: 60
+          w: 310
+          tone: primary
+          detail: |
+            PTC hosts and operates the environments. Customers have **no access to the backend** of any
+            PTC-hosted Windchill+ server, so no Windchill shell, no editing property files, no copying JARs.
+        - id: pipeline
+          label: INT · QA · PROD
+          sublabel: provisioned by PTC
+          x: 460
+          y: 150
+          w: 310
+          tone: primary
+          detail: |
+            PTC provisions the hosted environments and maps them to your pipeline. Before each deployment it takes
+            a full backup so the environment can be restored if you reject the release.
+        - id: patches
+          label: CPS and upgrades
+          sublabel: on a published calendar
+          x: 460
+          y: 240
+          w: 310
+          tone: primary
+          detail: |
+            Critical patch set updates are scheduled with you (you give the target CPS version and dates) and
+            announced on the **Windchill+ Upgrade and Update calendar**. If something isn't fixed by a CPS,
+            maintenance release or upgrade, you can ask for a temporary patch through a service request.
+        - id: requests
+          label: Service requests
+          sublabel: SSO, rehost, patches
+          x: 460
+          y: 330
+          w: 310
+          tone: primary
+          detail: |
+            Most PTC services start with a service request, for example single sign-on setup with your SAML 2
+            identity provider or copying production data to another environment (rehost). Automated build
+            deployment is the exception: it is self-service.
+      edges:
+        - { from: dev, to: pkg, label: build }
+        - { from: pkg, to: pipeline, label: submit }
+        - { from: pipeline, to: approve, label: notify, dashed: true }
+        - { from: approve, to: pipeline, label: promote or restore }
+        - { from: users, to: requests, label: ask, dashed: true }
+
+  - type: comparison
+    title: On-premises vs Windchill+, job by job
+    columns: [On-premises, Windchill+]
+    rows:
+      - label: Servers and database
+        cells: ["Acme installs, sizes, tunes and backs them up", "PTC hosts and operates them; no backend access for customers"]
+      - label: Admin access to production
+        cells: ["Full: UI, Windchill shell, property files", "Site and organization utilities pages; PTC recommends mainly view-only use in QA and production"]
+      - label: How code and configuration arrive
+        cells: ["Any supported method your team chooses (CCD is optional but available)", "Only through CCD packages deployed by PTC's automated pipeline"]
+      - label: Test systems
+        cells: ["Whatever you build (dev, test, QA, production)", "Your own local dev systems plus PTC-hosted INT, QA and PROD"]
+      - label: Patches and updates
+        cells: ["You pick and install SUP, CPS and maintenance releases", "CPS updates scheduled with PTC and published on a calendar"]
+      - label: Major upgrades
+        cells: ["Your project, planned months ahead with end-to-end testing", "Delivered by PTC; settings you changed directly in a hosted system are not kept"]
+      - label: Database
+        cells: ["Any database on the platform support matrix", "Oracle only (PTC's CCD page states MS SQL is not supported with Windchill+)"]
+    takeaway: On-premises gives you every lever. Windchill+ hands PTC the machinery, and in return all your change goes through one controlled door.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Moving to SaaS doesn't remove work. It **moves** it. Rosa stops patching servers but starts reading
+      deployment emails and keeping the release calendar. Jordan stops clicking changes straight into
+      production and starts exporting them into packages. Teams that don't redraw their job descriptions
+      before go-live end up with releases nobody approves and changes nobody can find.
+
+  - type: text
+    md: |
+      ### The upgrade model, side by side
+
+      **On-premises**, PTC ships four kinds of release and you decide when to install each:
+
+      | Release | What's inside |
+      | --- | --- |
+      | Security update patch (SUP) | Critical security fixes only |
+      | Critical patch set (CPS) | Critical customer, security and upgrade fixes, plus newly certified CAD and browser versions |
+      | Maintenance release | The latest CPS, small improvements and new optional modules |
+      | Major release | Everything before it, plus new features, platform updates and UI changes; may need an upgrade |
+
+      PTC's customization course is blunt about the big ones: an upgrade (say 12.1 to 13.1) should be planned
+      **several months ahead**, needs end-to-end testing and may need code changes.
+
+      **On Windchill+**, PTC runs the machinery. CPS updates are agreed with you (target version and dates)
+      and published on the Windchill+ Upgrade and Update calendar. Your part is to keep everything you own in
+      **packages**, because a hosted system is rebuilt from what PTC knows about. The guardrails say it plainly:
+      changes made directly with admin utilities on a PTC-hosted instance are **not promoted** by PTC and are
+      **not kept during upgrades**.
+
+  - type: example
+    variant: real-world
+    title: The preference that vanished
+    industry: Micromobility
+    md: |
+      In a pilot, Jordan fixed a change-management preference directly in the hosted production system on a
+      Friday. It worked. After the next update window, the old value was back, and nothing in Acme's source
+      control explained why it had ever been different.
+
+      The fix was boring and permanent: Jordan made the same change on the dev system, captured it in a
+      [[bac-package|BAC package]], and it went out in `acme-ccd-2026-03` through INT and QA like everything else.
+    takeaway: On Windchill+, if a change isn't in a package, treat it as temporary.
+
+  - type: callout
+    variant: version-note
+    versions: ["Windchill+"]
+    md: |
+      PTC also offers a **Business Administrator** role on Windchill+ for business-critical changes directly in
+      production, such as type definitions, attributes and classifications. You request it with a service
+      request; a site administrator then adds the user to the *Site Business Administrator - Contributor (Site)*
+      group. It does **not** replace CCD, and disruptions it causes are excluded from PTC's SLA coverage and its
+      99.5% uptime guarantee.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Planning Windchill+ like a hosted copy of your old server.** No backend access means no hand-edited
+      property file, no quick JAR swap and no Windchill shell in production. If your runbook has any step
+      that starts with "log on to the server", it needs a new home: a CCD package or a service request.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Start behaving like a Windchill+ customer **before** you move: keep business administration changes in
+      BAC packages, bundle releases with CCD on-premises and set PTC-recommended preferences at the
+      organization level. PTC's PLM Foundation Pacesetter is built exactly this way and notes that
+      organization-level preferences are easier to manage in Windchill+.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Rosa needs to change a property in wt.properties on Acme's Windchill+ production system. What is the supported route?
+        options: [Open a Windchill shell on the production server, Ask PTC to log her on to the backend, Put the property change in a CCD package and deploy it through the pipeline, Edit it in the organization utilities page]
+        answer: 2
+        explanation: Customers have no backend access to PTC-hosted servers, and CCD is the only supported deployment methodology. Property changes travel in the package's xconf folder.
+      - kind: multi
+        prompt: Which jobs stay with Acme on Windchill+? (Choose all that apply.)
+        options: [Building and validating CCD packages, Approving or rejecting a deployment after testing, Taking the backup before each deployment, Managing licence assignment through organization-level groups]
+        answers: [0, 1, 3]
+        explanation: PTC takes a full backup before each deployment. Packaging, testing and approval, and day-to-day licence assignment are the customer's work.
+      - kind: truefalse
+        prompt: A setting Jordan changes directly in a PTC-hosted Windchill+ system with an admin utility will be carried forward automatically at the next upgrade.
+        answer: false
+        explanation: The guardrails state that such changes are not promoted by PTC and are not kept during upgrades. Package them instead.
+      - kind: single
+        prompt: On-premises, which release type bundles critical customer, security and upgrade fixes with newly certified CAD and browser versions?
+        options: [Security update patch, Critical patch set, Maintenance release, Major release]
+        answer: 1
+        explanation: A CPS carries urgent fixes and certifications. A SUP is security only; a maintenance release includes the latest CPS plus small features and optional modules.
+
+  - type: summary
+    points:
+      - Windchill+ is Windchill delivered as SaaS. PTC hosts and operates the servers; customers get no backend access.
+      - Your work moves to local dev systems, CCD packages, testing and approval, licences and service requests.
+      - Changes travel Develop → INT → QA → PROD, with a backup before each deployment and your approval at the end.
+      - On-premises you choose and install SUP, CPS, maintenance and major releases; on Windchill+ CPS updates are scheduled with PTC on a published calendar.
+      - Anything changed directly in a hosted system is not kept at upgrade. If it matters, package it.

@@ -45,3 +45,23 @@
   definition: The group whose members can create and update classification structures, nodes and classification attributes in Classification Administration. Its default name is Classification Administrators; the wt.csm.defaultCSMAdminGroup property can point to a custom group. With the Enable Classification Administrator to Create Reusable Attributes preference, members can also create reusable attributes from the classification tree. PTC stresses that maintaining the library needs a dedicated team at the customer.
   aka: [Classification administrator]
   related: [classification-structure, classification-attribute, group, reusable-attribute]
+
+- id: instantiable-node
+  term: Instantiable node
+  plain: A node in the classification tree that people are allowed to pick for a part.
+  definition: A classification node whose Instantiable property is set to Yes, so users can select it as the classification of an object when they create or classify it. With No, the node still appears in the tree (for example as a grouping level) but cannot be chosen. Node properties are changed in edit mode, and a node's internal name can no longer be edited once objects are classified against it.
+  aka: [Instantiable]
+  related: [classification-node, classification-structure, classification-administrators]
+
+- id: classification-import
+  term: Classification structure import
+  plain: Loading a whole classification tree from a file instead of building it by hand.
+  definition: The Import action in the Classification Tree's Actions menu, which loads a classification structure from a JAR or ZIP file. Only site administrators can run it; it brings in the entire structure, matches nodes and attributes by internal name (updating matches, creating new ones and writing a delete load file for items missing from the file), overrides the existing structure and cannot be undone. A first structure can be written as a CSV file and converted to XML with the CSVToXMLGenerator utility, then zipped and imported. The Export action writes the structure to CSV or XML.
+  aka: [Import a classification structure]
+  related: [classification-structure, classification-namespace, classification-administrators]
+
+- id: demo-classification-data
+  term: Demo classification data
+  plain: PTC's sample classification tree you can load on a new server as a starting point.
+  definition: A sample PartsLink classification shipped with Windchill but not loaded automatically. Its load files (a quantities-of-measure file, an attributes file and a nodes file) sit in the PartsLink demoClf folder under loadFiles; before loading you edit the content root path in the nodes file so attachments can be found. It is meant as a reference for building your own structure on a newly installed server.
+  related: [classification-structure, partslink]

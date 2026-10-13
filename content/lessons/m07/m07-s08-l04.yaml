@@ -1,0 +1,378 @@
+id: m07-s08-l04
+subtitle: Admin settings go in a BAC ZIP, the rest goes in load files, and both ride inside one CCD package.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [windchill-plus, ccd, bac, load-files, business-admin, deployment]
+sources:
+  - id: ac
+    where: "Module 11: Describe Windchill+ (CCD structure containing a BAC configuration file, customization files, load files and properties); Package business administration configurations (BAC utility, location, user groups, ZIP export, import or add to a CCD package)"
+  - id: catalog
+    where: "Windchill+ curriculum: Prepare CCD packages using BAC and Load Files; Business Administration in Windchill+"
+  - id: pf
+    where: "Module 2: Activity: Deploy the Windchill PLM Foundation Pacesetter (navigation to Site Utilities, Business Administration section)"
+  - id: hc-bac-utility
+    label: PTC Help Center supplement
+    title: "Business Administrative Change Utility"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/busadminchgprom/BACUtility.html"
+    covers: "Purpose, location under Site and Organizations utilities, who may use it"
+  - id: hc-bac-export
+    label: PTC Help Center supplement
+    title: "Create a Package of Business Administrative Changes"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/busadminchgprom/BACUtility_Export.html"
+    covers: "Export Changes tab, date range and object types, Select Changes, Create Package and Export Without Preview, Review and Create Package dialog, Auto Collect All Dependents, preview limit preference, external dependencies, comments not promoted"
+  - id: hc-bac-ccd
+    label: PTC Help Center supplement
+    title: "Importing a BAC Package Using CCD Utility"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/customization/AutomatedBuildDeploy_BAC_CCD_wncplus.html"
+    covers: "generated/BAC location, one BAC package per customization package, ignoreGUIDList and emptyTableManagerEnabled properties, load.data, conflict handling, report and log locations"
+  - id: hc-ccd-structure
+    label: PTC Help Center supplement
+    title: "CCD Package Structure"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/customization/AutomatedBuildDeploy_Plus_Azure_CCD_PackageStructure_wncplus.html"
+    covers: "loadFiles and loadXMLFiles for items BAC doesn't support; deploy.xml loadFileSet; incremental database artifacts"
+  - id: hc-ccd-usecase1
+    label: PTC Help Center supplement
+    title: "Use Case 1: Customizing and Loading Workflow Templates"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/customization/AutomatedBuildDeploy_Plus_Azure_CCD_wncplus_Usecase1.html"
+    covers: "Load set file with loadFileList and loadFile elements; loadFileSet entry in deploy.xml; externalized workflow expressions in a module"
+  - id: hc-wcplus-access
+    label: PTC Help Center supplement
+    title: "Windchill+ Access, Deployment, and Configuration"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/WCAdminGettingStarted/WCAdminGetStartAccDepConf.html"
+    covers: "BAC must be inside a CCD package; cumulative per release cadence; BAC after each FAT kept in source control; container ACLs through load files, not BAC"
+  - id: hc-ccd-trigger
+    label: PTC Help Center supplement
+    title: "Trigger Automated Deploy"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/customization/AutomatedBuildDeploy_Plus_Azure_CCD_deployment_wncplus_4.html"
+    covers: "business_admin_config_only manifest attribute"
+  - id: hc-wcplus-release
+    label: PTC Help Center supplement
+    title: "Windchill+ Release Management"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/WCAdminGettingStarted/rtf_ReleaseManagement.html"
+    covers: "Full builds vs load-only builds"
+versionNotes:
+  - versions: ["13.1.2.0"]
+    md: |
+      The BAC export steps follow the 13.1.2.0 Help Center (Export Changes tab, preview or Export Without Preview).
+      Button names may differ in other releases; the idea of picking changes by date and type and exporting a
+      ZIP with its dependents is the same.
+  - versions: ["Windchill+"]
+    md: |
+      On [[windchill-plus|Windchill+]] a BAC package is only promoted when it is inside a CCD package, and ACLs
+      may not travel through BAC. On-premises you can also import a BAC ZIP directly into another system.
+
+blocks:
+  - type: text
+    md: |
+      Release 5 for the E-Bike E1 is a configuration release: a new life cycle template for E-Bike parts, an
+      updated OIR, the reworked **E1 Release** workflow and fresh access rules for the E-Bike E1 product. Jordan
+      (business admin) made all of it on the dev system. Theo (developer) owns the CCD package.
+
+      They need to agree on one thing: **which vehicle carries which change?** Admin settings ride in a
+      [[bac-package|BAC package]]. Things BAC doesn't cover (or shouldn't) ride in **load files**. Both sit inside
+      one [[ccd-package|CCD package]]: `acme-ccd-2026-05`.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the tool that turns admin changes into a ZIP" → [[bac-utility|Business Administrative Change (BAC) utility]]
+      - "that ZIP" → [[bac-package|BAC package]]
+      - "XML files that create objects when loaded" → **load files** (listed in a load file set)
+      - "the list that says which load files run, in which order" → `deploy.xml` with its `loadFileSet`
+      - "the target that loads them and imports the BAC" → `load.data` (a [[ccd-target|CCD target]])
+
+  - type: diagram
+    title: Which change rides in which vehicle
+    caption: Release 5, sorted. Click a box.
+    diagram:
+      width: 820
+      height: 400
+      groups:
+        - { label: CCD package acme-ccd-2026-05, x: 300, y: 20, w: 500, h: 360, tone: neutral }
+      nodes:
+        - id: changes
+          label: Jordan's changes
+          sublabel: made on dev
+          x: 20
+          y: 170
+          w: 230
+          tone: accent
+          detail: Life cycle template, OIR, E1 Release workflow, product access rules and one property tweak.
+        - id: bac
+          label: generated/BAC
+          sublabel: one BAC ZIP
+          x: 330
+          y: 50
+          w: 200
+          tone: primary
+          shape: doc
+          detail: |
+            Business administration objects such as the [[life-cycle-template|life cycle template]] and the
+            [[object-initialization-rule|OIR]]. Exactly one ZIP; it is imported by `load.data` after the load files.
+        - id: loadfiles
+          label: configurations/loadFiles
+          sublabel: listed in deploy.xml
+          x: 330
+          y: 170
+          w: 200
+          tone: info
+          shape: doc
+          detail: |
+            Configuration BAC doesn't support yet, and container access rules: PTC does not recommend BAC for
+            container ACLs and prefers load files. The workflow template can also go here as an XML load file.
+        - id: xconf
+          label: configurations/xconf
+          sublabel: custom.site.xconf
+          x: 330
+          y: 290
+          w: 200
+          tone: warning
+          shape: doc
+          detail: Property changes go in the custom site xconf file, never into the BAC.
+        - id: target
+          label: load.data
+          sublabel: load files, then BAC
+          x: 580
+          y: 170
+          w: 190
+          tone: success
+          shape: pill
+          detail: |
+            Copies the load files and `deploy.xml` into the installation and loads them **in the order listed**.
+            If one load file fails, the later ones are skipped, but the BAC ZIP is still imported.
+      edges:
+        - { from: changes, to: bac, label: admin objects }
+        - { from: changes, to: loadfiles, label: ACLs + loaders }
+        - { from: changes, to: xconf, label: properties }
+        - { from: bac, to: target }
+        - { from: loadfiles, to: target }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Clicking a change into five systems by hand is how dev, QA and production drift apart. A BAC package is a
+      **recording** of the change: reviewable, storable in source control and replayable. PTC asks Windchill+
+      customers to create one after each successful functional acceptance test and keep it in their source
+      code management system, so a new developer's laptop can be seeded from the same data model as production.
+
+  - type: walkthrough
+    title: Export Release 5 as a BAC package
+    who: A site administrator, or an organization administrator in the Business Administrative Change Package Creator group
+    where: [Browse, Site, Utilities, Business Administration]
+    steps:
+      - title: Open the utility
+        where: [Navigator, Browse, Site, Utilities]
+        md: |
+          In the Business Administration section, open the **Business Administrative Change** utility. It is also
+          available from an organization's Utilities page.
+      - title: Find the changes
+        where: [Export Changes tab]
+        md: |
+          Set **Show Changes From:** and **To:** to Release 5's working period and pick the object types (leave
+          them empty to list every type). Click **Search**. To catch changes from one day, set To to the next day.
+      - title: Select them
+        where: [Export Changes tab, Select Changes]
+        md: Tick the changes to export, or the header checkbox for all of them. **Auto Collect All Dependents** is on by default and gathers dependents recursively.
+      - title: Choose preview or not
+        where: [Export Changes tab]
+        md: |
+          **Create Package** shows a preview first. **Export Without Preview** then **Create Package Without Preview**
+          exports every dependency level in one go, with no preview limit.
+      - title: Name it and create
+        where: [Review and Create Package]
+        md: Enter a name such as `acme-bac-r5` and a description, review the content, add any missing dependents, and click **Create**. The ZIP downloads to your machine.
+    result: A single BAC ZIP holding Release 5's admin changes and their dependents, ready for generated/BAC.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Trusting the preview to show everything.** The preview lists at most the number of objects set by the
+      *Maximum Number of Objects to Display on Preview* preference (default 1000, range 100-5000), so a preview
+      export can miss dependents. Also check things BAC doesn't carry but depends on, such as life cycle
+      states, team templates, roles and custom classes used by workflow expressions: they must already exist on
+      the target or the import fails. Comments added when iterating or revising an object are not promoted.
+
+  - type: text
+    md: |
+      ### Putting it into the CCD package
+
+      1. Copy the ZIP into `generated/BAC`. That folder holds **one** ZIP, so the whole release's admin changes go
+         into a single BAC package. More changes later? Export them into the next package.
+      2. Add load files under `configurations/loadFiles` and list them in a load file set referenced from
+         `deploy.xml`. Order matters: `load.data` runs them top to bottom.
+      3. If you are importing on a test system, set `com.ptc.windchill.bac.ignoreGUIDList=All` first so the BAC is
+         accepted whatever system it was exported for. For the **first** deployment of a package with a BAC, PTC
+         says to set `wt.pom.emptyTableManagerEnabled=false` temporarily, deploy, then set it back to `true`.
+      4. Run `ant load.data -Dadministrator.username=<admin user>` (or `ant all`). BAC reports land in
+         `buildlogs/customizationLogs/bac/reports`.
+
+      A sketch of the two XML pieces for the workflow template (names follow PTC's workflow use case; the file
+      paths are Acme's):
+
+      ```xml
+      <!-- deploy.xml: point the module at Acme's load file set -->
+      <module>
+        <loadFileSet>custom/acmeLoadSet.xml</loadFileSet>
+      </module>
+      ```
+
+      ```xml
+      <!-- configurations/loadFiles/custom/acmeLoadSet.xml -->
+      <loadFileList>
+        <loadFile filename="custom/workflowTemplate/acmeE1Release_WF.xml"/>
+      </loadFileList>
+      ```
+
+      The load set file declares PTC's `windchillLoad.dtd`. Inline workflow expressions are externalized into a
+      Java class (for Acme, in `com.acme.workflow`) inside a module, so later changes are made in that class.
+
+  - type: comparison
+    title: BAC package or load files?
+    columns: [BAC package, Load files]
+    rows:
+      - label: Made by
+        cells: ["Exporting from the BAC utility", "Writing or exporting XML (or a ZIP plus a loader file)"]
+      - label: Where in the package
+        cells: ["generated/BAC (one ZIP)", "configurations/loadFiles or loadXMLFiles"]
+      - label: Good for
+        cells: ["OIRs · life cycle templates · other admin objects BAC supports", "Items BAC doesn't support yet; container ACLs"]
+      - label: Order of loading
+        cells: ["Imported by load.data after the load files", "In the order of the load file set in deploy.xml"]
+      - label: On conflict
+        cells: ["Imported objects overwrite the target's; unknown conflicts fail and are fixed in Event Management", "A failing file stops the later load files"]
+    takeaway: Use BAC for what it supports, load files for the rest, and keep both incremental.
+
+  - type: simulation
+    title: Pack Release 5 correctly
+    intro: |
+      Get `acme-ccd-2026-05` ready: a complete BAC export, exactly one ZIP in generated/BAC, and the product
+      access rules in the right place.
+    headline: "BAC export {bac} · ZIPs in generated/BAC {zips} · access rules {acl}"
+    initial: { bac: none, zips: 0, acl: not packaged }
+    actions:
+      - id: export-preview
+        label: Create Package (with preview)
+        when: { bac: none }
+        do: [{ set: { bac: partial, zips: 1 } }]
+        log: Exported with preview. The preview limit and dependency paging may have left some dependents out.
+      - id: export-no-preview
+        label: Export Without Preview
+        when: { bac: [none, partial] }
+        do: [{ set: { bac: complete, zips: 1 } }]
+        log: All dependency levels exported in one go. The ZIP replaces the earlier export.
+      - id: add-second-zip
+        label: Drop the ACL team's own BAC ZIP in too
+        when: { zips: 1 }
+        do: [{ inc: zips }]
+        log: Now generated/BAC holds {zips} ZIPs, but a customization package can consume only one BAC package.
+        blockedHint: Export a BAC package first.
+      - id: merge-zips
+        label: Re-export everything as one BAC
+        when: { zips: 2 }
+        do: [{ set: { zips: 1 } }]
+        log: One ZIP again, holding all of the release's admin changes.
+      - id: acl-in-bac
+        label: Put the access rules in the BAC
+        when: { acl: not packaged }
+        do: [{ set: { acl: in the BAC } }]
+        log: Not on Windchill+. ACLs aren't permitted through BAC there, and PTC prefers load files for container ACLs.
+      - id: acl-load-file
+        label: Put the access rules in load files
+        when: { acl: [not packaged, in the BAC] }
+        do: [{ set: { acl: in load files } }]
+        log: Access rules now load from configurations/loadFiles, listed in deploy.xml.
+      - id: start-over
+        label: Start the next release
+        when: { acl: in load files }
+        do: [{ set: { bac: none, zips: 0, acl: not packaged } }]
+        log: Fresh start. Remember, the next BAC holds only the next release's changes.
+    goals:
+      - label: Package ready for Windchill+
+        when: { bac: complete, zips: 1, acl: in load files }
+        message: Complete BAC, one ZIP, ACLs in load files. Theo can zip it and write the manifest.
+
+  - type: scenario
+    variant: troubleshooting
+    title: Half a release loaded
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          On the test system, `ant load.data` reports that the second of four load files failed. The log also shows
+          the BAC was imported. What happened to load files three and four?
+        choices:
+          - label: They were skipped
+            next: s2
+            good: true
+            feedback: Right. A failed load file stops the later ones, but the BAC ZIP is still imported.
+          - label: They loaded; only file two is missing
+            next: f1
+            feedback: Loading stops at the failure, in deploy.xml order.
+      - id: s2
+        md: The log says file two's workflow template references a life cycle state that doesn't exist on the target. Best fix?
+        choices:
+          - label: Create the missing state on the target by hand and rerun
+            next: p1
+            feedback: It works once, but production won't have it either. The fix isn't recorded.
+          - label: Add the missing state to the package so it loads before file two, then deploy a new package
+            next: s3
+            good: true
+            feedback: Dependencies travel with the release, in the right order.
+      - id: s3
+        md: |
+          The new package loads cleanly. In the BAC report, one conflict code wasn't in the default conflict
+          resolution file and that object didn't import. Where do you resolve it?
+        choices:
+          - label: In the Event Management interface
+            next: ok
+            good: true
+            feedback: Correct. Known conflicts are resolved automatically; unknown codes fail and are resolved manually there.
+          - label: Edit the BAC ZIP by hand
+            next: f2
+            feedback: Hand-editing an exported package breaks its traceability. Resolve the conflict, then export again if needed.
+      - id: ok
+        md: Release 5 is complete on the test system, and the same package goes to the Windchill+ pipeline.
+        outcome: success
+      - id: p1
+        md: The test system works, but QA fails on the same missing state next week.
+        outcome: partial
+      - id: f1
+        md: The team tests features that were never loaded and signs off a broken release.
+        outcome: fail
+      - id: f2
+        md: The import now fails differently and nobody can tell what the ZIP contains any more.
+        outcome: fail
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      If a Windchill+ package carries **only** business administration configuration, say so in the manifest
+      (`business_admin_config_only: True`). PTC also distinguishes **full builds** (code and configuration,
+      cumulative, restart Windchill) from **load-only builds** (configuration loaded without a restart, not
+      cumulative). Ask PTC which fits your change before you schedule it.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Who can use the BAC utility to create packages?
+        options: [Any user with a licence, Site administrators and organization administrators in the BAC creator group, Only PTC Cloud Services, Only users in the Workflow Authors group]
+        answer: 1
+        explanation: It is available to site administrators and to organization administrators who are members of the Business Administrative Change Package Creator and Importer groups.
+      - kind: multi
+        prompt: Which statements about BAC in a CCD package are true? (Choose all that apply.)
+        options: [generated/BAC holds a single ZIP, A customization package can consume only one BAC package, Imported BAC objects overwrite conflicting objects on the target, The BAC is imported before any load file runs]
+        answers: [0, 1, 2]
+        explanation: load.data loads the load files in deploy.xml order and then imports the BAC; even if a load file fails, the BAC is still imported.
+      - kind: truefalse
+        prompt: On Windchill+, the recommended way to carry container ACLs is in the BAC package.
+        answer: false
+        explanation: PTC doesn't recommend BAC for container ACLs and doesn't permit ACLs through BAC on Windchill+. Use load files in the CCD package.
+
+  - type: summary
+    points:
+      - The BAC utility (Site or Organization Utilities, Business Administration) exports admin changes and their dependents as one ZIP.
+      - Export Without Preview avoids the preview limit; check external dependencies such as states, roles and team templates.
+      - In the CCD package the BAC goes in generated/BAC (one ZIP); load files go in configurations/loadFiles, listed in deploy.xml.
+      - load.data runs load files in order, stops at a failure, and still imports the BAC; unknown conflicts are resolved in Event Management.
+      - Container ACLs travel in load files, not BAC, and every release's BAC holds only that release's changes.

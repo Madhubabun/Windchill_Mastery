@@ -46,3 +46,38 @@
   definition: The collection of [[thingworx|ThingWorx]] entities that represents an application's physical assets, systems and processes (their digital twins). Things are the instances; every Thing is created from exactly one Thing Template (ultimately from a system template such as GenericThing); Thing Shapes package properties, services, events and subscriptions that any number of templates or Things can implement. Changes to a template or shape flow down to the Things that use it.
   aka: [Things, Thing Templates and Thing Shapes]
   related: [thingworx, mashup]
+
+- id: navigate-tailoring
+  term: Navigate tailoring (common and task-specific)
+  plain: The admin screens where you choose, per role, which Navigate tiles show up and how search behaves.
+  definition: How a [[windchill-navigate|Windchill Navigate]] administrator adapts tasks to a [[navigate-role]]. Common tailoring (the Edit Collection link) sets shared options for every task in a collection, such as object type to find, maximum search results, attributes shown in results, partial matches and one search filter (Saved Filter, Saved search, Latest, Version or Effectivity Date), and toggles which tasks the role sees. Task-specific tailoring (the pencil icon on one task) changes that task only, for example the attributes and row limit in My Tasks. Settings apply only to users in the selected role and must be saved.
+  aka: [Common tailoring, Edit Collection]
+  related: [navigate-role, navigate-task, saved-search]
+
+- id: odata-connector
+  term: OData Connector (integration connector)
+  plain: The ThingWorx "plug" that lets a Navigate task fetch Windchill data through the Windchill web API.
+  definition: A ThingWorx integration connector Thing that links a [[navigate-custom-task|custom task]] to Windchill through [[windchill-rest-services|Windchill REST Services]]. You either use the out-of-the-box ptc-windchill-OData-connector (a subset of endpoints) or create your own from a connector template so you can add routes and override services. Its configuration holds the base URL, authentication (single sign-on, Windchill or fixed), CSRF settings and service root relative URLs per [[wrs-domain|domain]]; route services map to individual OData endpoints. ValidateConnection and GetEndpointList help troubleshoot it. One connector can serve several custom tasks.
+  aka: [Integration connector Thing]
+  related: [navigate-custom-task, windchill-rest-services, wrs-domain, thingworx]
+
+- id: infotable
+  term: Infotable
+  plain: A small in-memory table (rows and columns) that ThingWorx services pass around.
+  definition: The main structured-data format in [[thingworx|ThingWorx]]. An infotable is a base type, not an entity, so a property or a service input or output can be of type INFOTABLE. It holds zero or more rows whose columns should follow a Data Shape (the schema of field names and base types). Services typically return infotables to [[mashup|mashups]], where a Grid widget shows each column as a grid column. Data Tables, by contrast, are entities that store rows persistently.
+  aka: [INFOTABLE]
+  related: [thing-model, mashup, mashup-binding]
+
+- id: mashup-binding
+  term: Data service and binding (mashup)
+  plain: The wiring in a mashup - which service fetches the data, which widget shows it, and which click makes it run.
+  definition: In a [[mashup]], a data service retrieves or changes data on a ThingWorx entity (a Thing, Data Table or Stream) or from the session or user panels. A binding connects the service's result to a widget property, or one widget's output (for example selected items) to another widget's input. Services only run when an event triggers them, such as the mashup Loaded event (or Execute on Load), a button Clicked event, SelectedRowsChanged or ServiceInvokeCompleted. The Bindings panel shows these connections as a left-to-right flow chart.
+  aka: [Binding, Data service]
+  related: [mashup, infotable, navigate-component]
+
+- id: alwayson-protocol
+  term: AlwaysOn protocol (ThingWorx Edge)
+  plain: The always-open, two-way connection that lets a machine on the shop floor talk to ThingWorx in real time.
+  definition: The ThingWorx connectivity protocol, based on WebSocket (ws or wss), used by Edge MicroServers and the Edge SDKs (.NET, C, Java). A device opens an HTTP or HTTPS connection, upgrades it to a WebSocket, authenticates with an application key and is then bound to a Remote Thing, after which property values are pushed to the platform and remote services can be called on the device. With very large numbers of assets, a ThingWorx Connection Server routes these connections.
+  aka: [ThingWorx Edge connectivity]
+  related: [thingworx, thing-model]

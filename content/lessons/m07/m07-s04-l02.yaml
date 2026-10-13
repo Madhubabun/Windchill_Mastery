@@ -1,0 +1,449 @@
+id: m07-s04-l02
+subtitle: Three quality records, three different jobs. Pick the right one, raise a CAPA from it, and tie the fix to a real change.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [quality, capa, nonconformance, customer-experience, change-management, associations]
+sources:
+  - id: te
+    where: "Manage the quality of medical devices with Windchill (CAPA, Nonconformance Management, Customer Experience Management); Accessing quality solutions from within Windchill PLM; Change management process: overview; Activity: Create a problem report (change associations, Associated Process Objects and Associated Reference Objects tables)"
+  - id: hc-capa-flow
+    label: PTC Help Center supplement
+    title: "CAPA Process Flow"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCQMSCapa/WCQMSCAPAProcessFlow.html"
+    covers: "CAPA states, optional steps and CAPA roles"
+  - id: hc-capa-from-source
+    label: PTC Help Center supplement
+    title: "Creating a New CAPA Request from a Nonconformance, Complaint, or Existing CAPA"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCQMSCapa/WCQMSRequestCndctngCAPANCComplaint.html"
+    covers: "Actions, New CAPA Request from any state; source record in Associated Reference Objects; business rule needed for NC and CX"
+  - id: hc-capa-info
+    label: PTC Help Center supplement
+    title: "CAPA Information Page"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wqCommon/WCQMSCAPAPageAbout.html"
+    covers: "CAPA Actions menu, tabs and the CAPA Management tables"
+  - id: hc-nc
+    label: PTC Help Center supplement
+    title: "Windchill Nonconformance Process Overview"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wqnc/WQNCOview.html"
+    covers: "Nonconformance definition and default process steps"
+  - id: hc-nc-info
+    label: PTC Help Center supplement
+    title: "Nonconformance Information Page"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wqCommon/WQNCNonconformanceInfoPageRef.html"
+    covers: "Nonconformance Actions menu and tabs"
+  - id: hc-cem
+    label: PTC Help Center supplement
+    title: "The Windchill Customer Experience Management Process"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wqcem/WQCEMOview.html"
+    covers: "Customer experience states and the Quality Tasks table"
+  - id: hc-cem-info
+    label: PTC Help Center supplement
+    title: "Customer Experience Information Page"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wqCommon/WQCEMInfoPageRef.html"
+    covers: "Customer experience Actions menu and tabs"
+  - id: hc-audit
+    label: PTC Help Center supplement
+    title: "Windchill Audit Management Process"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wqaudit/WCQMSAudit_WCAuditMgmntProcess.html"
+    covers: "Change association rules for the Change Process and Change Reference tables applying to quality objects"
+versionNotes:
+  - versions: ["All releases"]
+    md: |
+      States, roles and approvals described here are the **default** configuration from the 13.1.2.0 Help
+      Center. PTC states that roles, approvers and routing can be reconfigured, so your site's CAPA may have
+      more or fewer steps.
+
+blocks:
+  - type: text
+    md: |
+      In lesson 1 Acme closed the battery-latch loop. Now zoom in. Leo had **three** quality records in play:
+      a customer complaint (**CX-0045**), a bad batch at Lakeside (**NC-0120**) and the corrective action
+      (**CAPA-0031**). New quality engineers mix them up all the time - and then wonder why the wrong
+      workflow lands in their task list.
+
+      Your job in this lesson: know which record fits which problem, raise a CAPA from the right place,
+      and link the quality work to the change that fixes the design.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a customer told us something is wrong" → [[customer-experience]]
+      - "this item doesn't match its spec" → [[nonconformance]] (NC)
+      - "find the root cause, fix it, prove it" → [[capa|CAPA]] (starts as a *CAPA request*)
+      - "linked records that close together" → [[associated-process-object|Associated Process Objects]]
+      - "see-also link, no rules" → [[associated-reference-object|Associated Reference Objects]]
+      - "a planned accepted departure from spec" → [[variance]] or [[deviation]] (Module 3)
+
+  - type: comparison
+    title: Customer experience vs nonconformance vs CAPA
+    columns: [Customer experience, Nonconformance, CAPA]
+    rows:
+      - label: Answers the question
+        cells:
+          - "What did the customer report?"
+          - "Which item misses its spec - and what do we do with it?"
+          - "Why did it happen and how do we stop it for good?"
+      - label: Typical trigger
+        cells:
+          - "Complaint, field report, post-market feedback"
+          - "Failed inspection of a product, material, process or document"
+          - "A pattern from CX or NC records, an audit, or another CAPA"
+      - label: Default flow
+        cells:
+          - "Intake, Evaluation, In Progress, Summary and Review, Closed (or Canceled)"
+          - "Initiation, Evaluation, Investigation (opt.), Disposition Plan, MRB review (opt.), Disposition, Completion"
+          - "Request, Review, Investigation (opt.), Plan, Implementation, Confirmation (opt.), Effectiveness (opt.), Closure"
+      - label: Special strength
+        cells:
+          - "Trending, follow-ups and regulatory reporting (Regulatory tab)"
+          - "Split lot disposition; also variances, deviations and exceptions"
+          - "Multiple actions per CAPA, each tracked to completion"
+      - label: Can raise a CAPA?
+        cells:
+          - "Yes - Actions, New CAPA Request"
+          - "Yes - Actions, New CAPA Request"
+          - "Yes - a CAPA can spawn another CAPA"
+    takeaway: CX and NC describe the problem; the CAPA owns the cure.
+
+  - type: diagram
+    title: The CAPA's default path
+    caption: Dashed boxes are optional. Click a state to see who acts there.
+    diagram:
+      width: 840
+      height: 300
+      nodes:
+        - id: request
+          label: Request
+          sublabel: Intake
+          x: 20
+          y: 40
+          w: 120
+          tone: neutral
+          detail: The **CAPA requester** starts the request. Actions can already be created here.
+        - id: review
+          label: Review
+          sublabel: Evaluation
+          x: 170
+          y: 40
+          w: 120
+          tone: info
+          detail: The **CAPA reviewer** decides whether the request qualifies as a CAPA. Only an approved request becomes a CAPA.
+        - id: investigate
+          label: Investigation
+          sublabel: optional
+          x: 320
+          y: 40
+          w: 130
+          tone: warning
+          detail: The **CAPA investigator** looks for the root cause and decides whether action plans are needed. Skipped if Evaluation doesn't call for it.
+        - id: plan
+          label: Plan
+          x: 480
+          y: 40
+          w: 110
+          tone: primary
+          detail: The **CAPA planner** creates the actions that address the root cause and decides whether Confirmation and Effectiveness steps are needed.
+        - id: implement
+          label: Implementation
+          x: 620
+          y: 40
+          w: 140
+          tone: primary
+          detail: The **CAPA implementer** carries out each action and enters implementation completion text. They can assign implementation tasks from the approved plan.
+        - id: confirm
+          label: Confirmation
+          sublabel: optional
+          x: 400
+          y: 180
+          w: 130
+          tone: warning
+          detail: The **CAPA confirmer** confirms the corrective measures. Only present if the planner asked for it.
+        - id: effect
+          label: Effectiveness
+          sublabel: optional
+          x: 560
+          y: 180
+          w: 130
+          tone: warning
+          detail: The **effectiveness approver** sets effectiveness measures and assigns a task to the **CAPA verifier**, who completes it.
+        - id: closure
+          label: Closure
+          x: 720
+          y: 180
+          w: 100
+          tone: success
+          detail: The CAPA closes. Every completed state's data stays available on its information page.
+      edges:
+        - { from: request, to: review }
+        - { from: review, to: investigate }
+        - { from: review, to: plan, dashed: true, label: skip }
+        - { from: investigate, to: plan }
+        - { from: plan, to: implement }
+        - { from: implement, to: confirm, dashed: true }
+        - { from: confirm, to: effect, dashed: true }
+        - { from: effect, to: closure }
+        - { from: implement, to: closure, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      The record type decides the workflow, the roles that get tasks and the reports regulators see. An NC
+      logged as a complaint never reaches the Material Review Board; a complaint logged as an NC skips the
+      customer follow-up and regulatory reporting steps. Picking right is the cheapest quality decision you
+      will ever make.
+
+  - type: walkthrough
+    title: Raise a CAPA from a nonconformance
+    who: A member of the quality context with rights to create CAPAs (Leo)
+    where: [Quality context, "NC-0120", Actions, New CAPA Request]
+    steps:
+      - title: Open the source record
+        where: [Navigator, Quality, "<quality context>", "NC-0120"]
+        md: |
+          Open the nonconformance's information page. You can start a CAPA from **any state** of a
+          nonconformance, customer experience or CAPA - you don't have to wait for it to finish.
+      - title: Choose New CAPA Request
+        where: [Information page, Actions, New CAPA Request]
+        md: In the **Actions** menu at the upper left, choose **New CAPA Request**.
+      - title: Confirm
+        where: [Confirmation message, OK]
+        md: Windchill asks whether you really want a new CAPA. Click **OK**; a message confirms it was created.
+      - title: Check the link
+        where: [CAPA-0031, CAPA Management tab, Associated Reference Objects]
+        md: |
+          Open the new CAPA. The source record is listed in **Associated Reference Objects**. For a
+          nonconformance or customer experience, that reference only appears if your administrator has
+          added the business rule for it.
+    result: CAPA-0031 starts life already pointing at NC-0120 - no copy-paste of numbers.
+
+  - type: callout
+    variant: note
+    title: Starting a CAPA from scratch
+    md: |
+      Without a source record, start from the new CAPA request icon on the CAPA page or Home page, fill in
+      the **New CAPA Request** window and click **Complete Task**. You can **Save** and come back before you
+      complete it.
+
+  - type: text
+    md: |
+      ### Linking the quality record to the change
+
+      The CAPA owns the *why*; the design fix still runs through change management. Two kinds of links
+      connect them, and you have met both on problem reports in Module 3:
+
+      | Table | Meaning | Use it when |
+      | --- | --- | --- |
+      | **Associated Process Objects** | Parent/child process links. Linked objects can be closed together through the workflow once each is in the right state. | The quality record and the change must finish together |
+      | **Associated Reference Objects** | A plain reference, no process rules. | You only need the trace ("this change came from CAPA-0031") |
+
+      CAPAs, nonconformances and customer experiences all carry both tables on their management tab (for
+      a CAPA: **CAPA Management**). Users with permission edit them with the **edit details** icon.
+      Which object types can be linked, and in which table, is decided by **change association rules**
+      your administrator sets up - PTC's audit module, for example, ships rules for its Change Process and
+      Change Reference tables.
+
+  - type: walkthrough
+    title: Tie CAPA-0031 to the design change
+    who: Leo (quality) with Maya (change manager)
+    where: [Part EB-2410, Actions, New, New Problem Report]
+    steps:
+      - title: Start the change on the part
+        where: [EB-2410 information page, Actions, New, New Problem Report]
+        md: |
+          Open latch **EB-2410**'s information page and choose **Actions → New → New Problem Report**.
+          Because you started from the part, it is already selected as the affected object.
+      - title: Describe the problem
+        where: [New Problem Report, Name, Category, Priority, Description]
+        md: |
+          Name it after the symptom, pick a category such as **Design Issue** and a priority, and describe
+          the root cause found in CAPA-0031.
+      - title: Add change associations
+        where: [New Problem Report, Associated Process Objects, Associated Reference Objects]
+        md: |
+          On the associations step, link related change objects. Use process links for objects that should
+          close together and reference links for "see also".
+      - title: Link from the quality side
+        where: [CAPA-0031, CAPA Management tab, edit details icon]
+        md: |
+          On CAPA-0031, edit **Associated Process Objects** or **Associated Reference Objects** and add the
+          problem report - if your site's association rules allow that object type. If they don't, ask your
+          administrator rather than writing the number in a text field.
+    result: Anyone opening CAPA-0031 can follow the link to the problem report, then to the change request and change notice that released EB-2410 revision B.
+
+  - type: simulation
+    title: Drive CAPA-0031 to closure
+    intro: |
+      You are the whole CAPA team. Move CAPA-0031 through its default states. Try skipping ahead - the
+      buttons only work when the CAPA is in the right state.
+    headline: "CAPA-0031 · {state} · checks planned: {checks}"
+    initial: { state: Request, checks: none, changeLinked: false }
+    actions:
+      - id: submit-request
+        label: Submit request
+        when: { state: Request }
+        do: [{ set: { state: Review } }]
+        log: Requester submits. The reviewer gets a task in the Quality Tasks table.
+      - id: approve-investigate
+        label: Approve - investigate
+        when: { state: Review }
+        do: [{ set: { state: Investigation } }]
+        log: Reviewer accepts it as a CAPA and asks for an investigation.
+        blockedHint: Only a request under review can be approved.
+      - id: approve-skip
+        label: Approve - straight to plan
+        when: { state: Review }
+        do: [{ set: { state: Plan } }]
+        log: Evaluation doesn't call for an investigation, so the CAPA goes straight to Plan.
+      - id: finish-investigation
+        label: Record root cause
+        when: { state: Investigation }
+        do: [{ set: { state: Plan } }]
+        log: "Root cause recorded: latch spring force too low for rough roads."
+      - id: plan-with-checks
+        label: Plan with effectiveness check
+        when: { state: Plan }
+        do: [{ set: { state: Implementation, checks: effectiveness } }]
+        log: Planner adds a change action and requests an effectiveness check.
+      - id: plan-no-checks
+        label: Plan without checks
+        when: { state: Plan }
+        do: [{ set: { state: Implementation, checks: none } }]
+        log: Planner adds a change action - no confirmation or effectiveness step.
+      - id: link-change
+        label: Link the problem report
+        when: { state: [Plan, Implementation], changeLinked: false }
+        do: [{ set: { changeLinked: true } }]
+        log: Problem report for EB-2410 added to Associated Process Objects.
+        blockedHint: Link the change while planning or implementing.
+      - id: implement
+        label: Complete implementation
+        when: { state: Implementation, changeLinked: true }
+        do: [{ set: { state: Implemented } }]
+        log: Revision B released through the change notice. Implementation completion text entered.
+        blockedHint: Link the change that implements the fix first.
+      - id: verify
+        label: Verify effectiveness
+        when: { state: Implemented, checks: effectiveness }
+        do: [{ set: { state: Closed } }]
+        log: Verifier confirms no new latch complaints. CAPA closed with evidence.
+        blockedHint: No effectiveness check was planned - use Close.
+      - id: close
+        label: Close
+        when: { state: Implemented, checks: none }
+        do: [{ set: { state: Closed } }]
+        log: CAPA closed - but without proof the fix worked.
+        blockedHint: An effectiveness check was planned. Run it first.
+    goals:
+      - label: Close CAPA-0031 with an effectiveness check
+        when: { state: Closed, checks: effectiveness }
+        message: That is a properly closed loop - linked change, proven fix.
+      - label: Close a CAPA with a linked change
+        when: { state: Closed, changeLinked: true }
+        message: The fix is traceable from the CAPA to the change.
+
+  - type: scenario
+    variant: what-if
+    title: Which record do you open?
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Ana phones from Lakeside: 200 latch springs in today's delivery from the supplier are below the
+          drawing's spring-force spec. What do you create?
+        choices:
+          - label: A nonconformance
+            next: s2
+            good: true
+            feedback: Right - an item that doesn't conform to its specification. Disposition decides what happens to the batch.
+          - label: A customer experience
+            next: wrong1
+            feedback: No customer has reported anything. This is an incoming-inspection finding.
+      - id: s2
+        md: |
+          The disposition plan for NC-0120 is "return to supplier". A week later, a second batch fails the same way.
+          What now?
+        choices:
+          - label: Raise a CAPA from the nonconformance
+            next: s3
+            good: true
+            feedback: A repeat finding needs a root cause and a preventive action, not just another disposition.
+          - label: Open another nonconformance and leave it there
+            next: partial1
+            feedback: You'll handle this batch - and the next, and the next.
+      - id: s3
+        md: The CAPA finds the drawing's tolerance is too loose. Who changes the drawing?
+        choices:
+          - label: Engineering, through a problem report and change process linked to the CAPA
+            next: done
+            good: true
+            feedback: Quality drives it, change management executes it, the links keep the trace.
+          - label: The CAPA implementer edits the released drawing directly
+            next: wrong2
+            feedback: Released data changes only through change management.
+      - id: done
+        md: NC-0120, CAPA-0031 and the change notice are linked. The audit trail tells the whole story.
+        outcome: success
+      - id: partial1
+        md: Each batch gets dispositioned, but the cause never goes away.
+        outcome: partial
+      - id: wrong1
+        md: The record lands with the complaint team, who can't disposition material. It gets bounced back.
+        outcome: fail
+      - id: wrong2
+        md: There is no route for that - and no change history if someone found a workaround.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **"Why doesn't my CX show up on the CAPA?"** Creating a CAPA from a nonconformance or customer
+      experience lists the source in **Associated Reference Objects** only when the administrator has
+      added the business rule for that reference link. Test it on day one of a rollout, not during the
+      first audit.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Use **process** links only where closure really depends on the other record. Too many process links
+      and nothing can close until everything closes. A **reference** link is usually enough to show
+      where a change came from.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Hexa Tooling's new jig produces brackets 0.3 mm out of tolerance. Which record fits first?
+        options: [Customer experience, Nonconformance, CAPA, Regulatory submission]
+        answer: 1
+        explanation: A product, material, process or document that doesn't conform to its specification is a nonconformance. A CAPA may follow if the cause needs fixing.
+      - kind: multi
+        prompt: Which CAPA steps are optional in the default flow? (Choose all that apply.)
+        options: [Investigation, Plan, Confirmation, Effectiveness, Implementation]
+        answers: [0, 2, 3]
+        explanation: Investigation is skipped if Evaluation doesn't call for it; Confirmation and Effectiveness only appear if the planner requests them.
+      - kind: single
+        prompt: Where do you start a CAPA from an existing customer experience?
+        options: ["Its Actions menu → New CAPA Request", "The Changes tab of the part", "Site utilities", "The Quality table toolbar only"]
+        answer: 0
+        explanation: The Actions menu on a customer experience, nonconformance or CAPA information page has New CAPA Request, available from any state.
+      - kind: single
+        prompt: What's the difference between an associated process object and an associated reference object?
+        options:
+          - "Process links can close together through the workflow; reference links have no process rules"
+          - "Process objects are parts; reference objects are documents"
+          - "Reference links are stronger and block closure"
+          - "There is no difference"
+        answer: 0
+        explanation: Process links carry parent/child process rules that support closing together. Reference links are only references.
+      - kind: truefalse
+        prompt: A nonconformance can only raise a CAPA after it reaches Completion.
+        answer: false
+        explanation: New CAPA Request is available from any state of the nonconformance, customer experience or CAPA.
+
+  - type: summary
+    points:
+      - Customer experiences record what customers report; nonconformances record items that miss their spec; CAPAs find and remove the cause.
+      - The default CAPA runs Request, Review, Investigation (optional), Plan, Implementation, Confirmation and Effectiveness (optional), Closure.
+      - Actions → New CAPA Request on a CX, NC or CAPA starts a CAPA with the source in Associated Reference Objects (business rule needed for CX and NC).
+      - The design fix runs through the problem report, change request and change notice, linked to the CAPA with process or reference links.
+      - Change association rules set by the administrator decide which links are allowed.

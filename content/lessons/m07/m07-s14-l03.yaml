@@ -1,0 +1,336 @@
+id: m07-s14-l03
+subtitle: No tile shows Maya's open change requests next to their activity and priority. Theo builds one - from components, a connector and a little JSON.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [navigate, custom-tasks, thingworx, odata, mashups, developer]
+sources:
+  - id: nav-ct
+    where: "Implementation team strategy; Module 1: Elements of a custom task; The user experience; Windchill Navigate components overview; Component architecture; Component communication (CCO, WCAdapter)"
+  - id: nav-ct
+    where: "Module 2: Task projects; Integration connectors; OData Connector; OData Connector authentication; Exposing domains and services; Troubleshoot connectivity; Activity: Configure the OData Connector; Component configuration properties; Activity: Construct the task mashup"
+  - id: nav-ct
+    where: "Module 3: Generic configurations; Ordinals configuration properties; Should I use Tiles or Attributes components?; Module 4: Add the custom task to the landing page; Tags; Common tailoring for custom tasks"
+  - id: nav
+    where: "Module 2: Business needs: OOTB versus custom tasks"
+  - id: twx
+    where: "Module 3: Identify ThingWorx Entities (Things, Thing Templates, Thing Shapes); Module 5: Data Services and Bindings"
+versionNotes:
+  - versions: ["Navigate 9.6"]
+    md: |
+      Steps and entity names follow the Build and Extend Custom Tasks in Windchill Navigate course (Windchill
+      13.0.2.2, ThingWorx Composer 9.6, Navigate 9.6). Template names, WRS domain versions (for example v8 of
+      ChangeMgmt) and predefined configurations can change between releases - check the API Catalog and the
+      Navigate Help Center for yours.
+
+blocks:
+  - type: text
+    md: |
+      Maya wants one screen for her change board: *my open review tasks* on the left, and when you tick one, its
+      **activity**, a few **key facts** (need date, state, category, priority) and the **long description**
+      appear beside it. No out-of-the-box tile does exactly that.
+
+      PTC's rule of thumb from the last lesson: build a custom task only when an out-of-the-box task can't do
+      the job with tailoring, when data must be combined from several systems, or when there's no task for the
+      use case at all. This one qualifies. **Theo** (developer) builds it in ThingWorx Composer, with **Ines**
+      advising on the Windchill REST side.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a home-made Navigate tile" → [[navigate-custom-task|custom task]]
+      - "the screen the user sees" → a [[mashup]]
+      - "ready-made blocks that already speak Windchill" → [[navigate-component|Navigate components]]
+      - "the plug into Windchill's web API" → the [[odata-connector|OData Connector]], using [[windchill-rest-services|WRS]]
+      - "the JSON that tells a component what to show" → a component **configuration** (predefined or generic)
+      - "wiring one block's selection into another" → a [[mashup-binding|binding]]
+
+  - type: animation
+    title: What happens when Maya ticks a task
+    diagram:
+      width: 820
+      height: 380
+      groups:
+        - { label: Mashup (browser), x: 10, y: 20, w: 250, h: 340, tone: info }
+        - { label: ThingWorx, x: 280, y: 20, w: 330, h: 340, tone: neutral }
+        - { label: Windchill, x: 630, y: 20, w: 180, h: 340, tone: success }
+      nodes:
+        - id: tasks
+          label: Item List
+          sublabel: Tasks config
+          x: 30
+          y: 60
+          w: 200
+          tone: info
+          detail: An Item List component with the predefined **Tasks** configuration - the same review tasks as the Windchill My Tasks table.
+        - id: details
+          label: Tiles + Attributes
+          sublabel: Activity list too
+          x: 30
+          y: 250
+          w: 200
+          tone: info
+          detail: Components whose **Input** is bound to the task list's **SelectedItems**. They refresh when a task is ticked.
+        - id: logic
+          label: Business logic
+          sublabel: Thing Template + Thing
+          x: 300
+          y: 60
+          w: 180
+          tone: accent
+          detail: |
+            Each component's business logic sub-component is a Business Logic Implementation Thing Template
+            (extending the abstract Base Business Logic) implemented by a Thing - ThingWorx services only run on
+            Things.
+        - id: adapter
+          label: WCAdapter
+          sublabel: entity providers
+          x: 300
+          y: 170
+          w: 180
+          tone: accent
+          detail: |
+            A system Thing whose entity providers (Part, Document, Change Request, Work Item, Problem Report and
+            more) read the input JSON and configuration, build the WRS query and turn the result into a
+            **Common Communication Object (CCO)** in JSON.
+        - id: conn
+          label: OData Connector
+          sublabel: integration Thing
+          x: 300
+          y: 280
+          w: 180
+          tone: warning
+          detail: The integration connector Thing that authorizes ThingWorx against Windchill - base URL, authentication, CSRF settings and service root URLs per domain.
+        - id: wrs
+          label: WRS endpoint
+          sublabel: /servlet/odata/...
+          x: 650
+          y: 170
+          w: 140
+          shape: cylinder
+          tone: success
+          detail: Windchill REST Services expose Windchill types as OData entity types and sets, e.g. the ChangeMgmt domain. Windchill access control still applies to every row.
+      edges:
+        - { from: tasks, to: logic, label: service call }
+        - { from: logic, to: adapter }
+        - { from: adapter, to: conn }
+        - { from: conn, to: wrs, label: OData GET }
+        - { from: adapter, to: details, label: CCO JSON, dashed: true }
+        - { from: tasks, to: details, label: SelectedItems }
+    chapters:
+      - title: The list loads
+        caption: The **Item List** asks its business logic for Maya's review tasks.
+        show: [tasks, logic]
+        highlight: [tasks]
+        flow: [tasks>logic]
+        seconds: 5
+      - title: Build the query
+        caption: Business logic calls the **WCAdapter**, which assembles query parameters from the configuration JSON.
+        show: [tasks, logic, adapter]
+        highlight: [adapter]
+        flow: [logic>adapter]
+        seconds: 6
+      - title: Ask Windchill
+        caption: The request goes through the integration connector to a **WRS** endpoint. Windchill only returns what Maya may see.
+        show: [tasks, logic, adapter, conn, wrs]
+        highlight: [conn, wrs]
+        flow: [adapter>conn, conn>wrs]
+        seconds: 6
+      - title: Selection drives detail
+        caption: Maya ticks a task. The **SelectedItems** binding feeds the detail components, which load activity, tiles and attributes as **CCO** JSON.
+        highlight: [details]
+        flow: [tasks>details, adapter>details]
+        seconds: 7
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Components are not blank widgets: they already know Windchill types, respect Windchill access control and
+      come with predefined configurations. Building from them instead of raw widgets turns a months-long UI
+      project into configuration. A custom task is still a real project, though - PTC's team model includes a
+      project manager, developers, adoption/training, IT for certificates and SSO, and a business process
+      consultant.
+
+  - type: comparison
+    title: The components Theo has to pick from
+    columns: [What it shows, Typical use]
+    rows:
+      - label: Item List
+        cells: ["Flat list or structure tree; predefined configs incl. Tasks, Activity, Affected Items, Attachments, Drawings, Part Structure", "The main list users pick from"]
+      - label: Item Identity
+        cells: ["Identity panel for a document, part or task, with an embedded Action Bar", "Header of a detail page"]
+      - label: Tiles
+        cells: ["Name-value tiles (2 by default, more by configuration)", "Short, critical facts like state or priority"]
+      - label: Attributes
+        cells: ["Attribute list, vertical or horizontal, with size limits", "Longer text like description or proposed solution"]
+      - label: Action Bar
+        cells: ["Action buttons; extras under the ellipsis", "Embedded in Item List and Item Identity"]
+      - label: Progress
+        cells: ["Visual summary of task progress incl. board votes", "Change board status"]
+    takeaway: "Tiles for brief critical data; Attributes when the text is long."
+
+  - type: walkthrough
+    title: Build "E1 Change Tracker" end to end
+    who: Theo, ThingWorx developer with an administrator account in Composer
+    where: [ThingWorx Composer]
+    steps:
+      - title: One project per custom task
+        where: [Composer, New, Project]
+        md: |
+          Create `Acme.ChangeTracker.Project` with the tag **CustomizedApps:Custom apps**, then set it as the
+          **project context** so every new entity lands in it. Exporting this project is how the task later moves
+          from test to production.
+      - title: Create your own connector
+        where: [Composer, Browse, Integration Connectors, "+"]
+        md: |
+          Choose the **PTC.WCODataConnectorThingTemplate** template and name the Thing
+          `Acme-ChangeTracker-OData-Connector`. A dedicated instance (rather than editing the out-of-the-box
+          **ptc-windchill-OData-connector**) keeps upgrades smooth and lets you add your own routes.
+      - title: Point it at Windchill
+        where: [Connector, Configuration tab]
+        md: |
+          Set authentication, the **CSRF** settings (relative URL `/servlet/odata`, token name `CSRF_NONCE`), and
+          the HTTP **Base URL** of the Windchill host - with `sslClientAuth` appended when using Windchill
+          authentication. Adjust the **service root relative URLs** to the domain versions you need, e.g.
+          `v8/ChangeMgmt`.
+      - title: Add a route service
+        where: [Connector, Services tab, Add, Route]
+        md: |
+          Map a service such as `Changeables_GET_ByID` to the endpoint for
+          `/v8/ChangeMgmt/Changeables('{ID}')` (GET). Prototype requests first in the Windchill API Catalog
+          (**Navigator → Customization → OData REST APIs**) or a tool like Postman.
+      - title: Test the connection
+        where: [Connector, Services, ValidateConnection]
+        md: |
+          Expect **200 OK**. Then run **GetEndpointList** to see the data model as JSON. Response codes for all
+          connectors are under **Monitoring → Status → Integration Connectors**.
+      - title: Build the mashup
+        where: [Composer, New, Mashup]
+        md: |
+          Start from a responsive template, name it `Acme.ChangeTracker.Mashup` and tag it
+          **TWXNavigate:AppMashup**. Drag in an **Item List** (configuration *Tasks*) and a second Item List
+          (configuration *Activity*), plus **Tiles** and **Attributes**.
+      - title: Bind selection to detail
+        where: [Task list component, menu, Configure Bindings]
+        md: Bind **SelectedItems** to the **Input** of each detail component. Save and **View Mashup** to test.
+      - title: Put it on the landing page
+        where: [Composer, New, Thing]
+        md: |
+          Create `Acme.ChangeTracker.AppThing` with base template
+          **PTC.Converge.App.Customized.AccessAppConfigTemplate** (not the similarly named AccessAppTemplate),
+          implemented shape **PTC.CustomAccessAppThingShape** and **Home Mashup** = your mashup. Set the
+          `useCaseNameToken` property to the tile name and `appIcon` to a Media entity holding the icon.
+      - title: Grant access and switch it on
+        where: [Navigate landing page, Custom tasks collection, Edit Collection]
+        md: |
+          Only administrators can open a custom task by default. Grant visibility, design time and run time
+          permissions on the mashup and other entities to the user groups, then toggle the task on per role.
+    result: '"E1 Change Tracker" shows up in the Custom tasks collection for Maya''s change board role.'
+
+  - type: text
+    md: |
+      ### The JSON part: a generic configuration
+
+      Predefined configurations (like *Tasks*) come filled in. A **generic** configuration is an empty starting
+      point - for Tiles and Attributes you set the **objectType** and list the attributes with **ordinals**
+      (display order). Here is the shape of a Tiles configuration Theo writes for change requests (trimmed to the
+      parts he edits):
+
+      ```json
+      {
+        "attributes": {
+          "selectedValues": {
+            "data": [{
+              "itemListsData": [{
+                "objectType": "PTC.ChangeMgmt.ChangeRequest",
+                "items": [
+                  { "id": "State#Display",           "ordinal": 2 },
+                  { "id": "RequestPriority#Display", "ordinal": 3 },
+                  { "id": "NeedDate",                "ordinal": 4 }
+                ]
+              }],
+              "adapter": { "instanceName": "windchill", "thingName": "PTC.WCAdapter" }
+            }]
+          }
+        }
+      }
+      ```
+
+      Rules that bite:
+      - Attributes of **Enum** type in Windchill get a `#` suffix (`State#Display`).
+      - In a **custom** configuration the lowest ordinal is **2**; 0 and 1 are fine only when modifying a
+        predefined configuration.
+      - Generic Tiles and Attributes accept properties of PTC.ProdMgmt.Part, PTC.CADDocumentMgmt.CADDocument,
+        PTC.Workflow.WorkItem and PTC.ChangeMgmt.ChangeRequest. The **PTC.ComponentMetadata** data table
+        (service *GetDataTableEntries*) lists the valid object types.
+      - The Configuration editor checks syntax and **won't save invalid JSON**. For Attributes with
+        `layout` = horizontal, both `maxHeight` and `maxWidth` are required.
+
+  - type: scenario
+    variant: what-if
+    title: What if it doesn't work on the first try?
+    start: s1
+    nodes:
+      - id: s1
+        md: Theo runs **GetEndpointList** on the new connector and gets an error. What's the first thing to look at?
+        choices:
+          - label: The Base URL - does it include a ThingWorx port number?
+            next: s2
+            good: true
+            feedback: One of PTC's listed fixes. Also check typos in the connector fields and deprecated endpoint versions.
+          - label: Rebuild the mashup from scratch
+            next: f1
+            feedback: The mashup isn't involved yet. This is a connector problem.
+      - id: s2
+        md: |
+          Fixed - the connector works and the mashup runs for Theo. Maya opens Navigate: no Change Tracker tile in
+          the Custom tasks collection. Why?
+        choices:
+          - label: Users lack visibility and run time permissions on the task's entities, or the task isn't toggled on for her role
+            next: ok
+            good: true
+            feedback: By default only administrators can access a custom task.
+          - label: The mashup is missing the PLMAppsRolesTag tag
+            next: p1
+            feedback: That tag is for role user groups. The home mashup needs TWXNavigate:AppMashup.
+      - id: ok
+        md: Theo grants the change board's group the permissions, Jordan toggles the task on in Edit Collection, and Maya's tile appears.
+        outcome: success
+      - id: p1
+        md: Wrong tag for the job. Check permissions on the mashup and entities, then role visibility.
+        outcome: partial
+      - id: f1
+        md: A rebuilt mashup still calls the same broken connector. Debug from the data side outward.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Editing the out-of-the-box connector or entities in place.** It works until the next upgrade. Create your
+      own connector instance and keep every entity in the task's own project. Note that one connector can serve
+      several custom tasks - and if your task uses Info*Engine tasks, PTC recommends the out-of-the-box
+      ptc-windchill-OData-connector.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Before writing any JSON, sit with two or three users, watch their current workflow and sketch the screens.
+      If the task needs several connected mashups, draw a sitemap. Requirements decide which components you need -
+      and which WRS routes.
+
+  - type: flashcards
+    cards:
+      - { front: Three parts of a custom task, back: "A mashup, one or more data sources and an integration connector (OData Connector using WRS)." }
+      - { front: Tag for a custom task's home mashup, back: "TWXNavigate:AppMashup." }
+      - { front: ValidateConnection, back: "Connector service that checks ThingWorx can reach the back end - expect 200 OK." }
+      - { front: WCAdapter, back: "System Thing whose entity providers build WRS queries and return CCO JSON to components." }
+      - { front: Lowest ordinal in a custom configuration, back: "2 (0 and 1 only when modifying predefined configurations)." }
+      - { front: Enum attributes in component JSON, back: "Add a # suffix, e.g. State#Display." }
+
+  - type: summary
+    points:
+      - Build custom tasks only when tailoring an out-of-the-box task can't meet the need.
+      - A custom task is a mashup, data sources and an integration connector; the OData Connector reaches Windchill through WRS.
+      - Navigate components are composites (UI, business logic, model, data adapter) configured with JSON, predefined or generic.
+      - Bindings pass SelectedItems from one component to the Input of others.
+      - A Thing based on AccessAppConfigTemplate points to the home mashup and puts the tile in the Custom tasks collection; permissions and role toggles control who sees it.

@@ -1,0 +1,109 @@
+id: m07-s12-check
+subtitle: CSM, suppliers, contexts and rules, AMLs and AVLs, part requests - prove you can keep Acme's bought parts under control.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [supplier-management, suma, checkpoint]
+sources:
+  - id: suma
+    where: "Module 1: CSM process; SUMA capabilities; Install SUMA. Module 2: Types of external suppliers; Manufacturers versus vendors; Register and qualify suppliers; Sourcing contexts and rules. Module 3: Manufacturer parts and AMLs; Vendor parts and AVLs; Manage the AMLs and AVLs; Specify settings for AMLs and AVLs. Module 4: Part request; Initiate a new part request; Workflow of a part request; Create OEM part with reference AML task"
+  - id: te
+    where: "Integrate and manage supply chain data; What is the Component and Supplier Management (CSM) process?; Request a new part using Supplier Management: process"
+  - id: hc-suma-pr-lifecycle
+    label: PTC Help Center supplement
+    title: "Life Cycle States of the Part Request Process"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/suppliermgmt/SumaNPRConfigureLifecycle.html"
+    covers: "Part request life cycle states"
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **supplier management**: the CSM process, manufacturers and vendors, sourcing
+      contexts and rules, AMLs and AVLs, and part requests. Score 80% to pass. Every answer explains
+      itself.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: multi
+        prompt: Which Windchill modules make up PTC's Component and Supplier Management (CSM) solution? (Choose all that apply.)
+        options: [PartsLink (Parts Classification), Supplier Management (SUMA), MPMLink, ProjectLink]
+        answers: [0, 1]
+        explanation: CSM combines classification (to find parts) with supplier management (to control sources). MPMLink and ProjectLink are separate modules.
+      - kind: truefalse
+        prompt: SUMA can be installed on a standalone ProjectLink server.
+        answer: false
+        explanation: SUMA runs on PDMLink, including a server where PDMLink and ProjectLink are co-installed, but not on a standalone ProjectLink server.
+      - kind: single
+        prompt: Northgate Distribution sells Brakeworks calipers but makes nothing. How is it set up in SUMA?
+        options: [As a manufacturer, As a vendor, As a sourcing context, As an OEM part]
+        answer: 1
+        explanation: A vendor sells products made by others; its catalogue items become vendor parts on AVLs. Brakeworks, the maker, is the manufacturer.
+      - kind: single
+        prompt: Hana registered Voltra Cells yesterday. Can engineers treat it as approved for use today?
+        options: ["Yes - registration approves it", "No - registration only records it; qualification (e.g. Pending to Qualified) decides use", "Only in the default sourcing context", "Only after it has a vendor part"]
+        answer: 1
+        explanation: Registration gathers information; qualification evaluates it. The supplier's life cycle state (default Qualified Supplier life cycle) tracks that decision.
+      - kind: multi
+        prompt: Which statements about sourcing contexts and rules are true? (Choose all that apply.)
+        options: ["An OEM part can have a different AML and AVL per sourcing context", "A default sourcing context always exists and can't be deleted", "New rules automatically rewrite statuses on existing AML entries", "Executing a rule changes matching parts without checking them out"]
+        answers: [0, 1, 3]
+        explanation: Rules apply automatically only to new AML/AVL entries; to change existing ones you execute the rule, which updates matching parts without check-out (skipping parts someone has checked out).
+      - kind: single
+        prompt: Which part can have an AML and AVL?
+        options: [A part with Source = Make, A part with Source = Buy or Buy - Single Source, Any vendor part, Any CAD document]
+        answer: 1
+        explanation: AMLs and AVLs belong to OEM (internal) parts, which are bought - Source Buy or Buy - Single Source.
+      - kind: order
+        prompt: Order the out-of-the-box sourcing statuses from lowest to highest rank.
+        items: [Do not use, Approved, Preferred]
+        explanation: The values are 20, 40 and 60. A custom status such as Recommended slots in by its number - higher ranks higher.
+      - kind: truefalse
+        prompt: Removing a manufacturer part from an OEM part's AML also removes the vendor parts linked under it.
+        answer: true
+        explanation: The cascade only goes one way - removing a vendor part leaves the manufacturer part in place. Use annotations to propose such changes safely.
+      - kind: single
+        prompt: Kai attaches an OEM part, its Brakeworks manufacturer part and the AML to a new part request up front. If the Component Engineer finds them suitable, what happens?
+        options: ["The PR is cancelled as a duplicate", "It follows Fast Track - AML creation and implementation are skipped", "It goes straight to Released without review", "The parts are deleted and recreated"]
+        answer: 1
+        explanation: Fast Track shortens the route when suitable parts are attached, but the request is still reviewed.
+      - kind: single
+        prompt: The Create OEM Part with Reference AML task keeps coming back to Hana. Which cause matches the workflow's checks?
+        options: ["The PR Team is empty", "No resultant part is attached, or the attached part isn't an OEM part", "The MCD was not provided", "The part isn't classified"]
+        answer: 1
+        explanation: The task re-executes with special instructions when no resultant part is attached or the resultant part's Source isn't Buy or Buy - Single Source.
+
+  - type: flashcards
+    title: Supplier management deck
+    cards:
+      - front: CSM steps
+        back: Request a new part · manage supplier parts · qualify new suppliers · classify parts · manage the classification structure.
+      - front: Manufacturer vs vendor
+        back: A manufacturer makes the part; a vendor sells parts made by others. Most companies use manufacturers only.
+      - front: Registration vs qualification
+        back: Registration records a supplier's information; qualification decides use or non-use (life cycle state).
+      - front: Sourcing context
+        back: Conditions like a plant or product line under which an OEM part has its own AML and AVL. A default context always exists.
+      - front: Sourcing rule
+        back: Sets sourcing status by supplier, context and (with PartsLink) classification node; execute it to apply to existing entries.
+      - front: AML vs AVL
+        back: "AML: which manufacturer can I use? AVL: where can I buy it?"
+      - front: Sourcing status values
+        back: Do not use 20, Approved 40, Preferred 60 - plus custom values; higher ranks higher.
+      - front: AML/AVL spreadsheet import
+        back: Adds or changes links between existing parts only - it can't create parts.
+      - front: Part request (PR)
+        back: Controlled workflow that ends in a released OEM part with an AML; starts from New Part Request.
+      - front: Resultant part
+        back: The OEM part attached to the PR as its outcome - must be Source Buy or Buy - Single Source.
+      - front: PR life cycle states (out of the box)
+        back: Open, In Work, Under Review (optional), Implementation, Pending Approval, Released, Canceled.
+      - front: PR Monitor
+        back: The creator's task to track the request or cancel it.
+
+  - type: summary
+    points:
+      - CSM is PartsLink plus SUMA - find, select and reuse preferred parts and suppliers.
+      - Suppliers are manufacturers or vendors, registered then qualified; sourcing contexts and rules shape where and how they're approved.
+      - OEM parts (Source Buy) carry AMLs and AVLs with ranked sourcing statuses per context.
+      - The part request workflow turns a request into a reviewed, sourced, modelled and released OEM part.

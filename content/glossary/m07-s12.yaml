@@ -64,3 +64,23 @@
   definition: A SUMA object, with its own life cycle and out-of-the-box workflow, that a design engineer creates to ask for a new OEM part. The workflow checks the request is complete and not a duplicate, has a component engineer create the OEM part and its AML (the resultant part), gathers CAD data, an optional material composition declaration, the AVL and cost estimates, and ends by releasing the part. A Fast Track route skips some steps when suitable parts are attached up front. The PR iterates on each check-in and can be revised.
   aka: [PR, New part request]
   related: [supplier-management, oem-part, workflow, life-cycle]
+
+- id: resultant-part
+  term: Resultant part
+  plain: The part a part request ends up producing.
+  definition: The OEM part attached to a part request as its outcome. In the out-of-the-box workflow the component engineer creates the OEM part and its AML and attaches it by editing the part request. The part must have Source set to Buy or Buy - Single Source; if no resultant part is attached, or it is not an OEM part, the task is run again with special instructions saying why. At the end of a successful request it is released together with its manufacturer parts.
+  related: [part-request, oem-part, approved-manufacturer-list]
+
+- id: part-request-fast-track
+  term: Fast Track (part request)
+  plain: The shortcut route for a part request when the parts are already prepared.
+  definition: A shorter route through the out-of-the-box part request workflow. The design engineer creates the OEM part, a matching manufacturer part and the AML ahead of time and attaches them to the request. If the component engineer finds them suitable, the AML creation and implementation steps are skipped. Fast Track is one of the routing choices at the PR Review activity.
+  aka: [Fast Track workflow]
+  related: [part-request, resultant-part]
+
+- id: material-composition-declaration
+  term: Material Composition Declaration (MCD)
+  plain: The maker's statement of what substances are inside a part.
+  definition: A document declaring the substances within an OEM part. In the out-of-the-box part request workflow, the Request MCD from Mfr task follows the creation of the OEM part and its AML; if the manufacturer has one, it is attached to the manufacturer parts on the AML. It may be stored in a library with environmental compliance information or point to a quality database, and one MCD can be shared by several manufacturer parts.
+  aka: [MCD]
+  related: [part-request, manufacturer-part]

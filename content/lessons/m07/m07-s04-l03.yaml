@@ -1,0 +1,387 @@
+id: m07-s04-l03
+subtitle: Before the next latch rattles, ask "how could this fail, how bad would it be, and would we even notice?" That's an FMEA.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [quality, fmea, risk, reliability, windchill-risk-and-reliability, rpn]
+sources:
+  - id: hc-wrr
+    label: PTC Help Center supplement
+    title: "What Is Windchill Risk and Reliability?"
+    url: "https://support.ptc.com/help/wrr/r13.1.0.0/en/wrr/ReferenceGuide/preface/what_windchill_risk_reliability.html"
+    covers: "Windchill Risk and Reliability as an integrated toolset; tool groupings (reliability evaluation, risk assessment, specific use tools)"
+  - id: hc-wrr-fmea-theory
+    label: PTC Help Center supplement
+    title: "FMEA Theory (Windchill Risk and Reliability 13.1.0.0)"
+    url: "https://support.ptc.com/help/wrr/r13.1.0.0/en/wrr/ReferenceGuide/fmea/fmea_theory.html"
+    covers: "Definition of FMEA and FMECA; criticality analysis"
+  - id: hc-wrr-fmea-types
+    label: PTC Help Center supplement
+    title: "FMEA Types"
+    url: "https://support.ptc.com/help/wrr/r13.1.0.0/en/wrr/ReferenceGuide/fmea/fmea_types.html"
+    covers: "Process, functional (interface) and component FMEAs"
+  - id: hc-wrr-fmea-process
+    label: PTC Help Center supplement
+    title: "The FMEA Process"
+    url: "https://support.ptc.com/help/wrr/r13.1.0.0/en/wrr/ReferenceGuide/fmea/the_fmea_process.html"
+    covers: "FMEA steps; effects on item, system and mission; design changes and repeat until risk is acceptable; risk categories"
+  - id: hc-wrr-criticality
+    label: PTC Help Center supplement
+    title: "Criticality Assessment Methods"
+    url: "https://support.ptc.com/help/wrr/r13.1.0.0/en/wrr/ReferenceGuide/fmea/criticality_assessment_methods.html"
+    covers: "RPN = Severity x Occurrence x Detection; RPN ranges; cut-off values; Mode Criticality, Criticality Rank and Risk Level"
+  - id: hc-wrr-integration
+    label: PTC Help Center supplement
+    title: "Windchill Integration (Enterprise Edition Only)"
+    url: "https://support.ptc.com/help/wrr/r13.1.0.0/en/wrr/ReferenceGuide/basics/windchill_integration_enterprise_edition_only_.html"
+    covers: "BOM import from Windchill PDMLink or MPMLink; global attributes linked to DVPs and control plans; Windchill change objects created from problems; licences"
+  - id: hc-cem
+    label: PTC Help Center supplement
+    title: "The Windchill Customer Experience Management Process"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wqcem/WQCEMOview.html"
+    covers: "Customer experiences coded with failure modes, effects and risk codes from design when paired with risk and reliability"
+versionNotes:
+  - versions: ["All releases"]
+    md: |
+      **FMEA lives in Windchill Risk and Reliability, a separate PTC product** with its own installation,
+      licences, Help Center and release numbers (this lesson used its 13.1.0.0 Help Center). It is not part of
+      core Windchill PLM. Everything in this lesson is a **PTC Help Center supplement** - none of it comes
+      from the Windchill course guides. Whether it is available alongside [[windchill-plus|Windchill+]] is
+      not confirmed by these sources.
+
+blocks:
+  - type: callout
+    variant: version-note
+    versions: ["Windchill Risk and Reliability"]
+    title: Separate product - PTC Help Center supplement
+    md: |
+      [[windchill-risk-and-reliability]] is a **separate PTC product**, licensed on its own. Your Windchill
+      PLM site may not have it at all. The facts in this lesson come from the Windchill Risk and Reliability
+      13.1.0.0 Help Center, labelled **PTC Help Center supplement**.
+
+  - type: text
+    md: |
+      The battery-latch CAPA is closed. Kai, now planning the **Scooter S2** refresh, asks Leo a sharper
+      question: *"Could we have seen the latch problem coming?"*
+
+      Yes - with an **FMEA**. Instead of waiting for riders to complain, the team lists every way a part or
+      process could fail, what that failure would do, and how risky each one is. Then they fix the riskiest
+      ones on paper, while a fix is still a CAD edit and not a recall.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "what could fail, what happens then, how bad is it" → [[fmea|FMEA]] (failure mode and effects analysis)
+      - "the way something fails" → **failure mode**
+      - "ranking how harmful the effects are" → **criticality analysis** - FMEA plus criticality is an **FMECA**
+      - "how bad × how likely × how hard to spot" → [[risk-priority-number|RPN]]
+      - "PTC's risk and reliability toolset" → [[windchill-risk-and-reliability]]
+
+  - type: diagram
+    title: What's inside Windchill Risk and Reliability
+    caption: Three groups of tools. FMEA sits in Risk Assessment. Click a box.
+    diagram:
+      width: 820
+      height: 330
+      groups:
+        - { label: Reliability evaluation, x: 20, y: 20, w: 250, h: 290, tone: info }
+        - { label: Risk assessment, x: 290, y: 20, w: 250, h: 290, tone: danger }
+        - { label: Specific use tools, x: 560, y: 20, w: 240, h: 290, tone: neutral }
+      nodes:
+        - id: prediction
+          label: Prediction
+          x: 50
+          y: 70
+          w: 190
+          detail: Predicts component or system failure rates from statistical models using component and environment parameters.
+        - id: rbd
+          label: RBD
+          sublabel: block diagrams
+          x: 50
+          y: 150
+          w: 190
+          detail: Evaluates block and phase diagrams for systems with redundancy, including maintenance, repair resources and spares.
+        - id: markov
+          label: Markov
+          x: 50
+          y: 230
+          w: 190
+          detail: Models complex systems whose behaviour depends on state and sequence.
+        - id: fmea
+          label: FMEA
+          sublabel: failure modes + effects
+          x: 320
+          y: 70
+          w: 190
+          tone: danger
+          detail: |
+            Establishes the effects of failure modes on a system and how critical they are. Supports process,
+            functional and component FMEAs, with control plans and design verification plans (DVPs) alongside.
+          real: Leo's tool for the Scooter S2 latch review.
+        - id: fta
+          label: FTA
+          sublabel: fault trees
+          x: 320
+          y: 150
+          w: 190
+          detail: Fault tree analysis - the other big risk-assessment tool. PTC's help compares FMEAs and fault trees on a page of its own.
+        - id: eventtree
+          label: Event Tree
+          x: 320
+          y: 230
+          w: 190
+          detail: Identifies possible causes of failure and events, and estimates how likely an event is from the events that lead up to it.
+        - id: fracas
+          label: FRACAS
+          x: 590
+          y: 70
+          w: 180
+          detail: Records and analyses significant incidents so corrective actions can be identified, implemented and verified.
+        - id: weibull
+          label: Weibull · ALT
+          x: 590
+          y: 150
+          w: 180
+          detail: Weibull forecasts failures from field data samples; ALT extrapolates accelerated life tests to normal stress.
+        - id: lcc
+          label: LCC · Maintainability
+          x: 590
+          y: 230
+          w: 180
+          detail: Life cycle cost (including failure and repair costs) and mean time to repair estimates.
+      edges: []
+
+  - type: text
+    md: |
+      ### How an FMEA is built
+
+      PTC's help describes the process in five moves:
+
+      1. **Define** the system or process and break it into elements, with their functions and what counts as a failure.
+      2. **Diagram** how the elements work and depend on each other (functional and reliability block diagrams).
+      3. **List failure modes** - every way each element can fail.
+      4. **Evaluate effects and severity** - for each failure mode, the worst effect on the item itself, on the system and on the mission, then a severity rating.
+      5. **Detect and act** - for critical failure modes, find detection methods and compensating provisions; see if a design change can remove the failure mode, or at least make it less likely or less harmful. Repeat until every failure mode is an acceptable risk.
+
+      ### Reading the score
+
+      The built-in **Risk Priority Number** is **Severity × Occurrence × Detection**. High means severe,
+      likely, or *hard to detect* - so on the Detection scale a **lower** number is **better** detection.
+      With 10-point scales the RPN runs from 1 to 1,000. Sort by RPN, then set your own cut-off values for
+      high, medium and low risk.
+
+  - type: comparison
+    title: Leo's draft FMEA for the S2 battery latch
+    columns: [Failure mode, End effect, S, O, D, RPN]
+    rows:
+      - label: Latch spring
+        cells: ["Spring force too low", "Battery loosens or drops out while riding", "8", "5", "6", "240"]
+      - label: Contacts
+        cells: ["Contact corrosion", "Intermittent power loss", "6", "4", "7", "168"]
+      - label: Latch housing
+        cells: ["Housing cracks", "Latch can't lock; rider notices at once", "8", "2", "4", "64"]
+    takeaway: "Acme's own cut-offs - high from 200, medium 100 to 199, low below 100 - put the spring on top. The cut-offs are a team decision, not a PTC default."
+
+  - type: simulation
+    title: Bring the spring's RPN down
+    intro: |
+      The latch spring scores **S 8 × O 5 × D 6 = 240**. Try the two actions in either order. Watch which
+      factor each one moves - and which one never moves.
+    headline: "Spring failure mode · S {severity} × O {occurrence} × D {detection} = RPN {rpn} · {risk}"
+    initial: { severity: 8, occurrence: 5, detection: 6, rpn: 240, risk: High, spring: false, test: false }
+    actions:
+      - id: stronger-spring
+        label: Redesign with a stronger spring
+        when: { spring: false, test: false }
+        do: [{ set: { spring: true, occurrence: 2, rpn: 96, risk: Low } }]
+        log: Design change makes the failure much less likely. Occurrence 5 → 2. RPN 8 × 2 × 6 = 96.
+        blockedHint: Already redesigned.
+      - id: stronger-spring-after-test
+        label: Redesign with a stronger spring
+        when: { spring: false, test: true }
+        do: [{ set: { spring: true, occurrence: 2, rpn: 48, risk: Low } }]
+        log: Occurrence 5 → 2 on top of the test. RPN 8 × 2 × 3 = 48.
+      - id: pull-test
+        label: Add an end-of-line pull test
+        when: { test: false, spring: false }
+        do: [{ set: { test: true, detection: 3, rpn: 120, risk: Medium } }]
+        log: Weak springs are now caught before shipping. Detection 6 → 3. RPN 8 × 5 × 3 = 120.
+        blockedHint: Test already added.
+      - id: pull-test-after-spring
+        label: Add an end-of-line pull test
+        when: { test: false, spring: true }
+        do: [{ set: { test: true, detection: 3, rpn: 48, risk: Low } }]
+        log: Detection 6 → 3 on top of the redesign. RPN 8 × 2 × 3 = 48.
+      - id: start-over
+        label: Start over
+        when: { rpn: [96, 120, 48] }
+        do: [{ set: { severity: 8, occurrence: 5, detection: 6, rpn: 240, risk: High, spring: false, test: false } }]
+        log: Back to the draft - S 8 × O 5 × D 6 = 240.
+    goals:
+      - label: Get the spring out of the high band
+        when: { risk: [Medium, Low] }
+        message: Either action does it - the redesign removes more risk than the test alone.
+      - label: Reach RPN 48 with both actions
+        when: { rpn: 48 }
+        message: Severity stayed at 8 the whole time. Actions change how likely and how detectable a failure is - the harm if it happens is the same unless the design removes the effect.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      A field fix costs a recall; a design fix costs an afternoon. An FMEA forces the team to rank risks
+      *before* there is a customer experience to log - and gives quality the failure modes and risk codes
+      to classify complaints against when they do arrive.
+
+  - type: animation
+    title: How risk links to design data
+    caption: With the Enterprise Edition and the right licences, the FMEA is built on the real BOM and feeds change. Play it.
+    diagram:
+      width: 820
+      height: 340
+      groups:
+        - { label: Windchill PLM, x: 20, y: 20, w: 330, h: 300, tone: primary }
+        - { label: Windchill Risk and Reliability, x: 470, y: 20, w: 330, h: 300, tone: danger }
+      nodes:
+        - id: bom
+          label: S2 BOM
+          sublabel: PDMLink or MPMLink
+          x: 50
+          y: 60
+          w: 170
+          tone: primary
+          detail: The product structure in Windchill. A Risk and Reliability project or system file can be created from it.
+        - id: attrs
+          label: Global attributes
+          sublabel: on BOM parts
+          x: 50
+          y: 150
+          w: 170
+          tone: primary
+          detail: Windchill global attributes from the BOM can be linked to FMEA DVPs and control plans, many to many.
+        - id: change
+          label: Change objects
+          x: 50
+          y: 240
+          w: 170
+          tone: primary
+          detail: Windchill change objects can be created from problems recorded in Risk and Reliability.
+        - id: system
+          label: System tree
+          sublabel: project / system file
+          x: 500
+          y: 60
+          w: 180
+          tone: danger
+          detail: Built from the BOM and kept in step with it - you can synchronize the tree, check for part updates and highlight changed parts.
+        - id: worksheet
+          label: FMEA
+          sublabel: modes · effects · RPN
+          x: 500
+          y: 150
+          w: 180
+          tone: danger
+          detail: Failure modes are analysed against the imported parts, with DVPs and control plans attached.
+        - id: problem
+          label: Problem
+          sublabel: high-risk mode
+          x: 500
+          y: 240
+          w: 180
+          tone: warning
+          detail: A risk that needs a design fix becomes a problem - and from there a Windchill change object.
+      edges:
+        - { from: bom, to: system, label: import }
+        - { from: attrs, to: worksheet, label: link to DVP }
+        - { from: system, to: worksheet }
+        - { from: worksheet, to: problem }
+        - { from: problem, to: change, label: create }
+    chapters:
+      - title: Start from the real BOM
+        caption: The S2 BOM in Windchill becomes the system tree in Risk and Reliability. Needs the **BOM-based quality analysis** licence.
+        show: [bom, system]
+        highlight: [system]
+        flow: [bom>system]
+        seconds: 6
+      - title: Analyse the parts
+        caption: Leo's FMEA works on the imported parts, not a retyped list.
+        show: [bom, system, worksheet]
+        highlight: [worksheet]
+        flow: [system>worksheet]
+        seconds: 5
+      - title: Tie checks to attributes
+        caption: Global attributes link to DVPs and control plans - plus a **CTQ characteristic management** licence.
+        show: [bom, system, worksheet, attrs]
+        highlight: [attrs]
+        flow: [attrs>worksheet]
+        seconds: 6
+      - title: Turn risk into change
+        caption: A high-risk mode becomes a problem, and a Windchill change object is created from it - the **quality-driven change management** licence.
+        highlight: [change]
+        flow: [worksheet>problem, problem>change]
+        seconds: 7
+
+  - type: example
+    variant: real-world
+    title: From one latch to a family of scooters
+    industry: Micromobility
+    md: |
+      Leo builds a **component FMEA** for the S2 battery pack from the imported BOM. The spring failure mode
+      lands at RPN 240, so Priya redesigns the spring before release, not after. Ana asks for a **process
+      FMEA** on Lakeside's latch assembly station too - it flags a missing torque check. Both failure modes
+      get risk codes, so when a complaint does come in, it is coded against them in Customer Experience
+      Management.
+    takeaway: The FMEA is where the next closed loop starts - before the customer is involved.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Assuming every Windchill site has FMEA.** Windchill Risk and Reliability is a separate product, and
+      the Windchill integration (BOM import, attribute links, change objects) is **Enterprise Edition
+      only** and needs extra integration licences. Check what your company owns before you design a
+      process around it.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      RPN is not the only ranking. Risk and Reliability also supports **Mode Criticality** (MIL-STD-1629),
+      **Criticality Rank** and a **Risk Level** matrix that plots severity against occurrence. A severity-10
+      failure mode with a modest RPN deserves a second look - a risk matrix makes it visible.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Severity 7, Occurrence 3, Detection 8. What is the RPN?
+        options: ["18", "56", "168", "210"]
+        answer: 2
+        explanation: RPN = Severity × Occurrence × Detection = 7 × 3 × 8 = 168.
+      - kind: single
+        prompt: On the Detection scale used in the RPN, what does a high number mean?
+        options: [The failure is easy to detect, The failure is hard to detect, The failure is very likely, The failure is very severe]
+        answer: 1
+        explanation: The highest RPN marks the most severe, most likely or least likely to be detected failure mode - so high Detection means hard to detect.
+      - kind: truefalse
+        prompt: FMEA is a standard feature of every Windchill PLM installation.
+        answer: false
+        explanation: FMEA is part of Windchill Risk and Reliability, a separate PTC product with its own licences.
+      - kind: multi
+        prompt: With the Enterprise Edition and the right licences, what can Risk and Reliability do with Windchill? (Choose all that apply.)
+        options: [Create projects from Windchill BOMs, Link global attributes to DVPs and control plans, Create Windchill change objects from problems, Release parts directly in Windchill]
+        answers: [0, 1, 2]
+        explanation: Those three are the documented integration features. Releasing parts still happens through Windchill change management.
+      - kind: single
+        prompt: "What is an FMECA?"
+        options: [An FMEA that adds a criticality analysis, A fault tree, A Weibull analysis of field data, A CAPA for FMEAs]
+        answer: 0
+        explanation: Analysing how harmful the end effects are is criticality analysis; FMEA plus criticality is an FMECA. PTC's help uses "FMEA" for both.
+      - kind: order
+        prompt: Put the FMEA steps in order.
+        items: [Define the system and its elements, Draw functional and reliability block diagrams, Identify failure modes, Evaluate effects and assign severity, Find detection methods and corrective actions]
+        explanation: Define, diagram, list failure modes, judge effects, then act - and repeat until every risk is acceptable.
+
+  - type: summary
+    points:
+      - FMEA lives in Windchill Risk and Reliability - a separate PTC product. This lesson is a PTC Help Center supplement.
+      - An FMEA lists failure modes, judges their effects and ranks their criticality; with a criticality analysis it is an FMECA.
+      - RPN = Severity × Occurrence × Detection; high Detection means hard to detect; 10-point scales give 1 to 1,000.
+      - Design changes lower occurrence or remove the failure mode; better checks lower detection; teams set their own cut-offs.
+      - With the Enterprise Edition and licences, FMEAs are built from Windchill BOMs, linked to attributes, and can create Windchill change objects.

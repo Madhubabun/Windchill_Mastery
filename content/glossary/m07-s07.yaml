@@ -65,3 +65,37 @@
   plain: The connected flow of product data from engineering out to manufacturing, service and the rest of the company.
   definition: The idea that product data starts in engineering (PLM) and is carried, without re-typing, across the other functions of the enterprise such as manufacturing, ERP and service. PTC's materials connect it to Windchill REST Services (which expose Windchill data to other systems), ESI (which links the digital and physical product value chain) and Windchill Navigate's Connected PLM offering built on ThingWorx.
   related: [plm, erp, mes, thingworx, windchill-rest-services]
+
+- id: wrs-custom-configuration-path
+  term: WRS custom configuration path
+  plain: The folder where your own API changes live, so PTC updates never overwrite them.
+  definition: The folder codebase/rest/custom/domain under the WRS configuration home (codebase/rest). It is not created at installation, so you create it, and WRS updates leave it untouched. WRS merges what it finds there with the PTC configuration path (codebase/rest/ptc/domain), whose files must not be modified, to build one view of each domain. Extensions of PTC domains mirror the PTC folder structure (domain, version, entity) here; new domains get their own folder.
+  aka: [Custom configuration path, rest/custom/domain]
+  related: [wrs-domain, windchill-rest-services, wrs-entity-configuration]
+
+- id: wrs-entity-configuration
+  term: WRS entity configuration files
+  plain: The pair of files that define one kind of object in the API - a JSON file for what it has, a JavaScript file for how it behaves.
+  definition: For each entity in a domain version's entity folder, a JSON file named with the plural entity name (for example Parts.json) and a JavaScript file of the same name. The JSON file gives basic information (name, collectionName, type wcType or basic, wcType, operations), structural properties (attributes), navigation properties (navigations), bound functions and actions, and inherited capabilities. The JavaScript file holds the bound function and action implementations and any hooks that override or enhance default processing.
+  aka: [Entity JSON file, Entity JavaScript file]
+  related: [wrs-domain, entity-data-model, wrs-inherits, wrs-custom-configuration-path]
+
+- id: wrs-inherits
+  term: WRS inherited capabilities (inherits)
+  plain: Ticking Windchill "superpowers" onto an API entity so you don't have to define each property yourself.
+  definition: The inherits section of an entity JSON file, which lets an entity pick up properties, navigations, functions and actions from Windchill capabilities the WRS framework understands. Examples from PTC's course are lifecycleManaged (life cycle template and state), workable (CheckoutState plus CheckIn, CheckOut and UndoCheckOut actions), versioned, contextManaged, foldered, subtypeable (Type and Attribute Management subtypes appear automatically) and softattributable (soft attributes appear automatically).
+  aka: [inherits]
+  related: [wrs-entity-configuration, entity-data-model, subtype, soft-type]
+
+- id: wrs-custom-domain
+  term: WRS custom domain
+  plain: Your own topic area in the Windchill API, for data PTC's domains don't cover the way you need.
+  definition: A new Windchill REST Services domain created entirely in the custom configuration path - a domain JSON file (name, id, description, namespace, containerName, defaultVersion), a version folder such as v1 with an import.json file, and an entity folder with entity JSON and JavaScript files. PTC's course states that information can only be read from Windchill through a custom domain. Its EDM is tested at the domain's $metadata URL, and it appears in the API catalog's list of domains.
+  related: [wrs-domain, wrs-custom-configuration-path, wrs-entity-configuration, entity-data-model]
+
+- id: wrs-bound-operation
+  term: Bound function and bound action (WRS)
+  plain: An operation you call on one specific object in the API - a function only reads, an action changes something.
+  definition: Operations configured on an entity and invoked on one instance. A bound function must not create, update or delete data and is called with GET on the entity URL followed by the function name and parameters. A bound action changes the entity's state and is called with POST on the entity URL followed by the domain namespace and action name, with parameters in the request body. Both are declared in the entity JSON file and implemented in the entity JavaScript file.
+  aka: [Bound function, Bound action]
+  related: [wrs-entity-configuration, entity-data-model]
