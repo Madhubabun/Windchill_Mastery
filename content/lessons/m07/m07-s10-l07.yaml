@@ -1,0 +1,215 @@
+id: m07-s10-l07
+subtitle: Don't make users type part numbers from memory. Give them a search-and-pick button - mostly with configuration, not code.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [customization, developer, pickers, wizards, jsp, ui-framework]
+sources:
+  - id: cus-pick
+    where: "Pickers theory (picker methodology, ready picker components, tag libraries); Exercise 7 Picker for Part (definition, steps 1 to 4); Pickers.pptx exercise slides (picker flow, custom-actions.xml, partPicker.jsp, pickerAttributes.xml)"
+  - id: cus-ex
+    where: "Customization All Exercises: Pickers (action, itemPicker tag, pickerAttributes.xml)"
+  - id: cus-wiz
+    where: "Wizards theory and Exercise 6: wizard steps as actions"
+  - id: trn-framework
+    where: "Windchill Client Customization slides: training agenda (picker customization, wizard customization)"
+versionNotes:
+  - versions: ["All releases"]
+    md: |
+      The training notes that the picker approach was essentially unchanged in Windchill 11, and its tag examples
+      come from the 10.x era. Check the itemPicker tag's attributes in the Customization Guide for your release.
+  - versions: ["Windchill+"]
+    md: Picker JSPs and pickerAttributes.xml changes are customizations; deploy them to [[windchill-plus|Windchill+]] with a [[windchill-plus-ccd|CCD]] package.
+
+blocks:
+  - type: text
+    md: |
+      Field engineer Sam keeps mistyping numbers in Theo's wizards: EB-1240 becomes EB-1420 and the processor
+      fails. Kai's fix: *"Let them search for the part and click it."*
+
+      That's a **picker**: a UI element that lets users search for objects (parts, documents, users and more) and
+      add the chosen one to a form, table or process. The good news for Theo: pickers are mostly
+      **configuration**. Windchill ships ready-made ones, and he only has to choose and set one up.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "search-and-choose button" → **picker**
+      - "the picker for parts, documents and other objects" → [[item-picker]] (`<wctags:itemPicker>` tag)
+      - "the file that says which fields the picker's search offers" → `pickerAttributes.xml` (in `codebase`)
+      - "the link between the tag and that file" → **componentId**
+
+  - type: diagram
+    title: How the part picker works
+    caption: The tag draws the button; pickerAttributes.xml shapes the search; the pick comes back to your page. Click a box.
+    diagram:
+      width: 820
+      height: 360
+      nodes:
+        - id: page
+          label: Your JSP or step
+          sublabel: "<wctags:itemPicker>"
+          x: 20
+          y: 60
+          w: 190
+          tone: accent
+          shape: doc
+          detail: The page holds the itemPicker tag. It sets the object type to search, a label, the picker window's title and a componentId.
+        - id: config
+          label: pickerAttributes.xml
+          sublabel: ComponentID → attributes
+          x: 20
+          y: 230
+          w: 190
+          tone: warning
+          shape: doc
+          detail: Under a `<ComponentID id="...">` matching the tag's componentId, an `<ObjectType>` lists the search criteria attributes with a name, display name and whether each is searchable.
+        - id: search
+          label: Picker window
+          sublabel: search criteria
+          x: 260
+          y: 140
+          w: 180
+          tone: primary
+          detail: Clicking the picker's search opens the picker page. The user enters criteria (here number and name) and clicks Search.
+        - id: results
+          label: Results list
+          sublabel: matching parts
+          x: 480
+          y: 140
+          w: 160
+          tone: info
+          detail: Matching parts are listed. The user selects one and clicks OK.
+        - id: back
+          label: Pick returned
+          sublabel: selected WTPart
+          x: 670
+          y: 140
+          w: 130
+          tone: success
+          shape: pill
+          detail: The selected part comes back into the picker field on the original page.
+      edges:
+        - { from: page, to: search, label: search click }
+        - { from: config, to: search, label: criteria }
+        - { from: search, to: results }
+        - { from: results, to: back, label: OK }
+        - { from: back, to: page, dashed: true }
+
+  - type: text
+    md: |
+      **Ready-made pickers in the training:** User Picker, Organization Picker, Context Picker, **Item Picker**
+      (business objects such as parts and documents), Type Picker and Participant Picker. Pick the closest
+      ready-made one. Building a brand-new picker component is a very complex customization, so avoid it if you can.
+
+  - type: walkthrough
+    title: Add a part picker to the Quick E1 part wizard
+    who: Windchill developer (Theo)
+    where: ["<Windchill>", codebase, netmarkets, jsp, acme]
+    steps:
+      - title: Put the picker in a step JSP
+        where: [codebase, netmarkets, jsp, acme, quickE1PartDetails.jsp]
+        md: |
+          Declare the tag directory, then place the itemPicker where the user should choose a part. Wizard steps are
+          ordinary JSPs, so the picker goes into the step page:
+
+          ```jsp
+          <%@ taglib prefix="wctags" tagdir="/WEB-INF/tags" %>
+          <%@ include file="/netmarkets/jsp/util/begin.jspf" %>
+
+          <wctags:itemPicker id="acmeParentPicker" label="Parent assembly"
+              pickerTitle="Find an E1 part" objectType="wt.part.WTPart"
+              componentId="acmeE1PartPicker" showTypePicker="false" showVersion="false"/>
+
+          <%@ include file="/netmarkets/jsp/util/end.jspf" %>
+          ```
+      - title: Configure the search fields
+        where: [codebase, pickerAttributes.xml]
+        md: |
+          Add a block for your componentId so the picker searches by number and name:
+
+          ```xml
+          <ComponentID id="acmeE1PartPicker">
+            <ObjectType id="wt.part.WTPart">
+              <SearchCriteriaAttributes>
+                <Attributes>
+                  <Name>number</Name>
+                  <DisplayName>NUMBER_LABEL</DisplayName>
+                  <IsSearchable>true</IsSearchable>
+                </Attributes>
+                <Attributes>
+                  <Name>name</Name>
+                  <DisplayName>NAME_LABEL</DisplayName>
+                  <IsSearchable>true</IsSearchable>
+                </Attributes>
+              </SearchCriteriaAttributes>
+            </ObjectType>
+          </ComponentID>
+          ```
+      - title: Read the pick in the processor
+        where: [src, com, acme, windchill, forms]
+        md: |
+          The picked part is submitted with the rest of the wizard's form and reaches the form processor in the
+          NmCommandBean. The training sources don't show the exact form field name the itemPicker posts, so
+          confirm it in the Customization Guide (or by inspecting the request on a development system) before you
+          code against it.
+      - title: Or test it stand-alone first
+        where: [codebase, config, actions, custom-actions.xml]
+        md: |
+          The training first opens the picker JSP from a plain `windowType="page"` action (for example
+          `acmePartPicker`) listed in an action model. That's a quick way to check the search before wiring it into a
+          wizard.
+    result: Sam clicks the picker, searches by name for the rear hub motor, picks EB-1240 from the list and never types a number again.
+
+  - type: exercise
+    title: Picker for documents
+    environment: described
+    goal: Plan a second picker in the Note step that lets Kai attach a reference **document**.
+    steps:
+      - Choose the ready-made picker that fits (hint - documents are business objects).
+      - "Write the itemPicker tag with an objectType for documents (`wt.doc.WTDocument`), a new componentId and a clear pickerTitle."
+      - Add a pickerAttributes.xml block for that componentId with number and name as searchable attributes.
+      - Decide where the picked document will be used - which processor phase would link it to the new part?
+    expected: |
+      An itemPicker with objectType `wt.doc.WTDocument` and its own componentId (for example `acmeE1DocPicker`), a
+      matching ComponentID block, and the linking work placed inside the processor's transaction (doOperation or
+      postProcess) so it rolls back if the create fails.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **componentId mismatch.** The tag's `componentId` and the `<ComponentID id>` in pickerAttributes.xml are
+      the only link between them. Copy the string, don't retype it, or your search fields won't be the ones you
+      configured.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Picker pages use up to three tag libraries: the `wctags` tag directory (`/WEB-INF/tags`), the picker taglib
+      and the components taglib. The training's part picker sets `showTypePicker` and `showVersion` to false; look up
+      exactly what each attribute switches off in the Customization Guide before you change them.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Sam needs to choose a person to notify. Which ready-made picker fits best?
+        options: [Item Picker, User Picker, Type Picker, Context Picker]
+        answer: 1
+        explanation: The User Picker is for choosing users. The Item Picker is for business objects like parts and documents.
+      - kind: single
+        prompt: What connects an itemPicker tag to its search-field configuration?
+        options: [The pickerTitle, The componentId matching a ComponentID in pickerAttributes.xml, The action name, The objectType alone]
+        answer: 1
+        explanation: The componentId on the tag must match a `<ComponentID id>` block in codebase/pickerAttributes.xml, which lists the searchable attributes.
+      - kind: truefalse
+        prompt: According to the training, building a brand-new picker component is a light customization you should reach for first.
+        answer: false
+        explanation: The opposite. Pickers are mostly configuration of ready components; a special picker component is very complex and best avoided.
+
+  - type: summary
+    points:
+      - A picker lets users search for and select objects such as parts, documents or users into a form, table or process.
+      - Windchill ships User, Organization, Context, Item, Type and Participant pickers; choose one rather than building a new one.
+      - The itemPicker tag sets objectType, label, pickerTitle and a componentId.
+      - pickerAttributes.xml defines the searchable attributes for that componentId.
+      - Put the picker in a wizard step JSP; the pick travels with the form to the processor (check the exact field name in the guide).

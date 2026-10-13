@@ -1,0 +1,330 @@
+id: m07-s02-l01
+subtitle: The E1 comes in 3 batteries, 2 colours and 3 markets. Acme tracked that in a spreadsheet. Time to teach Windchill instead.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [options-and-variants, options, choices, rules, configurable-products]
+sources:
+  - id: ov
+    where: "Module 1: What is Windchill Options and Variants?; How are options and variants implemented in Windchill?; Module 3: Implementation process steps; Options and choices; Option types; Numeric options; Boolean options; Rules for options and choices: overview and types; Option pool; Activity: Create options and choices"
+  - id: trn-options
+    where: "Defining Options and Choices; sales vs design options and choices"
+versionNotes:
+  - versions: ["All releases"]
+    md: |
+      Options and Variants is an optional Windchill module that can be installed with Windchill or added
+      later. Licensing depends on functionality, release and implementation, so confirm with PTC before you
+      plan around it. The course behind this lesson used Windchill 13.0.1.1.
+
+blocks:
+  - type: text
+    md: |
+      Acme's sales team loves the **E-Bike E1**: three battery sizes (400, 500 and 625 Wh), two frame
+      colours (Graphite and Mint), a city, trekking or cargo trim, and versions for different markets.
+      Engineering hates it. Every combination lives in a spreadsheet that **Kai** updates by hand, and
+      last month Lakeside built a Mint bike with the Graphite frame part because row 214 was out of date.
+
+      Windchill's **Options and Variants** module moves that logic into the product data. You describe
+      what can vary (**options**), the possible answers (**choices**) and how they combine (**rules**).
+      Then Windchill filters one big structure down to exactly the bike a customer ordered.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "something that can vary, like battery size" → [[option]]
+      - "one possible answer, like 500 Wh" → [[choice]]
+      - "where all options and choices are created" → [[option-pool]]
+      - "which choices go together, and which never can" → [[choice-rule|choice rules]] (include, exclude, enable, conditional)
+      - "one structure with every possible part" → [[overloaded-bom|overloaded (150%) BOM]]
+      - "picking choices to see one bike" → [[option-filter]]
+
+  - type: diagram
+    title: From option to choice to part
+    caption: Options hold choices; choices are assigned to the parts that need them. Click a box.
+    diagram:
+      width: 820
+      height: 420
+      groups:
+        - { label: "Option pool (E-Bike E1 product)", x: 10, y: 10, w: 400, h: 400, tone: info }
+        - { label: Configurable structure EB-1000, x: 430, y: 10, w: 380, h: 400, tone: neutral }
+      nodes:
+        - id: opt-batt
+          label: Battery
+          sublabel: option · text
+          x: 30
+          y: 50
+          w: 160
+          tone: primary
+          detail: |
+            An [[option]] describes one feature that varies. Kai marks Battery as **Required** (nobody may
+            skip it) and **single-choice** (a bike has exactly one battery).
+        - id: ch-500
+          label: 500 Wh
+          sublabel: choice
+          x: 230
+          y: 50
+          w: 160
+          tone: accent
+          shape: pill
+          detail: One of three [[choice|choices]] for Battery. The others are 400 Wh and 625 Wh.
+        - id: opt-rack
+          label: Rear Rack
+          sublabel: option · Boolean
+          x: 30
+          y: 170
+          w: 160
+          tone: primary
+          detail: |
+            A **Boolean** option comes with two ready-made choices, **Yes** and **No**. Boolean options are
+            handy when the only question is "is this part on the bike or not?"
+        - id: ch-yes
+          label: "Yes"
+          sublabel: choice
+          x: 230
+          y: 170
+          w: 160
+          tone: accent
+          shape: pill
+          detail: Assigned to the rear rack part. Pick No and the rack disappears from the filtered structure.
+        - id: opt-wheel
+          label: Wheel Size
+          sublabel: option · numeric
+          x: 30
+          y: 290
+          w: 160
+          tone: primary
+          detail: |
+            A **numeric** option. Each choice has a name plus a required **Value**, and the option needs a
+            **Quantity of Measure** (such as length) when units are used. Numeric options are always
+            single-choice, and they let rules work with ranges of values.
+        - id: ch-27
+          label: '27.5"'
+          sublabel: choice · value
+          x: 230
+          y: 290
+          w: 160
+          tone: accent
+          shape: pill
+          detail: A numeric choice. Its Value can be compared in expressions, for example "larger than".
+        - id: link-batt
+          label: Battery 500 Wh
+          sublabel: "EB-1120 · Battery = 500 Wh"
+          x: 460
+          y: 50
+          w: 330
+          tone: success
+          detail: |
+            The choice is assigned to the **usage link** between the Battery Module and this pack. When the
+            option filter has Battery = 500 Wh, the pack stays in; otherwise it is filtered out.
+        - id: link-rack
+          label: Rear rack
+          sublabel: "EB-1310 · Rear Rack = Yes"
+          x: 460
+          y: 170
+          w: 330
+          tone: success
+          detail: Filtered out when Rear Rack = No - and so is everything under it, because children follow their parent.
+        - id: always
+          label: Drive unit
+          sublabel: "EB-1500 · no choice assigned"
+          x: 460
+          y: 290
+          w: 330
+          tone: neutral
+          detail: |
+            Every E1 has this drive unit, so **no choice is assigned**. Choices are only for parts that
+            depend on a condition.
+      edges:
+        - { from: opt-batt, to: ch-500 }
+        - { from: opt-rack, to: ch-yes }
+        - { from: opt-wheel, to: ch-27 }
+        - { from: ch-500, to: link-batt, label: assigned, dashed: true }
+        - { from: ch-yes, to: link-rack, label: assigned, dashed: true }
+
+  - type: animation
+    title: One structure in, one bike out
+    diagram:
+      width: 820
+      height: 320
+      nodes:
+        - { id: order, label: Customer order, sublabel: "Cargo · 625 Wh · Mint", x: 20, y: 130, w: 170, tone: accent, shape: doc }
+        - { id: filter, label: Option filter, sublabel: choices + rules, x: 230, y: 130, w: 160, tone: primary }
+        - { id: obom, label: 150% structure, sublabel: "EB-1000 · every part", x: 230, y: 20, w: 160, tone: neutral }
+        - { id: rules, label: Rules, sublabel: include · exclude, x: 230, y: 240, w: 160, tone: warning }
+        - { id: kept, label: Parts kept, sublabel: "625 Wh · Mint frame · rack", x: 450, y: 80, w: 170, tone: success }
+        - { id: dropped, label: Parts dropped, sublabel: "400/500 Wh · Graphite", x: 450, y: 190, w: 170, tone: danger }
+        - { id: bike, label: One E1, sublabel: 100% BOM, x: 660, y: 80, w: 140, tone: success, shape: pill }
+      edges:
+        - { from: order, to: filter }
+        - { from: obom, to: filter }
+        - { from: rules, to: filter }
+        - { from: filter, to: kept }
+        - { from: filter, to: dropped }
+        - { from: kept, to: bike }
+    chapters:
+      - title: Everything, all at once
+        caption: The configurable structure holds **every** battery, frame and accessory any E1 could use. That's why people call it the 150% BOM.
+        show: [obom]
+        highlight: [obom]
+        seconds: 6
+      - title: The order becomes choices
+        caption: Ana enters the order as choices in the **option filter** - Trim Line = Cargo, Frame Colour = Mint.
+        show: [obom, order, filter]
+        highlight: [filter]
+        flow: [order>filter]
+        seconds: 6
+      - title: Rules fill in the rest
+        caption: An **include rule** on Cargo pre-selects 625 Wh and Rear Rack = Yes. An **exclude rule** would block a combination Acme doesn't sell.
+        show: [obom, order, filter, rules]
+        highlight: [rules]
+        flow: [rules>filter]
+        seconds: 7
+      - title: Filtering
+        caption: Each part's assigned choices are checked. Matching parts stay; the rest drop out, together with their children.
+        show: [obom, order, filter, rules, kept, dropped]
+        highlight: [kept, dropped]
+        flow: [obom>filter, filter>kept, filter>dropped]
+        seconds: 7
+      - title: One real bike
+        caption: What's left is one buildable configuration. Saved through **Configure**, it becomes a variant - the 100% BOM.
+        show: [obom, order, filter, rules, kept, dropped, bike]
+        highlight: [bike]
+        flow: [kept>bike]
+        seconds: 6
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Product variability is everywhere: online car configurators, one engine with several variants, a
+      laptop line with thousands of builds. When the logic lives in spreadsheets, nothing checks it against
+      the real structure, so the wrong part reaches the plant. Options and Variants keeps the logic next to
+      the parts, lets you **reuse** shared parts across every variation, and gives everyone one consistent
+      way to create a new variation.
+
+  - type: comparison
+    title: The four rule types in one table
+    columns: [What it does, E1 example]
+    rows:
+      - label: Include rule
+        cells: ["Picking the source choice selects the target choices", "Trim Line = Cargo selects 625 Wh and Rear Rack = Yes"]
+      - label: Exclude rule
+        cells: ["Marks choices that may never be selected together", "Market = EU can't go with Throttle = Yes (an Acme sales policy)"]
+      - label: Enable rule
+        cells: ["Picking the source choice makes certain target choices available", "Trim Line = Trekking makes the touring saddle choices selectable"]
+      - label: Conditional rule
+        cells: ["IF an expression is true THEN enable, disable, include or require choices", "IF Market is in North America THEN include Throttle = Yes"]
+    takeaway: Include and exclude cover most needs. Use conditional rules when the trigger is a combination, and write it with "+" for AND and "/" for OR.
+
+  - type: example
+    variant: real-world
+    title: Who owns the options?
+    industry: Micromobility
+    md: |
+      PTC's course suggests an **Options Manager** role. That can be configuration engineers plus design
+      and manufacturing engineers, or a dedicated team when there are very many options. At Acme, **Kai**
+      owns the E1 option pool. Sales asks for new choices through him, and **Ana** adds manufacturing-only
+      options (for example, which Lakeside fixture is used).
+    takeaway: Treat options like parts. Someone owns them, and changes go through a process. Options and choices can be life-cycle managed.
+
+  - type: walkthrough
+    title: Create options and choices in the option pool
+    who: An options manager with access to the product (Kai)
+    where: [Browse, Products, E-Bike E1, Details, Option Pool]
+    steps:
+      - title: Open the option pool
+        where: [Navigator, Browse, Products, E-Bike E1, Details, Option Pool]
+        md: |
+          Open the product's information page and choose the **Option Pool** tab. A new product's pool is
+          empty. Options in a pool can be used by any product or library where the options manager has the
+          right access.
+      - title: Pick the option subtype
+        where: [Option Pool, left pane, Design Option]
+        md: |
+          In the left pane, choose **Design Option** (or **Sales Option**). Both subtypes behave the same;
+          they only organise the list, and you can mix them in a filter.
+      - title: Create the text options
+        where: [Design Option tab, New Option]
+        md: |
+          Click **New Option**, keep **Data Type** = *String*, and type one name per row: *Battery*,
+          *Frame Colour*, *Trim Line*, *Market*. Add rows as needed, then **OK**.
+      - title: Create numeric and Boolean options
+        where: [Design Option tab, New Option, Data Type]
+        md: |
+          Click **New Option** again. For *Wheel Size* choose **Numeric** and set its **Quantity of
+          Measure** (length). Then create *Rear Rack* and *Throttle* with **Boolean**. Boolean options
+          already have Yes and No choices.
+      - title: Add the choices
+        where: [Option Pool, "<option>", Design Choice tab, New Choice]
+        md: |
+          Select an option in the left pane, then on the **Design Choice** tab click **New Choice** and enter
+          one name per row - *400 Wh*, *500 Wh*, *625 Wh* for Battery. Numeric choices also need a
+          **Value**. Use **Expand All** to check the full pool.
+    result: |
+      The E1 option pool lists every option with its choices. Nothing is assigned to parts yet. Rules,
+      option sets and choice assignments come next in this section.
+
+  - type: callout
+    variant: pitfall
+    title: Choices on parts that are always there
+    md: |
+      Kai's first draft assigned *Battery = 500 Wh* to the drive unit "just to be safe". The 400 Wh test
+      bike then had no motor. **If a part is always included, assign no choice.** And remember that
+      filtering out a part also removes all of its children.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Use **Sales** and **Design** subtypes on purpose. PTC's supporting training notes describe one sales
+      choice (for example a navigation package) standing for several design choices underneath it. Keep
+      the names customers see in sales options, and the engineering detail in design options.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Every E1 uses the same drive unit EB-1500. Which choice should be assigned to it?
+        options: [Battery = 500 Wh, "Rear Rack = Yes", None - always-included parts get no choice, All three battery choices]
+        answer: 2
+        explanation: Choices limit a part to certain conditions. A part that is always included needs no choice; assigning one only risks filtering it out by mistake.
+      - kind: single
+        prompt: Which option type always has exactly the choices Yes and No?
+        options: [String, Numeric, Boolean, Required]
+        answer: 2
+        explanation: Boolean options come with two predefined choices, Yes and No - ideal for "is this part included?" questions such as a rear rack.
+      - kind: truefalse
+        prompt: A numeric option can allow several choices to be selected at once.
+        answer: false
+        explanation: Options with numeric values are always single-selection. Their advantage is that rules can test ranges of values.
+      - kind: single
+        prompt: Kai wants Cargo trim to pre-select the 625 Wh battery automatically. Which rule type does that?
+        options: [Exclude rule, Include rule, Enable rule, An alias]
+        answer: 1
+        explanation: An include rule selects the target choices once the source choice is selected. An exclude rule blocks combinations; an enable rule only makes choices available.
+
+  - type: flashcards
+    cards:
+      - front: Option
+        back: Something on the product that can vary, such as Battery. Holds choices. Can be Required and/or single-choice.
+      - front: Choice
+        back: One possible value of an option, such as 500 Wh. Assigned to parts or usage links and picked in the option filter.
+      - front: Boolean option
+        back: An option with the predefined choices Yes and No - used to include or leave out one part.
+      - front: Numeric option
+        back: Choices carry a Value and the option a Quantity of Measure. Always single-choice; lets rules use value ranges.
+      - front: Include rule
+        back: Selecting the source choice selects the target choices.
+      - front: Exclude rule
+        back: Defines an invalid combination of choices.
+      - front: Enable rule
+        back: Selecting the source choice makes certain target choices selectable.
+      - front: Conditional rule
+        back: IF (choices joined with + for AND, / for OR) THEN enable, disable, include or require choices.
+      - front: Sales vs design option
+        back: Two out-of-the-box subtypes that behave identically - they only help organise options.
+
+  - type: summary
+    points:
+      - Options describe what can vary; choices are the possible values; both are created in the option pool.
+      - Options can be Required or single-choice, and hold text, numeric (with a Value and Quantity of Measure) or Boolean choices.
+      - Choices are assigned only to parts whose use depends on a condition; filtering out a part removes its children too.
+      - Include, exclude, enable and conditional rules decide which combinations of choices are valid.
+      - The option filter applies choices and rules to the 150% structure to show one configuration.

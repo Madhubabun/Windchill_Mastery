@@ -1,0 +1,265 @@
+id: m07-s02-l04
+subtitle: The pool is the library, the set is the menu for one product, and rules are the fine print. Build all three for the E1.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [options-and-variants, option-pool, option-set, rules, expressions]
+sources:
+  - id: ov
+    where: "Module 3: Implementation process steps; Rules for options and choices: overview and types (include, exclude, enable, conditional, aliases); Option pool; Option sets; Assigning option choices in the configurable structure (assigning choices, advanced expressions); Additional functionalities (merging option sets, occurrence expressions); Activity: Create rules; Activity: Assign choices to parts (modules) in the configurable structure"
+  - id: trn-options
+    where: "Core concepts: option pool and option set; exporting and importing option sets via the user interface"
+  - id: hc-ov-rules
+    label: PTC Help Center supplement
+    title: "Effect of Choice Rules on Choice Selection"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/options/OptionsEffectOfRules.html"
+    covers: "A single-choice selection can't be cleared while it is the target of an include rule; exclude rules disable incompatible choices"
+
+blocks:
+  - type: text
+    md: |
+      Kai has built the E1's options and choices. Before anyone can assign them to parts, two things are
+      missing: an **option set** that says which options the E1 may use, and the **rules** that keep
+      combinations sane. Get these right and configuring a bike is clicking a few choices. Get them wrong
+      and every option filter turns into an argument.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the library of all options" → [[option-pool]] (one per product or library context)
+      - "the menu for one product" → [[option-set]], assigned to the product
+      - "reusable named logic, like 'North America'" → **expression alias**
+      - "a logical condition on a part instead of one choice" → **advanced expression**
+      - "the do's and don'ts between choices" → [[choice-rule|choice rules]]
+
+  - type: diagram
+    title: Pool, set, product, structure
+    caption: Options are created once in a pool, picked into a set, and the set is assigned to a product. Click a box.
+    diagram:
+      width: 840
+      height: 400
+      nodes:
+        - id: pool-e1
+          label: Option pool
+          sublabel: E-Bike E1 product
+          x: 20
+          y: 40
+          w: 190
+          tone: info
+          shape: cylinder
+          detail: |
+            Holds Battery, Frame Colour, Trim Line, Market, Rear Rack, Throttle, their choices, **groups**
+            (user-defined folders for options) and rules. Open it from the product's information page,
+            **Option Pool** tab.
+        - id: pool-lib
+          label: Option pool
+          sublabel: Acme Options library
+          x: 20
+          y: 230
+          w: 190
+          tone: info
+          shape: cylinder
+          detail: |
+            A shared pool in a library context, for options used across products - for example *Market*.
+            An option set can reference options from several pools.
+        - id: set
+          label: E1 Options
+          sublabel: option set
+          x: 300
+          y: 130
+          w: 190
+          tone: primary
+          detail: |
+            The [[option-set]]: a subset of options, choices and rules referenced from the pools. It is
+            life-cycle managed (it starts **In Work**, and an approval process could release it).
+        - id: product
+          label: E-Bike E1
+          sublabel: product · assigned option set
+          x: 580
+          y: 40
+          w: 220
+          tone: accent
+          detail: |
+            Assigning the option set to the product decides which options and choices can be picked when
+            filtering or configuring anything in it.
+        - id: struct
+          label: EB-1000 structure
+          sublabel: choices on usage links
+          x: 580
+          y: 230
+          w: 220
+          tone: success
+          detail: |
+            Choices are assigned to parts and usage links in the configurable structure - but only choices
+            from the assigned option set.
+      edges:
+        - { from: pool-e1, to: set, label: Manage Choices }
+        - { from: pool-lib, to: set, label: Manage Choices }
+        - { from: set, to: product, label: Assign Option Set }
+        - { from: product, to: struct, label: choices available }
+
+  - type: comparison
+    title: Rule and expression toolkit
+    columns: [Use it when, E1 example]
+    rows:
+      - label: Include rule
+        cells: ["A choice should bring other choices with it", "Cargo → 625 Wh + Rear Rack = Yes"]
+      - label: Exclude rule
+        cells: ["Two choices must never be together. Created in the pool it is global; an option set can inherit or ignore it", "Market = EU ✕ Throttle = Yes"]
+      - label: Enable rule
+        cells: ["A choice opens up extra, optional choices", "Trekking enables the touring saddle choices"]
+      - label: Conditional rule
+        cells: ["The trigger is a combination; actions are enable, disable, include or requires", "IF NA THEN include Throttle = Yes"]
+      - label: Expression alias
+        cells: ["You keep typing the same group of choices", "NA = US / CA"]
+      - label: Advanced expression
+        cells: ["A part depends on a logical combination, not one choice", "HP controller when \"625 Wh\" / \"500 Wh\" + \"Cargo\""]
+    takeaway: "\"/\" means OR and \"+\" means AND, in rules, aliases and advanced expressions alike."
+
+  - type: walkthrough
+    title: Add rules, build the option set, assign choices
+    who: Kai (options manager) and Jordan (business admin, for the preference)
+    where: [Browse, Products, E-Bike E1, Details, Option Pool]
+    steps:
+      - title: Create an include rule
+        where: [Option Pool, Trim Line, "Cargo", New Include Rule]
+        md: |
+          In the left pane, right-click the *Cargo* choice → **New Include Rule**. Click the Battery row and
+          pick *625 Wh*, the Rear Rack row and pick *Yes*. **OK**. The rule shows on the **Include Rules** tab.
+      - title: Create an exclude rule
+        where: [Option Pool, Exclude Rules tab, New Exclude Rule]
+        md: On the **Exclude Rules** tab click **New Exclude Rule**, pick *Throttle = Yes* and *Market = EU*, then **OK**.
+      - title: Turn on choice auto-suggest
+        where: [Organizations, "<org>", Utilities, Preference Management, Options and Variants, Allow Choice Auto-Suggest]
+        md: Jordan sets **Allow Choice Auto-Suggest** to *Yes*, so choice names are suggested while typing expressions.
+      - title: Create an alias and a conditional rule
+        where: [Option Pool, Expression Aliases tab, New Expression Alias]
+        md: |
+          New alias *NA* (North America) with expression *US / CA*; click **Validate**, then **Finish**. On
+          **Conditional Rules → New Conditional Rule**, enter *NA* as the expression, action **Include**,
+          choice *Throttle Yes*.
+      - title: Build the option set
+        where: [Option Sets tab, New Option Set]
+        md: |
+          Name it *E1 Options*. Decide **Allow Assignment of Exclude Choices** and **Allow Assignment of
+          Expressions to Non-Configurable Items**. Open its **Structure** tab → **Manage Choices**, select
+          the options and choices to include, **OK**.
+      - title: Assign it to the product
+        where: [E-Bike E1, Details, Option Sets tab, Assign Option Set]
+        md: Choose *E1 Options* in the list and click **OK**.
+      - title: Assign choices and expressions to parts
+        where: [EB-1000, Structure tab, "<module>", Uses tab, Assign Expression]
+        md: |
+          Select a module, right-click a child on the **Uses** tab → **Assign Expression**, pick the choice.
+          For the controller use **Assign Advanced Expression**, type the logic, click **Validate**. A saved
+          structure view with the **Assigned Usage Expressions** column shows everything at a glance.
+    result: |
+      The E1 has an assigned option set, rules that pre-select and block choices, and expressions on its
+      usage links. The option filter is ready to test.
+
+  - type: simulation
+    title: Play the rules
+    intro: |
+      This sandbox runs the E1 rules from the walkthrough: Cargo includes 625 Wh and the rack, EU excludes
+      the throttle, and the NA alias includes the throttle. Try to reach each goal - and try to break a rule.
+    headline: "Market {market} · Trim {trim} · Battery {battery} · Rack {rack} · Throttle {throttle}"
+    initial: { market: "-", trim: "-", battery: "-", rack: "-", throttle: "-" }
+    actions:
+      - id: market-eu
+        label: Market = EU
+        do: [{ set: { market: EU, throttle: "No" } }]
+        log: "EU selected. Exclude rule: Throttle = Yes is now disabled."
+      - id: market-us
+        label: Market = US
+        do: [{ set: { market: US, throttle: "Yes" } }]
+        log: "US selected. Alias NA is true, so the conditional rule includes Throttle = Yes."
+      - id: trim-cargo
+        label: Trim Line = Cargo
+        do: [{ set: { trim: Cargo, battery: 625 Wh, rack: "Yes" } }]
+        log: "Cargo selected. Include rule pre-selects 625 Wh and Rear Rack = Yes."
+      - id: trim-city
+        label: Trim Line = City
+        do: [{ set: { trim: City } }]
+        log: City selected. No include rule here - pick the battery yourself.
+      - id: batt-400
+        label: Battery = 400 Wh
+        when: { trim: [City, "-"] }
+        do: [{ set: { battery: 400 Wh } }]
+        log: 400 Wh selected.
+        blockedHint: Cargo's include rule holds the battery at 625 Wh - a single-choice target of an include rule can't be cleared.
+      - id: throttle-yes
+        label: Throttle = Yes
+        when: { market: [US, "-"] }
+        do: [{ set: { throttle: "Yes" } }]
+        log: Throttle = Yes.
+        blockedHint: Disabled - the exclude rule forbids Throttle = Yes with Market = EU.
+      - id: throttle-no
+        label: Throttle = No
+        do: [{ set: { throttle: "No" } }]
+        log: Throttle = No.
+    goals:
+      - label: "Configure an EU cargo bike"
+        when: { market: EU, trim: Cargo, battery: 625 Wh, rack: "Yes", throttle: "No" }
+        message: Include and exclude rules worked together - you clicked two choices and got five.
+      - label: "Configure a US city bike with 400 Wh and a throttle"
+        when: { market: US, trim: City, battery: 400 Wh, throttle: "Yes" }
+        message: The NA alias did the throttle for you. One alias, reused by every rule that needs "North America".
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Pools and sets separate **ownership** from **use**. Kai can maintain one *Market* option in a shared
+      library pool, and both the E1 and the Scooter S2 option sets reference it. Rename a country once and
+      every product sees it. Without that split, every product invents its own "Market" - and reports across
+      products stop matching.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Assigning choices directly to a part when you meant the usage link.** A choice on the usage link
+      applies only where the part is a child of that module. A choice set on the part's own information page
+      applies in **every** structure that uses the part. Usually you want the usage link.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Building a big product from smaller configurable products? **Merge Option Sets** pulls the option
+      sets of lower-level configurable products into the higher-level one. And to move a finished option
+      set with its rules between systems, PTC's supporting training notes describe **Export** from the
+      option set's Actions menu and import through Import/Export Management.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Where are options, choices and rules created?
+        options: [In the option set, In the option pool of a product or library, On the configurable product's Structure tab, In Preference Management]
+        answer: 1
+        explanation: The option pool is the library; option sets only reference what is in pools.
+      - kind: single
+        prompt: What must happen before choices can be assigned to parts in the E1 structure?
+        options: [The variant must exist, An option set must be created and assigned to the product, The structure must be released, A product family must exist]
+        answer: 1
+        explanation: The assigned option set determines which options and choices are available in that product.
+      - kind: multi
+        prompt: Which statements about option sets are true? (Choose all that apply.)
+        options: [They can reference options from several pools, They are life-cycle managed and start In Work, They can inherit or ignore global exclude rules, They contain the parts of the variant]
+        answers: [0, 1, 2]
+        explanation: An option set is a subset of options, choices and rules from one or more pools, managed through a life cycle. Parts are not in it.
+      - kind: single
+        prompt: 'In the expression "625 Wh" / "500 Wh" + "Cargo", what do "/" and "+" mean?'
+        options: ["/ = AND, + = OR", "/ = OR, + = AND", "Both mean OR", "They are comments"]
+        answer: 1
+        explanation: The course writes OR as "/" and AND as "+" in rules, aliases and advanced expressions.
+      - kind: single
+        prompt: The E1 controller depends on both battery size and trim. What do you assign to the controller parts?
+        options: [A Boolean choice, An advanced expression, An exclude rule, Nothing]
+        answer: 1
+        explanation: Advanced expressions select a part from a logical statement over several choices, like the course's engine chosen from wheel and frame combinations.
+
+  - type: summary
+    points:
+      - The option pool (per product or library) holds options, choices, groups, aliases and rules.
+      - An option set references a subset from one or more pools, is life-cycle managed and is assigned to a product.
+      - Include, exclude, enable and conditional rules govern choice selection; exclude rules in the pool are global.
+      - Aliases and advanced expressions use / for OR and + for AND.
+      - Assign choices to usage links (not parts) unless the condition truly applies everywhere.

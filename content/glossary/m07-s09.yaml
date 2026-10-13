@@ -1,0 +1,47 @@
+# New glossary terms introduced in section m07-s09 (Customization and extension points).
+- id: windchill-customization
+  term: Customization (Windchill)
+  plain: Changing what Windchill does by writing or changing code, not just settings.
+  definition: Adding or modifying Java code, and sometimes adding or removing files in the codebase, to meet a requirement that configuration cannot. Configuration, by contrast, is done in the user interface or with system administration tools and involves no code. PTC's course guide groups customization into lightweight, user interface (client), server, workflow and integration customization, and warns that it raises both the first cost and the ongoing maintenance cost because every update and upgrade must take it into account.
+  aka: [Customisation, Custom code]
+  related: [wt-home, codebase-directory, xconfmanager]
+
+- id: wt-home
+  term: WT_HOME
+  plain: The folder Windchill is installed in.
+  definition: The name used for the top-level Windchill installation folder that holds all Windchill files, including the codebase and src directories. Developer tools refer to it by this name; for example, the Eclipse setup in PTC's customization course adds a WT_HOME property to Eclipse's Ant runtime so build scripts can find the installation.
+  aka: [Windchill home, Windchill installation directory]
+  related: [codebase-directory, windchill-customization]
+
+- id: codebase-directory
+  term: codebase directory
+  plain: The folder of compiled code and runtime files that the running Windchill actually uses.
+  definition: The folder under WT_HOME that holds executable class files, property files and other files the Java and web runtime needs. The wt and com/ptc folders inside it hold the compiled code for PTC's packages together with resource bundles and generated ClassInfo.ser metadata files; xconf files also live here, and JSP and action files are under its netmarkets folder. Its sibling, the src directory, holds source and localizable resource files.
+  aka: [codebase]
+  related: [wt-home, windchill-customization]
+
+- id: persistable
+  term: Persistable
+  plain: A Windchill object that is saved in the database.
+  definition: The Windchill interface for business objects that the persistence layer stores, finds and updates, such as parts, documents and their masters. Server code works with persistable objects through the persistence manager (for example finding them with a QuerySpec, navigating their links or modifying them). In the client framework, an object reference that points at a stored object is distinguished from one that represents an object not yet created or not stored at all.
+  related: [link-class, master, iteration]
+
+- id: link-class
+  term: Link class
+  plain: A stored object whose only job is to connect two other objects.
+  definition: In the Windchill information model a relationship between two objects is itself a persistable object with two named roles, one for each end. Examples from the training are the alternate link between part masters, the folder membership link between a folder and its member, and the reference link between a part and a document master. Code follows a link by naming its link class and role, for example when navigating from an object or when joining classes in a query.
+  aka: [Association, Link object]
+  related: [persistable, references-link, uses-link]
+
+- id: windchill-javadoc
+  term: Windchill Javadoc
+  plain: The generated reference pages that list Windchill's Java classes and methods.
+  definition: HTML API documentation generated from comments in Windchill's Java source. It is the main place a developer checks which classes and methods exist, which are deprecated and which are marked as supported API. PTC's course reaches it through the Customization tab, which appears when the site-level preference Client Customization is set to Yes.
+  aka: [API documentation, Customization tab]
+  related: [windchill-customization, persistable]
+
+- id: swmaint-xml
+  term: swmaint.xml
+  plain: PTC's Ant script for looking after the folder where your changed copies of PTC files are kept.
+  definition: An Ant script that PTC installs in the Windchill bin folder to help manage the files you keep in the safe area's siteMod folder. Running it with the -projecthelp option lists its targets; the customization overview also uses its createSafeArea target to build the safe-area folder structure.
+  related: [wt-home, windchill-customization]

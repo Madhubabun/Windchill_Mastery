@@ -1,0 +1,291 @@
+id: m07-s10-l01
+subtitle: Every button and menu entry in Windchill is an action, and every menu is an action model. Theo adds Acme's first one.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [customization, developer, actions, action-models, ui-framework]
+sources:
+  - id: trn-framework
+    where: "Windchill Framework Customization slides: Custom Action; Action Framework Overview (StandardNmActionService, custom action files, jcaDebug, defining a new action model, defining a new action, localizing an action); directory structure"
+  - id: cus-actions
+    where: "Exercises - Action Level 1, 2, 3: creating a navigation tab (custom action model and action XML, resource bundle, ant class build); custom action in the part information page; Exercise 1 Action and ActionModel file locations"
+  - id: cus-overview
+    where: "Day 1 overview: Windchill Client Architecture, common Java services (action services), NmAction, development environment key commands"
+  - id: cust
+    where: "Introduction to Windchill Customization: types of customization; codebase and src directories; Customization tab and the Client Customization preference"
+  - id: ac
+    where: "Module on Windchill+: Deploy Windchill+ with the CCD utility"
+versionNotes:
+  - versions: ["All releases"]
+    md: |
+      The customization training behind this section was written against older releases (its build commands point
+      at a Windchill 12.1 folder). The action framework it teaches is the same idea in 13.x, but check element and
+      attribute names against the Windchill Customization Guide for **your** release before you ship.
+  - versions: ["Windchill+"]
+    md: |
+      On [[windchill-plus|Windchill+]] you don't copy files onto PTC's servers. The [[windchill-plus-ccd|CCD utility]]
+      is the only supported way to deploy customizations and configurations to Windchill+, so build and test
+      actions on an on-premises or private-cloud system first.
+
+blocks:
+  - type: text
+    md: |
+      Kai has a request for **Theo**, Acme's new Windchill developer: *"Give the E-Bike E1 team a one-click
+      **Acme tools** menu with a page that lists every E1 part."*
+
+      Theo's first discovery: nothing on a Windchill page is hard-coded. Every button, menu entry and tab link is an
+      **action** described in XML, and every menu or toolbar is an **action model** that lists actions in order.
+      Learn those two files and you can put new things almost anywhere in the UI.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a thing you can click that opens a page, popup or wizard" → [[ui-action|action]]
+      - "a menu, toolbar or tab bar: an ordered list of actions" → [[action-model]]
+      - "the file where your actions live" → `custom-actions.xml` (in `codebase/config/actions`)
+      - "the file where your menus live" → `custom-actionModels.xml` (same folder)
+      - "the service that reads those files" → **StandardNmActionService**
+      - "the file that holds translated labels and tooltips" → **resource bundle** (an `RB` Java class or `.rbInfo` file)
+
+  - type: diagram
+    title: How an action ends up on screen
+    caption: An action model points at actions; each action points at what should open. Click a box.
+    diagram:
+      width: 820
+      height: 420
+      groups:
+        - { label: codebase/config/actions, x: 20, y: 20, w: 400, h: 250, tone: primary }
+        - { label: What opens, x: 450, y: 20, w: 350, h: 250, tone: info }
+      nodes:
+        - id: model
+          label: Action model
+          sublabel: custom-actionModels.xml
+          x: 40
+          y: 60
+          w: 170
+          tone: accent
+          shape: doc
+          detail: |
+            A `<model name="...">` element lists actions in display order. Each entry is
+            `<action name="..." type="..."/>`, where **name + type** together point at one action. A model can
+            also pull in another model with `<submodel name="..."/>`, and a `separator` entry draws a divider.
+          real: Theo's model is called acmeToolsMenu.
+        - id: action
+          label: Action
+          sublabel: custom-actions.xml
+          x: 230
+          y: 60
+          w: 170
+          tone: primary
+          shape: doc
+          detail: |
+            Actions sit inside an `<objecttype name="...">` element. An action is uniquely identified by its
+            **action name and its object type**, so two types can each have an action called `create`.
+            The action holds a `<command>` (a URL, a window type and optionally a processing class) or a
+            `<component>` that names an MVC builder.
+        - id: bundle
+          label: Resource bundle
+          sublabel: labels · tooltips · icons
+          x: 135
+          y: 180
+          w: 170
+          tone: neutral
+          detail: |
+            Labels, descriptions, tooltips and icons come from a resource bundle named by the `resourceBundle`
+            attribute. Entries are keyed `<objecttype>.<action>.<purpose>`, for example a description or tooltip.
+            You can also put a literal `<label>` inside the action while prototyping.
+        - id: jsp
+          label: JSP page
+          sublabel: windowType page / popup
+          x: 470
+          y: 60
+          w: 150
+          tone: info
+          detail: A `<command url="/netmarkets/jsp/...">` opens a JSP. Custom JSPs live under `codebase/netmarkets/jsp`.
+        - id: builder
+          label: MVC builder
+          sublabel: "<component name>"
+          x: 640
+          y: 60
+          w: 150
+          tone: info
+          detail: A `<component name="...">` element opens a table or other component made by an MVC builder (next lesson).
+        - id: wizard
+          label: Wizard / processor
+          sublabel: popup + class
+          x: 555
+          y: 180
+          w: 170
+          tone: info
+          detail: A popup wizard whose `<command>` also names a form processor class with `class="..."`. Lessons 4 and 6 cover this.
+        - id: service
+          label: Action service
+          sublabel: StandardNmActionService
+          x: 40
+          y: 320
+          w: 210
+          tone: warning
+          detail: |
+            The **StandardNmActionService** manages the set of actions and action models in the system. It reads the
+            `actions*.xml` and `actionmodels*.xml` files. Developers normally don't call it directly; components
+            such as tables and menus ask it for their actions.
+        - id: page
+          label: Rendered menu
+          sublabel: toolbar · menu · tab
+          x: 300
+          y: 320
+          w: 190
+          tone: success
+          shape: pill
+          detail: |
+            When a page with a toolbar, menu or tab bar renders, the component asks for its action model and draws
+            each action. Before drawing, the validation service can hide or disable actions (lesson 5).
+      edges:
+        - { from: model, to: action, label: name + type }
+        - { from: action, to: bundle, dashed: true }
+        - { from: action, to: jsp }
+        - { from: action, to: builder }
+        - { from: action, to: wizard }
+        - { from: service, to: model, label: reads }
+        - { from: service, to: page }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Most UI requests sound like *"put a button there that does this"*. If you know actions and action models,
+      that's a few lines of XML in the custom files PTC delivers for this purpose. Editing PTC's own files instead
+      means managing every changed file in the safe area, or an update can overwrite your work.
+
+  - type: example
+    variant: real-world
+    title: The Acme tools menu
+    industry: Micromobility
+    md: |
+      Theo defines one object type, `acmeTools`, with two actions: `acmeE1Parts` opens a page listing E1 parts
+      and `acmeHelp` opens a short how-to page. A new model, `acmeToolsMenu`, lists both. To make it show up as a
+      tab next to Search and the main navigation, he adds `acmeToolsMenu` as a submodel of the navigator model.
+      Priya sees an **Acme tools** tab the next morning, and none of PTC's files were touched.
+    takeaway: New type, new actions, new model, then hook the model into an existing one.
+
+  - type: walkthrough
+    title: Add a custom action and action model
+    who: A Windchill developer with access to the Windchill server and a Windchill shell (Theo)
+    where: ["<Windchill>", codebase, config, actions]
+    steps:
+      - title: Define the actions
+        where: [codebase, config, actions, custom-actions.xml]
+        md: |
+          Add an object type with your actions. Each action gets a command that says what to open and how:
+
+          ```xml
+          <objecttype name="acmeTools" resourceBundle="com.acme.windchill.ui.AcmeToolsRB">
+            <action name="acmeE1Parts">
+              <command url="/netmarkets/jsp/acme/e1Parts.jsp" windowType="page"/>
+            </action>
+            <action name="acmeHelp">
+              <command url="/netmarkets/jsp/acme/help.jsp" windowType="page"/>
+            </action>
+          </objecttype>
+          ```
+      - title: Build the action model
+        where: [codebase, config, actions, custom-actionModels.xml]
+        md: |
+          List the actions (name **and** type) in a model, then hang the model under an existing one. Here it
+          becomes an extra tab in the navigator:
+
+          ```xml
+          <model name="acmeToolsMenu" resourceBundle="com.acme.windchill.ui.AcmeToolsRB">
+            <action name="acmeE1Parts" type="acmeTools"/>
+            <action name="acmeHelp" type="acmeTools"/>
+          </model>
+
+          <model name="navigator">
+            <submodel name="search navigation"/>
+            <submodel name="main navigation"/>
+            <submodel name="acmeToolsMenu"/>
+          </model>
+          ```
+      - title: Write the labels
+        where: [src, com, acme, windchill, ui]
+        md: |
+          Create a resource bundle class that extends `WTListResourceBundle`, annotated with `@RBUUID`, with one
+          `@RBEntry` per text. Keys follow `<objecttype>.<action>.<purpose>`:
+
+          ```java
+          package com.acme.windchill.ui;
+          import wt.util.resource.*;
+
+          @RBUUID("com.acme.windchill.ui.AcmeToolsRB")
+          public class AcmeToolsRB extends WTListResourceBundle {
+              @RBEntry("Acme tools")
+              public static final String TAB_LABEL = "object.acmeToolsMenu.description";
+              @RBEntry("E1 parts")
+              public static final String E1_PARTS = "acmeTools.acmeE1Parts.description";
+              @RBEntry("How to use Acme tools")
+              public static final String HELP = "acmeTools.acmeHelp.description";
+          }
+          ```
+      - title: Add the JSP pages
+        where: [codebase, netmarkets, jsp, acme]
+        md: Create `e1Parts.jsp` and `help.jsp` at the URLs the commands point to. JSP and action files belong under `codebase/netmarkets`.
+      - title: Compile and restart
+        where: [Windchill shell]
+        md: |
+          Compile the bundle with the `class` target of `bin/tools.xml`, for example
+          `ant -f bin/tools.xml class -Dclass.source=<Windchill>/src/com/acme/windchill/ui -Dclass.includes=AcmeToolsRB.java`.
+          When the build succeeds, restart Windchill and check the new tab.
+    result: |
+      An **Acme tools** tab appears with two links. Each label comes from the bundle; each link opens its JSP.
+
+  - type: text
+    md: |
+      **Putting an action into an existing menu.** You don't always need a new tab. To add an action to an
+      out-of-the-box toolbar or menu you need that model's **name**. Append `&jcaDebug=1` to the page URL and
+      Windchill shows the action model names on the page. Then add your action to that model through
+      `custom-actionModels.xml`, the way the training exercises place each action wherever it should appear
+      in the UI. PTC's own example adds a document *create* action to the Folders toolbar model
+      `folder_list_toolbar`, after a `separator` entry.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Name without type.** `<action name="acmeE1Parts"/>` in a model, with no `type`, won't find your action:
+      actions are identified by name **and** object type together. A typo in either one and the entry silently
+      doesn't appear, so check both against `custom-actions.xml`.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Turn on the **Customization** tab (site-level preference **Client Customization** set to **Yes**) on your
+      development system. Together with `jcaDebug=1`, it helps you debug actions and MVC builders and links to the
+      Windchill Javadoc. Its **Find Builders** search is handy in the next lesson.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Which pair uniquely identifies an action in the action framework?
+        options: [Its label and icon, Its action name and object type, Its JSP URL, Its resource bundle key]
+        answer: 1
+        explanation: Actions are identified by action name plus object type. That's why a model entry needs both `name` and `type`, and why several types can each have a `create` action.
+      - kind: single
+        prompt: Theo wants his action in an out-of-the-box toolbar but doesn't know the toolbar's model name. What's the quickest way to find it?
+        options: [Search PTC's actions.xml by hand, "Add `&jcaDebug=1` to the page URL", Ask the business admin, Restart the method server in debug mode]
+        answer: 1
+        explanation: The jcaDebug URL parameter shows debug information on the page, including action model names. Then you can add your action to that model in your custom file.
+      - kind: multi
+        prompt: Which files does Theo create or edit for the Acme tools tab? (Choose all that apply.)
+        options: [custom-actions.xml, custom-actionModels.xml, A resource bundle class in src, PTC's own actions.xml]
+        answers: [0, 1, 2]
+        explanation: Custom actions, custom models and a bundle are enough. Editing PTC's own files is what upgrades overwrite. Custom files are delivered for exactly this purpose.
+      - kind: truefalse
+        prompt: Action models can contain other action models.
+        answer: true
+        explanation: A `<submodel name="..."/>` entry pulls a whole model in. That's how the navigator model lists search, main navigation and Theo's new tab.
+
+  - type: summary
+    points:
+      - An action is something you can click. It's defined in custom-actions.xml under an object type and identified by name plus type.
+      - An action model is an ordered list of actions and submodels. It's defined in custom-actionModels.xml and drawn as a menu, toolbar or tab.
+      - The command says what opens (a JSP URL with a window type, optionally a processing class); a component element opens an MVC builder.
+      - Labels and tooltips come from a resource bundle keyed objecttype.action.purpose; compile it with the tools.xml class target and restart.
+      - "Find existing model names with jcaDebug=1, and use the Customization tab on development systems."

@@ -1,0 +1,320 @@
+id: m07-s05-l01
+subtitle: Kai has twelve weeks to get the E1 into production at Lakeside. A spreadsheet won't cut it - a Windchill project will.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [project-management, projectlink, project-plan, deliverables, milestones]
+sources:
+  - id: pm
+    where: "Module 1: Windchill Project Management overview; Project management concepts; Project management steps; Project manager role; Project plan objects; Project roles and resources. Module 2: Create a project; Select a project team; Manage the project team; Start a project; Project activities; Create an activity (general, schedule and advanced attributes); Create a summary activity; Project milestones; Create a milestone; Project deliverables; Create a project deliverable; Action items; Resolve action items; Projects with automatic project execution; Activity: Create a project. Module 3: Project status; Project state"
+  - id: te
+    where: "Manage projects and programs in Windchill; Identify project characteristics"
+
+blocks:
+  - type: text
+    md: |
+      The **E-Bike E1** design is nearly done. Now Acme has to get it built at the **Lakeside** plant:
+      fixtures, work instructions, a pilot run, a launch date. **Kai** gets the job of running it.
+
+      Last time Acme did this, the plan lived in a spreadsheet on someone's laptop. Nobody knew which
+      version was current, and "done" meant whatever the person asking wanted it to mean.
+
+      This time Kai creates a **project** in Windchill called **E1 Lakeside Launch**. The plan, the
+      people and the actual files live in the same place - and the status colours update themselves.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a team space with a schedule, for a limited time" → [[project-context|project]] (part of [[projectlink]])
+      - "the schedule" → [[project-plan]]
+      - "a step of work with a duration" → **activity**
+      - "a parent step that groups smaller steps" → [[summary-activity]]
+      - "a checkpoint date or goal" → [[project-milestone|milestone]]
+      - "the thing the step must produce" → [[project-deliverable|deliverable]]
+      - "a person, machine or room needed for a step" → **resource**; the link saying how much of it → **resource assignment**
+      - "a quick to-do outside the plan" → [[action-item]]
+
+  - type: diagram
+    title: What a project plan is made of
+    caption: Plans are trees. Status, work and dates roll up from the leaves. Click a box.
+    diagram:
+      width: 820
+      height: 440
+      groups:
+        - { label: Plan objects, x: 10, y: 10, w: 520, h: 420, tone: primary }
+        - { label: Project storage, x: 550, y: 10, w: 260, h: 420, tone: neutral }
+      nodes:
+        - id: plan
+          label: Project plan
+          sublabel: E1 Lakeside Launch
+          x: 180
+          y: 30
+          w: 180
+          tone: primary
+          detail: The top-level object. It can hold any number of activities, summary activities and milestones, and carries summary data for the whole plan. A new plan already contains **Project Start** and **Project Finish** milestones.
+        - id: summary
+          label: Summary activity
+          sublabel: Prepare the line
+          x: 30
+          y: 140
+          w: 180
+          tone: accent
+          detail: A parent of related activities, milestones or other summary activities. Its duration, work and status are calculated from its children - it no longer stores its own.
+        - id: milestone
+          label: Milestone
+          sublabel: Pilot run complete
+          x: 300
+          y: 140
+          w: 180
+          tone: warning
+          shape: pill
+          detail: |
+            A checkpoint with a duration of 0 or 1 day. A **date marker** milestone just marks a date.
+            Link deliverables to it and it becomes a **goal measurement** milestone: its finish date moves to
+            the latest deliverable finish, and its percent complete is the average of its deliverables.
+        - id: activity
+          label: Activity
+          sublabel: Build battery fixture
+          x: 30
+          y: 250
+          w: 180
+          tone: info
+          detail: A step with duration and effort. Its **owner** gets it in their task list and is responsible for it. Resources do the work - the owner and the resource can be different people.
+        - id: resource
+          label: Resource assignment
+          sublabel: Ana · 50 units
+          x: 30
+          y: 360
+          w: 180
+          tone: success
+          detail: Links an activity to a resource (person, equipment, facility or material) and says how much of it is needed. For a person, the assignment also shows up as a task. Team members automatically become resources.
+          real: Every member Kai adds to the team appears on the project's Resources page.
+        - id: deliverable
+          label: Deliverable
+          sublabel: DLV-03 fixture drawing
+          x: 300
+          y: 300
+          w: 200
+          tone: danger
+          detail: |
+            Links an activity or milestone to the output it must produce and stores percent complete, work
+            done and risk. Its **subject** is the part, document or CAD document it points to - or it can
+            stand for something kept outside Windchill.
+        - id: subject
+          label: Document / part / CAD
+          sublabel: in the project folders
+          x: 580
+          y: 300
+          w: 200
+          shape: doc
+          tone: neutral
+          detail: The real object in the project's folders. Folder structure and access control in a project work the same way as in products and libraries.
+        - id: folders
+          label: Project folders
+          sublabel: from the template
+          x: 580
+          y: 140
+          w: 200
+          shape: cylinder
+          tone: neutral
+          detail: The project template gives you a starting folder structure (and a starting plan). You can't change the template after creation, but you can edit the folders and the plan.
+      edges:
+        - { from: plan, to: summary }
+        - { from: plan, to: milestone }
+        - { from: summary, to: activity }
+        - { from: activity, to: resource }
+        - { from: activity, to: deliverable }
+        - { from: milestone, to: deliverable, dashed: true, label: goal }
+        - { from: deliverable, to: subject, label: subject }
+        - { from: folders, to: subject }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      When the plan sits next to the deliverables, "is it done?" stops being an opinion. Windchill
+      calculates status and completion from the plan and shows it to everyone in the project - including
+      suppliers you invite. Meetings, action items and discussions stay in the project too, so the
+      history is there when someone asks "why did the pilot slip?"
+
+  - type: example
+    variant: real-world
+    title: Kai's first-pass plan
+    industry: Micromobility
+    md: |
+      Kai follows the four planning steps: **scope** first ("Start series production of the E1 at Lakeside
+      by week 12"), then the **plan**, then **storage** (folders and access), then **resources**.
+
+      | ID | Plan object | Type | Owner |
+      | --- | --- | --- | --- |
+      | 1 | Project Start | milestone | Kai |
+      | 2 | Prepare the line | summary activity | Ana |
+      | 3 | Build battery fixture | activity | Ana |
+      | 4 | Write work instructions | activity | Ana |
+      | 5 | Pilot run complete | milestone (goal) | Kai |
+      | 6 | Project Finish | milestone | Kai |
+
+      Deliverables **DLV-03** (fixture drawing) and **DLV-04** (work instruction document) hang off
+      activities 3 and 4 and are also linked to milestone 5, so the milestone's progress is the average of
+      the two.
+    takeaway: Scope keeps the plan honest - anything outside "series production at Lakeside" goes in a different project.
+
+  - type: walkthrough
+    title: Create the project and build the plan
+    who: A user allowed to create projects (Kai)
+    where: [Browse, Recent Projects, View All, New Project]
+    steps:
+      - title: Start the New Project wizard
+        where: [Navigator, Browse, Recent Projects, View All]
+        md: Click **New Project**. Creating a project feels much like creating a product or library.
+      - title: Fill in the four required fields
+        where: [New Project]
+        md: |
+          **Name** (E1 Lakeside Launch), **Template** (folders and a starting plan - fixed once created),
+          **Owner**, and **Private Access**: *Default* allows guest access, *Members Only* restricts the
+          project to team members. Add a **Scope** for searching and documentation.
+      - title: Don't start it yet
+        where: [New Project, Start project and send invitations to team]
+        md: |
+          **Clear** this check box. The project stays in the *Defined* state, so nobody gets an invitation
+          or wanders in before the plan and folders are ready. Click **OK**.
+      - title: Add roles and members
+        where: [Browse, E1 Lakeside Launch, Team]
+        md: |
+          Use **Actions → Add Roles** for extra roles, then **Add Members** in the Members table and pick
+          the role for each person. You are already in **Project Manager** because you created the project.
+      - title: Add activities
+        where: [Browse, E1 Lakeside Launch, Plan, Schedule tab]
+        md: |
+          Click **New Activity**: name, owner, **Duration** (required), predecessors and resources. Need
+          several? **Actions → New Multiple Activities** creates up to five at once. Use **Cut** and
+          **Paste Activity Above** to move rows.
+      - title: Group, mark milestones, add deliverables
+        where: [Plan, Schedule tab, Actions]
+        md: |
+          Select child rows and choose **Actions → Increase Indent** to turn their parent into a summary
+          activity. Tick **Mark activity as milestone** in the activity wizard for a milestone. Right-click an
+          activity and choose **New Deliverable** to attach DLV-03.
+      - title: Start the project
+        where: [Browse, E1 Lakeside Launch, Details, Actions, Start]
+        md: The state changes from **Defined** to **Running** and invitations go out by e-mail. A kick-off meeting (Windchill Meetings works) is the classic next step.
+    result: The E1 Lakeside Launch project is Running, with a plan, a team and deliverables people can track.
+
+  - type: comparison
+    title: Manual or automatic execution?
+    columns: [Manual execution, Automatic execution]
+    rows:
+      - label: How activities start
+        cells: ["When people start and update them", "By precedence and date constraints - owners get an e-mail when an activity starts"]
+      - label: Changing the plan later
+        cells: ["Managers and owners can add work or edit any activity at any time", "Scheduling attributes can only change on activities not yet started or suspended"]
+      - label: Best for
+        cells: ["Plans that change constantly or have soft dependencies", "Template or imported plans repeated in the same order"]
+      - label: Starting the plan
+        cells: ["Start the project", "Start the project and then start execution of the plan"]
+    takeaway: Kai's first launch is new territory - manual execution. The next plant launch can reuse the plan as a template and run automatically.
+
+  - type: simulation
+    title: Run the E1 Lakeside Launch
+    intro: |
+      Drive the project from creation to completion. Watch which actions are open in each state - and what
+      the team can do.
+    headline: "State {state} · DLV-03 {dlv}% · status {color}"
+    initial: { state: Defined, planReady: false, invited: false, dlv: 0, color: Green }
+    actions:
+      - id: build-plan
+        label: Build plan and folders
+        when: { state: Defined, planReady: false }
+        do: [{ set: { planReady: true } }]
+        log: Activities, milestones and DLV-03 are in place. Only Kai (project manager) can see the project so far.
+      - id: start-project
+        label: Start project
+        when: { state: Defined, planReady: true }
+        do: [{ set: { state: Running, invited: true } }]
+        log: Project is Running. Invitations went out by e-mail; members can now create and edit content.
+        blockedHint: Build the plan first - starting sends invitations straight away.
+      - id: track-50
+        label: Track work 50%
+        when: { state: Running, dlv: 0 }
+        do: [{ set: { dlv: 50 } }]
+        log: Ana tracks work on DLV-03. Its activity and the goal milestone move up too.
+      - id: flag-yellow
+        label: Supplier late - set Yellow
+        when: { state: Running, color: Green }
+        do: [{ set: { color: Yellow } }]
+        log: Yellow on a critical-path item turns the summary activity and the whole project Yellow.
+      - id: suspend
+        label: Suspend project
+        when: { state: Running }
+        do: [{ set: { state: Suspended } }]
+        log: Suspended. Only project managers and content owners can edit; everyone else is read-only.
+      - id: resume
+        label: Restart project
+        when: { state: Suspended }
+        do: [{ set: { state: Running } }]
+        log: Running again.
+      - id: finish-dlv
+        label: Finish DLV-03 (100%)
+        when: { state: Running, dlv: 50 }
+        do: [{ set: { dlv: 100, color: Green } }]
+        log: Deliverable complete and back to Green.
+      - id: complete
+        label: Complete project
+        when: { state: Running, dlv: 100 }
+        do: [{ set: { state: Completed } }]
+        log: Completed. All plan and storage objects are now read-only.
+        blockedHint: Finish the deliverable first.
+    goals:
+      - label: Start the project only after the plan is ready
+        when: { state: Running, planReady: true }
+        message: Clearing "Start project" at creation gives you this quiet setup time.
+      - label: See a delay turn the project Yellow
+        when: { color: Yellow }
+        message: Windchill takes the worst status along the critical path.
+      - label: Complete the project
+        when: { state: Completed }
+        message: Done - and the plan history stays in the project.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Inviting people into an empty room.** If you leave *Start project and send invitations to team*
+      ticked, everyone gets an e-mail the moment you click OK - before there's a plan or a folder to look
+      at. First impressions of a project are hard to undo.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      You don't have to plan every hour. PTC notes that a project can be run **entirely with milestones**:
+      goal milestones with deliverables give enough tracking for many projects with the least effort to
+      keep current. And for small unplanned jobs, any member can raise an [[action-item]] instead of asking
+      Kai to change the plan.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Kai links DLV-03 and DLV-04 to the "Pilot run complete" milestone. DLV-03 is 100% done and DLV-04 is 40%. What does the milestone show?
+        options: ["40%", "70%", "100%", "0% until both are finished"]
+        answer: 1
+        explanation: A goal measurement milestone's percent complete is a simple average of its deliverables - (100 + 40) / 2 = 70%.
+      - kind: single
+        prompt: Ana wants Leo to check a torque value before Friday. It isn't in the plan. What fits best?
+        options: [A new activity, A new deliverable, An action item, A new milestone]
+        answer: 2
+        explanation: Action items capture supporting work that isn't tracked in the plan, and any team member can create one. Activities, milestones and deliverables are created by the project manager.
+      - kind: truefalse
+        prompt: In the Defined state, regular team members can already add content to the project.
+        answer: false
+        explanation: In Defined only the project manager can add and update content; other users can't access the project until it is started.
+      - kind: multi
+        prompt: Which statements about the project team are true? (Choose all that apply.)
+        options: [The creator is automatically a Project Manager, Each team member automatically becomes a plan resource, Guest members receive an invitation e-mail, Only a project manager can change the project's state and status]
+        answers: [0, 1, 3]
+        explanation: Guests get mostly read-only access and no invitation. The creator lands in Project Manager, members become resources automatically, and state, phase and status are the project manager's job.
+
+  - type: summary
+    points:
+      - A Windchill project is a time-limited team space; its project plan holds activities, summary activities and milestones.
+      - Deliverables link plan objects to the real documents, parts or CAD documents and carry percent complete and risk.
+      - Create the project, clear "Start project", build team, plan and folders, then start it - Defined becomes Running.
+      - Status colours roll up using the worst status on the critical path; summary activities calculate everything from their children.
+      - Manual execution suits changing plans; automatic execution suits repeatable template plans.

@@ -1,0 +1,255 @@
+id: m07-s10-l06
+subtitle: A wizard is a popup made of actions - one for the wizard, one per step - with a form processor waiting at the end.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [customization, developer, wizards, jsp, form-processors, ui-framework]
+sources:
+  - id: cus-wiz
+    where: "Wizards theory: what is a wizard; configuring a wizard; wizard steps as actions with windowType wizard_step; mainWizard.jsp and step JSPs. Exercise 6 Wizard steps 1 to 3"
+  - id: cus-ex
+    where: "Customization All Exercises: Wizard (custom-actions.xml, Main.jsp with jca:wizard and jca:wizardStep); Form Processor exercise (wizard with text inputs, class attribute)"
+  - id: cus-fp
+    where: "Form Processor theory: wizard processing control flow; delegate registration on a wizard step command"
+  - id: cus-val
+    where: "Validators theory: post-submit validation and its sequence"
+  - id: trn-code
+    where: "reassignTemplateReference.jsp and reassignTemplateReferenceStep.jsp (checking only): buttonList, renderPropertyPanel, comboBox wrapper tag, hidden input"
+  - id: trn-framework
+    where: "Windchill Client Customization slides: JSP approach for wizards and property panels"
+versionNotes:
+  - versions: ["All releases"]
+    md: Wizard JSP tags and include files are shown as the customization training uses them; check tag attributes against the Customization Guide for your release.
+  - versions: ["Windchill+"]
+    md: Wizard JSPs, actions and processors are customizations; deploy them to [[windchill-plus|Windchill+]] with a [[windchill-plus-ccd|CCD]] package.
+
+blocks:
+  - type: text
+    md: |
+      Maya's **Quick E1 part** popup from the last lesson needs a face. Kai also wants a second step where
+      the engineer adds a short note before OK. Step-by-step popups like this are [[jca-wizard|wizards]]: they guide
+      the user through creating an object or doing an operation, collecting what's needed in a set order.
+
+      Here's the trick that makes wizards easy once you've seen actions: **the wizard is an action, and every
+      step is an action too.**
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the popup itself" → wizard action with `windowType="popup"`
+      - "one page of the popup" → wizard step, an action with `windowType="wizard_step"`
+      - "the JSP that lists the steps" → main wizard JSP using `<jca:wizard>` and `<jca:wizardStep>`
+      - "the server code behind OK" → [[form-processor]], named with `class=` on the wizard action
+      - "the check behind Next" → **post-submit validation** ([[ui-validator|validator]])
+
+  - type: diagram
+    title: Anatomy of a wizard
+    caption: Two kinds of actions, one main JSP, one JSP per step, one processor. Click a box.
+    diagram:
+      width: 820
+      height: 400
+      groups:
+        - { label: custom-actions.xml, x: 20, y: 20, w: 250, h: 360, tone: primary }
+        - { label: codebase/netmarkets/jsp, x: 290, y: 20, w: 300, h: 360, tone: info }
+        - { label: Method server, x: 610, y: 20, w: 190, h: 360, tone: neutral }
+      nodes:
+        - id: wizaction
+          label: Wizard action
+          sublabel: popup + class
+          x: 40
+          y: 60
+          w: 210
+          tone: accent
+          detail: The action users click. Its command opens the main JSP in a popup and names the form processor with `class`.
+        - id: stepactions
+          label: Step actions
+          sublabel: wizard_step
+          x: 40
+          y: 240
+          w: 210
+          tone: primary
+          detail: One action per step, each with `windowType="wizard_step"` and the URL of its step JSP. A step command can also name a processor delegate class.
+        - id: mainjsp
+          label: Main wizard JSP
+          sublabel: "<jca:wizard>"
+          x: 310
+          y: 60
+          w: 260
+          tone: info
+          shape: doc
+          detail: |
+            Declares the components taglib, includes `beginWizard.jspf` and `includeWizBean.jspf`, then lists the
+            steps in order inside `<jca:wizard title="...">` with `<jca:wizardStep action="..." type="..."/>`.
+            Ends with `end.jspf`.
+        - id: stepjsp
+          label: Step JSPs
+          sublabel: the inputs
+          x: 310
+          y: 240
+          w: 260
+          tone: info
+          shape: doc
+          detail: Each step page holds its inputs. Inputs need `name` attributes so the processor can read them. The training's step uses a property panel with a combo box wrapper tag and a hidden input.
+        - id: processor
+          label: Form processor
+          sublabel: runs on OK / Finish
+          x: 625
+          y: 150
+          w: 160
+          tone: success
+          detail: Receives the whole form as an NmCommandBean and ObjectBeans and does the work (lesson 4).
+      edges:
+        - { from: wizaction, to: mainjsp, label: opens }
+        - { from: mainjsp, to: stepactions, label: lists }
+        - { from: stepactions, to: stepjsp, label: url }
+        - { from: wizaction, to: processor, label: class }
+        - { from: stepjsp, to: processor, dashed: true, label: form data }
+
+  - type: walkthrough
+    title: Build the Quick E1 part wizard
+    who: Windchill developer (Theo)
+    where: ["<Windchill>", codebase, config, actions, custom-actions.xml]
+    steps:
+      - title: Declare the wizard and its steps
+        where: [codebase, config, actions, custom-actions.xml]
+        md: |
+          ```xml
+          <objecttype name="acmeWizards">
+            <action name="acmeQuickE1Part">
+              <label>Quick E1 part</label>
+              <command windowType="popup" class="com.acme.windchill.forms.QuickE1PartProcessor"
+                       url="/netmarkets/jsp/acme/quickE1Part.jsp"/>
+            </action>
+            <action name="acmeQuickE1PartDetails">
+              <label>Details</label>
+              <command windowType="wizard_step" url="/netmarkets/jsp/acme/quickE1PartDetails.jsp"/>
+            </action>
+            <action name="acmeQuickE1PartNote">
+              <label>Note</label>
+              <command windowType="wizard_step" url="/netmarkets/jsp/acme/quickE1PartNote.jsp"/>
+            </action>
+          </objecttype>
+          ```
+          Add `acmeQuickE1Part` (type `acmeWizards`) to an action model so users can reach it.
+      - title: Write the main wizard JSP
+        where: [codebase, netmarkets, jsp, acme, quickE1Part.jsp]
+        md: |
+          ```jsp
+          <%@ taglib prefix="jca" uri="http://www.ptc.com/windchill/taglib/components" %>
+          <%@ include file="/netmarkets/jsp/components/beginWizard.jspf" %>
+          <%@ include file="/netmarkets/jsp/components/includeWizBean.jspf" %>
+
+          <jca:wizard title="Quick E1 part">
+            <jca:wizardStep action="acmeQuickE1PartDetails" type="acmeWizards"/>
+            <jca:wizardStep action="acmeQuickE1PartNote" type="acmeWizards"/>
+          </jca:wizard>
+
+          <%@ include file="/netmarkets/jsp/util/end.jspf" %>
+          ```
+      - title: Write the step JSPs
+        where: [codebase, netmarkets, jsp, acme]
+        md: |
+          The details step holds the inputs the processor reads:
+
+          ```jsp
+          <%@ include file="/netmarkets/jsp/util/begin.jspf" %>
+          Number: <input type="text" name="acmeNumber"/>
+          Name: <input type="text" name="acmeName"/>
+          <%@ include file="/netmarkets/jsp/util/end.jspf" %>
+          ```
+      - title: Connect the processor and restart
+        where: [Windchill shell]
+        md: |
+          The `class` on the popup action is the link to `QuickE1PartProcessor`, which reads `acmeNumber` and
+          `acmeName` from the request. Compile, restart, and launch the wizard from where you placed the action.
+    result: A two-step popup opens; OK runs the processor and creates the part.
+
+  - type: simulation
+    title: Drive the Quick E1 part wizard
+    intro: |
+      You're Priya using Theo's wizard. A post-submit validator checks the Details step when you click Next, and
+      the form processor runs on Finish. Get a part created.
+    headline: "Step: {step} · Number: {number} · Result: {result}"
+    initial: { step: Details, number: empty, note: empty, result: nothing yet }
+    actions:
+      - id: next-empty
+        label: Click Next with no number
+        when: { step: Details, number: empty }
+        do: [{ set: { result: "Denied: number required" } }]
+        log: validateFormSubmission returned DENIED with an error message. You stay on Details.
+      - id: type-number
+        label: Type EB-1301
+        when: { step: Details }
+        do: [{ set: { number: EB-1301, result: nothing yet } }]
+        log: Number entered in the acmeNumber field.
+      - id: next-ok
+        label: Click Next
+        when: { step: Details, number: EB-1301 }
+        do: [{ set: { step: Note, result: "Permitted" } }]
+        log: Validator returned PERMITTED. On to the Note step.
+        blockedHint: Enter a number first.
+      - id: type-note
+        label: Type a note
+        when: { step: Note }
+        do: [{ set: { note: Kickstand v2 } }]
+        log: Note entered.
+      - id: finish
+        label: Click Finish
+        when: { step: Note, number: EB-1301 }
+        do: [{ set: { step: Done, result: "Part EB-1301 created" } }]
+        log: "WizardServlet → FormDispatcher → processor: preProcess, doOperation, postProcess, commit. FormResult SUCCESS."
+        blockedHint: Finish is on the last step.
+    goals:
+      - label: See the validator stop you
+        when: { result: "Denied: number required" }
+        message: Post-submit validation keeps bad data out before the processor ever runs.
+      - label: Create the part
+        when: { step: Done }
+        message: Steps collect, the validator checks, the processor does the work.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Wizards are where users create and change data, so they're where bad data gets in. Splitting the job
+      (steps collect, validators check, the processor writes) keeps each piece small and testable. Windchill's own
+      wizards use the same wiring: the out-of-the-box document *create* action names `CreateDocFormProcessor` as
+      its command class.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Step action in the wrong window.** A step declared with `windowType="page"` or `popup` opens on its own
+      instead of inside the wizard. Every step action needs `windowType="wizard_step"`, and the `type` in
+      `<jca:wizardStep>` must match the step's object type.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      For a single-step popup, the training sets `buttonList="NoStepsWizardButtons"` on `<jca:wizard>`. Inside a
+      step, `<jca:renderPropertyPanel>` lays fields out like Windchill's own forms, and a hidden input can carry
+      context, such as the current object's ID, to the validator and processor.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Which window type does a wizard step action need?
+        options: [page, popup, wizard_step, step]
+        answer: 2
+        explanation: Each wizard step is an action with windowType="wizard_step". The wizard's own action is usually a popup.
+      - kind: single
+        prompt: How does the framework know which form processor runs on Finish?
+        options: [From the main JSP's title, From the class attribute on the wizard action's command, From the step order, From service.properties]
+        answer: 1
+        explanation: The wizard action's command names the processor with class="...". Step commands can name delegate classes the same way.
+      - kind: truefalse
+        prompt: The main wizard JSP lists its steps with jca:wizardStep tags that refer to actions by name and type.
+        answer: true
+        explanation: Steps are actions, so they're referenced by action name and object type, just like entries in an action model.
+
+  - type: summary
+    points:
+      - A wizard is a popup that guides the user step by step through creating or changing an object.
+      - The wizard itself is an action (popup); each step is an action with windowType wizard_step.
+      - "The main JSP includes beginWizard.jspf and includeWizBean.jspf and lists steps in <jca:wizard> with <jca:wizardStep>."
+      - Step JSPs hold named inputs; the form processor named by class= reads them on Finish.
+      - Post-submit validators decide whether Next or OK may proceed.

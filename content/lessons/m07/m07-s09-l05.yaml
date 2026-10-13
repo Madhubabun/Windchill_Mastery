@@ -1,0 +1,234 @@
+id: m07-s09-l05
+subtitle: The next CPS lands on Friday. Will Theo's code survive it? Only if he followed a handful of boring, life-saving rules.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [customization, developer, architect, upgrade, maintenance, code-review]
+sources:
+  - id: cust
+    where: "Module 1: Updates and server maintenance; What may be changed when you customize Windchill; Best practices; Customer build; Module 2: Directories and files; wtSafeArea (siteMod, ptcCurrent, ptcOrig, best-practice comments, wtCustom, swmaint.xml); Windchill customization resources"
+  - id: cus-overview
+    where: "Day 1 overview: custom actions and models in custom-actions.xml and custom-actionModels.xml (copy the OOTB model rather than editing it); swmaint.xml createSafeArea"
+  - id: trn-advdev
+    where: "Section 11: QuerySpec method table (deprecated methods and their replacements, Supported API: false); attribute examples (LWCNormalizedObject replaced by PersistableAdapter in 10.2 and higher)"
+  - id: hc-svc-mgmt
+    label: PTC Help Center supplement
+    title: "Service Management"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/customization/WCCG_Serv_DevelopServerLogic_ServMgmt.html"
+    covers: "No reserved service-number ranges; custom services use numbers well above Windchill's highest, never duplicate, recheck after each release"
+
+blocks:
+  - type: text
+    md: |
+      Friday's Critical Patch Set (CPS) for Acme is routine for Rosa: stop, install, start. For Theo it's an
+      exam. Did he edit a PTC file directly? Did he call a method that was deprecated three releases ago? Did he
+      pick a service number that PTC might use one day?
+
+      **Upgrade-safe** customization doesn't mean "nothing ever breaks". It means you **know** what you changed,
+      you **kept** PTC's original next to it, and the installer can **see** your changes instead of overwriting
+      them.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "PTC's standard file, as shipped" → **OOTB file** (out of the box)
+      - "the folder tree where you keep changed copies of PTC files" → **wtSafeArea** (with `siteMod`, `ptcOrig`, `ptcCurrent`)
+      - "a folder for text changes only" → **wtCustom**
+      - "PTC's helper script for the safe area" → [[swmaint-xml|swmaint.xml]]
+      - "methods PTC says not to rely on" → **deprecated** / **not supported API**
+
+  - type: diagram
+    title: How the safe area protects a modified PTC file
+    caption: Three folders, three versions of the same file. Click each.
+    diagram:
+      width: 820
+      height: 360
+      groups:
+        - { label: "<WT_HOME>/wtSafeArea", x: 20, y: 20, w: 560, h: 320, tone: info }
+      nodes:
+        - id: orig
+          label: ptcOrig
+          sublabel: PTC's original
+          x: 45
+          y: 70
+          w: 160
+          shape: doc
+          tone: neutral
+          detail: Put PTC's original version of the file here **before** you change it for the first time.
+        - id: site
+          label: siteMod
+          sublabel: your version
+          x: 225
+          y: 70
+          w: 160
+          shape: doc
+          tone: primary
+          detail: |
+            The site version of each PTC file you modified and want to run in production. Every file here should
+            explain itself: a header comment with the reason and the exact OOTB version it was based on, and
+            `// BEGIN CUSTO` / `// END CUSTO` around each change.
+        - id: current
+          label: ptcCurrent
+          sublabel: PTC's newer version
+          x: 405
+          y: 70
+          w: 160
+          shape: doc
+          tone: warning
+          detail: When an update finds a file in `siteMod`, it copies PTC's **newer** version here - so you can compare old original, new original and your change.
+        - id: installer
+          label: Windchill installer
+          sublabel: updates · upgrades
+          x: 225
+          y: 240
+          w: 160
+          tone: accent
+          detail: The installer used for updates and upgrades checks the safe area and preserves customizations, so they are not overwritten.
+        - id: custom
+          label: wtCustom
+          sublabel: text tailoring only
+          x: 620
+          y: 70
+          w: 180
+          shape: doc
+          tone: success
+          detail: Not part of wtSafeArea. Holds changes to displayed text in rbInfo files, structured like `<WT_HOME>/src`, and only the **changed or added** entries - never the unchanged ones.
+      edges:
+        - { from: installer, to: site, label: preserves }
+        - { from: installer, to: current, label: copies new PTC file }
+        - { from: orig, to: site, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      PTC's guide is blunt: the base version, maintenance releases and temp patches can always be downloaded
+      again - **customizations cannot be restored easily**. If your changes live only in edited PTC files, the next
+      update can silently replace them, and nobody can tell what used to be there.
+
+  - type: comparison
+    title: "Cheat sheet: upgrade-safe rules"
+    columns: [Do, Don't]
+    rows:
+      - label: Changing a PTC file
+        cells: ["Original to ptcOrig, your copy in siteMod, header comment plus BEGIN/END CUSTO markers", "Edit the file in place under codebase"]
+      - label: Display text
+        cells: ["Only the changed entries in wtCustom", "Copy a whole rbInfo file with every unchanged value"]
+      - label: Menus
+        cells: ["Custom actions and copied models in custom-actions.xml and custom-actionModels.xml", "Edit PTC's action XML files"]
+      - label: Properties
+        cells: ["Set, reset or undefine them with xconfmanager", "Hand-edit the generated property files"]
+      - label: APIs
+        cells: ["Use current, supported methods from the Javadoc", "Use deprecated methods or ones marked Supported API false"]
+      - label: Service numbers
+        cells: ["Well above Windchill's highest number; recheck each release", "Reuse or sit just above an existing number"]
+      - label: Your code
+        cells: ["Your own package - the training uses ext packages and Acme uses com.acme.windchill", "Mix your classes into PTC's wt or com.ptc packages"]
+    takeaway: Keep PTC's files PTC's, keep yours clearly yours, and let the tools see both.
+
+  - type: text
+    md: |
+      ### Review code for upgrade risk
+
+      Theo's reviewer checklist, built from what the training flags:
+
+      1. **Deprecated calls.** The `QuerySpec` reference marks many methods deprecated with a replacement - for
+         example `appendSearchCondition(...)` → `appendWhere(WhereExpression, int[])`, and the older single-index
+         `appendWhere` and `appendSelect` overloads → the `int[]` versions.
+      2. **Old class names.** Code that uses `LWCNormalizedObject` predates 10.2 - switch to `PersistableAdapter`.
+      3. **Not supported API.** Javadoc shows `Supported API: false` on some methods. They can change without notice.
+      4. **Access control bypasses.** Advanced queries switched on with `setAdvancedQueryEnabled(true)` must be
+         justified and server-side only.
+      5. **Edited OOTB files** that aren't in siteMod with a reason, a version (for example M0xx, CPSyy) and markers.
+      6. **Service numbers** close to PTC's range.
+
+      ```java
+      // Before (flagged in review)
+      QuerySpec qs = new QuerySpec(WTPart.class);
+      qs.appendSearchCondition(new SearchCondition(WTPart.class, WTPart.NAME, SearchCondition.EQUAL, name));
+
+      // After (current method, explicit class index)
+      QuerySpec qs = new QuerySpec();
+      int partIdx = qs.appendClassList(WTPart.class, true);
+      qs.appendWhere(new SearchCondition(WTPart.class, WTPart.NAME, SearchCondition.EQUAL, name),
+                     new int[] { partIdx });
+      ```
+
+  - type: example
+    variant: case-study
+    title: The Friday CPS
+    industry: Micromobility
+    md: |
+      Before the CPS, Theo runs through his list. One file is a surprise: a JSP that a former consultant edited in
+      place, with no copy in `ptcOrig` and no comment. After the CPS the change is gone - the page is back to
+      standard, and nobody remembers why it was changed.
+
+      Fix: Theo recovers the old file from a backup, diffs it against the new standard JSP, re-applies the change
+      to a copy in `siteMod` with a header comment (*reason, OOTB version, CPS*) and `BEGIN CUSTO / END CUSTO`
+      markers, and adds both to source control. Next CPS, the installer finds the file in `siteMod`, preserves it
+      and drops PTC's newer version into `ptcCurrent` for him to compare.
+    takeaway: The safe area turns a silent loss into a visible diff.
+
+  - type: scenario
+    variant: what-if
+    title: What if the upgrade is 12.1 to 13.1?
+    start: s1
+    nodes:
+      - id: s1
+        md: Kai announces an upgrade next spring, together with a move from monolithic to clustered. Theo has eight customizations. What's his first move?
+        choices:
+          - label: Plan it into the release now - inventory, end-to-end test plan, expected code changes
+            next: s2
+            good: true
+            feedback: PTC's guide says upgrades and platform changes must be planned months ahead, need end-to-end testing and may need code changes.
+          - label: Wait and fix whatever breaks after the upgrade
+            next: fail1
+            feedback: That turns a planned project into an outage.
+      - id: s2
+        md: The inventory shows two customizations that a configuration feature now covers. Keep them?
+        choices:
+          - label: Retire them and configure instead
+            next: win
+            good: true
+            feedback: Every customization you retire is one you never have to upgrade again.
+          - label: Port them anyway - they work
+            next: partial1
+            feedback: They'll work, but you keep paying their maintenance cost forever.
+      - id: win
+        md: Six customizations, all in the safe area or in Acme's own packages, tested on a clustered test system first. The upgrade weekend is boring - which is the goal.
+        outcome: success
+      - id: partial1
+        md: The upgrade succeeds, but two pieces of code now duplicate standard features and must be retested at every CPS.
+        outcome: partial
+      - id: fail1
+        md: Monday morning, three custom pages fail and a listener is never registered. Users wait while Theo debugs on production.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **"Just a quick fix in the PTC file."** A direct edit under the codebase is invisible to the installer and
+      to the next developer. If it's worth changing, it's worth a copy in siteMod with a comment.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Run `ant -f bin/swmaint.xml -projecthelp` once and read the target list - PTC ships the script to help
+      manage the siteMod folder. The Help Center section *Setting Up a Directory Structure for Managing Customized
+      Files and Text Tailoring* explains each target.
+
+  - type: flashcards
+    cards:
+      - { front: ptcOrig, back: "PTC's original file, saved before you change it the first time." }
+      - { front: siteMod, back: "Your modified version of a PTC file - the one you run in production." }
+      - { front: ptcCurrent, back: "PTC's newer version, copied there by an update when a matching file exists in siteMod." }
+      - { front: wtCustom, back: "Text tailoring for rbInfo files - only changed or added entries, outside wtSafeArea." }
+      - { front: "BEGIN CUSTO / END CUSTO", back: "Comment markers around each changed block in a modified PTC file." }
+      - { front: LWCNormalizedObject, back: "The older name for PersistableAdapter - change it in 10.2 and later." }
+
+  - type: summary
+    points:
+      - Updates (CPS) rarely hurt custom code - unless they touch a file you modified or fix a bug you rely on.
+      - Upgrades and platform changes need months of planning, end-to-end tests and possible code changes.
+      - Keep PTC originals in ptcOrig, your versions in siteMod with comments and markers, and text changes in wtCustom.
+      - Use custom action files, xconfmanager, your own Java package and current supported APIs.
+      - Review code for deprecated methods, old class names, access-control bypasses and risky service numbers.

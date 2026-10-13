@@ -1,0 +1,78 @@
+# New glossary terms introduced in section m07-s02 (Options and variants).
+- id: option
+  term: Option
+  plain: One thing a customer or engineer can pick on a configurable product, like battery size.
+  definition: In Windchill Options and Variants, an object that describes one feature of a product that can vary, such as Battery or Frame Colour. Options live in an option pool and hold the possible choices. An option can be Required (it cannot be skipped) or single-choice (only one choice may be picked). Options can hold text, numeric or Boolean choices; numeric options also need a Quantity of Measure and are always single-choice, and Boolean options come with Yes and No choices. Out of the box there are two subtypes, Sales Option and Design Option, which behave the same way and only help you organise.
+  aka: [Design option, Sales option]
+  related: [choice, option-pool, option-set]
+
+- id: choice
+  term: Choice
+  plain: One of the possible answers to an option, like "500 Wh" for Battery.
+  definition: A possible value of an option. Choices are assigned (usually to part usage links) to say under which condition a part belongs in a configuration, and they are selected in the option filter to pick one configuration. Rules between choices (include, exclude, enable, conditional) control which combinations are valid. A choice of a numeric option also carries a Value.
+  related: [option, choice-rule, option-filter]
+
+- id: option-pool
+  term: Option pool
+  plain: The library where all options, choices and their rules are created.
+  definition: The collection of options, choices and rules that belongs to a product or library context, opened from the context's information page on the Option Pool tab. Option managers create options and choices, groups for organising them, expression aliases and rules here. Exclude rules created in the pool are global; an option set can inherit or ignore them.
+  related: [option, option-set, choice-rule]
+
+- id: option-set
+  term: Option set
+  plain: The short list of options a particular product is allowed to use.
+  definition: A subset of options, choices and rules referenced from one or more option pools, which can sit in different product or library contexts. An option set is assigned to a product, and that assignment decides which options and choices can be picked when filtering or configuring it. Option sets are life-cycle managed (they start In Work), and lower-level option sets can be merged into higher-level ones with Merge Option Sets.
+  related: [option-pool, option, configurable-module]
+
+- id: choice-rule
+  term: Choice rule
+  plain: A rule that says which choices go together and which never can.
+  definition: Logic defined between choices that controls selection in the option filter. Include rules select target choices when a source choice is picked; exclude rules mark an invalid combination; enable rules make certain target choices selectable once a source choice is picked; conditional rules use IF and THEN parts (actions enable, disable, include and requires), with "/" for OR and "+" for AND. Expression aliases are named, reusable pieces of logic used inside rules and expressions.
+  aka: [Include rule, Exclude rule, Enable rule, Conditional rule]
+  related: [choice, option-filter, option-pool]
+
+- id: option-filter
+  term: Option filter
+  plain: The set of choices you pick to see one version of the product.
+  definition: A filter on a configurable product structure, set from the Structure tab with Edit Filter, Option Filter tab. It includes or excludes parts by comparing the selected choices with the expressions assigned to parts and usage links, applying the choice rules as you select. It is used to test choice assignments and rules, preview a configuration (and the placement of CAD models) and, through the Configure action, to create a variant. The standard filter treats an undefined expression as true; the alternate filter treats it as false.
+  related: [choice, choice-rule, overloaded-bom, variant-specification]
+
+- id: configurable-module
+  term: Configurable module (configurable part)
+  plain: A placeholder part that holds all the alternatives for one area, like every battery the bike could get.
+  definition: A part created with the Configurable Module attribute set to Yes, which holds all possible design alternatives of one component as its children. The top of a configurable structure is a configurable product, which is both a configurable module and an end item. When a variant is created, a configurable module is replaced by the child parts (module variants) that match the selected choices. Modules set as Collapsible do not appear in the variant structure. Configurable products and modules normally have no CAD documents of their own.
+  aka: [Configurable part, Configurable product]
+  related: [overloaded-bom, option-set, bom]
+
+- id: overloaded-bom
+  term: Overloaded BOM (150% BOM)
+  plain: One big structure holding every part any version of the product could ever use.
+  definition: A configurable product structure that contains all possible components of all supported variations, with choices or expressions assigned to show when each part applies. Filtering it with the option filter gives one configuration; the variant created from it is sometimes called the 100% BOM.
+  aka: [150% BOM, Configurable structure, Overloaded product structure]
+  related: [configurable-module, option-filter, variant-specification, bom]
+
+- id: variant-specification
+  term: Variant specification
+  plain: The saved order sheet that records which choices made one variant.
+  definition: An object that records the inputs used to configure a configurable product, chiefly the selected choices and any parameter values, created at the end of the Configure process together with the variant part structure. A variant specification made by Configure (or programmatically) is stand-alone; one created inside a product family is a managed variant specification, and a stand-alone one can be converted to managed so it appears in the product family structure and the Matrix Editor. Variant specifications can be compared.
+  aka: [Managed variant specification]
+  related: [overloaded-bom, option-filter, product-family]
+
+- id: product-family
+  term: Product family
+  plain: A group of sellable models that share most of their parts, organised in one tree.
+  definition: An optional part of Options and Variants. A Product Family object is associated with the configurable product it represents and organises Product Model Groups, Product Models (an offered product, SKU or representative configuration) and managed variant specifications in a structure. It can also hold variant baselines, which capture the versions of parts used by managed variant specifications.
+  related: [variant-specification, matrix-editor, baseline]
+
+- id: matrix-editor
+  term: Matrix Editor (Product Family Matrix Editor)
+  plain: A grid that shows several variants side by side, part by part.
+  definition: A tool in Product Families that displays managed variant specifications as columns next to the configurable structure, with a tick where a part or module is included. It lets you compare variants and define a variant by manual selection of module variants instead of assigned expressions. Only managed variant specifications derived from the same configurable part can be opened in it. Its panes are Product Family, Configurable Structure, Module Variant and Details.
+  related: [product-family, variant-specification]
+
+- id: dynamic-positioning
+  term: Dynamic positioning
+  plain: Windchill places each chosen CAD assembly in the right spot for you, based on the choices.
+  definition: An Options and Variants capability that captures assembly positioning logic in Windchill so each configured product can be visualised and built as a CAD variant without placing models by hand. Coordinate systems in the CAD models (flagged with a LOCATOR parameter that the Creo worker is configured to read) become locators on configurable modules; interfaces between modules are defined in the Architecture Editor, and choices assigned to locators decide which position is used when the option filter is applied.
+  aka: [Locator, Architecture Editor, Positioning architecture]
+  related: [configurable-module, option-filter, creo]

@@ -1,0 +1,48 @@
+# New glossary terms introduced in section m07-s14 (Windchill Navigate and ThingWorx).
+- id: windchill-navigate
+  term: Windchill Navigate
+  plain: Simple, role-based web apps that let people outside engineering see and act on Windchill data without learning Windchill.
+  definition: A suite of task- and role-based web apps, built on [[thingworx|ThingWorx]], that give non-expert users (shop floor, procurement, service, sales, quality) quick access to PLM data. View apps show current product information without editing; Contribute apps let users take part in processes such as reviewing a [[change-request]] or creating a [[problem-report]]. Data access is still granted by Windchill permissions, and Navigate needs its own licence on top of Windchill.
+  aka: [Navigate]
+  related: [thingworx, navigate-task, navigate-role, problem-report, change-request]
+
+- id: navigate-task
+  term: Navigate task (app)
+  plain: One tile on the Navigate home page that does one job, like "View Drawing" or "Report a Problem".
+  definition: A single [[windchill-navigate|Windchill Navigate]] app opened from a tile on the landing page. Out-of-the-box tasks are grouped into collections (Part, Document, Change Management, Manufacturing, plus Custom and Other) and are either View tasks or Contribute tasks. An administrator tailors tasks per role, either one task at a time (pencil icon) or a whole collection at once (Edit Collection).
+  aka: [Navigate app, Task tile]
+  related: [windchill-navigate, navigate-role, navigate-custom-task]
+
+- id: navigate-role
+  term: Navigate role (tailoring role)
+  plain: The group that decides which Navigate tiles, search options and attributes a person sees.
+  definition: A [[thingworx|ThingWorx]] user group tagged with the PLMAppsRolesTag model tag, which makes it appear in the Select role to tailor list on Navigate tailoring pages. Navigate ships with two default tailoring roles, Manufacturing and Purchasing; you can add custom ones. Each user should belong to exactly one tailoring role and the group (or user) must also be in a Navigate licence group. A new custom role sees no tasks until the administrator switches them on.
+  aka: [Tailoring role]
+  related: [windchill-navigate, navigate-task, license-group, role]
+
+- id: navigate-custom-task
+  term: Navigate custom task
+  plain: A home-made Navigate app for a job the standard tiles don't cover.
+  definition: A [[windchill-navigate|Windchill Navigate]] task built in ThingWorx Composer when no out-of-the-box task fits, for example when Windchill data must be combined with data from an ERP or MES system. It consists of a [[mashup]] (the user interface, usually built from [[navigate-component|Navigate components]]), one or more data sources, and an integration connector such as the OData Connector, which reads Windchill through Windchill REST Services. It appears in the Custom tasks collection once a Thing points to its home mashup.
+  aka: [Navigate custom app]
+  related: [navigate-component, mashup, windchill-navigate, thingworx]
+
+- id: navigate-component
+  term: Navigate component
+  plain: A ready-made building block - a list, an identity panel, a row of tiles - that already knows how to show Windchill data.
+  definition: An out-of-the-box, reusable building block for Navigate mashups, used in ThingWorx Composer like a widget. Examples are Item Identity, Item List, Attributes, Tiles, Action Bar and Progress. Each is a composite of sub-components (user interface, business logic, model and data adapter) and is configured with JSON, either by picking a predefined configuration (such as Tasks or Activity for an Item List) or by editing a generic configuration. Users only see what Windchill access control allows.
+  aka: [Smart component, Reusable component]
+  related: [navigate-custom-task, mashup, windchill-navigate]
+
+- id: mashup
+  term: Mashup
+  plain: A ThingWorx web page made by dragging widgets onto a layout and wiring them to data.
+  definition: The user interface of a [[thingworx|ThingWorx]] application, built in Mashup Builder (a low-code, drag-and-drop environment). Widgets display or collect data; data services fetch it from Things, data tables or streams; bindings connect service results to widget properties and events trigger the services. Mashups can be responsive or static, and can share framing through a master mashup. Navigate tasks are mashups too.
+  related: [thingworx, thing-model, navigate-custom-task]
+
+- id: thing-model
+  term: Thing Model
+  plain: ThingWorx's digital copy of your real-world stuff, built from reusable blueprints.
+  definition: The collection of [[thingworx|ThingWorx]] entities that represents an application's physical assets, systems and processes (their digital twins). Things are the instances; every Thing is created from exactly one Thing Template (ultimately from a system template such as GenericThing); Thing Shapes package properties, services, events and subscriptions that any number of templates or Things can implement. Changes to a template or shape flow down to the Things that use it.
+  aka: [Things, Thing Templates and Thing Shapes]
+  related: [thingworx, mashup]

@@ -1,0 +1,54 @@
+# New glossary terms introduced in section m07-s11 (Server-side customization).
+- id: windchill-service-class
+  term: Windchill service (StandardManager)
+  plain: A piece of server code that Windchill starts for you and keeps running inside the method server.
+  definition: A server-side component built from a service interface and an implementation class that extends wt.services.StandardManager. The implementation provides a static factory method that creates the instance and calls initialize(), and it can override performStartupProcess to do work at startup, most often subscribing event listeners. Windchill starts services listed in wt.properties automatically when the server starts.
+  aka: [Manager, Service, StandardManager]
+  related: [service-registration-property, event-listener, method-server]
+
+- id: service-registration-property
+  term: Service registration property
+  plain: The wt.properties line that tells Windchill to start your service and which class to build.
+  definition: A wt.services.service.<number> entry in wt.properties whose value pairs a service interface with its implementation class, separated by a slash. Services start in number order, lowest first. Custom services should use a number well above Windchill's own highest number, never reuse an existing one, and be rechecked after each new release. The entry is set with xconfmanager (directly or through an xconf file) and takes effect after a method server restart.
+  aka: [wt.services.service entry]
+  related: [windchill-service-class, xconfmanager, site-xconf]
+
+- id: queryspec
+  term: QuerySpec
+  plain: A Java object that describes a database search without writing SQL yourself.
+  definition: The Windchill persistence framework's abstraction of a SQL query (wt.query.QuerySpec). You add one or more classes to its class list (each gets an index), append where-conditions such as SearchCondition objects against those indexes, optionally choose single columns, joins and sort order, and pass it to the persistence manager, which returns a QueryResult. Its toString() shows the SQL it represents.
+  aka: [Query specification]
+  related: [search-condition, query-result, persistable]
+
+- id: search-condition
+  term: SearchCondition
+  plain: One rule in a query, like "name equals ENGINE".
+  definition: A wt.query class that represents one SQL WHERE expression in the form left operand, operator, right operand. A common form names a class, an attribute and an operator constant such as SearchCondition.EQUAL or SearchCondition.GREATER_THAN with a value. Several conditions are combined in a QuerySpec with appendAnd(), appendOr() and parentheses.
+  related: [queryspec, query-result]
+
+- id: query-result
+  term: QueryResult
+  plain: The list of objects a query or navigation hands back.
+  definition: The wt.fc result object returned when the persistence manager runs a query or navigates a link. Code loops over it with hasMoreElements() and nextElement() and can check size(). When a query selects more than one class, each element is an array with one entry per selected class.
+  related: [queryspec, search-condition, persistable]
+
+- id: event-listener
+  term: Event listener (Windchill)
+  plain: Code that wakes up when something happens to an object, like a check-in or a state change.
+  definition: Server code subscribed through the manager service to a keyed event, such as a persistence event (PRE_STORE, POST_MODIFY), a check-in event or a life cycle set-state event. It usually extends wt.services.ServiceEventListenerAdapter and overrides notifyVetoableEvent or notifyEvent. Listeners run synchronously in the same thread and database transaction as the code that emitted the event, and a listener can veto a pre-event by throwing an exception.
+  aka: [Listener, Service event listener]
+  related: [windchill-service-class, keyed-event]
+
+- id: keyed-event
+  term: Keyed event
+  plain: The message Windchill sends when something happens, labelled so listeners can pick the ones they care about.
+  definition: A service event (extending wt.events.KeyedEvent) identified by a key built from the event class and event type, for example with generateEventKey on a service event class. A listener subscribes for one key and, when notified, reads the event's target object with getEventTarget() and its type with getEventType(). Pre-events (such as PRE_STORE) fire before the change and are where validation and vetoes happen; post-events fire after it.
+  aka: [Service event]
+  related: [event-listener, windchill-service-class]
+
+- id: persistable-adapter
+  term: PersistableAdapter
+  plain: A helper that reads and writes an object's attributes by their internal names, including soft attributes.
+  definition: A class (com.ptc.core.lwc.server.PersistableAdapter) that wraps an object, or a new object of a given type, for an operation such as display, update or create. You load() the attributes you need by internal name, then get() or set() values; apply() writes the values back to the object and the persistence manager stores the change, or persist() saves a newly created object. It replaced LWCNormalizedObject in Windchill 10.2 and later.
+  aka: [LWCNormalizedObject (older name)]
+  related: [global-attribute, soft-type, persistable]

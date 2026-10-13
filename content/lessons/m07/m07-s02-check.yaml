@@ -1,0 +1,109 @@
+id: m07-s02-check
+subtitle: Options, rules, overloaded BOMs, variants, product families and dynamic positioning - prove you can configure the E1 end to end.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [options-and-variants, checkpoint]
+sources:
+  - id: ov
+    where: "Modules 1-6: introduction; configurable structures; options, choices, rules, option pool and option sets; filtering and variant specifications; product families, Matrix Editor and variant baselines; dynamic positioning"
+  - id: trn-options
+    where: "Core concepts: option pool, option set, variant specification kinds; Validate for Required Choices"
+  - id: hc-ov-rules
+    label: PTC Help Center supplement
+    title: "Effect of Choice Rules on Choice Selection"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/options/OptionsEffectOfRules.html"
+    covers: "Rule evaluation order; Disable Rule Checking"
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **options and variants**: options and choices, rules, pools and sets, the overloaded
+      BOM, configuring variants, product families and dynamic positioning. Score 80% to pass. Every answer
+      explains itself.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: The E1 option *Wheel Size* has choices with values 27.5 and 29. What kind of option is it, and what does that imply?
+        options: ["Boolean - it has Yes and No", "Numeric - single-choice, with a Value per choice and a Quantity of Measure", "String - any number of choices can be selected", "Sales - it's only for the sales process"]
+        answer: 1
+        explanation: Numeric options carry a Value on each choice and a Quantity of Measure, are always single-selection, and let rules work with value ranges.
+      - kind: single
+        prompt: Kai wants Market = EU and Throttle = Yes never to be selected together. Which rule?
+        options: [Include rule, Enable rule, Exclude rule, An alias]
+        answer: 2
+        explanation: An exclude rule captures an invalid combination of choices. In the option filter, it disables the incompatible choice.
+      - kind: multi
+        prompt: Which statements about the option pool and option set are true? (Choose all that apply.)
+        options: [Options and choices are created in the option pool, An option set can reference options from several pools, The option set must be assigned to the product before choices are assigned in its structure, The option pool is assigned to each variant]
+        answers: [0, 1, 2]
+        explanation: The pool is the library; the set is a subset referenced from one or more pools and assigned to the product. Variants don't get pools.
+      - kind: single
+        prompt: In the overloaded BOM, why are the Battery, Frame and Rack configurable modules set to Collapsible?
+        options: [To lock them against edits, So they don't appear in variant structures, So every child is always included, To give them CAD documents]
+        answer: 1
+        explanation: Collapsible modules are replaced by the selected module variants and are left out of the variant.
+      - kind: order
+        prompt: Put the E1 implementation steps in the order PTC's process usually follows.
+        items: [Create the configurable product structure, Create options and choices, Assign choices in the configurable structure, Test with the option filter, Configure the variant]
+        explanation: Build the structure, create options and choices (these can also come earlier), assign them, test with the option filter, then create variants with Configure.
+      - kind: single
+        prompt: Ana leaves Accessory Pack unselected, so a part's expression is undefined. With the default filter, what happens to that part?
+        options: [It is hidden, "It is shown - the standard filter treats undefined as TRUE", Configure fails, It is shown only in the alternate filter]
+        answer: 1
+        explanation: The standard (default) filter only hides parts whose expression is FALSE. The alternate filter treats undefined as FALSE and hides them.
+      - kind: truefalse
+        prompt: Turning on Disable Rule Checking is a safe way to get one unusual order through, because it only disables exclude rules.
+        answer: false
+        explanation: It disables all rules and effectivity settings and skips the minimum/maximum child-part checks, so the variant can break business policy without warning.
+      - kind: single
+        prompt: What does a variant specification record?
+        options: [The CAD placement of every part, The inputs used to configure the variant - mainly the selected choices, The option pool's rules, The product family tree]
+        answer: 1
+        explanation: The variant specification is the record of the choices (and parameters) used; the variant is the resulting structure.
+      - kind: single
+        prompt: A spec made with Configure won't show in the Matrix Editor. What fixes it?
+        options: [Release it, Insert it under a product model and Convert to Managed, Create a variant baseline, Delete the option set]
+        answer: 1
+        explanation: Only managed variant specifications (from the same configurable part) can be opened in the Matrix Editor.
+      - kind: multi
+        prompt: Which pieces does dynamic positioning need? (Choose all that apply.)
+        options: [A Locator Filter set for the Creo worker, CAD coordinate systems with a LOCATOR parameter, Locators on configurable modules and interfaces in the Architecture Editor, A product family]
+        answers: [0, 1, 2]
+        explanation: The worker setting, flagged coordinate systems, locators and interfaces with choices make positioning work. Product Families is a separate optional feature.
+
+  - type: flashcards
+    title: Options and variants deck
+    cards:
+      - front: Overloaded (150%) BOM
+        back: One configurable structure with every component of every variation; filtered to give one configuration.
+      - front: Configurable product
+        back: The top of the configurable structure - a configurable module that is also an end item.
+      - front: Option pool vs option set
+        back: The pool (per product or library) holds options, choices and rules. The set is a subset assigned to a product.
+      - front: Include / exclude / enable
+        back: Include selects targets; exclude forbids a combination; enable makes targets selectable.
+      - front: Conditional rule
+        back: "IF expression THEN enable, disable, include or requires. / is OR, + is AND."
+      - front: Advanced expression
+        back: A logical statement over several choices assigned to a part, e.g. a controller chosen by battery and trim.
+      - front: Standard vs alternate filter
+        back: Standard treats undefined expressions as TRUE (default); alternate treats them as FALSE.
+      - front: Configure steps
+        back: Set Filter, Set Parameters, Preview, Variant Specification, Module Variant.
+      - front: Managed variant specification
+        back: A variant spec inside a product family - required for the family structure and the Matrix Editor.
+      - front: Variant baseline
+        back: Captures the revisions of non-configurable parts used by managed variant specifications.
+      - front: Locator
+        back: A named location on a configurable module, mapped to a LOCATOR-flagged CAD coordinate system.
+
+  - type: summary
+    points:
+      - Options, choices and rules live in the option pool; option sets bring a subset to a product.
+      - The configurable structure holds every alternative; choices and expressions say when each applies.
+      - Test with the option filter, then Configure to create a variant specification and variant.
+      - Product families and the Matrix Editor organise and compare managed variant specifications.
+      - Dynamic positioning places CAD models from choices through locators and interfaces.

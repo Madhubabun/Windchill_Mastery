@@ -1,0 +1,232 @@
+id: m07-s01-l08
+subtitle: The operator at Riverside station 3 doesn't open process plans. She reads a work instruction - and it's never out of date.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [mpmlink, work-instructions, process-plan, shop-floor, routing-plans]
+sources:
+  - id: mpm-pp
+    where: "Module 1: Work instructions; Routing plans; End-to-end process. Module 3: Operations; Activity: Allocate parts to process plan operations (Generate work instructions)"
+  - id: mpm-bom
+    where: "Module 1: What is manufacturing process management (MPM)?; Windchill MPMLink architecture"
+  - id: te
+    where: "Module 1: Windchill Navigate task- and role-based apps (Work Instructions collection)"
+versionNotes:
+  - versions: ["13.0.2.0+"]
+    md: |
+      **Routing plans** (work center and workstation routing, with operation time and cost) are available
+      in MPMLink from Windchill 13.0.2.0. In PTC's end-to-end process they are created after all mBOM
+      parts are allocated, alongside work instructions.
+
+blocks:
+  - type: text
+    md: |
+      Dev works station 3 on the Riverside E1 line: chassis build, OP-20. He needs to know which frame
+      jig to use, which bolts go where, the torque, and what the finished chassis should look like.
+      He doesn't have time to browse a process plan structure in Windchill.
+
+      What he needs is a **work instruction**: one clear, step-by-step page. Ana doesn't write it by hand.
+      MPMLink **generates** it from the process plan she already built - so when she changes the plan,
+      the next page Dev opens already shows the change.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the how-to page for the shop floor" → [[work-instruction]]
+      - "the recipe it's generated from" → [[process-plan]] and its [[mpm-operation|operations]]
+      - "a step inside a step" → **sub-operation**
+      - "include sub-steps in the page" → the operation's **Sub Operation in Work Instruction** attribute
+      - "which stations and in what order, with time and cost" → **routing plan** (13.0.2.0 and later)
+
+  - type: diagram
+    title: Where a work instruction comes from
+    caption: Nothing is copied into a document. The page is built from live data each time. Click a box.
+    diagram:
+      width: 820
+      height: 400
+      nodes:
+        - id: mbom
+          label: E1 mBOM
+          sublabel: allocated parts
+          x: 20
+          y: 40
+          w: 160
+          tone: accent
+          detail: The parts allocated to the operation (by occurrence) show up as what to assemble.
+        - id: res
+          label: Resources
+          sublabel: jig · wrench · skill
+          x: 20
+          y: 160
+          w: 160
+          tone: neutral
+          detail: The work center, tooling, process materials and skills allocated to the operation.
+        - id: docs
+          label: Documents
+          sublabel: illustrations
+          x: 20
+          y: 280
+          w: 160
+          shape: doc
+          tone: neutral
+          detail: Supporting documents and illustrations associated with the operation.
+        - id: op
+          label: OP-20 Chassis build
+          sublabel: description · time · qty
+          x: 270
+          y: 150
+          w: 200
+          h: 70
+          tone: primary
+          detail: |
+            The operation holds the textual description, time and cost, quantity, resources, referenced
+            manufacturing capability, parts, documents and illustrations. That's everything the
+            instruction can show.
+        - id: wi
+          label: Work instruction
+          sublabel: generated HTML
+          x: 560
+          y: 150
+          w: 200
+          h: 70
+          shape: doc
+          tone: success
+          detail: |
+            A **dynamically generated HTML page**. It is not a saved document and not a saved view of
+            one, so any change to the plan, operation or sequence is visible immediately.
+        - id: screen
+          label: On screen
+          x: 520
+          y: 300
+          w: 130
+          shape: pill
+          tone: info
+          detail: If the shop floor has viewing capability, operators open the HTML page directly.
+        - id: paper
+          label: Printed
+          sublabel: several sizes
+          x: 670
+          y: 300
+          w: 130
+          shape: pill
+          tone: info
+          detail: Out of the box, work instructions can be printed in multiple size formats.
+      edges:
+        - { from: mbom, to: op, label: allocated }
+        - { from: res, to: op, label: allocated }
+        - { from: docs, to: op }
+        - { from: op, to: wi, label: generate }
+        - { from: wi, to: screen }
+        - { from: wi, to: paper }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Out-of-date paper on the line is one of the oldest quality problems in manufacturing. Because
+      MPMLink builds the page on demand from the current process plan, the most up-to-date manufacturing
+      information is available every time someone opens it. Leo (quality) stops chasing binders and
+      starts checking the plan.
+
+  - type: comparison
+    title: A stored instruction document vs an MPMLink work instruction
+    columns: [Stored document (e.g. a PDF), MPMLink work instruction]
+    rows:
+      - label: Created by
+        cells: ["Someone writing and saving it", "Generating it from the process plan"]
+      - label: After a plan change
+        cells: ["Must be rewritten and redistributed", "Shows the change the next time it is opened"]
+      - label: Scope
+        cells: ["Whatever the author included", "One operation, a sub-operation or the whole plan"]
+      - label: Source of truth
+        cells: ["The document itself", "The process plan, operations and their links"]
+    takeaway: The work instruction is a view of the plan, not a copy of it.
+
+  - type: walkthrough
+    title: Generate work instructions for OP-20 and for the whole plan
+    who: Ana, after allocating parts and resources
+    where: [Folders, Manufacturing, "PP-E1-10", Structure]
+    steps:
+      - title: Finish the plan first
+        where: [PP-E1-10, Structure tab, Display Part Allocation Status]
+        md: |
+          PTC's end-to-end process creates work instructions once all mBOM parts are allocated to
+          operations. Check allocation reaches 100%.
+      - title: One operation
+        where: [Structure tab, "OP-20", right-click, Work Instructions, Generate Work Instructions]
+        md: The page opens in a new window with everything set on the operation. If nothing opens, allow pop-ups for Windchill in the browser.
+      - title: The whole plan
+        where: [PP-E1-10, Actions, Work Instructions]
+        md: |
+          Generated from the process plan's **Actions** menu, it covers every operation found in the
+          current edit filter.
+      - title: Control sub-operations
+        where: ["<parent operation>", Edit, Sub Operation in Work Instruction]
+        md: Sub-operations are included when the parent's attribute is **Yes** - the default. Set it to No to leave them out.
+    result: Dev gets a page for OP-20; the line supervisor gets one for the whole plan. Both are current the moment they are generated.
+
+  - type: example
+    variant: case-study
+    title: The torque change that reached the line in minutes
+    industry: Micromobility
+    md: |
+      Leo found loose headset bolts in an audit. The fix was a higher torque and a different wrench.
+      Ana updated the OP-20 description and swapped the tooling allocation to the new calibrated
+      wrench in PP-E1-10, then checked in.
+
+      With the old binder system, Riverside would have kept using the previous sheet until someone
+      reprinted it. Now the next time Dev generated the OP-20 instruction, it showed the new torque and
+      tool. Leo's follow-up audit found no loose bolts.
+
+      Sam (field service) asked for the same for repair work - process plans also cover repairing and
+      maintaining a product, so that's next on Ana's list.
+    takeaway: Change the plan once; every instruction generated after that is right.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Treating the page as the master.** Edits belong in the process plan and its operations, not in
+      a downloaded copy. A printed instruction is a snapshot - date it and replace it when the plan
+      changes, or better, read it on screen.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Not everyone on the floor is a Windchill user. Windchill **Navigate** has a *Work Instructions*
+      collection, and its **View Work Instructions** task lets people view operations from a process
+      plan in a simple, role-based app.
+
+  - type: flashcards
+    title: Work instructions deck
+    cards:
+      - { front: "What is an MPMLink work instruction?", back: "A dynamically generated HTML page built from the process plan - not a stored document." }
+      - { front: "Why is it always current?", back: "It is generated on demand, so changes to the plan, operations or sequences show immediately." }
+      - { front: Scope options, back: "A single operation, a sub-operation, or the whole process plan (all operations in the current edit filter)." }
+      - { front: Sub Operation in Work Instruction, back: "Parent operation attribute; Yes (the default) includes its sub-operations." }
+      - { front: Generate for one operation, back: "Right-click the operation → Work Instructions → Generate Work Instructions." }
+      - { front: Printing, back: "Out of the box in multiple size formats." }
+      - { front: Routing plan, back: "From 13.0.2.0: links a process plan and a plant; holds work center/workstation routing plus operation time and cost. Several can exist per plan." }
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Ana changes OP-20's description at 10:00. Dev generates the OP-20 work instruction at 10:05. What does he see?
+        options: [The old description until Ana republishes, The new description, An error until the plan is released, Nothing - instructions are only for whole plans]
+        answer: 1
+        explanation: Work instructions are generated on demand from the current plan, so the change is visible immediately.
+      - kind: single
+        prompt: Ana generates work instructions for the whole PP-E1-10. Which operations are included?
+        options: [Only released operations, All operations found in the current edit filter, Only the first operation, Only operations with documents]
+        answer: 1
+        explanation: For a whole plan, instructions are generated for all operations in the current edit filter.
+      - kind: truefalse
+        prompt: By default, sub-operations are left out of a parent operation's work instruction.
+        answer: false
+        explanation: The parent's Sub Operation in Work Instruction attribute defaults to Yes, so sub-operations are included.
+
+  - type: summary
+    points:
+      - A work instruction is an HTML page generated on demand from the process plan - never a stored document.
+      - Generate it for one operation, a sub-operation or the whole plan; sub-operations follow the parent's attribute (default Yes).
+      - It shows what the operation holds - description, time, parts, resources, documents and illustrations.
+      - View it on screen or print it in several sizes; Navigate's View Work Instructions task can show operations too.
+      - Routing plans (13.0.2.0 and later) add plant routing, time and cost per process plan.

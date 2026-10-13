@@ -1,0 +1,96 @@
+id: m07-s13-check
+subtitle: Prove you can take the E1 from engineering BOM to a translated, filtered service manual.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [service, service-information, service-parts, checkpoint]
+sources:
+  - id: sis
+    where: "Modules 1-9: Service Information Manager and Service Parts overview; sBOM definition, source BOM relationship and BOM transformation; information structures and best practices; parts lists; illustrations; authoring with Arbortext Editor, XML and DITA; service applicability; publication structures; translation management"
+  - id: te
+    where: "Appendix A: Manage service information in Windchill; Organize and manage service content in Windchill; Manage spare parts information in Windchill"
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **service information and service parts**: the two service modules, the service BOM,
+      information structures, parts lists and illustrations, topic-based authoring, applicability,
+      publication structures and translation. Score 80% to pass. Every answer explains itself.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: Acme wants spare-parts lists and illustrated catalogs. Which modules does it need?
+        options: ["Windchill Service Parts alone", "Windchill Service Information Manager and Windchill Service Parts, on Windchill PDMLink", "Arbortext Content Delivery alone", "Windchill MPMLink and Service Parts"]
+        answer: 1
+        explanation: Service Parts is deployed on top of Service Information Manager, and both need Windchill PDMLink. Arbortext Content Delivery is a separate delivery product.
+      - kind: single
+        prompt: In the Service Associative Part Structure Browser, which action creates the sBOM's top-level item?
+        options: [Paste as New Part, New Downstream View on the design end item, Insert New on the design end item, Generate Parts Lists]
+        answer: 1
+        explanation: New Downstream View creates the Service view version of the end item, linked to the design version. That object represents the sBOM.
+      - kind: single
+        prompt: What is the recommended way to bring a design part into the sBOM when nothing about it differs for service?
+        options: ["Paste as New Part with a suffix", "Paste as New View", "Reuse the design part directly by dragging or pasting it under a service part", "Recreate it in the Service folder"]
+        answer: 2
+        explanation: Reusing eBOM design-view parts in the sBOM is the best practice - it keeps associations and conformity simple when changes are made.
+      - kind: truefalse
+        prompt: After Kai checks in a change to an eBOM part, the equivalent sBOM part stays flagged until someone updates the equivalent link.
+        answer: true
+        explanation: The pair loses its green tick. Update All Downstream Equivalent Objects (or Update to Current Upstream Equivalent Objects from the sBOM side) re-establishes the link to the latest iteration.
+      - kind: multi
+        prompt: Which are PTC's best practices for an information structure? (Choose all that apply.)
+        options: ["Break it into major systems and sub-systems", "Keep to no more than three levels where possible", "Put it under formal change control once defined", "Create one primary information structure per language"]
+        answers: [0, 1, 2]
+        explanation: Only one primary information structure per context is supported; languages are handled by translation, not by extra structures.
+      - kind: single
+        prompt: Where does Zoe set the quantity of each item in parts list PL-E1-01?
+        options: ["On the sBOM in the Service Associative Part Structure Browser", "On the Items tab of the parts list's Structure tab", "In Creo Illustrate", "In the publication structure"]
+        answer: 1
+        explanation: The Items tab shows the parts list's children and lets you edit usage attributes such as Quantity and Serviceable, and add parts that aren't in the sBOM.
+      - kind: single
+        prompt: Why does the course focus on Creo Illustrate rather than Arbortext IsoDraw for parts list illustrations?
+        options: ["IsoDraw can't read CAD data", "Creo Illustrate generates callouts and hotspots automatically and can update them", "IsoDraw isn't supported with Windchill", "Creo Illustrate writes the XML topics"]
+        answer: 1
+        explanation: Both start from the parts list's CAD data, but IsoDraw callouts are manual (or via a transitory XML step) and are not updated automatically.
+      - kind: single
+        prompt: Which DITA information type fits "Replace the rear brake pads, step by step"?
+        options: [Concept, Task, Reference, Specialization]
+        answer: 1
+        explanation: Task topics hold procedures. Concepts explain, references hold lookup data such as torque tables; specialization is how organisations extend the models.
+      - kind: single
+        prompt: Zoe changes the item expression of a section inside the E1 Workshop Manual publication structure. That section came from the information structure. What happens?
+        options: ["Only the publication changes", "The change is also reflected in the information structure", "The change is rejected", "A copy of the section is made"]
+        answer: 1
+        explanation: Content inserted from the information structure is shared, so modifying or deleting its assigned item expression in the publication structure also changes the information structure.
+      - kind: order
+        prompt: Put Zoe's translation steps in order.
+        items: ["Set PTC_DD_TRANSLATE and the required state on the topics", "Generate the XLIFF (manually or automatically)", "Create Translation Package for the target language", "Vendor returns the package to the external import folder", "Review the imported French versions"]
+        explanation: Topics must be marked and in state; XLIFFs are created manually or with the package; the returned package is imported from the monitored folder as new versions for review.
+
+  - type: flashcards
+    title: Service information deck
+    cards:
+      - front: Service BOM (sBOM)
+        back: "A downstream view of the source BOM (usually the eBOM) showing how the product is serviced, linked by equivalent links."
+      - front: Service Associative Part Structure Browser
+        back: "The two-pane tool for building the sBOM: upstream BOM on the left, sBOM on the right."
+      - { front: Service-only part, back: "A part that exists only in the sBOM, such as a special repair tool. It has no upstream equivalent." }
+      - front: Information structure
+        back: "Product-centric hierarchy of service content: groups for systems, information elements pointing to content. One primary per context."
+      - front: Content holder
+        back: "Links an information element to one dynamic document; one dynamic document can have many holders."
+      - front: Parts list
+        back: "Ordered spare-parts list with item numbers and quantities, built in the Parts List Editor or generated from an assembly."
+      - front: Related Parts relationships
+        back: "Replacement (alternate or substitute), Supplementary and Supersede."
+      - front: New Illustration
+        back: "Creates a .pvz parts list structure document and a .c3di that you finish in Creo Illustrate; stored as a related object of the parts list."
+      - { front: DITA, back: "XML-based open standard for reusable topics: Concept, Task, Reference." }
+      - front: Service applicability
+        back: "Service effectivity, option-and-choice expressions or advanced expressions, set with Manage Applicability."
+      - front: Publication structure
+        back: "Assembles sections, information elements, TOC, index and nested structures into one publication."
+      - front: Translation package
+        back: "Zip of XML sources, XLIFFs, manifest and log for one target language, with a baseline in Windchill."

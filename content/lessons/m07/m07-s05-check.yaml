@@ -1,0 +1,94 @@
+id: m07-s05-check
+subtitle: Prove you can plan, run and share a Windchill project - from E1 Lakeside Launch's first milestone to the parts list coming home.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [project-management, projectlink, checkpoint]
+sources:
+  - id: pm
+    where: "Module 1: Project plan objects; Project roles and resources; Gantt Explorer; Microsoft Project interaction. Module 2: Create a project; Manage the project team; Start a project; Project milestones; Project deliverables; Action items; Projects with automatic project execution. Module 3: Project status; Project state; Schedule attributes. Module 4: Data sharing actions; Share from PDM to a project; Send objects to PDM; Manage PDM checkout objects; Undo a PDM checkout"
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **project management and collaboration**: plan objects, project states and roles,
+      status roll-up, the Gantt Explorer and Microsoft Project, working with suppliers, and moving data
+      between PDM and projects. Score 80% to pass. Every answer explains itself.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: Which plan object links an activity to the document, part or CAD document it must produce?
+        options: [Resource assignment, Deliverable, Summary activity, Action item]
+        answer: 1
+        explanation: A deliverable links a plan object to its subject and stores percent complete, work done and risk. A resource assignment links an activity to a resource instead.
+      - kind: single
+        prompt: Kai wants to set up folders and the plan before anyone gets an e-mail. What should he do when creating E1 Lakeside Launch?
+        options: [Set Private Access to Members Only, Clear "Start project and send invitations to team", Choose automatic execution, Add everyone as Guest]
+        answer: 1
+        explanation: With the check box cleared the project stays Defined - only the project manager can work in it - until he chooses Start.
+      - kind: order
+        prompt: Put the project states in the order a normal, successful project passes through them.
+        items: [Defined, Running, Completed]
+        explanation: Defined (created, not started), Running (started, invitations sent), Completed (all plan and storage objects read-only). Suspended and Cancelled are detours.
+      - kind: single
+        prompt: A Running project is suspended. Who can still edit objects?
+        options: [Everyone on the team, Only project managers and content item owners, Only guests, Nobody at all]
+        answer: 1
+        explanation: In Suspended, project managers and owners of content items may edit; all other team members are read-only.
+      - kind: single
+        prompt: A deliverable on the critical path is set to Red. Other items are Green or Yellow. What colour is the project?
+        options: [Green, Yellow, Red, It depends on the average]
+        answer: 2
+        explanation: Windchill takes the worst status along the critical path, so one Red item makes the project Red.
+      - kind: truefalse
+        prompt: Changes you make in the Gantt Explorer are saved to the project plan when you close it.
+        answer: false
+        explanation: The Gantt Explorer is read-only - nothing changed there is retained. Edit plan objects on the Plan page.
+      - kind: single
+        prompt: Kai edited an exported plan in Microsoft Project and only wants his added and changed elements applied on import. Which option?
+        options: [Replace, Sync, Baseline, Suspend]
+        answer: 1
+        explanation: Sync changes only added or modified elements; Replace overwrites the whole Windchill plan with the Microsoft Project plan.
+      - kind: multi
+        prompt: Hexa Tooling must update Acme's fixture model and read the mounting spec. Which setup is right? (Choose all that apply.)
+        options: [Add Hexa's designers to the project by e-mail address, PDM check out the fixture model to the project, Share the mounting spec to the project, Add Hexa to the E-Bike E1 product team]
+        answers: [0, 1, 2]
+        explanation: Projects accept non-Windchill users by e-mail; PDM checkout makes the model editable in the project; sharing keeps the spec read-only. The product team would expose far more data.
+      - kind: single
+        prompt: The parts list was A.1 in the product. The project iterated it to A-1.3 and then used Send to PDM. What does the product show?
+        options: ["A.1", "A.2", "A-1.3", "A.4"]
+        answer: 1
+        explanation: The product only iterates when Send to PDM completes - the latest project iteration becomes the original's next iteration, A.2.
+      - kind: multi
+        prompt: What does undoing a PDM checkout do? (Choose all that apply.)
+        options: [Deletes all iterations created in the project, Unlocks the PDM original (if no other project still has it checked out), Removes associations created in the project, Copies the project edits into PDM]
+        answers: [0, 1, 2]
+        explanation: Undo throws away the project work and associations made there, and releases the lock once the last design alternative is undone. It never copies project edits to PDM - that's Send to PDM.
+
+  - type: flashcards
+    title: Project management deck
+    cards:
+      - front: Project plan
+        back: Top-level plan object of a project - holds activities, summary activities and milestones; rolls up status, work and dates.
+      - front: Summary activity
+        back: Parent of other plan items. Its work, cost and status are calculated from its children.
+      - front: Goal measurement milestone
+        back: A milestone with linked deliverables - finish date is the latest deliverable finish; percent complete is their simple average.
+      - front: Deliverable
+        back: Links an activity or milestone to its output (its subject) and tracks percent complete, work and risk.
+      - front: Action item
+        back: An unplanned task any member can create and assign; resolved by state Resolved, 100 done or an actual finish date.
+      - front: "Duration = ?"
+        back: "Work / Resource Units. Fixed Units, Fixed Duration and Fixed Work decide which value is recalculated."
+      - front: Gantt Explorer
+        back: Read-only timeline view with zoom, Scroll to and Highlight critical path. Nothing changed there is saved.
+      - front: Manual vs automatic execution
+        back: Manual for changing plans; automatic starts activities by precedence and dates - best for repeatable template plans.
+      - front: Share vs PDM checkout
+        back: Share = read-only in the project. PDM checkout = editable project version (A-1.x), original locked in PDM.
+      - front: Send to PDM
+        back: Copies the latest project iteration to the original as its latest iteration, unlocks it (unless kept checked out) and shares it back.
+      - front: Undo PDM checkout
+        back: Deletes project iterations and project-made associations, shares the original to the project and unlocks it.

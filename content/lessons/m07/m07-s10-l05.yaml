@@ -1,0 +1,264 @@
+id: m07-s10-l05
+subtitle: Should this button appear? Should this click go ahead? Can this wizard move on? Validators answer all three.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [customization, developer, validators, ui-validation, ui-framework]
+sources:
+  - id: cus-val
+    where: "Validators theory: definition; types of validators (pre-validation, post-select, post-submit); scope and intended outcome; pre-validation, post-select and post-submit sequences. Validators exercise: PartStateValidator with DefaultSimpleValidationFilter, includeFilter, SimpleValidationFilter registration"
+  - id: trn-framework
+    where: "Windchill Framework Customization slides and UI_validation.pptx: UI validation objective; pre-validation; post-select; post-submit; defining a validator (DefaultUIComponentValidator and its five methods); elements in validator; registering a validator"
+  - id: trn-code
+    where: "ReassignDocTemplateValidator and ReassignFunctionalOwnerValidator (checking only): performFullPreValidation, validateFormSubmission, UIValidationResultSet, UIValidationFeedbackMsg, statuses"
+  - id: cus-overview
+    where: "Day 1 overview: validation services"
+versionNotes:
+  - versions: ["All releases"]
+    md: The validator classes come from the com.ptc.core.ui.validation package as used in the training; confirm method signatures in the Javadoc of your release.
+  - versions: ["Windchill+"]
+    md: Validators and their xconf registrations are customizations; deploy them to [[windchill-plus|Windchill+]] with a [[windchill-plus-ccd|CCD]] package.
+
+blocks:
+  - type: text
+    md: |
+      Leo has a quality rule for E1: the new **Acme release check** action only makes sense for parts that are
+      still **In Work**. Released parts shouldn't even show it. Theo could check the state inside the JSP and
+      show an error, but by then the user has already clicked. A [[ui-validator|validator]] decides earlier,
+      before the menu is even drawn.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "decide whether a button or attribute appears" → **pre-validation**
+      - "decide whether a click may go ahead" → **post-select validation** (actions only)
+      - "decide whether Next or OK may go ahead in a wizard" → **post-submit validation**
+      - "the answer: enabled, disabled, hidden, permitted, denied..." → **UIValidationStatus**
+      - "which button or attribute is being checked" → **UIValidationKey**; "the context (object, request, session)" → **UIValidationCriteria**
+
+  - type: comparison
+    title: Three moments to validate
+    columns: [Pre-validation, Post-select, Post-submit]
+    rows:
+      - label: Question
+        cells: ["Should this UI component be available at all?", "Now that it's clicked, may this action proceed?", "Is the data entered good enough to go on?"]
+      - label: Applies to
+        cells: ["Actions and attributes", "Actions only", "Wizard steps and wizard submissions only"]
+      - label: Training example
+        cells: ["Check In disabled when the object isn't checked out", "Checkout refused with an error when the object is already checked out", "User can't move to the next step because this step's data is invalid"]
+      - label: Validator method
+        cells: ["performFullPreValidation / performLimitedPreValidation", "validateSelectedAction / validateSelectedMultiSelectAction", "validateFormSubmission"]
+    takeaway: Pre-validation is the most used of the three.
+
+  - type: diagram
+    title: How pre-validation decides
+    caption: For each action or attribute on the page, the validation service runs these checks in order. Click a box.
+    diagram:
+      width: 820
+      height: 340
+      nodes:
+        - id: request
+          label: Page renders
+          sublabel: key + criteria
+          x: 20
+          y: 140
+          w: 140
+          tone: accent
+          shape: pill
+          detail: The client infrastructure calls the validation service with a **validation key** for each action or attribute and the context as **validation criteria**.
+        - id: invalid
+          label: 1 · Invalid keys
+          sublabel: solution set
+          x: 190
+          y: 40
+          w: 160
+          tone: neutral
+          detail: Is the key in the list of invalid keys for the installed solution set?
+        - id: role
+          label: 2 · Role-based UI
+          sublabel: configured hide/disable
+          x: 190
+          y: 230
+          w: 160
+          tone: neutral
+          detail: Was the role-based UI service configured to disable or hide this component?
+        - id: filters
+          label: 3 · Filters
+          sublabel: includeFilter
+          x: 390
+          y: 40
+          w: 160
+          tone: warning
+          detail: Do any filters attached to the component (for example with `<includeFilter>` in the action) say disable or hide? Theo's simple filter runs here.
+        - id: validator
+          label: 4 · Validator
+          sublabel: UIComponentValidator
+          x: 390
+          y: 230
+          w: 160
+          tone: primary
+          detail: If a validator is registered for this component, it returns the status.
+        - id: result
+          label: Result set
+          sublabel: enabled · disabled · hidden
+          x: 610
+          y: 140
+          w: 190
+          tone: success
+          shape: pill
+          detail: The validation result (or result set) goes back to the client infrastructure, which draws, greys out or leaves out the component.
+      edges:
+        - { from: request, to: invalid }
+        - { from: invalid, to: role }
+        - { from: role, to: filters }
+        - { from: filters, to: validator }
+        - { from: validator, to: result }
+
+  - type: walkthrough
+    title: Show the release check only for In Work parts
+    who: Windchill developer (Theo)
+    where: ["<Windchill>", src, com, acme, windchill, validators]
+    steps:
+      - title: Attach a filter to the action
+        where: [codebase, config, actions, custom-actions.xml]
+        md: |
+          ```xml
+          <action name="acmeReleaseCheck">
+            <includeFilter name="acmeInWorkOnly"/>
+            <command windowType="page" url="/netmarkets/jsp/acme/releaseCheck.jsp"/>
+          </action>
+          ```
+      - title: Write the filter
+        where: [src, com, acme, windchill, validators, InWorkOnlyFilter.java]
+        md: |
+          A simple filter extends `DefaultSimpleValidationFilter` and answers in `preValidateAction`:
+
+          ```java
+          public class InWorkOnlyFilter extends DefaultSimpleValidationFilter {
+              @Override
+              public UIValidationStatus preValidateAction(UIValidationKey key, UIValidationCriteria criteria) {
+                  Persistable obj = criteria.getContextObject().getObject();
+                  if (obj instanceof WTPart
+                          && "INWORK".equals(((WTPart) obj).getLifeCycleState().toString())) {
+                      return UIValidationStatus.ENABLED;
+                  }
+                  return UIValidationStatus.HIDDEN;
+              }
+          }
+          ```
+      - title: Register the filter
+        where: [codebase, service.properties.xconf]
+        md: |
+          The selector must equal the `includeFilter` name:
+
+          ```xml
+          <Service name="com.ptc.core.ui.validation.SimpleValidationFilter" targetFile="codebase/service.properties">
+            <Option serviceClass="com.acme.windchill.validators.InWorkOnlyFilter"
+                    selector="acmeInWorkOnly" requestor="null" cardinality="duplicate"/>
+          </Service>
+          ```
+          Run `xconfmanager -p`, compile, and restart.
+      - title: Or write a full validator
+        where: [src, com, acme, windchill, validators]
+        md: |
+          For more control, extend `DefaultUIComponentValidator` and override one or more of its five methods.
+          Register it under `com.ptc.core.ui.validation.UIComponentValidator` with the **action name** (or attribute
+          ID) as `selector`, and `requestor` either `null` or the class name used for that action's object type.
+    result: The release check appears on In Work E1 parts and is absent everywhere else.
+
+  - type: scenario
+    variant: what-if
+    title: Hidden, disabled or enabled?
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Leo adds rules. Some users must never see **Acme release check**; others should see it but can't use it
+          yet. Ines, from the integration team, isn't on the E1 product team at all. What should pre-validation
+          return for her?
+        choices:
+          - label: HIDDEN - she has no business with this action
+            next: s2
+            good: true
+            feedback: Matches the training's case of hiding an action from users who aren't on the container's team.
+          - label: DISABLED - grey it out
+            next: s1b
+            feedback: A greyed-out button invites questions she can't act on.
+      - id: s1b
+        md: Ines files a ticket asking why the button is grey. The rule was about membership, not timing. Try again.
+        choices:
+          - label: Make it HIDDEN for non-members
+            next: s2
+            good: true
+      - id: s2
+        md: |
+          Priya is on the team, but the part is **checked out** by Kai. Leo wants her to know the action exists
+          but can't run until check-in. What now?
+        choices:
+          - label: DISABLED while checked out, ENABLED otherwise
+            next: s3
+            good: true
+            feedback: Same idea as Check In being disabled for an object that isn't checked out.
+          - label: HIDDEN while checked out
+            next: s2b
+            feedback: Then the action seems to vanish at random.
+      - id: s2b
+        md: Priya reports a "disappearing button" bug. Hiding it was technically correct and very confusing.
+        outcome: partial
+      - id: s3
+        md: |
+          Last rule: when the user clicks OK in the release-check wizard, the comment field must not be empty.
+          Which method?
+        choices:
+          - label: validateFormSubmission returning DENIED with a UIValidationFeedbackMsg
+            next: s4
+            good: true
+          - label: performFullPreValidation
+            next: s3b
+            feedback: Pre-validation runs before the page is drawn. There's no comment to read yet.
+      - id: s3b
+        md: The check never sees the comment because it runs too early. Post-submit is the right moment.
+        outcome: fail
+      - id: s4
+        md: |
+          All three rules land in the right place: membership hides, checkout disables, an empty comment is denied
+          with a clear message. Leo signs off.
+        outcome: success
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Selector mismatch.** The filter's registration `selector` and the action's `<includeFilter name>` must match
+      exactly, just like a data utility ID. If they don't, your filter never runs and your rule is silently ignored.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      When validating several objects at once, return a **UIValidationResultSet** with one UIValidationResult per
+      object (`UIValidationResultSet.newInstance()`, then `addResult(...)`). For post-submit checks, a status of
+      `PROMPT_FOR_CONFIRMATION` with a confirmation message lets the user decide instead of blocking them.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Which class should a full validator extend?
+        options: [UIComponentValidator, DefaultUIComponentValidator, DefaultObjectFormProcessor, AbstractDataUtility]
+        answer: 1
+        explanation: UIComponentValidator is the interface, but the training says validators should extend DefaultUIComponentValidator rather than implement the interface directly.
+      - kind: single
+        prompt: Post-select validation applies to...
+        options: [Actions only, Attributes only, Wizard steps only, Actions and attributes]
+        answer: 0
+        explanation: Post-select checks whether a selected action may proceed. Pre-validation covers actions and attributes; post-submit covers wizard steps and submissions.
+      - kind: order
+        prompt: Put the pre-validation checks in the order the validation service runs them.
+        items: [Invalid keys for the installed solution set, Role-based UI configuration, Filters associated with the component, The component's validator]
+        explanation: Configured checks come first. The validator is asked last, and only if one is associated with the component.
+
+  - type: summary
+    points:
+      - "Three kinds: pre-validation (show, hide, disable), post-select (may the action proceed) and post-submit (may the wizard move on)."
+      - Pre-validation checks invalid keys, role-based UI, filters and finally the validator.
+      - "Simple filters: extend DefaultSimpleValidationFilter, attach with includeFilter, register under SimpleValidationFilter."
+      - "Full validators: extend DefaultUIComponentValidator, register under UIComponentValidator with the action name as selector."
+      - Hide what a user should never use; disable what isn't available yet; deny bad wizard data with a feedback message.

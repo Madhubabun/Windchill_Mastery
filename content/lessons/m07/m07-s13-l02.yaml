@@ -1,0 +1,283 @@
+id: m07-s13-l02
+subtitle: Engineering built the E1 to be designed. Service needs it built to be fixed. Same parts, different structure - and still linked.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [service, sbom, bom-transformation, service-parts, part-views]
+sources:
+  - id: sis
+    where: "Module 2: Define a service bill of materials (sBOM); Service BOM and source BOM relationship; BOM transformation process; Activity: Transform an engineering bill of materials (eBOM) into a service bill of materials (sBOM); Activity: Maintain the eBOM-sBOM relationship"
+  - id: te
+    where: "Module 1: BOM transformation (xBOM); Appendix A: The service bill of materials (sBOM)"
+versionNotes:
+  - versions: ["All releases"]
+    md: |
+      The steps follow the 13.0.1.1 course environment, where the upstream view is Design and the
+      downstream view is Service (the out-of-the-box view setup). Your company's view network may differ.
+
+blocks:
+  - type: text
+    md: |
+      Look at the E1's engineering BOM and you'll find a **motor assembly**, a **frame assembly**, a
+      **wiring harness** buried inside the frame. Logical - for a designer.
+
+      Now ask Sam what he replaces in a shop: the *rear light kit*, the *brake pad set*, the *battery pack*.
+      Some of those don't exist in the eBOM at all. Some are three engineering parts bundled together.
+
+      So Acme's service engineer builds a **second structure** from the first: the [[service-bom]]. Each
+      service part keeps a thread back to the engineering part it came from - so when Kai changes a part,
+      the service side finds out.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the BOM for fixing, not building" → [[service-bom]] (sBOM)
+      - "the engineering BOM it's made from" → **source** or **upstream** BOM, usually the [[ebom]]
+      - "the two-pane tool for building it" → **Service Associative Part Structure Browser**
+      - "the thread between upstream and downstream part" → **equivalent link**
+      - "a service copy of a part with the same number" → [[new-view-version]] in the Service [[part-view|view]]
+      - "a part only service needs, like a special tool" → **service-only part**
+
+  - type: animation
+    title: From eBOM to sBOM in five moves
+    diagram:
+      width: 820
+      height: 430
+      groups:
+        - { label: "Upstream: eBOM (Design view)", x: 10, y: 20, w: 330, h: 390, tone: neutral }
+        - { label: "Downstream: sBOM (Service view)", x: 470, y: 20, w: 340, h: 390, tone: primary }
+      nodes:
+        - id: e-top
+          label: E-Bike E1
+          sublabel: EB-1000 Design
+          x: 90
+          y: 50
+          w: 170
+          tone: neutral
+        - id: e-elec
+          label: Light + harness
+          sublabel: design assemblies
+          x: 30
+          y: 160
+          w: 140
+          tone: neutral
+        - id: e-motor
+          label: Motor assembly
+          sublabel: Design
+          x: 185
+          y: 160
+          w: 140
+          tone: neutral
+        - id: e-saddle
+          label: Saddle
+          sublabel: Design
+          x: 110
+          y: 290
+          w: 140
+          tone: neutral
+        - id: s-top
+          label: E-Bike E1
+          sublabel: EB-1000 Service
+          x: 560
+          y: 50
+          w: 170
+          tone: primary
+        - id: s-elec
+          label: Electrical kit
+          sublabel: EB-S4001 new part
+          x: 480
+          y: 160
+          w: 150
+          tone: accent
+        - id: s-motor
+          label: Motor assembly
+          sublabel: new view version
+          x: 650
+          y: 160
+          w: 150
+          tone: accent
+        - id: s-saddle
+          label: Saddle service
+          sublabel: EB-S4002 new number
+          x: 480
+          y: 290
+          w: 150
+          tone: accent
+        - id: s-tool
+          label: Crank puller
+          sublabel: service-only part
+          x: 650
+          y: 290
+          w: 150
+          tone: warning
+      edges:
+        - { from: e-top, to: s-top, label: equivalent, dashed: true }
+        - { from: e-elec, to: s-elec, label: dragged under }
+        - { from: e-motor, to: s-motor, dashed: true }
+        - { from: e-saddle, to: s-saddle, dashed: true }
+    chapters:
+      - title: Open the eBOM upstream
+        caption: The service engineer opens the E1's design structure in the **Service Associative Part Structure Browser**. The right pane is empty - no sBOM yet.
+        show: [e-top, e-elec, e-motor, e-saddle]
+        highlight: [e-top]
+      - title: Create the Service view of the top item
+        caption: "**New Downstream View** creates a Service view version of EB-1000. That object *is* the sBOM, and an equivalent link ties it to the Design version."
+        show: [e-top, e-elec, e-motor, e-saddle, s-top]
+        highlight: [s-top]
+        flow: ["e-top>s-top"]
+      - title: Add a service assembly and reuse design parts
+        caption: A new part, EB-S4001, groups what's serviced together. The design assemblies are **dragged** under it unchanged - the best practice, because reused parts need no extra linking.
+        show: [e-top, e-elec, e-motor, e-saddle, s-top, s-elec]
+        highlight: [s-elec, e-elec]
+        flow: ["e-elec>s-elec"]
+      - title: New view version or new number when needed
+        caption: The motor is managed separately in service, so it gets a **new view version** (same number, Service view). Acme's rules want a different number for the saddle, so it becomes EB-S4002 with **Paste as New Part**. Both keep equivalent links.
+        show: [e-top, e-elec, e-motor, e-saddle, s-top, s-elec, s-motor, s-saddle]
+        highlight: [s-motor, s-saddle]
+        flow: ["e-motor>s-motor", "e-saddle>s-saddle"]
+      - title: Add service-only parts
+        caption: A crank puller tool exists only for service. It has no upstream equivalent - the browser marks such parts with a yellow triangle.
+        highlight: [s-tool]
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      The sBOM lets the service organisation have **its own view** of the product while keeping links back
+      to the source. When engineering changes flow downstream, the impact on service parts can be analysed
+      and the changes taken over. The visualization of the engineering parts is carried along too, which
+      becomes the starting point for service illustrations later.
+
+  - type: comparison
+    title: Three ways a service part relates to its source
+    columns: [Reuse the design part, New view version, New part number]
+    rows:
+      - label: What you do
+        cells: ["Drag or paste the eBOM part under a service part", "Copy, then Paste as New View", "Copy, then Paste as New Part"]
+      - label: Number
+        cells: ["Same part, same number", "Same number, Service view", "New number (for example with a suffix)"]
+      - label: When
+        cells: ["Default - the best practice", "The assembly must be managed or reorganised separately in service", "Business rules demand different numbers in eBOM and sBOM"]
+      - label: After an eBOM change
+        cells: ["Update the equivalent link; nothing else to rework", "Update, then check in the service version", "Update, then check in the service part"]
+    takeaway: Reuse whenever you can - every new version or number is something extra to keep in step.
+
+  - type: walkthrough
+    title: Build the first levels of the E1 sBOM
+    who: A service engineer with modify rights in the product (in the course, a user in the Designer and Product Manager roles)
+    where: [Browse, "<product>", Structure, Actions, Open in, Service Associative Part Structure Browser]
+    steps:
+      - title: Make a home for service data
+        where: [Browse, "<product>", Folders, New Folder]
+        md: Create a **Service** folder in the product so service parts and Service view versions are kept apart from design data.
+      - title: Open the top-level item in the browser
+        where: [Information page, Actions, Open in, Open in Service Associative Part Structure Browser]
+        md: |
+          From the end item's information page (or by right-clicking its row in the folder and choosing
+          **Open in → Service Associative Part Structure Browser**), open the structure. The left pane is
+          the upstream structure.
+      - title: Show the Design view upstream
+        where: [Left pane, Filter, Edit Filter]
+        md: |
+          If the left pane shows another view (the course environment opens on Manufacturing), edit the
+          filter and remove that view's row from **To Be Applied** so the eBOM (Design view) appears.
+      - title: Create the Service view of the end item
+        where: [Left pane, right-click end item, New Downstream View]
+        md: Choose **New Downstream View**, set the **Downstream Location** to the Service folder and click OK. The Service version appears in the right pane with a green tick on both sides.
+      - title: Add a service assembly
+        where: [Right pane, right-click end item, Insert, Insert New]
+        md: Create a **Part** (for example *Electrical kit*, EB-S4001). The **View** field shows Service. Then select design assemblies in the left pane and drag them onto it.
+      - title: Add a new view version or new part where needed
+        where: [Left pane, Copy, Right pane, Paste as New View]
+        md: |
+          Copy a design part, then use **Paste as New View** (or **Paste as New Part**, edit number and name
+          and click **Recalculate**). Set the location to the Service folder. *Duplicate without propagating*
+          in **Child Structure Options** keeps the children in the Design view.
+      - title: Check everything in
+        where: [Right pane, Check Out/In, My Checkouts]
+        md: Select all rows and **Check In**, then **Apply to All**.
+    result: |
+      Both BOMs sit side by side. Green ticks mark equivalent parts; a yellow triangle marks service parts
+      with no upstream equivalent. On the end item's **Details** tab the **Equivalence Network** attribute now
+      shows that the E1 has both an eBOM and an sBOM.
+
+  - type: simulation
+    title: Keep the eBOM and sBOM in step
+    intro: |
+      Kai changes the E1 motor assembly in the eBOM. The sBOM uses a **new view version** of it. Watch the
+      status icons in the Service Associative Part Structure Browser and get both sides back to a green tick.
+    headline: "eBOM motor {iteration} · status: {status} · sBOM version checked out: {svcOut}"
+    initial: { iteration: A.1, status: green tick, upstreamOut: false, svcOut: false, updated: false }
+    actions:
+      - id: check-out-ebom
+        label: Check out the eBOM part
+        when: { upstreamOut: false, svcOut: false }
+        do: [{ set: { upstreamOut: true, status: out of date } }]
+        log: Kai checks out the Design part. The green ticks disappear - the browser flags the pair as no longer equivalent.
+        blockedHint: Already checked out - or finish the service side first.
+      - id: check-in-ebom
+        label: Check in the eBOM part
+        when: { upstreamOut: true }
+        do: [{ set: { upstreamOut: false, iteration: A.2 } }]
+        log: Checked in as a new iteration. Still no green tick - the equivalent link points at the old iteration.
+      - id: update-downstream
+        label: Update All Downstream Equivalent Objects
+        when: { upstreamOut: false, status: out of date }
+        do: [{ set: { status: green tick, svcOut: true, updated: true } }]
+        log: The link now points at the latest upstream iteration. Green ticks are back - and the Service version is checked out.
+        blockedHint: Check the eBOM part in first; there is nothing to update yet.
+      - id: check-in-service
+        label: Check in the Service version
+        when: { svcOut: true }
+        do: [{ set: { svcOut: false } }]
+        log: The Service view version is checked in. Both sides are equivalent again.
+    goals:
+      - label: eBOM changed and sBOM back in step
+        when: { iteration: A.2, status: green tick, svcOut: false, updated: true }
+        message: You can also run Update to Current Upstream Equivalent Objects from the sBOM side to re-establish the link.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Building the sBOM from the mBOM by habit.** The course points out that the sBOM is usually built
+      from the eBOM: serviceable parts are chosen during design, while the mBOM is about building the
+      product. Check which pane shows which view before you drag anything.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Lost track of which service part comes from which design part? Right-click a part and choose
+      **Select Equivalent Parts on Other Side** - the browser highlights its partner in the other pane.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Which statement best describes an sBOM's relationship to the eBOM?
+        options: ["A copy of the eBOM that is edited separately", "A downstream view of the source BOM, linked by equivalent links", "A list of parts in the order they are assembled", "A report generated from the eBOM once a year"]
+        answer: 1
+        explanation: The sBOM is a view of one or more source BOMs. Equivalent links keep associativity so engineering changes are flagged in the sBOM.
+      - kind: multi
+        prompt: What can an sBOM contain? (Choose all that apply.)
+        options: ["Serviceable parts reused from the eBOM", "New service-only parts such as a special tool", "Service parts that group several source parts", "Only parts that are in the eBOM"]
+        answers: [0, 1, 2]
+        explanation: An sBOM holds reused serviceable parts, new serviceable parts not in the source BOM, and parts that represent several source parts - so it is not limited to eBOM parts.
+      - kind: single
+        prompt: Acme's rules say service parts must have their own numbers. Which action fits?
+        options: [Drag the design part, Paste as New View, Paste as New Part, New Downstream View]
+        answer: 2
+        explanation: Paste as New Part creates a part with a new number that still has an equivalent link to the design part. Paste as New View keeps the same number in the Service view.
+      - kind: order
+        prompt: Put the high-level BOM transformation steps in order.
+        items: ["Prepare: decide the BOM network and the level to transform", "Open the top-level design item upstream", "Create the Service view version of the top-level item", "Create service assemblies", "Reorganise eBOM objects in the sBOM", "Create service-only parts"]
+        explanation: This is the course's six-step process. Preparation decides which BOMs and which product level you manage; the rest builds the sBOM top-down.
+      - kind: truefalse
+        prompt: After an upstream part is checked in with changes, the green ticks return automatically.
+        answer: false
+        explanation: Both sides show the out-of-date indicator until someone runs Update All Downstream Equivalent Objects (or Update to Current Upstream Equivalent Objects from the sBOM side).
+
+  - type: summary
+    points:
+      - Products are serviced differently than they are engineered, so the eBOM is transformed into an sBOM.
+      - The Service Associative Part Structure Browser shows the upstream BOM on the left and the sBOM on the right.
+      - Reuse design parts where possible; use a new view version or a new part number only when you must.
+      - Service-only parts and service assemblies exist only in the sBOM and have no upstream equivalent.
+      - Equivalent links flag upstream changes; update them so both sides show a green tick again.

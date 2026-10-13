@@ -1,0 +1,283 @@
+id: m07-s07-l03
+subtitle: Theo's first integration task - read E1 parts from Windchill with a plain HTTP call, then create one without tripping the security check.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [integration, rest, odata, wrs, developer, api]
+sources:
+  - id: rest
+    where: "Module 1: What are REST services? (resources, URIs, HTTP methods, statelessness). Module 2: WRS overview (PTC domains: Product Management, Document Management, Data Administration, Principal Management); WRS framework (OData servlet); API catalog (Client Customization preference, Customization > Documentation > OData REST APIs, Try it out); What is a domain? (domain root URL, API version, not administrative domains); HTTP methods. Module 3: What is OData?; WRS OData URLs; Methods used by WRS; HTTP status codes; Query parameters ($select, $filter, $top, $skip, $orderby, $expand); Object reference and version reference; Activity: fetch entities (server-side paging, $count, nextLink); Securing WRS requests (nonce, GetCSRFToken); HTTP request headers (CSRF_NONCE, Content-Type); Access permissions in WRS"
+  - id: erp
+    where: "Module 1: Windchill ERP integration options (ERP systems can pull published data using REST APIs or SDKs)"
+versionNotes:
+  - versions: ["All releases"]
+    md: |
+      WRS is released on its own cycle and bundled with each Windchill release, so the domain API versions you
+      see (the course environment shows ProdMgmt v7 and PTC Common v5) differ between systems. Read the API
+      catalog on **your** system, and put the version in the URL when your app depends on it.
+  - versions: ["Windchill+"]
+    md: |
+      On [[windchill-plus|Windchill+]], PTC's guidance for reports and data retrieval is to use Windchill REST
+      Services rather than custom Info*Engine tasks, which Windchill+ does not allow.
+
+blocks:
+  - type: text
+    md: |
+      Ines wants a small dashboard for the plants: *"Show me every E1 part that's **make** and its current
+      revision."* Theo could write a report inside Windchill - or he could ask Windchill over the web, the
+      same way any app asks any web API.
+
+      That's [[windchill-rest-services|Windchill REST Services (WRS)]]: Windchill objects exposed as web
+      resources. If your client can send an HTTP request, it can talk to Windchill.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "Windchill's web API" → [[windchill-rest-services|WRS]], which follows the **OData** standard
+      - "one topic area of the API with its own address" → [[wrs-domain|domain]] (for example `ProdMgmt` for parts and BOMs)
+      - "the list of what a domain offers" → [[entity-data-model|Entity Data Model (EDM)]], read at `$metadata`
+      - "a collection, like all parts" → **entity set** (`Parts`); "one part" → **entity**
+      - "the verb you send" → **HTTP method**: GET, POST, PATCH, DELETE
+      - "a one-time security code for changes" → **nonce** (the `CSRF_NONCE` header)
+
+  - type: diagram
+    title: Anatomy of a WRS URL
+    caption: Every request is a method plus a URL built from these parts. Click a box.
+    diagram:
+      width: 820
+      height: 300
+      nodes:
+        - id: root
+          label: Service root
+          sublabel: /Windchill/servlet/odata/
+          x: 20
+          y: 40
+          w: 180
+          tone: neutral
+          detail: |
+            Add `/servlet/odata/` to your Windchill URL. A GET there returns the list of available domains.
+            Every OData call passes through this servlet, which reads the domain configurations.
+        - id: ver
+          label: API version
+          sublabel: v7 (optional)
+          x: 220
+          y: 40
+          w: 130
+          tone: info
+          detail: |
+            Optional. Without it the domain's default (configured) version answers. Include it when your
+            application must not break if a newer version changes something.
+        - id: dom
+          label: Domain id
+          sublabel: ProdMgmt
+          x: 370
+          y: 40
+          w: 130
+          tone: primary
+          detail: |
+            Picks the [[wrs-domain|domain]]. PTC ships domains such as Product Management (`ProdMgmt`),
+            Document Management (`DocMgmt`), Data Administration and Principal Management. These are **not**
+            Windchill's administrative domains.
+        - id: set
+          label: Entity set
+          sublabel: Parts
+          x: 520
+          y: 40
+          w: 120
+          tone: accent
+          detail: |
+            The collection you act on. Add a key in brackets for one entity, for example
+            `Parts('OR:wt.part.WTPart:89976')`, and a navigation property after it, such as `/Uses`, to follow a link.
+        - id: query
+          label: Query options
+          sublabel: "?$filter=..."
+          x: 660
+          y: 40
+          w: 140
+          tone: warning
+          detail: |
+            System query options start with `$` and are joined with `&`: `$filter`, `$select`, `$expand`,
+            `$top`, `$skip`, `$orderby`, `$count`. Encode special characters, for example `%3A` for a colon.
+        - id: meta
+          label: $metadata
+          sublabel: the domain's EDM
+          x: 370
+          y: 190
+          w: 130
+          shape: doc
+          tone: info
+          detail: |
+            Put `$metadata` after the domain root to get the [[entity-data-model|EDM]] in CSDL (XML): entities,
+            properties, navigations, functions and actions.
+      edges:
+        - { from: root, to: ver }
+        - { from: ver, to: dom }
+        - { from: dom, to: set }
+        - { from: set, to: query }
+        - { from: dom, to: meta, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      WRS is how other PTC products and third-party systems talk to Windchill, so it's the default building
+      block for integrations, dashboards and mobile apps. ERP Connector output can even be pulled by ERP
+      through REST APIs. One API, learned once, opens nearly any Windchill data your user is allowed to see.
+
+  - type: comparison
+    title: The four verbs WRS uses
+    columns: [What it does, "Needs a nonce?"]
+    rows:
+      - label: GET
+        cells: ["Read an entity or entity set; read-only and safe to repeat", "No"]
+      - label: POST
+        cells: ["Create an entity in a set, or call an action (for example CheckOut)", "Yes"]
+      - label: PATCH
+        cells: ["Update properties of an existing entity", "Yes"]
+      - label: DELETE
+        cells: ["Remove an entity you have permission to delete", "Yes"]
+    takeaway: Reads are simple; anything that changes data must carry a CSRF nonce.
+
+  - type: walkthrough
+    title: Read E1 parts from the API catalog
+    who: Theo (a site administrator enables the catalog once; then any user can open it)
+    where: [Customization, Documentation, OData REST APIs]
+    steps:
+      - title: Make the API catalog visible
+        where: [Site, Utilities, Preference Management, Client Customization]
+        md: |
+          Signed in as a site or system administrator, set the **Client Customization** preference to **Yes**
+          and refresh the page. A **Customization** tab appears in the Navigator.
+      - title: Open the OData catalog
+        where: [Customization, Documentation, OData REST APIs]
+        md: |
+          The catalog is a Swagger page listing every installed domain. Actions you run here really happen
+          in Windchill, so practise on a test system.
+      - title: Pick the domain and version
+        where: [PTC Product Management Domain, API Version]
+        md: The right pane shows the domain identifier, its root URL and its service endpoints.
+      - title: Run GET /Parts with a filter
+        where: [GET /Parts, Try it out]
+        md: |
+          Click **Try it out**, enter a `$filter` such as `Source eq 'make'` or a name match, and click
+          **Execute**. A 200 response returns JSON; by default results are paged 25 at a time with an
+          `@odata.nextLink` to the next page.
+      - title: Reuse the request elsewhere
+        where: [Responses, Request URL]
+        md: |
+          Copy the request URL (or the curl version) into Postman, curl or your own code. Use basic
+          authentication with a real Windchill user - WRS applies that user's permissions.
+    result: Theo has a working URL that returns E1 parts as JSON, ready for the dashboard.
+
+  - type: text
+    md: |
+      The same requests, written out. Replace the host and keys with your own values:
+
+      ```text
+      # all domains
+      GET https://<host>/Windchill/servlet/odata/
+
+      # parts named like the frame, only name and number, 10 at a time
+      GET https://<host>/Windchill/servlet/odata/v7/ProdMgmt/Parts?$filter=startswith(Number,'EB-')&$select=Name,Number&$top=10
+
+      # one part and the parts it uses (expanded inline)
+      GET https://<host>/Windchill/servlet/odata/ProdMgmt/Parts('OR:wt.part.WTPart:<key>')?$expand=Uses
+
+      # creating something: first get a nonce ...
+      GET <PTC Common domain root URL>/GetCSRFToken()
+
+      # ... then send it as a header
+      POST https://<host>/Windchill/servlet/odata/ProdMgmt/Parts
+      CSRF_NONCE: <nonce value>
+      Content-Type: application/json
+      ```
+
+      Object keys come from the object's information page: `OR:<class>:<key>` identifies the object and
+      `VR:<class>:<key>` a version. In the browser URL they appear encoded, with `%3A` for each colon.
+
+  - type: simulation
+    title: Send requests to ProdMgmt
+    intro: |
+      You're Theo, testing in Postman as a normal Acme engineer. Read parts, then create the test part
+      **EB-9001**. Watch which calls need a nonce.
+    headline: "Last status {status} · nonce {nonce} · test part created {created}"
+    initial: { status: "-", nonce: none, created: "no" }
+    actions:
+      - id: get-domains
+        label: GET /servlet/odata/
+        do: [{ set: { status: "200" } }]
+        log: "200 - JSON list of domains, including ProdMgmt and DocMgmt."
+      - id: get-parts
+        label: GET ProdMgmt/Parts?$top=5
+        do: [{ set: { status: "200" } }]
+        log: "200 - five parts you can read, plus a link to the next page."
+      - id: get-old-version
+        label: GET v99/ProdMgmt/Parts
+        do: [{ set: { status: "404" } }]
+        log: "404 - that domain version doesn't exist on this server."
+      - id: get-nonce
+        label: GET GetCSRFToken() in PTC Common
+        do: [{ set: { status: "200", nonce: fresh } }]
+        log: "200 - nonce received. Copy the value without the quotation marks."
+      - id: post-part
+        label: POST ProdMgmt/Parts (with nonce)
+        when: { nonce: fresh }
+        do: [{ set: { status: "201", created: "yes" } }]
+        log: "201 - EB-9001 created; the response body is the new part."
+        blockedHint: Changes need a CSRF_NONCE header. Get a nonce first.
+    goals:
+      - label: Read parts successfully
+        when: { status: "200" }
+        message: GET needs no nonce - reading is safe.
+      - label: Create the test part
+        when: { created: "yes" }
+        message: Get a nonce, send it as CSRF_NONCE with Content-Type application/json, and the POST returns 201.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **"WRS ignores permissions, right?"** Wrong. WRS applies the same access rules as the UI. A 403 or a
+      "Secured Action" message means the calling user lacks permission. Don't fix it by running integrations
+      as the site administrator - give a dedicated integration user exactly the rights it needs. (One known
+      exception in PTC's course: saved searches are not access controlled in the Saved Search domain.)
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Ask only for what you need. `$select` trims properties and `$top` limits rows, while `$orderby` is
+      processed after the result set and can be expensive - use it only when required. Nonces expire after
+      24 hours, so have your client fetch a fresh one rather than hard-coding it.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Which URL returns the Entity Data Model of the Product Management domain?
+        options: ["/Windchill/servlet/odata/ProdMgmt/$metadata", "/Windchill/servlet/odata/ProdMgmt/Parts?$expand=Uses", "/Windchill/app/ProdMgmt", "/Windchill/servlet/odata/$count"]
+        answer: 0
+        explanation: Adding $metadata to a domain root URL returns its EDM in CSDL. The second URL reads parts with their Uses links expanded.
+      - kind: multi
+        prompt: Which requests need a CSRF_NONCE header? (Choose all that apply.)
+        options: [GET ProdMgmt/Parts, POST ProdMgmt/Parts, PATCH a part's name, POST to the CheckOut action]
+        answers: [1, 2, 3]
+        explanation: Requests that create, update or delete entities, including action calls through POST, require a nonce. Plain reads do not.
+      - kind: single
+        prompt: A request returns 404. What does WRS usually mean by that?
+        options: [The user lacks permission, The requested domain version navigation or entity is not available, The filter operation isn't implemented, The server crashed]
+        answer: 1
+        explanation: 404 means the domain version, navigation or entity instance isn't available. Permission problems are 403; unimplemented filter operations are 501; runtime failures are 500.
+      - kind: truefalse
+        prompt: A WRS domain is the same thing as a Windchill administrative domain used for access control.
+        answer: false
+        explanation: WRS domains are OData services that expose business functionality over the web API. Administrative domains are a separate access-control concept.
+      - kind: single
+        prompt: You leave the API version out of the URL. Which version answers?
+        options: [Version 1, The domain's default configured version, The oldest installed version, The request fails]
+        answer: 1
+        explanation: Without a version, the framework uses the domain's default version. Pin the version when your app relies on specific behaviour.
+
+  - type: summary
+    points:
+      - WRS exposes Windchill objects as OData entities over HTTP; any HTTP client can use it.
+      - "URL = service root + optional version + domain id + entity set or entity + query options ($filter, $select, $expand, $top...)."
+      - Domains group functional areas (ProdMgmt, DocMgmt...); $metadata shows each domain's EDM.
+      - GET reads; POST, PATCH and DELETE change data and need a CSRF nonce from GetCSRFToken().
+      - The API catalog (Customization > Documentation > OData REST APIs) lets you try requests after the Client Customization preference is enabled.

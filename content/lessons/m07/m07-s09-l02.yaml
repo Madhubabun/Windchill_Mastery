@@ -1,0 +1,295 @@
+id: m07-s09-l02
+subtitle: Before Theo writes a line of server code, he needs a map of how a part, its master and its links really sit in the database.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [customization, developer, information-model, persistence, links]
+sources:
+  - id: trn-advdev
+    where: "Section 11: QuerySpec and SearchCondition (WTPartMaster subselect SQL, compound query with WTPartAlternateLink, join support with FolderMembership roles, Rose model link classes and roles); Create methods for getting attribute values (soft type identifier, PersistableAdapter); Table Builder example (column ids thePersistInfo.modifyStamp, state.state, iterationInfo.modifier); Section 12: listener using WTPartReferenceLink navigate; DB column length for WTPartMaster.name"
+  - id: cust
+    where: "Module 2: Directories and files (codebase, src, ClassInfo.ser, resource bundles); Windchill customization resources (Customization tab, Client Customization preference, Javadoc, Customization Guide); Module 3: validate the classpath (WTPart import) and the Which command"
+  - id: cus-overview
+    where: "Day 1 overview: Windchill Client Architecture common objects (NmOid as a WTReference, NmSimpleOid for non-persisted objects)"
+blocks:
+  - type: text
+    md: |
+      In the browser, Theo sees *one* thing: the E1 frame part at version A.3. In the database there are several
+      rows: one for the **master** (number and name, shared by every version), one for each **iteration**, and
+      separate rows for every **link** that connects it to folders, documents and alternates.
+
+      Server code talks to those rows through Java classes. If Theo knows which class holds which fact - and which
+      link class connects two objects - he can query, navigate and update data safely. If not, he'll query the
+      wrong table and wonder why the name "isn't there".
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "an object Windchill saves in the database" → [[persistable]]
+      - "the shared identity (number, name) behind all versions" → [[master]] (for parts: `WTPartMaster`)
+      - "one saved state of a version" → [[iteration]] (for parts: `WTPart`)
+      - "a stored connection with two named ends" → [[link-class]] with two **roles**
+      - "the classes and links, drawn as a model" → the **information model** (the training calls it the Rose model)
+      - "Windchill's generated API reference" → [[windchill-javadoc]]
+
+  - type: diagram
+    title: A part as the database sees it
+    caption: Each box is a Java class and a table. Links are objects too. Click a box.
+    diagram:
+      width: 840
+      height: 450
+      groups:
+        - { label: Identity, x: 20, y: 20, w: 250, h: 410, tone: info }
+        - { label: Links (objects with two roles), x: 290, y: 20, w: 260, h: 410, tone: accent }
+        - { label: Related objects, x: 570, y: 20, w: 250, h: 410, tone: neutral }
+      nodes:
+        - id: master
+          label: WTPartMaster
+          sublabel: number · name
+          x: 45
+          y: 60
+          w: 200
+          shape: cylinder
+          tone: info
+          detail: |
+            The master holds what all versions share. The training's DB-column example states it directly: a
+            part's **name** is derived from `WTPartMaster.name`. Query the master when you search by number or name.
+        - id: part
+          label: WTPart
+          sublabel: one row per iteration
+          x: 45
+          y: 260
+          w: 200
+          shape: cylinder
+          tone: primary
+          detail: |
+            Each iteration of a part version. It carries iteration data such as `thePersistInfo.createStamp`,
+            `thePersistInfo.modifyStamp`, `state.state` (life cycle state) and `iterationInfo.modifier` - the
+            same attribute paths the training's table builder uses as column ids.
+        - id: altlink
+          label: WTPartAlternateLink
+          sublabel: alternates · alternateFor
+          x: 315
+          y: 60
+          w: 210
+          tone: accent
+          detail: |
+            A many-to-many link **between part masters**. Its roles are named by constants on the class
+            (`ALTERNATES_ROLE`, `ALTERNATE_FOR_ROLE`) and a query joins across it with `appendJoin`.
+        - id: folderlink
+          label: FolderMembership
+          sublabel: folder · member
+          x: 315
+          y: 190
+          w: 210
+          tone: accent
+          detail: Connects a `SubFolder` (role `FOLDER_ROLE`) with the object stored in it (role `MEMBER_ROLE`). The training's join example lists folders with the parts they contain.
+        - id: reflink
+          label: WTPartReferenceLink
+          sublabel: part ↔ document master
+          x: 315
+          y: 320
+          w: 210
+          tone: accent
+          detail: |
+            The reference link between a part and a document. The training's listener navigates from a
+            document's **master** across this link to see whether any part references it.
+          real: Leo's "no release without a linked part" rule will use exactly this link.
+        - id: folder
+          label: SubFolder
+          sublabel: a folder in a context
+          x: 600
+          y: 190
+          w: 200
+          shape: cylinder
+          tone: neutral
+          detail: A folder object. Folders and their contents are linked, not nested inside each other's rows.
+        - id: docmaster
+          label: WTDocument master
+          sublabel: via getMaster()
+          x: 600
+          y: 320
+          w: 200
+          shape: cylinder
+          tone: neutral
+          detail: A document iteration (`WTDocument`) has a master too; code reaches it with `getMaster()`.
+      edges:
+        - { from: part, to: master, label: iteration of }
+        - { from: altlink, to: master, label: two masters }
+        - { from: folderlink, to: folder }
+        - { from: folderlink, to: part }
+        - { from: reflink, to: part }
+        - { from: reflink, to: docmaster }
+
+  - type: animation
+    title: From Java class to SQL row
+    diagram:
+      width: 800
+      height: 300
+      nodes:
+        - id: code
+          label: Your Java code
+          sublabel: QuerySpec · navigate
+          x: 20
+          y: 120
+          w: 170
+          tone: primary
+        - id: pm
+          label: Persistence manager
+          sublabel: PersistenceHelper.manager
+          x: 230
+          y: 120
+          w: 190
+          tone: accent
+        - id: meta
+          label: Model metadata
+          sublabel: ClassInfo.ser
+          x: 230
+          y: 230
+          w: 190
+          shape: doc
+          tone: neutral
+        - id: db
+          label: Database tables
+          sublabel: WTPartMaster · links
+          x: 470
+          y: 120
+          w: 170
+          shape: cylinder
+          tone: info
+        - id: result
+          label: QueryResult
+          sublabel: Persistable objects
+          x: 660
+          y: 20
+          w: 130
+          tone: success
+      edges:
+        - { from: code, to: pm }
+        - { from: meta, to: pm }
+        - { from: pm, to: db }
+        - { from: db, to: result }
+        - { from: result, to: code }
+    chapters:
+      - title: You ask in Java
+        caption: Theo writes a `QuerySpec` on `WTPartMaster` - classes and attribute names, not table and column names.
+        show: [code]
+        highlight: [code]
+        seconds: 5
+      - title: The persistence manager takes it
+        caption: He passes it to `PersistenceHelper.manager.find(...)`, the access-controlled entry point.
+        show: [code, pm]
+        highlight: [pm]
+        flow: ["code>pm"]
+        seconds: 5
+      - title: Metadata maps classes to tables
+        caption: Generated `ClassInfo.ser` files carry the runtime metadata; a `ClassAttribute` uses this introspection to find the table and column.
+        show: [code, pm, meta]
+        highlight: [meta]
+        flow: ["meta>pm"]
+        seconds: 6
+      - title: SQL hits real tables
+        caption: "The SQL uses aliases such as `A0` and stored columns such as `modifyStampA2`; a link row joins two objects by their ids."
+        show: [code, pm, meta, db]
+        highlight: [db]
+        flow: ["pm>db"]
+        seconds: 6
+      - title: Objects come back
+        caption: Rows come back as full **Persistable** objects in a `QueryResult` (or single columns, if you asked for only those).
+        show: [code, pm, meta, db, result]
+        highlight: [result]
+        flow: ["db>result", "result>code"]
+        seconds: 6
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Real customizations fail on the model, not on Java. A report that searches `WTPart` by name, a listener
+      that checks the document iteration instead of its master, a join on the wrong role - each compiles fine and
+      returns nothing. Ten minutes with the model saves a day in the debugger.
+
+  - type: text
+    md: |
+      ### Persisted vs not persisted
+
+      Not every object in your code lives in the database. The client framework makes the difference explicit:
+
+      - an **NmOid** is the UI's version of a reference (`WTReference`) to a stored object, and can be parsed
+        from the request;
+      - an **NmSimpleOid** stands for something **not persisted** - an item that hasn't been created yet, or a
+        wrapper that adds information around a persistable.
+
+      ### Hard and soft: modeled classes vs subtypes
+
+      Classes like `WTPart` and `WTDocument` are **modeled** in Java. Acme's "E-Bike Part" is a [[soft-type]]
+      defined in Type and Attribute Management; its extra attributes are soft attributes. Code addresses a subtype
+      by a type identifier string that starts with `WCTYPE|wt.part.WTPart|` followed by the subtype's internal
+      name, and reads soft attributes through [[persistable-adapter|PersistableAdapter]] (Section m07-s11).
+
+  - type: walkthrough
+    title: Find your way around the model
+    who: Theo, on his development server
+    where: [Site, Utilities, Preference Management]
+    steps:
+      - title: Turn on the Customization tab
+        where: [Utilities, Preference Management, Client Customization]
+        md: Set the site-level preference **Client Customization** to **Yes**. The **Customization** tab appears with UI customization resources and a link to the **Windchill Javadoc**.
+      - title: Look up the class
+        where: [Customization tab, Javadoc]
+        md: Search the Javadoc for `WTPartMaster`, `WTPart` or a link class. Note its constants (attribute names like `NAME`, roles like `MEMBER_ROLE`) and any method marked deprecated or "Supported API - false".
+      - title: Read the source and resources
+        where: ["<WT_HOME>", src]
+        md: The `src` directory holds source and localizable resource files (`.rbInfo`) for PTC packages. The runtime copies - class files, resource bundles and `ClassInfo.ser` metadata - are under the [[codebase-directory|codebase]].
+      - title: Find which JAR holds a class
+        where: [Windchill shell]
+        md: Run the `wt.util.jmx.Which` command with the class path, for example `windchill wt.util.jmx.Which com/ptc/.../SomeClass.class`. It reports the JAR (for example `lib/wnc.jar`), file size and date.
+      - title: Prove your IDE sees the model
+        where: [Eclipse, src, New Class]
+        md: In a scratch class, declare a `WTPart` variable and let the IDE add `import wt.part.WTPart;`. If it resolves, your classpath points at the codebase.
+    result: Theo can name the class, table, attribute constant and role he needs before he writes a query.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Searching the iteration for master data.** Number and name belong to the master. And when you follow a
+      reference link from a document, start from `getMaster()` - the training's listener does exactly that.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Print the SQL. `QuerySpec.toString()` returns the SELECT statement the spec describes. Comparing it with the
+      table you *expected* is the fastest way to catch a wrong class or role.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Theo needs every E-Bike part whose name starts with "Frame". Where does the name live?
+        options: [On the master (WTPartMaster), Only on the latest WTPart iteration, In the folder, In a link object]
+        answer: 0
+        explanation: A part's name is derived from WTPartMaster.name, so the master is the class to query for number and name.
+      - kind: single
+        prompt: What is a WTPartAlternateLink?
+        options: [A persistable link object between two part masters, A column on WTPart, A folder, A UI action]
+        answer: 0
+        explanation: Links are objects with two roles. The alternate link is a many-to-many association between part masters.
+      - kind: multi
+        prompt: Which help Theo navigate the information model? (Choose all that apply.)
+        options: [The Windchill Javadoc via the Customization tab, The src directory, The wt.util.jmx.Which command, Editing ClassInfo.ser files by hand]
+        answers: [0, 1, 2]
+        explanation: Javadoc, source and the Which command are read-only aids. ClassInfo.ser files are generated runtime metadata - you don't hand-edit them.
+      - kind: truefalse
+        prompt: An NmSimpleOid represents an object that is not persisted, such as something not yet created.
+        answer: true
+        explanation: NmOid wraps references to stored objects; NmSimpleOid is for non-persisted items.
+      - kind: order
+        prompt: Put the path of a query in order.
+        items: [Build a QuerySpec in Java, Pass it to PersistenceHelper.manager.find, Metadata maps classes to tables, SQL runs against the tables, Objects come back in a QueryResult]
+        explanation: Java first, persistence manager next, metadata-driven SQL, then a QueryResult of persistable objects.
+
+  - type: summary
+    points:
+      - Windchill stores business objects as persistables; you work with them through Java classes, not raw tables.
+      - Masters hold shared identity (number, name); iterations hold per-iteration data like state and modifier.
+      - Relationships are link classes with two named roles - you navigate or join by class and role.
+      - Subtypes and soft attributes sit on top of modeled classes and are reached with type identifiers and PersistableAdapter.
+      - Javadoc (Customization tab), src, ClassInfo.ser metadata and the Which command are your map.

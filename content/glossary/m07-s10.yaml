@@ -1,0 +1,53 @@
+# New glossary terms introduced in section m07-s10 (Customization: UI framework hands-on).
+- id: ui-action
+  term: Action (UI framework)
+  plain: A thing a user can click in Windchill - a button, menu entry or link - described in XML.
+  definition: In the Windchill client architecture, an action describes something a user can launch, such as a page, a popup or a wizard. Actions are defined in XML files (custom ones in custom-actions.xml under codebase/config/actions) inside an objecttype element, and are uniquely identified by the action name plus the object type. An action's command gives the URL, window type and optionally a processing class; a component element can open an MVC builder instead. Labels and tooltips come from a resource bundle.
+  aka: [Custom action]
+  related: [action-model, jca-wizard, mvc-builder]
+
+- id: action-model
+  term: Action model
+  plain: A menu, toolbar or tab bar - an ordered list of actions.
+  definition: An XML definition that lists actions (by name and type) and other models (as submodels) in display order, so a component such as a toolbar, menu or tab can draw them. Custom models go in custom-actionModels.xml under codebase/config/actions. The StandardNmActionService reads action and action model files; adding jcaDebug=1 to a page URL shows the names of the models on that page.
+  related: [ui-action]
+
+- id: mvc-builder
+  term: MVC builder (component builder)
+  plain: A Java class that tells Windchill what a table or tree looks like and what goes in it.
+  definition: A Spring bean that supplies a component's description (ComponentConfig, such as a TableConfig or TreeConfig) and its data (ComponentData) for a component id declared with the @ComponentBuilder annotation. The ComponentController finds builders through a ComponentBuilderResolver. Custom builders usually extend AbstractComponentBuilder and are registered in codebase/config/mvc/custom.xml by package scanning or an explicit bean entry. The Java builder approach is the recommended way to build tables, trees, information pages and attribute panels.
+  aka: [ComponentBuilder, Table builder]
+  related: [ui-action, data-utility]
+
+- id: data-utility
+  term: Data utility
+  plain: A small Java class that changes how one attribute is shown or entered.
+  definition: A class (usually extending AbstractDataUtility) whose getDataValue method gets an attribute's data and metadata and returns a GUI component, such as a Label or text box, that renders the attribute. It can post-process or add to the data with extra queries or service calls. Data utilities are registered as options of the com.ptc.core.components.descriptor.DataUtility service in service.properties, and the selector is then used as the data utility ID on a type's layout attribute or an MVC column.
+  related: [mvc-builder, type-and-attribute-management, layout]
+
+- id: form-processor
+  term: Form processor
+  plain: The server-side class that does the work after a user clicks OK or Finish in a wizard.
+  definition: A class implementing ObjectFormProcessor, normally by extending DefaultObjectFormProcessor, that receives a wizard's form data as an NmCommandBean and ObjectBeans and performs the database work. The form processor controller calls its preProcess, doOperation, postProcess and postTransactionProcess methods, with doOperation and postProcess inside one transaction. Each wizard has one processor class, which may call ObjectFormProcessorDelegates for subtasks, and it returns a FormResult with a status, messages and the objects to refresh. It is named with the class attribute of the wizard action's command.
+  aka: [ObjectFormProcessor]
+  related: [jca-wizard, ui-validator]
+
+- id: ui-validator
+  term: UI validator
+  plain: Code that decides whether a button shows, whether a click may go ahead, or whether a wizard may move on.
+  definition: Logic used by Windchill's UI validation service. Pre-validation decides whether an action or attribute is shown, disabled or hidden; post-select validation decides whether a selected action may proceed; post-submit validation decides whether a wizard step or submission may proceed. Full validators extend DefaultUIComponentValidator and are registered under the UIComponentValidator service with the action name as selector; simpler filters extend DefaultSimpleValidationFilter and are attached to actions with includeFilter.
+  aka: [Validator, UI validation]
+  related: [ui-action, form-processor]
+
+- id: jca-wizard
+  term: Wizard (client framework)
+  plain: A step-by-step popup that collects what is needed to create or change an object.
+  definition: A popup window that guides a user through creating an object or performing an operation on it. In customization, the wizard and each of its steps are actions; steps use the wizard_step window type. A main JSP includes the wizard begin files and lists the steps with jca:wizard and jca:wizardStep tags, and the wizard action names the form processor that runs when the user finishes.
+  related: [ui-action, form-processor, item-picker]
+
+- id: item-picker
+  term: Item picker
+  plain: A search-and-choose control for picking parts, documents or other objects.
+  definition: One of Windchill's ready-made picker components (alongside user, organization, context, type and participant pickers). It is placed on a page with the itemPicker tag, which sets the object type, label, picker title and a componentId; the searchable attributes for that componentId are configured in codebase/pickerAttributes.xml. Pickers are mostly configuration; building a new picker component is a complex customization to avoid where possible.
+  aka: [Picker, Part picker]
+  related: [jca-wizard]

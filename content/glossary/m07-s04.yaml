@@ -1,0 +1,61 @@
+# New glossary terms introduced in section m07-s04 (Quality management and closed-loop quality).
+- id: closed-loop-quality
+  term: Closed-loop quality
+  plain: Making sure every problem found in the field or the factory flows back into a fix in the product data - and gets checked.
+  definition: A way of running quality where issues reported by customers or found in manufacturing are recorded, investigated, fixed through a controlled change to the product data, and verified as effective, with the lessons fed back into design risk analysis. It is a course term for the overall loop, not a single Windchill object. In Windchill the loop is built from quality records (customer experiences, nonconformances, CAPAs), the change process and, where licensed, Windchill Risk and Reliability.
+  related: [capa, nonconformance, customer-experience, change-request, windchill-quality]
+
+- id: capa
+  term: CAPA (corrective and preventive action)
+  plain: The formal "find the root cause, fix it, prove the fix works" record.
+  definition: A Windchill quality record that manages corrective and preventive actions. It starts as a request that a reviewer approves, then moves through planning, implementation and optional confirmation and effectiveness checks before closure. A CAPA request can be created from a nonconformance, a customer experience or another CAPA, and the source object is listed as an associated reference object.
+  aka: [Corrective and Preventive Action, CAPA request]
+  related: [nonconformance, customer-experience, windchill-quality]
+
+- id: nonconformance
+  term: Nonconformance
+  plain: A record that says "this item doesn't match its spec" - and what we'll do about it.
+  definition: A Windchill quality record for a product, material, process, document or other item that does not conform to its specification. The default process runs from initiation and evaluation through an optional investigation, a disposition plan, an optional Material Review Board review, the disposition and completion. Affected items are listed with quantity, unit and lot or serial details.
+  aka: [NC, Nonconformance report]
+  related: [capa, variance, deviation, windchill-quality]
+
+- id: customer-experience
+  term: Customer experience
+  plain: A record of what a customer told you about your product - often a complaint.
+  definition: The record managed by Windchill Customer Experience Management (CEM). It collects, documents, tracks, trends and reports product quality issues reported by customers, including complaints. Its default states are Intake, Evaluation, In Progress, Summary and Review, and Closed (or Canceled), and the In Progress state covers follow-up, product investigation and regulatory reporting.
+  aka: [CEM record, Complaint]
+  related: [capa, nonconformance, windchill-quality]
+
+- id: quality-context
+  term: Quality context
+  plain: The Windchill space where quality records like CAPAs and nonconformances live.
+  definition: A Windchill context, shown with a quality icon, that stores and gives access to quality solution information. Users reach their quality contexts through the Quality table. A quality installation can run integral with Windchill PLM, where products stay in their own contexts, or standalone, where products remain in the quality context.
+  related: [context, windchill-quality]
+
+- id: windchill-risk-and-reliability
+  term: Windchill Risk and Reliability
+  plain: PTC's separate toolset for reliability maths and risk analysis such as FMEA.
+  definition: A separate PTC product (with its own Help Center and release numbers) made of integrated tools for analysing product performance, reliability and safety. Its tools are grouped into reliability evaluation (Markov, Prediction, RBD), risk assessment (Event Tree, FMEA, FTA) and specific-use tools (ALT, FRACAS, LCC, Maintainability, Weibull). With extra licences its Enterprise Edition can build analyses from Windchill BOMs and create Windchill change objects.
+  aka: [WRR]
+  related: [fmea, windchill-quality]
+
+- id: fmea
+  term: FMEA (failure mode and effects analysis)
+  plain: A table of "what could fail, what happens then, and how bad is it?"
+  definition: A structured, usually bottom-up analysis of a design or process that lists the items that can fail, the ways they can fail (failure modes) and the end effect of each, then rates how critical each one is so the riskiest get action first. With a criticality assessment it is called an FMECA. Windchill Risk and Reliability supports process, functional and component FMEAs.
+  aka: [FMECA]
+  related: [risk-priority-number, windchill-risk-and-reliability]
+
+- id: risk-priority-number
+  term: Risk Priority Number (RPN)
+  plain: Severity times occurrence times detection - a quick score for how risky a failure mode is.
+  definition: A criticality score used in FMEAs, calculated as Severity multiplied by Occurrence multiplied by Detection. A higher number means a failure mode that is more severe, more likely or harder to detect. With 10-point scales the RPN runs from 1 to 1,000. Teams set cut-off values to sort failure modes into high, medium and low risk.
+  aka: [RPN]
+  related: [fmea]
+
+- id: unique-device-identification
+  term: Unique Device Identification (UDI)
+  plain: The official ID that every medical device and its packaging must carry.
+  definition: A Windchill quality module for medical device companies that helps meet the FDA's Part 830 UDI requirements. You create, edit and review UDIs, generate HL7 documents and submit them to the FDA's Global Unique Device Identification Database (GUDID), then track submissions and follow-ups. A UDI can be linked to one part, while a part can have many UDIs.
+  aka: [UDI]
+  related: [part, windchill-quality]

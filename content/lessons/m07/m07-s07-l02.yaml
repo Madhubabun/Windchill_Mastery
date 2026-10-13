@@ -1,0 +1,227 @@
+id: m07-s07-l02
+subtitle: A battery cell gets hot on the Lakeside line. To find out why, Acme needs the design, the plant and the machine data to talk to each other.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [integration, digital-thread, mes, thingworx, iot, architecture]
+sources:
+  - id: esi
+    where: "Module 1: ERP and PLM: a comparison (data ownership, lifecycle stage, data flow). Module 2: What is Windchill ESI? (connects the digital to the physical product value chain); ERP Connector highlights (specific services for an MES interface); Distribution targets (ESI target types SAP, Oracle Applications, MES); installation option configuring PDMLink for ESI to communicate with ERP or MES"
+  - id: erp
+    where: "Module 2: Distribution targets (ESI target type MES). Module 3: ESI cache directory (synchronizing Windchill with ERP or MES); Use stylesheets to transform data (formats for ERP or MES); Closed loop transaction management (import into ERP or MES systems is outside ERP Connector)"
+  - id: rest
+    where: "Module 2: WRS orchestrating Windchill data (the digital thread); WRS overview (used by other PTC products and third-party systems); What is a domain? (ThingWorx Navigate app uses ProdMgmt). Module 3: Testing tools (ThingWorx among WRS clients)"
+  - id: twx
+    where: "Module 1: ThingWorx IIoT platform (digital twins); Key capabilities (connect IT and OT, build, analyze, manage, experience); Solution stack; Platform architecture (client, application and data tiers; Composer, Mashup Builder, mashups; ThingWorx Edge); Model phase (Thing Model: Things, Thing Templates, Thing Shapes)"
+  - id: nav
+    where: "Module 1: Connect to other enterprise systems (mashups without replicating data); Windchill Navigate offerings (digital thread; View, Contribute, Connected PLM); Out-of-the-box and custom apps; Business needs: OOTB versus custom tasks (custom tasks built with ThingWorx and Windchill REST services)"
+versionNotes:
+  - versions: ["All releases"]
+    md: |
+      ThingWorx and Windchill Navigate release on their own version numbers (the course guides behind this
+      lesson use ThingWorx 9.3.6 and Navigate 9.7). Check compatibility with your Windchill release before
+      planning a connection.
+
+blocks:
+  - type: text
+    md: |
+      Three weeks after E1 launch, a sensor on the **Lakeside** battery-assembly line flags pack temperatures
+      creeping up. Leo (quality) asks a simple question: *"Is it the cell, the process or the design?"*
+
+      Answering needs three kinds of data that live in three places: the **design** in Windchill, the
+      **build instructions and orders** on the plant side, and the **machine readings** from the line. When
+      those are connected you can walk from one to the next. PTC calls that path the **digital thread**.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the connected path of product data from engineering out to the rest of the company" → [[digital-thread]]
+      - "the shop-floor system that runs what gets built right now" → [[mes|MES]] (Manufacturing Execution System)
+      - "PTC's platform for connecting machines and building apps on their data" → [[thingworx|ThingWorx]] (an IIoT platform)
+      - "a digital stand-in for a real machine or product" → **digital twin**; in ThingWorx, a **Thing** in the **Thing Model**
+      - "an interactive web page that mixes data from several sources" → **mashup**
+      - "Windchill's web API that other systems call" → [[windchill-rest-services|Windchill REST Services (WRS)]]
+
+  - type: diagram
+    title: Where each kind of data lives
+    caption: Each system owns its own data. The thread is the set of links between them. Click a box.
+    diagram:
+      width: 820
+      height: 460
+      groups:
+        - { label: Engineering, x: 20, y: 20, w: 220, h: 420, tone: primary }
+        - { label: Business and plant, x: 270, y: 20, w: 260, h: 420, tone: info }
+        - { label: Machines and products, x: 560, y: 20, w: 240, h: 420, tone: warning }
+      nodes:
+        - id: wc
+          label: Windchill (PLM)
+          sublabel: parts · BOMs · changes
+          x: 40
+          y: 80
+          w: 180
+          tone: primary
+          detail: |
+            Owns product data: CAD models, specifications, engineering BOMs and change orders. It is used
+            before and during product development. With MPMLink it also holds process plans and resources.
+          real: The E1 battery pack, its cells and its process plan.
+        - id: wrs
+          label: REST Services
+          sublabel: WRS / OData
+          x: 40
+          y: 300
+          w: 180
+          tone: accent
+          detail: |
+            [[windchill-rest-services|WRS]] is how Windchill talks to other PTC products and third-party
+            systems. PTC's REST course describes WRS as the way to expose Windchill data along the digital
+            thread. Any client that speaks HTTP can use it.
+        - id: erp
+          label: ERP
+          sublabel: orders · stock · cost
+          x: 290
+          y: 80
+          w: 220
+          shape: cylinder
+          tone: info
+          detail: |
+            Owns execution data: material masters, inventory, purchase orders and costs. Used during and after
+            production. It receives released product data through [[windchill-esi|ESI]] or [[erp-connector|ERP Connector]].
+        - id: mes
+          label: MES
+          sublabel: shop-floor execution
+          x: 290
+          y: 230
+          w: 220
+          shape: cylinder
+          tone: info
+          detail: |
+            The [[mes|MES]] runs what the plant builds right now. ESI offers **MES** as a distribution target type,
+            and ERP Connector output can be transformed with stylesheets into the format an ERP or MES needs.
+            Loading the data into the MES itself happens on the MES side.
+        - id: nav
+          label: Navigate apps
+          sublabel: built on ThingWorx
+          x: 290
+          y: 360
+          w: 220
+          tone: success
+          detail: |
+            Windchill Navigate gives role-based apps over Windchill data. Its **Connected PLM** offering lets you
+            build your own apps that show and update data from Windchill and other enterprise systems -
+            mashups that combine sources without copying the data.
+        - id: twx
+          label: ThingWorx
+          sublabel: Thing Model · mashups
+          x: 580
+          y: 200
+          w: 200
+          h: 70
+          tone: warning
+          detail: |
+            The IIoT platform. **Connect** links IT systems with the operational technology that monitors
+            equipment; **Build** represents physical assets as digital twins in the Thing Model; **Analyze**
+            and **Experience** turn the data into insights and mashups.
+        - id: line
+          label: Line sensors
+          sublabel: via ThingWorx Edge
+          x: 580
+          y: 340
+          w: 200
+          tone: neutral
+          detail: |
+            Devices and machines connect to ThingWorx through ThingWorx Edge options (Edge MicroServer, SDKs,
+            Kepware). Each physical machine maps one-to-one to a Thing in the model.
+          real: The cell-welding station on Lakeside's E1 line.
+      edges:
+        - { from: wc, to: erp, label: ESI publish }
+        - { from: wc, to: mes, label: MES target, dashed: true }
+        - { from: wc, to: wrs }
+        - { from: wrs, to: nav, label: HTTP }
+        - { from: nav, to: twx, dashed: true }
+        - { from: line, to: twx, label: Edge }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      When the links exist, a question like Leo's takes minutes: from the sensor alarm to the machine, to the
+      part being built, to its released design and its last change. Without them, people chase spreadsheets
+      and email threads. PTC's Navigate material names exactly that: mashups that bring other systems' data
+      into context remove the need for personal, ungoverned spreadsheets.
+
+  - type: comparison
+    title: PLM, ERP, MES and IoT side by side
+    columns: [Windchill (PLM), ERP, MES, ThingWorx (IoT)]
+    rows:
+      - label: Owns
+        cells: ["Product definition - CAD, BOMs, changes", "Business execution - orders, stock, cost", "What the plant builds right now", "Live data from connected machines and products"]
+      - label: When it's used
+        cells: ["Before and during development", "During and after production", "During production", "While assets run"]
+      - label: How Windchill reaches it
+        cells: ["-", "ESI or ERP Connector distribution targets", "ESI MES target or transformed connector output", "Windchill REST Services, for example in Navigate custom apps"]
+    takeaway: Don't copy everything everywhere - give each system its job and link the data.
+
+  - type: example
+    variant: case-study
+    title: Following the thread at Lakeside
+    industry: Micromobility
+    md: |
+      Ana (manufacturing, Lakeside) opens a custom app that Theo built on [[thingworx|ThingWorx]]. The app shows
+      the line's Thing for the cell-welding station, `E1Line01Weld`, with its temperature history.
+
+      Next to it, the same mashup reads the E1 battery pack from Windchill through
+      [[windchill-rest-services|WRS]]: part number, revision, and the cell supplier from the BOM. Nobody copied
+      that data into ThingWorx; the app asks Windchill when the page loads.
+
+      The pattern is clear in an hour: the temperature rise began the day a new Voltra Cells revision reached
+      the line. Leo opens a problem report in Windchill against that part, and Maya's change process takes it
+      from there.
+    takeaway: The thread is not one big database. It's links that let you jump between owners of the data.
+
+  - type: exercise
+    title: Place Acme's data
+    environment: paper
+    goal: For each item, decide which system owns it and how the others get to it.
+    steps:
+      - "E1 battery pack BOM - owner? How does ERP get it?"
+      - "Lakeside's stock of Voltra cells - owner? How would an engineer see it?"
+      - "Weld-station temperature every second - owner? How would a Windchill user see it?"
+      - "Work instructions for the pack assembly - where are they authored, and where are they used?"
+    expected: |
+      BOM: Windchill owns it and publishes it to ERP (and MES) through ESI or ERP Connector. Stock: ERP owns it;
+      an engineering query or a Navigate-style mashup shows it without copying. Temperature: ThingWorx owns it;
+      a mashup can show it alongside Windchill data read through WRS. Work instructions: authored with the
+      process plan in Windchill (MPMLink), published downstream to the plant systems.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Syncing sensor data into Windchill.** Windchill is the product-definition system, not a time-series
+      store. Copying live machine readings into part attributes floods it with data it doesn't own. Keep
+      IoT data in ThingWorx and link to Windchill objects instead.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Before building a custom app, check whether an out-of-the-box Navigate task already answers the
+      question. PTC's Navigate guidance is to build a custom task only when no OOTB task fits, when PLM data
+      must be combined with data from other systems, or when an OOTB task would need customization.
+
+  - type: flashcards
+    title: Digital thread deck
+    cards:
+      - { front: Digital thread, back: "The connected path of product data from engineering out to manufacturing, service and the rest of the enterprise." }
+      - { front: "What does PLM own?", back: "Product data - CAD models, specifications, engineering BOMs, change orders." }
+      - { front: "What does ERP own?", back: "Execution data - material masters, stock, purchase orders, costs." }
+      - { front: ESI target types, back: "SAP, Oracle Applications and MES. ERP Connector targets are File, FTP and Email." }
+      - { front: Thing Model, back: "ThingWorx's model of the physical world - Things, Thing Templates and Thing Shapes. A Thing is a digital twin." }
+      - { front: Mashup, back: "An interactive ThingWorx web page that shows data, often from several systems, without copying it." }
+      - { front: "How do ThingWorx apps read Windchill?", back: "Through Windchill REST Services (WRS) - for example the ProdMgmt domain for parts." }
+      - { front: Connected PLM, back: "The Windchill Navigate offering for building your own apps that show and update data from Windchill and other systems." }
+
+  - type: summary
+    points:
+      - The digital thread links product data from engineering to manufacturing, service and the rest of the business.
+      - Windchill owns product definition, ERP owns business execution, MES runs the shop floor, ThingWorx owns live machine data.
+      - Windchill reaches ERP and MES through ESI distribution targets; IoT apps reach Windchill through Windchill REST Services.
+      - ThingWorx models machines as Things (digital twins) and shows combined data in mashups.
+      - Link data where it lives instead of copying it into every system.

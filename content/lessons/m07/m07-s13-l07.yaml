@@ -1,0 +1,216 @@
+id: m07-s13-l07
+subtitle: Lakeside's French dealers want the E1 manual in French - and the next update too, without retranslating everything.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [service, translation, xliff, preferences, translation-package]
+sources:
+  - id: sis
+    where: "Module 9: Manage the translation of service content: overview; Translation configuration and preparation; Complete the translation process; Configure translation support preferences; Activity: Explore the configuration for component translation; Generate a translation document for a structure; Generate a translation package; Examine the contents of a translation package; Activity: Perform component-based translation management"
+versionNotes:
+  - versions: ["All releases"]
+    md: |
+      Which lifecycle states count as the preparation, in-translation and translated states is set in
+      preferences. In the course environment, content and the structure had to be **Released** before
+      **Create Translation Package** appeared. Check your own preference values.
+
+blocks:
+  - type: text
+    md: |
+      Acme's dealers around Lakeside include a big partner in France. They want the E1 bulletins in **French**.
+      Zoe could export Word files and email them to a vendor... and lose track of which version was
+      translated, and pay again for every unchanged paragraph.
+
+      Instead she uses **component-based translation management**: Windchill sends the topics that need
+      translating, keeps a [[baseline]] of what was sent, and checks the translations back in as their own
+      language versions.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the bundle sent to the translator" → [[translation-package]]
+      - "the XML file of translatable titles and labels" → **XLIFF** (XML Localization Interchange File Format)
+      - "generate the XLIFF for a structure" → **Generate Translation Document**
+      - "this topic should / shouldn't be translated" → the **PTC_DD_TRANSLATE** [[reusable-attribute]]
+      - "what language this topic is written in" → the **PTC_DD_LANGUAGE** reusable attribute
+      - "the person allowed to run translations" → a **translation coordinator** role
+
+  - type: animation
+    title: A translation round trip
+    diagram:
+      width: 820
+      height: 400
+      nodes:
+        - id: ps
+          label: Bulletin structure
+          sublabel: released content
+          x: 20
+          y: 160
+          w: 160
+          tone: primary
+        - id: xliff
+          label: XLIFF
+          sublabel: titles and labels
+          x: 220
+          y: 50
+          w: 150
+          shape: doc
+          tone: info
+        - id: pkg
+          label: Translation package
+          sublabel: zip + baseline
+          x: 220
+          y: 260
+          w: 170
+          shape: doc
+          tone: accent
+        - id: vendor
+          label: Vendor
+          sublabel: "en-US to fr"
+          x: 440
+          y: 160
+          w: 150
+          shape: pill
+          tone: neutral
+        - id: watch
+          label: Import folder
+          sublabel: checked every 60 min
+          x: 640
+          y: 60
+          w: 160
+          shape: cylinder
+          tone: warning
+        - id: lib
+          label: Translated library
+          sublabel: French versions
+          x: 640
+          y: 260
+          w: 160
+          shape: cylinder
+          tone: success
+      edges:
+        - { from: ps, to: xliff, label: Generate Translation Document }
+        - { from: ps, to: pkg, label: Create Translation Package }
+        - { from: xliff, to: pkg, dashed: true }
+        - { from: pkg, to: vendor }
+        - { from: vendor, to: watch, label: returns zip }
+        - { from: watch, to: lib, label: import }
+    chapters:
+      - title: Prepare the content
+        caption: Topics get the right state and **PTC_DD_TRANSLATE = Yes**. The structure's translatable titles go into an **XLIFF** - generated automatically when the package is created if *Create XLIFF Automatically* is Yes (the default).
+        show: [ps, xliff]
+        flow: ["ps>xliff"]
+      - title: Create the package
+        caption: "**Actions → Create Translation Package**: vendor, Translation or Quote, target languages. Windchill creates a baseline, collects the objects and XLIFFs and sets the in-translation state."
+        show: [ps, xliff, pkg]
+        highlight: [pkg]
+        flow: ["ps>pkg", "xliff>pkg"]
+      - title: The vendor translates
+        caption: The package goes to the vendor's location - a folder on disk or a Windchill context, as set in the **Supported Vendors** preference.
+        show: [ps, xliff, pkg, vendor]
+        flow: ["pkg>vendor"]
+      - title: Import and review
+        caption: The translated zip lands in the **external import folder**, checked every 60 minutes by default. Windchill compares it with the baseline, checks in new versions of the French objects and sets the translated state - ready for review.
+        highlight: [watch, lib]
+        flow: ["vendor>watch", "watch>lib"]
+
+  - type: walkthrough
+    title: Check the translation configuration
+    who: Rosa as site administrator (some preferences can also be set per organization, product or library)
+    where: [Browse, Site, Utilities]
+    steps:
+      - title: Source and target languages
+        where: [Site, Utilities, Type and Attribute Management, Manage Global Enumerations, PTC Enumerations, Language Sets, Available Languages]
+        md: Check the **Source Languages** and **Target Languages** enumerations. Move languages to *Available for selection* to offer them.
+      - title: The two attributes on dynamic documents
+        where: [Type and Attribute Management, Manage Types, EPM Document, Dynamic Document]
+        md: |
+          Dynamic documents (graphic ones included) need **PTC_DD_LANGUAGE** (a code mapping to the Source
+          Languages enumeration) and **PTC_DD_TRANSLATE** (Yes to translate; missing or empty means No).
+      - title: Translation Support preferences
+        where: [Utilities, Preference Management, Translation Support]
+        md: |
+          Review **External Import Folder**, **Language Pairs** (valid source-target pairs, such as en-US to
+          fr), **Source Languages**, **Supported Languages**, **Supported Vendors**, **Translatable Subtypes**,
+          **Translation Coordinator Roles**, **Translation Package Data Context** and **Translation Package
+          Import Interval**.
+      - title: Storage contexts
+        where: [Browse, Libraries]
+        md: Confirm the libraries for translated content (for example *Translated*) and for package baselines (for example *Translation Package Data*).
+    result: Zoe's structures can now be translated en-US to French, with packages going to Acme's vendor.
+
+  - type: walkthrough
+    title: Translate the E1 battery bulletin
+    who: Zoe, in a translation coordinator role
+    where: [Browse, "<product>", Publication Structures, "<structure>"]
+    steps:
+      - title: Build the structure
+        where: [Publication Structures, New Publication Structure]
+        md: Create the bulletin structure and insert the topics from the information structure.
+      - title: Check the topic attributes
+        where: [Information Element List, Open in Arbortext Editor, Object, Object Properties]
+        md: Confirm PTC_DD_TRANSLATE and PTC_DD_LANGUAGE (for example en-US).
+      - title: Set the required state
+        where: [Actions, Set State]
+        md: Bring the topics and the structure to the state your preferences expect (Released in the course environment).
+      - title: Optional - generate the XLIFF by hand
+        where: [Structure tab, right-click structure, Generate Translation Document]
+        md: An XLIFF dynamic document appears in the context's **Xliff** folder, named after the object, an underscore and the language code.
+      - title: Create the package
+        where: [Actions, Create Translation Package]
+        md: Pick the target vendor, **Translation** (or **Quote**), the package content option and the target languages (French), then OK.
+      - title: Review the results
+        where: [Information page, Translation tab, Results]
+        md: Once imported, the **Results** table links the French objects and the managed baseline of the package. (In the course, an administrator had added this Translation tab to the page.)
+    result: French versions of the topic and the XLIFF live in the Translated library; the baseline records exactly what was sent.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Because translation works on reusable **components**, only topics that are marked for translation and
+      in the right state go out. Baselines record what each package contained, so the returned content can be
+      compared and checked in as proper new versions instead of loose files.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Setting the import interval very low in production.** The course uses a continuous check (-1) only in
+      a training system. PTC advises not setting **Translation Package Import Interval** below 60 minutes in
+      production, to avoid overloading the queue.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Need only the **titles and labels** of a structure translated - group names, section names, parts list
+      text? **Generate Translation Document** puts exactly that text into an XLIFF. It works on whole
+      structures, groups, sections, parts lists and parts.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: A topic has no PTC_DD_TRANSLATE value. What happens when a package is created?
+        options: ["It is translated by default", "It is treated as No and left out", "Package creation fails", "It is sent as a quote only"]
+        answer: 1
+        explanation: A missing attribute or empty value is presumed to mean No. Other conditions, such as state, must also be met for a topic to be included.
+      - kind: multi
+        prompt: What can a translation package contain? (Choose all that apply.)
+        options: ["XML source documents", "XLIFF files for publication structures and parts lists", "An XML manifest and a log file", "The vendor's invoice"]
+        answers: [0, 1, 2]
+        explanation: Packages can include XML sources, an XML manifest, XLIFFs for parts lists and publication structures, a log file and a default representation of the structure root.
+      - kind: single
+        prompt: Which preference defines where Windchill looks for returned packages on disk?
+        options: [Supported Vendors, External Import Folder, Translation Package Data Context, Language Pairs]
+        answer: 1
+        explanation: External Import Folder is the monitored folder. Supported Vendors defines where each vendor's exported data goes.
+      - kind: order
+        prompt: Put the translation round trip in order.
+        items: ["Mark topics for translation and set the preparation state", "Create the translation package", "Vendor translates and returns the package", "Package is imported from the monitored folder", "Translated objects are reviewed"]
+        explanation: Prepare, package (with a baseline), translate, import into new versions with the translated state, then review.
+
+  - type: summary
+    points:
+      - Component-based translation sends reusable topics, not whole manuals, and records a baseline per package.
+      - Languages come from global enumerations; dynamic documents need PTC_DD_LANGUAGE and PTC_DD_TRANSLATE.
+      - Translation Support preferences set vendors, language pairs, import folder, coordinator roles and states.
+      - Generate Translation Document creates an XLIFF for structure titles; Create Translation Package builds the package.
+      - Returned packages are imported from the monitored folder as new versions in the translated state, ready for review.
