@@ -351,8 +351,8 @@ blocks:
     questions:
       - kind: single
         prompt: What does appendClassList return?
-        options: [The index of the class in the query, A QueryResult, The SQL table name, The number of rows]
-        answer: 0
+        options: ["A QueryResult", "The SQL table name", "The number of rows", "The index of the class in the query"]
+        answer: 3
         explanation: The index identifies that class in later appendWhere, appendJoin and appendSelect calls.
       - kind: multi
         prompt: Which calls belong to the current (not deprecated) API? (Choose all that apply.)
@@ -361,8 +361,8 @@ blocks:
         explanation: appendSearchCondition is deprecated and replaced by appendWhere with an int[] of class indexes.
       - kind: single
         prompt: Theo needs only part numbers for a 5,000-row export. What's the better query?
-        options: [A single-column select with appendSelect and a non-selectable class, Full WTPartMaster objects then getNumber() on each, A WTPart query on every iteration, A QuerySpec with no conditions]
-        answer: 0
+        options: ["A QuerySpec with no conditions", "A single-column select with appendSelect and a non-selectable class", "Full WTPartMaster objects then getNumber() on each", "A WTPart query on every iteration"]
+        answer: 1
         explanation: Single columns avoid building full objects and are much more efficient.
       - kind: truefalse
         prompt: PersistenceHelper.manager.find runs a query with access control.

@@ -201,8 +201,8 @@ blocks:
          into a single BAC package. More changes later? Export them into the next package.
       2. Add load files under `configurations/loadFiles` and list them in a load file set referenced from
          `deploy.xml`. Order matters: `load.data` runs them top to bottom.
-      3. If you are importing on a test system, set `com.ptc.windchill.bac.ignoreGUIDList=All` first so the BAC is
-         accepted whatever system it was exported for. For the **first** deployment of a package with a BAC, PTC
+      3. Before importing, set the property `com.ptc.windchill.bac.ignoreGUIDList=All` so the BAC is accepted
+         whatever system it was originally meant for. For the **first** deployment of a package with a BAC, PTC
          says to set `wt.pom.emptyTableManagerEnabled=false` temporarily, deploy, then set it back to `true`.
       4. Run `ant load.data -Dadministrator.username=<admin user>` (or `ant all`). BAC reports land in
          `buildlogs/customizationLogs/bac/reports`.

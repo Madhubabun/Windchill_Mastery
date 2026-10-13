@@ -49,7 +49,7 @@
 - id: idx-file
   term: IDX file (EDMD IDX)
   plain: The file that carries a proposed board change between the electronics tool and Creo.
-  definition: An Incremental Design Exchange file, an XML format based on the ProSTEP EDMD schema. It records changed board objects (outline, components, holes, keep-in and keep-out areas) with both their base and their current state, so either side can review and accept the change. A baseline IDX describes the whole board; incremental IDX files describe changes since then.
+  definition: An Incremental Design Exchange file used to pass printed circuit board design data between an ECAD tool and Creo. A baseline IDX describes the whole board; later IDX files carry proposed changes and the responses to them, so each side can review and accept or reject a change. The files can be stored and versioned in Windchill.
   aka: [EDMD IDX, Incremental Design Exchange]
   related: [ecad-mcad-collaboration]
 

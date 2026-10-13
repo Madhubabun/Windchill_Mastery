@@ -15,6 +15,11 @@ sources:
     title: "Service Management"
     url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/customization/WCCG_Serv_DevelopServerLogic_ServMgmt.html"
     covers: "Services declared as wt.services.service entries in wt.properties pairing interface and implementation; start order lowest number first; dependencies need lower numbers; no reserved number ranges, custom numbers well above Windchill's highest, recheck after upgrades, no duplicates; wt.services.Manager and StandardManager; performStartupProcess and performShutdownProcess; ManagerService starts the listed managers and dispatches events"
+  - id: hc-wplus-disallowed
+    label: PTC Help Center supplement
+    title: "Disallowed Customization (Windchill+ 13.1.2.0)"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/customization/DisallowedCust_Select.html"
+    covers: "On Windchill+, implementing or extending wt.services.ServiceEventListenerAdapter is disallowed"
 versionNotes:
   - versions: ["All releases"]
     md: |
@@ -25,8 +30,9 @@ versionNotes:
     md: |
       On [[windchill-plus|Windchill+]] you don't run xconfmanager on the server yourself: customizations and
       property changes travel in a [[windchill-plus-ccd|CCD]] package built on a test system. Whether a given
-      server customization is accepted on Windchill+ is not covered by the course sources; check with PTC
-      before you design around it.
+      server customization is accepted on Windchill+ is not covered by the course sources; note that PTC's
+      Windchill+ disallowed-customization list includes extending `ServiceEventListenerAdapter`, the listener
+      base class used in lesson 3. Check with PTC before you design around a custom service there.
 
 blocks:
   - type: text
@@ -364,8 +370,8 @@ blocks:
         explanation: The entry pairs the interface with the class Windchill should build, for example `...AcmeRulesService/...StandardAcmeRulesService`.
       - kind: single
         prompt: Two custom services depend on each other - B needs A to be running. How should they be numbered?
-        options: [A gets a lower number than B, B gets a lower number than A, The same number, Order doesn't matter]
-        answer: 0
+        options: ["Order doesn't matter", "A gets a lower number than B", "B gets a lower number than A", "The same number"]
+        answer: 1
         explanation: Services start from the lowest number to the highest, so a service's dependencies need lower numbers.
       - kind: order
         prompt: Put Theo's steps in order.
@@ -373,8 +379,8 @@ blocks:
         explanation: Code, compile, register, propagate, restart. The service starts only after a restart picks up the new entry.
       - kind: multi
         prompt: Which are true for StandardManager subclasses? (Choose all that apply.)
-        options: [Startup work such as subscribing listeners goes in performStartupProcess, The training's services provide a static factory that calls initialize(), They must live in the wt package, Shutdown work can go in performShutdownProcess]
-        answers: [0, 1, 3]
+        options: ["They must live in the wt package", "Shutdown work can go in performShutdownProcess", "Startup work such as subscribing listeners goes in performStartupProcess", "The training's services provide a static factory that calls initialize()"]
+        answers: [1, 2, 3]
         explanation: Startup and shutdown hooks are the two methods meant to be overridden, and the factory builds and initializes the instance. Custom code belongs in your own package, not PTC's.
       - kind: truefalse
         prompt: PTC reserves a number range for customer services, so any number in it is safe forever.

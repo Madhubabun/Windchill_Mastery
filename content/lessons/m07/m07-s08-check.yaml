@@ -1,0 +1,144 @@
+id: m07-s08-check
+subtitle: Can you split the jobs with PTC, triage customizations for the cloud and ship a clean CCD package with BAC and load files?
+version: 1.0.0
+updated: "2026-10-13"
+tags: [windchill-plus, ccd, bac, cloud, checkpoint]
+sources:
+  - id: ac
+    where: "Module 11: Describe Windchill+; Package business administration configurations; Deploy Windchill+ with the CCD utility"
+  - id: pf
+    where: "Module 1: Pacesetter scope and Accelerator Deployment Package (CCD, Windchill+ guidelines and guardrails); Module 2: Deploy the Windchill PLM Foundation Pacesetter"
+  - id: cust
+    where: "Module 1: Customization vs configuration; Updates and server maintenance"
+  - id: catalog
+    where: "Windchill+ curriculum: Implement Windchill+; CCD Overview; Prepare CCD packages using BAC and Load Files; Deploy Code and Configurations using CCD utility"
+  - id: hc-wcplus-access
+    label: PTC Help Center supplement
+    title: "Windchill+ Access, Deployment, and Configuration"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/WCAdminGettingStarted/WCAdminGetStartAccDepConf.html"
+    covers: "No backend access; CCD only; ACLs not through BAC"
+  - id: hc-wcplus-guardrails
+    label: PTC Help Center supplement
+    title: "Windchill+ Guidelines and Guardrails"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/customization/AutomatedBuildDeploy_Plus_Azure_plusPrinciples_wncplus.html"
+    covers: "Direct admin changes on hosted instances not kept during upgrades"
+  - id: hc-wcplus-disallowed
+    label: PTC Help Center supplement
+    title: "Disallowed Customization"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/customization/DisallowedCust_Select.html"
+    covers: "Disallowed and warning patterns"
+  - id: hc-ccd-structure
+    label: PTC Help Center supplement
+    title: "CCD Package Structure"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/customization/AutomatedBuildDeploy_Plus_Azure_CCD_PackageStructure_wncplus.html"
+    covers: "Folder layout; cumulative vs incremental"
+  - id: hc-ccd-targets
+    label: PTC Help Center supplement
+    title: "Targets"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/customization/AutomatedBuildDeploy_Plus_ExternalTargetsCCD_Azure_wncplus.html"
+    covers: "Ant targets and load.data behaviour"
+  - id: hc-ccd-workflow
+    label: PTC Help Center supplement
+    title: "Workflow (Deploying Code and Configuration Package)"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/customization/AutomatedBuildDeploy_Plus_Azure_CCD_deployment_wncplus_2.html"
+    covers: "Upload, manifest, validation, deploy, approve or restore"
+  - id: hc-bac-export
+    label: PTC Help Center supplement
+    title: "Create a Package of Business Administrative Changes"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/busadminchgprom/BACUtility_Export.html"
+    covers: "Export without preview; preview limit"
+  - id: hc-bac-ccd
+    label: PTC Help Center supplement
+    title: "Importing a BAC Package Using CCD Utility"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/customization/AutomatedBuildDeploy_BAC_CCD_wncplus.html"
+    covers: "One BAC per customization package; conflicts"
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **Windchill+ and the cloud**: who does what in SaaS, readiness and customization limits,
+      the CCD utility and packages built from BAC and load files. Score 80% to pass. Every answer explains itself.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: Rosa wants to swap a JAR on Acme's Windchill+ production server to fix a bug quickly. What's the reality?
+        options: [She can do it from a Windchill shell, Customers have no backend access; the fix travels in a CCD package (or PTC is asked for a temp patch via service request), PTC Support swaps it on request without a package, She can upload it through the organization utilities page]
+        answer: 1
+        explanation: There is no backend access to PTC-hosted servers. Code reaches Windchill+ only through CCD; a PTC fix not yet in a CPS or release can be requested as a temporary patch through a service request.
+      - kind: truefalse
+        prompt: From Windchill 12.1.2.0 onwards, the CCD utility is the only supported tool for deploying customizations and configurations to Windchill+.
+        answer: true
+        explanation: That's stated in PTC's course guide. CCD can also deploy to on-premises systems.
+      - kind: single
+        prompt: Jordan fixed a preference directly in the hosted production system. What happens at the next upgrade?
+        options: [It's kept automatically, PTC promotes it to the other environments, It isn't kept because it wasn't deployed in a package, It becomes locked]
+        answer: 2
+        explanation: The guardrails say direct changes with admin utilities on PTC-hosted instances are not promoted and not kept during upgrades.
+      - kind: multi
+        prompt: Which of Acme's customizations need rework before Windchill+? (Choose all that apply.)
+        options: [A custom Info*Engine task feeding ERP, A custom modeled class with its own database table, A life cycle template and OIR made in the UI, A report that queries the Windchill database over JDBC]
+        answers: [0, 1, 3]
+        explanation: Info*Engine customizations, hard modelling and JDBC access are disallowed. Life cycle templates and OIRs are configuration and travel in a BAC package.
+      - kind: single
+        prompt: Theo's package returns "pass with warnings" for a workflow template with embedded Java. What's the right reading?
+        options: [Nothing to do; it passed, It deploys now but is blocked after PTC's enforcement date; externalize the expressions, The package was cancelled, Remove the workflow from Windchill]
+        answer: 1
+        explanation: Embedded Java in workflow templates is a warning until October 2028 per the 13.1.2.0 Help Center, then packages with it are blocked. Externalize the expressions into a class in a module.
+      - kind: single
+        prompt: Where does the BAC ZIP go in a CCD package?
+        options: [configurations/loadFiles, generated/BAC, module1/main/resources, customlib]
+        answer: 1
+        explanation: generated/BAC holds exactly one BAC ZIP. Load files go in configurations/loadFiles; code and resources in module folders.
+      - kind: order
+        prompt: Put a Windchill+ CCD deployment in order.
+        items: [Build and test the package on a local dev system, Upload the ZIP to the storage container, Upload the manifest to request deployment, Validation and scheduling, Backup snapshot and deployment, Approvers test and approve or restore]
+        explanation: You prove it locally first; the manifest is the request; validation gates it; a snapshot is taken before deploying; your approvers decide.
+      - kind: multi
+        prompt: What does ant load.data do? (Choose all that apply.)
+        options: [Loads the load files in the order given in deploy.xml, Skips the remaining load files after one fails, Still imports the BAC ZIP after a load file failure, Compiles the Java modules]
+        answers: [0, 1, 2]
+        explanation: Compiling is the compile target's job. load.data copies and loads the load files in order, stops loading after a failure, and imports the BAC either way.
+      - kind: truefalse
+        prompt: Code and other file-based artifacts must be cumulative in each package, while BAC packages and load files carry only the increment.
+        answer: true
+        explanation: That's the package structure rule. Each package replaces the files completely but only adds new database changes.
+      - kind: single
+        prompt: Jordan's BAC preview shows 1000 objects and she suspects dependents are missing. Best move?
+        options: [Export Without Preview so all dependency levels are exported in one go, Raise the preference to unlimited, Export twice and drop both ZIPs into generated/BAC, Copy the missing objects by hand on the target]
+        answer: 0
+        explanation: The preview is capped by a preference (default 1000, maximum 5000). Export Without Preview collects all levels. generated/BAC takes only one ZIP.
+
+  - type: flashcards
+    title: Windchill+ and the cloud deck
+    cards:
+      - front: Windchill+
+        back: "Windchill delivered as SaaS. PTC hosts and operates it; customers have no backend access."
+      - front: CCD utility
+        back: "PTC's Ant-based tool for deploying code and configuration from a standard package. The only supported route into Windchill+ from 12.1.2.0; also works on-premises."
+      - front: CCD package folders
+        back: "configurations (deploy.xml, loadFiles, loadXMLFiles, conf, resources, xconf), generated (SchemaConfig.xml, one BAC ZIP), module folders, customlib, test/unit."
+      - front: Cumulative vs incremental
+        back: "Files and code: cumulative in every package. BAC and load files: incremental."
+      - front: ant all
+        back: "Compile, deploy, apply schema, propagate xconf, restart, load files and import the BAC in one run."
+      - front: BAC utility
+        back: "Utilities → Business Administration (site or organization). Exports admin changes and dependents as a ZIP."
+      - front: Container ACLs on Windchill+
+        back: "Not through BAC. Use load files in the CCD package."
+      - front: Deployment manifest
+        back: "A manifest_<text>.yml naming pipeline, package ZIP (case-sensitive), approvers and schedule. Uploading it requests the deployment."
+      - front: Validation results
+        back: "Pass → scheduled. Pass with warnings → scheduled, fix the warnings. Fail → cancelled."
+      - front: Direct admin changes on hosted Windchill+
+        back: "Not promoted by PTC and not kept during upgrades. Package them."
+      - front: Disallowed on Windchill+
+        back: "Custom Info*Engine, custom JSP/AngularJS/GWT UIs, hard modelling, JDBC access, overwriting OOTB files (except a short list), JNI."
+
+  - type: summary
+    points:
+      - On Windchill+ PTC runs the machinery; you own packages, testing, approval and licences.
+      - Readiness means every customization is kept, reworked or replaced with configuration.
+      - CCD packages carry code, properties, schema changes, load files and one BAC ZIP through validation, snapshot, deployment and approval.

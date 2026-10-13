@@ -1,0 +1,102 @@
+id: m07-s11-check
+subtitle: Services, queries, listeners, attributes and builds - can Theo hand his server code to you on Monday?
+version: 1.0.0
+updated: "2026-10-13"
+tags: [customization, developer, server-side, checkpoint]
+sources:
+  - id: trn-advdev
+    where: "Section 11: QueryResult; QuerySpec methods (appendClassList, appendWhere with int[], appendJoin, appendSelect, deprecated overloads); access control consideration (AdvancedQueryAccessException, setAdvancedQueryEnabled, PersistenceServerHelper.manager.query); events and PersistenceManagerEvent list; attribute methods with PersistableAdapter; Section 12: listener service (StandardManager, performStartupProcess, addEventListener, generateEventKey), set-state listener with WTPartReferenceLink, xconfmanager registration, DB column length steps"
+  - id: cust
+    where: "Module 1: Customer build; Deploying Windchill custom code; Updates and server maintenance; What may be changed; Module 2: Windchill customization resources (Javadoc)"
+  - id: cus-api
+    where: "List of APIs and Methods (per customization type: packages, super classes, APIs, methods)"
+  - id: trn-code
+    where: "Sample code: Persistable[] rows from a class-list query; check-out, PersistableAdapter update and check-in inside a Transaction"
+  - id: hc-svc-mgmt
+    label: PTC Help Center supplement
+    title: "Service Management"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/customization/WCCG_Serv_DevelopServerLogic_ServMgmt.html"
+    covers: "Service start order by number; no reserved number ranges; recheck numbers after upgrades"
+  - id: hc-svc-event
+    label: PTC Help Center supplement
+    title: "Service Event Management"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/customization/WCCG_Serv_DevelopServerLogic_ServEventMgmt.html"
+    covers: "Listeners run synchronously in the emitter's transaction; veto by throwing; emitter rolls back"
+  - id: hc-wplus-disallowed
+    label: PTC Help Center supplement
+    title: "Disallowed Customization (Windchill+ 13.1.2.0)"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/customization/DisallowedCust_Select.html"
+    covers: "Extending wt.services.ServiceEventListenerAdapter is disallowed on Windchill+"
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **server-side customization**: registering a service, querying with QuerySpec,
+      writing and narrowing listeners, reading and setting attributes, and shipping it all as a customer build.
+      Score 80% to pass. Every answer explains itself.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: Theo's new service never starts. The xconf file was installed with xconfmanager -i. What was most likely skipped?
+        options: ["Setting the Client Customization preference", "xconfmanager -p and a method server restart", "Adding the service to custom-actions.xml", "Running UpgradeManager -cs"]
+        answer: 1
+        explanation: Installing the file isn't enough - -p propagates the wt.services.service entry into wt.properties, and the method server only starts the services it finds there at startup.
+      - kind: multi
+        prompt: Which statements about service numbers are true? (Choose all that apply.)
+        options: ["PTC reserves a safe range for customers", "Custom numbers should be rechecked after each upgrade", "Services start from the lowest number to the highest", "A service's dependencies need lower numbers"]
+        answers: [1, 2, 3]
+        explanation: No ranges are reserved and PTC may renumber its own services, so pick well above PTC's highest and recheck after upgrades.
+      - kind: order
+        prompt: Put the pieces of a query in the order Theo writes them.
+        items: [new QuerySpec(), appendClassList returns an index, appendWhere with a SearchCondition and that index, PersistenceHelper.manager.find, Loop the QueryResult with hasMoreElements and nextElement]
+        explanation: Classes first because every condition, join and select refers to a class index; run with find; then read the results.
+      - kind: single
+        prompt: A COUNT query throws AdvancedQueryAccessException. What does that tell Theo?
+        options: ["The class index is out of range", "The database is down", "The user lacks a licence", "The query uses a feature that can bypass access control and must be deliberately enabled in server code"]
+        answer: 3
+        explanation: Aggregates, sub-selects, MINUS/INTERSECT, external tables and ROWNUM trip the check. Server-side code can call setAdvancedQueryEnabled(true) on that one query when it's justified.
+      - kind: single
+        prompt: Which call replaces the deprecated appendSearchCondition(SearchCondition)?
+        options: ["appendWhere(WhereExpression, int[])", "appendSelect(ColumnExpression, boolean)", "appendJoin(int, String, int)", "appendOrderBy(OrderBy)"]
+        answer: 0
+        explanation: The method table marks appendSearchCondition deprecated with appendWhere(WhereExpression, int[]) as its replacement.
+      - kind: truefalse
+        prompt: An event listener's veto rolls back the user's operation because the listener runs in the same transaction.
+        answer: true
+        explanation: Listeners are called synchronously in the emitter's thread and transaction. Throwing from notifyVetoableEvent vetoes the event and the emitter rolls back.
+      - kind: multi
+        prompt: Leo's rule must apply only to E1 documents. Which techniques narrow the listener? (Choose all that apply.)
+        options: ["Run the reference-link query first and filter afterwards", "Subscribe only with the SET_STATE event key", "Return early if the target isn't a WTDocument", "Return early if the document's context isn't E-Bike E1"]
+        answers: [1, 2, 3]
+        explanation: Narrow subscription plus cheap checks first. Querying before filtering makes every state change in the company pay for the rule.
+      - kind: single
+        prompt: Theo must change a soft attribute on an existing E1 part. Which sequence is right?
+        options: ["LWCNormalizedObject, set, save", "Set the value with xconfmanager", "Check out, PersistableAdapter with UpdateOperationIdentifier, load, set, apply, PersistenceHelper.manager.modify, check in", "PersistableAdapter with DisplayOperationIdentifier, set, persist"]
+        answer: 2
+        explanation: Updates work on a checked-out object; apply() writes into it and modify saves it. LWCNormalizedObject is the pre-10.2 name.
+      - kind: single
+        prompt: Which part of the customer build can't be downloaded from PTC again?
+        options: ["Base version", "Maintenance release", "Temp patches", "Customizations"]
+        answer: 3
+        explanation: PTC's guide stresses that base version, maintenance releases and temp patches are reproducible - customizations are not, unless they're in your source control.
+      - kind: truefalse
+        prompt: On Windchill+, Theo's listener class that extends ServiceEventListenerAdapter can be deployed through CCD like any other custom class.
+        answer: false
+        explanation: The Windchill+ disallowed-customization list includes implementing or extending ServiceEventListenerAdapter. CCD is the only deployment route, but it doesn't make a disallowed customization allowed.
+
+  - type: flashcards
+    cards:
+      - { front: StandardManager, back: "PTC's base class for services; override performStartupProcess (and performShutdownProcess) for your work." }
+      - { front: wt.services.service entry, back: "A wt.properties line that pairs a service interface with its implementation class; services start lowest number first." }
+      - { front: performStartupProcess, back: "The service startup hook where listeners are subscribed with getManagerService().addEventListener." }
+      - { front: appendClassList, back: "Adds a class to a QuerySpec and returns its index - used by every later condition, join and select." }
+      - { front: "appendJoin(linkIndex, role, targetIndex)", back: "Joins a link class to another class through a model role, such as the WTPartAlternateLink roles." }
+      - { front: AdvancedQueryAccessException, back: "Thrown when a query uses features that can bypass access control; server code may call setAdvancedQueryEnabled(true) when justified." }
+      - { front: PersistenceHelper.manager.find, back: "Runs a QuerySpec with access control and returns a QueryResult." }
+      - { front: notifyVetoableEvent, back: "The ServiceEventListenerAdapter method you override; throw from it to veto a pre-event." }
+      - { front: "LifeCycleServiceEvent.SET_STATE", back: "The life cycle state-change event key used for Leo's linked-part rule." }
+      - { front: PersistableAdapter, back: "Reads and writes attributes by internal name - load, get or set, then apply (update) or persist (create)." }
+      - { front: Customer build, back: "Base version + maintenance release + temp patches + customizations + configurations - versioned." }
