@@ -1,0 +1,409 @@
+id: m07-s07-l06
+subtitle: PTC's domains cover most of Windchill. For the rest, Theo writes a few JSON files - in the one folder PTC updates never touch.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [integration, rest, odata, wrs, developer, customization]
+sources:
+  - id: rest
+    where: "Module 2: WRS overview (PTC domains). Module 3: Entity Data Model (EDM); Process metadata; Structural properties and navigation criteria. Module 4: How are metadata requests processed? (Domain Provider, Entity Provider, Entity Delegate); How are entity and entity set requests processed? (BasicEntityProcessor, PersistableEntityProcessor); WRS framework configuration (configuration home, PTC and custom configuration paths, merge, CPS overwrite); Configuration home structure (domain folder, version folder, complexType, entity folder, import.json, import.js, domain JSON); Domain configuration files (name, id, namespace, containerName, defaultVersion, IncludeImportedEntitySets deprecated); Entity configuration files; Configure entities in a domain (basic information, structural properties, navigation properties, bound functions, bound actions, inherits); Naming conventions for soft types; Exclude soft types (wcExcludedTypes); Activity: Review OOTB domains and entities. Module 5: Domain customization overview; WRS framework hooks; Extend WRS domains (when, restrictions, how); Activity: Extend a PTC domain (subtype entity with parent, alias attribute, extends); Activity: Add a new entity to the Change Management domain; Create a custom domain; Activity: Create a new domain (domain JSON, import.json, entity files, getRelatedEntityCollection hook, $metadata test)"
+versionNotes:
+  - versions: ["All releases"]
+    md: |
+      Domain API versions change with the WRS release bundled in your Windchill (PTC's course system shows
+      ProdMgmt at v7 and ChangeMgmt at v8). When you extend a PTC domain, mirror the version folder that
+      matches the domain on **your** system. The `IncludeImportedEntitySets` option in `import.json` is
+      deprecated as of WRS 2.7 - keep it false and don't change it on PTC domains.
+  - versions: ["Windchill+"]
+    md: |
+      PTC's course does all of this on an on-premises server with access to the `codebase/rest` folders.
+      Whether and how WRS configuration files can be added on Windchill+ is not covered by the course - not
+      confirmed here.
+
+blocks:
+  - type: text
+    md: |
+      Theo's dashboard from the REST lesson works. Now two new asks land on his desk:
+
+      1. **Ines** wants ERP to read the plant **material group** of each E1 part through WRS - it lives on
+         the part master, and ProdMgmt doesn't show it.
+      2. **Leo** (quality) wants the Lakeside MES team to read problem reports and the parts they were
+         reported against - read-only, in a small API of their own.
+
+      Both are WRS customizations - mostly JSON files - and neither needs a change to a single PTC file.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "one topic area of the API" → [[wrs-domain|domain]] (ProdMgmt, DocMgmt, ChangeMgmt...)
+      - "the domain's menu of objects, fields and links" → [[entity-data-model|Entity Data Model (EDM)]]
+      - "your own folder that updates never overwrite" → [[wrs-custom-configuration-path|custom configuration path]]
+      - "the files that define one object kind" → [[wrs-entity-configuration|entity JSON + JavaScript files]]
+      - "borrow Windchill behaviour for free" → [[wrs-inherits|inherits]] (lifecycleManaged, workable...)
+      - "an operation on one object" → [[wrs-bound-operation|bound function / bound action]]
+      - "a brand-new API area" → [[wrs-custom-domain|custom domain]]
+
+  - type: diagram
+    title: Where a domain is defined
+    caption: WRS reads both paths and merges them into one EDM per domain. Click a box.
+    diagram:
+      width: 840
+      height: 440
+      groups:
+        - { label: "codebase/rest/ptc/domain (read-only)", x: 10, y: 20, w: 400, h: 300, tone: neutral }
+        - { label: "codebase/rest/custom/domain (yours)", x: 430, y: 20, w: 400, h: 300, tone: neutral }
+      nodes:
+        - id: ptc-dom
+          label: ProdMgmt.json
+          sublabel: domain JSON
+          x: 30
+          y: 60
+          w: 170
+          shape: doc
+          tone: info
+          detail: |
+            One JSON file per domain, named after its id: `name`, `id`, `description`, namespace (for example
+            `PTC.ProdMgmt`), `containerName`, `conglomerate` and `defaultVersion` - the version used when a
+            client doesn't ask for one.
+        - id: ptc-ver
+          label: ProdMgmt/v7
+          sublabel: version folder
+          x: 220
+          y: 60
+          w: 170
+          tone: info
+          detail: |
+            One folder per API version (v1, v2...). Inside: `entity/`, `complexType/`, `import.json` (domains this
+            one imports - all domains import PTC Common) and `import.js` (unbound functions and actions, if any).
+        - id: ptc-ent
+          label: entity/Parts.json + .js
+          sublabel: PTC's entity files
+          x: 120
+          y: 200
+          w: 200
+          shape: doc
+          tone: primary
+          detail: |
+            The JSON file holds basic information, structural properties, navigations, bound functions and
+            actions, and inherits. The JavaScript file holds bound operation code and hooks. **Never edit
+            these** - a critical patch set with a newer WRS overwrites them.
+        - id: cus-ext
+          label: ProdMgmt/v7/entity
+          sublabel: mirrored folders only
+          x: 450
+          y: 60
+          w: 180
+          tone: accent
+          detail: |
+            To extend a PTC domain, mirror the **folder structure** (domain, version, entity) - not the files.
+            Then create new, uniquely named files with your additions.
+        - id: cus-file
+          label: Extension files
+          sublabel: new JSON (and JS)
+          x: 650
+          y: 60
+          w: 160
+          shape: doc
+          tone: accent
+          detail: |
+            For example a new entity for a subtype, with a `parent`, or a file with `extends` that adds
+            properties to an existing PTC entity.
+        - id: cus-dom
+          label: AcmeQuality
+          sublabel: custom domain
+          x: 540
+          y: 200
+          w: 180
+          tone: warning
+          detail: |
+            A whole new domain: its own domain JSON in `custom/domain`, a `v1` folder with `import.json`, and an
+            `entity` folder. PTC's course: information can only be **read** through a custom domain.
+        - id: edm
+          label: Unified EDM
+          sublabel: "/{domain}/$metadata"
+          x: 330
+          y: 360
+          w: 180
+          h: 60
+          shape: cylinder
+          tone: success
+          detail: |
+            The OData servlet serves one merged [[entity-data-model|EDM]] per domain. Check your change by
+            loading `$metadata` or by finding the entity in the API catalog.
+      edges:
+        - { from: ptc-dom, to: ptc-ver }
+        - { from: ptc-ver, to: ptc-ent }
+        - { from: cus-ext, to: cus-file }
+        - { from: ptc-ent, to: edm, label: merge }
+        - { from: cus-file, to: edm, label: merge }
+        - { from: cus-dom, to: edm }
+
+  - type: animation
+    title: What happens when a client calls WRS
+    diagram:
+      width: 820
+      height: 300
+      nodes:
+        - { id: client, label: Client, sublabel: "ERP, MES, Postman", x: 20, y: 120, w: 150, tone: neutral }
+        - { id: servlet, label: OData servlet, sublabel: reads configs, x: 210, y: 120, w: 160, tone: primary }
+        - { id: providers, label: Domain + Entity, sublabel: Providers, x: 410, y: 30, w: 170, tone: info }
+        - { id: delegate, label: Entity Delegate, sublabel: builds metadata, x: 620, y: 30, w: 180, tone: info }
+        - { id: processor, label: Entity processor, sublabel: Persistable or Basic, x: 410, y: 200, w: 170, tone: accent }
+        - { id: hooks, label: JS hooks, sublabel: "e.g. Parts.js", x: 620, y: 200, w: 180, tone: warning }
+      edges:
+        - { from: client, to: servlet, bidirectional: true }
+        - { from: servlet, to: providers }
+        - { from: providers, to: delegate }
+        - { from: servlet, to: processor }
+        - { from: processor, to: hooks, bidirectional: true }
+    chapters:
+      - title: A request arrives
+        caption: Every OData URL passes the servlet, which knows the domains and their configuration.
+        show: [client, servlet]
+        highlight: [servlet]
+        flow: ["client>servlet"]
+        seconds: 5
+      - title: "$metadata"
+        caption: "For an EDM request, the **Domain Provider** and **Entity Provider** read the configuration files and the **Entity Delegate** builds the metadata."
+        show: [client, servlet, providers, delegate]
+        highlight: [providers, delegate]
+        flow: ["servlet>providers", "providers>delegate"]
+        seconds: 7
+      - title: Entities
+        caption: "Requests for entities mapped to Windchill persistables go to **PersistableEntityProcessor**; unmapped ones to **BasicEntityProcessor**. A GET reads persistables and converts each into an OData entity."
+        show: [client, servlet, processor]
+        highlight: [processor]
+        flow: ["servlet>processor"]
+        seconds: 7
+      - title: Hooks
+        caption: "The framework looks for hook implementations in the entity's JavaScript file. Depending on what a hook returns, default processing continues or stops."
+        show: [client, servlet, processor, hooks]
+        highlight: [hooks]
+        flow: ["processor>hooks"]
+        seconds: 7
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Integrations break when they depend on things that change. PTC's rules - custom files in their own
+      path, add-only extensions, versioned domains - mean Ines's ERP interface keeps working after the next
+      Windchill update. Editing a PTC JSON file "just this once" is the classic way to lose a customization
+      silently.
+
+  - type: comparison
+    title: Extend a PTC domain or build a custom one?
+    columns: [Extend a PTC domain, Create a custom domain]
+    rows:
+      - label: Use when
+        cells: ["You need a few extra entities, properties, navigations or operations next to PTC's", "The functional area isn't in PTC's domains, or needs its own shape"]
+      - label: Where
+        cells: ["Mirrored folders such as custom/domain/ProdMgmt/v7/entity", "custom/domain/<YourId>.json plus custom/domain/<YourId>/v1/..."]
+      - label: Allowed
+        cells: ["Add entities, structural and navigation properties, actions, functions - and enable operations PTC left off", "Anything you configure - the course states data can only be read"]
+      - label: Not allowed
+        cells: ["Remove anything, change existing definitions, change the version of PTC domains", "-"]
+    takeaway: Prefer extending; build a domain only when no PTC domain fits.
+
+  - type: walkthrough
+    title: Extend ProdMgmt for the E-Bike Part and ERP material
+    who: Theo (developer) with a site administrator for the type changes
+    steps:
+      - title: Check what you get for free
+        where: [Browser, "/Windchill/servlet/odata/ProdMgmt/$metadata"]
+        md: |
+          Parts.json inherits **subtypeable** and **softattributable**, so the E-Bike Part subtype
+          (`com.acmemobility.EBikePart`) and its soft attributes already show in the EDM without a file.
+          WRS drops the domain prefix and capitalises the first letter, so it appears as `EBikePart`.
+      - title: Create the alias attribute
+        where: [Browse, Site, Utilities, Type and Attribute Management, Part, New Attribute]
+        md: |
+          On the Part type add an **Alias** attribute (for example `ErpMaterialGroup`, String) whose mapping
+          points through the master to the material group attribute on the part master, in the form
+          `masterReference^wt.part.WTPartMaster~<attribute>`.
+      - title: Mirror the folders
+        where: ["%WT_HOME%", codebase, rest, custom, domain, ProdMgmt, v7, entity]
+        md: |
+          Create the folders that don't exist yet, matching the domain's current version folder. Copy no
+          PTC files.
+      - title: Write the extension file
+        where: [custom/domain/ProdMgmt/v7/entity, PartAcme.json]
+        md: |
+          A new, uniquely named JSON file that `extends` the Part entity and lists the extra attribute (see
+          below).
+      - title: Verify
+        where: [Customization, Documentation, OData REST APIs]
+        md: |
+          Search the ProdMgmt `$metadata` for the new property, or open the domain in the API catalog and run
+          GET /Parts with `$select` including it.
+    result: ERP can read every part's material group with a plain GET - and the next WRS update leaves it alone.
+
+  - type: text
+    md: |
+      ### The files, written out
+
+      **1. Extend the Part entity** (`custom/domain/ProdMgmt/v7/entity/PartAcme.json`):
+
+      ```json
+      {
+        "extends": "Part",
+        "attributes": [
+          { "name": "ErpMaterialGroup", "internalName": "ErpMaterialGroup", "type": "String" }
+        ]
+      }
+      ```
+
+      **2. A custom domain for Leo** (`custom/domain/AcmeQuality.json`, then `custom/domain/AcmeQuality/v1/import.json`):
+
+      ```json
+      {
+        "name": "Acme Quality Domain",
+        "id": "AcmeQuality",
+        "description": "Read-only quality data for plant systems",
+        "nameSpace": "Acme.AcmeQuality",
+        "containerName": "Windchill",
+        "defaultVersion": "1"
+      }
+      ```
+
+      ```json
+      { "imports": [ { "name": "PTC", "version": "1" } ] }
+      ```
+
+      **3. Its entity** (`AcmeQuality/v1/entity/ProblemReports.json`) - a problem report backed by
+      `wt.change2.WTChangeIssue`, with a navigation to the items it was reported against
+      (`wt.change2.Changeable2`, configured the same way in `ChangeableItems.json`):
+
+      ```json
+      {
+        "name": "ProblemReport",
+        "collectionName": "ProblemReports",
+        "type": "wcType",
+        "wcType": "wt.change2.WTChangeIssue",
+        "operations": "READ",
+        "attributes": [
+          { "name": "Number", "internalName": "number", "type": "String" },
+          { "name": "Name", "internalName": "name", "type": "String" },
+          { "name": "NeedDate", "internalName": "needDate", "type": "DateTimeOffset" }
+        ],
+        "navigations": [
+          { "name": "ReportedAgainst", "target": "ChangeableItems", "type": "ChangeableItem",
+            "isCollection": true, "containsTarget": true }
+        ],
+        "inherits": [ { "name": "lifecycleManaged" } ]
+      }
+      ```
+
+      The navigation needs code: a `getRelatedEntityCollection(navProcessorData)` hook in the entity's
+      JavaScript file returns a map from each source problem report to its related items. PTC's example
+      gets them with `ChangeHelper2.service.getChangeables(...)`. Then test:
+
+      ```text
+      GET https://<host>/Windchill/servlet/odata/AcmeQuality/$metadata
+      GET https://<host>/Windchill/servlet/odata/AcmeQuality/ProblemReports?$expand=ReportedAgainst
+      ```
+
+  - type: simulation
+    title: Stand up the AcmeQuality domain
+    intro: |
+      Build Leo's read-only domain in the right order and get a working `$metadata`. One tempting shortcut is
+      on the list - see what it costs.
+    headline: "Domain JSON {domainJson} · v1 + import.json {importJson} · Entities {entities} · $metadata {meta}"
+    initial: { domainJson: "no", importJson: "no", entities: "no", meta: "-", ptcEdited: "no" }
+    actions:
+      - id: domain-json
+        label: Create custom/domain/AcmeQuality.json
+        do: [{ set: { domainJson: "yes" } }]
+        log: "Domain JSON saved: id AcmeQuality, namespace, containerName and defaultVersion 1."
+      - id: import-json
+        label: Create AcmeQuality/v1/import.json
+        when: { domainJson: "yes" }
+        do: [{ set: { importJson: "yes" } }]
+        log: Version folder v1 created; import.json imports the PTC domain.
+        blockedHint: Define the domain first - its JSON names the id and default version the folders must match.
+      - id: entities
+        label: Add ProblemReports and ChangeableItems JSON + hook JS
+        when: { importJson: "yes" }
+        do: [{ set: { entities: "yes" } }]
+        log: Entity files in v1/entity, with the ReportedAgainst navigation and its hook.
+        blockedHint: Create the version folder (with import.json) first.
+      - id: test-meta
+        label: GET AcmeQuality/$metadata
+        do: [{ set: { meta: "checked" } }]
+        log: "Requested the EDM."
+      - id: read-meta
+        label: Read the response
+        when: { meta: "checked", entities: "yes" }
+        do: [{ set: { meta: "200 OK" } }]
+        log: "200 - the EDM lists ProblemReport and ChangeableItem, and the domain shows in the API catalog."
+        blockedHint: "No useful EDM yet - the domain JSON, v1/import.json and entity files must all exist."
+      - id: shortcut
+        label: "Shortcut: add the entity to PTC's ChangeMgmt files"
+        do: [{ set: { ptcEdited: "yes" } }]
+        log: "It works today - and is overwritten by the next CPS that updates WRS. PTC files must not be modified. Undo it and use the custom path."
+      - id: undo-shortcut
+        label: Revert the PTC file change
+        when: { ptcEdited: "yes" }
+        do: [{ set: { ptcEdited: "no" } }]
+        log: PTC files restored. Customizations live only under custom/domain.
+    goals:
+      - label: Get a working $metadata for AcmeQuality
+        when: { meta: "200 OK" }
+        message: Domain JSON → version folder with import.json → entity files → test the EDM.
+      - label: Do it without touching PTC files
+        when: { meta: "200 OK", ptcEdited: "no" }
+        message: Exactly how PTC wants it - updates can't break what they don't overwrite.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Subtype names that collide in WRS.** WRS strips the prefix from subtype internal names and can't use
+      hyphens or underscores, so `com.acmemobility.e1_frame` and `com.acmemobility.e1-frame` clean up to the
+      same name - and one of them gets the prefix glued back on (something like `ComacmemobilityE1Frame`).
+      The same happens to equal names under different prefixes. Agree subtype internal names with the integration team **before** creating them.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Lean on **inherits** before writing properties by hand: `workable` brings CheckoutState plus CheckIn,
+      CheckOut and UndoCheckOut; `versioned` brings the version and version navigations; `lifecycleManaged`
+      brings life cycle template and state. And remember the function/action rule - a bound **function**
+      must only read; anything that changes data is an **action** called with POST.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Where must Theo put files that extend the ProdMgmt domain?
+        options: ["codebase/rest/ptc/domain/ProdMgmt/v7/entity", "codebase/rest/custom/domain/ProdMgmt/v7/entity", "codebase/rest/ProdMgmt", "Any folder listed in wt.properties"]
+        answer: 1
+        explanation: Extensions go in the custom configuration path, mirroring the PTC folder structure. Files in the PTC path must not be modified - updates overwrite them.
+      - kind: multi
+        prompt: Which changes are allowed when extending a PTC domain? (Choose all that apply.)
+        options: [Add a new entity for a custom subtype, Add structural properties to an existing entity, Remove a navigation property, Change the version of the PTC domain]
+        answers: [0, 1]
+        explanation: Customers can only add entities, properties, navigations, actions and functions. Removing, redefining or changing the version of PTC domains is not allowed.
+      - kind: single
+        prompt: Which processor class handles a GET on ProdMgmt/Parts?
+        options: [BasicEntityProcessor, PersistableEntityProcessor, Entity Delegate, Domain Provider]
+        answer: 1
+        explanation: Parts are mapped to Windchill persistables, so PersistableEntityProcessor reads them and converts each to an OData entity. BasicEntityProcessor serves entities not mapped to persistables.
+      - kind: single
+        prompt: A navigation property such as Uses appears in a part's JSON response...
+        options: [Always, Only when the client expands it, Only in $metadata, Never]
+        answer: 1
+        explanation: Navigation properties are not included by default; the client must request them, for example with $expand=Uses.
+      - kind: truefalse
+        prompt: Because Parts.json inherits subtypeable, a new part subtype created in Type and Attribute Management appears in the EDM without a configuration file.
+        answer: true
+        explanation: Subtypeable makes subtypes available automatically, and softattributable does the same for soft attributes. You add a file only when you need more than that.
+      - kind: order
+        prompt: Put the steps for a new custom domain in order.
+        items: [Decide the domain id and version, Create the domain JSON in custom/domain, Create the version folder with import.json, Create the entity folder and entity files, "Test the EDM at the domain's $metadata URL"]
+        explanation: This is PTC's sequence. The new domain then also appears in the API catalog.
+
+  - type: summary
+    points:
+      - A domain's EDM is built from configuration files - domain JSON, version folders, import.json and entity JSON/JS files - and served at $metadata.
+      - The servlet, providers and entity delegate build metadata; PersistableEntityProcessor and BasicEntityProcessor serve entities; JS hooks can override or extend them.
+      - Never edit codebase/rest/ptc; put extensions and new domains in codebase/rest/custom/domain, which WRS merges and updates leave alone.
+      - Extensions are add-only; inherits (subtypeable, softattributable, workable, versioned, lifecycleManaged...) give a lot for free.
+      - Bound functions only read (GET); bound actions change data (POST). Custom domains, per PTC's course, read data.

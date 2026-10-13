@@ -1,0 +1,242 @@
+id: m07-s05-l02
+subtitle: Hexa Tooling needs to change Acme's battery fixture. They don't have a Windchill account - and they shouldn't see the whole E1 product.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [project-management, projectlink, supplier-collaboration, data-sharing, access-control]
+sources:
+  - id: pm
+    where: "Module 1: Windchill Project Management overview (what is a project); Project manager role; Content organization. Module 2: Create a project (Private Access, sharing and synchronization attributes); Manage the project team (Project Manager, Members, Guest, Collaboration Manager roles); Activity: Create a project (adding users by e-mail). Module 3: Project state. Module 4: Overview and best practices; Data sharing actions; Share from PDM to a project; Send objects to PDM; Manage PDM checkout objects"
+  - id: te
+    where: "Identify project characteristics (sharing to projects to collaborate with partners and external suppliers; consultants example)"
+
+blocks:
+  - type: text
+    md: |
+      The E1 Lakeside Launch needs a new **battery fixture**, and the people who can design it work at
+      **Hexa Tooling**, Acme's tooling supplier. They need Acme's fixture model and the battery mounting
+      dimensions for a few weeks. They do **not** need the motor, the frame, or Acme's change history.
+
+      Emailing a zip file is how leaks (and stale copies) happen. Instead, Kai uses the project as a
+      **controlled window**: share exactly what Hexa needs, let them work on it inside the project, then
+      bring the result back into the product when it's checked.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "Acme's real product data area" → **PDM** ([[product-context|product]] or [[library]])
+      - "let the project see it, read-only" → **Share**
+      - "lend it to the project so they can change it" → [[pdm-checkout]]
+      - "make an independent copy" → **Copy** (like Save As)
+      - "give the finished work back" → [[send-to-pdm]]
+      - "who may do what inside the project" → project **roles**: Project Manager, Members, Guest, Collaboration Manager
+
+  - type: diagram
+    title: The project as a controlled window
+    caption: Only what you add crosses from PDM into the project. Click each box.
+    diagram:
+      width: 820
+      height: 400
+      groups:
+        - { label: "Acme PDM (product E-Bike E1)", x: 10, y: 10, w: 300, h: 380, tone: primary }
+        - { label: "Project: E1 Lakeside Launch", x: 340, y: 10, w: 470, h: 380, tone: accent }
+      nodes:
+        - id: product
+          label: E1 product data
+          sublabel: everything else stays here
+          x: 40
+          y: 50
+          w: 240
+          shape: cylinder
+          tone: primary
+          detail: Products and libraries are controlled by their own access rules. Nothing in them is visible to the project until someone adds it.
+        - id: fixture
+          label: Battery fixture
+          sublabel: CAD model
+          x: 40
+          y: 180
+          w: 240
+          shape: doc
+          tone: info
+          detail: The one object Hexa must change. Kai adds it to the project with **PDM Check-out**, so it is locked in the product while the project works on it.
+        - id: spec
+          label: Mounting spec
+          sublabel: document
+          x: 40
+          y: 300
+          w: 240
+          shape: doc
+          tone: info
+          detail: Hexa only needs to read this, so it is **shared**. Shared objects can be downloaded but not checked out or modified in the project.
+        - id: folder
+          label: Project folder
+          sublabel: General
+          x: 380
+          y: 180
+          w: 180
+          tone: accent
+          detail: Shared and checked-out objects appear in the project's folders. Folder structure and access control work as in products and libraries.
+        - id: hexa
+          label: Hexa Tooling
+          sublabel: invited by e-mail
+          x: 610
+          y: 120
+          w: 170
+          tone: warning
+          shape: pill
+          detail: Unlike products and libraries, a project can add people who have no Windchill account, using their e-mail address. They work inside the project only.
+        - id: team
+          label: Acme team
+          sublabel: Kai · Ana · Hana
+          x: 610
+          y: 260
+          w: 170
+          tone: success
+          shape: pill
+          detail: Kai is Project Manager; Ana and Hana are Members. A Collaboration Manager can be added to handle sharing and ad hoc access - but anyone with the right permissions can share.
+      edges:
+        - { from: fixture, to: folder, label: PDM checkout }
+        - { from: spec, to: folder, label: share }
+        - { from: hexa, to: folder, label: edit / read }
+        - { from: team, to: folder }
+        - { from: folder, to: fixture, dashed: true, label: Send to PDM }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Product development is done by an extended team - internal engineers, suppliers and manufacturers.
+      A project lets you hand a supplier **only** the data they need, for **only** as long as they need it,
+      in a place where every iteration is recorded. When the job ends, you complete the project and its
+      content becomes read-only.
+
+  - type: comparison
+    title: Three ways to put PDM data into a project
+    columns: [Share, PDM checkout, Copy]
+    rows:
+      - label: Project can change it?
+        cells: ["No - read-only, download only", "Yes - a project-specific version", "Yes - it's a new independent object"]
+      - label: Effect in PDM
+        cells: ["None", "Original is locked until the work returns or the checkout is undone", "None - the original is untouched"]
+      - label: Coming back
+        cells: ["Nothing to bring back", "Send to PDM replaces the source version with the project's latest iteration", "Can be sent to PDM later as a new object"]
+      - label: Use it when
+        cells: ["Suppliers need reference data", "Suppliers must update your object", "You want a separate design alternative"]
+    takeaway: Share by default; PDM-checkout only what really must change.
+
+  - type: comparison
+    title: Who gets what in the project
+    columns: [Can do, Typical person]
+    rows:
+      - label: Project Manager
+        cells: ["Sees and controls everything; picks the team; manages the plan; the only role that changes state, phase and status", "Kai"]
+      - label: Members
+        cells: ["Access the project and add data; update items they own (for example their own deliverables)", "Ana, Hana, the Hexa designers"]
+      - label: Guest
+        cells: ["Mostly read-only access; no actions; no invitation", "A quality engineer who only needs to search"]
+      - label: Collaboration Manager
+        cells: ["Access rights for sharing across contexts and editing ad hoc access control", "Optional - not needed to share"]
+    takeaway: External designers who must edit go in Members (or a custom role); people who only look go in Guest.
+
+  - type: example
+    variant: case-study
+    title: The fixture that came back right
+    industry: Micromobility
+    md: |
+      Kai creates the project with **Private Access: Members Only**, so nobody wanders in as a guest. He
+      adds Hexa's two designers as **Members** using their e-mail addresses.
+
+      From the E1 product he **shares** the battery mounting specification and **PDM checks out** the
+      fixture model to the project. In the product, the fixture now shows it is checked out to a project,
+      so Priya doesn't start a conflicting change.
+
+      Hexa checks the fixture out inside the project, updates it and checks it in a few times. None of
+      that is visible in the product yet. When Ana has reviewed the result, Kai uses **Send to PDM**: the
+      product gets the project's latest iteration, the lock is released, and the fixture stays **shared**
+      in the project so Hexa can still see the final version.
+
+      At the end of the launch Kai **completes** the project - all plan and storage objects become
+      read-only.
+    takeaway: Share for reading, PDM checkout for changing, Send to PDM after review, Complete to close the window.
+
+  - type: scenario
+    variant: what-if
+    title: Hexa asks for "the full E1 assembly, just to be safe"
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Hexa's lead e-mails Kai: *"Can you put the whole E1 product in the project? Easier for us."* What do
+          you do?
+        choices:
+          - label: "Share only the fixture and the mounting spec they really need"
+            next: s2
+            good: true
+            feedback: Least data, least risk. The project is a window - keep it small.
+          - label: "PDM check out the whole top-level assembly to the project"
+            next: f1
+            feedback: Everything you PDM-check-out is locked in the product. Priya and the change team would be blocked.
+          - label: "Add Hexa to the E1 product team instead"
+            next: f2
+            feedback: Products are for your controlled data. Hexa would see far more than the job needs - and they have no Windchill account anyway.
+      - id: s2
+        md: |
+          Good. Two weeks later Hexa wants to **change** the mounting spec too. It's currently shared. What
+          now?
+        choices:
+          - label: "Ask the spec owner, then PDM check out the spec to the project"
+            next: s3
+            good: true
+            feedback: Shared objects can't be modified in the project. A PDM checkout gives the project an editable version and locks the original.
+          - label: "Tell Hexa to download it, edit locally and e-mail it back"
+            next: f3
+            feedback: That brings back the uncontrolled zip-file workflow you set up the project to avoid.
+      - id: s3
+        md: Hexa's changes are reviewed by Ana and Leo. The fixture and spec go back with Send to PDM and the project is completed at launch.
+        outcome: success
+      - id: f1
+        md: Engineering is blocked for weeks because the product's assembly is locked by the project.
+        outcome: fail
+      - id: f2
+        md: The supplier now has access to the whole product. Security asks some hard questions.
+        outcome: fail
+      - id: f3
+        md: Two versions of the spec now exist and nobody knows which is right.
+        outcome: partial
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Forgetting the lock.** A PDM checkout keeps the original locked in the product until the project
+      sends the object back (or the PDM checkout is undone). A forgotten project can silently block a
+      release. Put "Send to PDM" in the plan as an activity with an owner.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Set **Private Access** to *Members Only* for supplier projects - *Default* allows guest access. And
+      use the project's **Invitation Message** to tell suppliers what's in scope; it can include
+      formatted text and links.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Hexa only needs to read Acme's battery mounting specification. Which option should Kai use?
+        options: [Share, PDM checkout, Copy, Send to PDM]
+        answer: 0
+        explanation: Shared objects are read-only in the project and can only be downloaded - exactly right for reference data.
+      - kind: truefalse
+        prompt: To join a project, Hexa's designers must first get full Windchill user accounts.
+        answer: false
+        explanation: Projects (unlike products and libraries) can add non-Windchill users as members through their e-mail addresses.
+      - kind: single
+        prompt: Hexa checked in three new iterations of the fixture in the project. When does Priya see them in the product?
+        options: [Immediately after each check-in, After Send to PDM, After the project is suspended, Never]
+        answer: 1
+        explanation: Project work isn't visible in the source product until the object is sent back to PDM.
+
+  - type: summary
+    points:
+      - Projects let you work with suppliers on a small, controlled slice of your data - even with people who have no Windchill account.
+      - Share for read-only reference, PDM checkout to let the project edit (the original locks), Copy for an independent new object.
+      - Project roles control access; Members Only private access keeps guests out.
+      - Send to PDM brings reviewed work back; completing the project makes everything read-only.

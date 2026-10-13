@@ -1,0 +1,67 @@
+# New glossary terms introduced in section m07-s06 (PartsLink and classification at scale).
+- id: partslink
+  term: Windchill PartsLink
+  plain: The Windchill add-on that sorts parts and documents into a tree so people can find and reuse them.
+  definition: An additional Windchill module, installed as a Windchill Base Solution add-on with the PTC Solution Installer, that classifies parts and documents in a structure by function and attributes. It adds the Classification Explorer, filtering on classification attribute values, range searches and Find Similar Objects. It needs index search to be installed and running. PTC calls it a best practice to implement it together with Supplier Management, because manufacturer and vendor parts can be classified and searched before a new part is requested.
+  aka: [PartsLink, PartsLink Classification]
+  related: [classification, classification-structure, classification-search, part-reuse, index-search]
+
+- id: classification-explorer
+  term: Classification Explorer
+  plain: A search page where you walk down the part tree and narrow the list by properties.
+  definition: The PartsLink search page opened from the Navigator's Search area. You choose a classification structure (for example Part Classification), browse its nodes - optionally as a graphical tree with icons - and see the objects classified under the selected node and its children, with a count per node. When search facets are enabled, a Refine Results pane filters the results by classification attribute values.
+  related: [classification-search, faceted-search, classification-node]
+
+- id: faceted-search
+  term: Faceted search (Refine Results)
+  plain: Ticking filters next to the results to shrink the list, like on a shopping site.
+  definition: A search feature that shows a Refine Results pane listing attributes and values found in the current results, so you can tick values or enter ranges to narrow them. It appears only when index search (Solr) is running, the Enable Search Facets preference is Yes, the search covers indexed types and uses the Keyword field, no related-object criteria are used, and the Iteration criterion is not All or a specific iteration. Facet values reflect only the current results, an attribute appears only if the results hold more than one value for it, and string attributes qualify only when constrained by a legal value list.
+  aka: [Search facets, Refine Results pane]
+  related: [classification-explorer, index-search, classification-search]
+
+- id: find-similar-objects
+  term: Find Similar Objects
+  plain: "Show me parts like this one, but with a slightly different length."
+  definition: A PartsLink action that searches for classified objects in the same classification node as a selected object. It lists the object's classification attributes with their values; you change values, add a range in the Modifiers column (absolute in the base unit, or a percentage), or pick extra list values (combined with OR), and only the rows you tick are searched. It is available from the information page Actions menu and from the right-click menu of search results, folder contents and the part structure browser, and only when indexing is enabled for classification objects.
+  related: [classification-search, classification-attribute, part-reuse]
+
+- id: autonaming-rule
+  term: Classification autonaming rule
+  plain: A formula on a classification node that writes the part name for you from the node and its key values.
+  definition: A rule set on a classification node's Autonaming Rule tab that fills the Name of objects classified there. Elements are joined with a plus sign and can be the keyword CSM_NODE_NAME (the node's display name), the internal names of the node's attributes, and text in double quotes. The tab also sets the Rule Measurement System for values with units and whether the rule is enforced. Generated names are not updated later when attribute values or the rule change. Site administrators can use profiles to let certain users override the generated name.
+  aka: [Autonaming, Classification autonaming]
+  related: [classification-node, classification-attribute, numbering-scheme]
+
+- id: classification-namespace
+  term: Classification namespace
+  plain: The name of one classification tree, such as the one for parts or the one for documents.
+  definition: The identifier of a classification structure, selected from the Namespaces list on the Manage Classifications page. A namespace is tied to part or document types through the classification binding attribute (for example Part Classification on the Part type), whose Classification constraint in Type and Attribute Management names the namespace and node used to classify that type. Parts and documents usually have separate namespaces, often maintained by different teams.
+  aka: [Classification binding attribute]
+  related: [classification-structure, type-and-attribute-management, classification]
+
+- id: classification-administrators
+  term: Classification Administrators group
+  plain: The people allowed to change the classification tree and its attributes.
+  definition: The group whose members can create and update classification structures, nodes and classification attributes in Classification Administration. Its default name is Classification Administrators; the wt.csm.defaultCSMAdminGroup property can point to a custom group. With the Enable Classification Administrator to Create Reusable Attributes preference, members can also create reusable attributes from the classification tree. PTC stresses that maintaining the library needs a dedicated team at the customer.
+  aka: [Classification administrator]
+  related: [classification-structure, classification-attribute, group, reusable-attribute]
+
+- id: instantiable-node
+  term: Instantiable node
+  plain: A node in the classification tree that people are allowed to pick for a part.
+  definition: A classification node whose Instantiable property is set to Yes, so users can select it as the classification of an object when they create or classify it. With No, the node still appears in the tree (for example as a grouping level) but cannot be chosen. Node properties are changed in edit mode, and a node's internal name can no longer be edited once objects are classified against it.
+  aka: [Instantiable]
+  related: [classification-node, classification-structure, classification-administrators]
+
+- id: classification-import
+  term: Classification structure import
+  plain: Loading a whole classification tree from a file instead of building it by hand.
+  definition: The Import action in the Classification Tree's Actions menu, which loads a classification structure from a JAR or ZIP file. Only site administrators can run it; it brings in the entire structure, matches nodes and attributes by internal name (updating matches, creating new ones and writing a delete load file for items missing from the file), overrides the existing structure and cannot be undone. A first structure can be written as a CSV file and converted to XML with the CSVToXMLGenerator utility, then zipped and imported. The Export action writes the structure to CSV or XML.
+  aka: [Import a classification structure]
+  related: [classification-structure, classification-namespace, classification-administrators]
+
+- id: demo-classification-data
+  term: Demo classification data
+  plain: PTC's sample classification tree you can load on a new server as a starting point.
+  definition: A sample PartsLink classification shipped with Windchill but not loaded automatically. Its load files (a quantities-of-measure file, an attributes file and a nodes file) sit in the PartsLink demoClf folder under loadFiles; before loading you edit the content root path in the nodes file so attachments can be found. It is meant as a reference for building your own structure on a newly installed server.
+  related: [classification-structure, partslink]

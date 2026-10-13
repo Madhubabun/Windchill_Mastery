@@ -1,0 +1,262 @@
+id: m07-s02-l03
+subtitle: Test the filter, trust the rules, then configure. And when a customer asks for an impossible bike, find out which rule says no.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [options-and-variants, option-filter, configure, variants, troubleshooting]
+sources:
+  - id: ov
+    where: "Module 3: Using the standard and alternate filter; Assigning option choices in the configurable structure; Module 4: Implementation process steps; Filter a configurable structure using choices; Create a variant specification and variant; Activity: Filter a structure using choices; Activity: Create a variant specification and variant"
+  - id: trn-options
+    where: "Validation of required options and single-selection constraints (Validate for Required Choices preference)"
+  - id: hc-ov-rules
+    label: PTC Help Center supplement
+    title: "Effect of Choice Rules on Choice Selection"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/options/OptionsEffectOfRules.html"
+    covers: "Rule evaluation order (exclude, effectivity, include); include auto-selects; exclude disables; enable restricts; error messages on conflicts; Disable Rule Checking"
+
+blocks:
+  - type: text
+    md: |
+      Riverside's dealer in Lyon orders an E1: **Trekking trim, 500 Wh, Graphite, for the EU market - with
+      a throttle**. Ana opens the option filter and clicks *Throttle = Yes*. It's greyed out.
+
+      Is Windchill broken? No - a rule is doing its job. This lesson is about configuring a real customer
+      variant **and** understanding what the rules are telling you when a combination won't go through.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "picking choices to see one version" → [[option-filter]] (Structure tab → Edit Filter → Option Filter)
+      - "save that version as a real bike" → the **Configure** action → [[variant-specification]] + variant
+      - "a combination that's not allowed" → blocked by an **exclude rule** (one of the [[choice-rule|choice rules]])
+      - "what happens to parts with no choice picked yet" → the **standard** or **alternate** filter behaviour
+
+  - type: animation
+    title: How the filter reacts to each click
+    diagram:
+      width: 820
+      height: 300
+      nodes:
+        - { id: click, label: Ana's click, sublabel: a choice, x: 20, y: 120, w: 140, tone: accent, shape: pill }
+        - { id: excl, label: 1 Exclude rules, sublabel: disable conflicts, x: 210, y: 20, w: 170, tone: danger }
+        - { id: eff, label: 2 Effectivity, sublabel: out-of-range choices, x: 210, y: 120, w: 170, tone: warning }
+        - { id: incl, label: 3 Include rules, sublabel: auto-select targets, x: 210, y: 220, w: 170, tone: success }
+        - { id: state, label: Filter state, sublabel: selected · disabled, x: 440, y: 120, w: 170, tone: primary }
+        - { id: tree, label: Filtered structure, sublabel: parts in · parts out, x: 650, y: 120, w: 160, tone: success }
+      edges:
+        - { from: click, to: excl }
+        - { from: excl, to: eff }
+        - { from: eff, to: incl }
+        - { from: incl, to: state }
+        - { from: state, to: tree }
+    chapters:
+      - title: A choice is picked
+        caption: "Ana selects **Market = EU**."
+        show: [click]
+        highlight: [click]
+        seconds: 5
+      - title: Exclude rules first
+        caption: "The Help Center says exclude rules are evaluated first. Market = EU excludes Throttle = Yes, so that choice is **disabled**."
+        show: [click, excl]
+        highlight: [excl]
+        flow: [click>excl]
+        seconds: 7
+      - title: Then effectivity
+        caption: "Choices outside their effectivity dates are removed next."
+        show: [click, excl, eff]
+        highlight: [eff]
+        flow: [excl>eff]
+        seconds: 5
+      - title: Then include rules
+        caption: "Include rules auto-select their targets - unless a target would break an exclude rule, then it's ignored."
+        show: [click, excl, eff, incl]
+        highlight: [incl]
+        flow: [eff>incl]
+        seconds: 7
+      - title: The structure follows
+        caption: "Click OK and the structure shows only the parts whose assigned choices match."
+        show: [click, excl, eff, incl, state, tree]
+        highlight: [tree]
+        flow: [incl>state, state>tree]
+        seconds: 6
+
+  - type: walkthrough
+    title: Test the configuration with the option filter
+    who: A configuration engineer or options manager (Ana)
+    where: [EB-1000, Structure tab, Edit Filter, Option Filter]
+    steps:
+      - title: Open the configurable product's structure
+        where: [Recently Accessed, EB-1000, Structure tab]
+        md: Open **EB-1000** (the configurable product, not the product context) and go to its **Structure** tab.
+      - title: Open the option filter
+        where: [Structure tab, Filter, Edit Filter, Option Filter tab]
+        md: |
+          In the toolbar's **Filter** section click **Edit Filter**, then the **Option Filter** tab. If old
+          choices are set, click **Clear**.
+      - title: Pick the customer's choices
+        where: [Option Filter, "<option row>", "<choice>"]
+        md: |
+          Click each option row and select a choice: *Trim Line = Trekking*, *Battery = 500 Wh*,
+          *Frame Colour = Graphite*, *Market = EU*. Watch what the rules pre-select or disable.
+      - title: Expand and inspect
+        where: [EB-1000, Expand by, All Levels]
+        md: |
+          Click **OK**, then right-click EB-1000 → **Expand by → All Levels**. Check every module holds the
+          right part. This is how you test choice assignments, rules and advanced expressions before any
+          variant exists.
+      - title: Configure the variant
+        where: [EB-1000, Actions, Configure]
+        md: |
+          From **Actions → Configure**, set the same choices on the Option Filter tab, click **Next** to
+          Preview, keep **Create a new Variant Specification**, name it (*E1 Trekking EU 500 Graphite*),
+          set the folder to *Variants*, and **Finish** with **Create New Module Variant**.
+      - title: Check the deliverable
+        where: [Completed Deliverables, View information]
+        md: |
+          The variant (here EB-V2003) appears in **Completed Deliverables** - refresh if it doesn't. Open it
+          and confirm the collapsible modules are gone.
+    result: |
+      A tested variant and a variant specification recording Trekking · 500 Wh · Graphite · EU.
+
+  - type: scenario
+    variant: troubleshooting
+    title: The throttle that won't click
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          In the option filter, *Throttle = Yes* is disabled after Ana picks *Market = EU*. The dealer
+          insists. What does Ana do first?
+        choices:
+          - label: Look at the rules on the Market and Throttle choices in the option pool
+            next: s2
+            good: true
+            feedback: Right. A disabled choice is usually a rule doing its job. Find out which one.
+          - label: Turn on Disable Rule Checking and pick Throttle = Yes
+            next: f1
+            feedback: That switches off every rule at once - and the safety checks with them.
+          - label: Ask Kai to delete the exclude rule
+            next: f2
+            feedback: Deleting a rule because one order hits it breaks it for every other order.
+      - id: s2
+        md: |
+          On the option pool's **Exclude Rules** tab Ana finds it: *Market = EU* excludes *Throttle = Yes*.
+          Kai explains it's Acme policy - EU bikes ship without throttles. What now?
+        choices:
+          - label: Go back to the dealer with the valid alternative (EU without throttle)
+            next: win
+            good: true
+            feedback: The rule reflects a business decision. The fix is a valid order, not a hacked filter.
+          - label: Configure the bike for Market = US instead, then ship it to Lyon
+            next: f3
+            feedback: Now the variant specification lies about the market - and US-only parts may follow.
+      - id: f1
+        md: |
+          With **Disable Rule Checking** on, every choice in the option set becomes selectable and the
+          minimum/maximum child-part checks are skipped too. Ana produces a variant that breaks Acme's own
+          policy, and nobody sees a warning. Rule checking is for special cases, not for getting past a rule
+          you don't understand.
+        outcome: fail
+      - id: f2
+        md: Kai refuses - the rule exists for a reason, and removing it would let every EU order through with a throttle.
+        outcome: fail
+      - id: f3
+        md: The bike gets built with the US market's parts. When it fails an EU inspection, the variant specification shows "US" - exactly the record you wanted to trust.
+        outcome: fail
+      - id: win
+        md: |
+          The dealer accepts the EU build. Ana configures *Trekking · 500 Wh · Graphite · EU · Throttle = No*,
+          the filter accepts it, and the variant specification tells the truth.
+        outcome: success
+
+  - type: scenario
+    variant: what-if
+    title: What if a part has an expression nobody answered?
+    start: q1
+    nodes:
+      - id: q1
+        md: |
+          The new phone holder EB-1610 has the expression *Accessory Pack = Commuter*. Ana leaves Accessory
+          Pack unselected in the filter. The expression is neither true nor false - it's **undefined**.
+          With the **standard** filter (the default), is the phone holder shown?
+        choices:
+          - label: "Yes - undefined counts as TRUE in the standard filter"
+            next: q2
+            good: true
+            feedback: Correct. The standard filter shows everything unless an expression is FALSE.
+          - label: "No - undefined counts as FALSE"
+            next: q1-wrong
+            feedback: That's the alternate filter's behaviour.
+      - id: q1-wrong
+        md: Not quite. The **standard** filter only hides parts whose expression is FALSE, so undefined parts stay visible. Try the next question with that in mind.
+        choices:
+          - { label: Continue, next: q2 }
+      - id: q2
+        md: Now Ana switches to the **alternate** filter, still with Accessory Pack unselected. Is the phone holder shown?
+        choices:
+          - label: "No - the alternate filter only keeps expressions that are TRUE"
+            next: done
+            good: true
+            feedback: Right. Undefined counts as FALSE there.
+          - label: "Yes - nothing changed"
+            next: done
+            feedback: It did change. The alternate filter treats undefined as FALSE, so the part disappears.
+      - id: done
+        md: |
+          **Takeaway:** the standard filter is generous (shows what isn't ruled out); the alternate filter is
+          strict (shows only what is ruled in). When you check a half-configured bike, know which one you're
+          looking at.
+        outcome: success
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Rules hold business knowledge - compliance, what the plant can build, what sales offers. When the
+      filter refuses a combination, it stops a wrong order **before** a variant, a BOM and a work order
+      exist. That's far cheaper than finding it on the line at Lakeside.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Configuring without testing.** PTC's process tests choice assignments, rules and advanced
+      expressions with the option filter **before** creating variants. A wrong assignment found after 40
+      variants exist means 40 variants to fix.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Required options can be checked while you filter, not only at Configure. PTC's supporting training
+      notes mention the preference **Validate for Required Choices** (Preference Management → Options and
+      Variants), which reports an error when a required option has no choice in the filter. The Configure
+      process always checks required options.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Where do you test choices against the configurable structure before creating a variant?
+        options: ["Structure tab → Edit Filter → Option Filter tab", "Option Pool tab → New Option", "Product Families tab", "Type and Attribute Management"]
+        answer: 0
+        explanation: The option filter on the configurable product's Structure tab shows the filtered structure without creating anything.
+      - kind: single
+        prompt: According to the Help Center, which rules are evaluated first when a choice is selected?
+        options: [Include rules, Exclude rules, Enable rules, Conditional rules]
+        answer: 1
+        explanation: Exclude rules are evaluated first, then effectivity dates, then include rules. An include target that would conflict with an exclude rule is ignored.
+      - kind: truefalse
+        prompt: Disable Rule Checking only turns off exclude rules.
+        answer: false
+        explanation: It turns off all rules and effectivity settings, and skips the minimum-required and maximum-allowed child-part checks too.
+      - kind: single
+        prompt: A part's expression is undefined because its option has no choice. Which filter hides it?
+        options: [The standard filter, The alternate filter, Both, Neither]
+        answer: 1
+        explanation: The alternate filter evaluates undefined as FALSE and hides the part; the standard (default) filter evaluates it as TRUE.
+
+  - type: summary
+    points:
+      - Test assignments, rules and expressions with the option filter, then use Actions → Configure to create the variant.
+      - Exclude rules are evaluated first and disable conflicting choices; include rules auto-select targets.
+      - A disabled choice is a message - find the rule in the option pool before doing anything else.
+      - Disable Rule Checking turns off all rules and constraint checks; it's not a way around business policy.
+      - Standard filter treats undefined expressions as TRUE; alternate filter treats them as FALSE.

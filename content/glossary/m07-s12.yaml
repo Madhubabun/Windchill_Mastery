@@ -1,0 +1,86 @@
+# New glossary terms introduced in section m07-s12 (Supplier management, SUMA).
+- id: supplier-management
+  term: Windchill Supplier Management (SUMA)
+  plain: The Windchill add-on that keeps track of who you buy parts from, and which of their parts you trust.
+  definition: An optional Windchill module for managing external suppliers (manufacturers and vendors), the sourcing contexts and rules that apply to them, the internal parts that must be bought, and the manufacturer and vendor parts that can satisfy them through AMLs and AVLs. It is installed with the PTC Solution Installer into the same database as the rest of Windchill, includes an out-of-the-box part request process, and works on a PDMLink server (also co-installed with ProjectLink) but not on a standalone ProjectLink server.
+  aka: [SUMA, Supplier Management]
+  related: [component-and-supplier-management, oem-part, approved-manufacturer-list, part-request]
+
+- id: component-and-supplier-management
+  term: Component and Supplier Management (CSM)
+  plain: The habits and tools that steer engineers to parts and suppliers the company already trusts.
+  definition: The set of processes for finding, selecting and using preferred parts and suppliers during product development and sourcing. In Windchill it combines Parts Classification (PartsLink) with Supplier Management. Its steps are requesting a new part, managing supplier parts, qualifying new suppliers, classifying parts and managing the classification structure; its results are qualified, classified new parts, qualified suppliers, sourcing contexts and part and supplier preferences.
+  aka: [CSM]
+  related: [supplier-management, classification, part-reuse]
+
+- id: oem-part
+  term: OEM part
+  plain: Your own company's part number for something you buy instead of make.
+  definition: An internal Windchill part (a WTPart numbered by your company) whose Source attribute is Buy or Buy - Single Source. AMLs and AVLs are created for it, so one OEM part can be satisfied by several manufacturer and vendor parts. Real companies rarely call it an "OEM part"; they usually have a company-named part subtype, and the Technical Essentials course calls it an internal part.
+  aka: [Internal part]
+  related: [manufacturer-part, vendor-part, approved-manufacturer-list, part]
+
+- id: manufacturer-part
+  term: Manufacturer part
+  plain: A part as the company that makes it numbers and describes it.
+  definition: A part type for a part produced and owned by a manufacturer other than your company, described by attributes such as the manufacturer part number. A manufacturer must be associated with it, and its owning organization is the one that represents that manufacturer. It can be added to the AML of an OEM part and classified so its characteristics show up in classification searches. Manufacturer parts usually keep the supplier's own number rather than a Windchill autonumber.
+  related: [oem-part, vendor-part, approved-manufacturer-list]
+
+- id: vendor-part
+  term: Vendor part
+  plain: A part as the distributor who sells it numbers and describes it.
+  definition: A part type for a part supplied and owned by a vendor (distributor), described by attributes such as the vendor part number. A vendor must be associated with it. It can be linked under a manufacturer part or directly to an OEM part, which places it on the OEM part's AVL. Most companies manage manufacturer parts only and use vendor parts rarely.
+  related: [manufacturer-part, approved-vendor-list, oem-part]
+
+- id: approved-manufacturer-list
+  term: Approved Manufacturer List (AML)
+  plain: The list of makers' parts you're allowed to use for one of your parts.
+  definition: The list of approved, interchangeable manufacturer parts that can satisfy demand for an OEM part in a given sourcing context. It answers "which manufacturer can I use for this part?" and is usually defined by design and component engineering. It is shown with the AVL on the OEM part's AML/AVL tab, and each entry carries a sourcing status.
+  aka: [AML]
+  related: [approved-vendor-list, sourcing-status, sourcing-context, oem-part]
+
+- id: approved-vendor-list
+  term: Approved Vendor List (AVL)
+  plain: The list of sellers you may send a purchase order to for one of your parts.
+  definition: The list of approved vendor parts for an OEM part, meaning vendors that can receive purchase orders for it. It answers "where can I buy this part?" and is usually defined by procurement and supply base engineering. Removing a manufacturer part from an AML also removes the vendor parts linked under it; removing a vendor part leaves the manufacturer part in place.
+  aka: [AVL]
+  related: [approved-manufacturer-list, vendor-part, sourcing-status]
+
+- id: sourcing-context
+  term: Sourcing context
+  plain: A "where or for what" setting, so one part can have different approved suppliers in different situations.
+  definition: A set of sourcing conditions with something in common, such as a production site's location, a product line or compliance rules. Each OEM part can have a different AML and AVL in each sourcing context, and the sourcing status shown in a product structure follows the context you select. A default sourcing context always exists, cannot be deleted and is used when no other context is chosen. Sourcing administrators create contexts on the Suppliers tab.
+  related: [sourcing-status, approved-manufacturer-list, supplier-management]
+
+- id: sourcing-status
+  term: Sourcing status
+  plain: A rating on each approved supplier part - preferred, just approved, or don't use.
+  definition: The status stored on the link between an OEM part and a supplier part in an AML or AVL. Out of the box the values are Do not use (20), Approved (40) and Preferred (60); a higher number ranks higher, and administrators can add values such as Recommended by customizing the AXLPreference enumeration. Sourcing rules can set the status automatically by supplier, sourcing context and classification node.
+  related: [sourcing-context, approved-manufacturer-list, enumeration]
+
+- id: part-request
+  term: Part request (PR)
+  plain: A controlled request for a new bought-in part, so nobody invents a duplicate.
+  definition: A SUMA object, with its own life cycle and out-of-the-box workflow, that a design engineer creates to ask for a new OEM part. The workflow checks the request is complete and not a duplicate, has a component engineer create the OEM part and its AML (the resultant part), gathers CAD data, an optional material composition declaration, the AVL and cost estimates, and ends by releasing the part. A Fast Track route skips some steps when suitable parts are attached up front. The PR iterates on each check-in and can be revised.
+  aka: [PR, New part request]
+  related: [supplier-management, oem-part, workflow, life-cycle]
+
+- id: resultant-part
+  term: Resultant part
+  plain: The part a part request ends up producing.
+  definition: The OEM part attached to a part request as its outcome. In the out-of-the-box workflow the component engineer creates the OEM part and its AML and attaches it by editing the part request. The part must have Source set to Buy or Buy - Single Source; if no resultant part is attached, or it is not an OEM part, the task is run again with special instructions saying why. At the end of a successful request it is released together with its manufacturer parts.
+  related: [part-request, oem-part, approved-manufacturer-list]
+
+- id: part-request-fast-track
+  term: Fast Track (part request)
+  plain: The shortcut route for a part request when the parts are already prepared.
+  definition: A shorter route through the out-of-the-box part request workflow. The design engineer creates the OEM part, a matching manufacturer part and the AML ahead of time and attaches them to the request. If the component engineer finds them suitable, the AML creation and implementation steps are skipped. Fast Track is one of the routing choices at the PR Review activity.
+  aka: [Fast Track workflow]
+  related: [part-request, resultant-part]
+
+- id: material-composition-declaration
+  term: Material Composition Declaration (MCD)
+  plain: The maker's statement of what substances are inside a part.
+  definition: A document declaring the substances within an OEM part. In the out-of-the-box part request workflow, the Request MCD from Mfr task follows the creation of the OEM part and its AML; if the manufacturer has one, it is attached to the manufacturer parts on the AML. It may be stored in a library with environmental compliance information or point to a quality database, and one MCD can be shared by several manufacturer parts.
+  aka: [MCD]
+  related: [part-request, manufacturer-part]

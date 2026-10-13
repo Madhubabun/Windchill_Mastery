@@ -1,0 +1,80 @@
+# New glossary terms introduced in section m07-s01 (Manufacturing process management - MPMLink).
+- id: bom-transformer
+  term: BOM Transformer
+  plain: The two-pane workbench where the factory builds its BOM from engineering's BOM.
+  definition: The [[mpmlink|MPMLink]] tool for creating and managing linked BOMs. The upstream structure (by default the Design view, the [[ebom]]) shows in the left pane and the downstream structure (by default the Manufacturing view, the [[mbom]]) in the right pane. You open it from a part's Actions menu (Open in, then Open in BOM Transformer). Only users in the MPMLink license group can use it.
+  related: [mpmlink, ebom, mbom, equivalent-link, part-view]
+
+- id: equivalent-link
+  term: Equivalent link
+  plain: The thread that ties a factory BOM part to the engineering part it stands for.
+  definition: The associative link between an upstream part (for example in the Design view) and its downstream counterpart (for example in the Manufacturing view). It exists whether the downstream part is the same part reused, a new view version or a part with a new number. The BOM Transformer shows its state with status indicators (a green tick when the two sides are equivalent, an out-of-date indicator after the upstream part changes) and actions such as Update All Downstream Equivalent Objects re-establish it. A part's Equivalence Network attribute lists the BOMs created for it.
+  aka: [Equivalence link, Associativity link]
+  related: [bom-transformer, part-view, new-view-version]
+
+- id: phantom-manufacturing-part
+  term: Phantom manufacturing part
+  plain: A grouping box in the mBOM that never exists as a real, stored assembly.
+  definition: A part created in a downstream view (such as Manufacturing) with the Phantom Manufacturing Part attribute set to Yes. It helps organise manufacturing processing but is not physically assembled and stored, is not consumed by process plan operations and has no equivalent in the [[ebom]]. It shows with its own icon in the BOM Transformer. A normal manufacturing part (attribute No) is a real assembly that is built, stored and consumed by operations.
+  related: [mbom, bom-transformer, part-allocation]
+
+- id: view-network
+  term: View network (BOM network structure)
+  plain: The map of which BOMs your company keeps and which one feeds which.
+  definition: The set of [[part-view|views]] a company uses and how they relate upstream to downstream. Out of the box there are two views, Design and Manufacturing; administrators add or rename views (for example one per plant, placed under Manufacturing) in the View Administration utility and make them visible in the BOM Transformer with the List of Applicable Views preference. PTC treats confirming the view network as one of the first steps of an MPMLink implementation.
+  aka: [BOM network structure]
+  related: [part-view, bom-transformer, alternate-bom, plant-data]
+
+- id: alternate-bom
+  term: Alternate BOM
+  plain: An extra, related BOM in the same view - for example one per production line.
+  definition: An MPMLink capability for keeping several related alternates of a BOM, typically for different production lines in the same plant, without creating a new view for each line. An alternate is identified by the view plus an alternate value (for example a plant view with alternate 001) and is picked in the structure filter's Alternate BOM field. The rules that apply to BOMs also apply to alternate BOMs.
+  related: [view-network, part-view, configuration-specification]
+
+- id: plant-data
+  term: Plant Data
+  plain: A small record hung on an mBOM part that says how one particular plant handles it.
+  definition: An out-of-the-box extended data object type used when several plants share one [[mbom]]. Instead of keeping identical BOMs that differ only in attributes, you assign a Plant Data object per plant to an mBOM part (Assign Plant in the BOM Transformer) holding values such as plant-specific status, storage location, sourcing or process. Administrators add attributes to the type in Type and Attribute Management and control which views can carry or receive plant data with preferences.
+  related: [mbom, view-network, reusable-attribute]
+
+- id: process-plan
+  term: Process plan
+  plain: The step-by-step recipe for making, checking or repairing a part or assembly.
+  definition: An [[mpmlink|MPMLink]] object that holds a structured set of operations, and optionally sequences and standard procedures, describing how to produce, inspect, repair or maintain the part it is linked to (usually the top-level [[mbom]] part). It can also be associated with one or more plants. Process plans and operations can be subtyped and are life-cycle managed, so they can follow a release and change process.
+  related: [mpm-operation, mbom, manufacturing-resource, work-instruction]
+
+- id: mpm-operation
+  term: Operation (process plan operation)
+  plain: One step on the shop floor, with everything a worker needs for it.
+  definition: The core element of a [[process-plan]]. An operation carries its description, time and cost, quantity, resources, referenced manufacturing capability, parts to assemble, documents and illustrations. Operations have an execution number, can contain sub-operations to any depth, and can be created from operation templates. An operation can have at most one work center and one manufacturing capability, but many parts, documents, plants and other resources.
+  related: [process-plan, manufacturing-resource, part-allocation, work-instruction]
+
+- id: manufacturing-resource
+  term: Manufacturing resource
+  plain: The places, people-skills, tools and consumables a factory needs - but that don't end up in the product.
+  definition: An MPMLink object describing something needed to manufacture a product. Six types are supplied - Plant, Resource Group, Work Center, Tooling, Process Material and Skill - each with out-of-the-box categories. They can be subtyped, are life-cycle managed, usually live in a library, are organised in a hierarchy under a Plant and are reused across process plans. Process materials do not appear in the [[mbom]].
+  related: [process-plan, mpm-operation, compatibility-link, manufacturing-standard, library]
+
+- id: compatibility-link
+  term: Compatibility link
+  plain: A note saying which tools, materials or skills go together - or must never be used together.
+  definition: A link between manufacturing resources, or between a resource and a manufacturing capability, that MPMLink checks when resources are allocated to an operation. The six out-of-the-box types are Acceptable, Equivalent, Forbidden, Mandatory, Preferred and Not Recommended. PTC describes them as an aid or shortcut for allocation rather than a rigorous validation mechanism.
+  related: [manufacturing-resource, manufacturing-standard, mpm-operation]
+
+- id: manufacturing-standard
+  term: Manufacturing standard
+  plain: A proven way of doing a job that planners should reuse instead of reinventing.
+  definition: A reusable, proven manufacturing process kept (typically in a library) for use in process plan operations. The supplied types are Manufacturing Standard Group (a folder-like node for organising standards), Manufacturing Capability (a documented procedure for a specific process) and Standard Procedure (a set of proven operations recommended for reuse).
+  related: [manufacturing-resource, compatibility-link, process-plan, library]
+
+- id: part-allocation
+  term: Part allocation
+  plain: Saying which operation consumes which part from the mBOM.
+  definition: Linking a part to a process plan operation to show it is an input to that step. BOM allocated parts come from the related [[mbom]] (the usual case); Operated On parts are outside the BOM but referenced by the operation. Allocation works on occurrences, so every usage needs an occurrence first (the Auto Create Occurrences action helps), and one usage can go to only one operation unless a parallel sequence is used. An allocation type (blank, Consumed, Produced, Disassembled, Destroyed) controls the quantity sent to [[erp|ERP]].
+  related: [mpm-operation, process-plan, reference-designator, mbom]
+
+- id: work-instruction
+  term: Work instruction
+  plain: The live, printable how-to page a shop-floor worker follows for an operation.
+  definition: In MPMLink, an HTML page generated on demand from a [[process-plan]] for one operation, a sub-operation or the whole plan. It is not stored as a document, so it always reflects the current plan, operations and sequences. Sub-operations are included when the parent operation's Sub Operation in Work Instruction attribute is Yes (the default). Work instructions can be viewed on screen or printed in several size formats.
+  related: [process-plan, mpm-operation, mpmlink]

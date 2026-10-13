@@ -1,0 +1,239 @@
+id: m07-s12-l02
+subtitle: Brakeworks makes the caliper. Northgate sells it. Windchill wants to know the difference - and whether either is allowed for Lakeside.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [supplier-management, suma, manufacturers, vendors, sourcing-context, sourcing-rules]
+sources:
+  - id: suma
+    where: "Implementation team strategy (Sourcing Administrator). Module 1: Configure SUMA (pre-configuration steps 1-10); Licensing for SUMA; Activity: Configure the Sourcing Administrator account; Activity: Configure Windchill Supplier Management (SUMA). Module 2: Types of external suppliers; Supplier organizations; What is an OEM?; Using SUMA in conjunction with PDMLink; Manage manufacturers, vendors, and sourcing contexts using SUMA; Manufacturers versus vendors; Register and qualify suppliers in Windchill; Add suppliers; Activity: Create suppliers; Activity: Manage suppliers"
+  - id: te
+    where: "Manage suppliers and components with Windchill Supplier Management (Manage suppliers)"
+
+blocks:
+  - type: text
+    md: |
+      Acme's brake caliper is made by **Brakeworks GmbH**. But the Lakeside plant often orders it through
+      **Northgate Distribution**, a distributor that stocks parts from many makers. Batteries come
+      straight from **Voltra Cells**.
+
+      To Hana, that's three suppliers with two different jobs. Before any supplier part can go on an
+      approved list, she has to put these companies into Windchill the right way, decide which of them
+      Acme actually trusts, and say **where** that trust applies.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the company that makes the part" → **manufacturer**
+      - "the company that sells someone else's part" → **vendor** (distributor)
+      - "the company record behind a supplier" → **supplier organization** (an [[organization]] in the directory)
+      - "putting a candidate supplier on file" → **registering** a supplier
+      - "deciding if we may use them" → **qualifying** a supplier (a [[lifecycle-state]] such as Qualified)
+      - "under which conditions a supplier choice applies" → [[sourcing-context]]
+      - "a rule that stamps a rating automatically" → **sourcing rule** setting a [[sourcing-status]]
+      - "the person who looks after all this" → **Sourcing Administrator**
+
+  - type: comparison
+    title: Manufacturer vs vendor
+    columns: [Manufacturer, Vendor]
+    rows:
+      - label: What they are
+        cells: ["Makes the product (may or may not sell it)", "Sells products made by someone else"]
+      - label: Acme example
+        cells: ["Brakeworks GmbH, Voltra Cells", "Northgate Distribution"]
+      - label: Their parts in Windchill
+        cells: ["Manufacturer parts - a manufacturer must be associated", "Vendor parts - a vendor must be associated"]
+      - label: Approved list
+        cells: ["AML - which maker can I use?", "AVL - where can I buy it?"]
+      - label: How common
+        cells: ["Used by most customers", "Rarely used - most customers manage manufacturer parts only"]
+    takeaway: Both are suppliers. One organization can even be both - with one manufacturer and one vendor entry pointing to it.
+
+  - type: diagram
+    title: How SUMA stores suppliers
+    caption: The supplier list holds relationships; the companies themselves are organizations. Click a box.
+    diagram:
+      width: 820
+      height: 420
+      groups:
+        - { label: "Acme Mobility (your organization)", x: 10, y: 10, w: 380, h: 400, tone: primary }
+        - { label: Supplier organizations, x: 420, y: 10, w: 390, h: 400, tone: neutral }
+      nodes:
+        - id: list
+          label: Supplier list
+          sublabel: Suppliers tab
+          x: 40
+          y: 40
+          w: 180
+          tone: primary
+          detail: The list of all suppliers - manufacturers and vendors - created for your organization. Everyone can view it; only Sourcing and Organization Administrators can create and edit on the Suppliers tab.
+        - id: mfr
+          label: Manufacturer entry
+          sublabel: Brakeworks
+          x: 40
+          y: 150
+          w: 180
+          tone: accent
+          detail: |
+            A supplier relationship of type Manufacturer. It carries contacts, related documents (agreements,
+            reports, catalogs), your own attributes and a **life cycle state** that tracks the relationship.
+        - id: ven
+          label: Vendor entry
+          sublabel: Northgate
+          x: 40
+          y: 260
+          w: 180
+          tone: accent
+          detail: A supplier relationship of type Vendor, with the same kinds of contacts, documents, attributes and life cycle.
+        - id: ctx
+          label: Sourcing contexts
+          sublabel: Riverside · Lakeside
+          x: 240
+          y: 150
+          w: 130
+          h: 70
+          tone: info
+          detail: Conditions with something in common, such as a plant's location or a product line. AMLs and AVLs can differ per context. A default context always exists, isn't listed and can't be deleted.
+        - id: rules
+          label: Sourcing rules
+          x: 240
+          y: 260
+          w: 130
+          tone: warning
+          detail: Set the sourcing status of supplier parts by supplier, sourcing context and (with PartsLink) classification node when they are added to an AML or AVL.
+        - id: org-bw
+          label: Brakeworks GmbH
+          sublabel: organization
+          x: 470
+          y: 150
+          w: 200
+          shape: cylinder
+          tone: neutral
+          detail: Suppliers are organizations stored in LDAP. The organization can carry a globally unique ID - CAGE Code, DUNS Number or ISO 6523 out of the box.
+        - id: org-ng
+          label: Northgate Distribution
+          sublabel: organization
+          x: 470
+          y: 260
+          w: 200
+          shape: cylinder
+          tone: neutral
+          detail: Created on the fly while adding the vendor - a Sourcing Administrator can do that once the Site Administrator allows it.
+      edges:
+        - { from: list, to: mfr }
+        - { from: list, to: ven }
+        - { from: mfr, to: org-bw, label: points to }
+        - { from: ven, to: org-ng, label: points to }
+        - { from: ctx, to: rules, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      **Registered is not approved.** Registration just gathers a candidate supplier's information.
+      **Qualification** evaluates that information and decides use or non-use. Keeping the two apart -
+      with a life cycle state on every supplier - is how sourcing stops engineering from designing in a
+      supplier that failed its audit.
+
+  - type: walkthrough
+    title: Register and qualify a manufacturer
+    who: Sourcing Administrator (Hana)
+    where: [Navigator, Suppliers tab, Suppliers, New Supplier]
+    steps:
+      - title: Open the supplier list
+        where: [Navigator, Recent Suppliers, Suppliers]
+        md: The **Supplier List** shows every manufacturer and vendor for your organization. Open a supplier to see its Details, **Supplied Parts** and **History** tabs.
+      - title: Create the supplier
+        where: [Supplier List, New Supplier]
+        md: Make sure **Type** is *Manufacturer* (or a manufacturer subtype). Search for an existing supplier organization, or click **New Organization** beside Supplier Organization.
+      - title: Describe the organization
+        where: [New Organization]
+        md: |
+          Enter the **Name** (Brakeworks GmbH). For **Organization ID** pick a type - CAGE Code, DUNS Number or
+          ISO 6523 - and enter the value, or leave both empty if the company isn't registered. Click **OK** twice.
+      - title: Qualify it
+        where: [Supplier List, right-click supplier, Set State]
+        md: New suppliers start **Pending** in the default *Qualified Supplier* life cycle. After the review, choose **Qualified**.
+      - title: Add a sourcing context
+        where: [Recent Suppliers, Contexts, New Sourcing Context]
+        md: Give it a name and description (Lakeside Plant - "parts approved for Lakeside builds") and click **Finish**.
+      - title: Add a sourcing rule
+        where: [Recent Suppliers, Rules, New Sourcing Rule]
+        md: |
+          Pick the **Supplier** and **Sourcing Context**, then **New Sourcing Status Assignment** and choose a
+          status (for example *Preferred*). With PartsLink you can limit it to a classification node.
+    result: Brakeworks is a Qualified manufacturer, and its parts added to AMLs in the Lakeside context default to Preferred.
+
+  - type: example
+    variant: real-world
+    title: Hana's two rules
+    industry: Micromobility
+    md: |
+      | Supplier | Sourcing context | Default status |
+      | --- | --- | --- |
+      | Brakeworks GmbH | Lakeside Plant | Preferred |
+      | Voltra Cells | Riverside Plant | Approved |
+
+      A rule is applied automatically to **new** AML/AVL entries that match it. To apply it to parts that
+      are already on lists, Hana **executes** the rule - its status shows *Executing* and returns to
+      *Active* when done (refresh the table to see it). A *Disabled* rule is not applied.
+    takeaway: Rules save clicks, but executing one can change many parts at once - choose supplier, context and node carefully.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **The surprise global change.** Executing a rule changes every matching part's sourcing status -
+      without checking parts out, and regardless of the access rights of the person who ran it. Parts that
+      someone else has checked out are skipped. Test the rule's scope before you execute it.
+
+  - type: callout
+    variant: note
+    title: Behind the scenes - setting up a Sourcing Administrator
+    md: |
+      The course's admin setup: a Site Administrator creates the Sourcing Administrator user, adds them to
+      the SUMA [[license-group|license groups]] (the right groups can change between releases - check with
+      PTC sales), sets **Organization Creation Enabled** on the internal organization, adds the user to its
+      **Supplier Administrators** group, grants access to organization objects with an
+      [[access-control-rule]], and turns on the **Expose Organization** [[preference]]. A life cycle other
+      than *Qualified Supplier* for suppliers is set through [[object-initialization-rule|object initialization rules]].
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      In practice **component and procurement engineers** act as Sourcing Administrators. Give them the
+      role early - they own the supplier list, contacts, documents, contexts and rules, and keep an eye on
+      supplier parts in libraries.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Northgate Distribution sells Brakeworks calipers but makes nothing itself. How should Hana add it?
+        options: [As a manufacturer, As a vendor, As a sourcing context, As an OEM part]
+        answer: 1
+        explanation: A vendor sells products made by someone else. Brakeworks, which makes the caliper, is the manufacturer.
+      - kind: truefalse
+        prompt: Once a supplier is registered in Windchill, it is approved for use.
+        answer: false
+        explanation: Registration only records the supplier's information. Qualification evaluates it and categorizes the supplier for use or non-use - tracked with the supplier's life cycle state.
+      - kind: single
+        prompt: Hana didn't pick a sourcing context when adding a part to an AML. Which context is used?
+        options: [None - the entry fails, The default sourcing context, The most recently created context, Every context at once]
+        answer: 1
+        explanation: The out-of-the-box default context is assumed when no other is specified. It isn't listed in the context table and can't be deleted.
+      - kind: multi
+        prompt: What can a sourcing rule be scoped by? (Choose all that apply.)
+        options: [Supplier, Sourcing context, Classification node (with PartsLink), The part's creator]
+        answers: [0, 1, 2]
+        explanation: Rules select parts by supplier, sourcing context and, if PartsLink is installed, classification node. Rows for several nodes are prioritized top-down.
+      - kind: single
+        prompt: Hana created a new rule and wants it applied to supplier parts already on AMLs. What must she do?
+        options: [Nothing - rules always apply retroactively, Execute the rule, Disable and re-enable it, Check out every OEM part]
+        answer: 1
+        explanation: New rules apply automatically only to new entries. Executing applies them to existing matching parts, without needing to check the OEM parts out.
+
+  - type: summary
+    points:
+      - Manufacturers make parts; vendors sell parts made by others. Both are suppliers stored as organizations, with supplier entries on your supplier list.
+      - Most customers only use manufacturers and manufacturer parts.
+      - Registration records a supplier; qualification decides use - tracked by a life cycle (default Qualified Supplier, Pending to Qualified).
+      - Sourcing contexts let AMLs and AVLs differ by plant, region or product line; a default context always exists.
+      - Sourcing rules set sourcing status by supplier, context and classification node - executing one changes all matching parts.

@@ -1,0 +1,336 @@
+id: m07-s01-l06
+subtitle: Two plants, a second line at Lakeside, shared BOMs with plant-specific details and a frame that comes in two colours. Four real-world patterns, one toolbox.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [mpmlink, bom-transformer, alternate-bom, plant-data, view-network, assemble]
+sources:
+  - id: mpm-bom
+    where: "Module 2: BOM Transformer tool. Module 3: Scenario 1: Managing multiple plants; Scenario 2: Managing multiple production lines; Scenario 3: 1 mBOM manages multiple plant data; Scenario 4: Complex view networks; Manage variability in the mBOM: Assemble; Activity: Create alternate BOMs to manage multiple production lines; Activity: Use Plant Data attributes to manage information for multiple plants on a single BOM; Activity: Use the Assemble action to manage variability in a BOM. Module 4: Best practices - recommendations"
+
+blocks:
+  - type: text
+    md: |
+      Acme is growing fast. Lakeside is adding a **second E1 line**, Riverside and Lakeside now share
+      the Scooter S2 mBOM but stock it differently, and marketing wants the E1 frame in **Graphite** and
+      **Mint**.
+
+      Ana could invent a new view for every one of those. She'd drown. PTC's MPMLink course groups
+      multi-site BOM needs into four scenarios, each with its own tool. Pick the right one and the BOM
+      network stays small enough to understand.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "which BOMs exist and which feeds which" → [[view-network]] (BOM network structure)
+      - "another BOM for another line, in the same plant view" → [[alternate-bom|alternate BOM]]
+      - "per-plant facts on a shared mBOM" → [[plant-data|Plant Data]] (an extended data type)
+      - "attach plant facts to an mBOM part" → **Assign Plant**
+      - "turn one design part into several factory variants" → the **Assemble** action
+      - "the columns the BOM Transformer shows" → **structure view**
+
+  - type: diagram
+    title: Four scenarios, four tools
+    caption: Click a scenario to see the tool PTC's course pairs with it.
+    diagram:
+      width: 820
+      height: 420
+      nodes:
+        - id: need
+          label: More than one BOM?
+          sublabel: start here
+          x: 320
+          y: 20
+          w: 180
+          shape: pill
+          tone: neutral
+          detail: Out of the box you get one eBOM (Design) and one mBOM (Manufacturing). These four patterns cover what most companies need beyond that.
+        - id: s1
+          label: 1 · Several plants
+          sublabel: different structures
+          x: 20
+          y: 140
+          w: 180
+          tone: info
+          detail: |
+            Plants build the product differently. Create a **view per plant** in View Administration
+            (lesson 4) and branch each plant BOM from the eBOM.
+        - id: s2
+          label: 2 · Several lines
+          sublabel: inside one plant
+          x: 220
+          y: 140
+          w: 180
+          tone: accent
+          detail: |
+            Separate lines need separate BOMs. Creating a view per line in every plant gets very time
+            consuming, so use **alternate BOMs**: related alternates in the same view. BOM rules apply to
+            them too.
+        - id: s3
+          label: 3 · One mBOM
+          sublabel: many plants' data
+          x: 420
+          y: 140
+          w: 180
+          tone: success
+          detail: |
+            Plants share the structure but differ in storage location, tooling, process, sourcing.
+            Keep one mBOM and attach **Plant Data** objects instead of two identical BOMs.
+        - id: s4
+          label: 4 · Complex network
+          sublabel: eBOM → mBOM → plants
+          x: 620
+          y: 140
+          w: 180
+          tone: warning
+          detail: |
+            Some products need views for engineering, manufacturing **and** each plant: the eBOM becomes an
+            mBOM, which becomes separate plant BOMs. Common in mass production of complex products such
+            as automotive. Companies often use their own internal names for each BOM.
+        - id: assemble
+          label: Variability
+          sublabel: Assemble action
+          x: 320
+          y: 290
+          w: 180
+          tone: danger
+          detail: |
+            Works inside any of the above: **Assemble** turns one design part into several mBOM parts
+            (for example one per colour), each with an equivalent link to the original.
+      edges:
+        - { from: need, to: s1 }
+        - { from: need, to: s2 }
+        - { from: need, to: s3 }
+        - { from: need, to: s4 }
+        - { from: s2, to: assemble, dashed: true }
+        - { from: s3, to: assemble, dashed: true }
+
+  - type: example
+    variant: case-study
+    title: The E1 network Acme signed off
+    industry: Micromobility
+    md: |
+      Ana, Jordan and Ines (ERP) drew Acme's view network on one whiteboard before touching anything:
+
+      - **Design** (eBOM) → **Riverside** and **Lakeside** plant views (structures differ: Riverside
+        uses the electrical kit, Lakeside doesn't). *Scenario 1.*
+      - **Lakeside line 002** for the new short line, as alternate **002** of the Lakeside BOM - not a
+        new view. *Scenario 2.*
+      - **Scooter S2**: one Manufacturing mBOM shared by both plants, with **Plant Data** for storage
+        location and make/buy. *Scenario 3.*
+      - Frame colours **Graphite** and **Mint** handled with **Assemble** in the plant BOMs.
+
+      Ines added one rule: each BOM must map to exactly one ERP plant and routing. That killed an early
+      idea of a separate view per colour.
+    takeaway: The smallest network that tells the truth wins. Views for real structural differences; alternates, Plant Data and Assemble for the rest.
+
+  - type: walkthrough
+    title: Create Lakeside alternate BOM 002 for the new line
+    who: Ana, with the Lakeside view and filter already set up
+    where: [BOM Transformer, Right pane, Filter, Edit Filter]
+    steps:
+      - title: Build a filter for the alternate
+        where: [Right pane, Filter, Edit Filter]
+        md: |
+          Remove the Lakeside row, keep **View = Lakeside**, pick **Alternate BOM = 002**, tick
+          **Include Work in Progress**, **Add**, keep **Apply to top level object**, OK. Save it with
+          **Saved Filters → Save Filter** as *Lakeside 002*.
+      - title: Branch the alternate
+        where: [Left pane, "E-Bike E1 (Design)", New Downstream Branch]
+        md: |
+          The Downstream View is Lakeside. Choose **Downstream Alternate BOM = 002** and click
+          **Recalculate**. Use the search icon for **Existing Downstream Object** and clear the check box
+          for the plain Lakeside version, so a new alternate is created. Set the location
+          (Manufacturing/Lakeside) and OK.
+      - title: Reuse the Lakeside structure
+        where: [Right pane, Filter, Saved Filters, Lakeside]
+        md: |
+          Switch to the *Lakeside* filter, select the parts you want to keep and **Copy**. Switch to
+          *Lakeside 002*, right-click its top part → **Paste**. Parts arrive with their children.
+      - title: Add what's different and check in
+        where: [Left pane, drag to right pane, Check Out/In, Check In]
+        md: |
+          Drag any remaining design parts across. If Windchill asks whether to adjust the expansion
+          criteria, answer **No** to keep your filter. Check in the top part.
+    result: The Lakeside 002 BOM exists next to the Lakeside BOM, mostly built by copy and paste, without a new view.
+
+  - type: simulation
+    title: Set up the Lakeside 002 alternate
+    intro: Follow the order that works. Watch the filter - it decides what you see and which BOM you edit.
+    headline: "Filter: {filter} · Line 002 BOM: {lineBom}"
+    initial:
+      filter: Lakeside
+      lineBom: not created
+      copied: false
+      pasted: false
+      checkedIn: false
+    actions:
+      - id: save-filter-002
+        label: Edit + save filter Lakeside 002
+        when: { filter: Lakeside, lineBom: not created }
+        do: [{ set: { filter: Lakeside 002 } }]
+        log: "Filter saved: View Lakeside, Alternate BOM 002, work in progress included, applied to the top level."
+        blockedHint: The filter only needs saving once, before you branch.
+      - id: branch-alternate
+        label: New Downstream Branch (alternate 002)
+        when: { filter: Lakeside 002, lineBom: not created }
+        do: [{ set: { lineBom: In Work } }]
+        log: "Recalculated, cleared the existing Lakeside object, set the location: E1 (Lakeside, 002) created."
+        blockedHint: Save and apply the Lakeside 002 filter first.
+      - id: switch-lakeside
+        label: Switch to saved filter Lakeside
+        when: { filter: Lakeside 002, lineBom: In Work, copied: false }
+        do: [{ set: { filter: Lakeside } }]
+        log: The right pane now shows the existing Lakeside BOM.
+        blockedHint: Branch the alternate first - or you've already copied.
+      - id: copy-parts
+        label: Copy Lakeside parts
+        when: { filter: Lakeside, lineBom: In Work, copied: false }
+        do: [{ set: { copied: true } }]
+        log: Parts you want to reuse are on the clipboard.
+        blockedHint: Show the Lakeside BOM (and create the alternate) first.
+      - id: switch-002
+        label: Switch to saved filter Lakeside 002
+        when: { filter: Lakeside, copied: true }
+        do: [{ set: { filter: Lakeside 002 } }]
+        log: Back on the new alternate.
+        blockedHint: Copy something first.
+      - id: paste-parts
+        label: Paste onto E1 (Lakeside, 002)
+        when: { filter: Lakeside 002, copied: true, pasted: false }
+        do: [{ set: { pasted: true } }]
+        log: Parts and their children pasted into the alternate.
+        blockedHint: You need the 002 filter active and something copied.
+      - id: check-in
+        label: Check in
+        when: { pasted: true, checkedIn: false }
+        do: [{ set: { checkedIn: true } }]
+        log: Lakeside 002 checked in.
+        blockedHint: Paste the structure first.
+    goals:
+      - label: Lakeside 002 created, filled by copy and paste, and checked in
+        when: { lineBom: In Work, pasted: true, checkedIn: true }
+        message: A whole line BOM without a new view - that's what alternates are for.
+
+  - type: walkthrough
+    title: Share one S2 mBOM across plants with Plant Data
+    who: Jordan (business admin) for setup, Ana for the data
+    where: [Site, Utilities, Type and Attribute Management]
+    steps:
+      - title: Create the plant attributes
+        where: [Type and Attribute Management, Manage Reusable Attributes, Root, New Attribute Organizer]
+        md: |
+          Add an attribute organizer such as *Acme Plant Data*, then **New Reusable Attribute** for each
+          field you need, for example *Sourcing* and *Process* (String).
+      - title: Add them to the Plant Data type
+        where: [Type and Attribute Management, Manage Types, Extended Data, Plant Data, Actions, Edit, New Attribute]
+        md: Choose **Global** and pick the reusable attribute you just made. Repeat for each.
+      - title: Switch on plant data in preferences
+        where: [Site, Utilities, Preference Management, Extended Data]
+        md: |
+          **List of Plant-Specific Views** - the plant views offered in the Assign Plant wizard (add
+          Riverside, Lakeside). **Views with Specific Plant Data** - the views whose parts can carry
+          Plant Data (for example Design and Manufacturing).
+      - title: Assign plant data to an mBOM part
+        where: [BOM Transformer, Right pane, "<part>", Assign Plant]
+        md: |
+          Pick the plant view (Riverside), Next, then fill in values such as **Plant Specific Status**,
+          **Storage Location**, description, sourcing and process. Finish. Repeat for Lakeside.
+      - title: Show it in the structure
+        where: [Right pane, Structure views, Manage Structure Views]
+        md: |
+          **Save As** an existing view (e.g. *Downstream Status*), add the plant data columns, Finish,
+          then **Set Active View**.
+    result: The S2 mBOM shows each part's Riverside and Lakeside Plant Data objects and their values in the right pane.
+
+  - type: walkthrough
+    title: Split the E1 frame into colour variants with Assemble
+    who: Ana
+    where: [BOM Transformer]
+    steps:
+      - title: Clear the old child
+        where: [Right pane, "Frame assembly", Remove]
+        md: If the plain frame is already in the plant BOM, remove it there.
+      - title: Pick source and target
+        where: [Left pane, "Frame assembly"]
+        md: Select the frame in the left pane and the parent (the rolling chassis) in the right pane.
+      - title: Assemble
+        where: [Left pane, New/Add, Assemble]
+        md: |
+          In the **Assemble** wizard click **Add Row** once per variant, name them *Frame - Graphite*
+          and *Frame - Mint*, Finish.
+    result: Two new mBOM parts, each with an associativity link to the single design frame.
+
+  - type: scenario
+    variant: challenge
+    title: Pick the tool
+    start: q1
+    nodes:
+      - id: q1
+        md: Riverside wants to record that the S2 battery is *bought* for Riverside but *made* at Lakeside. Same structure everywhere. Tool?
+        choices:
+          - { label: Plant Data on the shared mBOM, next: q2, good: true, feedback: "Right - same structure, plant-specific facts." }
+          - { label: A new Riverside-Buy view, next: q1-wrong, feedback: A view for one attribute is overkill. }
+      - id: q1-wrong
+        md: Views are for structural differences. Facts like make/buy, storage location or process belong in Plant Data. Try the next one.
+        choices:
+          - { label: Next question, next: q2 }
+      - id: q2
+        md: Lakeside's new line 003 needs its own BOM next month. Tool?
+        choices:
+          - { label: Alternate BOM 003 in the Lakeside view, next: q3, good: true, feedback: Lines inside a plant are what alternates are for. }
+          - { label: A new Lakeside-003 view, next: q2-wrong, feedback: Works - but a view per line in every plant gets very time consuming. }
+      - id: q2-wrong
+        md: PTC's course points out that creating views for every production line in multiple factories becomes very time consuming. Alternates avoid that.
+        choices:
+          - { label: Next question, next: q3 }
+      - id: q3
+        md: Marketing adds a third frame colour, Sand. Tool?
+        choices:
+          - { label: Assemble the frame into another variant, next: done, good: true, feedback: Assemble creates linked mBOM variants of one design part. }
+          - { label: Ask Kai to model three frames in CAD, next: partial-end, feedback: Engineering may not want colour in the eBOM - many companies treat this as manufacturing data. }
+      - id: done
+        md: Three for three. Your network stays small and every BOM still traces back to the eBOM.
+        outcome: success
+      - id: partial-end
+        md: That pushes manufacturing variability into the design structure. The Assemble action exists so manufacturing can handle it during transformation.
+        outcome: partial
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Saying "Yes" to adjusting expansion criteria.** When you drag parts that already live in
+      several BOMs, Windchill may offer to adjust the filter. Accepting changes the filter you so
+      carefully saved - you may suddenly be editing a different BOM than you think.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Keep **saved filters** named exactly like the BOMs (Riverside, Lakeside, Lakeside 002). Switching
+      filters is how you move between BOMs in the right pane, and copy-from-one, paste-into-another
+      is the fastest way to start a new plant or line BOM.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Which PTC scenario describes eBOM → mBOM → separate plant BOMs?
+        options: [Managing multiple plants, Managing multiple production lines, One mBOM manages multiple plant data, Complex view networks]
+        answer: 3
+        explanation: Complex view networks chain several transformations, typical for mass-produced complex products such as cars.
+      - kind: single
+        prompt: Which preference decides which plant views appear in the Assign Plant wizard?
+        options: [List of Applicable Views, List of Plant-Specific Views, Views with Specific Plant Data, Sequenced Plan Execution Order]
+        answer: 1
+        explanation: List of Plant-Specific Views feeds the wizard's view list. Views with Specific Plant Data decides which views' parts can carry Plant Data.
+      - kind: truefalse
+        prompt: Parts created with the Assemble action keep an associativity link to the original design part.
+        answer: true
+        explanation: Assemble creates several downstream parts, each linked to the upstream part, and can duplicate children too.
+
+  - type: summary
+    points:
+      - Four scenarios - several plants, several lines, one mBOM with plant data, complex view networks.
+      - Plants with different structures get their own views; lines inside a plant get alternate BOMs.
+      - Plant Data objects carry per-plant facts on a shared mBOM, set up with Type and Attribute Management and two preferences.
+      - The Assemble action turns one design part into several linked manufacturing variants.
+      - Agree the view network first; saved filters move you between BOMs.

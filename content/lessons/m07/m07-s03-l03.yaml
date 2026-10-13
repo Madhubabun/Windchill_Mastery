@@ -1,0 +1,349 @@
+id: m07-s03-l03
+subtitle: One bolt file, twelve lengths. Family tables save hours - until an instance goes unverified or won't fit in your workspace.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [cad, creo, family-tables, generics, instances, conflicts]
+sources:
+  - id: hc-ft
+    label: PTC Help Center supplement
+    title: "Enhanced Conflict Handling for Incompatible Family Table Instances"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/NewandChanged/NewandChanged_13_1_20_CDM_BetterHandlingWrkspcConflict.html"
+    covers: "13.1.2.0: Add to Workspace conflicts for incompatible family table instances can be resolved for all members at once by replacing the members in the workspace with compatible ones (Retry)"
+  - id: hc-ft-work
+    label: PTC Help Center supplement
+    title: "Working with Family Tables"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/ProEWCInteg/ProEWCIntegAHFamTableWork.html"
+    covers: "What a family table is; table-driven parts; benefits; instances of one family are interchangeable; avoid generics as assembly components because generic changes are inherited"
+  - id: hc-ft-struct
+    label: PTC Help Center supplement
+    title: "Family Table Structure"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/ProEWCInteg/ProEWCIntegAHFamTableStruct.html"
+    covers: "Generic is the first row and changes only by changing the model; instance cells (Y/N, values, asterisk); inherited values; nested family tables; names not case-sensitive"
+  - id: hc-ft-pdm
+    label: PTC Help Center supplement
+    title: "PDM Activities with Family Tables"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/ProEWCInteg/ProEWCIntegAHFamTablePDM.html"
+    covers: "Viewing the family (Customize, Related Objects, Family); each instance its own CAD document; non-verified instances are uploaded; check-out rules for generic and instances; earlier iterations need the whole family; migrated family tables must be saved and uploaded"
+  - id: hc-ft-modify
+    label: PTC Help Center supplement
+    title: "Modifying Family Tables"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/ProEWCInteg/ProEWCIntegAHFamTablePDMModify.html"
+    covers: "Edit the table in Creo (Tools, Family Table, Edit, Tools, Verify); Conflicts window choices including Check out the entire family table and Set All; three attribute classes and their check-out rules"
+  - id: hc-ft-display
+    label: PTC Help Center supplement
+    title: "Displaying Family Tables"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/cadx/CADxFTFamilyDisplay.html"
+    covers: "Family tree table columns (Model Name, Verification Status, Name, Number, Version); family table activity only in Windchill PDMLink or Windchill ProjectLink"
+  - id: hc-ft-attr
+    label: PTC Help Center supplement
+    title: "Editing Family Table Attributes in Windchill"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/cadx/CADxFTFamilyAttrEditAbout.html"
+    covers: "Edit Attributes page for family members; generic-driven, inherited table-driven and independent table-driven attributes; Confirm window that checks out extra members"
+  - id: hc-addws
+    label: PTC Help Center supplement
+    title: "Adding Objects to the Workspace"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/cadx/CADxFileMenuObjAdd.html"
+    covers: "Overridable conflict for family table instance incompatibility when adding objects; replace family members in the workspace with compatible ones"
+  - id: hc-collect-adv
+    label: PTC Help Center supplement
+    title: "Collecting in Advanced Mode"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/cadx/CADxComActivCollectorIncremental.html"
+    covers: "Add family objects and Add generics collection options (as used in lesson m07-s03-l02)"
+versionNotes:
+  - versions: ["13.1.2.0+"]
+    md: |
+      From Windchill 13.1.2.0, when Add to Workspace hits an incompatible family table instance you can resolve
+      the conflict for **all** family members at once: the existing members in your workspace are replaced with
+      compatible ones (through the existing **Retry** option). In earlier releases you could not override the
+      conflict for every member in one go.
+
+blocks:
+  - type: text
+    md: |
+      Acme uses M6 bolts everywhere on the **E-Bike E1**: 16 mm, 20 mm, 25 mm, 30 mm... Priya doesn't model
+      each one. She has **one** Creo model, `eb1_bolt_m6`, with a table inside it. Each row of the table is a
+      bolt length. Creo calls this a **family table**.
+
+      In the last lesson you saw `eb1_bolt_m6x20` show up in the frame assembly's collection - and you saw
+      that its parent model did *not*. Today you learn why, how Windchill stores the family, and how to fix
+      the two family-table problems every CAD admin meets: an instance nobody verified, and a family that
+      won't fit into your workspace.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the bolt model that holds the table" → [[generic-model|generic]]
+      - "one bolt length from the table" → [[family-table-instance|instance]] (also called a *table-driven part*)
+      - "has Creo actually rebuilt this row and checked it works?" → [[family-table-verification|verification status]]
+      - "a value every bolt shares with the parent" → [[generic-driven-attribute]]
+      - "a value that has its own column in the table" → [[table-driven-attribute]] (inherited or independent)
+
+  - type: diagram
+    title: Inside the eb1_bolt_m6 family table
+    caption: A family table is a spreadsheet inside the generic. Click each part of it.
+    diagram:
+      width: 820
+      height: 430
+      groups:
+        - { label: Creo model eb1_bolt_m6.prt, x: 10, y: 10, w: 520, h: 410, tone: neutral }
+        - { label: Windchill, x: 550, y: 10, w: 260, h: 410, tone: primary }
+      nodes:
+        - id: generic
+          label: Generic row
+          sublabel: eb1_bolt_m6
+          x: 30
+          y: 50
+          w: 200
+          tone: primary
+          detail: The **generic** is the first row of the table. You can't change it by typing into its row - its entries only change when you change the model itself (or suppress or resume features). Whatever the table doesn't list, every instance inherits from it.
+        - id: columns
+          label: Columns
+          sublabel: d9 · LENGTH · F107
+          x: 290
+          y: 50
+          w: 210
+          tone: accent
+          detail: Columns hold what varies between members - dimensions (shown by name, like d9), parameters, features (shown by number, like F107), components and more. A parameter that is *not* a column keeps the generic's value in every instance.
+        - id: inst16
+          label: eb1_bolt_m6x16
+          sublabel: "LENGTH 16"
+          x: 30
+          y: 160
+          w: 200
+          tone: success
+          detail: An **instance** row. For a dimension the cell holds a number; for a feature or parameter it can hold Y or N for present or absent.
+        - id: inst20
+          label: eb1_bolt_m6x20
+          sublabel: "LENGTH 20 · used in frame"
+          x: 30
+          y: 240
+          w: 200
+          tone: success
+          detail: The instance used in `eb1_frame.asm`. Instances of one family are interchangeable, so swapping 20 mm for 25 mm in an assembly is quick.
+        - id: inst25
+          label: eb1_bolt_m6x25
+          sublabel: "cell = *"
+          x: 30
+          y: 320
+          w: 200
+          tone: warning
+          detail: An asterisk (*) in a cell means "use the generic's value". Every dimension cell needs a number or an asterisk.
+        - id: nested
+          label: Nested table
+          sublabel: an instance's own family
+          x: 290
+          y: 240
+          w: 210
+          tone: neutral
+          detail: Any instance can have its own family table, which builds a nested family tree. Keep nesting shallow - every level is another set of dependencies to manage.
+        - id: wc-docs
+          label: One CAD document each
+          sublabel: generic + every instance
+          x: 570
+          y: 110
+          w: 220
+          shape: doc
+          tone: primary
+          detail: When Priya uploads, Windchill creates a **CAD document for the generic and for each instance** - including instances not yet verified. Each instance can be searched for, downloaded and used in assemblies on its own.
+        - id: wc-tree
+          label: Family tree table
+          sublabel: Related Objects → Family
+          x: 570
+          y: 260
+          w: 220
+          tone: info
+          detail: On the information page of any member, the Family tree shows the generic and its instances with **Model Name, Verification Status, Name, Number and Version**.
+      edges:
+        - { from: generic, to: inst16 }
+        - { from: generic, to: columns, dashed: true }
+        - { from: inst16, to: inst20, dashed: true }
+        - { from: inst20, to: inst25, dashed: true }
+        - { from: inst20, to: nested, dashed: true }
+        - { from: generic, to: wc-docs, label: upload }
+        - { from: wc-docs, to: wc-tree }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      A family table can hold dozens of standard parts in one file and makes sure they are all built the same
+      way. That's a huge win for fasteners, bearings and seals. But in Windchill every row becomes a separate
+      CAD document tied to the same generic, so one careless change to the generic touches every assembly
+      that uses any member. Teams that understand the rules release fasteners calmly; teams that don't get
+      surprise conflicts at check-in.
+
+  - type: comparison
+    title: Which family members must be checked out?
+    columns: [What you change, What Windchill makes you check out]
+    rows:
+      - label: Generic-driven attribute
+        cells: ["A value set in the generic that is not a table column (every member shares it)", "All family members - a Confirm window lists the extra instances and checks them out when you click OK"]
+      - label: Inherited table-driven attribute
+        cells: ["A column whose instance cell still shows * (generic value)", "Only that instance - and giving it a value makes the attribute independent for that instance"]
+      - label: Independent table-driven attribute
+        cells: ["A column with the instance's own value", "Only that instance"]
+      - label: Just one instance in Creo
+        cells: ["Opening an instance to work on it", "The instance; the generic is selected by default but you can clear it"]
+      - label: An earlier iteration of the family
+        cells: ["Working from an older iteration", "The entire family table together"]
+    takeaway: "The more an attribute is shared, the more of the family you lock. Ask yourself: is this value really common to every size?"
+
+  - type: walkthrough
+    title: See the whole family from any member
+    who: Any user with read access (Priya, Kai)
+    where: [Workspace, Information page, Customize, Related Objects, Family]
+    steps:
+      - title: Select a family member
+        where: [Workspace, Object List]
+        md: In the workspace, select a family table object - the generic `eb1_bolt_m6` or an instance such as `eb1_bolt_m6x20`.
+      - title: Open its information page
+        where: [Workspace, Information page]
+        md: Click the information icon for that object.
+      - title: Add the Family tab
+        where: [Information page, New Tab, Customize, Related Objects, Family]
+        md: The family tree is not shown by default. Click the **New Tab** icon, then **Customize → Related Objects → Family**. A new tab shows an expandable tree of the generic and its instances.
+      - title: Read the tree
+        where: [Family tab]
+        md: A check in the first column marks the object you started from. Scan **Verification Status** and **Version** for each member.
+    result: Priya can see every bolt length, which ones are verified, and which iteration each is on - without opening Creo.
+
+  - type: walkthrough
+    title: Add a new length and verify the family in Creo
+    who: The designer who owns the fastener family (Priya)
+    where: [Creo, Tools, Family Table]
+    steps:
+      - title: Open the generic
+        where: [Creo, Open, eb1_bolt_m6.prt]
+        md: Open the generic from Windchill. In an empty workspace this downloads the generic only - no instances, and nothing is checked out yet.
+      - title: Open the table for editing
+        where: [Tools, Family Table, Edit]
+        md: Choose **Tools → Family Table** and click **Edit**. Because the generic is read-only, a **Conflicts** window appears. Pick **Check out the entire family table** (or **Check out this object now** if you only touch the generic). *Continue* would let you upload but not check in.
+      - title: Add the row
+        where: [Family Table editor]
+        md: Add `eb1_bolt_m6x30` and fill its cells. Use `*` where the generic value is fine.
+      - title: Verify
+        where: [Family Table editor, Tools, Verify]
+        md: Run **Tools → Verify** so Creo regenerates the instances, then close the editor. If more members were modified, another Conflicts window lets you **Set All** to one action.
+      - title: Save and check in
+        where: [File, Check In]
+        md: Save, then check in the generic from the Model Tree, the workspace, or **File → Check In**. Use advanced collection's **Add family objects** if you want every member in the list.
+    result: The family has a new verified instance, and the Family tab shows it next to the others.
+
+  - type: example
+    variant: real-world
+    title: The bolt that came back "not verified"
+    industry: Micromobility
+    md: |
+      Leo, Acme's quality engineer, opens the Family tab on `eb1_bolt_m6x20` before a release review and
+      sees one member, `eb1_bolt_m6x25`, marked as **not verified**. Nobody had broken anything - Windchill
+      happily uploads instances that were never regenerated. But it means nobody has proved that row builds.
+      Priya opens the generic, runs **Tools → Verify**, fixes the one cell that failed and checks the family in
+      again. The release review goes ahead with every length verified.
+    takeaway: Uploading an instance is not the same as verifying it. Check the Verification Status column before you release.
+
+  - type: scenario
+    variant: troubleshooting
+    title: The family that won't come into the workspace
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Kai adds `eb1_frame.asm` to his workspace. His workspace already holds bolt instances from an older
+          iteration of the `eb1_bolt_m6` family. Add to Workspace stops with an **overridable conflict about
+          family table instance incompatibility**. What does Kai do?
+        choices:
+          - label: Resolve it by replacing the family members in the workspace with compatible ones
+            next: s2
+            good: true
+            feedback: Right. Members of one family have to agree with each other in a workspace. Replacing them brings the whole family to a compatible state.
+          - label: Delete the generic from Windchill
+            next: f1
+            feedback: Never. Every instance depends on the generic, and other assemblies use them.
+          - label: Ignore the conflict and edit the old instance anyway
+            next: f2
+            feedback: Mixing iterations of one family is exactly what the conflict is protecting you from.
+      - id: s2
+        md: |
+          On 13.1.2.0 or later Kai can fix this for **all** members at once with Retry. On an older release he
+          handles it member by member. After the retry the frame and every bolt open cleanly. A week later he
+          needs to edit the *older* iteration of the family for a service variant. What must he check out?
+        choices:
+          - label: The entire family table
+            next: win
+            good: true
+            feedback: Correct. For an earlier iteration, the whole family is checked out together.
+          - label: Only the instance he needs
+            next: partial
+            feedback: That works for the latest iteration, not for an earlier one.
+      - id: f1
+        md: The generic is gone, every instance points to nothing, and the frame assembly no longer opens for anyone. Rosa has to restore data.
+        outcome: fail
+      - id: f2
+        md: Kai's change fails at check-in with new conflicts, and he has lost an hour. He has to start again from a clean workspace.
+        outcome: fail
+      - id: partial
+        md: For an earlier iteration the family must be checked out as a whole, so Kai's single-instance attempt doesn't get him there. He learns the rule the slow way.
+        outcome: partial
+      - id: win
+        md: Kai checks out the whole older family, makes his change and checks it in. No conflicts, no orphans.
+        outcome: success
+
+  - type: callout
+    variant: version-note
+    versions: ["13.1.2.0+"]
+    md: |
+      **Enhanced conflict handling** for incompatible family table instances arrived in Windchill 13.1.2.0: you
+      can replace the existing family members in your workspace with compatible ones for all members at once.
+      Older releases make you deal with members individually.
+
+  - type: callout
+    variant: pitfall
+    title: Don't put the generic in your assembly
+    md: |
+      PTC's recommended practice is to **avoid using the generic as an assembly component**. Changes to the
+      generic flow into every instance, so an assembly that uses the generic directly changes whenever someone
+      edits the family. Use an instance (`eb1_bolt_m6x20`), even if it looks identical to the generic today.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      **After a migration**, family tables brought in from an older release show their internal data and
+      verification status correctly only once they have been **saved and uploaded** in the current release.
+      Plan that step into the migration (Nia's checklist), or reviewers will see confusing statuses. Also note:
+      family table activity is available in Windchill PDMLink and Windchill ProjectLink contexts.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: How do you change the values in the generic row of a family table?
+        options: [Type new values into the generic row, Change the model itself (or suppress or resume features), Edit the generic's Windchill attributes only, You can't - generics are frozen]
+        answer: 1
+        explanation: The generic row reflects the model. Its entries change only when you modify the model or suppress or resume features - not by editing the table cells.
+      - kind: single
+        prompt: Priya changes a generic-driven attribute on eb1_bolt_m6x20 in Windchill's Edit Attributes page. What happens?
+        options: [Only that instance is checked out, A Confirm window lists the other family members that must be checked out too, The generic is revised automatically, Nothing - generic-driven attributes can't be edited]
+        answer: 1
+        explanation: Generic-driven attributes are shared by every member, so all members must be checked out. Clicking OK in the Confirm window checks out the extra instances.
+      - kind: truefalse
+        prompt: Windchill refuses to upload family table instances that have not been verified in Creo.
+        answer: false
+        explanation: Non-verified instances are uploaded too. That is why the Verification Status column on the Family tab matters before release.
+      - kind: multi
+        prompt: Which statements about instances in Windchill are true? (Choose all that apply.)
+        options: [Each instance is its own CAD document, An instance can be searched for and downloaded on its own, Checking out an instance always requires checking out the generic, Instances of one family are interchangeable in assemblies]
+        answers: [0, 1, 3]
+        explanation: The generic is selected by default when you check out an instance, but you can clear it - except when working with an earlier iteration, where the whole family must be checked out.
+      - kind: single
+        prompt: Add to Workspace fails with an overridable conflict about family table instance incompatibility. What is the fix?
+        options: [Delete the conflicting instance, Replace the family members in the workspace with compatible ones, Check in with All dependents, Rename the generic]
+        answer: 1
+        explanation: Replacing the members makes the family consistent in the workspace. From 13.1.2.0 you can do this for all members at once with Retry.
+
+  - type: summary
+    points:
+      - A family table lives in the generic; each row is an instance, and anything not in the table is inherited from the generic.
+      - Windchill stores the generic and every instance as separate CAD documents - verified or not.
+      - Open the Family tab (Customize → Related Objects → Family) to see every member's Verification Status and Version.
+      - Edit the table in Creo (Tools → Family Table), run Tools → Verify, then check in; check out the whole family when the change is shared.
+      - Generic-driven changes lock every member; table-driven changes lock only that instance; older iterations need the whole family.
+      - Incompatible-instance conflicts are fixed by replacing the members in the workspace - for all members at once from 13.1.2.0.

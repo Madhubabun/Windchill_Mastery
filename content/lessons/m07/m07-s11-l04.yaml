@@ -1,0 +1,258 @@
+id: m07-s11-l04
+subtitle: Twelve E1 motor parts carry the wrong IP rating. Theo fixes them in code - and checks every method name before he trusts it.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [customization, developer, architect, attributes, persistable-adapter, api]
+sources:
+  - id: trn-advdev
+    where: "Section 11: Create methods for getting attribute values, setting IBA values (type identifier WCTYPE|wt.part.WTPart|<subtype>, CreateOperationIdentifier with load/set/persist, ReferenceFactory.getReference for the context, UpdateOperationIdentifier on a checked-out object with load/set/apply then PersistenceHelper.manager.modify, DisplayOperationIdentifier with load/get, SessionHelper.getLocale(), Boolean and FloatingPointWithUnits values; LWCNormalizedObject changed to PersistableAdapter in 10.2 and higher); QuerySpec method table (Deprecated and Supported API: false markers)"
+  - id: cus-api
+    where: "List of APIs and Methods: columns Activity, OOTB Package, OOTB Super Class, List of APIs, List of Methods, Possible similar customization (validator, form processor, MVC table builder, data utility rows)"
+  - id: trn-code
+    where: "ReassignDocTemplateFormProcessor.java: Transaction start/commit/rollback; WorkInProgressHelper.service.checkout with getCheckoutFolder() and getWorkingCopy(); PersistableAdapter load, set, apply then PersistenceHelper.manager.modify; WorkInProgressHelper.service.checkin; ReassignFunctionalOwnerValidator.java: WorkInProgressHelper.isCheckedOut"
+  - id: cust
+    where: "Module 2: Windchill customization resources (Customization tab via the Client Customization preference, Javadoc, Customization Guide); Module 3: Which command to find the JAR for a class; validate the classpath in Eclipse"
+versionNotes:
+  - versions: ["10.2 and later"]
+    md: |
+      Older examples and forum posts use `LWCNormalizedObject`. The training says to change it to
+      [[persistable-adapter|PersistableAdapter]] in 10.2 and higher; the calls (`load`, `get`, `set`, `apply`,
+      `persist`) follow the same pattern.
+
+blocks:
+  - type: text
+    md: |
+      Jordan spots it in a report: twelve **E-Bike Part** motors still say **IP54**, but the new motor housing
+      is rated **IP65**. Twelve hand edits invite typos, and the next motor batch will need the same fix. Theo
+      writes a small server-side helper.
+
+      Two skills meet here. The first is the attribute API: reading and setting **soft attributes** (the ones
+      Jordan defined in Type and Attribute Management) by their **internal names**. The second is a habit:
+      **never trust a method name from memory, a forum or an old project** - check it against the sources
+      before it goes into Acme's code.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "an attribute added by configuration, not Java" → **soft attribute** (older name: IBA) on a [[soft-type|subtype]]
+      - "the name code uses, not the label users see" → **internal name** (Acme's are `IPRating` and `BatteryVoltage`)
+      - "the string that names a subtype in code" → **type identifier** (`WCTYPE|wt.part.WTPart|...`)
+      - "the helper that reads and writes attributes" → [[persistable-adapter|PersistableAdapter]]
+      - "reading, updating or creating?" → [[operation-identifier]]
+
+  - type: diagram
+    title: The PersistableAdapter round trip
+    caption: Same helper, three jobs. The operation identifier decides which. Click a box.
+    diagram:
+      width: 840
+      height: 410
+      nodes:
+        - id: obj
+          label: Object or type
+          sublabel: part · or WCTYPE string
+          x: 20
+          y: 160
+          w: 160
+          tone: neutral
+          detail: |
+            Wrap an existing object (to read or update it), or a **type identifier** such as
+            `WCTYPE|wt.part.WTPart|com.acmemobility.EBikePart` (to create a new object of that subtype).
+        - id: adapter
+          label: new PersistableAdapter
+          sublabel: + operation identifier
+          x: 220
+          y: 160
+          w: 180
+          tone: primary
+          detail: |
+            `DisplayOperationIdentifier` to read, `UpdateOperationIdentifier` to change an existing object,
+            `CreateOperationIdentifier` for a new one. The training passes the locale from
+            `SessionHelper.getLocale()` when reading or updating.
+        - id: load
+          label: load(...)
+          sublabel: internal names
+          x: 440
+          y: 160
+          w: 140
+          tone: accent
+          detail: Name every attribute you'll touch - modeled ones like `name` and soft ones like `IPRating`. Load only what you need.
+        - id: getset
+          label: get / set
+          sublabel: typed values
+          x: 620
+          y: 60
+          w: 200
+          tone: accent
+          detail: |
+            `get("IPRating")` returns a value you cast (`String`, `Boolean`, `FloatingPointWithUnits` for a real
+            number with units...). `set(name, value)` changes it in the adapter - not yet in the object.
+        - id: apply
+          label: apply() + modify
+          sublabel: existing object
+          x: 620
+          y: 190
+          w: 200
+          tone: success
+          detail: "`apply()` writes the values into the (checked-out) object; `PersistenceHelper.manager.modify(...)` saves it."
+        - id: persist
+          label: persist()
+          sublabel: new object
+          x: 620
+          y: 320
+          w: 200
+          tone: success
+          detail: For a create operation, `persist()` stores the new object.
+      edges:
+        - { from: obj, to: adapter }
+        - { from: adapter, to: load }
+        - { from: load, to: getset, label: read }
+        - { from: load, to: apply, label: update }
+        - { from: load, to: persist, label: create }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Attribute code is everywhere in real projects: listeners that check a value, form processors that copy
+      values, integrations that fill them in. Get the internal name wrong and the code fails at runtime, not at
+      compile time - the compiler can't know Jordan's attribute names. Get the method wrong and the code may
+      compile today and break at the next release.
+
+  - type: text
+    md: |
+      ### Read: what does this part say?
+
+      ```java
+      PersistableAdapter reader = new PersistableAdapter(part, null,
+              SessionHelper.getLocale(), new DisplayOperationIdentifier());
+      reader.load("IPRating", "BatteryVoltage");
+
+      String ip = (String) reader.get("IPRating");                       // null if not set
+      FloatingPointWithUnits volts = (FloatingPointWithUnits) reader.get("BatteryVoltage");
+      System.out.println(part.getNumber() + " IP rating: " + ip);
+      ```
+
+      ### Update: fix one motor, safely
+
+      Updating needs a **checked-out** working copy. Theo wraps check-out, change and check-in in one
+      transaction, so a failure halfway leaves nothing half-done - the same pattern PTC's sample form
+      processor uses.
+
+      ```java
+      Transaction tx = new Transaction();
+      try {
+          tx.start();
+          WTPart work = (WTPart) WorkInProgressHelper.service.checkout(part,
+                  WorkInProgressHelper.service.getCheckoutFolder(), "IP rating update").getWorkingCopy();
+
+          PersistableAdapter writer = new PersistableAdapter(work, null,
+                  SessionHelper.getLocale(), new UpdateOperationIdentifier());
+          writer.load("IPRating");
+          writer.set("IPRating", "IP65");
+          work = (WTPart) writer.apply();
+          work = (WTPart) PersistenceHelper.manager.modify(work);
+
+          WorkInProgressHelper.service.checkin(work, "IP65 per new motor housing");
+          tx.commit();
+          tx = null;
+      } finally {
+          if (tx != null) {
+              tx.rollback();
+          }
+      }
+      ```
+
+      ### Create: a new E-Bike Part with values
+
+      ```java
+      PersistableAdapter creator = new PersistableAdapter(
+              "WCTYPE|wt.part.WTPart|com.acmemobility.EBikePart", null, new CreateOperationIdentifier());
+      creator.load("name", "containerReference", "IPRating");
+      creator.set("name", "Motor housing 750 W");
+      creator.set("containerReference", e1ContextRef);   // a WTReference, e.g. from ReferenceFactory
+      creator.set("IPRating", "IP65");
+      creator.persist();                                  // the number comes from the OIR
+      ```
+
+  - type: walkthrough
+    title: Check a method before you use it
+    who: Theo, before every code review
+    where: [Customization tab, Javadoc]
+    steps:
+      - title: Open the Javadoc from Windchill
+        where: [Site, Utilities, Preference Management, Client Customization]
+        md: With the site preference **Client Customization** set to **Yes**, the **Customization** tab links to the Windchill Javadoc for *your* release - the version that matters.
+      - title: Find the class and the method
+        where: [Customization tab, Javadoc, "<class>"]
+        md: Look up the exact signature - parameter types, return type, thrown exceptions. A `get` that returns `Object` tells you to cast, and to check for `null`.
+      - title: Read the warnings
+        where: [Javadoc, "<method>"]
+        md: "**Deprecated** means stop - the entry names the replacement. **Supported API: false** means PTC may change it without notice. Neither belongs in new Acme code."
+      - title: Compare with the training's API list
+        where: [Training materials, List of APIs and Methods]
+        md: |
+          PTC's customization training keeps a sheet per customization type: activity, OOTB package, OOTB
+          super class, APIs and methods used. If your validator, form processor or table builder reaches for
+          a class that isn't in its row, ask why before you code.
+      - title: Let the compiler and the JAR confirm it
+        where: [Eclipse, Windchill shell]
+        md: Compile against the linked codebase. If a class won't resolve, find its JAR with the `wt.util.jmx.Which` command rather than guessing an import.
+      - title: Prove it on the development system
+        where: [Development server, method server log]
+        md: Run it once on dev and read the log. Internal attribute names only fail at runtime, so a real call is the final check.
+    result: Every call in Theo's helper is traced to the Javadoc, the training sheet or the compiler - none comes from memory.
+
+  - type: exercise
+    title: Trace four calls
+    environment: windchill-trial
+    goal: Practise the check-before-you-code routine on calls from this lesson.
+    steps:
+      - Open the Javadoc from the **Customization** tab of your training system.
+      - Look up `PersistableAdapter` and note its constructors and the `load`, `get`, `set`, `apply` and `persist` methods.
+      - Look up `QuerySpec.appendSearchCondition` and write down what replaces it.
+      - In Type and Attribute Management, open your test subtype and copy one soft attribute's **internal** name.
+      - Write a three-line read with `DisplayOperationIdentifier` for that attribute and run it on a test part.
+    expected: You can name, for each call, the page or line that confirms it - and you found appendSearchCondition marked deprecated with appendWhere(WhereExpression, int[]) as the replacement.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Display names in code.** Users see "IP Rating"; code must use the **internal name** Jordan typed when
+      she created the attribute. A display name in `load()` or `get()` fails at runtime - and display names can
+      be translated or renamed, internal names can't.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Before a bulk change, run the **read** version first and log what it would change: number, old value,
+      new value. Jordan approves the list, then Theo runs the update. Twelve parts today, but the same helper
+      will meet two thousand one day.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Which operation identifier does Theo use to change the IP rating of an existing part?
+        options: ["None - set() saves directly", "UpdateOperationIdentifier", "DisplayOperationIdentifier", "CreateOperationIdentifier"]
+        answer: 1
+        explanation: Update on a checked-out object, then apply() and PersistenceHelper.manager.modify().
+      - kind: order
+        prompt: Put the update steps in order.
+        items: [Check out the part, Create a PersistableAdapter with UpdateOperationIdentifier, load the attribute, set the new value, apply() into the working copy, Save with PersistenceHelper.manager.modify, Check in]
+        explanation: The adapter only changes values after apply(); modify saves; check-in creates the new iteration.
+      - kind: multi
+        prompt: Which are good reasons NOT to use a method in new code? (Choose all that apply.)
+        options: ["It only appears in an old forum post", "It is in the Javadoc and the training's API list", "The Javadoc marks it Deprecated", "The Javadoc says Supported API false"]
+        answers: [0, 2, 3]
+        explanation: Deprecated and unsupported methods can change or vanish; unverified names may not exist at all. Javadoc plus training is the bar.
+      - kind: truefalse
+        prompt: LWCNormalizedObject is the class to use for attributes in Windchill 13.
+        answer: false
+        explanation: The training says to change LWCNormalizedObject to PersistableAdapter in 10.2 and higher.
+
+  - type: summary
+    points:
+      - PersistableAdapter reads and writes attributes - modeled and soft - by internal name.
+      - Display to read, Update on a checked-out object (then apply and modify), Create with a type identifier (then persist).
+      - Wrap check-out, change and check-in in one transaction so failures roll back.
+      - Check every class and method in your release's Javadoc and against the training's API list; avoid Deprecated and Supported API false.
+      - Internal attribute names only fail at runtime - prove the code on development before it ships.

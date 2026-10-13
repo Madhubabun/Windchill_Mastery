@@ -1,0 +1,101 @@
+# New glossary terms introduced in section m07-s07 (Integrations).
+- id: windchill-esi
+  term: Windchill ESI (Enterprise Systems Integration)
+  plain: The Windchill module that packages product data and hands it to ERP and other business systems.
+  definition: The Windchill integration module that publishes product data such as parts, BOMs, documents and change notices from Windchill PDMLink to other enterprise systems, mainly ERP. The full ESI offering is a middleware-based, closed-loop, two-way integration for SAP and Oracle Applications that uses TIBCO software (BusinessWorks, EMS, adapters). ERP Connector and custom integrations reuse the same ESI services and Open API.
+  aka: [ESI, Enterprise Systems Integration]
+  related: [erp, erp-connector, distribution-target]
+
+- id: erp-connector
+  term: ERP Connector
+  plain: The lightweight way to send Windchill data to ERP as a file, by FTP or by email - no middleware needed.
+  definition: Part of the Windchill ESI Services product. It publishes parts, BOMs, change notices, documents, CAD document structures and (with MPMLink) manufacturing objects to distribution targets as XML or JSON. It is one-directional (open loop) out of the box, can be set up for closed-loop transactions with extra configuration and customization, and is the preferred option for ERP systems other than SAP and Oracle. Its business logic is hard coded and customizing that logic is not supported.
+  related: [windchill-esi, distribution-target, esi-response, erp]
+
+- id: distribution-target
+  term: Distribution target
+  plain: A named destination that Windchill sends product data to, such as a plant in ERP or a folder on a server.
+  definition: The destination for data published from Windchill - usually another enterprise system or a unit inside it, such as a manufacturing plant. Targets are created in the Manage Distribution utility (site or organization context) or with the Windchill Loader, and can be of type File, FTP or Email (ERP Connector) or SAP, Oracle Applications or MES (ESI). Objects reach a target by explicit, top-level or default-for-context assignment.
+  aka: [DT]
+  related: [erp-connector, windchill-esi, esi-response]
+
+- id: esi-response
+  term: ESI response
+  plain: The message file Windchill builds when it publishes - the list of parts, BOMs and documents sent to ERP.
+  definition: The XML (or JSON) message that ESI services generate for a distribution target when objects are published. It groups objects into sections such as AddedParts, ChangedParts and UnchangedParts, and its structure is controlled by the response meta information file (ESIResponseMetaInfo.xml) that each target references. Stylesheets (XSLT) can transform it into other formats such as CSV.
+  aka: [ESIResponse]
+  related: [distribution-target, erp-connector]
+
+- id: release-to-manufacturing-workflow
+  term: Release to Manufacturing (RTM) workflow
+  plain: The workflow that runs every time Windchill publishes data to a distribution target.
+  definition: The site-level workflow template that ESI and ERP Connector use to publish business objects. It can be triggered by the Send To Distribution Target action, by a released change notice, or automatically when an object reaches the state set in an ESI preference (with Launch ESI Workflow Automatically set to Yes). The template name used is set in the Workflow Template preference under ESI > Settings > Workflow.
+  aka: [RTM workflow]
+  related: [windchill-esi, distribution-target, workflow-template]
+
+- id: closed-loop-transaction
+  term: Closed-loop transaction
+  plain: Publishing where ERP reports back whether the data was really loaded, not just delivered.
+  definition: An ESI transaction whose status in Windchill reflects whether the product data was actually imported into the ERP system, rather than only whether the response reached the distribution target. Full ESI provides this out of the box through its middleware. ERP Connector needs the Enable Post Result preference set to No plus an interface that calls the PostResult RPC back into Windchill.
+  related: [erp-connector, windchill-esi]
+
+- id: windchill-rest-services
+  term: Windchill REST Services (WRS)
+  plain: Windchill's web API - any app that speaks HTTP can read and change Windchill data through it.
+  definition: A Windchill module, installed with the PTC Solution Installer and released on its own cycle, that exposes Windchill objects as OData entities over HTTP. It ships a configuration framework plus PTC domains such as Product Management (ProdMgmt), Document Management (DocMgmt), Data Administration and Principal Management. Requests use GET, POST, PATCH and DELETE on URLs under the servlet/odata path; changes require a CSRF nonce header.
+  aka: [WRS, Windchill OData API]
+  related: [wrs-domain, entity-data-model]
+
+- id: wrs-domain
+  term: WRS domain
+  plain: One topic area of the Windchill API, like "parts and BOMs" or "documents", with its own address and version.
+  definition: A RESTful OData service inside Windchill REST Services that exposes one functional area as entity sets, entity types and operations. Each domain has an identifier (for example ProdMgmt), API versions (v1, v2...) and a root URL. PTC domains live under codebase/rest/ptc/domain; extensions and custom domains go under codebase/rest/custom/domain. Not the same thing as a Windchill administrative domain.
+  aka: [OData domain]
+  related: [windchill-rest-services, entity-data-model]
+
+- id: entity-data-model
+  term: Entity Data Model (EDM)
+  plain: The machine-readable menu of a domain - which objects exist, what fields they have and how they link.
+  definition: The OData description of a domain's entities, entity sets, structural properties, navigation properties, functions and actions, written in CSDL (XML). In WRS you read it by adding $metadata to a domain's root URL. Structural properties hold values; navigation properties such as Uses point to other entities and appear only when expanded.
+  aka: [EDM, $metadata]
+  related: [wrs-domain, windchill-rest-services]
+
+- id: digital-thread
+  term: Digital thread
+  plain: The connected flow of product data from engineering out to manufacturing, service and the rest of the company.
+  definition: The idea that product data starts in engineering (PLM) and is carried, without re-typing, across the other functions of the enterprise such as manufacturing, ERP and service. PTC's materials connect it to Windchill REST Services (which expose Windchill data to other systems), ESI (which links the digital and physical product value chain) and Windchill Navigate's Connected PLM offering built on ThingWorx.
+  related: [plm, erp, mes, thingworx, windchill-rest-services]
+
+- id: wrs-custom-configuration-path
+  term: WRS custom configuration path
+  plain: The folder where your own API changes live, so PTC updates never overwrite them.
+  definition: The folder codebase/rest/custom/domain under the WRS configuration home (codebase/rest). It is not created at installation, so you create it, and WRS updates leave it untouched. WRS merges what it finds there with the PTC configuration path (codebase/rest/ptc/domain), whose files must not be modified, to build one view of each domain. Extensions of PTC domains mirror the PTC folder structure (domain, version, entity) here; new domains get their own folder.
+  aka: [Custom configuration path, rest/custom/domain]
+  related: [wrs-domain, windchill-rest-services, wrs-entity-configuration]
+
+- id: wrs-entity-configuration
+  term: WRS entity configuration files
+  plain: The pair of files that define one kind of object in the API - a JSON file for what it has, a JavaScript file for how it behaves.
+  definition: For each entity in a domain version's entity folder, a JSON file named with the plural entity name (for example Parts.json) and a JavaScript file of the same name. The JSON file gives basic information (name, collectionName, type wcType or basic, wcType, operations), structural properties (attributes), navigation properties (navigations), bound functions and actions, and inherited capabilities. The JavaScript file holds the bound function and action implementations and any hooks that override or enhance default processing.
+  aka: [Entity JSON file, Entity JavaScript file]
+  related: [wrs-domain, entity-data-model, wrs-inherits, wrs-custom-configuration-path]
+
+- id: wrs-inherits
+  term: WRS inherited capabilities (inherits)
+  plain: Ticking Windchill "superpowers" onto an API entity so you don't have to define each property yourself.
+  definition: The inherits section of an entity JSON file, which lets an entity pick up properties, navigations, functions and actions from Windchill capabilities the WRS framework understands. Examples from PTC's course are lifecycleManaged (life cycle template and state), workable (CheckoutState plus CheckIn, CheckOut and UndoCheckOut actions), versioned, contextManaged, foldered, subtypeable (Type and Attribute Management subtypes appear automatically) and softattributable (soft attributes appear automatically).
+  aka: [inherits]
+  related: [wrs-entity-configuration, entity-data-model, subtype, soft-type]
+
+- id: wrs-custom-domain
+  term: WRS custom domain
+  plain: Your own topic area in the Windchill API, for data PTC's domains don't cover the way you need.
+  definition: A new Windchill REST Services domain created entirely in the custom configuration path - a domain JSON file (name, id, description, namespace, containerName, defaultVersion), a version folder such as v1 with an import.json file, and an entity folder with entity JSON and JavaScript files. PTC's course states that information can only be read from Windchill through a custom domain. Its EDM is tested at the domain's $metadata URL, and it appears in the API catalog's list of domains.
+  related: [wrs-domain, wrs-custom-configuration-path, wrs-entity-configuration, entity-data-model]
+
+- id: wrs-bound-operation
+  term: Bound function and bound action (WRS)
+  plain: An operation you call on one specific object in the API - a function only reads, an action changes something.
+  definition: Operations configured on an entity and invoked on one instance. A bound function must not create, update or delete data and is called with GET on the entity URL followed by the function name and parameters. A bound action changes the entity's state and is called with POST on the entity URL followed by the domain namespace and action name, with parameters in the request body. Both are declared in the entity JSON file and implemented in the entity JavaScript file.
+  aka: [Bound function, Bound action]
+  related: [wrs-entity-configuration, entity-data-model]

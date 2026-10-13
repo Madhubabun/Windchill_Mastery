@@ -1,0 +1,106 @@
+id: m07-s01-check
+subtitle: eBOM to mBOM, plants and lines, process plans, resources, change and work instructions - prove you can take the E1 from design to the Riverside line.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [mpmlink, mbom, checkpoint]
+sources:
+  - id: mpm-bom
+    where: "Module 1: What is an mBOM and why do we need it?; BOM transformation. Module 2: BOM Transformer tool; BOM transformation process; Maintain the eBOM-mBOM relationship. Module 3: Scenarios 1-4; Manage variability in the mBOM: Assemble. Module 4: Best practices - integrate mBOM creation and maintenance with the change process"
+  - id: mpm-pp
+    where: "Module 1: Work instructions; End-to-end process. Module 2: Manufacturing resource types; Compatibility links. Module 3: Process plans overview; Operations; Manufacturing resource allocation; Part allocation; Part allocation types"
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **manufacturing process management**: eBOM vs mBOM, the BOM Transformer,
+      process plans, plant views and alternates, resources, change and work instructions. Score 80% to
+      pass. Every answer explains itself.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: multi
+        prompt: Ana compares the E1 eBOM with the Riverside mBOM. Which differences are typical? (Choose all that apply.)
+        options: ["The mBOM follows assembly order, with kits and sub-assemblies", "The mBOM adds manufacturing-only items such as packaging and manuals", "The mBOM drops every design part and renumbers it", "Out of the box the mBOM lives in the Manufacturing view"]
+        answers: [0, 1, 3]
+        explanation: The mBOM is the product as built - reorganised for assembly, with manufacturing-only items, in the Manufacturing view. Design parts are reused wherever possible; renumbering everything is the opposite of PTC's best practice.
+      - kind: single
+        prompt: In the BOM Transformer, Ana needs a grouping that organises the electrical kit but is never built, stored or consumed by an operation. What does she insert?
+        options: [A manufacturing part, A phantom manufacturing part, A new view version, A plant]
+        answer: 1
+        explanation: Insert New with Phantom Manufacturing Part = Yes creates a phantom - it only facilitates processing. A real built-and-stored assembly would be a (non-phantom) manufacturing part.
+      - kind: single
+        prompt: Kai checks in a new iteration of the frame, which is reused in the mBOM. The pair now shows the out-of-date indicator. What brings it back to green from the right (downstream) pane?
+        options: [Update All Downstream Equivalent Objects, Update to Current Upstream Equivalent Objects, New Downstream Branch, Paste as New Part]
+        answer: 1
+        explanation: From the downstream side it is Update to Current Upstream Equivalent Objects; from the upstream side the matching action is Update All Downstream Equivalent Objects.
+      - kind: single
+        prompt: Ana drags a bracket onto OP-20 but it won't allocate. The bracket's usage has no occurrence. What fixes it?
+        options: [Revise the bracket, Run Auto Create Occurrences on the mBOM structure, Add a second work center to OP-20, Generate work instructions]
+        answer: 1
+        explanation: Parts are allocated by occurrence. Auto Create Occurrences adds one to every usage that lacks it and leaves existing occurrences alone.
+      - kind: truefalse
+        prompt: An operation can have several work centers allocated, as long as they are in the same plant.
+        answer: false
+        explanation: An operation has at most one work center and at most one manufacturing capability. Tooling, process materials, skills, parts and documents can be added freely.
+      - kind: single
+        prompt: Riverside and Lakeside build the Scooter S2 with the same structure but different storage locations and make/buy decisions. Which approach fits PTC's scenarios best?
+        options: [A view per plant, One mBOM with Plant Data, An alternate BOM per plant, A Save As copy for Lakeside]
+        answer: 1
+        explanation: Same structure, different facts - keep one mBOM and attach Plant Data objects. Views are for real structural differences; alternates are for lines inside a plant.
+      - kind: multi
+        prompt: Which are manufacturing resource types in MPMLink? (Choose all that apply.)
+        options: [Work Center, Tooling, Process Material, Skill, Phantom Manufacturing Part]
+        answers: [0, 1, 2, 3]
+        explanation: The six resource types are Plant, Resource Group, Work Center, Tooling, Process Material and Skill. A phantom manufacturing part is an mBOM part, not a resource.
+      - kind: single
+        prompt: A welding capability always needs shielding gas. Which compatibility link type adds the gas automatically?
+        options: [Acceptable, Preferred, Mandatory, Equivalent]
+        answer: 2
+        explanation: Mandatory means the objects must be used together, so the linked one is added automatically. Preferred only suggests it; Forbidden prevents and Not Recommended warns.
+      - kind: order
+        prompt: Put the steps of PTC's mBOM maintenance change notice in order.
+        items: ["Kai completes the eBOM update task (sequence 1)", "The eBOM changes are reviewed", "Ana opens both BOMs from her task with context", "Ana detects discrepancies and updates the mBOM", "The change administrator audits and the notice is Resolved"]
+        explanation: Sequenced tasks make engineering go first and be reviewed before manufacturing starts. Note that the mBOM is still In Work at the end - it is released through its own change notice.
+      - kind: single
+        prompt: Ana changes the OP-20 description at 10:00. Dev generates the OP-20 work instruction at 10:05. What does he see?
+        options: [The old text until Ana republishes, The new text, Nothing until the plan is released, Only the whole plan's instruction]
+        answer: 1
+        explanation: An MPMLink work instruction is an HTML page generated on demand from the current process plan, so changes show immediately.
+
+  - type: flashcards
+    title: MPMLink deck
+    cards:
+      - front: eBOM vs mBOM
+        back: The product as designed (Design view) versus the product as built (Manufacturing view).
+      - front: BOM Transformer
+        back: Two-pane tool - upstream (eBOM) on the left, downstream (mBOM) on the right.
+      - front: New Downstream Branch
+        back: Creates the downstream view version of a part (e.g. the mBOM top part) with an equivalent link.
+      - front: Equivalent link
+        back: Ties an mBOM part to its eBOM partner - green tick when in step, out-of-date indicator after an upstream change.
+      - front: Paste as New Branch vs Paste as New Part
+        back: New Branch makes a new view version (same number); New Part makes a different number. Both stay linked.
+      - front: Alternate BOM
+        back: Another BOM in the same view, typically for a second production line in a plant.
+      - front: Plant Data
+        back: Per-plant facts (status, storage location, sourcing, process) attached to parts of a shared mBOM with Assign Plant.
+      - front: Assemble action
+        back: Turns one design part into several linked mBOM parts, e.g. one per frame colour.
+      - front: Process plan
+        back: Step-by-step instructions to produce the part it is linked to; holds operations and is associated with plants.
+      - front: Part allocation types sent as negative quantity
+        back: Disassembled and Destroyed.
+      - front: mBOM creation change notice
+        back: eBOM top part in Affected Objects, nothing in Resulting Objects; the mBOM stays In Work.
+      - front: Work instruction
+        back: A dynamically generated HTML page from the process plan - not a stored document.
+
+  - type: summary
+    points:
+      - The mBOM is the product as built - branched from the eBOM in the BOM Transformer and kept in step through equivalent links.
+      - Process plans hold operations with one work center each, allocated resources and parts allocated by occurrence.
+      - Plant views, alternate BOMs, Plant Data and Assemble cover plants, lines, plant facts and variability.
+      - Resources and compatibility links model the factory; standards capture proven methods.
+      - Run mBOM creation and maintenance through change notices, and generate work instructions from the live plan.

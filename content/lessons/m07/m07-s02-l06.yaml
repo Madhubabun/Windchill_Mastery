@@ -1,0 +1,255 @@
+id: m07-s02-l06
+subtitle: Battery on the down tube or on the rack? Let the choice decide where the CAD model goes, instead of Priya dragging it there for every variant.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [options-and-variants, dynamic-positioning, locators, architecture-editor, creo]
+sources:
+  - id: ov
+    where: "Module 1: Dynamic Positioning; Implementation strategy; Module 6: Dynamic Positioning in Windchill overview; Implementation process steps; Specify Creo worker settings; Dynamic positioning uses Creo coordinate systems; Define locators for interfacing; Architecture Editor; Defining interfaces; View the positioning using the option filter; Use choices to update positioning; Activity: Position an assembly in a configurable structure; Activity: Position a battery box"
+versionNotes:
+  - versions: ["All releases"]
+    md: |
+      The course demonstrates dynamic positioning with Creo Parametric. PTC states it also works with some
+      third-party CAD applications; check the Help Center for your release and CAD tool.
+
+blocks:
+  - type: text
+    md: |
+      The E1 Cargo has a twist: its battery can sit on the **down tube** or on the **rear rack**. Same
+      battery assembly, two positions. Without help, **Priya** would open every variant's CAD assembly and
+      place the battery by hand - and redo it whenever the frame changes.
+
+      **Dynamic positioning** stores that placement logic in Windchill. The CAD models expose named
+      coordinate systems, Windchill maps them to **locators**, and the **Architecture Editor** says which
+      locators meet, under which choice. Pick *Battery Position = Rack* in the option filter and the
+      Visualization tab shows the pack on the rack.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "Windchill placing each chosen assembly for you" → [[dynamic-positioning]]
+      - "a named attachment point on a module" → **locator** (mapped to a CAD coordinate system)
+      - "the map of which modules attach to which" → **positioning architecture**, edited in the **Architecture Editor**
+      - "one attachment between two modules" → **interface**
+      - "the program that turns Creo files into viewables" → the **Creo worker** (see [[cad-worker]])
+
+  - type: animation
+    title: From a coordinate system to a placed battery
+    diagram:
+      width: 840
+      height: 330
+      nodes:
+        - { id: worker, label: Creo worker, sublabel: "LOCATOR = true", x: 20, y: 20, w: 160, tone: neutral }
+        - { id: csys, label: CAD coordinate system, sublabel: "+ LOCATOR parameter", x: 20, y: 140, w: 180, tone: accent }
+        - { id: loc, label: Locators tab, sublabel: "on each module", x: 240, y: 140, w: 160, tone: primary }
+        - { id: arch, label: Architecture Editor, sublabel: interfaces + choices, x: 440, y: 140, w: 180, tone: primary }
+        - { id: filter, label: Option filter, sublabel: "Battery Position = Rack", x: 440, y: 260, w: 180, tone: warning }
+        - { id: viz, label: Visualization tab, sublabel: pack sits on the rack, x: 660, y: 140, w: 160, tone: success }
+      edges:
+        - { from: worker, to: csys, label: reads }
+        - { from: csys, to: loc, label: mapped }
+        - { from: loc, to: arch }
+        - { from: filter, to: arch }
+        - { from: arch, to: viz }
+    chapters:
+      - title: Teach the worker
+        caption: "Rosa sets the **Locator Filter** in the CAD worker configuration (rcpedit): parameter name *LOCATOR*, value *true*. Without it, server-side Creo files can't be used for positioning."
+        show: [worker]
+        highlight: [worker]
+        seconds: 7
+      - title: Mark the spots in CAD
+        caption: "Priya creates coordinate systems where the battery attaches, with the right orientation, and gives each a *LOCATOR* parameter (Look In = Feature)."
+        show: [worker, csys]
+        highlight: [csys]
+        flow: [worker>csys]
+        seconds: 7
+      - title: Locators appear
+        caption: "On each configurable module's **Locators** tab, Kai creates locators (DOWNTUBE_MID, RACK_TOP, BATT_BASE) and links them to those coordinate systems."
+        show: [worker, csys, loc]
+        highlight: [loc]
+        flow: [csys>loc]
+        seconds: 7
+      - title: Draw the interfaces
+        caption: "In the **Architecture Editor**, Kai drags modules into the positioning architecture and connects Battery → Frame and Battery → Rack. Each interface gets locators with assigned choices."
+        show: [worker, csys, loc, arch]
+        highlight: [arch]
+        flow: [loc>arch]
+        seconds: 8
+      - title: Choose and see
+        caption: "Ana sets *Battery Position = Rack* in the option filter. The rack interface applies, and the Visualization tab shows the pack on the rack."
+        show: [worker, csys, loc, arch, filter, viz]
+        highlight: [viz]
+        flow: [filter>arch, arch>viz]
+        seconds: 8
+
+  - type: diagram
+    title: The E1 Cargo positioning architecture
+    caption: Nodes are configurable modules; arrows are interfaces from child to parent. Click any box.
+    diagram:
+      width: 820
+      height: 360
+      nodes:
+        - id: frame
+          label: Frame Module
+          sublabel: "locator DOWNTUBE_MID"
+          x: 300
+          y: 30
+          w: 220
+          tone: primary
+          detail: |
+            The parent the others attach to. Both frame module variants (Graphite and Mint) map their own
+            coordinate system to the same locator, so either frame works.
+        - id: rack
+          label: Rack Module
+          sublabel: "locators RACK_BASE · RACK_TOP"
+          x: 560
+          y: 160
+          w: 240
+          tone: primary
+          detail: The rack attaches to the frame through RACK_BASE and offers RACK_TOP as a place for the battery.
+        - id: batt
+          label: Battery Module
+          sublabel: "locator BATT_BASE"
+          x: 40
+          y: 160
+          w: 220
+          tone: accent
+          detail: |
+            One locator on the pack. Which partner locator it aligns with depends on the interface whose
+            choice is active.
+        - id: if-down
+          label: "If: Down Tube"
+          sublabel: "BATT_BASE ↔ DOWNTUBE_MID"
+          x: 40
+          y: 280
+          w: 240
+          tone: success
+          shape: pill
+          detail: This interface carries the expression *Battery Position = Down Tube* on its locators.
+        - id: if-rack
+          label: "If: Rack"
+          sublabel: "BATT_BASE ↔ RACK_TOP"
+          x: 330
+          y: 280
+          w: 240
+          tone: warning
+          shape: pill
+          detail: This interface carries *Battery Position = Rack*. Only one of the two applies for any bike.
+      edges:
+        - { from: rack, to: frame, label: RACK_BASE }
+        - { from: batt, to: frame, label: down tube, dashed: true }
+        - { from: batt, to: rack, label: rack, dashed: true }
+        - { from: batt, to: if-down }
+        - { from: batt, to: if-rack }
+
+  - type: walkthrough
+    title: Position the battery with a choice
+    who: Kai (configuration engineer), with Rosa for the worker and Priya for CAD
+    where: [EB-1000, Structure tab, "<module>", Locators]
+    steps:
+      - title: Speed up viewing (optional)
+        where: [Site, Utilities, Preference Management, Structure, Incremental Loading in Visualization Tab]
+        md: The course sets **Incremental Loading in Visualization Tab** to *Yes* before working with large configurable visualizations.
+      - title: Create a locator on the module
+        where: [EB-1000, Structure tab, Rack Module, Locators tab, New Locator]
+        md: |
+          Select the module, open **Locators**, click **New Locator**, name it *RACK_TOP*. Select a module
+          variant in the table, right-click its coordinate system in the visualization → **Assign to existing
+          locator** → *RACK_TOP*. Repeat for each variant, then check the module in. Only coordinate systems
+          with the LOCATOR parameter are shown.
+      - title: Open the Architecture Editor
+        where: [EB-1000, Actions, Open In, Open in Architecture Editor]
+        md: It opens in a new browser tab with the **Configurable Structure** pane on the left and the **Positioning Architecture** pane on the right.
+      - title: Add the module and draw the interface
+        where: [Architecture Editor, Configurable Structure, drag to Positioning Architecture]
+        md: Drag *Battery Module* into the architecture, then drag its **Define interface** circle onto the *Rack Module*. The **Interface** table opens.
+      - title: Pick locators and assign choices
+        where: [Interface table, "<locator>", Assign Expression]
+        md: |
+          Tick *RACK_TOP* on the rack side and *BATT_BASE* on the battery side. For each, right-click →
+          **Assign Expression** → *Battery Position = Rack*. Then **Check In** at the top of the page.
+      - title: Check it with the option filter
+        where: [EB-1000, Structure tab, Edit Filter, Option Filter]
+        md: Set the choices, click **OK**, select the top row and open the **Visualization** tab. Switch to *Down Tube* and watch the pack move.
+    result: |
+      One battery assembly, two positions driven by a choice. The placement carries through to variant
+      specifications and the variants generated from them.
+
+  - type: scenario
+    variant: what-if
+    title: What if... the battery floats in mid-air?
+    start: w1
+    nodes:
+      - id: w1
+        md: |
+          Ana picks *Battery Position = Rack*, but the pack shows at the model origin, nowhere near the rack.
+          What do you check first?
+        choices:
+          - label: Whether the interface's locators have the Battery Position = Rack expression
+            next: w2
+            good: true
+            feedback: Good. Interfaces only apply when the choices assigned to their locators match.
+          - label: Re-publish every viewable in the product
+            next: w-bad
+            feedback: Expensive guesswork. Check the positioning definition first.
+      - id: w-bad
+        md: Hours later the battery still floats. The viewables were fine - the positioning logic wasn't.
+        choices:
+          - { label: Go back and check the interface, next: w2 }
+      - id: w2
+        md: |
+          The expressions are right. But on the Rack Module's Locators tab, the new rack variant has no
+          coordinate system to pick. What's the likely cause?
+        choices:
+          - label: The CAD coordinate system has no LOCATOR parameter, or the worker's Locator Filter isn't set
+            next: w3
+            good: true
+            feedback: Exactly. Only coordinate systems flagged with the parameter the worker reads become available for locators.
+          - label: The option set wasn't assigned
+            next: w3
+            feedback: The option set affects choices, not which coordinate systems the Locators tab can see.
+      - id: w3
+        md: |
+          Priya adds the LOCATOR parameter to the coordinate system and checks the model in, Kai maps
+          it to RACK_TOP. The pack snaps onto the rack.
+        outcome: success
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Without dynamic positioning, every variant needs someone to place CAD models by hand - slow, and easy
+      to get wrong when a frame changes. With it, sales demos, design reviews and the plant all see the right
+      3D layout for any combination of choices, straight from Windchill.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **No locators, no positioning.** Choices can only be mapped through locators. Skip the CAD
+      parameter or the worker setting and the Architecture Editor has nothing to connect.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Give locators names that say *where*, not *which part*: DOWNTUBE_MID, RACK_TOP. Every module variant
+      of a module maps its own coordinate system to the same locator, so a new frame variant slots straight in.
+
+  - type: flashcards
+    cards:
+      - front: Dynamic positioning
+        back: Windchill places each module's CAD model from choices, using locators and interfaces - no manual placement per variant.
+      - front: Locator
+        back: A named, conceptual location on a configurable module, mapped to a CAD coordinate system that carries the LOCATOR parameter.
+      - front: Locator Filter
+        back: Creo worker setting (parameter LOCATOR, value e.g. true) that makes server-side Creo files usable for positioning.
+      - front: Architecture Editor
+        back: Builds the positioning architecture - nodes are configurable modules, connections are interfaces.
+      - front: Interface
+        back: A positioning relationship between two configurable modules, using a locator on each and assigned choices.
+
+  - type: summary
+    points:
+      - Dynamic positioning captures assembly placement in Windchill so CAD variants don't need manual placement.
+      - Set the worker's Locator Filter, add LOCATOR-flagged coordinate systems in CAD, and map them to locators on modules.
+      - In the Architecture Editor, connect modules with interfaces and assign choices to their locators.
+      - The option filter then drives the placement shown on the Visualization tab and carries into variants.

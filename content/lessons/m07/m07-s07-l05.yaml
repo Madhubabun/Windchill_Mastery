@@ -1,0 +1,332 @@
+id: m07-s07-l05
+subtitle: Two plants, two targets, one E1 BOM. Ines sets up where the data goes - and learns to read the transaction log when it doesn't arrive.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [integration, erp, esi, erp-connector, distribution-targets, administration]
+sources:
+  - id: erp
+    where: "Module 1: ERP Connector administration (ESI Administrators and ESI Authors groups, ESI Team, Site Administrators membership); Activity: Add users to ESI-related groups and a role. Module 2: Distribution targets (types, Manage Distribution utility, Windchill Loader); Creating distribution targets (UI and DistributionTargets.xml with LoadFromFile); common and type-specific attributes; Settings and parameters; Other important attributes (response meta information file path, Task URI, XSL parameters); Activity: Create distribution targets; Distribution target assignment strategy (top-level, explicit, default); Distribution Target Finder preference; Publishing business objects (RTM workflow, user-driven and event-driven triggers, preferences); ESI Transaction Administration (statuses, sub-transactions, Enable Post Result); Activity: Publish objects using ERP Connector. Module 3: ESI response settings (Enable Response Cache, ESI Response Cache Location, ESI Response File Prefix)"
+  - id: esi
+    where: "Module 2: Windchill ESI architecture (distribution targets, publication history and transaction management); distribution target types (ERP Connector and ESI targets)"
+versionNotes:
+  - versions: ["Windchill+"]
+    md: |
+      The Windchill+ Help Center documents ERP Connector with targets for a file system location or an email
+      address. Utilities that change the server (editing load files or Info*Engine tasks on disk) aren't
+      available to you on Windchill+; target and preference changes are made as configuration and delivered
+      through PTC's deployment process.
+
+blocks:
+  - type: text
+    md: |
+      Ines chose [[erp-connector|ERP Connector]] for Acme. Now she has to tell Windchill **where** E1 data goes:
+      one destination for the **Riverside** plant (ERP plant code `RV01`) and one for **Lakeside** (`LK01`).
+      Each destination is a [[distribution-target|distribution target]].
+
+      Then comes the part nobody plans for: the morning a planner says *"the BOM never arrived"*, and Ines has
+      to prove what Windchill sent, where, and when.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a place Windchill sends product data" → [[distribution-target|distribution target (DT)]]
+      - "the people allowed to tag objects for a target" → **ESI Authors** group
+      - "the people who manage targets and transactions" → **ESI Administrators** group
+      - "the message Windchill sends" → [[esi-response|ESI response]] (XML by default, or JSON)
+      - "one publication and everything in it" → **transaction**, with a **sub-transaction** per object
+      - "the log of every publication" → **Enterprise Systems Transaction Administration** utility
+
+  - type: diagram
+    title: How Windchill decides where each object goes
+    caption: Three assignment strategies. A site preference picks between explicit and top-level. Click a box.
+    diagram:
+      width: 820
+      height: 400
+      groups:
+        - { label: Assignment strategies, x: 20, y: 20, w: 520, h: 360, tone: neutral }
+      nodes:
+        - id: explicit
+          label: Explicit
+          sublabel: default strategy
+          x: 40
+          y: 60
+          w: 220
+          tone: primary
+          detail: |
+            Each object is directly associated with one or more targets (**Associate Distribution Targets**).
+            The assignment is stored and visible on the object. Out of the box the **Distribution Target Finder**
+            preference uses `com.ptc.windchill.esi.tgt.ESISimplePartTargetFinder`, which enforces this strategy.
+        - id: toplevel
+          label: Top-level
+          sublabel: children inherit
+          x: 290
+          y: 60
+          w: 230
+          tone: accent
+          detail: |
+            Children inherit the targets of the top assembly you publish - unless they already have those
+            targets explicitly. After publishing, the inherited assignment is saved and shows as explicit. Turn
+            it on by setting the Distribution Target Finder preference (site only) to
+            `com.ptc.windchill.esi.tgt.ESIRootInheritTargetFinder`.
+        - id: deflt
+          label: Default for context
+          sublabel: "Default for Context = Yes"
+          x: 40
+          y: 200
+          w: 220
+          tone: success
+          detail: |
+            A target marked as default for its context (product, library, organization or site) is applied to
+            objects in that context automatically. For parts this is further limited by the **View To
+            Distribution Target Mappings** preference.
+        - id: finder
+          label: Target Finder pref
+          sublabel: site context only
+          x: 290
+          y: 200
+          w: 230
+          tone: warning
+          detail: The **Distribution Target Finder** preference chooses explicit (default value) or top-level assignment. It is only available at the site context.
+        - id: result
+          label: Targets per object
+          sublabel: in the release
+          x: 600
+          y: 140
+          w: 190
+          tone: info
+          detail: When a structure is published, ESI walks the structure and works out the targets for every object. Misunderstanding the strategy is how objects end up at the wrong plant.
+      edges:
+        - { from: explicit, to: result }
+        - { from: toplevel, to: result }
+        - { from: deflt, to: result }
+        - { from: finder, to: explicit, dashed: true }
+        - { from: finder, to: toplevel, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Targets are how a multi-plant company keeps plants apart: Riverside only builds what is meant for
+      Riverside. Get the assignment wrong and a plant orders parts for a product it never builds - or never
+      receives a BOM it needs. The transaction log is your evidence when people disagree about what was sent.
+
+  - type: walkthrough
+    title: Give the right people the right ESI rights
+    who: A site administrator (Rosa)
+    where: [Site, Utilities, Participant Administration]
+    steps:
+      - title: Add engineers to ESI Authors
+        where: [Site, Utilities, Participant Administration, ESI Authors]
+        md: |
+          Find the **ESI Authors** group, open **Actions → Edit**, and add members such as Kai and Ana. Authors
+          can associate targets with objects (the **Associate Distribution Targets** action appears for them).
+      - title: Add the integration lead to ESI Administrators
+        where: [Site, Utilities, Participant Administration, ESI Administrators]
+        md: |
+          Add Ines to **ESI Administrators**. Administrators can also **Send To Distribution Target** and
+          manage targets and transactions.
+      - title: Make administrators site administrators too
+        where: [Participant Administration, User, Edit, Add Groups]
+        md: |
+          To create or delete targets and to open the transaction utility, Ines must also be in the site
+          **Administrators** group.
+      - title: Staff the change role
+        where: [Products, E-Bike E1, Team]
+        md: |
+          The **ESI Team** template maps ESI Administrators to **Change Admin III** and ESI Authors to
+          **Engineers**. Put a user in the product's Change Admin III role so released change notices publish
+          their objects.
+    result: Kai and Ana can tag E1 objects for plants; Ines can publish and administer.
+
+  - type: walkthrough
+    title: Create the two plant targets
+    who: Ines (ESI Administrator and site administrator)
+    where: [Site, Utilities, Manage Distribution]
+    steps:
+      - title: Open Manage Distribution
+        where: [Site, Utilities, Business Administration, Manage Distribution]
+        md: |
+          You can also open it from an organization's Utilities to make organization-specific targets.
+      - title: Start a new target
+        where: [Distribution Targets, New Distribution Target]
+        md: |
+          Choose the **Context** (site by default; you can pick an organization, product or library) and the
+          **Type** - for ERP Connector: **File**, **FTP** or **Email**.
+      - title: Fill the common attributes
+        where: [New Distribution Target, Number · Name · Status]
+        md: |
+          Give a unique **Number** and a **Name** ("ERP-Riverside"), keep **Status** = **Active** so objects can
+          be sent to it, and decide **Default for Context** (No, unless every object in that context should go here).
+      - title: Fill the type-specific attributes
+        where: [New Distribution Target, Storage Type · Path]
+        md: |
+          For a File target: **Storage Type** (Network File System or Azure Blob container) and a **Path** the
+          Windchill server can read and write. FTP targets need host, user ID, password and path.
+      - title: Review the parameters
+        where: [New Distribution Target, Next, General Parameters]
+        md: |
+          Check the **Task Uniform Resource Identifier** (for File it points to `ExportToFile.xml`) and the
+          **ESI Response Output Format** (ESI XML by default, or ESI JSON). Object-specific settings control
+          extras, such as publishing alternates with a part. Click **Finish**. Repeat for "ERP-Lakeside".
+    result: |
+      Two active File targets. For dozens of targets, PTC's alternative is the Windchill Loader with
+      `DistributionTargets.xml` - it can create and modify targets but not delete them.
+
+  - type: walkthrough
+    title: Publish the E1 frame and check the result
+    who: Ines
+    where: [Part information page, Actions]
+    steps:
+      - title: Associate the targets
+        where: [Part information page, Actions, Associate Distribution Targets]
+        md: Search for ERP-Riverside and ERP-Lakeside and select both. They appear on **Related Objects → Distribution Targets**.
+      - title: Send it
+        where: [Actions, Send To Distribution Target]
+        md: |
+          Review the associated and default targets, click **Next** to see the included objects, and use
+          **Raw Data** to preview the XML. Click **Send**.
+      - title: Watch the status on the object
+        where: [Related Objects, Distribution Targets, Publishing Status]
+        md: The column shows Pending, Succeeded or Failed. Click the status to see the transaction and its sub-transactions.
+      - title: Check the whole log
+        where: [Site, Utilities, Enterprise Systems Transaction Administration]
+        md: |
+          Search transactions by criteria. Users see the transactions they started; ESI administrators see all
+          and can edit or mark for deletion failed or pending ones.
+    result: |
+      A file such as `ESIResponse_<org>_<n>.xml` lands in each plant folder (the prefix comes from the ESI
+      Response File Prefix preference). Newly published parts sit under **AddedParts**; republished changes
+      appear under **ChangedParts**.
+
+  - type: simulation
+    title: Read a transaction's status
+    intro: |
+      The **Enable Post Result** preference changes what "status" means. Flip it, deliver to the two plants,
+      and watch the overall transaction.
+    headline: "Enable Post Result {postResult} · Riverside {rv} · Lakeside {lk} · Transaction {tx}"
+    initial: { postResult: "Yes", rv: waiting, lk: waiting, tx: "-" }
+    actions:
+      - id: set-yes
+        label: Set Enable Post Result = Yes
+        do: [{ set: { postResult: "Yes", rv: waiting, lk: waiting, tx: "-" } }]
+        log: Default. Status reflects delivery to the target.
+      - id: set-no
+        label: Set Enable Post Result = No
+        do: [{ set: { postResult: "No", rv: waiting, lk: waiting, tx: "-" } }]
+        log: Closed-loop setup. The workflow will wait at Post Release for a PostResult call.
+      - id: deliver-both-yes
+        label: Deliver to both plants
+        when: { postResult: "Yes" }
+        do: [{ set: { rv: delivered, lk: delivered, tx: Succeeded } }]
+        log: Delivered everywhere → Succeeded.
+      - id: deliver-one-yes
+        label: Deliver to Riverside only
+        when: { postResult: "Yes" }
+        do: [{ set: { rv: delivered, lk: failed, tx: Failed } }]
+        log: One target failed → the whole transaction is Failed and an ESI Failure task is created.
+      - id: deliver-both-no
+        label: Deliver to both plants
+        when: { postResult: "No" }
+        do: [{ set: { rv: delivered, lk: delivered, tx: Pending } }]
+        log: Delivered everywhere → Pending until ERP's import result comes back.
+      - id: deliver-one-no
+        label: Deliver to Riverside only
+        when: { postResult: "No" }
+        do: [{ set: { rv: delivered, lk: failed, tx: Processing } }]
+        log: Delivered to some targets but not others → Processing.
+    goals:
+      - label: See a Succeeded transaction
+        when: { tx: Succeeded }
+        message: With Post Result = Yes, delivery to all targets means Succeeded.
+      - label: See a Pending transaction
+        when: { tx: Pending }
+        message: With Post Result = No, delivery only gets you to Pending - ERP must report back.
+      - label: See a Processing transaction
+        when: { tx: Processing }
+        message: Partial delivery with Post Result = No shows as Processing.
+
+  - type: scenario
+    variant: troubleshooting
+    title: "\"Lakeside got the Riverside BOM\""
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Ines switched the Distribution Target Finder to **top-level** last week. Today the E1 top assembly
+          `EB-1000` (assigned to ERP-Riverside only) was published, and Lakeside's folder also contains the
+          battery pack, which had ERP-Lakeside explicitly assigned. Lakeside's planner is confused. What happened?
+        choices:
+          - label: "Expected: the pack keeps its explicit Lakeside target and also inherits Riverside"
+            next: s2
+            good: true
+            feedback: Top-level adds the top assembly's targets that the child doesn't already have; explicit assignments stay.
+          - label: A bug - children never keep their own targets
+            next: f1
+            feedback: Explicit assignments are kept. Only missing targets are inherited.
+      - id: f1
+        md: Ines opens a support case for behaviour that is working as designed. Two days lost.
+        outcome: fail
+      - id: s2
+        md: |
+          The planner also asks why the pack now shows **both** targets on its Distribution Targets table,
+          even for future publications. Why?
+        choices:
+          - label: After publishing, an inherited target is saved as an explicit assignment
+            next: win
+            good: true
+            feedback: Right - the implicit assignment is persisted and appears as explicit.
+          - label: Someone added it by hand
+            next: p1
+            feedback: Possible, but the strategy itself explains it.
+      - id: p1
+        md: Ines checks the history and finds nobody touched it. The strategy did.
+        outcome: partial
+      - id: win
+        md: |
+          Ines writes down the rule for Acme: keep the default **explicit** strategy for multi-plant products,
+          and use **default for context** targets where a whole product belongs to one plant.
+        outcome: success
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **"Succeeded" doesn't mean "in ERP".** With the default Enable Post Result = Yes, Succeeded means the
+      file was delivered to the target - not that ERP imported it. Loading it into ERP is outside ERP
+      Connector. If the business needs proof of import, plan a [[closed-loop-transaction]].
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      For automatic publishing on release, set **ESI > Settings > Part > Configuration Specification State**
+      (for example RELEASED) and switch **Launch ESI Workflow Automatically** to Yes. It's No out of the box -
+      which is also why a fresh system won't start ESI workflows by surprise.
+
+  - type: quiz
+    questions:
+      - kind: multi
+        prompt: Which target types can ERP Connector use? (Choose all that apply.)
+        options: [File, FTP, Email, SAP]
+        answers: [0, 1, 2]
+        explanation: File, FTP and Email are ERP Connector targets. SAP, Oracle Applications and MES are ESI targets.
+      - kind: single
+        prompt: What does a user need to create or delete distribution targets?
+        options: [ESI Authors membership, ESI Administrators plus site Administrators membership, Product manager role, Nothing special]
+        answer: 1
+        explanation: Creating or deleting targets requires both the ESI Administrators group and the site Administrators group.
+      - kind: single
+        prompt: Enable Post Result is No and the response reached all targets. What is the transaction status?
+        options: [Succeeded, Pending, Processing, Failed]
+        answer: 1
+        explanation: With No, delivery gets the transaction to Pending; the final status depends on ERP's PostResult.
+      - kind: truefalse
+        prompt: You can delete distribution targets in bulk with the Windchill Loader and DistributionTargets.xml.
+        answer: false
+        explanation: The loader can create or modify targets but cannot delete them.
+
+  - type: summary
+    points:
+      - A distribution target is where published data goes - for ERP Connector a File, FTP or Email destination.
+      - Create targets in Manage Distribution (site or organization) or in bulk with the Windchill Loader.
+      - ESI Authors associate targets; ESI Administrators (also site administrators) publish and manage targets and transactions.
+      - Assignment is explicit by default; top-level inheritance and default-for-context targets are alternatives.
+      - Monitor in the Distribution Targets table and in Enterprise Systems Transaction Administration; Enable Post Result decides what the statuses mean.

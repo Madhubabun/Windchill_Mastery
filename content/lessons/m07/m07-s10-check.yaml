@@ -1,0 +1,111 @@
+id: m07-s10-check
+subtitle: Prove you can wire Acme's UI customizations end to end - actions, builders, data utilities, processors, validators, wizards and pickers.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [customization, developer, ui-framework, checkpoint]
+sources:
+  - id: cus-actions
+    where: "Action and action model exercises: custom action model and action XML, resource bundle, build command"
+  - id: cus-mvc
+    where: "MVC Builders theory: request handling, ComponentController, builder types, component id, registration"
+  - id: cus-du
+    where: "DataUtility theory and Exercise 5: AbstractDataUtility, registration, assigning the data utility ID"
+  - id: cus-fp
+    where: "Form Processor theory: solution elements, control flow, task flow, delegates, Form Result"
+  - id: cus-val
+    where: "Validators theory and exercise: three validation types, pre-validation sequence, simple validation filter"
+  - id: cus-wiz
+    where: "Wizards theory and Exercise 6: wizard and wizard step actions, main wizard JSP"
+  - id: cus-pick
+    where: "Pickers theory, exercise and Exercise 7: ready pickers, itemPicker, pickerAttributes.xml"
+  - id: cus-ex
+    where: "Customization All Exercises: actions, MVC tables, data utility, wizard, picker, form processor, validator"
+  - id: trn-framework
+    where: "Windchill Framework Customization slides: action framework overview, validators, MVC builders, data utility"
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **UI framework customization**: actions and action models, MVC builders, data utilities,
+      form processors, validators, wizards and pickers. Score 80% to pass. Every answer explains itself.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: Theo lists `<action name="acmeE1Parts"/>` in his model, but nothing appears. The action is defined under object type acmeTools. What's missing?
+        options: ["`type=\"acmeTools\"` on the model entry", A resource bundle entry, A data utility, A validator]
+        answer: 0
+        explanation: Actions are identified by name and object type together. Without the type the model entry can't find the action.
+      - kind: multi
+        prompt: Which files hold Acme's custom actions and menus? (Choose all that apply.)
+        options: [custom-actions.xml, custom-actionModels.xml, custom.xml in config/mvc, pickerAttributes.xml]
+        answers: [0, 1]
+        explanation: Both custom action files live in codebase/config/actions. custom.xml registers MVC builders; pickerAttributes.xml configures picker searches.
+      - kind: single
+        prompt: In Windchill's MVC, what finds the builders for a requested component id?
+        options: [DispatcherServlet directly, A ComponentBuilderResolver used by the ComponentController, The StandardNmActionService, service.properties]
+        answer: 1
+        explanation: The ComponentController is injected with a ComponentBuilderResolver, which finds the config and data builders registered for the id.
+      - kind: single
+        prompt: Two of Theo's builders accidentally use the same component id. What happens?
+        options: [The newest one wins, Both tables render side by side, Spring initialization fails when the method server starts, Windchill picks one at random per request]
+        answer: 2
+        explanation: Duplicate component ids make Spring initialization fail at method server startup. To replace a PTC builder deliberately, use OverrideComponentBuilder.
+      - kind: single
+        prompt: Ana wants the part number shown next to the name on the info page. What's the right tool?
+        options: [A new MVC table, A data utility assigned to the Name attribute's layout, A form processor, A post-select validator]
+        answer: 1
+        explanation: A data utility changes how one attribute is rendered. Register it under the DataUtility service and set its selector as the Data Utility Id in the layout.
+      - kind: order
+        prompt: Put Theo's data utility deployment in order.
+        items: [Write a class extending AbstractDataUtility, Compile it with the tools.xml class target, Add the DataUtility Option to service.properties.xconf, Run xconfmanager -p, Set the Data Utility Id on the attribute and restart]
+        explanation: Code, compile, register, propagate, assign and restart. Skipping propagation or the restart is the classic reason nothing changes.
+      - kind: single
+        prompt: A new part must be submitted to a workflow, and if that fails the part must not exist. Which processor phase?
+        options: [preProcess, doOperation, postProcess, postTransactionProcess]
+        answer: 2
+        explanation: postProcess runs inside the same transaction as doOperation, so a failure rolls the create back. postTransactionProcess runs after commit.
+      - kind: multi
+        prompt: Which statements about UI validation are true? (Choose all that apply.)
+        options: [Pre-validation applies to actions and attributes, Post-select validation applies only to actions, Post-submit validation applies to wizard steps and submissions, Validators should implement UIComponentValidator directly]
+        answers: [0, 1, 2]
+        explanation: The first three match the training. Validators should extend DefaultUIComponentValidator rather than implement the interface directly.
+      - kind: single
+        prompt: Every step of Theo's wizard opens as a separate page instead of inside the popup. What's the likely cause?
+        options: ["Step actions lack windowType=\"wizard_step\"", The processor class is wrong, pickerAttributes.xml is missing, The validator returned HIDDEN]
+        answer: 0
+        explanation: Each wizard step is an action and needs windowType="wizard_step". The main wizard action is the popup.
+      - kind: truefalse
+        prompt: An itemPicker's search fields come from a ComponentID block in pickerAttributes.xml that matches the tag's componentId.
+        answer: true
+        explanation: The componentId is the link. Its ObjectType block lists the search criteria attributes, such as number and name.
+
+  - type: flashcards
+    title: UI framework deck
+    cards:
+      - front: Action
+        back: Something a user can click. Defined in custom-actions.xml inside an objecttype; identified by action name plus object type.
+      - front: Action model
+        back: An ordered list of actions and submodels (custom-actionModels.xml) drawn as a menu, toolbar or tab.
+      - front: jcaDebug=1
+        back: URL parameter that shows debug information such as action model names on a page.
+      - front: ComponentConfig vs ComponentData
+        back: "Config describes the component (for example a TableConfig with columns); data supplies the rows. Together: ComponentDefinition."
+      - front: "@ComponentBuilder"
+        back: Annotation giving a builder its component id. Register builders with mvc:builder-scan or a bean entry in config/mvc/custom.xml.
+      - front: Data utility
+        back: Class extending AbstractDataUtility whose getDataValue returns a GUI component for one attribute. Registered under com.ptc.core.components.descriptor.DataUtility.
+      - front: Form processor phases
+        back: "preProcess, then in a transaction doOperation and postProcess, commit, then postTransactionProcess."
+      - front: ObjectFormProcessorDelegate
+        back: Optional helper for a subtask, reusable across wizards; has the same four phase methods as the processor.
+      - front: Three kinds of UI validation
+        back: "Pre-validation (show, hide, disable), post-select (may the action proceed), post-submit (may the wizard step or submission proceed)."
+      - front: Simple validation filter
+        back: Extends DefaultSimpleValidationFilter, returns a status from preValidateAction, attached with includeFilter and registered under SimpleValidationFilter.
+      - front: Wizard step
+        back: An action with windowType wizard_step, listed in the main wizard JSP with jca:wizardStep.
+      - front: pickerAttributes.xml
+        back: File in codebase that defines the searchable attributes for a picker's componentId.

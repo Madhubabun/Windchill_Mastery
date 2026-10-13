@@ -1,0 +1,87 @@
+# New glossary terms introduced in section m07-s03 (CAD integration: Creo Parametric deep dive).
+- id: primary-active-workspace
+  term: Primary active workspace
+  plain: The workspace your CAD tool saves into right now, on your main Windchill server.
+  definition: The workspace you have picked as the default on your primary Windchill server. When Creo is connected, a Save goes into this workspace (its local cache) instead of a plain folder on disk. You choose it when you register the server in Creo, and you can switch to another workspace later. Other workspaces stay inactive until you activate them.
+  aka: [Active workspace]
+  related: [workspace, local-cache, server-side-workspace, creo]
+
+- id: auto-associate-parts
+  term: Auto Associate Parts to CAD Documents
+  plain: The check-in option that makes (or links) a Windchill part for each new CAD model.
+  definition: A check-in option that creates owner-associated parts for CAD documents that are not yet associated with a part. It is how a CAD-centric team gets its part structure built from the CAD structure. Turn it off when the CAD document already has its part, so you don't create duplicates.
+  related: [owner-association, check-in, cad-document, part]
+
+- id: required-dependents
+  term: Required dependents
+  plain: The files a CAD model cannot open without.
+  definition: The dependents that a CAD document must have to be complete, such as the components an assembly uses. Windchill's collector can gather only the required dependents or all dependents of the objects you select, and actions like Add to Workspace and Check In let you choose which. Drawings are not collected as dependents of a model; they are added with a separate "add drawings" collection option.
+  aka: [All dependents]
+  related: [cad-dependency, workspace, check-in]
+
+- id: incomplete-cad-document
+  term: Incomplete CAD document
+  plain: A CAD file Windchill knows is referenced but doesn't have the real content for.
+  definition: A CAD document in the workspace whose content is missing or could not be resolved, for example because a referenced file was not found during an import. Windchill flags it and the check-in of anything that depends on it fails with a conflict. The best fix is to repair the model in the CAD tool; the check-in option "Auto resolve incomplete objects" can instead update it from a server object with the same file name or ignore it.
+  related: [cad-conflict, cad-dependency, check-in]
+
+- id: generic-model
+  term: Generic (family table)
+  plain: The parent model that all the size variants of a part are made from.
+  definition: The base model of a Creo family table. It is the first row of the table, and every instance inherits whatever the table does not override. You change the generic by changing the model itself, not by editing its table row, and changes to it flow to the instances. PTC recommends not using the generic itself as a component in assemblies.
+  aka: [Generic model, Generic]
+  related: [family-table-instance, cad-document, creo]
+
+- id: family-table-instance
+  term: Family table instance
+  plain: One size or variant of a table-driven part, such as the 20 mm version of a bolt.
+  definition: A member of a Creo family table, defined by one row of values that differ from the generic. In Windchill each instance is its own CAD document that can be searched for, downloaded and used in assemblies on its own. An instance that has not been regenerated in Creo is shown as not verified.
+  aka: [Instance, Table-driven part]
+  related: [generic-model, cad-document]
+
+- id: ecad-mcad-collaboration
+  term: ECAD-MCAD collaboration
+  plain: Electronics designers and mechanical designers keeping one circuit board design in sync.
+  definition: A way of working in which the electrical (ECAD) and mechanical (MCAD) designers of a printed circuit board propose, review and accept changes to the shared board design, such as the board outline or the position of components. PTC's tools exchange these proposals as IDX files, which can be stored and versioned in Windchill.
+  aka: [ECAD-MCAD co-design]
+  related: [idx-file, creo, cad-document]
+
+- id: idx-file
+  term: IDX file (EDMD IDX)
+  plain: The file that carries a proposed board change between the electronics tool and Creo.
+  definition: An Incremental Design Exchange file used to pass printed circuit board design data between an ECAD tool and Creo. A baseline IDX describes the whole board; later IDX files carry proposed changes and the responses to them, so each side can review and accept or reject a change. The files can be stored and versioned in Windchill.
+  aka: [EDMD IDX, Incremental Design Exchange]
+  related: [ecad-mcad-collaboration]
+
+- id: family-table-verification
+  term: Verification status (family table)
+  plain: Whether Creo has actually rebuilt a family table row and confirmed it works.
+  definition: Shows whether a family table member has been verified, that is regenerated in Creo (Tools, Verify in the Family Table editor). Windchill also uploads instances that were never verified, so the Verification Status column of the Family tab on an information page is the place to check before a release. Family tables migrated from an older release show their status correctly only after they are saved and uploaded in the current release.
+  aka: [Verified instance, Not verified]
+  related: [family-table-instance, generic-model]
+
+- id: generic-driven-attribute
+  term: Generic-driven attribute
+  plain: A value every member of a family shares because it comes from the parent model.
+  definition: An attribute set in the generic of a Creo family table that is not a column in the table, so every instance uses the generic's value. Adding, changing or deleting it in Windchill's Edit Attributes page needs every family member checked out; a Confirm window lists the extra members and checks them out when you accept.
+  related: [table-driven-attribute, generic-model, family-table-instance]
+
+- id: table-driven-attribute
+  term: Table-driven attribute
+  plain: A value that has its own column in the family table, so each size can differ.
+  definition: An attribute that is a column in a Creo family table. It is inherited while an instance's cell still shows an asterisk (the generic's value) and independent once the instance has its own value. Changing either kind needs only that instance checked out, and giving an inherited value a value of its own makes it independent.
+  aka: [Inherited table-driven attribute, Independent table-driven attribute]
+  related: [generic-driven-attribute, family-table-instance]
+
+- id: authoring-application
+  term: Authoring application
+  plain: The CAD tool a designer actually draws in, such as SOLIDWORKS or NX.
+  definition: In Windchill Workgroup Manager, the CAD application where design work happens. It is one of the four parts of the Workgroup Manager architecture, together with the Workgroup Manager client, the server workspace and the Windchill database. You register it with Tools, Application Management; only one version of a given application can be registered at a time.
+  aka: [CAD application]
+  related: [workgroup-manager, pdm-action]
+
+- id: pdm-action
+  term: PDM action
+  plain: A Windchill command like Check In or Update that you run from inside your CAD tool.
+  definition: A data management command, such as Check In, Check Out, Update or Upload, that can be started from the Workgroup Manager client, from commands added to the CAD application, or from a web browser. Most actions exist for every CAD tool, but some are specific to one, for example Save Modified Instances for SOLIDWORKS or Lock and Unlock for a subset of tools.
+  related: [workgroup-manager, authoring-application, check-in, check-out]

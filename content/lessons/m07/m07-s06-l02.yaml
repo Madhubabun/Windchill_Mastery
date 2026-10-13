@@ -1,0 +1,310 @@
+id: m07-s06-l02
+subtitle: A classification library rots quietly - one "Misc" node and one duplicate attribute at a time. Jordan sets the house rules and runs Acme's first clean-up.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [classification, partslink, governance, data-quality, business-admin]
+sources:
+  - id: pl
+    where: "Implementation team strategy (classification administrator role); Implementation strategy (stage 3: maintain the classification structure, dedicated team, classify on create); Implementation considerations (structure evolves, new attributes, naming conventions, separate teams for parts and documents); Faceted search results (string facets need a legal value list); Module 3: Classification structure; Classification attributes (inheritance, add/remove, gather to parent, move child to parent); Module 4: Installation and configuration overview (wt.csm.defaultCSMAdminGroup); Preferences (Enable Classification Administrator to Create Reusable Attributes); Create and update classification structures; Create and update classification attributes (edit mode); Activity: Update a classification structure (Insert Node, Instantiable, Add attribute to class)"
+  - id: hc-class-tree
+    label: PTC Help Center supplement
+    title: "Classification Structure"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wcclassreuse/WCClassReuseClassTree.html"
+    covers: "Classification Tree actions Insert Node, Delete (child nodes selected with the parent), Copy Selected Object and Paste (not under a branch with the same internal name), Export, Import, Find in tree"
+  - id: hc-node-info
+    label: PTC Help Center supplement
+    title: "Node Information Page"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wcclassreuse/WCClassReuseNodeInfo.html"
+    covers: "Node tabs (Properties, Layouts, Attributes, Autonaming Rule); internal name characters and no edit once objects are classified; Instantiable; Keywords; edit mode"
+  - id: hc-class-nodes
+    label: PTC Help Center supplement
+    title: "Classification Nodes"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wcclassreuse/WCClassReuseClassNodeAbout.html"
+    covers: "Do not use the same attribute on a classification node and an object type"
+
+blocks:
+  - type: text
+    md: |
+      Six months after Hana's battery pilot, the **Batteries** branch has 31 nodes. It started with two.
+      Jordan opens it and finds:
+
+      - *Battery misc* - 46 parts nobody could place anywhere else
+      - *Voltra 36V packs* - a node named after a supplier
+      - **Capacity** on one node, **Capacity_Wh** on its sibling - same meaning, two attributes
+      - a *Packs (old)* node that people still pick when they classify
+
+      Nothing is broken. But searches return half the packs, and the Refine Results pane is useless.
+      A classification library needs **owners and rules**, not just nodes.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the people allowed to change the tree" → [[classification-administrators|Classification Administrators group]]
+      - "a node people may pick for a part" → [[instantiable-node|instantiable node]]
+      - "an attribute you define once and reuse on many nodes" → [[reusable-attribute]]
+      - "parent passes its attributes down to children" → attribute **inheritance** on [[classification-node|classification nodes]]
+      - "the name of one tree, like Parts" → [[classification-namespace|namespace]]
+
+  - type: diagram
+    title: Acme's classification governance loop
+    caption: PTC's third implementation stage - maintain the structure - turned into a loop with owners. Click each step.
+    diagram:
+      width: 820
+      height: 400
+      groups:
+        - { label: Users, x: 10, y: 20, w: 250, h: 360, tone: neutral }
+        - { label: Classification admins, x: 290, y: 20, w: 520, h: 360, tone: neutral }
+      nodes:
+        - id: need
+          label: Need a new class
+          sublabel: "no node fits"
+          x: 40
+          y: 60
+          w: 190
+          tone: accent
+          detail: |
+            A component engineer can't find a fitting node for a new bought part. PTC expects this: the
+            structure evolves and new attributes are needed after go-live.
+          real: At Acme the request is a short form - proposed parent node, 3-6 key attributes, 2 example parts.
+        - id: review
+          label: Review request
+          sublabel: weekly, 20 min
+          x: 320
+          y: 60
+          w: 200
+          tone: warning
+          detail: |
+            The [[classification-administrators|classification admins]] check the request against the rules
+            (cheat sheet below). PTC's course is clear that maintaining PartsLink needs a **dedicated team** at
+            the customer - this review is that team's main job.
+        - id: build
+          label: Build node
+          sublabel: edit mode
+          x: 580
+          y: 60
+          w: 200
+          tone: primary
+          detail: |
+            In **Manage Classifications**, insert the node under the right parent, set **Instantiable**, and add
+            attributes - reusing existing reusable attributes first. Properties, attributes, layouts and
+            autonaming are changed only with the node in edit mode.
+        - id: classify
+          label: Classify on create
+          sublabel: every new object
+          x: 40
+          y: 290
+          w: 190
+          tone: success
+          detail: |
+            PTC's rule: every object that should be classified must be classified **when it is created**.
+            Otherwise the library and reality drift apart.
+        - id: monitor
+          label: Monitor the tree
+          sublabel: monthly
+          x: 320
+          y: 290
+          w: 200
+          tone: info
+          detail: |
+            Look for catch-all nodes, nodes with very few parts, duplicate attributes and nodes nobody uses.
+            Hana's reuse KPIs from the previous lesson show where it hurts.
+        - id: cleanup
+          label: Clean up
+          sublabel: merge, move, retire
+          x: 580
+          y: 290
+          w: 200
+          tone: danger
+          detail: |
+            Gather shared attributes to the parent, stop people picking old nodes (Instantiable = No), and
+            delete only what is truly empty. Test on a copy first.
+      edges:
+        - { from: need, to: review, label: request }
+        - { from: review, to: build, label: approved }
+        - { from: build, to: classify, label: available }
+        - { from: classify, to: monitor }
+        - { from: monitor, to: cleanup, label: findings }
+        - { from: cleanup, to: build, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      PTC lists "naming conventions are very important" and "structure and attribute maintenance is
+      required during **and after** implementation" among its implementation considerations. A library
+      without governance slowly turns back into the problem it was bought to solve: parts that can only be
+      told apart by inconsistent names and descriptions.
+
+  - type: text
+    md: |
+      ### Cheat sheet: Acme's rules for a new class
+
+      The left column is Acme's rule. The right column is the Windchill fact behind it.
+
+      | Rule | Why (what Windchill does) |
+      | --- | --- |
+      | **Only admins change the tree.** | Structures and attributes are managed by members of the Classification Administrators group (property `wt.csm.defaultCSMAdminGroup` can point to a custom group). |
+      | **Name by function, never by supplier or project.** | Nodes group parts by *function and attributes*. Supplier and project are facts about a part, not a kind of part. |
+      | **Pick the internal name carefully.** | Internal names allow letters, numbers, periods, hyphens and underscores - and can't be edited once objects are classified on the node. |
+      | **End nodes are instantiable, grouping nodes are not.** | Instantiable = Yes lets users select the node when classifying; No keeps it visible but unselectable. |
+      | **Put shared attributes on the parent.** | Attributes are inherited from parent to child nodes, so one definition serves all children. |
+      | **Reuse attributes before creating new ones.** | Classification attributes are global, reusable attributes. Admins may create them from the tree only if the *Enable Classification Administrator to Create Reusable Attributes* preference allows it. |
+      | **Don't reuse a type attribute on a node.** | PTC's help: don't use the same attribute on a classification node and an object type. |
+      | **Text values need a legal value list.** | String attributes only appear as search facets when constrained by a legal value list. |
+      | **Parts and documents have separate owners.** | Document and part classifications are usually managed by different teams. |
+
+  - type: example
+    variant: case-study
+    title: The Batteries clean-up
+    industry: Micromobility
+    md: |
+      Jordan and Hana spend one afternoon on the 31 nodes - on the test server first.
+
+      1. **Duplicate attributes.** *Capacity* and *Capacity_Wh* mean the same. They keep *Capacity_Wh*,
+         re-enter values on the affected parts through a change, and remove the other from the node.
+      2. **Shared attributes up.** *Nominal voltage* sits on every child of *Li-ion packs*. They use the
+         attribute table's gather action so it lives once on the parent and is inherited.
+      3. **Supplier node.** *Voltra 36V packs* holds 12 parts that are just Li-ion packs. Each part is
+         reclassified to *Li-ion packs*; supplier stays on the part (and in Supplier Management, not in the tree).
+      4. **Old node.** *Packs (old)* gets **Instantiable = No** so nobody can pick it while its parts are
+         reclassified. It is deleted only when empty.
+      5. **Battery misc.** The 46 parts are sorted into real nodes; two new end nodes are approved through
+         the normal request.
+
+      Result: *Li-ion packs* now finds all 61 packs, and the Refine Results pane shows voltage and capacity
+      facets that actually narrow the list.
+    takeaway: Clean up in a safe order - stop new damage first (Instantiable = No), move the parts, then delete empty nodes.
+
+  - type: walkthrough
+    title: Tidy a node in Manage Classifications
+    who: A member of the Classification Administrators group
+    where: [Browse, Classification Administration, Manage Classifications]
+    steps:
+      - title: Open the structure
+        where: [Navigator, Browse, Classification Administration, Manage Classifications]
+        md: |
+          In the **Namespaces** list pick the tree you govern (for example **Parts**), expand it and find the
+          node. **Find in tree** helps in large structures.
+      - title: Put the node in edit mode
+        where: [Node, Actions, Edit]
+        md: |
+          Click the node, then **Actions → Edit**. The node opens with its tabs: Properties, Layouts,
+          Attributes and Autonaming Rule.
+      - title: Fix the properties
+        where: [Properties tab]
+        md: |
+          Correct the **Display Name** and **Description**, add **Keywords** for search, and set
+          **Instantiable** to *No* on grouping or retired nodes.
+      - title: Fix the attributes
+        where: [Attributes tab]
+        md: |
+          Use the attribute table toolbar to add an existing reusable attribute (**Add attribute to class**),
+          remove a duplicate, gather attributes shared by the children onto this parent, or move an attribute
+          from a child up to the parent.
+      - title: Restructure the tree
+        where: [Classification Tree, Actions]
+        md: |
+          **Insert Node** adds a child. **Copy Selected Object** and **Paste** duplicate a node under another
+          parent (not under a branch that already has that internal name). **Delete** removes a node - and
+          selecting a parent selects all its children too.
+    result: The node has a clean name, the right attributes in the right place, and can't be misused.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Deleting a node with parts still on it.** Delete takes the whole branch below the node, and PTC's
+      material doesn't spell out what happens to objects still classified there. Don't find out in
+      production: reclassify the parts first, confirm the node is empty with a classification search, and
+      try the change on a test server. Removing an attribute from a node is risky in the same way - plan how
+      its values are kept before you remove it.
+
+  - type: scenario
+    variant: challenge
+    title: The request queue
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Monday's review. First request, from Priya: *"Add a node **E1 Frame Bolts** under Fasteners - the
+          E1 team needs its own place for bolts."* What do you decide?
+        choices:
+          - label: Reject it and point Priya to the existing Bolts node with a search
+            next: s2
+            good: true
+            feedback: Right. Nodes describe a kind of part, not a project. A project-only node splits the bolts and hides them from the S2 team.
+          - label: Approve it - the E1 team is the biggest user
+            next: f1
+            feedback: Now there are two places for bolts, and the next project will want a third.
+      - id: s2
+        md: |
+          Second request, from Hana's team: a new end node **Battery Management Boards** under Batteries, with
+          attributes *Nominal voltage* (already on the parent), *Max current* and *Communication bus*
+          (free text). What do you change before approving?
+        choices:
+          - label: "Approve, but drop Nominal voltage (it's inherited) and give Communication bus a legal value list"
+            next: s3
+            good: true
+            feedback: Exactly. Inherited attributes don't need repeating, and a value list makes the attribute usable as a search facet.
+          - label: Approve as submitted
+            next: p1
+            feedback: It works, but Nominal voltage is now defined twice and Communication bus will collect "CAN", "can-bus" and "CANbus".
+      - id: s3
+        md: |
+          Third item: the internal name. Hana typed `Battery Management Boards` with spaces. Parts will be
+          classified on it from tomorrow. What now?
+        choices:
+          - label: Fix it to Battery_Management_Boards now, before anything is classified
+            next: win
+            good: true
+            feedback: Internal names allow letters, numbers, periods, hyphens and underscores - and can't be edited once objects are classified on the node.
+          - label: Leave it, you can rename it later
+            next: p2
+            feedback: Not once parts are classified against the node - the internal name is locked then. Spaces aren't supported anyway.
+      - id: win
+        md: All three requests handled by the rules. The tree grows, but it doesn't get messier.
+        outcome: success
+      - id: f1
+        md: Within a year the Fasteners branch has a node per project, and bolt searches miss most of the bolts.
+        outcome: fail
+      - id: p1
+        md: The node works, but you've created clean-up work for next quarter.
+        outcome: partial
+      - id: p2
+        md: The node is stuck with a name you didn't want, and every export and load file carries it.
+        outcome: partial
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Write the rules down and attach them to the request form - one page, like the cheat sheet above. When
+      a request is rejected, the reply quotes the rule. That keeps reviews fast and stops the same debate
+      every week.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Which property points PartsLink to a custom group for classification administrators?
+        options: [wt.csm.defaultCSMAdminGroup, wt.csm.exportInternalNames, com.ptc.windchill.PartsLink.index.enabled, wt.audit.displayFindSimilarObjectAuditCriteria]
+        answer: 0
+        explanation: Its default value is Classification Administrators. The others control CSV export of internal names, classification search and the Find Similar audit detail.
+      - kind: single
+        prompt: Jordan wants to stop users picking a retired node while its parts are moved. What does he change?
+        options: [Delete the node, Set Instantiable to No, Remove all its attributes, Rename its internal name]
+        answer: 1
+        explanation: Instantiable = No keeps the node in the tree but stops users selecting it when classifying. Delete would take the node (and any children) away before the parts are moved.
+      - kind: truefalse
+        prompt: You can change a node's internal name at any time, even after parts are classified on it.
+        answer: false
+        explanation: The internal name can't be edited once objects are classified against the node, so choose it carefully up front.
+      - kind: multi
+        prompt: Which are good reasons to move an attribute up to a parent node? (Choose all that apply.)
+        options: [All children share it, It is then inherited by every child, It reduces maintenance, It hides the attribute from search]
+        answers: [0, 1, 2]
+        explanation: Attributes on a parent are inherited by all its children - one definition, less maintenance. Inheritance doesn't hide anything from search.
+
+  - type: summary
+    points:
+      - A classification library needs a dedicated team, written rules and a request-review-build loop.
+      - Name nodes by function, keep internal names clean (they lock once parts are classified), and make only end nodes instantiable.
+      - Reuse attributes, put shared ones on the parent, and give text attributes a legal value list so they work as facets.
+      - Clean up in a safe order - block the old node, reclassify, then delete only empty nodes, on a test server first.

@@ -1,0 +1,270 @@
+id: m07-s09-l01
+subtitle: Theo just joined Acme as its first Windchill developer. His first job is saying "no code needed" to most of the wish list.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [customization, developer, architect, configuration, total-cost]
+sources:
+  - id: cust
+    where: "Course scenario; Implementation team strategy; Module 1: Why customize Windchill? (configuration vs customization, considerations, types of customization, developer role); Updates and server maintenance (what may be changed); Customer build"
+  - id: cus-overview
+    where: "Day 1 overview: Windchill client architecture and common Java services (to name the UI extension points)"
+  - id: trn-advdev
+    where: "Section 11 and 12 contents: server-side customization topics (services, queries, attributes, listeners, number rule algorithm, DB column length)"
+  - id: ac
+    where: "Module 11: Deploy Windchill+ with the CCD utility"
+versionNotes:
+  - versions: ["Windchill+"]
+    md: |
+      On [[windchill-plus|Windchill+]] PTC runs the servers, and the [[windchill-plus-ccd|CCD utility]] is the only
+      supported way to deploy customizations and configurations there (from 12.1.2.0 on). That makes "can we do it
+      with configuration?" even more important: every custom file has to travel through a CCD package and be
+      tested on a non-production system first.
+
+blocks:
+  - type: text
+    md: |
+      Acme Mobility has run Windchill for a year. CAD, BOMs and change are all in. Now the wish list arrives on
+      **Theo's** desk - he's Acme's brand-new Windchill developer:
+
+      1. Kai: *"New E-Bike parts should start in our own life cycle."*
+      2. Maya: *"Add a field 'Homologation region' to E-Bike parts."*
+      3. Leo: *"Block anyone from releasing a test report that isn't linked to a part."*
+      4. Ines: *"Send released parts to the ERP system."*
+      5. Jordan: *"Put the Acme logo in the header."*
+
+      Theo is a strong Java coder. The tempting move is to open the IDE. The **right** move is to ask, for each
+      line: *can Windchill already do this without code?*
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "changing settings in the UI or with admin tools - no code" → **configuration**
+      - "adding or changing Java code (and sometimes files in the codebase)" → [[windchill-customization|customization]]
+      - "the person who writes, versions and deploys that code" → the **developer** role
+      - "PTC's out-of-the-box behaviour" → **OOTB**
+      - "the cost of keeping code alive through every patch and upgrade" → **maintenance cost**
+
+  - type: diagram
+    title: The configure-first ladder
+    caption: Climb only as high as you must. Each rung up costs more to build and far more to keep. Click a rung.
+    diagram:
+      width: 820
+      height: 430
+      groups:
+        - { label: No code, x: 20, y: 20, w: 380, h: 390, tone: success }
+        - { label: Code, x: 420, y: 20, w: 380, h: 390, tone: warning }
+      nodes:
+        - id: need
+          label: The requirement
+          sublabel: what problem, for whom?
+          x: 40
+          y: 50
+          w: 170
+          tone: primary
+          detail: |
+            Start with the story, not the solution. PTC's guide asks: How complex is the change? How much will it
+            really improve the system? Is it **essential** or a **nice-to-have**?
+        - id: people
+          label: People and process
+          sublabel: training, workaround
+          x: 40
+          y: 170
+          w: 170
+          tone: success
+          detail: |
+            User enablement, a workaround or a change in the business process can remove the need entirely. This is
+            the cheapest rung - and the first one PTC's guide lists.
+        - id: config
+          label: Configuration
+          sublabel: UI and admin tools
+          x: 220
+          y: 290
+          w: 160
+          tone: success
+          detail: |
+            Types, attributes, OIRs, life cycles, workflows, preferences and access rules are all set up in the user
+            interface or with admin tools. In many projects configuration satisfies **every** requirement.
+          real: Kai's life cycle and Maya's field land here.
+        - id: light
+          label: Lightweight custom
+          sublabel: documented, few lines
+          x: 440
+          y: 50
+          w: 170
+          tone: warning
+          detail: Well-documented changes that need only a few lines of code - PTC's example is changing the Windchill logo in the UI.
+          real: Jordan's logo request.
+        - id: uiserver
+          label: UI or server custom
+          sublabel: actions · listeners
+          x: 440
+          y: 170
+          w: 170
+          tone: warning
+          detail: |
+            **UI (client) customization** changes the interface - new actions, menus or wizards. **Server
+            customization** creates object types or event listeners and automates data creation and transfer.
+          real: Leo's "block the release" rule needs a server-side listener.
+        - id: integ
+          label: Integration custom
+          sublabel: REST · ERP Connector
+          x: 620
+          y: 290
+          w: 160
+          tone: danger
+          detail: Connecting to third-party software or moving data in and out - REST services customization and ERP Connector customization. Workflow customization (code typed into a workflow template) also sits on the code side.
+          real: Ines's ERP feed - first check what the ERP Connector does out of the box.
+      edges:
+        - { from: need, to: people }
+        - { from: people, to: config, label: "still unmet?" }
+        - { from: config, to: light, label: "still unmet?" }
+        - { from: light, to: uiserver }
+        - { from: uiserver, to: integ }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      PTC's own course says customization is usually **not** recommended for medium-sized implementations. It pays
+      off for complex requirements that configuration can't meet. Every line of code adds **initial cost** (design,
+      build, test) and **maintenance cost**: each patch, update and upgrade has to take it into account, and code
+      that isn't maintained can break after an update and hurt the whole system.
+
+  - type: comparison
+    title: Configuration vs customization
+    columns: [Configuration, Customization]
+    rows:
+      - label: How
+        cells: ["User interface and system administration tools", "Adding or modifying Java code; sometimes adding or removing codebase files"]
+      - label: Who
+        cells: ["Business and system administrators, implementation consultants", "A developer with Java, source control and deployment skills"]
+      - label: Typical examples
+        cells: ["Subtypes, attributes, OIRs, life cycle and workflow templates, access rules", "New actions or wizards, event listeners, integrations"]
+      - label: Cost over time
+        cells: ["Low; moved between systems with standard tools", "Build cost plus retest and possible rework at every update and upgrade"]
+      - label: Risk at upgrade
+        cells: ["Low", "Code may fail after an update or upgrade if not maintained"]
+    takeaway: Same requirement, two price tags. Pick the one you can still afford in five years.
+
+  - type: example
+    variant: case-study
+    title: Theo triages the wish list
+    industry: Micromobility
+    md: |
+      Theo sits down with Jordan (business admin) and sorts each request:
+
+      | # | Request | Verdict | Why |
+      | --- | --- | --- | --- |
+      | 1 | Own life cycle for E-Bike parts | **Configure** | A life cycle template plus an OIR on the E-Bike Part subtype |
+      | 2 | "Homologation region" field | **Configure** | An attribute on the subtype in Type and Attribute Management |
+      | 3 | Block release of unlinked test reports | **Customize (server)** | A rule that checks links at a state change needs an event listener |
+      | 4 | Released parts to ERP | **Check first** | Look at the ERP integration's standard features before writing code |
+      | 5 | Acme logo | **Lightweight customization** | Documented, a few lines - but it still has to be versioned and re-checked at each update |
+
+      Two of five need code. Theo writes a one-page estimate for #3 that includes **who maintains it** and
+      **how it is retested** after every patch.
+    takeaway: Most "we need code" requests turn out to be configuration once someone asks what the user really needs.
+
+  - type: text
+    md: |
+      ### Estimating the lifetime cost
+
+      A customization is never "done" when it ships. PTC's guide lists what a customization can touch - and every
+      item is something you must carry through future changes:
+
+      - xconf files and properties, OIRs, soft type and soft attribute definitions, RB (resource bundle) files
+      - life cycle and workflow templates, groups, users, teams, roles, access control rules
+      - products, libraries and project templates, document and CAD document templates, indexing policies
+      - code: Java, JSP, Info*Engine tasks
+
+      Then look at what will hit it:
+
+      | Event | Examples | Impact on custom code |
+      | --- | --- | --- |
+      | **Updates and maintenance** | Critical Patch Set (CPS), certificate update, hardware resizing | Usually small - unless a patch fixes a bug your code works around, or the CPS changes a PTC file you modified |
+      | **Upgrades and major changes** | 12.1 → 13.1, Oracle → SQL Server, monolithic → clustered, Windows → Linux | Large: plan months ahead, test end to end, code changes may be needed |
+
+      A simple estimate: **build effort + (retest effort × updates per year × years in service) + rework at each
+      upgrade**. If that number is bigger than the value of the feature, go back down the ladder.
+
+  - type: scenario
+    variant: challenge
+    title: Code or no code?
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Hana (sourcing) asks Theo: *"Can we have a button that copies a part's supplier info into a new part?"*
+          What does Theo do first?
+        choices:
+          - label: Ask what problem the copy solves and how often it happens
+            next: s2
+            good: true
+            feedback: Start with the requirement. PTC's checklist asks how complex it is, what it improves and whether it's essential.
+          - label: Start a new action in the IDE
+            next: fail1
+            feedback: Jumping to code skips the cheapest rungs of the ladder.
+      - id: s2
+        md: |
+          Hana says it happens about twice a month, and people already copy the part with **Save As**. The only
+          thing they miss is one supplier note that a short checklist would catch. Next step?
+        choices:
+          - label: Write a short how-to and add the note to the team's checklist
+            next: win
+            good: true
+            feedback: User enablement solved it. No code, no maintenance.
+          - label: Build the button anyway - it's only a few lines
+            next: partial1
+            feedback: '"Only a few lines" still have to be versioned, deployed and retested after every patch.'
+      - id: win
+        md: Hana's team is happy, and Theo's backlog stays focused on the listener Leo really needs.
+        outcome: success
+      - id: partial1
+        md: The button works, but it duplicates a standard feature and adds one more thing to retest at every CPS. It solved the problem at a higher lifetime cost.
+        outcome: partial
+      - id: fail1
+        md: Two weeks later the button ships - and Hana mentions she only needed it twice a month. The code now has to be carried through every update.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **"The customer asked for it, so we coded it."** A requirement is not a design. Check people, process and
+      configuration first - otherwise you build a permanent maintenance bill for a nice-to-have.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      For every approved customization, write down three things before coding: the **requirement** it serves, the
+      **owner** who maintains it, and the **retest steps** for updates. PTC's guide stresses traceability between
+      requirements, design, implementation and testing - this is the smallest version of that.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Which statement matches PTC's definition of configuration?
+        options: ["It uses the UI or system administration tools and involves no code", "It means editing PTC's Java classes", "It is only done by developers", "It always needs a server restart"]
+        answer: 0
+        explanation: Configuration is done in the user interface or with admin tools, without writing code. Customization adds or modifies Java code.
+      - kind: multi
+        prompt: Which are listed as reasons to think twice before customizing? (Choose all that apply.)
+        options: [Higher initial cost, Higher maintenance cost, Updates and upgrades must take the code into account, Configuration changes become impossible]
+        answers: [0, 1, 2]
+        explanation: Code raises initial and maintenance costs and has to be carried through updates and upgrades. Configuration still works alongside it.
+      - kind: single
+        prompt: "Leo wants Windchill to stop a document being released unless it is linked to a part. Which customization type is that?"
+        options: [Lightweight, User interface, Windchill server (event listener), None - it's configuration]
+        answer: 2
+        explanation: A rule that reacts when an object changes state is server customization - an event listener on the state-change event.
+      - kind: truefalse
+        prompt: A Critical Patch Set can affect custom code if it changes a PTC file you modified.
+        answer: true
+        explanation: PTC's guide names exactly this case, together with patches that fix a bug your code depends on.
+
+  - type: summary
+    points:
+      - Configuration uses the UI and admin tools; customization adds or changes Java code and codebase files.
+      - Climb the ladder - people and process, then configuration, then code - and stop at the lowest rung that works.
+      - Customization types are lightweight, user interface, server, workflow and integration.
+      - Lifetime cost is build cost plus retesting at every update and rework at every upgrade.
+      - Upgrades and platform changes have big impacts on custom code and must be planned months ahead.

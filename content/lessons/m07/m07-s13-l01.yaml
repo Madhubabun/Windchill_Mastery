@@ -1,0 +1,212 @@
+id: m07-s13-l01
+subtitle: The E1 leaves the factory and the product story keeps going - in garages, repair shops and spare-parts bins.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [service, service-information, service-parts, sbom, lifecycle]
+sources:
+  - id: sis
+    where: "Course scenario; Implementation strategy; Module 1: Every product eventually needs service; Bring service into the lifecycle of a product; How does Windchill enable you to manage service information?; What can you do with Windchill Service Information Manager?; Manage spare parts information; What can you do with Windchill Service Parts?"
+  - id: te
+    where: "Module 1: Manage service part information and instruction; Appendix A: Manage service information in Windchill; Organize and manage service content in Windchill; Manage spare parts information in Windchill"
+versionNotes:
+  - versions: ["All releases"]
+    md: |
+      Windchill Service Information Manager and Windchill Service Parts are optional modules. Both need
+      Windchill PDMLink, and Service Parts also needs Service Information Manager. Arbortext Content
+      Delivery, which delivers the content to technicians, is a separate product. The source course uses
+      Windchill 13.0.1.1.
+
+blocks:
+  - type: text
+    md: |
+      Ten thousand **E-Bike E1s** are on the road. One of them rolls into a bike shop in Lakeside with a
+      dead rear brake light. **Sam** from Acme's field service gets the call: *"Which harness do I order,
+      and where's the repair procedure?"*
+
+      Today Sam digs through a PDF manual from launch day. Since then engineering has changed the harness
+      twice. The manual didn't notice. Sam orders the wrong part.
+
+      That gap - between what engineering knows **now** and what service people **read** - is what this
+      section closes. Meet **Zoe**, Acme's new service-information author. Her job: keep service content
+      as current as the product itself.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the BOM as a technician sees it - only replaceable bits" → [[service-bom]] (sBOM)
+      - "the module for organising and publishing service content" → [[service-information-manager|Windchill Service Information Manager]]
+      - "the add-on for spare-parts lists and catalogs" → [[windchill-service-parts|Windchill Service Parts]]
+      - "the service team's map of a product" → [[information-structure]]
+      - "the running order of one manual" → [[publication-structure]]
+      - "which E1 versions this page is for" → [[service-applicability]]
+
+  - type: diagram
+    title: Where service joins the product lifecycle
+    caption: Design and manufacturing data flow downstream into service. Click a box.
+    diagram:
+      width: 820
+      height: 430
+      groups:
+        - { label: Engineering, x: 10, y: 20, w: 200, h: 390, tone: neutral }
+        - { label: Service modules in Windchill, x: 230, y: 20, w: 400, h: 390, tone: primary }
+        - { label: Delivery, x: 650, y: 20, w: 160, h: 390, tone: info }
+      nodes:
+        - id: ebom
+          label: eBOM
+          sublabel: Design view
+          x: 30
+          y: 80
+          w: 160
+          tone: neutral
+          detail: |
+            The [[ebom]] is how engineering designed the product. Products are serviced differently than they
+            are engineered, so service doesn't use it as-is - it transforms it.
+        - id: mbom
+          label: mBOM
+          sublabel: optional source
+          x: 30
+          y: 250
+          w: 160
+          tone: neutral
+          detail: |
+            The service tools can also reuse the [[mbom]]. In the course activity the sBOM is built from the
+            eBOM, which is the more common source: serviceable parts are chosen during design.
+        - id: sbom
+          label: Service BOM
+          sublabel: Service Parts
+          x: 250
+          y: 80
+          w: 170
+          tone: accent
+          detail: |
+            The [[service-bom]] defines how the product is serviced: spare-part units, kits, replacements and
+            alternates. It stays linked to the source BOM, so engineering changes are flagged downstream.
+          real: "Acme's sBOM starts at EB-S4001."
+        - id: plist
+          label: Parts lists
+          sublabel: + illustrations
+          x: 250
+          y: 250
+          w: 170
+          tone: accent
+          detail: |
+            [[parts-list|Parts lists]] order the sBOM parts, add item numbers and quantities, and get 2D or 3D
+            illustrations from Creo Illustrate or Arbortext IsoDraw. Collected together they become an
+            illustrated parts catalog.
+        - id: istruct
+          label: Information structure
+          sublabel: Service Info Manager
+          x: 440
+          y: 80
+          w: 175
+          tone: primary
+          detail: |
+            The [[information-structure]] organises all operating and service content by serviceable system.
+            Filters show only the content that applies to one configuration.
+          real: "Zoe's will be called E1 Service Manual."
+        - id: pstruct
+          label: Publication structure
+          sublabel: manuals and catalogs
+          x: 440
+          y: 250
+          w: 175
+          tone: primary
+          detail: |
+            A [[publication-structure]] assembles reusable content into one publication - a repair manual,
+            a parts catalog - and publishes it to PDF or a bundle.
+        - id: acd
+          label: Content Delivery
+          sublabel: Arbortext (separate)
+          x: 665
+          y: 160
+          w: 130
+          tone: info
+          detail: |
+            Arbortext Content Delivery gives technicians one source of service and parts information, online
+            or offline. It is sold separately and is not covered in this section.
+      edges:
+        - { from: ebom, to: sbom, label: transform }
+        - { from: mbom, to: sbom, dashed: true }
+        - { from: sbom, to: plist }
+        - { from: plist, to: istruct }
+        - { from: istruct, to: pstruct }
+        - { from: pstruct, to: acd, label: publish }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Outdated service information leads to misuse of products, mistakes in the field and spare-parts
+      planning blunders - all of which hurt a company's aftermarket business. When service data is linked
+      to engineering data in the same system, a part change shows up in the service world instead of
+      waiting for someone to remember it. PTC's course material puts the gain in technical-writer
+      efficiency at somewhere between 20% and 90%.
+
+  - type: comparison
+    title: Two modules, two jobs
+    columns: [Service Information Manager, Service Parts]
+    rows:
+      - label: Main users
+        cells: ["Technical authors and publication managers", "Parts list authors and technical illustrators"]
+      - label: Core objects
+        cells: ["Information structures, publication structures, service content", "Service BOMs, parts lists, parts list illustrations"]
+      - label: Key capabilities
+        cells: ["Product-centric view of content; applicability rules; change impact on content; publishing", "eBOM/mBOM to sBOM transformation; parts lists for print and online; Creo Illustrate integration; review routing; illustrated parts catalogs"]
+      - label: Prerequisite
+        cells: ["Windchill PDMLink", "Windchill PDMLink and Service Information Manager"]
+    takeaway: Service Information Manager is the foundation; Service Parts adds spare-parts management on top.
+
+  - type: example
+    variant: case-study
+    title: The six stages Zoe plans for Acme
+    industry: Micromobility
+    md: |
+      Kai, Zoe and Sam sketch how service information will flow for the E1. They follow the six stages from
+      PTC's implementation strategy - knowing they don't have to happen strictly in this order:
+
+      1. **Define the service breakdown** - split the E1 into serviceable systems, build the sBOM and the
+         information structure. *(Lessons 2 and 3)*
+      2. **Create parts lists and illustrations** - for example `PL-E1-01` for the battery mount, with
+         illustration `ILL-E1-01`. *(Lesson 4)*
+      3. **Author content** - procedures and concepts written as reusable topics in Arbortext Editor. *(Lesson 5)*
+      4. **Define publication structures** - the E1 workshop manual and parts catalog, filtered per
+         configuration. *(Lesson 6)*
+      5. **Translate** - Lakeside's dealers in France want French. *(Lesson 7)*
+      6. **Release and deliver** - through Arbortext Content Delivery (outside this section).
+    takeaway: Service information is a pipeline that starts from engineering data, not a document written at the end.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Treating service as "after launch".** If the service team only starts once engineering is done,
+      they copy data into separate documents - and those copies go stale with the first change. Bring the
+      service team into Windchill early so their structures link to the real parts.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Ask service which parts are **serviceable** while the design is still moving. The sBOM is built from
+      parts chosen during design, and reusing engineering parts directly (instead of copying them) keeps the
+      eBOM and sBOM in step with much less effort.
+
+  - type: flashcards
+    cards:
+      - { front: Service BOM (sBOM), back: "The service view of a product: serviceable parts, kits and service-only parts, linked back to the source BOM." }
+      - front: Windchill Service Information Manager
+        back: "Organises service content in information and publication structures, sets applicability and publishes output."
+      - front: Windchill Service Parts
+        back: "Builds sBOMs, parts lists, illustrations and parts catalogs. Runs on top of Service Information Manager."
+      - front: Why link service to engineering data?
+        back: "So engineering changes are flagged in service structures instead of leaving manuals and parts lists out of date."
+      - front: Arbortext Content Delivery
+        back: "A separately sold product that delivers service and parts information to technicians online or offline."
+      - front: Prerequisite for both service modules
+        back: Windchill PDMLink.
+
+  - type: summary
+    points:
+      - Every product eventually needs service, and outdated service information costs real money in the field.
+      - Windchill Service Information Manager organises, filters and publishes service content around an information structure.
+      - Windchill Service Parts adds sBOMs, parts lists, illustrations and parts catalogs - and needs Service Information Manager.
+      - The sBOM is a linked downstream view of the eBOM (or mBOM), so engineering changes are flagged in service.
+      - Six stages - breakdown, parts lists, authoring, publications, translation, delivery - shape the rest of this section.

@@ -1,0 +1,261 @@
+id: m07-s12-l03
+subtitle: Acme's caliper EB-5120 is one part number on the BOM - and a short, rated list of real parts you're allowed to buy for it.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [supplier-management, suma, aml, avl, manufacturer-parts, vendor-parts, sourcing-status]
+sources:
+  - id: suma
+    where: "Module 2: What is an OEM?; Using SUMA in conjunction with PDMLink. Module 3: Manage enterprise parts with SUMA; Manufacturer parts and AMLs; Vendor parts and AVLs; Create an OEM part; Create a manufacturer part; Create a vendor part; Load supplier parts; Manage the AMLs and AVLs; Annotate and mark up AMLs/AVLs; Specify settings for AMLs and AVLs (sourcing status values, numbering, import and export); Activity: Create an OEM part and a supplier part; Activity: Manage supplier parts. Module 1 activity: Configure SUMA (Recommended status)"
+  - id: te
+    where: "Manage suppliers and components with Windchill Supplier Management (Manage components); Activity steps on the part information page (AML/AVL tab)"
+
+blocks:
+  - type: text
+    md: |
+      On the E1 BOM, the front brake caliper is **EB-5120** - an Acme number, with **Source = Buy**.
+      Acme doesn't make it. So which real, buyable parts can stand in for EB-5120? Brakeworks' own part
+      **BW-7701**, maybe their newer **BW-7702**, and Northgate's catalogue item **NG-5501** for the same
+      Brakeworks caliper.
+
+      That list - with a rating next to each line - is what SUMA calls the **AML** and **AVL**. Engineers
+      see it right in the product structure, so they pick parts sourcing already trusts.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "our number for a bought part" → [[oem-part]] (Source = Buy or Buy - Single Source)
+      - "the maker's part, with the maker's number" → [[manufacturer-part]]
+      - "the seller's catalogue item" → [[vendor-part]]
+      - "makers' parts we may use for it" → [[approved-manufacturer-list]] (AML)
+      - "sellers we may order from" → [[approved-vendor-list]] (AVL)
+      - "preferred / approved / don't use" → [[sourcing-status]]
+      - "for which plant or region" → [[sourcing-context]]
+
+  - type: diagram
+    title: EB-5120's sourcing record (Lakeside Plant context)
+    caption: The status sits on each link, not on the part. Click a box.
+    diagram:
+      width: 820
+      height: 420
+      nodes:
+        - id: oem
+          label: EB-5120
+          sublabel: OEM part · Source Buy
+          x: 30
+          y: 170
+          w: 190
+          tone: primary
+          detail: |
+            An internal WTPart numbered by Acme. Because its Source is **Buy**, it can have an AML and AVL.
+            (*Buy - Single Source* means it is bought from a single source.) Real companies usually use a
+            company-named part subtype for this instead of calling it "OEM part".
+        - id: bw1
+          label: BW-7701
+          sublabel: Brakeworks · Preferred
+          x: 320
+          y: 60
+          w: 200
+          tone: success
+          detail: A manufacturer part, owned by the Brakeworks organization and numbered by Brakeworks. On EB-5120's AML with status **Preferred**.
+        - id: bw2
+          label: BW-7702
+          sublabel: Brakeworks · Approved
+          x: 320
+          y: 280
+          w: 200
+          tone: info
+          detail: A second manufacturer part on the same AML, rated **Approved**. Interchangeable with BW-7701 for EB-5120.
+        - id: ng
+          label: NG-5501
+          sublabel: Northgate · Approved
+          x: 600
+          y: 60
+          w: 190
+          tone: accent
+          detail: A vendor part linked under manufacturer part BW-7701 - the chain OEM part > manufacturer part > vendor part. A vendor part can also be linked directly to the OEM part.
+        - id: other
+          label: Other context
+          sublabel: Riverside Plant
+          x: 600
+          y: 280
+          w: 190
+          tone: neutral
+          shape: pill
+          detail: In a different sourcing context, EB-5120 can have a different AML and AVL. The structure shows sourcing status for the context you select.
+      edges:
+        - { from: oem, to: bw1, label: AML }
+        - { from: oem, to: bw2, label: AML }
+        - { from: bw1, to: ng, label: AVL }
+        - { from: oem, to: other, dashed: true, label: per context }
+
+  - type: comparison
+    title: AML vs AVL
+    columns: [AML, AVL]
+    rows:
+      - label: Question it answers
+        cells: ["Which manufacturer can I use for this part?", "Where can I buy this part?"]
+      - label: Contains
+        cells: ["Approved, interchangeable manufacturer parts (often COTS)", "Approved vendor parts - vendors that can receive purchase orders"]
+      - label: Usually defined by
+        cells: ["Design and component engineering", "Procurement and supply base engineering"]
+      - label: In practice
+        cells: ["Used by most customers", "Used much less often"]
+    takeaway: "Many-to-many: one OEM part can have many supplier parts, and one manufacturer part can sit on several OEM parts' AMLs."
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      The AML/AVL turns sourcing knowledge into something engineers see while designing. A Design
+      Engineer searching by classification can find an OEM part that **already** has approved
+      manufacturers, check its sourcing status in the product structure, and avoid inventing a new part.
+      Sourcing statuses can also guide an optimal [[mbom|manufacturing BOM]].
+
+  - type: walkthrough
+    title: Create the OEM part and its manufacturer part, then build the AML
+    who: Sourcing Administrator or a product/library member with access (Hana)
+    where: [Browse, E-Bike E1, Folders, New Part]
+    steps:
+      - title: Create the OEM part
+        where: [E-Bike E1, Folders, New Part]
+        md: Choose the part type, enter the name and set **Source** to **Buy** (several suppliers possible) or **Buy - Single Source**. *Make* would mean built in-house.
+      - title: Create the manufacturer part
+        where: [Folders, New Part, Type Manufacturer Part]
+        md: |
+          Pick **Manufacturer Part**, use **Find** beside **Manufacturer ID** to choose Brakeworks GmbH, and
+          enter the manufacturer's **Number** (BW-7701) and **Name**. A vendor part works the same way with
+          *Vendor Part* and the vendor's organization.
+      - title: Open the AML/AVL tab
+        where: [EB-5120 information page, AML/AVL tab]
+        md: Pick the **Sourcing Context** (Lakeside Plant). The table lists supplier part numbers, the manufacturer or vendor, and the sourcing status. Filter it to AML or AVL from the list.
+      - title: Add the manufacturer part
+        where: [AML/AVL tab, Add existing manufacturer part to this AML]
+        md: |
+          Find BW-7701 and click **Finish**. A matching sourcing rule fills in the status. You can attach
+          vendor parts in the same step. Or use **Create new manufacturer or vendor part for this list** to
+          create and add in one go. Regular users must check the OEM part out first.
+      - title: Change a status
+        where: [EB-5120, Structure tab, Show, AML/AVL]
+        md: |
+          Change the sourcing status on the AML/AVL tab, or in the Structure tab with AML/AVL shown (a
+          structure view with the **Sourcing Status** column helps). Set BW-7701 to **Preferred**.
+    result: EB-5120 has an AML in the Lakeside Plant context with BW-7701 Preferred and BW-7702 Approved.
+
+  - type: simulation
+    title: Edit EB-5120's AML/AVL
+    intro: Build the sourcing record, then try removing parts. Watch what goes with them.
+    headline: "BW-7701 {bw} ({status}) · NG-5501 under it: {ng}"
+    initial: { bw: not listed, status: none, ng: none, cascaded: false }
+    actions:
+      - id: add-bw
+        label: Add BW-7701 to AML
+        when: { bw: not listed }
+        do: [{ set: { bw: on AML, status: Approved } }]
+        log: Added. A sourcing rule for Brakeworks gave it Approved.
+      - id: add-ng
+        label: Add NG-5501 under BW-7701
+        when: { bw: on AML, ng: none }
+        do: [{ set: { ng: on AVL } }]
+        log: Vendor part linked - OEM part > manufacturer part > vendor part.
+        blockedHint: Add the manufacturer part first.
+      - id: prefer
+        label: Set BW-7701 Preferred
+        when: { bw: on AML, status: [Approved, Do not use] }
+        do: [{ set: { status: Preferred } }]
+        log: Preferred (60) outranks Approved (40).
+      - id: do-not-use
+        label: Set BW-7701 Do not use
+        when: { bw: on AML, status: [Approved, Preferred] }
+        do: [{ set: { status: Do not use } }]
+        log: Do not use (20). It stays listed, marked as not to be used for EB-5120.
+      - id: remove-ng
+        label: Remove NG-5501
+        when: { ng: on AVL }
+        do: [{ set: { ng: none } }]
+        log: Vendor part removed. The manufacturer part is not affected.
+      - id: remove-bw
+        label: Remove BW-7701
+        when: { bw: on AML }
+        do: [{ set: { bw: not listed, status: none, ng: none, cascaded: true } }]
+        log: Manufacturer part removed - and every vendor part linked under it went too.
+    goals:
+      - label: Make BW-7701 Preferred with NG-5501 on the AVL
+        when: { status: Preferred, ng: on AVL }
+        message: That's EB-5120's target sourcing record.
+      - label: Discover the cascade
+        when: { cascaded: true }
+        message: Removing a manufacturer part removes its vendor parts. Annotate first if you're unsure.
+
+  - type: comparison
+    title: Sourcing status values
+    columns: [Number, Meaning]
+    rows:
+      - label: Do not use
+        cells: ["20", "Don't pick this supplier part for this OEM part"]
+      - label: Approved
+        cells: ["40", "Allowed"]
+      - label: Preferred
+        cells: ["60", "First choice"]
+      - label: Custom (e.g. Recommended)
+        cells: ["Any 1-100", "Added by an admin to the AXLPreference enumeration; higher numbers rank higher"]
+    takeaway: Statuses are ranked by number - a custom value slots in between by choosing its number.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Deleting the maker, losing the sellers.** Removing a manufacturer part from the AML also removes
+      every vendor part under it. Removing a vendor part leaves the manufacturer part alone. Use
+      **annotations** on the AML/AVL tab (saved in an [[annotation-set]]) to propose changes and apply
+      them only after they're verified.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Supplier parts keep their suppliers' numbers, so they don't need autonumbering - SUMA's **External
+      Part Library** template turns it off. For an existing organization, change the numbering through
+      [[object-initialization-rule|object initialization rules]]. For bulk work, import a spreadsheet of
+      AML/AVL entries (it can add or change links between **existing** parts, not create parts), or have
+      the Site Administrator bulk-load suppliers and supplier parts from XML load files.
+
+  - type: callout
+    variant: note
+    md: |
+      The part **Compare** action works on OEM and supplier parts, but its results leave out SUMA data
+      such as sourcing status and sourcing context. And with the property
+      `com.ptc.windchill.suma.iterateOnModifyPreference` set to Yes, OEM parts must be checked out before
+      their AML/AVL changes.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Which part can have an AML?
+        options: [A part with Source = Make, A part with Source = Buy, Any manufacturer part, A vendor part]
+        answer: 1
+        explanation: AMLs and AVLs are created for OEM (internal) parts, which have Source set to Buy or Buy - Single Source.
+      - kind: single
+        prompt: "Which question does an AVL answer?"
+        options: ["Which manufacturer can I use?", "Where can I buy this part?", "Is the part classified?", "Who owns the CAD model?"]
+        answer: 1
+        explanation: The AVL lists approved vendors that can receive purchase orders. The AML answers which manufacturer can be used.
+      - kind: truefalse
+        prompt: Removing a vendor part from an AVL also removes the manufacturer part it was linked under.
+        answer: false
+        explanation: It's the other way round - removing a manufacturer part removes its vendor parts, but removing a vendor part leaves the manufacturer part.
+      - kind: single
+        prompt: Hana imports a spreadsheet of AML entries that mentions BW-7703, which doesn't exist yet. What happens to BW-7703?
+        options: [It is created automatically, It isn't created - AML/AVL import only links existing parts, It becomes a vendor part, It is created in the default context]
+        answer: 1
+        explanation: AML/AVL import can add or change relationships between existing OEM and supplier parts. It cannot create new parts.
+      - kind: single
+        prompt: An admin adds a "Recommended" status with value 50. Where does it rank?
+        options: [Below Do not use, Between Approved and Preferred, Above Preferred, It has no rank]
+        answer: 1
+        explanation: Higher numbers rank higher - 50 sits between Approved (40) and Preferred (60).
+
+  - type: summary
+    points:
+      - An OEM part is your internal part with Source = Buy or Buy - Single Source; manufacturer and vendor parts carry the suppliers' numbers.
+      - The AML lists approved manufacturer parts ("which maker?"); the AVL lists approved vendor parts ("where to buy?").
+      - Each link carries a sourcing status - Do not use 20, Approved 40, Preferred 60, plus custom values - per sourcing context.
+      - Work on the OEM part's AML/AVL tab or in the Structure tab; removing a manufacturer part removes its vendor parts.
+      - Spreadsheet import only links existing parts; supplier parts usually skip autonumbering.

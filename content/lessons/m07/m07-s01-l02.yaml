@@ -1,0 +1,326 @@
+id: m07-s01-l02
+subtitle: Ana opens the E1 eBOM on the left, builds the Riverside mBOM on the right, and keeps a live thread between the two.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [mpmlink, bom-transformer, mbom, equivalent-link, associativity]
+sources:
+  - id: mpm-bom
+    where: "Module 2: Install MPMLink; BOM Transformer tool; BOM transformation process; Activity: eBOM to mBOM transformation basics; Activity: Maintain the eBOM-mBOM relationship"
+  - id: te
+    where: "BOM module: Create a BOM: techniques (phantom manufacturing parts); Specify a configuration specification"
+
+blocks:
+  - type: text
+    md: |
+      Ana knows *what* the Riverside mBOM should look like. Now she has to build it - without retyping
+      the whole bike and without losing track of where each part came from.
+
+      MPMLink gives her a two-pane workbench. Engineering's structure sits on the left; she drags,
+      groups and adds on the right. Every part on the right remembers its partner on the left. When Kai
+      changes something next week, the workbench shows her exactly which links went stale.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the two-pane workbench" → [[bom-transformer|BOM Transformer]]
+      - "the source side (left) / the target side (right)" → **upstream** / **downstream** structure
+      - "start the factory version of the top part" → **New Downstream Branch**
+      - "the thread between a factory part and its engineering partner" → [[equivalent-link]]
+      - "a grouping box that is never really built" → [[phantom-manufacturing-part]]
+      - "a real sub-assembly built and stored in the factory" → **manufacturing part** (manufacturing assembly)
+      - "a factory copy of the same part number" → a [[new-view-version|new view version]] (Paste as New Branch)
+      - "a factory part with its own number" → **Paste as New Part**
+
+  - type: diagram
+    title: Inside the BOM Transformer
+    caption: Five ways a part can end up in the mBOM. Click each one.
+    diagram:
+      width: 820
+      height: 470
+      groups:
+        - { label: Upstream - Design (eBOM), x: 20, y: 20, w: 300, h: 430, tone: info }
+        - { label: Downstream - Manufacturing (mBOM), x: 380, y: 20, w: 420, h: 430, tone: accent }
+      nodes:
+        - id: up-top
+          label: E-Bike E1 (Design)
+          x: 70
+          y: 50
+          w: 200
+          tone: info
+          detail: You open this part in the BOM Transformer from its **Actions → Open in → Open in BOM Transformer**. At first the right pane is empty.
+        - id: up-parts
+          label: Design parts
+          sublabel: controller · frame · drive · seat
+          x: 70
+          y: 200
+          w: 200
+          h: 64
+          tone: neutral
+          detail: The eBOM's children. You select them here and drag, copy or paste them into the downstream structure.
+        - id: dn-top
+          label: E-Bike E1 (Manufacturing)
+          x: 480
+          y: 50
+          w: 220
+          tone: accent
+          detail: |
+            Created with **New Downstream Branch** on the top part. It is a Manufacturing view version of
+            the same part, starts **In Work**, and gets an equivalent link (green tick on both sides).
+            Everything you add under it is part of the mBOM.
+        - id: dn-reuse
+          label: Reused design part
+          sublabel: dragged as-is
+          x: 400
+          y: 150
+          w: 180
+          tone: success
+          detail: |
+            **Best practice.** The Design-view part itself becomes a child in the mBOM. Nothing is copied,
+            so engineering changes flow through with the least work.
+        - id: dn-phantom
+          label: Phantom mfg part
+          sublabel: "EB-M1001 Electrical kit"
+          x: 600
+          y: 150
+          w: 180
+          tone: warning
+          detail: |
+            Insert New with **Phantom Manufacturing Part = Yes**. It has its own icon, groups parts for
+            processing, is never physically built or stored and is not consumed by operations. No eBOM
+            equivalent (yellow triangle).
+        - id: dn-mfg
+          label: Manufacturing part
+          sublabel: "EB-M1002 Rolling chassis"
+          x: 400
+          y: 250
+          w: 180
+          tone: warning
+          detail: Insert New with Phantom = No. A real assembly that is built, stored and consumed by operations. It doesn't exist in the eBOM either.
+        - id: dn-branch
+          label: New view version
+          sublabel: Drive unit (Manufacturing)
+          x: 600
+          y: 250
+          w: 180
+          tone: primary
+          detail: |
+            **Copy** in the left pane, then **Paste as New Branch** in the right pane. Same number, new
+            Manufacturing view version, managed separately in the mBOM. An equivalent link ties it to
+            the Design version.
+        - id: dn-newnum
+          label: New part number
+          sublabel: "EB-M1003 Seat (kitted)"
+          x: 400
+          y: 350
+          w: 180
+          tone: primary
+          detail: |
+            **Paste as New Part**: a different number, usually because of business rules, still linked
+            by an equivalent link. Click **Recalculate** before OK so the new object is created
+            downstream.
+        - id: dn-only
+          label: Manufacturing-only part
+          sublabel: "EB-M1004 Shipping carton"
+          x: 600
+          y: 350
+          w: 180
+          tone: danger
+          detail: Insert New for items only the factory needs - manuals, packaging, stickers, oil. No eBOM equivalent.
+      edges:
+        - { from: up-top, to: dn-top, label: New Downstream Branch }
+        - { from: up-parts, to: dn-reuse, label: drag }
+        - { from: up-parts, to: dn-branch, label: copy / paste }
+        - { from: up-parts, to: dn-newnum, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      The equivalent link is what makes this an **associative** mBOM rather than a copy. Without it,
+      Acme would be back to comparing two lists by eye after every engineering change - exactly the
+      problem that made them leave the spreadsheet-and-ERP approach.
+
+  - type: walkthrough
+    title: Build the Riverside mBOM for the E1
+    who: A manufacturing engineer in the MPMLink license group (Ana)
+    where: [Browse, Products, "E-Bike E1", Structure, Actions, Open in, Open in BOM Transformer]
+    steps:
+      - title: Check access and make a home for manufacturing data
+        where: [Browse, Products, "E-Bike E1", Folders, New Folder]
+        md: |
+          MPMLink is a separately licensed add-on to PDMLink; only users in the **MPMLink license
+          group** see the BOM Transformer. Ana is added to the product team's **Manufacturing Engineer**
+          role, then creates a **Manufacturing** folder so factory objects stay apart from design data.
+      - title: Open the eBOM in the BOM Transformer
+        where: [Structure, Actions, Open in, Open in BOM Transformer]
+        md: |
+          Open the E1 top part (Design view) and choose **Open in BOM Transformer**. The eBOM shows on
+          the left. The right pane is empty because no Manufacturing version exists yet.
+      - title: Create the downstream top part
+        where: [Left pane, "E-Bike E1", right-click, New Downstream Branch]
+        md: |
+          Right-click the top part → **New Downstream Branch**. Use the search icon for **Downstream
+          Location** to pick the Manufacturing folder, then OK. The Manufacturing version appears on the
+          right, In Work, with a green tick on both sides.
+      - title: Add a phantom grouping
+        where: [Right pane, "E-Bike E1 (Manufacturing)", Insert, Insert New]
+        md: |
+          Type **Part**, name *Electrical kit*, **Phantom Manufacturing Part = Yes**. The View field is
+          already Manufacturing. Then select controller, display and harness on the left and drag them
+          onto it.
+      - title: Add a manufacturing assembly
+        where: [Right pane, Insert, Insert New]
+        md: Same again with Phantom left at No, name *Rolling chassis*. Drag frame, wheels and brakes under it.
+      - title: Make a new view version where you need one
+        where: [Left pane, "Drive unit", Copy, Right pane, Paste as New Branch]
+        md: |
+          Copy the drive unit on the left, right-click the mBOM top part → **Paste as New Branch**,
+          choose the Manufacturing folder as location and a **Child Structure Options** value such as
+          *Duplicate without propagating* (its children stay in the Design view).
+      - title: Or a new number when the rules demand it
+        where: [Left pane, "Seat", Copy, Right pane, Paste as New Part]
+        md: Copy the seat → **Paste as New Part**, adjust number and name, set the location, click **Recalculate**, then OK.
+      - title: Add manufacturing-only items and drag the rest
+        where: [Right pane, Insert, Insert New]
+        md: Insert the carton and owner's manual as new parts, then drag the battery pack and anything else reused straight under the top part.
+      - title: Check everything in
+        where: [Check Out/In, My Checkouts]
+        md: Open **My Checkouts**, select all rows, **Check In**, **Apply to All**, Close.
+    result: |
+      Both BOMs sit side by side. Green ticks mark equivalent pairs; the kit and chassis show a yellow
+      triangle because they have no eBOM partner. Back on the part's **Details** tab, the **Equivalence
+      Network** attribute lists the BOMs created for the E1.
+
+  - type: simulation
+    title: Build it, then survive a change
+    intro: |
+      Build Ana's mBOM, check it in, then let Kai change a part upstream and bring the link back to green.
+    headline: "Top: {downstream} · Equivalence: {equivalence}"
+    initial:
+      downstream: not created
+      phantomKit: false
+      kitFilled: false
+      chassis: false
+      chassisFilled: false
+      checkedIn: false
+      equivalence: "-"
+      upstreamChanges: 0
+    actions:
+      - id: new-downstream-branch
+        label: New Downstream Branch
+        when: { downstream: not created }
+        do: [{ set: { downstream: "In Work", equivalence: green tick } }]
+        log: Manufacturing version of the E1 created in the Manufacturing folder. Green tick on both sides.
+      - id: insert-phantom
+        label: Insert phantom kit
+        when: { downstream: "In Work", phantomKit: false }
+        do: [{ set: { phantomKit: true, checkedIn: false } }]
+        log: "EB-M1001 Electrical kit created with Phantom Manufacturing Part = Yes (yellow triangle: no eBOM partner)."
+        blockedHint: Create the downstream top part first - or the kit already exists.
+      - id: drag-electrical
+        label: Drag controller · display · harness
+        when: { phantomKit: true, kitFilled: false }
+        do: [{ set: { kitFilled: true, checkedIn: false } }]
+        log: Three Design-view parts now sit under the kit. They are reused, not copied.
+        blockedHint: You need the phantom kit to drop them into.
+      - id: insert-chassis
+        label: Insert rolling chassis
+        when: { downstream: "In Work", chassis: false }
+        do: [{ set: { chassis: true, checkedIn: false } }]
+        log: EB-M1002 Rolling chassis created as a real manufacturing assembly.
+        blockedHint: Create the downstream top part first - or the chassis already exists.
+      - id: drag-chassis
+        label: Drag frame · wheels · brakes
+        when: { chassis: true, chassisFilled: false }
+        do: [{ set: { chassisFilled: true, checkedIn: false } }]
+        log: Frame, wheels and brakes reused under the rolling chassis.
+        blockedHint: Insert the rolling chassis first.
+      - id: check-in-all
+        label: Check in all (My Checkouts)
+        when: { downstream: "In Work", checkedIn: false }
+        do: [{ set: { checkedIn: true } }]
+        log: Everything checked in with Apply to All.
+        blockedHint: Nothing is checked out right now.
+      - id: kai-changes-frame
+        label: "Kai: check out + check in the frame"
+        when: { checkedIn: true, equivalence: green tick }
+        do: [{ inc: upstreamChanges }, { set: { equivalence: out of date } }]
+        log: The frame got a new iteration upstream. Both sides now show the out-of-date indicator.
+        blockedHint: Check in the mBOM first, and resync any existing change.
+      - id: update-downstream
+        label: Update All Downstream Equivalent Objects
+        when: { equivalence: out of date }
+        do: [{ set: { equivalence: green tick } }]
+        log: Equivalent link now points at the latest upstream iteration. Green ticks again.
+        blockedHint: Nothing is out of date.
+    goals:
+      - label: Build the mBOM with a phantom kit and a chassis, both filled, and check in
+        when: { kitFilled: true, chassisFilled: true, checkedIn: true }
+        message: That's an associative mBOM - mostly reused design parts, grouped the factory's way.
+      - label: Absorb an upstream change and get back to green
+        when: { upstreamChanges: 1, equivalence: green tick }
+        message: An upstream check-in flags the link as out of date; updating the downstream equivalent fixes it.
+
+  - type: comparison
+    title: Keeping the link alive after an eBOM change
+    columns: [Reused design part, New view version, New part number]
+    rows:
+      - label: What Kai's check-in shows
+        cells: ["Status indicators flag the pair as not up to date", "Same", "Same"]
+      - label: Fix from the left pane
+        cells: ["Update All Downstream Equivalent Objects", "Update All Downstream Equivalent Objects", "Update All Downstream Equivalent Objects"]
+      - label: Fix from the right pane
+        cells: ["Update to Current Upstream Equivalent Objects", "Update to Current Upstream Equivalent Objects", "Update to Current Upstream Equivalent Objects"]
+      - label: Extra work
+        cells: ["None - it's the same part", "The Manufacturing version is checked out - check it in", "The renumbered part is checked out - check it in"]
+    takeaway: The more you reuse, the less you maintain. PTC calls the reuse case the best-practice scenario.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Skipping the Downstream Location.** If you don't point New Downstream Branch, Paste as New Branch
+      or Paste as New Part at the Manufacturing folder, factory objects land among the design data. And
+      with **Paste as New Part**, forgetting **Recalculate** means the new downstream object isn't
+      created when you click OK.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Lost in a big structure? Right-click a part on either side → **Select Equivalent Parts on Other
+      Side** and the BOM Transformer highlights its partner. It's the fastest way to answer "where did
+      this design part end up in the mBOM?"
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Which action creates the Manufacturing version of the E1 top part in the BOM Transformer?
+        options: [Insert New, New Downstream Branch, Paste as New Part, Revise]
+        answer: 1
+        explanation: New Downstream Branch on the upstream top part creates its downstream view version and the equivalent link.
+      - kind: single
+        prompt: Ana needs a grouping that helps organise manufacturing but is never built or stored, and is not consumed by operations. What does she create?
+        options: [A manufacturing part, A phantom manufacturing part, A new view version, A manufacturing-only part]
+        answer: 1
+        explanation: A phantom manufacturing part (Phantom Manufacturing Part = Yes) exists only to facilitate processing.
+      - kind: truefalse
+        prompt: Dragging a Design-view part into the mBOM creates a copy of it in the Manufacturing view.
+        answer: false
+        explanation: Dragging reuses the Design-view part itself as a child in the mBOM. Copies are made only with Paste as New Branch or Paste as New Part.
+      - kind: multi
+        prompt: After Kai checks in a new iteration of a part used in the mBOM, what can Ana do to restore the equivalent link? (Choose all that apply.)
+        options: [Update All Downstream Equivalent Objects on the upstream part, Update to Current Upstream Equivalent Objects on the downstream part, Delete and recreate the mBOM, Nothing - it updates silently]
+        answers: [0, 1]
+        explanation: Either action re-establishes the link to the latest upstream iteration. The out-of-date indicator is there so you notice and decide.
+      - kind: single
+        prompt: In the finished BOM Transformer view, what does a yellow triangle next to the rolling chassis tell Ana?
+        options: [It is checked out by someone else, It has no equivalent part in the eBOM, It failed to save, It is a phantom]
+        answer: 1
+        explanation: The chassis is a manufacturing-only assembly, so it has no upstream partner. Green ticks mark equivalent pairs.
+
+  - type: summary
+    points:
+      - The BOM Transformer shows the upstream BOM (Design) on the left and the downstream BOM (Manufacturing) on the right.
+      - New Downstream Branch creates the mBOM top part; then add phantom parts, manufacturing assemblies and manufacturing-only parts.
+      - Reuse design parts by dragging; use Paste as New Branch (new view version) or Paste as New Part (new number) only when needed.
+      - Equivalent links tie each mBOM part to its eBOM partner - green tick in step, out-of-date indicator after an upstream change.
+      - Update All Downstream Equivalent Objects or Update to Current Upstream Equivalent Objects brings the pair back in step.

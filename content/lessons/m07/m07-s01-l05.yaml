@@ -1,0 +1,264 @@
+id: m07-s01-l05
+subtitle: Stations, fixtures, grease and an electrician's skill aren't in the E1 - but the E1 can't be built without them. Here's how MPMLink keeps track.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [mpmlink, manufacturing-resources, compatibility-links, manufacturing-standards, plants]
+sources:
+  - id: mpm-pp
+    where: "Module 1: Manufacturing resources and standards; End-to-end process. Module 2: Manufacturing resource types (Plant, Resource Group, Work Center, Tooling, Process Material, Skill); Compatibility links; Resource hierarchies; Visualizing manufacturing resources; Manufacturing standard types; Activity: Create a plant and resource structure; Activity: Set the compatibility of tooling and process materials to work centers. Module 3: Manufacturing resource allocation"
+
+blocks:
+  - type: text
+    md: |
+      Ana's process plan needs a station for every operation, the right tools, the grease for the
+      bearings and someone qualified to connect the battery. None of that appears in the mBOM - it isn't
+      *part of the bike*. It's part of the **factory**.
+
+      So before she can fill in PP-E1-10 properly, Ana builds a small model of Riverside in Windchill: a
+      plant, its lines and stations, the tools and consumables used there, and the skills operators need.
+      Done once, it's reused by every process plan.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "factory stuff that's needed but not shipped" → [[manufacturing-resource|manufacturing resources]]
+      - "the factory itself" → **Plant** (top of the hierarchy)
+      - "a station or line where work happens" → **Work Center**
+      - "jigs, clamps, drills, gauges" → **Tooling** (Fixture or Tool)
+      - "grease, coolant, gas, cleaner used up during work" → **Process Material**
+      - "the qualification an operator needs" → **Skill**
+      - "this tool goes with that station" → [[compatibility-link]]
+      - "a proven method everyone should reuse" → [[manufacturing-standard]]
+
+  - type: diagram
+    title: Riverside, modelled as resources
+    caption: Resources are organised in a tree under the plant, typically stored in a library. Click any box.
+    diagram:
+      width: 820
+      height: 470
+      nodes:
+        - id: plant
+          label: Riverside
+          sublabel: Plant · Production
+          x: 320
+          y: 20
+          w: 180
+          tone: accent
+          detail: |
+            **Plant** - the facility where parts are produced, repaired, maintained or inspected. The top
+            node of the resource hierarchy, and it can be linked to any MPMLink object to say where it is
+            valid. Out-of-the-box categories: Maintenance, Production, Service.
+        - id: rg-line
+          label: E1 Assembly Line
+          sublabel: Resource Group · Work Area
+          x: 90
+          y: 130
+          w: 220
+          tone: neutral
+          detail: |
+            **Resource Group** - a node that organises related resources, by physical layout or any
+            functional criterion. Categories: Cost Center, Costing Area, Costing branch, Storage, Work
+            Area.
+        - id: rg-mat
+          label: Process Materials
+          sublabel: Resource Group · Work Area
+          x: 510
+          y: 130
+          w: 220
+          tone: neutral
+          detail: A second group, just for consumables used at Riverside.
+        - id: wc
+          label: RES-110 Line 1
+          sublabel: Work Center · Line
+          x: 20
+          y: 250
+          w: 170
+          tone: primary
+          detail: |
+            **Work Center** - the physical place (maybe a machine) where work is done. Default time and
+            cost values set here can be copied to operations when it is allocated. Categories: Line,
+            Feeder Line, Resource Pool, Work Cell, Work Unit, Workstation.
+        - id: tool
+          label: RES-120 Torque wrench
+          sublabel: Tooling · Tool
+          x: 210
+          y: 250
+          w: 190
+          tone: warning
+          detail: |
+            **Tooling** - equipment needed in addition to the work center: designed or bought, used up or
+            reusable for a number of runs. Categories: **Fixture** (rigidly holds and locates the work
+            piece, like a clamp) and **Tool** (anything else, like drill bits or measuring instruments).
+        - id: fixture
+          label: RES-121 Frame jig
+          sublabel: Tooling · Fixture
+          x: 210
+          y: 340
+          w: 190
+          tone: warning
+          detail: Holds the E1 frame in position during OP-20. A fixture, sourced from Hexa Tooling.
+        - id: mat
+          label: RES-130 Bearing grease
+          sublabel: Process Material · Lubricant
+          x: 530
+          y: 250
+          w: 200
+          tone: danger
+          detail: |
+            **Process Material** - consumed by the process at a work center. It does **not** appear in the
+            mBOM. Categories: Cleaner, Coating, Coolant, Gas, Lubricant, Processing Aid, Solvent.
+        - id: skill
+          label: RES-140 HV electrician
+          sublabel: Skill · Electrician
+          x: 530
+          y: 340
+          w: 200
+          tone: success
+          detail: |
+            **Skill** - the qualification or competency the operator (not necessarily a person) needs.
+            Skills can form their own hierarchy. Categories: Assembler, Assistant, Electrician, Inspector,
+            Machinist, Supervisor, Technician.
+      edges:
+        - { from: plant, to: rg-line }
+        - { from: plant, to: rg-mat }
+        - { from: rg-line, to: wc }
+        - { from: rg-line, to: tool }
+        - { from: rg-line, to: fixture }
+        - { from: rg-mat, to: mat }
+        - { from: plant, to: skill, dashed: true }
+        - { from: wc, to: mat, label: compatible, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Resources are where the plant's real constraints live: which station can take which tool, which
+      material is mandatory for a process, who is qualified. Modelled once in a library, they are
+      **reused** across process plans and plants, subtyped where needed and life-cycle managed - so treat
+      them like any other released data and give them a release and change process.
+
+  - type: walkthrough
+    title: Build the Riverside resource tree
+    who: A manufacturing engineer with MPMLink (Ana)
+    where: [Browse, Libraries, Manufacturing Resources]
+    steps:
+      - title: Create the plant in the resources library
+        where: [Navigator, Browse, Libraries, "Manufacturing Resources", Plants folder, Actions, New, New Resource]
+        md: |
+          Choose type **Plant**, name *Riverside*. Category defaults to *Production* and the View to
+          *Manufacturing*. Finish.
+      - title: Add resource groups under it
+        where: ["Riverside", Structure tab, Insert New, Insert New]
+        md: |
+          Type **Resource Group**, name *E1 Assembly Line* (category *Work Area*). Use the location icon
+          to store it in a *Resource Groups* folder. Repeat for *Process Materials*.
+      - title: Add the work center, tooling and material
+        where: [Structure tab, "<resource group>", Insert, Insert New]
+        md: |
+          Under the line group: a **Work Center** (category *Line*) and **Tooling** (category *Tool*,
+          Source *Buy*). Under Process Materials: a **Process Material** with category *Lubricant*.
+          File each in its matching folder.
+      - title: Check in
+        where: [My Checkouts, Check In, Apply to All]
+        md: The plant structure now shows every resource. Each one is its own object, so it can be reused in other plants and operations.
+      - title: Set compatibility on the work center
+        where: ["RES-110 Line 1", View Information, Structure tab, Compatibility tab, Add Compatibility]
+        md: |
+          Search on **Process Material**, pick the bearing grease, keep **Compatibility Type =
+          Acceptable**, OK. Repeat for the torque wrench (search on **Tooling**). Check in.
+    result: The torque wrench and grease are listed in the work center's Compatibles table, ready to guide allocation in PP-E1-10.
+
+  - type: comparison
+    title: The six compatibility link types
+    columns: [What it means, What MPMLink does]
+    rows:
+      - label: Acceptable
+        cells: ["Can be used together for an operation", "Allows it"]
+      - label: Equivalent
+        cells: ["Considered equal - must be the same resource type", "Treats them as interchangeable"]
+      - label: Mandatory
+        cells: ["Must be used together - e.g. welding gas with welding", "Adds the linked object automatically"]
+      - label: Preferred
+        cells: ["Should be used together - e.g. a preferred drill for drilling", "Suggests the linked object"]
+      - label: Not Recommended
+        cells: ["Should not be used together", "Shows a warning if you add both"]
+      - label: Forbidden
+        cells: ["Cannot be used together", "Prevents the association"]
+    takeaway: PTC describes compatibility links as an aid or shortcut for allocating resources - not a rigorous validation mechanism.
+
+  - type: example
+    variant: real-world
+    title: Standards worth reusing
+    industry: Micromobility
+    md: |
+      Leo (quality) keeps finding torque problems on headset bolts. Ana captures Acme's proven method as
+      a **manufacturing standard** in a library:
+
+      - a **Manufacturing Standard Group** *Fastening* (a folder-like node to organise standards)
+      - a **Manufacturing Capability** *Torque to spec with calibrated wrench* (a documented procedure)
+      - a **Standard Procedure** *Headset install* (a set of proven operations to reuse)
+
+      She links the capability to the torque wrench with a **Preferred** compatibility link. When a
+      planner adds the capability to an operation, the wrench is suggested - and MPMLink can check the
+      capability against the resources allocated to that operation.
+    takeaway: Resources say *with what*; standards say *the proven way*. Both belong in a library.
+
+  - type: callout
+    variant: pitfall
+    title: Grease in the mBOM
+    md: |
+      Process materials are **not** mBOM parts. If the grease is used up by the process at a work
+      center, model it as a process material resource, not as a child in the mBOM. (Something that ships
+      inside the product, like oil filled into a gearbox, is a different case - the mBOM course lists oil
+      as a typical manufacturing-only part.) The course also notes process materials *can* hold raw
+      material definitions, but that isn't their intended purpose.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Open a plant in the **Manufacturing Resource Browser** to go 3D: lay out stations with Creo View,
+      open a process plan in the context of its plant, check an operation's feasibility at a
+      workstation, and use **Playback** to watch the assembly flow across the shop floor. Allocated
+      parts can be shown by colour.
+
+  - type: flashcards
+    title: Resources and standards deck
+    cards:
+      - { front: The six resource types, back: "Plant, Resource Group, Work Center, Tooling, Process Material, Skill." }
+      - { front: Top of the resource hierarchy, back: Plant. }
+      - { front: Work Center categories, back: "Line, Feeder Line, Resource Pool, Work Cell, Work Unit, Workstation." }
+      - { front: Fixture vs Tool, back: "A fixture rigidly holds and locates the work piece; a tool is any other tooling (drill bits, gauges)." }
+      - { front: "Process Material in the mBOM?", back: "No. It is consumed by the process at a work center and stays out of the mBOM." }
+      - { front: Mandatory compatibility, back: "The linked object must be used too and is added automatically (e.g. welding gas)." }
+      - { front: Forbidden vs Not Recommended, back: "Forbidden blocks the combination; Not Recommended only warns." }
+      - { front: Manufacturing standard types, back: "Manufacturing Standard Group, Manufacturing Capability, Standard Procedure." }
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Which resource type represents the qualification an operator needs?
+        options: [Work Center, Tooling, Skill, Resource Group]
+        answer: 2
+        explanation: A Skill is the qualification or competency the operator (not necessarily a person) needs to perform the operation.
+      - kind: single
+        prompt: A welding capability always needs shielding gas. Which compatibility type makes the gas appear automatically when the capability is added to an operation?
+        options: [Preferred, Acceptable, Mandatory, Equivalent]
+        answer: 2
+        explanation: Mandatory means the objects must be used together, so the linked object is associated automatically.
+      - kind: multi
+        prompt: Which statements about manufacturing resources are true? (Choose all that apply.)
+        options: [They can be subtyped, They are life-cycle managed, They are usually created in a library and reused, Each resource can only be used by one process plan]
+        answers: [0, 1, 2]
+        explanation: Resources are subtypeable, life-cycle managed library objects designed for reuse across plans and plants.
+      - kind: truefalse
+        prompt: Equivalent compatibility can link a skill to a work center.
+        answer: false
+        explanation: Equivalent links must connect resources of the same type, such as two work centers or two skills.
+
+  - type: summary
+    points:
+      - Six resource types - Plant, Resource Group, Work Center, Tooling, Process Material, Skill - each with categories.
+      - Organise resources in a tree under a Plant, typically in a library, and reuse them across plans.
+      - Compatibility links (Acceptable, Equivalent, Forbidden, Mandatory, Preferred, Not Recommended) guide allocation.
+      - Manufacturing standards - groups, capabilities and standard procedures - capture proven methods for reuse.
+      - The Manufacturing Resource Browser shows plants and process flows in 3D.

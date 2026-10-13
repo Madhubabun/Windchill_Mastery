@@ -1,0 +1,233 @@
+id: m07-s01-l07
+subtitle: Kai removes a decal and adds a cable. Ana must know - in the right order, on the record. Wire the mBOM into Acme's change process.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [mpmlink, change-management, mbom, change-notice, discrepancies, best-practices]
+sources:
+  - id: mpm-bom
+    where: "Module 4: Best practices - recommendations; Best practices - integrate mBOM creation with the change process; Best practices - integrate mBOM maintenance with the change process; Advantages of integrating the change process; Activity: Integrate mBOM creation with the change process; Activity: Maintain the mBOM with the change process"
+
+blocks:
+  - type: text
+    md: |
+      Last month the E1 Riverside mBOM drifted. Kai removed a frame decal in the eBOM; nobody told Ana;
+      Riverside kept ordering decals for six weeks. Nobody did anything *wrong* - there just wasn't a
+      process that put Ana in the loop.
+
+      Acme already runs engineering changes through [[change-notice|change notices]] (Module 3). PTC's
+      MPMLink best practice is simple to say and powerful in practice: **run mBOM creation and mBOM
+      maintenance through the same change process.**
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the work order for a change" → [[change-notice]], split into [[change-task|change tasks]]
+      - "what the change looks at / what it produces" → [[affected-object|affected objects]] / [[resulting-object|resulting objects]]
+      - "make task 2 wait for task 1" → **sequence** numbers on change tasks (needs the *Sequenced Plan Execution Order* preference)
+      - "open both BOMs straight from my task" → **Open in BOM Transformer with Context**
+      - "list what changed upstream" → **Detect Discrepancies** → *Review and Resolve Discrepancies*
+      - "this part is in an open change" → the **pending change** indicator
+
+  - type: animation
+    title: The maintenance change notice, step by step
+    diagram:
+      width: 820
+      height: 300
+      nodes:
+        - { id: cn, label: Change notice, sublabel: 2 sequenced tasks, x: 20, y: 120, w: 150, tone: neutral }
+        - { id: t1, label: "Task 1: eBOM", sublabel: Kai updates, x: 210, y: 40, w: 160, tone: info }
+        - { id: r1, label: Review eBOM, sublabel: reviewer, x: 410, y: 40, w: 160, tone: info }
+        - { id: t2, label: "Task 2: mBOM", sublabel: Ana updates, x: 210, y: 200, w: 160, tone: accent }
+        - { id: r2, label: Review mBOM, sublabel: reviewer, x: 410, y: 200, w: 160, tone: accent }
+        - { id: audit, label: Audit + resolve, sublabel: change admin, x: 620, y: 120, w: 170, tone: success }
+      edges:
+        - { from: cn, to: t1, label: "seq 1" }
+        - { from: t1, to: r1 }
+        - { from: r1, to: t2, label: then }
+        - { from: cn, to: t2, label: "seq 2", dashed: true }
+        - { from: t2, to: r2 }
+        - { from: r2, to: audit }
+    chapters:
+      - title: One notice, two tasks
+        caption: Kai creates a change notice with an **eBOM update** task (sequence 1) and an **mBOM update** task (sequence 2).
+        show: [cn, t1, t2]
+        highlight: [cn]
+      - title: Engineering goes first
+        caption: Kai revises the frame and park brake, removes the decal, adds a cable and completes his task.
+        show: [cn, t1, t2]
+        highlight: [t1]
+        flow: [cn>t1]
+      - title: The eBOM is reviewed
+        caption: A product or design engineering manager reviews the eBOM. Only then is Ana's task released to her.
+        show: [cn, t1, r1, t2]
+        highlight: [r1]
+        flow: [t1>r1, r1>t2]
+      - title: Manufacturing follows
+        caption: Ana opens both BOMs from her task, reviews the discrepancies, updates the mBOM and records manufacturing impacts.
+        show: [cn, t1, r1, t2, r2]
+        highlight: [t2]
+        flow: [t2>r2]
+      - title: Audit and resolve
+        caption: The change administrator audits. The notice is **Resolved**, the changed eBOM parts are released - and the mBOM is still **In Work**.
+        show: [cn, t1, r1, t2, r2, audit]
+        highlight: [audit]
+        flow: [r2>audit]
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Tie the mBOM to change notices and you get a **history** of every mBOM creation and update,
+      engineering keeps the release process it already knows, both departments work in the **same**
+      change notice, manufacturing knows exactly *when* to build or update the mBOM, and configuration
+      management finally covers manufacturing data too.
+
+  - type: example
+    variant: case-study
+    title: Creating the Riverside mBOM on the record
+    industry: Micromobility
+    md: |
+      When Kai's team called the E1 eBOM "ready enough" (not every part was released yet - that's a
+      business decision both departments agreed on), Kai created a change notice *Create E1 Riverside
+      mBOM*:
+
+      - one change task, assigned to **Ana**
+      - the **E1 (Design)** top part in **Affected Objects**, with no change intent - nobody is changing it
+      - **nothing** in Resulting Objects
+
+      Ana opened the eBOM from her task, built the Riverside mBOM in the BOM Transformer and completed
+      the task. Kai reviewed it, Maya audited the notice, and it moved to **Resolved**. The mBOM stayed
+      **In Work** - a separate change notice will release it, with the E1 (Riverside) top part in both
+      the affected and resulting objects.
+    takeaway: The change notice records when and why the mBOM was born - even though no released object changed.
+
+  - type: walkthrough
+    title: Update the mBOM inside a sequenced change notice
+    who: Jordan (setup), Kai (creates the notice), Ana (mBOM task)
+    where: [Change notice, Implementation Plan]
+    steps:
+      - title: One-time setup
+        where: [Site, Utilities, Preference Management, Change Management, Sequenced Plan Execution Order]
+        md: Set it to **Yes** so change tasks show sequence fields.
+      - title: Create the notice with two tasks
+        where: [Products, "E-Bike E1", Structure, Actions, New, New Change Notice]
+        md: |
+          Task 1 *Update E1 eBOM* - assignee Kai; affected objects: the E1 (Design) top part and the
+          parts to change, revised so their new revisions appear as resulting objects. Task 2 *Update
+          E1 Riverside mBOM* - assignee Ana; affected object: the **E1 (Design)** top part, *not* the
+          Riverside part. Set **Sequence** 1 and 2, Finish, **Submit Now**.
+      - title: Kai does and completes task 1
+        where: [Home, My Tasks, "Update E1 eBOM"]
+        md: He edits the structure, checks in, completes the task, and the reviewer approves it.
+      - title: Ana opens both BOMs from her task
+        where: [My Tasks, "Update E1 Riverside mBOM", Affected Objects, Actions, Open In, Open in BOM Transformer with Context]
+        md: |
+          In **Specify Upstream Criteria** search the **Parent Context** (E1, Design); in **Specify
+          Downstream Criteria** pick E1 (Riverside). Enter the change task number in both **Change
+          Number** boxes so BOM Transformer updates can feed the task's resulting objects. Allow
+          pop-ups if the window doesn't open, then switch the right pane to the *Riverside* saved filter.
+      - title: Detect the discrepancies
+        where: [Left pane, select changed children, Detect Discrepancies]
+        md: |
+          Changed parts show change and out-of-date indicators. **Detect Discrepancies** opens **Review
+          and Resolve Discrepancies**; tick **Resolved** to see resolved items too. Because the parts are
+          reused, their discrepancies are *For Information* - you're told, but the structure already
+          matches.
+      - title: Re-establish equivalence
+        where: [Right pane, select parts, Update to Current Upstream Equivalent Object]
+        md: |
+          Keep **Carry over from upstream**, OK. In the next dialog select the removed decal's line and
+          **Resolve and Update**. No out-of-date indicators remain. Close, complete the task.
+    result: The reviewer and change administrator finish their tasks; the notice is Resolved, the eBOM changes are released and the Riverside mBOM is updated but still In Work.
+
+  - type: scenario
+    variant: what-if
+    title: What if the order goes wrong?
+    start: w1
+    nodes:
+      - id: w1
+        md: Kai's change notice has both tasks but nobody set sequence numbers. Ana receives her mBOM task immediately. What happens?
+        choices:
+          - label: Ana waits for an email from Kai before starting
+            next: w-partial
+            feedback: Works if people remember - which is exactly what the process should not depend on.
+          - label: Ana updates the mBOM against an eBOM that is still changing
+            next: w-fail
+            feedback: That's the risk. Engineering changes must be done and reviewed first.
+          - label: Ask Maya to fix the notice so task 1 is sequence 1 and task 2 is sequence 2
+            next: w2
+            good: true
+            feedback: Sequencing makes the order a rule, not a habit.
+      - id: w2
+        md: Now the sequence is set. Ana's task names the **Riverside** top part as its affected object. Is that right?
+        choices:
+          - label: No - it should be the E1 (Design) part; the Riverside part is released through a separate notice
+            next: w-success
+            good: true
+            feedback: Correct. This task updates the mBOM from the eBOM; it doesn't release it.
+          - label: Yes - it's the object she changes
+            next: w-partial
+            feedback: Intuitive, but PTC's practice adds the eBOM top part here and releases the mBOM in its own change notice.
+      - id: w-success
+        md: Ordered tasks, the eBOM as the affected object, and a separate release notice for the mBOM. Clean and traceable.
+        outcome: success
+      - id: w-partial
+        md: You'll probably get there, but the process relies on people instead of rules. Fix the notice setup.
+        outcome: partial
+      - id: w-fail
+        md: The mBOM is updated against a moving target and has to be redone after the eBOM review. Sequence the tasks.
+        outcome: fail
+
+  - type: text
+    md: |
+      ### Cheat sheet: mBOM and change
+
+      | Situation | Change notice set-up | End state |
+      | --- | --- | --- |
+      | Create a new mBOM | 1 task for the manufacturing engineer; eBOM top part in Affected Objects; nothing in Resulting Objects | Notice Resolved, mBOM In Work |
+      | eBOM change after the mBOM exists | 2 tasks: eBOM update (seq 1, design engineer), mBOM update (seq 2, manufacturing engineer; eBOM top part as affected object) | Notice Resolved, changed eBOM parts released, mBOM In Work |
+      | Release the mBOM | Separate notice; plant/mBOM top part in Affected **and** Resulting Objects | mBOM released |
+
+      **PTC's best-practice checklist before you start:** PDMLink working in engineering · view network
+      confirmed · robust (ideally change-managed) engineering release · transformation integrated with
+      change management · reuse Design-view parts as much as possible · no open issues in the
+      Windchill-to-ERP data transfer.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Expecting the mBOM to be released at the end.** In PTC's flow both the creation notice and the
+      maintenance notice leave the mBOM **In Work**. If nobody owns the separate release notice, ERP
+      never receives the updated mBOM.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Your process will differ from PTC's example because it depends on the change process you already
+      run - that's expected. Keep the principles: engineering first, manufacturing second, both in one
+      notice, release the mBOM deliberately.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: In the mBOM creation change notice, what goes in Resulting Objects?
+        options: [The eBOM top part, The new mBOM top part, Nothing, Every child part]
+        answer: 2
+        explanation: The eBOM is added as an affected object to track the work; nothing is added to Resulting Objects.
+      - kind: single
+        prompt: What guarantees Ana's mBOM task starts only after the eBOM task is completed and reviewed?
+        options: [A reminder email, Sequence numbers on the change tasks, Putting both tasks on the same assignee, Fast Track complexity]
+        answer: 1
+        explanation: With Sequenced Plan Execution Order enabled, sequence 1 must finish (and be reviewed) before sequence 2 begins.
+      - kind: truefalse
+        prompt: Because the reused frame is identical in both BOMs, Ana still needs to re-establish its equivalent link after Kai's change.
+        answer: true
+        explanation: Reused parts report For Information discrepancies, but Update to Current Upstream Equivalent Object is still needed to restore the link.
+
+  - type: summary
+    points:
+      - Run both mBOM creation and mBOM maintenance through change notices.
+      - Creation notice - eBOM top part as affected object, no resulting objects, mBOM stays In Work.
+      - Maintenance notice - eBOM task first, mBOM task second (sequenced), eBOM top part as the mBOM task's affected object.
+      - Open in BOM Transformer with Context, Detect Discrepancies and Update to Current Upstream Equivalent Object close the gap.
+      - Release the mBOM with its own change notice.

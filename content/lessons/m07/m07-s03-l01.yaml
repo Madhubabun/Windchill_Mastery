@@ -1,0 +1,329 @@
+id: m07-s03-l01
+subtitle: Priya plugs Creo into Windchill once - then every Save, Upload and Check In lands in a very specific place.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [cad, creo, workspace, embedded-browser, server-management]
+sources:
+  - id: te
+    where: "Module 4: Manage CAD data in Windchill: overview; Explore the Creo CAD integration user interface; Register a Windchill server with your CAD tool; Use workspaces to manage CAD data: overview; Identify the benefits of the workspace architecture; Create and delete workspaces; Activity: Register a Windchill server in Creo and create a workspace; Save, upload, and check in CAD data; Activity: Update a CAD part (Auto Check In and Custom Check In); Manage out-of-date workspace objects"
+  - id: hc-ft
+    label: PTC Help Center supplement
+    title: "Enhanced Conflict Handling for Incompatible Family Table Instances"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/NewandChanged/NewandChanged_13_1_20_CDM_BetterHandlingWrkspcConflict.html"
+    covers: "13.1.2.0 change to Add to Workspace conflict handling (used here only as a release pointer; details in lesson m07-s03-l03)"
+  - id: hc-wgm-components
+    label: PTC Help Center supplement
+    title: "Windchill Workgroup Manager Components"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WWGMIntroduction/WWGMGenericIntroIntroGlossary.html"
+    covers: "Active workspace, primary active workspace, workspace cache, workspace local directory, commonspace; Server Management and Event Management utilities"
+
+blocks:
+  - type: text
+    md: |
+      **Priya** has just joined Acme's E1 team. Her job this week: tidy up the **E-Bike E1** frame
+      assembly `eb1_frame.asm` and its new `eb1_motor_mount.prt`.
+
+      On her first morning she opens Creo Parametric, clicks **Save**... and the file doesn't land in
+      `C:\work` like at her last job. Kai grins: *"Welcome to Windchill. Creo doesn't save to a folder
+      here. It saves to your **workspace**."*
+
+      This lesson is about that hookup: connecting Creo to Windchill once, finding your way around the
+      Windchill bits inside Creo, and knowing exactly where your changes go when you hit Save, Upload or
+      Check In.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "telling Creo which Windchill to talk to" → **registering a server** (File → Manage Session → **Server Management**)
+      - "the Windchill Creo uses by default" → **primary server**
+      - "my private desk for CAD work" → [[workspace]]: the [[local-cache]] on your PC + the [[server-side-workspace]]
+      - "the workspace my saves go into right now" → [[primary-active-workspace]]
+      - "the shared, official storage everyone sees" → [[commonspace]]
+      - "Windchill pages shown inside Creo" → [[embedded-browser]]
+      - "the message log for Windchill actions in Creo" → **Event Management**
+
+  - type: diagram
+    title: Windchill inside Creo - five touch points
+    caption: The Creo integration puts Windchill in five places in the Creo window, and they all reach the same workspace. Click a box.
+    diagram:
+      width: 820
+      height: 470
+      groups:
+        - { label: Creo Parametric window, x: 20, y: 20, w: 400, h: 430, tone: neutral }
+        - { label: Your PC, x: 440, y: 20, w: 170, h: 200, tone: info }
+        - { label: Windchill server, x: 630, y: 20, w: 170, h: 430, tone: primary }
+      nodes:
+        - id: menus
+          label: CAD menus
+          sublabel: Check In · Check Out
+          x: 40
+          y: 60
+          w: 170
+          tone: accent
+          detail: Extra Windchill options are added to Creo's menus and ribbons, for common data management actions such as **Check In** and **Check Out**. File → Save, for example, offers Save and Upload and the Check In choices.
+        - id: tree
+          label: Model Tree
+          sublabel: right-click commands
+          x: 230
+          y: 60
+          w: 170
+          tone: accent
+          detail: The Model Tree lists the assembly members and features. Right-click a model for Windchill commands - for example **Update**, which swaps the version open in Creo for the latest available one.
+        - id: folders
+          label: Folder Browser
+          sublabel: Workspace · Commonspace
+          x: 40
+          y: 170
+          w: 170
+          tone: accent
+          detail: Browse your workspace and the Windchill contexts you can access. The **Workspace** entry is the fastest way to see your active workspace; **Commonspace** opens Windchill's shared contexts.
+        - id: browser
+          label: Embedded browser
+          sublabel: Windchill pages
+          x: 230
+          y: 170
+          w: 170
+          tone: accent
+          detail: Windchill's interface as pages inside Creo. It reaches your Creo session, the local cache, the server-side workspace and the commonspace - so you can search, open information pages and run workspace actions without leaving Creo.
+        - id: events
+          label: Event Management
+          sublabel: messages · conflicts
+          x: 130
+          y: 300
+          w: 190
+          tone: warning
+          detail: Lives in Creo's lower panel. It shows the messages from Windchill commands (for example, a background check-in finishing) and opens when an error or **conflict** occurs, with a View Conflicts option.
+        - id: cache
+          label: Local cache
+          sublabel: client-side workspace
+          x: 455
+          y: 90
+          w: 140
+          shape: cylinder
+          tone: info
+          detail: The client side of the workspace. **Save** in Creo writes here. Fast and works offline from the server, but it is exposed to local disk problems, so don't keep work here for long.
+        - id: sws
+          label: Server workspace
+          sublabel: your private copy
+          x: 645
+          y: 70
+          w: 140
+          shape: cylinder
+          tone: primary
+          detail: The server side of the workspace. **Upload** copies modified files here. Still private to you, but now covered by the company's backup and reachable from any workstation that can reach the server. Workspace objects have no iterations - each upload replaces the previous content.
+        - id: common
+          label: Commonspace
+          sublabel: shared contexts
+          x: 645
+          y: 290
+          w: 140
+          shape: cylinder
+          tone: success
+          detail: The Windchill contexts (products, libraries) shared with everyone who has access. **Check In** creates a new iteration here, and only then can others see your change.
+      edges:
+        - { from: menus, to: cache, label: Save }
+        - { from: browser, to: sws, label: Upload }
+        - { from: cache, to: sws, label: Upload }
+        - { from: sws, to: common, label: Check In }
+        - { from: folders, to: common, dashed: true }
+        - { from: events, to: browser, dashed: true }
+
+  - type: animation
+    title: "Save, Upload, Check In: where do the changes go?"
+    caption: Follow one change to eb1_motor_mount.prt from Priya's screen to the shared product.
+    diagram:
+      width: 800
+      height: 300
+      nodes:
+        - { id: session, label: Creo session, sublabel: in memory, x: 20, y: 120, w: 150, tone: neutral }
+        - { id: cache, label: Local cache, sublabel: your PC, x: 220, y: 120, w: 150, shape: cylinder, tone: info }
+        - { id: sws, label: Server workspace, sublabel: private, x: 420, y: 120, w: 160, shape: cylinder, tone: primary }
+        - { id: common, label: Commonspace, sublabel: shared, x: 630, y: 120, w: 150, shape: cylinder, tone: success }
+      edges:
+        - { from: session, to: cache, label: Save }
+        - { from: cache, to: sws, label: Upload }
+        - { from: sws, to: common, label: Check In }
+    chapters:
+      - title: The edit lives only in memory
+        caption: Priya moves a mounting hole. Right now the change exists **only in the Creo session**. A crash would lose it.
+        show: [session]
+        highlight: [session]
+        seconds: 5
+      - title: Save → local cache
+        caption: "**Save** writes to the local workspace cache - even if the server connection drops. Good for minutes, not for days: local disks fail."
+        show: [session, cache]
+        highlight: [cache]
+        flow: [session>cache]
+        seconds: 6
+      - title: Upload → server-side workspace
+        caption: "**Upload** (or **Save and Upload**) copies modified files to the server-side workspace. Still private, but backed up and reachable from any PC. No new iteration yet."
+        show: [session, cache, sws]
+        highlight: [sws]
+        flow: [cache>sws]
+        seconds: 6
+      - title: Check In → commonspace
+        caption: "**Check In** turns the workspace copy into a **new iteration** in the shared context (say A.1 → A.2). Now Kai and the Lakeside team can see it."
+        highlight: [common]
+        flow: [sws>common]
+        seconds: 6
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      "Where did my change go?" is the number one CAD support ticket in real Windchill rollouts. Designers who
+      only ever **Save** lose days of work when a laptop dies. Designers who **Check In** every small
+      experiment flood the history with junk iterations. Knowing the three levels lets you upload often and
+      check in when the design is really ready for others.
+
+  - type: example
+    variant: real-world
+    title: Priya's laptop dies on Thursday
+    industry: Micromobility
+    md: |
+      On Thursday afternoon Priya's laptop refuses to boot. Two days of motor mount changes were saved
+      locally, but on Wednesday evening she had used **Save and Upload**. From a spare PC she connects Creo
+      to the same Windchill server, opens her workspace, and the uploaded files are there. She lost only the
+      Thursday morning edits - the ones that lived just in the local cache.
+    takeaway: Upload is your safety net; check-in is how you share.
+
+  - type: walkthrough
+    title: Connect Creo to Windchill and pick a workspace
+    who: Any CAD user with a Windchill account (Priya)
+    where: [Creo, File, Manage Session, Server Management]
+    steps:
+      - title: Open Server Management
+        where: [File, Manage Session, Server Management]
+        md: In Creo Parametric, open the **File** tab, point to **Manage Session** and choose **Server Management**. Out of the box, Creo is not connected to any Windchill.
+      - title: Register the server
+        where: [Server Management, Server, Register New Server]
+        md: |
+          From the **Server** menu choose **Register New Server**. Give it a short **Name** (Acme uses
+          `Windchill`), paste the Windchill URL into **Location**, and click **Check**.
+      - title: Sign in as yourself
+        where: [Register New Server, Check]
+        md: Enter your own Windchill user name and password. Use the same user that is signed in to Windchill on this PC - the course guide warns that mixing users can corrupt the cache.
+      - title: Choose the workspace to start in
+        where: [Register New Server, Workspaces list]
+        md: |
+          After the check, a list of your workspaces appears. Pick one and click **OK**. Windchill also keeps a
+          workspace for each product or library you can access, named like *Workspace on E-Bike E1*.
+      - title: Set it as the primary server
+        where: [Server Management, right-click server, Set as Primary Server]
+        md: Right-click the new server and choose **Set as Primary Server**, then **Close**. Registration is a one-time job per PC (admins can script it).
+      - title: Create a workspace for the task
+        where: [Embedded browser, Navigator, Browse, E-Bike E1, Workspaces]
+        md: |
+          In the embedded browser, open the **Navigator**, choose **Browse**, expand the product and click
+          **Workspaces**. In the **My Workspaces** table click **New Workspace**, name it (Priya uses
+          *E1 motor mount*) and click **OK**. It becomes the primary active workspace.
+    result: |
+      Creo now saves into Priya's *E1 motor mount* workspace. The Folder Browser shows **Workspace** and
+      **Commonspace**, and the Windchill node in the Folder Tree lists her products.
+
+  - type: simulation
+    title: Where is my change right now?
+    intro: |
+      You are Priya, working on `eb1_motor_mount.prt` at **A.1**. Check it out, change it, and move the
+      change through the three storage levels. Watch the **edits** field.
+    headline: "eb1_motor_mount.prt · {revision}.{iteration} · edits: {edits} · checked out: {checkedOut}"
+    initial: { revision: A, iteration: 1, edits: none, checkedOut: false }
+    actions:
+      - id: check-out
+        label: Check out
+        when: { checkedOut: false }
+        do: [{ set: { checkedOut: true, edits: none } }]
+        log: Checked out {revision}.{iteration}. You get a working copy in your workspace; others see it is being modified.
+        blockedHint: It is already checked out to your workspace.
+      - id: modify
+        label: Move the mounting hole
+        when: { checkedOut: true }
+        do: [{ set: { edits: in session } }]
+        log: Geometry changed in Creo. The edit exists only in session memory.
+        blockedHint: Check the part out first - otherwise Creo raises a read-only conflict.
+      - id: save
+        label: Save
+        when: { edits: in session }
+        do: [{ set: { edits: in local cache } }]
+        log: Saved to the local workspace cache on this PC. Not backed up yet.
+        blockedHint: There are no unsaved session edits.
+      - id: upload
+        label: Upload
+        when: { edits: in local cache }
+        do: [{ set: { edits: in server workspace } }]
+        log: Uploaded to the server-side workspace. Private, but backed up. Still {revision}.{iteration} - workspaces have no iterations.
+        blockedHint: Upload sends what is in the local cache. Save first.
+      - id: save-and-upload
+        label: Save and Upload
+        when: { edits: in session }
+        do: [{ set: { edits: in server workspace } }]
+        log: Saved and uploaded in one step. The change is in the server-side workspace.
+        blockedHint: There are no unsaved session edits.
+      - id: check-in
+        label: Check in
+        when: { checkedOut: true, edits: [in local cache, in server workspace] }
+        do: [{ inc: iteration }, { set: { checkedOut: false, edits: shared } }]
+        log: Checked in. Windchill uploaded what was needed and created {revision}.{iteration} in the commonspace. Everyone can see it now.
+        blockedHint: Save (or upload) your edits before checking in - a session-only change isn't in the workspace yet.
+    goals:
+      - label: Protect the change on the server without sharing it
+        when: { edits: in server workspace }
+        message: That's the Upload safety net - backed up, but no new iteration and nobody else sees it yet.
+      - label: Share the change as A.2
+        when: { iteration: 2 }
+        message: Check-in created a new iteration in the commonspace.
+      - label: Ship a second round of edits as A.3
+        when: { iteration: 3 }
+        message: Each check-in adds one iteration; uploads in between do not.
+
+  - type: callout
+    variant: pitfall
+    title: Deleting a workspace deletes its uncommitted work
+    md: |
+      Workspaces are temporary. To delete one it must be **inactive**. New or modified objects that are
+      **not checked out** are deleted with it, and if it holds checked-out objects you get an overridable
+      conflict - continue, and those check-outs are **cancelled**. Check in (or deliberately throw away)
+      before you delete.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Make **one workspace per task** ("E1 motor mount", "S2 brake bracket") and delete it when the task is
+      done. Your list stays short, and when someone iterates a part you have in a workspace, Creo marks your
+      copy **out of date** - select it and use **Update out of date versions** (or run Update with nothing
+      selected to check the whole workspace).
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Priya clicks Save in Creo while connected to Windchill. Where does the file go?
+        options: [A folder on the C drive, The local workspace cache, The server-side workspace, The commonspace as a new iteration]
+        answer: 1
+        explanation: With a Windchill server registered, Save writes to the local cache of the active workspace. Upload moves it to the server-side workspace; Check In creates the shared iteration.
+      - kind: truefalse
+        prompt: Uploading a CAD document three times creates three new iterations.
+        answer: false
+        explanation: Workspace CAD documents have no iterations. Each upload replaces the previous content in the server-side workspace. Only check-in creates an iteration.
+      - kind: single
+        prompt: Where in Creo do you register a Windchill server?
+        options: ["File → Manage Session → Server Management", "Model tab → Windchill", Model Tree right-click → Register, "Tools → Parameters"]
+        answer: 0
+        explanation: Server Management (File → Manage Session) is where you register servers, check the connection and set the primary server.
+      - kind: multi
+        prompt: Which are benefits of the workspace architecture? (Choose all that apply.)
+        options: [Only the files you need are downloaded to the cache, Uploads and downloads run in the background, The server-side workspace is covered by company backups, Every Save is visible to the whole team]
+        answers: [0, 1, 2]
+        explanation: Selective download, asynchronous transfers and backed-up server storage are the benefits. Saves stay private until check-in.
+      - kind: single
+        prompt: A check-in failed and Creo shows an error in the lower panel. Which tool shows the details?
+        options: [Event Management, Model Tree, Server Management, Parameters]
+        answer: 0
+        explanation: Event Management shows the messages from Windchill commands and lets you view conflicts.
+
+  - type: summary
+    points:
+      - Creo has the Windchill integration built in; register the server once under File → Manage Session → Server Management and set it as primary.
+      - Windchill appears in Creo in five places - menus, Model Tree, Folder Browser, embedded browser and Event Management.
+      - A workspace is your local cache plus your server-side workspace; the primary active workspace is where Save goes.
+      - Save → local cache, Upload → server-side workspace (backed up, private), Check In → new iteration in the commonspace.
+      - Keep one workspace per task and delete it only after checking in what matters.

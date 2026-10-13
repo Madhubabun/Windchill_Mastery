@@ -1,0 +1,332 @@
+id: m07-s01-l01
+subtitle: Engineering designed the E-Bike E1 by function. The Riverside line builds it in a totally different order. Meet the BOM the factory actually needs.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [mpmlink, mbom, ebom, bom-transformation, manufacturing]
+sources:
+  - id: mpm-bom
+    where: "Course scenario; Implementation strategy; Module 1: What is manufacturing process management (MPM)?; What is an mBOM and why do we need it?; BOM transformation; Advantages of using Windchill MPMLink; Windchill MPMLink architecture"
+  - id: mpm-pp
+    where: "Module 1: Windchill MPMLink overview; Why use process plans?"
+  - id: te
+    where: "Module 1: Transform the bill of materials (BOM) for a product; Manage manufacturing processes. BOM module: What is a BOM used for?; Create a BOM: techniques; Specify a configuration specification. Manufacturing Process Management: overview and architecture"
+
+blocks:
+  - type: text
+    md: |
+      Kai's team has released the **E-Bike E1** structure: frame, drive unit, battery pack, controller,
+      display, wiring harness, brakes, wheels. It's organised the way engineers think - by **function**.
+
+      Then **Ana** from manufacturing opens it and sighs. On the Riverside line, the controller,
+      display and harness are pre-built as one *electrical kit* at a side bench. Frame, wheels and
+      brakes become a *rolling chassis* before anything else is bolted on. And the box the bike ships in,
+      the owner's manual and the stickers? Not in engineering's structure at all - but the warehouse
+      still has to order them.
+
+      Same bike, two very different lists. Today, Acme keeps Ana's version in the ERP system and a pile
+      of spreadsheets. This section is about moving it into Windchill - linked to engineering's version.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the bike as engineers designed it" → [[ebom|engineering BOM (eBOM)]], usually in the **Design** view
+      - "the bike as the factory builds it" → [[mbom|manufacturing BOM (mBOM)]], usually in the **Manufacturing** view
+      - "the same part, seen by another team" → a [[part-view|view]] version of the part
+      - "turning one BOM into another, keeping them linked" → **BOM transformation** (PTC also says *xBOM*)
+      - "defining *how* to build, not *what* to build" → **manufacturing process management (MPM)**
+      - "Windchill's add-on for all of that" → [[mpmlink|Windchill MPMLink]]
+
+  - type: diagram
+    title: Same E1, two structures
+    caption: Left is engineering's view, right is Riverside's view of the same bike. Click a box to see why it moved.
+    diagram:
+      width: 820
+      height: 470
+      groups:
+        - { label: eBOM - Design view, x: 20, y: 20, w: 360, h: 430, tone: info }
+        - { label: mBOM - Manufacturing view, x: 420, y: 20, w: 380, h: 430, tone: accent }
+      nodes:
+        - id: e-top
+          label: E-Bike E1
+          sublabel: Design
+          x: 120
+          y: 50
+          w: 160
+          tone: info
+          detail: The top of the eBOM. Driven mostly from CAD and organised by how the bike is functionally designed.
+        - id: e-frame
+          label: Frame assembly
+          x: 40
+          y: 150
+          w: 150
+          tone: neutral
+          detail: A functional design group. In the factory it becomes part of a bigger build stage.
+        - id: e-drive
+          label: Drive unit
+          x: 210
+          y: 150
+          w: 150
+          tone: neutral
+          detail: Designed as its own subsystem; reused as-is in the mBOM.
+        - id: e-elec
+          label: Controller + display
+          sublabel: + wiring harness
+          x: 40
+          y: 250
+          w: 150
+          h: 64
+          tone: neutral
+          detail: Three separate design items. Riverside pre-assembles them together.
+        - id: e-wheels
+          label: Wheels + brakes
+          x: 210
+          y: 250
+          w: 150
+          tone: neutral
+          detail: Separate functional groups in engineering's eyes.
+        - id: e-battery
+          label: Battery pack
+          sublabel: Voltra Cells
+          x: 120
+          y: 360
+          w: 160
+          tone: neutral
+          detail: Bought from Voltra Cells. Same part in both structures.
+        - id: m-top
+          label: E-Bike E1
+          sublabel: Manufacturing
+          x: 530
+          y: 50
+          w: 160
+          tone: accent
+          detail: The top of the mBOM - the product as it will be built and shipped. It drives purchasing, the line and ERP.
+          real: Ana is responsible for this structure.
+        - id: m-kit
+          label: Electrical kit
+          sublabel: assembled at a side bench
+          x: 440
+          y: 150
+          w: 165
+          tone: warning
+          detail: |
+            A grouping that doesn't exist in the eBOM. It reflects the **order of assembly**: the kit is
+            built first, then mounted on the chassis.
+        - id: m-chassis
+          label: Rolling chassis
+          sublabel: frame + wheels + brakes
+          x: 620
+          y: 150
+          w: 165
+          tone: warning
+          detail: A manufacturing assembly that is physically built and stored before final assembly. Not in the eBOM.
+        - id: m-reused
+          label: Drive unit · battery
+          sublabel: reused design parts
+          x: 440
+          y: 260
+          w: 165
+          tone: success
+          detail: |
+            Engineering parts can be reused directly in the mBOM. PTC calls this the **best practice**:
+            the more you reuse, the easier it is to keep the two BOMs in step.
+        - id: m-extra
+          label: Carton · manual
+          sublabel: stickers · packaging
+          x: 620
+          y: 260
+          w: 165
+          tone: danger
+          detail: |
+            Items that only matter to building and shipping the product: packaging, manuals, stickers,
+            oil. Engineering never models them; the mBOM must contain them because purchasing orders
+            from it.
+        - id: m-erp
+          label: ERP / MES
+          sublabel: order · plan · build
+          x: 530
+          y: 370
+          w: 160
+          shape: cylinder
+          tone: primary
+          detail: The mBOM feeds the business systems that order parts and run production - ERP, MRP and MES.
+      edges:
+        - { from: e-top, to: e-frame }
+        - { from: e-top, to: e-drive }
+        - { from: e-top, to: e-elec }
+        - { from: e-top, to: e-wheels }
+        - { from: e-top, to: e-battery }
+        - { from: m-top, to: m-kit }
+        - { from: m-top, to: m-chassis }
+        - { from: m-top, to: m-reused }
+        - { from: m-top, to: m-extra }
+        - { from: e-top, to: m-top, label: transform, dashed: true }
+        - { from: m-top, to: m-erp, dashed: true }
+
+  - type: animation
+    title: From CAD to the shop floor
+    diagram:
+      width: 820
+      height: 260
+      nodes:
+        - { id: cad, label: CAD structure, sublabel: Creo, x: 20, y: 100, w: 130, shape: doc, tone: neutral }
+        - { id: ebom, label: eBOM, sublabel: Design view, x: 180, y: 100, w: 120, tone: info }
+        - { id: mbom, label: mBOM, sublabel: Manufacturing view, x: 330, y: 100, w: 140, tone: accent }
+        - { id: plan, label: Process plan, sublabel: operations, x: 500, y: 100, w: 130, tone: warning }
+        - { id: res, label: Resources, sublabel: plant · tools · skills, x: 500, y: 200, w: 130, tone: neutral }
+        - { id: erp, label: ERP, sublabel: production planning, x: 670, y: 100, w: 130, shape: cylinder, tone: primary }
+      edges:
+        - { from: cad, to: ebom }
+        - { from: ebom, to: mbom, label: transform }
+        - { from: mbom, to: plan }
+        - { from: res, to: plan, label: allocated }
+        - { from: plan, to: erp }
+        - { from: mbom, to: erp, dashed: true }
+    chapters:
+      - title: It starts in CAD
+        caption: Priya's Creo assembly structure is used to build the first, low-level structure of the eBOM.
+        show: [cad, ebom]
+        highlight: [cad]
+        flow: [cad>ebom]
+      - title: Engineering's BOM
+        caption: Kai's team completes the **eBOM** in the Design view - *what* the product is.
+        show: [cad, ebom]
+        highlight: [ebom]
+      - title: Transform it
+        caption: Ana uses MPMLink to develop the **mBOM** from the eBOM - *how* it is built. The two stay linked.
+        show: [cad, ebom, mbom]
+        highlight: [mbom]
+        flow: [ebom>mbom]
+      - title: Plan the work
+        caption: The mBOM leads to **process plans** - the operations needed to build that structure.
+        show: [cad, ebom, mbom, plan]
+        highlight: [plan]
+        flow: [mbom>plan]
+      - title: Add the resources
+        caption: Plants, work centers, tooling, materials and skills are allocated to operations.
+        show: [cad, ebom, mbom, plan, res]
+        highlight: [res]
+        flow: [res>plan]
+      - title: Hand off to ERP
+        caption: mBOM, process plans and resources go to ERP - most often through Windchill ESI - so production can be planned.
+        show: [cad, ebom, mbom, plan, res, erp]
+        highlight: [erp]
+        flow: [plan>erp, mbom>erp]
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      When the factory's BOM lives in a separate ERP or spreadsheet, every engineering change is a
+      copy-and-hope exercise. MPMLink keeps product, process and resource data in **one system**, with no
+      duplication, so engineering and manufacturing can work at the same time. Both BOMs get the same
+      Windchill services - change management, configuration, life cycle and access control - and
+      manufacturing can flag "we can't build that" while the design is still young.
+
+  - type: comparison
+    title: eBOM vs mBOM at a glance
+    columns: [eBOM, mBOM]
+    rows:
+      - label: Represents
+        cells: ["The product as it is designed", "The product as it will be manufactured"]
+      - label: Owned by
+        cells: ["Engineering / design", "Manufacturing"]
+      - label: Organised by
+        cells: ["Function - how the product is designed", "Assembly order - how it is built and stocked"]
+      - label: Usually driven from
+        cells: ["CAD", "The eBOM plus manufacturing knowledge"]
+      - label: Extra content
+        cells: ["Final assemblies and the parts that make them", "Packaging, manuals, stickers, oil, kits, assembly and tooling information"]
+      - label: Default view
+        cells: ["Design", "Manufacturing"]
+      - label: Feeds
+        cells: ["The mBOM (and other downstream BOMs)", "ERP, MRP and MES - ordering parts and running the line"]
+    takeaway: "Same product, different question: \"what is it?\" versus \"how do we build it?\""
+
+  - type: example
+    variant: real-world
+    title: Typical differences Ana spots in the E1
+    industry: Micromobility
+    md: |
+      | eBOM says | mBOM says | Why |
+      | --- | --- | --- |
+      | Controller, display and harness are separate | One **electrical kit** | Built together at a side bench |
+      | Frame, wheels and brakes are separate groups | One **rolling chassis** | Built and stored before final assembly |
+      | Drive unit, battery pack | Same parts, **reused** | Nothing about them changes in the factory |
+      | *(nothing)* | Carton, owner's manual, stickers | Manufacturing-only items that must still be ordered |
+      | Seat as designed | A seat under a **different number** | Acme's ERP rules want a separate factory number for kitted seats |
+
+      PTC's own textbook example shows the same pattern on a table: the mBOM follows the order of
+      assembly and uses a kit that is already in stock.
+
+  - type: walkthrough
+    title: See which view a structure is showing
+    who: Any user who can open the product
+    where: [Browse, Products, "<product>", Structure]
+    steps:
+      - title: Open the product structure
+        where: [Navigator, Browse, Products, "E-Bike E1", Structure]
+        md: Open the product and its top-level part's **Structure** tab.
+      - title: Look at the filter
+        where: [Structure tab, Filter]
+        md: |
+          The default configuration specification is **Latest** with the **Design** view - that is the
+          eBOM. With Include Work in Progress ticked, your own checked-out versions show too.
+      - title: Switch the view
+        where: [Structure tab, Filter, View]
+        md: |
+          Change the **View** to **Manufacturing** to see the mBOM version of the structure, if one
+          exists. With MPMLink installed, extra filter fields such as **BOM Type** and **Alternate BOM**
+          appear.
+    result: |
+      You can tell at a glance whether you are looking at engineering's or manufacturing's structure -
+      the single most common source of confusion when people first meet MPMLink.
+
+  - type: callout
+    variant: pitfall
+    title: Rebuilding the mBOM from scratch
+    md: |
+      It's tempting to re-key the whole factory BOM as brand-new parts "because it's different". Don't.
+      Most E1 parts are identical in both structures, and reusing Design-view parts in the mBOM is PTC's
+      stated best practice. Every needless copy is one more link to maintain when engineering changes.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Before anyone opens a tool, get the basics right: engineering data management and a working
+      **release and change process** should already be in place. PTC's implementation path for MPMLink
+      is *prepare → assess requirements → implement*, and the assessment covers BOM, process plan,
+      resource and ERP integration needs - in that order.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: What does the mBOM represent?
+        options: [The product as engineers designed it, The product as it will be manufactured, The list of CAD files, The service spare parts list]
+        answer: 1
+        explanation: The mBOM is the product as it will be built - organised by assembly order and including items like packaging that only manufacturing needs.
+      - kind: multi
+        prompt: Which items would you typically find in the E1 mBOM but not in its eBOM? (Choose all that apply.)
+        options: [Shipping carton, Owner's manual, Battery pack, Stickers]
+        answers: [0, 1, 3]
+        explanation: Packaging, manuals and stickers are manufacturing-only items. The battery pack is a design part that is simply reused in the mBOM.
+      - kind: truefalse
+        prompt: Out of the box, the Design view represents the eBOM and the Manufacturing view represents the mBOM.
+        answer: true
+        explanation: Those are the two out-of-the-box views. Companies can add or rename views later.
+      - kind: single
+        prompt: Why does PTC recommend reusing Design-view parts in the mBOM wherever possible?
+        options: [It saves database space, It makes keeping the two BOMs in step much easier, ERP can't read new parts, It is required by the license]
+        answer: 1
+        explanation: Reused parts are identical on both sides, so engineering changes flow through with little extra work. Copies and renumbered parts need more maintenance.
+      - kind: order
+        prompt: Put the natural flow of MPMLink data in order.
+        items: [CAD structure, eBOM, mBOM, Process plan with resources, ERP]
+        explanation: CAD builds the eBOM, the eBOM is transformed into the mBOM, the mBOM leads to process plans with allocated resources, and the result goes to ERP for production planning.
+
+  - type: summary
+    points:
+      - The eBOM is the product as designed (Design view); the mBOM is the product as built (Manufacturing view).
+      - mBOMs reorganise for assembly order, add kits and manufacturing-only items, and feed ERP, MRP and MES.
+      - "BOM transformation (xBOM) creates linked BOMs, so changes can flow from one to the other."
+      - MPMLink adds BOM transformation, process plans, manufacturing resources and work instructions to PDMLink.
+      - Reuse design parts in the mBOM wherever you can - it's PTC's best practice.

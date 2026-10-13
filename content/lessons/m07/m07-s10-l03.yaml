@@ -1,0 +1,247 @@
+id: m07-s10-l03
+subtitle: Change how one attribute looks or behaves - in a table, on an info page, in a wizard - without rebuilding the page.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [customization, developer, data-utilities, gui-components, ui-framework]
+sources:
+  - id: cus-du
+    where: "DataUtility theory: introduction; basic concepts (GUI components, component descriptor, component model); registration of DataUtility; register DataUtility on the attribute; result; suggestion box. Exercise 5 Data Utility for Name(Number); Link for Related Part or Document exercise"
+  - id: cus-mvc
+    where: "MVC Builders theory: Specifying Datautility for columns (setDataUtilityId, service.properties entry)"
+  - id: trn-framework
+    where: "Windchill Framework Customization slides: Data Utility concept, registering a data utility, restart and test; Data Utility.txt sample (GUIComponentArray, UrlDisplayComponent, IconComponent)"
+  - id: cus-overview
+    where: "Day 1 overview: common Java services (GUI services, data utilities)"
+  - id: cus-fp
+    where: "Form Processor theory: associating a delegate using a data utility"
+versionNotes:
+  - versions: ["All releases"]
+    md: |
+      The training's steps for assigning a data utility ID go through a type's attribute **layout** in
+      [[type-and-attribute-management|Type and Attribute Management]]. Labels on that screen can vary between
+      releases, so look for the same names - Layouts, the attribute's properties, Data Utility Id.
+  - versions: ["Windchill+"]
+    md: The data utility class and its service.properties entry are customizations, so on [[windchill-plus|Windchill+]] they travel in a [[windchill-plus-ccd|CCD]] package.
+
+blocks:
+  - type: text
+    md: |
+      Ana on the Lakeside line keeps asking the same thing: *"Which part is this?"* The info page shows the name
+      **Rear hub motor** in one place and the number **EB-1240** in another. She wants both in one glance:
+      **Rear hub motor (EB-1240)**.
+
+      That's not a new page or a new table. It's a change to how **one attribute** is drawn. Windchill has a hook
+      for exactly that: the [[data-utility]].
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a Java helper that decides how one attribute is drawn" → [[data-utility]]
+      - "the widget it hands back: a label, text box, link, combo box..." → **GUI component**
+      - "the name you register it under" → **selector**, used as the **data utility ID**
+      - "where you register it" → `service.properties`, written through a `*service.properties.xconf` file
+      - "the base class to extend" → `AbstractDataUtility`
+
+  - type: diagram
+    title: Where a data utility sits
+    caption: The page asks for an attribute; the data utility turns raw data into a GUI component. Click a box.
+    diagram:
+      width: 820
+      height: 380
+      groups:
+        - { label: Method server, x: 20, y: 20, w: 560, h: 340, tone: primary }
+        - { label: Servlet container, x: 600, y: 20, w: 200, h: 340, tone: neutral }
+      nodes:
+        - id: component
+          label: Table / info page
+          sublabel: column or property
+          x: 40
+          y: 60
+          w: 170
+          tone: accent
+          detail: Tables, trees, info pages and attribute panels are made of columns and properties. Each one has an ID and can carry a data utility ID.
+        - id: registry
+          label: service.properties
+          sublabel: selector → class
+          x: 40
+          y: 220
+          w: 170
+          shape: doc
+          tone: warning
+          detail: |
+            A component can't use your class directly. It looks the data utility ID up as a **selector** under the
+            service name `com.ptc.core.components.descriptor.DataUtility`, which method servers read into their
+            services cache.
+        - id: datautil
+          label: Your data utility
+          sublabel: extends AbstractDataUtility
+          x: 260
+          y: 140
+          w: 200
+          tone: primary
+          detail: |
+            Overrides `getDataValue(String component_id, Object datum, ModelContext mc)`. The **datum** is the row
+            object (for example a WTPart). It can read more data with extra queries or service calls, then returns a
+            GUI component.
+        - id: gui
+          label: GUI component
+          sublabel: Label · TextBox · ...
+          x: 260
+          y: 270
+          w: 200
+          tone: info
+          detail: |
+            A Java object that carries what's needed to render one UI element, including a default renderer.
+            Out-of-the-box examples include Label, TextBox, TextArea, ComboBox, RadioButton, IconComponent,
+            UrlDisplayComponent and GUIComponentArray (several in one cell).
+        - id: html
+          label: Rendered HTML
+          sublabel: "draw(Writer, RenderingContext)"
+          x: 620
+          y: 200
+          w: 165
+          shape: pill
+          tone: success
+          detail: GUI components are usually built in the method server and returned to the servlet container, where their draw method writes the HTML.
+      edges:
+        - { from: component, to: registry, label: data utility ID }
+        - { from: registry, to: datautil, label: serviceClass }
+        - { from: datautil, to: gui, label: returns }
+        - { from: gui, to: html }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Data utilities are for UI changes that **configuration can't do**: a calculated value on an info page, a
+      column styled differently, a field that reacts to another field, a check box instead of a drop-down. One
+      small class, registered once, can be reused wherever you assign its ID.
+
+  - type: walkthrough
+    title: Show name (number) for parts
+    who: Windchill developer (Theo), then a site administrator for the layout step
+    where: ["<Windchill>", src, com, acme, windchill, datautility]
+    steps:
+      - title: Write the class
+        where: [src, com, acme, windchill, datautility, PartNameNumberDataUtility.java]
+        md: |
+          ```java
+          public class PartNameNumberDataUtility extends AbstractDataUtility {
+              @Override
+              public Object getDataValue(String component_id, Object datum, ModelContext mc) throws WTException {
+                  Label label = new Label("");
+                  label.setId(component_id);
+                  label.setColumnName(AttributeDataUtilityHelper.getColumnName(component_id, datum, mc));
+                  if (datum instanceof WTPart) {
+                      WTPart part = (WTPart) datum;
+                      label.setValue(part.getName() + " (" + part.getNumber() + ")");
+                  }
+                  return label;
+              }
+          }
+          ```
+          Then compile it with `ant -f bin/tools.xml class`.
+      - title: Register a selector
+        where: [codebase, service.properties.xconf]
+        md: |
+          ```xml
+          <Service context="default" name="com.ptc.core.components.descriptor.DataUtility"
+                   targetFile="codebase/service.properties">
+            <Option serviceClass="com.acme.windchill.datautility.PartNameNumberDataUtility"
+                    selector="acmePartNameNumber" requestor="java.lang.Object" cardinality="duplicate"/>
+          </Service>
+          ```
+          Run `xconfmanager -p` in a Windchill shell to propagate it into `service.properties`.
+      - title: Assign it to the attribute
+        where: [Site, Utilities, Type and Attribute Management, Manage Types, Part]
+        md: |
+          Open the Part type, choose **Edit** from its actions, go to **Layouts** and pick the
+          **Primary Attributes Info Page Layout**. Edit the **Name** attribute's properties and set
+          **Data Utility Id** to `acmePartNameNumber`.
+      - title: Restart and test
+        where: [Windchill shell]
+        md: Restart the method server, open any E1 part's information page and look at Name.
+    result: |
+      The Name attribute now reads like **Rear hub motor (EB-1240)**. In an MVC table, Theo can use the same
+      selector on a column instead: `col.setDataUtilityId("acmePartNameNumber")`.
+
+  - type: scenario
+    variant: troubleshooting
+    title: Ana still sees plain names
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Theo deployed the class and the xconf entry. Ana refreshes an E1 part's info page and the Name still
+          shows **Rear hub motor**. What does Theo check first?
+        choices:
+          - label: Whether xconfmanager -p ran and the method server was restarted
+            next: s2
+            good: true
+            feedback: Right. An xconf change does nothing until it's propagated, and the services cache is read at startup.
+          - label: Rewrite the class to return a TextBox instead
+            next: f1
+            feedback: The widget type isn't the problem if the class never runs.
+      - id: s2
+        md: |
+          Both were done. service.properties contains the Option line with selector `acmePartNameNumber`. Next?
+        choices:
+          - label: Compare the layout's Data Utility Id with the selector, character for character
+            next: s3
+            good: true
+            feedback: The link between attribute and class is only that string.
+          - label: Add a second Option line with the same selector
+            next: f2
+            feedback: Two registrations don't make either one get used.
+      - id: s3
+        md: |
+          The layout says `acmePartNumberName`, words swapped. Theo fixes it to `acmePartNameNumber`.
+          Ana refreshes: **Rear hub motor (EB-1240)**.
+        outcome: success
+      - id: f1
+        md: Theo spends an hour on a TextBox that still never appears. The data utility isn't being called at all.
+        outcome: fail
+      - id: f2
+        md: Nothing changes. The layout still points at a selector nobody registered.
+        outcome: partial
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Assuming the datum's type.** The training's quick version casts `datum` straight to WTPart. If the same
+      data utility ID ends up on a column that holds documents, that cast fails. Check with `instanceof`, as in
+      Theo's version.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Data utilities can do more than relabel. The training shows one that lists a part's described-by documents
+      as links, built with `NmAction`/`NmOid` or `UrlDisplayComponent` inside a `GUIComponentArray`. A data utility
+      can even attach a hidden form-processor delegate field to an input component (lesson 4). For type-ahead
+      fields, a class implementing `Suggestable` with `getSuggestions()` feeds a suggest text box.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: What does getDataValue return?
+        options: [An HTML string, A GUI component such as a Label, A QueryResult, A FormResult]
+        answer: 1
+        explanation: The data utility hands back a GUI component. Its renderer writes the HTML later in the servlet container.
+      - kind: single
+        prompt: Under which service name is a data utility registered?
+        options: [com.ptc.core.components.descriptor.DataUtility, com.ptc.core.ui.validation.UIComponentValidator, com.ptc.mvc.components.ComponentBuilder, com.ptc.core.ui.validation.SimpleValidationFilter]
+        answer: 0
+        explanation: Data utilities are registered as options of the DataUtility service, keyed by a selector that you then use as the data utility ID.
+      - kind: multi
+        prompt: Where can Theo attach a registered data utility ID? (Choose all that apply.)
+        options: [An attribute in a type's layout in Type and Attribute Management, A column in an MVC table via setDataUtilityId, An action model entry, A resource bundle]
+        answers: [0, 1]
+        explanation: The training uses both, the layout's Data Utility Id property and ColumnConfig.setDataUtilityId in a builder. Action models and bundles don't carry data utilities.
+
+  - type: summary
+    points:
+      - A data utility gets an attribute's data and metadata and returns a GUI component that decides how the attribute is drawn.
+      - Extend AbstractDataUtility and override getDataValue(component_id, datum, ModelContext).
+      - Register it in a service.properties.xconf under com.ptc.core.components.descriptor.DataUtility with a selector, then run xconfmanager -p and restart.
+      - Use the selector as the Data Utility Id in a type's layout, or call setDataUtilityId on an MVC column.
+      - When it doesn't show, check propagation, restart, and the exact selector string first.

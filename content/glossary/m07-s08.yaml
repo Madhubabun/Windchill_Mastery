@@ -1,0 +1,56 @@
+# New glossary terms introduced in section m07-s08 (Windchill+ and the cloud).
+- id: bac-utility
+  term: Business Administrative Change (BAC) utility
+  plain: The Windchill tool that bundles admin settings into a ZIP so you can move them to another system.
+  definition: A Windchill utility, found in the Business Administration section of the Utilities page for the site and for organizations, that collects business administration changes (for example object initialization rules and life cycle templates) into a package and imports such packages on another system. Site administrators can use it, and so can organization administrators who belong to the Business Administrative Change Package Creator and Business Administrative Change Package Importer groups. You pick changes by date range and object type, it can collect dependent objects automatically, and the result downloads as a ZIP.
+  aka: [BAC utility, Business Administrative Change Promotion]
+  related: [bac-package, windchill-plus-ccd, object-initialization-rule, life-cycle-template]
+
+- id: bac-package
+  term: BAC package
+  plain: The ZIP of admin changes that the BAC utility creates.
+  definition: The ZIP file exported by the Business Administrative Change utility. It can be imported directly into another on-premises or cloud Windchill system, or placed in a CCD package to reach Windchill+. Inside a CCD package it goes in the generated BAC folder, which holds exactly one ZIP, so all administrative changes for a deployment are exported into a single BAC package. Imported objects overwrite conflicting objects on the target, and objects it depends on but does not carry (such as life cycle states, team templates or roles) must already exist there.
+  aka: [Business Administrative Change package, BAC ZIP]
+  related: [bac-utility, ccd-package, windchill-plus-ccd]
+
+- id: ccd-package
+  term: CCD package
+  plain: A ZIP with a fixed folder layout that holds everything one deployment changes.
+  definition: The standard package structure the Code and Configuration Deployment utility works on. Its configurations folder holds deploy.xml, load files, XML load files and property changes (in a custom site xconf file); its generated folder holds schema changes and a single BAC package; numbered module folders hold Java source, resources, module xconf files and web files, each described by a descriptor file; a test folder holds unit tests. The create.package target builds an empty skeleton. When zipped for Windchill+, the ZIP must have no root folder.
+  aka: [CCD build package, customization package]
+  related: [windchill-plus-ccd, ccd-target, bac-package]
+
+- id: ccd-target
+  term: CCD target
+  plain: One of the named commands you run with ant to build, deploy or load a CCD package.
+  definition: An Ant target of the CCD utility, run with ant from a Windchill shell in the customizationTools folder under the Windchill bin folder. Examples are create.package (make the empty structure), compile (build module JARs), deploy (copy artifacts into Windchill and propagate xconf changes), apply.schema (apply schema changes), load.data (load the load files in deploy.xml order and import the BAC package) and all (compile, deploy, restart and load in one run). Results are logged under the buildlogs folder of the Windchill installation.
+  aka: [Ant target (CCD)]
+  related: [ccd-package, windchill-plus-ccd, windchill-shell]
+
+- id: ccd-deployment-manifest
+  term: Deployment manifest (Windchill+)
+  plain: A small text file that tells PTC's cloud which package to deploy, where and when.
+  definition: A YAML file named after the pattern manifest_ followed by your own text, uploaded to the deploy folder of your Windchill+ storage container to request an automated deployment. It names the target pipeline, the exact (case-sensitive) package ZIP name, the package type CCD, the expected duration, scheduled dates and times per environment, the people to notify and the approvers, and whether the package holds business administration configuration only. Uploading it starts validation and scheduling.
+  aka: [Manifest file, manifest YAML]
+  related: [ccd-package, windchill-plus-pipeline, windchill-plus-ccd]
+
+- id: windchill-plus-pipeline
+  term: Windchill+ deployment pipeline
+  plain: The fixed route a package takes through PTC-hosted test systems before it reaches production.
+  definition: The chain of PTC-hosted environments a CCD package is deployed through. An INT pipeline usually contains only an integration environment for integration or development testing; a production pipeline usually contains QA and production (or integration and production when there is no QA). PTC provisions and maps the environments; you choose the pipeline in the manifest. Each deployment is preceded by a backup, and approvers must approve or reject within a retention window, after which PTC can restore the environment. Full builds carry code and configuration, must be cumulative and restart Windchill; load-only builds load configuration without a restart.
+  aka: [INT pipeline, PROD pipeline]
+  related: [ccd-deployment-manifest, windchill-plus, windchill-plus-ccd]
+
+- id: windchill-plus-guardrails
+  term: Windchill+ guidelines and guardrails
+  plain: PTC's house rules for what you should and may change in Windchill+.
+  definition: PTC's published principles for implementing Windchill+. They ask you to weigh business value against added complexity before customizing, to build only on customizations PTC supports, to run changes through a formal release process tied to a PLM roadmap, to validate every customization with test cases and to use current techniques such as modeled enumerations and text tailoring. They also warn that changes made directly with administrative utilities on PTC-hosted instances are not promoted by PTC and are not kept during upgrades. PTC's PLM Foundation Pacesetter configuration follows these guardrails.
+  aka: [Windchill+ guardrails]
+  related: [windchill-plus-disallowed-customization, windchill-plus, windchill-customization]
+
+- id: windchill-plus-disallowed-customization
+  term: Disallowed customization (Windchill+)
+  plain: Kinds of custom code Windchill+ will warn about or refuse to deploy.
+  definition: PTC's list of customization patterns that CCD package validation flags for Windchill+. Some only raise warnings for now (internal or deprecated APIs, certain JSP tags, workflow templates with embedded Java code), with dates after which packages using them are blocked. Others are not allowed at all, including changes to out-of-the-box files outside an allowed list, custom database modelling, JDBC access to the Windchill database, custom UIs built with JSP, AngularJS or GWT, custom Info*Engine tasks and adapters, JNI calls, unapproved third-party libraries and code that needs the server command line.
+  aka: [Windchill+ customization restrictions]
+  related: [windchill-plus-guardrails, mvc-builder, windchill-rest-services]

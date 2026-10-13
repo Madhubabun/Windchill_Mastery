@@ -1,0 +1,331 @@
+id: m07-s07-l04
+subtitle: Same ESI services, two very different products. Ines runs PTC's decision flow for Acme - and for a much bigger customer.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [integration, erp, esi, erp-connector, architecture, decision]
+sources:
+  - id: erp
+    where: "Module 1: Windchill ERP integration options; ERP Connector overview; Key out-of-the-box features and publishing methods; Object types supported by ERP Connector (work centers must already exist in ERP); ERP Connector in comparison to ESI (benefits, drawbacks, ERPConnectorImpl, Enable Post Result, JMS integration); ERP integration software: decision flow"
+  - id: esi
+    where: "Module 2: Windchill-ERP integration options; What is Windchill ESI?; Windchill ESI features; Key components; Windchill ESI architecture and data flow; ERP Connector (highlights, selection criteria, advantages, disadvantages); Windchill ESI (selection criteria, advantages, disadvantages); Custom integration using ERP Connector; Comparing integration options; Open API interface. Module 3: TIBCO components; Message flow; Physical distribution of components"
+versionNotes:
+  - versions: ["All releases"]
+    md: |
+      The decision flow's figure of about 100 users and the 50-80% "out of the box" estimate for ESI come from
+      PTC's 13.x course guides. Treat them as rules of thumb from PTC's training, not as product limits, and
+      check current PTC guidance and licensing for your release.
+
+blocks:
+  - type: text
+    md: |
+      In the last lessons you met two Windchill products for ERP: [[erp-connector|ERP Connector]] and full
+      [[windchill-esi|Windchill ESI]]. They share a lot - both implement the ESI Open API, both run the
+      [[release-to-manufacturing-workflow|Release to Manufacturing workflow]], both publish to
+      [[distribution-target|distribution targets]]. So how do you choose?
+
+      Ines needs an answer for Acme, and her old colleague at a 2,000-user truck maker asks the same question
+      the same week.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the lightweight, file-based product" → [[erp-connector|ERP Connector]] (part of Windchill ESI Services)
+      - "the full product with middleware" → [[windchill-esi|Windchill ESI]]
+      - "the message bus between Windchill and the middleware" → **JMS** (TIBCO's implementation is **EMS**)
+      - "the middleware engine that runs the business logic" → **TIBCO BusinessWorks** (the *Process Engine*)
+      - "the ERP-specific plug-in" → **adapter** (SAP or Oracle)
+      - "ERP tells Windchill whether the load worked" → [[closed-loop-transaction]] through a **PostResult** RPC
+
+  - type: animation
+    title: One release, two journeys
+    caption: Play the chapters to compare how a release travels with full ESI and with ERP Connector.
+    diagram:
+      width: 820
+      height: 400
+      groups:
+        - { label: Windchill, x: 20, y: 20, w: 200, h: 360, tone: primary }
+        - { label: Full ESI middleware, x: 250, y: 20, w: 330, h: 170, tone: warning }
+        - { label: ERP Connector path, x: 250, y: 210, w: 330, h: 170, tone: accent }
+      nodes:
+        - id: esisvc
+          label: ESI services
+          sublabel: build ESI response
+          x: 40
+          y: 160
+          w: 160
+          tone: primary
+          detail: ESI services traverse the release's distribution targets and generate the response message, marking the objects as publish pending.
+        - id: queue
+          label: JMS / EMS queue
+          sublabel: one event queue
+          x: 270
+          y: 60
+          w: 140
+          tone: warning
+          detail: Full ESI places one response message per ERP instance in a JMS queue; TIBCO EMS receives it.
+        - id: bw
+          label: BusinessWorks
+          sublabel: + SAP/Oracle adapter
+          x: 430
+          y: 60
+          w: 130
+          tone: warning
+          detail: The process engine transforms the data and updates ERP through the adapter, then wraps ERP's acknowledgement as a result RPC back to Windchill.
+        - id: file
+          label: File · FTP · email
+          sublabel: one per target
+          x: 270
+          y: 260
+          w: 140
+          tone: accent
+          detail: ERP Connector delivers the response to each target's file location, FTP server or email address through Info*Engine tasks such as ExportToFile.
+        - id: importjob
+          label: Import job
+          sublabel: customer-built
+          x: 430
+          y: 260
+          w: 130
+          tone: neutral
+          detail: Loading the delivered file into ERP is done manually or by your own automation - outside ERP Connector's scope.
+        - id: erp
+          label: ERP
+          x: 630
+          y: 160
+          w: 160
+          shape: cylinder
+          tone: info
+          detail: The ERP system. With full ESI it reports success or failure back; with ERP Connector it does so only if you build the closed loop.
+      edges:
+        - { from: esisvc, to: queue }
+        - { from: queue, to: bw }
+        - { from: bw, to: erp, bidirectional: true }
+        - { from: esisvc, to: file }
+        - { from: file, to: importjob }
+        - { from: importjob, to: erp, dashed: true }
+        - { from: bw, to: esisvc, label: result RPC, dashed: true }
+    chapters:
+      - title: A release starts
+        caption: Windchill's **ESI services** collect the released objects and build an ESI response for the targets.
+        show: [esisvc]
+        highlight: [esisvc]
+        seconds: 5
+      - title: Full ESI - into the queue
+        caption: The message goes to **one JMS event queue**, which TIBCO EMS hands to **BusinessWorks**.
+        show: [esisvc, queue, bw]
+        highlight: [queue]
+        flow: [esisvc>queue, queue>bw]
+        seconds: 6
+      - title: Full ESI - into ERP and back
+        caption: The **adapter** updates ERP, ERP acknowledges, and a **result RPC** updates the transaction in Windchill. That's the closed loop.
+        show: [esisvc, queue, bw, erp]
+        highlight: [bw, erp]
+        flow: [bw>erp, bw>esisvc]
+        seconds: 7
+      - title: ERP Connector - drop the file
+        caption: ERP Connector writes the response to each target - a **file share, FTP server or email** - and calls it delivered.
+        show: [esisvc, file, importjob, erp]
+        highlight: [file]
+        flow: [esisvc>file]
+        seconds: 6
+      - title: ERP Connector - the rest is yours
+        caption: An **import job** you own loads ERP. Windchill knows the file arrived, not whether ERP accepted it - unless you build the closed loop.
+        show: [esisvc, queue, bw, file, importjob, erp]
+        highlight: [importjob]
+        flow: [file>importjob, importjob>erp]
+        seconds: 7
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      This choice decides your budget, your skills plan and who you call when publishing breaks. PTC's own
+      course is blunt: ESI costs more and needs specialist administration; ERP Connector is cheap but leaves
+      the middleware, the import and the error handling to you.
+
+  - type: comparison
+    title: ERP Connector vs ESI at a glance
+    columns: [ERP Connector, Windchill ESI]
+    rows:
+      - label: ERP systems
+        cells: ["Preferred for ERP other than SAP and Oracle", "Turnkey for SAP and Oracle Applications"]
+      - label: Direction and feedback
+        cells: ["One-way; closed loop needs customization and extra cost", "Two-way; closed loop and error management included"]
+      - label: Middleware
+        cells: ["None included (TIBCO not part of it)", "TIBCO EMS, BusinessWorks and adapters on the ESI media"]
+      - label: Business logic
+        cells: ["Hard coded Java (ERPConnectorImpl); customizing it is unsupported", "PTC logic running in TIBCO; customizable in the middleware"]
+      - label: Distribution targets mean...
+        cells: ["Final physical destinations - File, FTP, Email", "A plant in the ERP system - SAP, Oracle Applications, MES"]
+      - label: JMS use
+        cells: ["Separate queue per target - 10 targets, 10 deliveries", "One event queue - 10 targets, 1 delivery"]
+      - label: Fit to requirements
+        cells: ["Can meet most needs, but advanced needs require customization", "Out of the box serves about 50-80%; customization covers the rest"]
+      - label: Responsibility
+        cells: ["PTC: Windchill side only. You: middleware and target interface", "PTC handles most of the implementation and supports TIBCO"]
+      - label: Cost and skills
+        cells: ["Lower cost; simple setup", "Higher cost; specialist skills; an ERP expert with XML knowledge"]
+    takeaway: ERP Connector is a fast, cheap start. ESI is a full integration product for SAP and Oracle.
+
+  - type: diagram
+    title: PTC's decision flow
+    caption: Start at the top and answer each question. Click a box for the reasoning.
+    diagram:
+      width: 820
+      height: 420
+      nodes:
+        - id: q1
+          label: Users < 100?
+          sublabel: count Windchill users
+          x: 320
+          y: 20
+          w: 180
+          tone: primary
+          detail: The course's first question is the number of Windchill users. Under about 100, go with ERP Connector.
+        - id: conn1
+          label: ERP Connector
+          x: 40
+          y: 20
+          w: 180
+          tone: success
+          detail: Small installations get the lightweight, inexpensive option.
+        - id: q2
+          label: Middleware of choice?
+          sublabel: must it be non-TIBCO?
+          x: 320
+          y: 150
+          w: 180
+          tone: primary
+          detail: If the customer requires a non-TIBCO solution, customize ERP Connector or ESI Services around their middleware. If they're neutral to TIBCO, ask the next question.
+        - id: custom
+          label: Customize
+          sublabel: ERP Connector or ESI Services
+          x: 600
+          y: 150
+          w: 190
+          tone: warning
+          detail: A custom integration built on the ESI Open API and the customer's own middleware or tools.
+        - id: q3
+          label: SAP or Oracle?
+          sublabel: which ERP
+          x: 320
+          y: 280
+          w: 180
+          tone: primary
+          detail: SAP or Oracle Manufacturing points to full Windchill ESI. Any other ERP points back to customizing ERP Connector or ESI Services.
+        - id: esi
+          label: Windchill ESI
+          x: 40
+          y: 280
+          w: 180
+          tone: success
+          detail: The turnkey, closed-loop product for SAP and Oracle.
+      edges:
+        - { from: q1, to: conn1, label: "yes" }
+        - { from: q1, to: q2, label: "no" }
+        - { from: q2, to: custom, label: non-TIBCO }
+        - { from: q2, to: q3, label: neutral }
+        - { from: q3, to: esi, label: "yes" }
+        - { from: q3, to: custom, label: other ERP }
+
+  - type: example
+    variant: case-study
+    title: Two companies, one flow
+    industry: Micromobility and trucks
+    md: |
+      **Acme Mobility**: about 150 Windchill users, so question 1 says "keep going". No middleware policy, so
+      neutral to TIBCO. The ERP is neither SAP nor Oracle, so the flow lands on **customize ERP Connector or
+      ESI Services**. Ines starts with ERP Connector's file targets and an import job, accepting open loop for
+      now - it's the cheap starting point PTC describes.
+
+      **The truck maker**: 2,000 users, SAP, high publishing volume, plant-specific BOMs and auditors who want
+      proof that every release actually loaded in ERP. The flow lands on **Windchill ESI**, and the closed loop
+      and transaction management are exactly what the auditors asked for. They budget for TIBCO skills and
+      plan to install TIBCO close to the SAP server, since the adapters talk to it constantly.
+    takeaway: The flow is a starting point - then test the choice against volume, feedback needs and budget.
+
+  - type: scenario
+    variant: challenge
+    title: Pick the integration
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          A 60-person scooter startup on a niche cloud ERP wants released parts and BOMs exported as XML for a
+          nightly import. They don't need ERP to report back. What fits?
+        choices:
+          - label: ERP Connector
+            next: s2
+            good: true
+            feedback: Under 100 users, non-SAP/Oracle ERP, XML out, no closed loop - textbook ERP Connector.
+          - label: Full Windchill ESI with TIBCO
+            next: f1
+            feedback: That buys middleware and a closed loop they said they don't need.
+      - id: f1
+        md: They pay for TIBCO licences and skills to run a nightly file drop. It works, but it's far more than they needed.
+        outcome: partial
+      - id: s2
+        md: |
+          A year later they want ERP's import result shown on the change notice, and they want to change how
+          ERP Connector maps BOM lines by editing its internal Java class. What do you tell them?
+        choices:
+          - label: "Closed loop is possible with configuration and a PostResult interface; editing the connector's class is unsupported"
+            next: win
+            good: true
+            feedback: Exactly. Enable Post Result = No plus an interface back to Windchill; reshape output with the response meta file or stylesheets instead.
+          - label: Go ahead and patch ERPConnectorImpl
+            next: f2
+            feedback: PTC states that customizing that class is not supported.
+      - id: f2
+        md: The patch breaks on the next maintenance release and PTC support can't help. Unsupported changes become your permanent problem.
+        outcome: fail
+      - id: win
+        md: They keep a supported ERP Connector setup, add the closed loop, and change the output format through supported configuration points.
+        outcome: success
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Forgetting work centers.** ERP Connector creates, updates or deletes published objects in ERP - except
+      **work centers**. Windchill expects them to exist in ERP already and only maps them to process plans.
+      Create them in ERP before the first process-plan publication.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Start from the selection criteria, not the product names. If you need closed loop, high volume,
+      transaction integrity and complex logic on SAP or Oracle, that's ESI. If you need XML out, low cost and
+      no feedback, that's ERP Connector. Anything else is a custom build on the Open API - budget for it.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: "In PTC's decision flow, a customer has 300 users, is neutral to TIBCO and runs SAP. What's the recommendation?"
+        options: [ERP Connector, Windchill ESI, Customize ERP Connector, No integration]
+        answer: 1
+        explanation: Over 100 users, neutral to TIBCO and SAP or Oracle Manufacturing leads to Windchill ESI.
+      - kind: single
+        prompt: A release goes to 10 distribution targets over JMS. How many deliveries does ERP Connector make?
+        options: ["1", "10", "It can't use JMS", "Depends on the ERP"]
+        answer: 1
+        explanation: ERP Connector needs a separate queue per target and delivers the response once per target. Full ESI makes one call to one event queue.
+      - kind: multi
+        prompt: Which are listed disadvantages of full ESI? (Choose all that apply.)
+        options: [Higher cost because it includes TIBCO, Specialized administration skills, Customization needed to reach 100% of requirements, It cannot do closed loop]
+        answers: [0, 1, 2]
+        explanation: Closed loop is one of ESI's strengths. Cost, skills and the remaining customization are the trade-offs.
+      - kind: truefalse
+        prompt: With ERP Connector, a distribution target usually represents a plant inside the ERP system.
+        answer: false
+        explanation: For ERP Connector a target is a final physical destination such as a file location or FTP server. For ESI it represents a plant in the ERP.
+      - kind: order
+        prompt: Put PTC's decision-flow questions in order.
+        items: ["How many Windchill users?", "Does the customer have a middleware of choice?", "Which ERP system do they use?"]
+        explanation: Users first, then middleware policy, then the ERP system.
+
+  - type: summary
+    points:
+      - ERP Connector and ESI share the ESI services, the Open API and the RTM workflow.
+      - ERP Connector - no middleware, one-way, File/FTP/Email targets, hard-coded logic, low cost, preferred for non-SAP/Oracle ERP.
+      - ESI - TIBCO middleware, closed loop, one event queue, plant targets, higher cost and skills, turnkey for SAP/Oracle.
+      - "PTC's decision flow: under ~100 users → ERP Connector; needs non-TIBCO → customize; SAP/Oracle → ESI; other ERP → customize."
+      - Never customize ERPConnectorImpl - use supported configuration points instead.

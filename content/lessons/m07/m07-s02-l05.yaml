@@ -1,0 +1,263 @@
+id: m07-s02-l05
+subtitle: Two markets, three trims, a growing pile of variant specifications. A product family puts them in order, and the Matrix Editor lines them up side by side.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [options-and-variants, product-family, matrix-editor, variant-baseline, variants]
+sources:
+  - id: ov
+    where: "Module 1: Product Families; Module 5: Implementation process steps; Product Family Management; Create a Product Family; Manage a Product Family with the Matrix Editor; Create new Product Models in the Matrix Editor; Variant baselines; Viewing variant baselines in the Matrix Editor; Activity: Create Product Families; Activity: Create a new Product Model in the Matrix Editor; Activity: Create and manage a variant baseline in the Matrix Editor"
+  - id: trn-options
+    where: "Core concepts: product family; stand-alone, managed and organized variant specifications"
+
+blocks:
+  - type: text
+    md: |
+      Six weeks in, the E1 has 17 variant specifications in a *Variants* folder. Sales asks a simple
+      question: *"What's the difference between the EU City bike and the US City bike?"* Nobody can answer
+      quickly, because the specs are a flat list.
+
+      **Product Families** is the optional part of Options and Variants that fixes this. It organises
+      variant specifications into a tree of models and groups, and its **Matrix Editor** shows them as
+      columns next to the configurable structure - one tick per included part.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the whole range of bikes built from one platform" → [[product-family]]
+      - "a folder of models, e.g. per market" → **Product Model Group**
+      - "a bike we sell, or a reference build for planning" → **Product Model**
+      - "a variant spec that lives inside the family" → **managed** [[variant-specification]]
+      - "the side-by-side grid" → [[matrix-editor]]
+      - "a frozen record of which revisions a variant used" → **variant baseline** (a special [[baseline]])
+
+  - type: diagram
+    title: The E1 product family
+    caption: Four object types, top to bottom. Click any box.
+    diagram:
+      width: 840
+      height: 420
+      nodes:
+        - id: fam
+          label: E-Bike E1
+          sublabel: Product Family
+          x: 320
+          y: 20
+          w: 200
+          tone: primary
+          detail: |
+            The top-level object. It is associated with the configurable product it represents -
+            here EB-1000, assigned from the Structure tab with **Configurable Module → Assign**.
+        - id: grp-eu
+          label: Europe
+          sublabel: Product Model Group
+          x: 110
+          y: 120
+          w: 200
+          tone: info
+          detail: Groups organise models - by market here, but brand or feature level work too.
+        - id: grp-na
+          label: North America
+          sublabel: Product Model Group
+          x: 530
+          y: 120
+          w: 200
+          tone: info
+          detail: The second group. Each group holds product models.
+        - id: mod-eu-city
+          label: E1 City - EU
+          sublabel: Product Model
+          x: 20
+          y: 230
+          w: 180
+          tone: accent
+          detail: A product model can be something sold (an SKU or a customer order) or a representative configuration used for planning and validation.
+        - id: mod-eu-cargo
+          label: E1 Cargo - EU
+          sublabel: Product Model
+          x: 220
+          y: 230
+          w: 180
+          tone: accent
+          detail: Another model in the Europe group.
+        - id: mod-us-cargo
+          label: E1 Cargo - US
+          sublabel: Product Model
+          x: 530
+          y: 230
+          w: 200
+          tone: accent
+          detail: A model in the North America group.
+        - id: mvs1
+          label: E1 City EU 400 Graphite
+          sublabel: managed variant spec
+          x: 20
+          y: 340
+          w: 220
+          tone: success
+          shape: doc
+          detail: |
+            An existing stand-alone spec inserted with **Insert Existing**, then turned into a managed one
+            with **Convert to Managed**. Only managed specs appear in the family structure and Matrix Editor.
+        - id: mvs2
+          label: E1 Cargo US 625 Mint
+          sublabel: managed variant spec
+          x: 530
+          y: 340
+          w: 220
+          tone: success
+          shape: doc
+          detail: Made by Configure in an earlier lesson, now organised under its model.
+      edges:
+        - { from: fam, to: grp-eu }
+        - { from: fam, to: grp-na }
+        - { from: grp-eu, to: mod-eu-city }
+        - { from: grp-eu, to: mod-eu-cargo }
+        - { from: grp-na, to: mod-us-cargo }
+        - { from: mod-eu-city, to: mvs1 }
+        - { from: mod-us-cargo, to: mvs2 }
+
+  - type: walkthrough
+    title: Build the family and open the Matrix Editor
+    who: A configuration engineer (Kai)
+    where: [Browse, Products, E-Bike E1, Details, Product Families]
+    steps:
+      - title: Create the product family
+        where: [E-Bike E1, Details, Product Families tab, New Product Family]
+        md: Click **New Product Family**, name it *E-Bike E1*, **OK**.
+      - title: Link the configurable product
+        where: [Product family, Structure tab, Configurable Module, Assign]
+        md: Open the family's **Structure** tab. In the toolbar's **Configurable Module** section click **Assign** and search for *EB-1000*.
+      - title: Add groups and models
+        where: [Structure tab, Editing, Insert New]
+        md: |
+          **Insert New** with type *Product Model Group* for *Europe* and *North America*. Then right-click a
+          group → **Insert → Insert New**, type *Product Model*, for *E1 City - EU* and so on.
+      - title: Bring in existing variant specifications
+        where: ["<product model>", Insert, Insert Existing]
+        md: |
+          Right-click a model → **Insert → Insert Existing**, find the spec, **OK**. Then right-click the
+          spec → **Convert to Managed** → **Yes**. Refresh if it doesn't show.
+      - title: Open the Matrix Editor
+        where: [Product family, Tools, Matrix Editor]
+        md: |
+          Select the family and click **Matrix Editor** (the action is also called **Open in Matrix Editor**
+          in other places). Tick the managed specs to compare in the left pane, **Apply**, then **Display →
+          Expand All Levels**. Switch the structure view to one showing **Assigned Usage Expressions**.
+    result: |
+      A grid: the EB-1000 structure down the left, one column per managed variant specification, ticks
+      where a part is included. The City EU / City US difference is visible at a glance.
+
+  - type: comparison
+    title: The Matrix Editor's panes
+    columns: [What you see, What you do there]
+    rows:
+      - label: Product Family pane
+        cells: ["The family tree", "Tick managed specs and Apply to show them as columns"]
+      - label: Configurable Structure pane
+        cells: ["The configurable part behind the selected specs", "Only specs from the same configurable part can be shown together"]
+      - label: Module Variant pane
+        cells: ["A tick per included part or module", "Cell actions include or exclude parts, and switch between manual and assigned-expression selection"]
+      - label: Details pane
+        cells: ["Tabs about the selected object", "Edit the configurable structure"]
+    takeaway: Each pane's table view can be managed on its own, and the Product Family and Details panes can be collapsed for space.
+
+  - type: text
+    md: |
+      ### Two ways to define a variant in the Matrix Editor
+
+      - **Assigned expressions** - the structure follows the choices and rules, just like the option filter.
+      - **Manual selection** - you pick module variants directly and the selection is stored in the variant
+        specification. Useful early in development or for products where expressions aren't worth it.
+
+      To make a new one: right-click a product model → **Insert New** (a managed variant spec, folder
+      *Variants*), open it with another spec in the Matrix Editor, and right-click ticks → **Unselect
+      Module Variants** until only the wanted parts remain. Then, on the spec's information page,
+      **Actions → Request Deliverables** with **Create New Module Variant** builds the variant.
+
+      ### Variant baselines
+
+      A **variant baseline** captures the revisions of non-configurable parts used by managed variant
+      specifications - handy while prototypes evolve. Right-click a managed spec → **Assign to New Variant
+      Baseline**, then **Add Baseline Objects → Add Part to Variant Baseline**. After the parts are revised,
+      revise the spec and capture a second baseline. Open both in the Matrix Editor with a structure view
+      that adds the **Version** column (Manage Structure Views → Save As → add Version), and you see revision
+      A in one column and B in the other.
+
+  - type: scenario
+    variant: challenge
+    title: Why won't it open in the Matrix Editor?
+    start: m1
+    nodes:
+      - id: m1
+        md: |
+          Kai ticks *E1 Trekking EU 500 Graphite* (made with Configure) in the family structure, but it never
+          appears as a column in the Matrix Editor. What's the most likely reason?
+        choices:
+          - label: It is still a stand-alone variant specification, not a managed one
+            next: m2
+            good: true
+            feedback: Yes. Configure produces stand-alone specs; only managed ones can be opened.
+          - label: The Matrix Editor only shows released objects
+            next: m-wrong
+            feedback: The course says nothing like that. Check the spec's kind first.
+      - id: m-wrong
+        md: Not the reason. Look at how the spec was created and whether it was converted.
+        choices:
+          - { label: Check the spec, next: m2 }
+      - id: m2
+        md: |
+          Kai inserts it under *E1 Trekking - EU* and runs **Convert to Managed**. Now he also ticks a managed
+          spec from the **Scooter S2** family. Only the E1 columns appear. Why?
+        choices:
+          - label: Only managed specs derived from the same configurable part can be shown together
+            next: m3
+            good: true
+            feedback: Exactly. Each grid is built on one configurable structure.
+          - label: The Scooter S2 spec needs a variant baseline first
+            next: m3
+            feedback: Baselines aren't required. The S2 spec comes from a different configurable part.
+      - id: m3
+        md: |
+          Kai now compares two baselines but sees no revision letters, just part masters. What's missing?
+        choices:
+          - label: A structure view with the Version column
+            next: win
+            good: true
+            feedback: By default the Matrix Editor doesn't show component revisions. Add the Version column.
+          - label: A new revision of the product family
+            next: win
+            feedback: Not needed - revision display is a view setting. Add the Version column.
+      - id: win
+        md: Converted, from the same configurable part, and with the Version column on - the grid now tells the whole story.
+        outcome: success
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Product families turn "a pile of variants" into a portfolio people can reason about. Sales sees what's
+      offered per market, engineering compares builds in one grid, and prototype teams can prove which
+      revision of a pack was in which test bike.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Expecting Product Families to be mandatory.** PTC's implementation advice is to get options and
+      variants working on a pilot product first, then introduce Product Families **only** if there are real
+      use cases. Don't build a family tree for a product with three variants.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Which variant baseline shows in the family structure is controlled by an administrator preference,
+      under **Structure → Related Information → Product Family Structure Related Information**. The default
+      is *Show and Display Automatically*. With *Show*, users switch baselines from the **Show** drop-down,
+      or right-click a product model → **Show/Hide Related Information**.
+
+  - type: summary
+    points:
+      - A product family organises Product Model Groups, Product Models and managed variant specifications under one configurable product.
+      - Stand-alone specs must be converted to managed before they appear in the family and the Matrix Editor.
+      - The Matrix Editor compares managed specs from the same configurable part and supports manual selection of module variants.
+      - Request Deliverables builds the variant for a manually defined spec.
+      - Variant baselines capture part revisions; add the Version column to compare them.

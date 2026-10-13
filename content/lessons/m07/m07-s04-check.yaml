@@ -1,0 +1,143 @@
+id: m07-s04-check
+subtitle: Prove you can close the quality loop - from a rider's complaint to a released fix, a ranked risk and a regulator-ready record.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [quality, closed-loop-quality, capa, fmea, checkpoint]
+sources:
+  - id: te
+    where: "Change management process: overview; Activity: Create a problem report; Manage the quality of medical devices with Windchill; Accessing quality solutions from within Windchill PLM"
+  - id: hc-quality
+    label: PTC Help Center supplement
+    title: "Windchill Quality Management Solutions (Using the PTC Medical Device Suite)"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/sublandingpages/wqOvw.html"
+    covers: "Quality modules and groupings"
+  - id: hc-capa-flow
+    label: PTC Help Center supplement
+    title: "CAPA Process Flow"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCQMSCapa/WCQMSCAPAProcessFlow.html"
+    covers: "CAPA states and optional steps"
+  - id: hc-capa-from-source
+    label: PTC Help Center supplement
+    title: "Creating a New CAPA Request from a Nonconformance, Complaint, or Existing CAPA"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCQMSCapa/WCQMSRequestCndctngCAPANCComplaint.html"
+    covers: "New CAPA Request from a source record; Associated Reference Objects"
+  - id: hc-wrr
+    label: PTC Help Center supplement
+    title: "What Is Windchill Risk and Reliability?"
+    url: "https://support.ptc.com/help/wrr/r13.1.0.0/en/wrr/ReferenceGuide/preface/what_windchill_risk_reliability.html"
+    covers: "Windchill Risk and Reliability as a separate toolset"
+  - id: hc-wrr-criticality
+    label: PTC Help Center supplement
+    title: "Criticality Assessment Methods"
+    url: "https://support.ptc.com/help/wrr/r13.1.0.0/en/wrr/ReferenceGuide/fmea/criticality_assessment_methods.html"
+    covers: "RPN formula and ranges"
+  - id: hc-wrr-integration
+    label: PTC Help Center supplement
+    title: "Windchill Integration (Enterprise Edition Only)"
+    url: "https://support.ptc.com/help/wrr/r13.1.0.0/en/wrr/ReferenceGuide/basics/windchill_integration_enterprise_edition_only_.html"
+    covers: "BOM import, attribute links and change objects from problems"
+  - id: hc-udi
+    label: PTC Help Center supplement
+    title: "About Unique Device Identification"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wqUDI/WQUDIAbout.html"
+    covers: "UDI to part cardinality and GUDID submission"
+  - id: hc-dhf
+    label: PTC Help Center supplement
+    title: "Design History File and Device Master Record"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wqCommon/WQCommonVRDDesignHistoryFile.html"
+    covers: "DHF and DMR"
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **quality management and closed-loop quality**: the loop itself, customer experiences,
+      nonconformances and CAPAs, linking quality to change, FMEA basics in Windchill Risk and Reliability, and
+      the quality modules for regulated industries. Score 80% to pass. Every answer explains itself.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: order
+        prompt: Put the closed quality loop for the E1 battery latch in order.
+        items: [Log customer experience CX-0045, Raise CAPA-0031 and find the root cause, Run the problem report and change process, Release latch EB-2410 at revision B, Check effectiveness and close the CAPA]
+        explanation: Record, investigate, change the product data, release, then prove the fix worked. The loop is only closed after the last step.
+      - kind: single
+        prompt: Ana's incoming inspection finds a batch of brake levers outside the drawing tolerance. Which record does she start?
+        options: [Customer experience, Nonconformance, CAPA, Regulatory submission]
+        answer: 1
+        explanation: A nonconformance covers a product, material, process or document that does not conform to its specification. Its disposition decides what happens to the batch.
+      - kind: single
+        prompt: How do you start a CAPA from an existing customer experience?
+        options: ["Actions → New CAPA Request on its information page", "Copy its number into a new CAPA's description", "Only after the customer experience is Closed", "From the part's Changes tab"]
+        answer: 0
+        explanation: New CAPA Request is on the Actions menu of a nonconformance, customer experience or CAPA, in any state. The source record then appears in Associated Reference Objects (given the business rule for CX and NC).
+      - kind: multi
+        prompt: Which CAPA steps are optional in the default configuration? (Choose all that apply.)
+        options: [Investigation, Plan, Implementation, Confirmation, Effectiveness]
+        answers: [0, 3, 4]
+        explanation: Investigation runs only if Evaluation calls for it; Confirmation and Effectiveness only if the planner requests them.
+      - kind: single
+        prompt: The CAPA found the root cause in a released drawing. How is the drawing changed?
+        options:
+          - "Through the change process - problem report, change request, change notice - linked to the CAPA"
+          - "The CAPA implementer edits the released drawing directly"
+          - "The CAPA closes and the drawing is fixed in the next project"
+          - "Windchill Risk and Reliability releases a new revision"
+        answer: 0
+        explanation: Released data changes only through change management. Process or reference links tie the change objects to the quality record.
+      - kind: single
+        prompt: What do Associated Process Objects give you that Associated Reference Objects don't?
+        options: [Parent/child process links that support closing linked objects together, A thumbnail of the linked part, Automatic approval of the change, Nothing - they are the same]
+        answer: 0
+        explanation: Process links carry process rules so linked objects can close together when each is in the right state. Reference links are plain references.
+      - kind: truefalse
+        prompt: FMEA is built into every Windchill PLM installation.
+        answer: false
+        explanation: FMEA lives in Windchill Risk and Reliability, a separate PTC product. Its Windchill integration is Enterprise Edition only and needs extra licences.
+      - kind: single
+        prompt: A failure mode scores Severity 9, Occurrence 2, Detection 5. What is its RPN - and which change would lower Detection?
+        options:
+          - "90 - adding an inspection that catches the failure before shipping"
+          - "16 - adding an inspection"
+          - "90 - making the failure less harmful"
+          - "45 - redesigning the part"
+        answer: 0
+        explanation: 9 × 2 × 5 = 90. Detection is about how likely the failure is to be caught, so a better check lowers it. Lower Detection numbers mean better detection.
+      - kind: multi
+        prompt: With the Enterprise Edition and the right licences, what can Windchill Risk and Reliability do with Windchill? (Choose all that apply.)
+        options: [Build a project from a Windchill BOM, Link global attributes to DVPs and control plans, Create Windchill change objects from problems, Close CAPAs automatically]
+        answers: [0, 1, 2]
+        explanation: BOM import, global-attribute links to DVPs and control plans, and change-object creation are the documented integration features. Closing CAPAs is not one of them.
+      - kind: single
+        prompt: Acme Care needs device identifiers submitted to the FDA. Which statement is right?
+        options:
+          - "The UDI module submits HL7 documents to GUDID; each UDI links to one part, and a part can have many UDIs"
+          - "UDIs are stored in the Design History File only"
+          - "Each part can have only one UDI"
+          - "UDI is part of Windchill Risk and Reliability"
+        answer: 0
+        explanation: The UDI module creates and reviews UDIs, generates HL7 documents and submits them to the FDA's GUDID. A UDI links to only one part, while a part may carry many.
+
+  - type: flashcards
+    cards:
+      - front: Closed-loop quality
+        back: Record a problem, find the root cause, fix it in the product data through change, prove the fix worked, and feed it back into design risk analysis.
+      - front: Customer experience
+        back: CEM record of what a customer reported. Default flow Intake, Evaluation, In Progress, Summary and Review, Closed (or Canceled).
+      - front: Nonconformance
+        back: Record for an item that misses its spec. Initiation, Evaluation, Investigation (opt.), Disposition Plan, MRB review (opt.), Disposition, Completion.
+      - front: CAPA default flow
+        back: Request, Review, Investigation (opt.), Plan, Implementation, Confirmation (opt.), Effectiveness (opt.), Closure.
+      - front: New CAPA Request
+        back: On the Actions menu of a CX, NC or CAPA, in any state. The source lands in Associated Reference Objects.
+      - front: Associated Process Objects vs Reference Objects
+        back: Process links can close together through the workflow; reference links are plain see-also links with no process rules.
+      - front: Quality context
+        back: Context, marked with the quality icon, that stores quality records. Reached from the Navigator's quality icon and View All.
+      - front: RPN
+        back: Severity × Occurrence × Detection. 10-point scales give 1 to 1,000. High Detection = hard to detect.
+      - front: Where does FMEA live?
+        back: In Windchill Risk and Reliability - a separate PTC product with its own licences.
+      - front: DHF and DMR
+        back: Design History File = how the design evolved; Device Master Record = approved data needed to build the device. Both from the Design Control module.

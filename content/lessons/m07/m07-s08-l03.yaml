@@ -1,0 +1,392 @@
+id: m07-s08-l03
+subtitle: One folder layout, a handful of ant targets and a strict pipeline. This is how code and settings reach Windchill+.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [windchill-plus, ccd, deployment, ant, pipeline, developer, system-admin]
+sources:
+  - id: ac
+    where: "Module 11: Describe Windchill+ (CCD structure on an on-premises or PTC cloud portal test server); Deploy Windchill+ with the CCD utility (what it is, use cases, only supported tool from 12.1.2.0, on-premises use)"
+  - id: pf
+    where: "Module 2: Deploy the Windchill PLM Foundation Pacesetter: overview; Activity: Deploy the Windchill PLM Foundation Pacesetter (CCD built on Ant, standardized package structure, customization source path property, Windchill Shell, ant all, administrator prompt, 10-minute method server wait)"
+  - id: catalog
+    where: "Windchill+ curriculum: Code and Configuration Deployment (CCD) Overview; Deploy Code and Configurations using CCD utility"
+  - id: hc-ccd-onprem
+    label: PTC Help Center supplement
+    title: "Code and Configuration Deployment Utility for Windchill Customization"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/customization/CCD_for_Windchill_Customization.html"
+    covers: "Customer-run on-premises CCD; Windchill shell only; site administrator authentication; create, validate, deploy workflow"
+  - id: hc-ccd-structure
+    label: PTC Help Center supplement
+    title: "CCD Package Structure"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/customization/AutomatedBuildDeploy_Plus_Azure_CCD_PackageStructure_wncplus.html"
+    covers: "configurations, generated, customlib, module and test folders; deploy.xml, custom.site.xconf, SchemaConfig.xml, descriptor.xml; cumulative vs incremental artifacts"
+  - id: hc-ccd-targets
+    label: PTC Help Center supplement
+    title: "Targets"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/customization/AutomatedBuildDeploy_Plus_ExternalTargetsCCD_Azure_wncplus.html"
+    covers: "create.package, compile, deploy, apply.schema, wnc.restart, load.data, all, allWithTest, test.unit; default source paths"
+  - id: hc-ccd-using
+    label: PTC Help Center supplement
+    title: "Using the CCD Utility in the Development Environment"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/customization/AutomatedBuildDeploy_Plus_UsingCCD_Azure_wncplus.html"
+    covers: "Utility location, customizationTools.properties, access rights, ZIP without root folder, log file"
+  - id: hc-ccd-workflow
+    label: PTC Help Center supplement
+    title: "Workflow (Deploying Code and Configuration Package)"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/customization/AutomatedBuildDeploy_Plus_Azure_CCD_deployment_wncplus_2.html"
+    covers: "Upload, manifest, validation outcomes, scheduled deployment, test, approve or restore, build conflicts"
+  - id: hc-ccd-trigger
+    label: PTC Help Center supplement
+    title: "Trigger Automated Deploy"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/customization/AutomatedBuildDeploy_Plus_Azure_CCD_deployment_wncplus_4.html"
+    covers: "Manifest attributes, notifiers and approvers, a package can't be deployed twice"
+  - id: hc-wcplus-release
+    label: PTC Help Center supplement
+    title: "Windchill+ Release Management"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/WCAdminGettingStarted/rtf_ReleaseManagement.html"
+    covers: "INT and PROD pipelines; full vs load-only builds; backup before deployment; retention windows"
+versionNotes:
+  - versions: ["12.1.2.0+"]
+    md: CCD is the only supported tool for deploying customizations and configurations to [[windchill-plus|Windchill+]] from 12.1.2.0 onwards.
+  - versions: ["Windchill+"]
+    md: |
+      The Help Center pages give different retention windows (7 days for INT on the release management page,
+      30 days for QA and for single non-production deployments on the workflow page). Treat the number in your
+      deployment email as the one that counts.
+
+blocks:
+  - type: text
+    md: |
+      Theo has finished the E1 Release workflow rework from the readiness lesson. On-premises he would have
+      copied a JAR, run xconfmanager and restarted. On [[windchill-plus|Windchill+]] he can't touch the server.
+      So how does his code get there?
+
+      Through the [[windchill-plus-ccd|Code and Configuration Deployment (CCD) utility]]: a PTC tool built on
+      **Ant** that works on a **standard package structure**. Same folders, same commands, whether the target is
+      Acme's own test server or PTC's cloud.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the fixed folder layout for one deployment" → [[ccd-package|CCD package]]
+      - "the named commands you run with ant" → [[ccd-target|CCD targets]]
+      - "the ZIP of admin settings inside it" → [[bac-package|BAC package]]
+      - "the note that asks PTC to deploy" → [[ccd-deployment-manifest|deployment manifest]]
+      - "the chain of PTC test systems" → [[windchill-plus-pipeline|deployment pipeline]] (INT, or QA and PROD)
+
+  - type: diagram
+    title: Inside a CCD package
+    caption: Four kinds of content, one tree. Click a folder to see what goes in it.
+    diagram:
+      width: 820
+      height: 440
+      nodes:
+        - id: root
+          label: Customization root
+          sublabel: acme-ccd-2026-04
+          x: 300
+          y: 20
+          w: 220
+          tone: neutral
+          detail: |
+            The top of the package. On a development system the default location is `/opt/ptc/customization` on
+            Linux or `C:\ptc\customization` on Windows; change it with the `wt.customizationSource.dir.path`
+            property. When you zip it for Windchill+, zip the **contents**, not the folder itself.
+        - id: configurations
+          label: configurations
+          sublabel: global configuration
+          x: 20
+          y: 150
+          w: 180
+          tone: info
+          shape: doc
+          detail: |
+            `deploy.xml` (which lists the load file sets), `loadFiles` and `loadXMLFiles` for things BAC doesn't
+            cover yet, `conf` and `resources` (copied into the Windchill installation) and `xconf` with a
+            `custom.site.xconf` for property changes.
+        - id: generated
+          label: generated
+          sublabel: schema + BAC
+          x: 220
+          y: 150
+          w: 180
+          tone: warning
+          shape: doc
+          detail: |
+            Artifacts produced by tools or the UI: `db/conf/SchemaConfig.xml` for custom schema entries (such as
+            added or resized columns and custom indices) and a `BAC` folder holding **exactly one** BAC ZIP.
+        - id: module
+          label: module1 … moduleN
+          sublabel: your code
+          x: 420
+          y: 150
+          w: 180
+          tone: accent
+          shape: doc
+          detail: |
+            One folder per module with a `descriptor.xml` (name and dependencies) and a `main` folder: Java in
+            `src`, classpath resources such as action and action model files in `resources`, module xconf files
+            in `xconf`, and JSP, JavaScript, CSS and images under `src/_web`.
+        - id: test
+          label: test/unit
+          sublabel: unit tests
+          x: 620
+          y: 150
+          w: 180
+          tone: success
+          shape: doc
+          detail: Java unit tests. Windchill+ build warnings about unit testing and code coverage can escalate into blockers, so don't leave this empty.
+        - id: customlib
+          label: customlib
+          sublabel: partner JARs
+          x: 300
+          y: 290
+          w: 220
+          tone: neutral
+          shape: doc
+          detail: Partner IP JAR files, if any. On Windchill+, only third-party libraries on PTC's allowed list may be used.
+        - id: rule
+          label: Cumulative or incremental?
+          x: 300
+          y: 370
+          w: 220
+          h: 50
+          tone: danger
+          shape: pill
+          detail: |
+            **File-based** artifacts (code, resources, xconf) must be **cumulative**: each package carries
+            everything. **Database-based** artifacts (load files, XML load files, the BAC package) are
+            **incremental**: only what's new.
+      edges:
+        - { from: root, to: configurations }
+        - { from: root, to: generated }
+        - { from: root, to: module }
+        - { from: root, to: test }
+        - { from: root, to: customlib }
+
+  - type: text
+    md: |
+      ### The targets you'll actually type
+
+      Open a [[windchill-shell|Windchill shell]], go to `bin/customizationTools` under [[wt-home|WT_HOME]] and run
+      `ant <target>`:
+
+      | Target | What it does |
+      | --- | --- |
+      | `create.package` | Creates the empty folder structure (add `-Dmodule.names=...` for named modules) |
+      | `compile` | Compiles each module into JARs, in dependency order |
+      | `deploy` | Copies JARs and other artifacts into Windchill, propagates xconf changes, validates actions and action models |
+      | `apply.schema` | Applies `SchemaConfig.xml` changes to the database (after `deploy`) |
+      | `wnc.restart` | Restarts the method server |
+      | `load.data` | Loads the files listed in `deploy.xml`, in order, then imports the BAC package |
+      | `all` | Compile, deploy, schema, xconf, restart, load files and BAC import in one run |
+      | `test.unit` | Runs the package's unit tests (`-DcodeCoverage=true` adds a coverage report) |
+
+      Every run writes `CustomizationInstallLogs_<TimeStamp>.log` under `buildlogs/customizationLogs` in the
+      Windchill installation. Read it after every run, pass or fail.
+
+  - type: animation
+    title: From Theo's laptop to Windchill+ production
+    diagram:
+      width: 820
+      height: 380
+      nodes:
+        - id: dev
+          label: Dev system
+          sublabel: ant all · test.unit
+          x: 20
+          y: 40
+          w: 170
+          tone: accent
+        - id: blob
+          label: Storage container
+          sublabel: data/builds
+          x: 230
+          y: 40
+          w: 170
+          tone: neutral
+          shape: cylinder
+        - id: manifest
+          label: Manifest
+          sublabel: data/builds/deploy
+          x: 230
+          y: 180
+          w: 170
+          tone: neutral
+          shape: doc
+        - id: validate
+          label: Validation
+          sublabel: pass · warn · fail
+          x: 440
+          y: 40
+          w: 170
+          tone: warning
+        - id: snapshot
+          label: Backup snapshot
+          x: 440
+          y: 180
+          w: 170
+          tone: info
+          shape: cylinder
+        - id: qa
+          label: QA deployment
+          sublabel: approvers test
+          x: 640
+          y: 110
+          w: 160
+          tone: primary
+        - id: prod
+          label: Production
+          x: 640
+          y: 260
+          w: 160
+          tone: success
+        - id: restore
+          label: Restore
+          sublabel: back to before
+          x: 440
+          y: 300
+          w: 170
+          tone: danger
+      edges:
+        - { from: dev, to: blob, label: zip upload }
+        - { from: blob, to: manifest, label: then }
+        - { from: manifest, to: validate, label: triggers }
+        - { from: validate, to: snapshot, label: scheduled }
+        - { from: snapshot, to: qa, label: deploy }
+        - { from: qa, to: prod, label: approve }
+        - { from: qa, to: restore, label: reject, dashed: true }
+    chapters:
+      - title: Build and test locally
+        caption: Theo builds `acme-ccd-2026-04` on a local dev system and runs `ant all` and `test.unit` there first. PTC recommends a second dev system just to prove the package deploys cleanly.
+        show: [dev]
+        highlight: [dev]
+        seconds: 6
+      - title: Upload the ZIP
+        caption: The package contents are zipped (no root folder) and uploaded to `data/builds` in Acme's cloud storage container, with Azure Storage Explorer or `azcopy`.
+        show: [dev, blob]
+        highlight: [blob]
+        flow: [dev>blob]
+        seconds: 6
+      - title: Ask for a deployment
+        caption: A manifest file names the pipeline, the exact ZIP name, the approvers and the schedule. Uploading it to `data/builds/deploy` is the request.
+        show: [dev, blob, manifest]
+        highlight: [manifest]
+        flow: [blob>manifest]
+        seconds: 7
+      - title: Validation
+        caption: The package is inspected. **Pass** or **pass with warnings** gets scheduled; **fail** cancels the deployment and tells you why.
+        show: [dev, blob, manifest, validate]
+        highlight: [validate]
+        flow: [manifest>validate]
+        seconds: 7
+      - title: Backup, then deploy
+        caption: At the scheduled time a full backup snapshot is taken, then the package deploys and notifiers get emails at start and finish.
+        show: [dev, blob, manifest, validate, snapshot, qa]
+        highlight: [snapshot, qa]
+        flow: [validate>snapshot, snapshot>qa]
+        seconds: 7
+      - title: Approve or restore
+        caption: Approvers test. The first approver to answer decides. Approve promotes to production; reject restores the environment from the snapshot.
+        highlight: [qa, prod, restore]
+        flow: [qa>prod, qa>restore]
+        seconds: 8
+
+  - type: comparison
+    title: The same CCD package, two kinds of target
+    columns: [Acme's on-premises test system, Windchill+]
+    rows:
+      - label: Who runs the targets
+        cells: ["Theo, from a Windchill shell", "PTC's automated build service"]
+      - label: How it starts
+        cells: ["ant all (or single targets)", "ZIP plus manifest uploaded to the storage container"]
+      - label: Checks before deploying
+        cells: ["Whatever your team runs (unit tests, peer review)", "Automatic validation against PTC's allowed and disallowed lists"]
+      - label: Safety net
+        cells: ["Your own backups", "Full backup snapshot before each deployment; reject restores it"]
+      - label: Who says it's good
+        cells: ["Your test team", "Your approvers, by email, within the retention window"]
+      - label: Reuse a package
+        cells: ["Up to your process", "Not possible: a deployed package can't be deployed again"]
+    takeaway: Learn the package on-premises; the cloud just adds a stricter gate and a snapshot.
+
+  - type: walkthrough
+    title: Run a CCD package on Acme's own test system
+    who: Developer or system administrator with site administrator credentials
+    where: [Windchill Shell, WT_HOME, bin, customizationTools]
+    steps:
+      - title: Point CCD at your package
+        where: [WT_HOME, bin, customizationTools, customizationTools.properties]
+        md: |
+          If the package isn't in the default location, set `wt.customizationSource.dir.path` to its folder.
+          Avoid spaces in folder names. CCD needs read, write, modify and execute rights on that folder.
+      - title: Create or refresh the skeleton
+        where: [Windchill Shell, customizationTools]
+        md: Run `ant create.package`. It only adds missing folders, so it is safe to run again.
+      - title: Fill the package
+        where: [customization root]
+        md: Put code in the module folders, property changes in `configurations/xconf`, load files in `configurations/loadFiles` and the BAC ZIP in `generated/BAC`.
+      - title: Deploy everything
+        where: [Windchill Shell, customizationTools]
+        md: |
+          Run `ant all`. Windchill restarts during the run and you are asked for a Windchill administrator user
+          name. CCD waits at most 10 minutes for the method server to come back, so slow systems can time out.
+      - title: Read the logs and test
+        where: [WT_HOME, buildlogs, customizationLogs]
+        md: Open the newest `CustomizationInstallLogs_<TimeStamp>.log`, then run `ant test.unit` and a quick functional check.
+    result: The test system now runs exactly what the package contains. The same ZIP is what you would submit to Windchill+.
+
+  - type: example
+    variant: real-world
+    title: PTC eats its own cooking
+    industry: PLM services
+    md: |
+      PTC's PLM Foundation Pacesetter, a ready-made starter configuration, ships as a CCD deployment package.
+      Implementers extract it to the customization folder, answer a few prompts (one asks whether the target is
+      Windchill+) and run `ant all` from the customizationTools folder. On Windchill+ it applies to the site's
+      default organization; on-premises you create an organization first.
+    takeaway: If PTC delivers its own best-practice setup as a CCD package, so can you.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Zipping the folder instead of its contents.** The Windchill+ package ZIP must have no root folder. And
+      the `package_name` in the manifest is case-sensitive and must match the uploaded file exactly. Two tiny
+      mistakes, one cancelled deployment.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Give every package a unique, dated name such as `acme-ccd-2026-04`. A package can't be deployed twice to
+      an instance, and Windchill+ doesn't queue builds for you: if one is already scheduled or running you get an
+      email and must cancel or wait. Clear names make those emails easy to act on.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Where do property changes go in a CCD package?
+        options: [generated/BAC, configurations/xconf in a custom site xconf file, test/unit, customlib]
+        answer: 1
+        explanation: The configurations/xconf folder holds custom.site.xconf, used to set, add, remove or reset property values.
+      - kind: order
+        prompt: Put the Windchill+ deployment in order.
+        items: [Upload the package ZIP to data/builds, Upload the manifest to data/builds/deploy, Validation, Backup snapshot and deployment, Approvers test and approve or restore]
+        explanation: The manifest triggers the request, validation decides whether it's scheduled, a snapshot is taken before deploying, and your approvers have the last word.
+      - kind: single
+        prompt: Which target applies changes from SchemaConfig.xml to the database?
+        options: [compile, load.data, apply.schema, create.package]
+        answer: 2
+        explanation: apply.schema updates the database and is needed after deploy when a module has a SchemaConfig.xml. The all target includes it.
+      - kind: truefalse
+        prompt: File-based artifacts such as code must be cumulative, while BAC packages and load files are incremental.
+        answer: true
+        explanation: That's the package structure rule. Each package carries all code and files, but only the new database changes.
+
+  - type: summary
+    points:
+      - CCD is PTC's Ant-based tool that works on a standard package structure. It is the only supported route into Windchill+ and works on-premises too.
+      - "A package has configurations, generated (schema and one BAC ZIP), module folders, customlib and test."
+      - Key targets are create.package, compile, deploy, apply.schema, load.data, all and test.unit; logs go to buildlogs/customizationLogs.
+      - On Windchill+ you upload a ZIP and a manifest; validation, a backup snapshot, deployment and your approval follow.
+      - Code is cumulative per package; BAC and load files are incremental. A package can't be deployed twice.

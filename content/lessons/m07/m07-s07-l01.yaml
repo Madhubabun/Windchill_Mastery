@@ -1,0 +1,288 @@
+id: m07-s07-l01
+subtitle: Engineering lives in Windchill, money and stock live in ERP. Ines has to wire them together without anyone re-typing a BOM ever again.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [integration, erp, esi, architecture, point-to-point, middleware]
+sources:
+  - id: esi
+    where: "Module 1: ERP systems overview; ERP and PLM: a comparison (data ownership, lifecycle stage, data flow); Why have both PLM and ERP?; Why PLM-ERP integration?; Benefits of PLM-ERP integration; Most common ERP integration scenarios. Module 2: Windchill-ERP integration options; What is Windchill ESI?; Key components; Windchill ESI architecture (data flow); ERP Connector; Custom integration using ERP Connector; Comparing integration options; Open API interface"
+  - id: erp
+    where: "Module 1: Windchill ERP integration; Windchill ERP integration options; ERP Connector overview; ERP Connector in comparison to ESI (point-to-point, hard-coded business logic, JMS integration)"
+  - id: rest
+    where: "Module 2: Windchill REST Services (WRS): orchestrating Windchill data"
+versionNotes:
+  - versions: ["Windchill+"]
+    md: |
+      The integration options are the same ideas on [[windchill-plus|Windchill+]], but what you may deploy is
+      limited. Windchill+ does not allow custom Info*Engine tasks, webjects or adapters and points you to
+      [[windchill-rest-services|Windchill REST Services]] instead, so plan custom integration logic around WRS
+      (see "Disallowed Customization" in the Windchill+ Help Center).
+
+blocks:
+  - type: text
+    md: |
+      Acme Mobility's E-Bike E1 is close to release. Kai's team works in Windchill. The **Riverside** and
+      **Lakeside** plants buy, stock and build from the company's [[erp|ERP]] system. Today someone exports
+      a BOM to a spreadsheet and a planner types it into ERP. Last month a typo in a quantity cost a
+      full shift at Lakeside.
+
+      **Ines**, Acme's new ERP and integration lead, has two questions for this lesson:
+      1. **How** should Windchill and ERP be connected: directly, or through a middle layer?
+      2. **What** should cross the bridge, and **when**?
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the system that runs buying, stock, costs and production planning" → [[erp|ERP]] (the company's *system of record*)
+      - "Windchill's module for talking to ERP" → [[windchill-esi|Windchill ESI]] (Enterprise Systems Integration)
+      - "the lightweight option that drops files for ERP to pick up" → [[erp-connector|ERP Connector]]
+      - "a direct link from one system to another" → **point-to-point** integration
+      - "a separate layer in the middle that translates and routes messages" → **middleware** (for full ESI: TIBCO)
+      - "where the data is sent" → [[distribution-target]]
+
+  - type: diagram
+    title: Three ways to get Windchill data into ERP
+    caption: All three reuse the same ESI services inside Windchill. What changes is what sits between Windchill and ERP. Click a box.
+    diagram:
+      width: 820
+      height: 440
+      groups:
+        - { label: Windchill, x: 20, y: 20, w: 220, h: 400, tone: primary }
+        - { label: In between, x: 270, y: 20, w: 300, h: 400, tone: neutral }
+        - { label: ERP side, x: 600, y: 20, w: 200, h: 400, tone: info }
+      nodes:
+        - id: pdm
+          label: Windchill PDMLink
+          sublabel: parts · BOMs · changes
+          x: 40
+          y: 80
+          w: 180
+          tone: primary
+          detail: |
+            The source of truth for engineering data: parts, BOMs, documents, CAD structures and change notices.
+            With MPMLink installed, process plans and manufacturing resources can be published too.
+        - id: esisvc
+          label: ESI services
+          sublabel: + ESI Open API
+          x: 40
+          y: 260
+          w: 180
+          tone: primary
+          detail: |
+            The Windchill module that picks the objects to publish, packages them as an [[esi-response|ESI response]]
+            and tracks every publication as a transaction. ESI and ERP Connector are both implementations of the
+            **ESI Open API**, and both use the [[release-to-manufacturing-workflow|Release to Manufacturing workflow]].
+        - id: drop
+          label: File · FTP · email
+          sublabel: ERP Connector
+          x: 290
+          y: 60
+          w: 260
+          tone: accent
+          detail: |
+            **Option 1, point-to-point.** [[erp-connector|ERP Connector]] writes the response to a file location, an
+            FTP server or an email address. ERP (or an import job) picks it up. No middleware, one direction only,
+            cheap and simple - but the business logic is hard coded and changing it is not supported.
+        - id: tibco
+          label: TIBCO middleware
+          sublabel: EMS · BusinessWorks · adapters
+          x: 290
+          y: 180
+          w: 260
+          h: 70
+          tone: warning
+          detail: |
+            **Option 2, middleware.** Full [[windchill-esi|Windchill ESI]] ships TIBCO software: EMS (the JMS message
+            service), BusinessWorks (the process engine running PTC's business logic) and SAP or Oracle adapters.
+            It is closed loop and two-way, with transaction and error management built in.
+        - id: custom
+          label: Your own middleware
+          sublabel: custom via Open API
+          x: 290
+          y: 310
+          w: 260
+          tone: neutral
+          detail: |
+            **Option 3, custom.** Build your own integration on the ESI Open API, or put third-party middleware
+            behind ERP Connector. Fully tailored and works with any ERP, but you own the development, the
+            maintenance and the upgrade risk.
+        - id: erpsys
+          label: ERP system
+          sublabel: SAP · Oracle · others
+          x: 620
+          y: 180
+          w: 160
+          h: 70
+          shape: cylinder
+          tone: info
+          detail: |
+            ERP owns execution data: material masters, stock levels, purchase orders, costs. Windchill owns
+            product data. Engineering data flows to ERP; feedback such as cost and availability can flow back.
+      edges:
+        - { from: pdm, to: esisvc, label: release }
+        - { from: esisvc, to: drop, label: XML/JSON }
+        - { from: esisvc, to: tibco, label: JMS }
+        - { from: esisvc, to: custom, dashed: true }
+        - { from: drop, to: erpsys, label: import job, dashed: true }
+        - { from: tibco, to: erpsys, label: adapter, bidirectional: true }
+        - { from: custom, to: erpsys, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Without integration, designers decide on stale manufacturing data, tooling engineers build parts that
+      were already revised, and purchasing sends quotes with the wrong information. Every manual re-entry is a
+      chance for a typo like Lakeside's. The integration pattern you pick decides cost, how much PTC supports,
+      and how much your own team must build and maintain for years.
+
+  - type: comparison
+    title: Point-to-point vs middleware
+    columns: [ERP Connector (point-to-point), Full ESI (middleware)]
+    rows:
+      - label: Direction
+        cells: ["One-way out of the box (open loop); closed loop needs configuration and customization", "Two-way, closed loop out of the box"]
+      - label: What sits in between
+        cells: ["Nothing - a file, FTP folder or email address", "TIBCO EMS, BusinessWorks process engine and an SAP or Oracle adapter"]
+      - label: Business logic
+        cells: ["Hard coded in Windchill Java; customizing it is not supported", "PTC business logic runs in the middleware and can be extended there"]
+      - label: Several plants
+        cells: ["Each target is a final destination; a JMS setup needs one queue per target", "One message to one event queue; the middleware routes it to each plant"]
+      - label: Who owns what
+        cells: ["PTC owns the Windchill side only; you own the middleware and import", "PTC handles most of the implementation and supports the TIBCO pieces"]
+      - label: Typical fit
+        cells: ["ERP other than SAP or Oracle; lower cost and complexity", "SAP or Oracle Applications; high volume; strict transaction integrity"]
+      - label: Price of choosing it
+        cells: ["Limited feedback and error handling unless you build it", "Higher cost and specialist skills for administration"]
+    takeaway: Point-to-point is cheap and simple; middleware buys you routing, feedback and error handling.
+
+  - type: text
+    md: |
+      ### What crosses the bridge, and when
+
+      PTC's ESI course draws the line by **ownership**:
+
+      | Owned by Windchill (PLM) | Owned by ERP |
+      | --- | --- |
+      | CAD models, specifications, engineering BOMs, change orders | Material masters, stock levels, purchase orders, costs |
+      | Used before and during development | Used during and after production |
+
+      So engineering data flows **PLM → ERP** (parts, BOMs, documents, change notices, and with MPMLink process
+      plans and resources), while **ERP → PLM** carries feedback such as cost, availability or quantity on hand.
+
+      **When** to send it is the second design decision. The most common scenarios are:
+      - **Pre-production release** - objects still *In Work*, so purchasing can order long-lead items early.
+      - **Production release** - objects *Released*, the normal trigger for building.
+      - **Engineering queries** of ERP data, for example variable cost or quantity on hand by plant.
+      - Change process integration, supplier data (AML publish, AVL query) and reserving new part numbers in ERP.
+
+  - type: example
+    variant: case-study
+    title: Ines draws Acme's bridge
+    industry: Micromobility
+    md: |
+      Acme runs an ERP that is **neither SAP nor Oracle**, and the IT budget is small. Ines lists the requirements:
+
+      - Released E1 parts and BOMs must reach both plants (**RV01** Riverside, **LK01** Lakeside).
+      - Change notices must travel with the parts they affect.
+      - Long-lead battery cells from Voltra Cells need ordering before final release.
+      - ERP's planners will run a nightly import job anyway.
+
+      Her choice: [[erp-connector|ERP Connector]] writing XML to a file share per plant, with the ERP team's
+      import job reading it. Production release is the main trigger; she flags the battery pack for an early
+      *In Work* publication. She writes down the price of that choice too: open loop means Windchill will
+      only know the file was **delivered**, not that ERP **loaded** it.
+    takeaway: Pick the pattern from the ERP, the volume and the budget - then write down what you give up.
+
+  - type: scenario
+    variant: what-if
+    title: What should go to ERP?
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Priya checks in a new revision of `eb1_frame.asm` and its CAD drawing, still **In Work**. Maya hasn't
+          opened a change yet. A planner asks Ines to "just push everything to ERP so we're current." What does
+          Ines do?
+        choices:
+          - label: Push every check-in to ERP automatically
+            next: f1
+            feedback: ERP would fill with half-finished iterations that planners might buy against.
+          - label: Wait for release, and only pre-release items that need early action
+            next: s2
+            good: true
+            feedback: Production release is the normal trigger; pre-production release is for specific needs.
+      - id: f1
+        md: |
+          Within a week ERP has six versions of the frame. Purchasing orders tubes for one that Priya changed
+          the next day. Engineering data that isn't ready shouldn't drive buying.
+        outcome: fail
+      - id: s2
+        md: |
+          The frame is released through Maya's change notice. The planner now asks for Windchill
+          to also store ERP's **stock on hand** for the frame tube as a part attribute that ERP overwrites hourly.
+          Good idea?
+        choices:
+          - label: "No - stock is ERP's data; query it when needed instead of copying it"
+            next: win
+            good: true
+            feedback: ERP owns execution data. An engineering query of ERP data is a known scenario.
+          - label: "Yes - more data in Windchill is always better"
+            next: p1
+            feedback: Copying data the other system owns creates two versions of the truth.
+      - id: p1
+        md: |
+          Now two systems show stock, and they disagree whenever the hourly sync lags. Nobody knows which to
+          trust. It works, sort of, but you've broken the ownership rule.
+        outcome: partial
+      - id: win
+        md: |
+          Product data flows out of Windchill when it's ready; execution data stays in ERP and is looked up when
+          engineers need it. Each system remains the owner of its own data.
+        outcome: success
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **"We'll just tweak ERP Connector's logic."** ERP Connector's business logic is hard coded in its Java
+      implementation, and customizing that class is not supported. If you already know you need heavy
+      transformation, routing or error handling, plan for middleware (ESI, or your own on the Open API)
+      instead of fighting the connector.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Before choosing, write the integration as a list of **business objects × trigger × direction × owner**
+      (for example "Part · Released · PLM→ERP · Windchill"). PTC's material notes that the objects are few
+      but translating them between PLM and ERP shapes is complex. A one-page table makes that complexity
+      visible before anyone buys software.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Which option is a point-to-point integration with no middleware?
+        options: [Full Windchill ESI with TIBCO, ERP Connector writing to a file or FTP target, A custom integration on third-party middleware, None of them]
+        answer: 1
+        explanation: PTC's course lists "point-to-point solution" and "no middleware" as ERP Connector traits. Full ESI uses TIBCO middleware; a custom build usually adds your own middleware.
+      - kind: multi
+        prompt: Which statements about full Windchill ESI are true? (Choose all that apply.)
+        options: [It is closed loop and two-way, It uses TIBCO EMS and BusinessWorks, It is the preferred approach for SAP and Oracle Applications, Its business logic is hard coded in Windchill Java]
+        answers: [0, 1, 2]
+        explanation: ESI's business logic runs on the middleware's process engine. Hard-coded Java logic describes ERP Connector.
+      - kind: single
+        prompt: Under the PLM/ERP ownership rule, which item does ERP own?
+        options: [Engineering BOM, CAD model, Purchase orders and stock levels, Change notices]
+        answer: 2
+        explanation: PLM owns product data (CAD, specifications, eBOMs, change orders); ERP owns execution data (material masters, inventory, purchase orders).
+      - kind: truefalse
+        prompt: ESI and ERP Connector are both implementations of the ESI Open API and both use the Release to Manufacturing workflow.
+        answer: true
+        explanation: That shared foundation is why you can start with ERP Connector and still build richer integrations on the same services later.
+
+  - type: summary
+    points:
+      - ERP is the system of record for buying, stock and production; Windchill owns product data. Integration stops manual re-entry.
+      - "Three options: ERP Connector (point-to-point, open loop), full ESI (TIBCO middleware, closed loop, SAP/Oracle) or a custom build on the ESI Open API."
+      - Middleware adds routing, feedback and error handling at a higher cost; point-to-point is cheap but logic is hard coded.
+      - Engineering data flows PLM → ERP; feedback like cost and stock flows back or is queried, not copied.
+      - Decide the trigger per object - pre-production release for early buying, production release as the norm.

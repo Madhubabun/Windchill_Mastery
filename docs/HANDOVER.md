@@ -27,8 +27,10 @@ lessons, 4 section checkpoints and a capstone. Module 3 (Change & Configuration 
 complete: 20 lessons, 5 section checkpoints and a capstone. Module 4 (Business Administration) is
 complete: 38 lessons, 9 section checkpoints and a capstone. Module 5 (System Administration) is
 complete: 31 lessons, 7 section checkpoints and a capstone. Module 6 (Migration & Data
-Management) is complete: 17 lessons, 5 section checkpoints and a capstone. All six have cheat
-sheets; the glossary has 358 terms. The other modules are outlined.
+Management) is complete: 17 lessons, 5 section checkpoints and a capstone. Module 7 (Advanced
+Topics) is complete: 73 lessons, 14 section checkpoints and a capstone, including the developer
+track (sections 7.9 to 7.11). All seven have cheat sheets; the glossary has 510 terms. Some
+lessons added by the source review are still outlined.
 
 ## Not done yet / known limits
 
@@ -37,8 +39,6 @@ sheets; the glossary has 358 terms. The other modules are outlined.
 - **No server-sent push.** Reminders are local notifications scheduled on the phone.
 - **The APK has not been run on a physical device or emulator** in the build environment. Its
   page loading was tested by emulating the app's file serving in a phone-sized browser.
-- **Modules 6–7 need lessons.** Write them in `content/lessons/mNN/` following
-  CONTENT_AUTHORING.md; the platform picks them up automatically.
 - Videos: the `video` block exists, but no videos are produced yet.
 - Analytics are per learner (Insights tab). There's no admin dashboard across learners.
 

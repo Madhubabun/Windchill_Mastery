@@ -2,3 +2,77 @@ id: m07
 theme: emerald
 icon: sparkles
 tagline: "MPMLink, variants, CAD, quality, integrations and customization."
+cheatsheet:
+  sections:
+    - title: MPMLink and the mBOM
+      points:
+        - "The eBOM is the product as designed (Design view); the mBOM is the product as built (Manufacturing view). The BOM Transformer shows the upstream BOM on the left and the downstream BOM on the right."
+        - "Reuse design parts in the mBOM; add phantoms, manufacturing assemblies and manufacturing-only parts. Equivalent links tie each mBOM part to its eBOM partner."
+        - "Plants with different structures get their own views (View Administration, under Manufacturing, plus the List of Applicable Views preference). Plants that differ only in facts share one mBOM with Plant Data."
+        - "Process plans hold operations with resources (plant, resource group, work center, tooling, process material, skill). Work instructions are generated on demand from the plan."
+        - "Run mBOM creation and maintenance through change notices: the eBOM task first, the mBOM task sequenced after it."
+    - title: Options and variants
+      points:
+        - "Options and choices live in an option pool; an option set references the ones a product uses and is assigned to the product."
+        - "The configurable product holds every alternative (the 150% BOM). Collapsible configurable parts vanish from variants. Assign choices on usage links; always-used parts get none."
+        - "Include, exclude, enable and conditional rules govern selection. In expressions, / means OR and + means AND."
+        - "Test with the option filter, then Configure: Set Filter, Set Parameters, Preview, Variant Specification, Module Variant. Product families and the Matrix Editor organise and compare managed specs."
+    - title: CAD integration
+      points:
+        - "Creo connects to Windchill out of the box; SOLIDWORKS, NX, CATIA V5, Inventor, AutoCAD and others connect through Windchill Workgroup Manager."
+        - "A workspace is your local cache plus your server-side workspace. Check In and Add to Workspace collect dependents by rule; drawings and family members need the advanced collection options."
+        - "A family table lives in the generic; Windchill stores the generic and every instance as separate CAD documents. Verify instances in Creo before check-in."
+        - "ECAD and MCAD designers keep a circuit board in sync with IDX files: a baseline, then proposals and responses."
+    - title: Quality
+      points:
+        - "Closed-loop quality: record the problem, investigate, fix it through the normal change process, prove the fix, feed it back into risk analysis."
+        - "Customer experiences hold what customers report; nonconformances hold items that miss their spec; CAPAs find and remove the root cause."
+        - "FMEA lives in Windchill Risk and Reliability, a separate PTC product. RPN = Severity × Occurrence × Detection."
+    - title: Projects and PartsLink
+      points:
+        - "A project is a time-limited team space with a plan of activities, milestones and deliverables. The Gantt Explorer shows timeline, dependencies and critical path."
+        - "Add to Project offers Share (read-only), PDM Check-out (editable, original locked) and Copy (independent object). Send to PDM brings the work back."
+        - "PartsLink classifies parts by function and attributes. Make search-before-create the rule; Refine Results facets and Find Similar need index search."
+        - "Govern the classification library with a request-review-build loop. Import structures from CSV once, then manage them in Windchill; autonaming rules build names from attributes."
+    - title: Integrations
+      points:
+        - "ERP Connector: no middleware, one-way, File, FTP or Email targets. ESI: middleware, closed loop, turnkey for SAP and Oracle."
+        - "A distribution target is where published data goes. Assignment is explicit by default; top-level and default-for-context strategies also exist."
+        - "Publishing runs through the Release To Manufacturing workflow: on change notice release, on reaching a maturity state, or manually with Send To Distribution Target."
+        - "Windchill REST Services expose objects as OData entities: service root, domain, entity set, query options. Changes need a CSRF nonce. Custom domains go under codebase/rest/custom, never codebase/rest/ptc."
+    - title: Windchill+ and CCD
+      points:
+        - "Windchill+ is Windchill as SaaS: PTC runs the servers and you get no backend access. Changes travel through INT, QA and PROD with your approval."
+        - "Code and Configuration Deployment (CCD) is the only supported route into Windchill+, and it works on-premises too."
+        - "Configuration travels in BAC packages (one ZIP in generated/BAC); allowed code travels in CCD modules; load files are listed in deploy.xml."
+        - "Some customizations are disallowed on Windchill+, such as Info*Engine customizations, custom JSP UIs, direct JDBC access and extending ServiceEventListenerAdapter. Use WRS, MVC builders and actions instead."
+    - title: Customization essentials
+      points:
+        - "Climb the ladder: process first, then configuration, then code. Stop at the lowest rung that works."
+        - "Extension points: UI framework, workflow code, event listeners, services, rule algorithms and integrations."
+        - "Promote one versioned customer build through test, QA and production. Register with xconfmanager and propagate with -p."
+        - "Stay upgrade-safe: your own Java package, custom action files, ptcOrig and siteMod for modified files, and only current supported APIs."
+    - title: UI framework
+      points:
+        - "Actions live in custom-actions.xml; action models (menus, toolbars, tabs) in custom-actionModels.xml."
+        - "MVC builders extend AbstractComponentBuilder, are named with @ComponentBuilder and build a ComponentConfig plus ComponentData."
+        - "Data utilities extend AbstractDataUtility and override getDataValue. Form processors extend DefaultObjectFormProcessor; doOperation and postProcess share one transaction."
+        - "Validators decide whether an action shows, is enabled, or may proceed. Wizards are popup actions with wizard_step steps. Prefer an existing picker to building one."
+    - title: Server-side code
+      points:
+        - "A service is an interface plus a StandardManager subclass, registered as a wt.services.service entry. Subscribe listeners in performStartupProcess."
+        - "QuerySpec builds SQL from Java objects: appendClassList, appendWhere, appendJoin with link roles, appendOrderBy."
+        - "Listeners run in the caller's transaction; throwing from a vetoable event rolls the change back. Narrow them by event key, class and context."
+        - "PersistableAdapter reads and writes modeled and soft attributes by internal name. Check every API against your release's Javadoc."
+    - title: Suppliers and service
+      points:
+        - "Manufacturers make parts; vendors sell parts others make. An OEM part's AML lists approved manufacturer parts, its AVL approved vendor parts, each with a sourcing status per sourcing context."
+        - "A part request is the controlled route for a new bought part, ending in a released OEM part with an AML."
+        - "The service BOM is a linked downstream view of the eBOM. Information structures organise service content; parts lists and illustrations build the parts catalog."
+        - "Applicability (effectivity or option expressions) filters service content; publication structures assemble what gets published. Translate reusable topics, not whole manuals."
+    - title: Navigate and ThingWorx
+      points:
+        - "Navigate gives occasional users simple, role-based Windchill apps in a browser. Windchill permissions still decide what they can see."
+        - "A Navigate role is a ThingWorx user group; users also need a Navigate licence group. Switch tasks on per role and tailor them before building custom ones."
+        - "A custom task is a mashup, data sources and a connector; the OData Connector reaches Windchill through WRS."
+        - "In ThingWorx, Things are instances of Thing Templates, extended with Thing Shapes. Properties, services, events and subscriptions give them behaviour; mashups present the data."

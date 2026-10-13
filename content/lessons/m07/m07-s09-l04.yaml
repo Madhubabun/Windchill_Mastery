@@ -1,0 +1,268 @@
+id: m07-s09-l04
+subtitle: Theo's laptop isn't a Windchill dev box yet. One IDE setup, one debugger, four environments - and a repeatable way to ship.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [customization, developer, eclipse, environments, deployment, debugging]
+sources:
+  - id: cust
+    where: "Module 1: Customization process (concept, plan, build, launch and tools); Deploying Windchill custom code (development, test/integration, QA/validation, production); Module 3: Eclipse overview; Activity: Install Eclipse; Activity: Configure Eclipse; Activity: Configure Eclipse for debugging"
+  - id: cus-overview
+    where: "Day 1 overview: Development environment (tools.xml targets eclipse_project, class, bundle, sql_script and .help); Some key commands (tools.xml class, xconfmanager -i and -p, MakeJar.xml, swmaint.xml createSafeArea); NmActionServiceHelper reload note"
+  - id: trn-advdev
+    where: "Section 12: register a service with xconfmanager -s ... -t codebase\\wt.properties -p and restart the method server"
+  - id: ac
+    where: "Module 11: Deploy Windchill+ with the CCD utility"
+versionNotes:
+  - versions: ["13.0.2.4 course"]
+    md: |
+      PTC's course configures Eclipse IDE for Enterprise Java and Web Developers with Java compiler compliance
+      **17** against Windchill 13.0.2.4. Java and Eclipse versions change between releases: read the JDK path from
+      your own system (`xconfmanager -d wt.jdk`) and check the supported Java level for your release.
+  - versions: ["Windchill+"]
+    md: |
+      You still develop and debug on an on-premises or private-cloud test system. Getting the result onto
+      [[windchill-plus|Windchill+]] goes through a [[windchill-plus-ccd|CCD]] package, not by copying files.
+
+blocks:
+  - type: text
+    md: |
+      Theo's first week rule: **no code on production, ever.** Code is written on a development system, versioned
+      in source control, built into a known release, tested on systems that look like production, and only then
+      deployed. Before any of that, his IDE has to "see" Windchill - its JDK, its codebase and its JARs - and his
+      debugger has to reach the method server.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "Windchill's install folder" → [[wt-home|WT_HOME]]
+      - "the folder of compiled classes Windchill runs" → [[codebase-directory|codebase]]
+      - "PTC's Ant script with build targets" → `bin/tools.xml`
+      - "the tool that writes properties safely" → [[xconfmanager]]
+      - "attaching the IDE to the running server" → **remote debugging**
+
+  - type: diagram
+    title: Four environments, one direction
+    caption: Code flows left to right only. Click each environment.
+    diagram:
+      width: 840
+      height: 300
+      nodes:
+        - id: dev
+          label: Development
+          sublabel: one VM per developer
+          x: 20
+          y: 110
+          w: 180
+          tone: primary
+          detail: |
+            For UI configuration, server settings and customization; unit and integration tests. Monolithic, one to
+            n method servers, limited data, ideally the same OS, database and Windchill version as production.
+            Source control is set up **before** the first build.
+          real: Theo's dev box, plus one for a contractor later.
+        - id: test
+          label: Test / integration
+          sublabel: dedicated server
+          x: 225
+          y: 110
+          w: 180
+          tone: accent
+          detail: Deployment, integration, functional and regression tests. Very similar to production and with the **same architecture** (cluster, method servers, authentication scheme). Production or test data.
+        - id: qa
+          label: QA / validation
+          sublabel: identical to production
+          x: 430
+          y: 110
+          w: 180
+          tone: warning
+          detail: Performance and load tests, user acceptance tests and user training. A dedicated server identical to production.
+        - id: prod
+          label: Production
+          sublabel: the live system
+          x: 635
+          y: 110
+          w: 180
+          tone: success
+          detail: Where the finalized version of the build is deployed - and nothing else.
+      edges:
+        - { from: dev, to: test, label: build }
+        - { from: test, to: qa, label: same build }
+        - { from: qa, to: prod, label: same build }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      If test doesn't match production - different method server count, different authentication - your tests
+      prove nothing. PTC's guide is explicit: test has production's architecture; QA is identical to production.
+
+  - type: walkthrough
+    title: Set up Eclipse for Windchill
+    who: Theo, on his development server
+    where: [Windchill shell, Eclipse]
+    steps:
+      - title: Check Java
+        where: [Command prompt]
+        md: Run `java -version` (runtime) and `javac -version` (JDK). If `javac` isn't recognized, the JDK is missing or not on the path.
+      - title: Find Windchill's JDK
+        where: [Windchill shell]
+        md: Run `xconfmanager -d wt.jdk` to display the JDK folder Windchill uses. You'll point Eclipse at the same one.
+      - title: Install Eclipse
+        where: [Eclipse installer]
+        md: Install **Eclipse IDE for Enterprise Java and Web Developers** and pick a workspace folder.
+      - title: Match the compiler and JRE
+        where: [Window, Preferences, Java, Compiler / Installed JREs]
+        md: Set **Compiler compliance level** to the Java level of your release, then **Add** a Standard VM pointing at Windchill's JDK folder and make it the default.
+      - title: Keep the output folder safe
+        where: [Window, Preferences, Java, Compiler, Building]
+        md: Clear **Scrub output folders when cleaning projects** - the output folder will be inside the Windchill codebase.
+      - title: Create the project and link the codebase
+        where: [File, New, Project, Java Project]
+        md: |
+          Use a project-specific JRE (Windchill's JDK) and no `module-info.java`. In **Libraries → Classpath**,
+          **Add Class Folder**, create a new folder, and in **Advanced** link it to `<WT_HOME>/codebase`. Add the
+          external JARs your code needs (the course adds the annotation JARs that ship with Windchill).
+      - title: Add the working folders
+        where: [Project, New, Folder]
+        md: Create `db`, `loadFiles`, `loadXMLFiles`, `tasks`, `wtCustom` and `wtSafeArea` next to `src`, so every kind of custom file has a versioned home.
+      - title: Annotation processing and WT_HOME
+        where: [Project, Properties, Java Compiler, Annotation Processing]
+        md: Enable project-specific settings and add the keys from the course (for example `eclipse_compiler` = `true`) plus the factory-path JARs. Then in **Window → Preferences → Ant → Runtime → Properties**, add `WT_HOME` with your install path and open the **Ant** view.
+      - title: Validate
+        where: [src, New, Class]
+        md: Create a class in a package such as `com.acme.windchill.sandbox`, type a `WTPart` variable and accept the IDE's `import wt.part.WTPart;`. If it resolves, the classpath works.
+    result: Eclipse compiles against Windchill's own JDK and codebase, and Ant builds can find WT_HOME.
+
+  - type: text
+    md: |
+      ### Turn on remote debugging
+
+      1. Read PTC's own instructions: in a Windchill shell, from `bin`, run `ant -f tools.xml eclipse_project.help`.
+      2. Add the debug arguments for the method server in **site.xconf** as a property that targets
+         `codebase/wt.properties`:
+
+         ```xml
+         <Property name="wt.manager.cmd.MethodServer.debug.args"
+                   overridable="true"
+                   targetFile="codebase/wt.properties"
+                   value="-Xnoagent -Xdebug -Xrunjdwp:transport=dt_socket,address=YOUR-HOST:9000,server=y,suspend=n"/>
+         ```
+
+      3. Propagate with `xconfmanager -p`, then `windchill stop` and `windchill start`.
+      4. In Eclipse: **Run → Debug Configurations → Remote Java Application → New**, enter the host and port
+         `9000`, **Apply**, **Debug**. Open the **Debug** view to see threads and breakpoints.
+
+  - type: comparison
+    title: "Cheat sheet: commands you'll use every week"
+    columns: [Command, What it does]
+    rows:
+      - label: Generate an Eclipse project
+        cells: ["ant -f bin/tools.xml eclipse_project", "Uses PTC's tools.xml target; append .help to any target for its help"]
+      - label: Compile a class
+        cells: ["ant -f bin/tools.xml class -Dclass.includes=... -Dclass.source=...", "Compiles the named Java source into the codebase"]
+      - label: Resource bundles / SQL
+        cells: ["tools.xml targets bundle and sql_script", "Build enumeration resource bundles; generate SQL scripts for persistent classes"]
+      - label: Install an xconf file
+        cells: ["xconfmanager -i <path>/custom.xconf", "Adds a custom xconf file - the overview training uses it for a custom services xconf"]
+      - label: Propagate properties
+        cells: ["xconfmanager -p", "Writes property changes to their target files"]
+      - label: Set one property
+        cells: ["xconfmanager -s name=value -t codebase/wt.properties -p", "Sets, targets and propagates in one go"]
+      - label: Display a property
+        cells: ["xconfmanager -d wt.jdk", "Shows a property's current value"]
+      - label: Reload actions after XML edits
+        cells: ["java com.ptc.netmarkets.util.misc.NmActionServiceHelper", "From the overview training; or restart the method server"]
+      - label: Restart
+        cells: ["windchill stop / windchill start", "Needed after new classes, services or properties"]
+    takeaway: Compile, register, propagate, restart - in that order.
+
+  - type: text
+    md: |
+      ### The customization process around the code
+
+      PTC frames custom work in four steps, each with its tools:
+
+      | Step | Means | Typical tools |
+      | --- | --- | --- |
+      | **Concept** | Stories and requirements | Modeling tools, Office |
+      | **Plan** | Turn requirements into work items | Issue tracking, project management |
+      | **Build** | Do the work and deploy the release | IDE, source control, build (Ant, Gradle, Maven), review, CI/CD |
+      | **Launch** | Document the release | Release management, deploy scripts |
+
+      Tie issues to commits and keep a traceability matrix from requirement to test.
+
+  - type: scenario
+    variant: troubleshooting
+    title: The breakpoint that never hits
+    start: s1
+    nodes:
+      - id: s1
+        md: Theo set a breakpoint in his listener and started a Remote Java Application debug session on port 9000. Eclipse says it can't connect. First check?
+        choices:
+          - label: Is the debug property actually in wt.properties - did he run xconfmanager -p and restart?
+            next: s2
+            good: true
+            feedback: Editing site.xconf alone does nothing until the property is propagated and the method server restarts.
+          - label: Reinstall Eclipse
+            next: fail1
+            feedback: The IDE is rarely the problem when the port isn't listening.
+      - id: s2
+        md: He propagated and restarted. Now Eclipse connects, but the breakpoint is never hit when he checks in a document.
+        choices:
+          - label: Check the service is registered and the compiled class is the one in the codebase
+            next: win
+            good: true
+            feedback: No registration, no listener. An old class in the codebase means the code you're debugging isn't running.
+          - label: Move the breakpoint to the first line of every class
+            next: partial1
+            feedback: You'll learn that nothing runs - but not why.
+      - id: win
+        md: The wt.services.service entry was missing. After registering and restarting, the breakpoint fires on check-in.
+        outcome: success
+      - id: partial1
+        md: Lots of clicking, same result. Check registration and deployment before stepping through code.
+        outcome: partial
+      - id: fail1
+        md: A fresh Eclipse, same error - the method server was never started with debug arguments.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Letting Eclipse clean the codebase.** If **Scrub output folders when cleaning projects** stays on and the
+      output folder is inside the Windchill codebase, a project clean can delete files Windchill needs.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Put *every* custom artefact in the project, not only Java: load files, XML load files, Info*Engine tasks,
+      text tailoring (`wtCustom`) and modified PTC files (`wtSafeArea`). If it isn't in source control, it isn't in
+      the build.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Which environment must have the same architecture as production (cluster, method servers, authentication)?
+        options: [Test/integration, Development only, None - only QA matters, A developer laptop]
+        answer: 0
+        explanation: The test/integration environment has production's architecture; QA/validation is identical to production.
+      - kind: single
+        prompt: How does Theo find which JDK Windchill uses?
+        options: ["xconfmanager -d wt.jdk in a Windchill shell", Look in Eclipse's About box, "javac -help", Ask PTC support]
+        answer: 0
+        explanation: xconfmanager -d displays a property's value; wt.jdk holds the JDK path.
+      - kind: order
+        prompt: Put the remote debugging setup in order.
+        items: [Add the debug-args property in site.xconf, Run xconfmanager -p, Restart the method server, Create a Remote Java Application debug configuration, Start debugging on the configured port]
+        explanation: The property must reach wt.properties and the method server must restart with it before the IDE can attach.
+      - kind: truefalse
+        prompt: The codebase folder is linked into the Eclipse project as a class folder.
+        answer: true
+        explanation: Linking codebase as a class folder puts Windchill's classes on the project classpath.
+
+  - type: summary
+    points:
+      - Code flows development → test/integration → QA/validation → production, as one versioned build.
+      - Eclipse uses Windchill's own JDK, links the codebase as a class folder and knows WT_HOME for Ant.
+      - Remote debugging needs a debug-args property propagated to wt.properties and a method server restart.
+      - Compile with tools.xml, register with xconfmanager, propagate with -p, restart.
+      - Keep every custom artefact - Java, XML, load files, safe-area files - in source control.

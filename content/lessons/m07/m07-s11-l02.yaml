@@ -1,0 +1,382 @@
+id: m07-s11-l02
+subtitle: Maya wants every E1 battery part and its approved alternates - from code, not a saved search. Theo writes his first real QuerySpec.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [customization, developer, architect, queryspec, persistence, server-side]
+sources:
+  - id: trn-advdev
+    where: "Section 11: QueryResult (full objects vs single columns, appendSelect with int[]); QuerySpec constructors and method table (appendClassList, appendWhere with int[], appendAnd, appendOr, appendOpenParen, appendCloseParen, appendJoin, appendSelect, appendOrderBy, getResultIndex, setQueryLimit, toString, deprecated overloads); StatementSpec; SearchCondition and ColumnExpression classes (ClassAttribute, SQLFunction, SubSelectExpression, ConstantExpression, DateExpression, ArrayExpression); compound query with WTPartMaster and WTPartAlternateLink roles; Access control consideration (AdvancedQueryAccessException, setAdvancedQueryEnabled, find vs PersistenceServerHelper.manager.query); Sorting (OrderBy, column alias, reserved words); Join support (appendJoin with link roles); Table Builder example (PersistenceHelper.manager.find)"
+  - id: cus-api
+    where: "List of APIs and Methods: MVC Table Builder row (QuerySpec, SearchCondition, new QuerySpec(...), appendWhere(...), new SearchCondition(...), PersistenceHelper.manager.find(...))"
+  - id: trn-code
+    where: "MultipleUserCreation.java: QuerySpec with addClassList and appendWhere(condition, int[]); reading rows as Persistable[] from hasMoreElements/nextElement; QueryResult.size()"
+  - id: cust
+    where: "Module 2: Directories and files (ClassInfo.ser metadata used at runtime); Windchill customization resources (Javadoc)"
+
+blocks:
+  - type: text
+    md: |
+      Maya is preparing a change for the **E-Bike E1** battery. She asks Theo: *"Can your rules service find
+      every E1 battery part - and the alternates we've approved for each one?"* A saved search can't follow
+      the alternate links for her, and Leo's upcoming rule will need the same kind of lookup.
+
+      In m07-s09 Theo learned *where* the data sits: number and name on the master, alternates as link
+      objects between masters. Now he writes the Java that asks for it - a [[queryspec|QuerySpec]] - and reads
+      the answer - a [[query-result|QueryResult]].
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a database question written as Java objects" → [[queryspec|QuerySpec]] (part of the persistence framework)
+      - "one rule in the question, like name starts with Battery" → [[search-condition|SearchCondition]]
+      - "the slot number a class gets in the query" → **class index** (returned by `appendClassList`)
+      - "a column of a class you can compare or select" → **ClassAttribute** (a ColumnExpression)
+      - "the list of answers" → [[query-result|QueryResult]]
+      - "the API that runs it" → [[persistence-manager|PersistenceHelper.manager]]
+      - "the safety catch for risky SQL features" → [[advanced-query-check]]
+
+  - type: diagram
+    title: Anatomy of a QuerySpec
+    caption: Each part of the spec becomes part of one SQL statement. Click a box.
+    diagram:
+      width: 840
+      height: 430
+      groups:
+        - { label: QuerySpec, x: 20, y: 20, w: 520, h: 390, tone: primary }
+      nodes:
+        - id: from
+          label: Class list (FROM)
+          sublabel: appendClassList
+          x: 40
+          y: 60
+          w: 220
+          tone: primary
+          detail: |
+            `appendClassList(SomeClass.class, isSelectable)` adds a class and **returns its index**. Every later
+            call refers to classes by these indexes. `true` means "return full objects of this class"; `false`
+            means the class only takes part in conditions or joins.
+        - id: where
+          label: Conditions (WHERE)
+          sublabel: appendWhere + int[]
+          x: 300
+          y: 60
+          w: 220
+          tone: accent
+          detail: |
+            `appendWhere(new SearchCondition(...), new int[] { index })` adds one expression for the class at
+            that index. Combine several with `appendAnd()`, `appendOr()` and `appendOpenParen()` /
+            `appendCloseParen()`. The older overloads without `int[]` are deprecated.
+        - id: join
+          label: Joins
+          sublabel: appendJoin + role
+          x: 40
+          y: 180
+          w: 220
+          tone: warning
+          detail: |
+            `appendJoin(linkIndex, role, targetIndex)` joins a link class to another class using the role names
+            from the model, for example the two roles of `WTPartAlternateLink`. A second form joins to a given
+            persistable object instead of an index.
+        - id: select
+          label: Columns and sort
+          sublabel: appendSelect · OrderBy
+          x: 300
+          y: 180
+          w: 220
+          tone: info
+          detail: |
+            `appendSelect(column, new int[] { index }, false)` asks for one column instead of whole objects -
+            faster when you only need, say, numbers. `appendOrderBy(new OrderBy(column, descending), int[])`
+            sorts; give sorted columns an alias that is not a SQL reserved word.
+        - id: tostring
+          label: toString()
+          sublabel: the SQL it means
+          x: 170
+          y: 300
+          w: 220
+          tone: neutral
+          detail: Returns the SELECT statement the spec describes. Print it while developing and compare it with the tables you expected.
+        - id: pm
+          label: PersistenceHelper
+          sublabel: manager.find(spec)
+          x: 580
+          y: 120
+          w: 240
+          tone: accent
+          detail: |
+            `PersistenceHelper.manager.find(spec)` runs the statement **with access control**, so a user only
+            gets what they may see. Server-only code can use the non-access-controlled
+            `PersistenceServerHelper.manager.query(spec)` when it truly must.
+        - id: result
+          label: QueryResult
+          sublabel: hasMoreElements · nextElement
+          x: 580
+          y: 290
+          w: 240
+          tone: success
+          detail: |
+            Loop with `hasMoreElements()` / `nextElement()`; `size()` gives the count. When you build the spec
+            with a class list, the training reads each element as a `Persistable[]` row - one entry per
+            selectable class.
+      edges:
+        - { from: from, to: where, label: index }
+        - { from: from, to: join, label: index }
+        - { from: from, to: select, label: index }
+        - { from: where, to: pm }
+        - { from: pm, to: result }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Queries are where custom code gets slow or leaks data. A query that loads whole objects when it needs
+      one column hurts every page that calls it. A query that bypasses access control shows people objects
+      they were never meant to see. Knowing the spec's parts - and which ones trip the safety catch - is what
+      separates a working report from an incident.
+
+  - type: text
+    md: |
+      ### Query 1: battery masters by name and number
+
+      Number and name live on the master, so Theo queries `WTPartMaster`. He keeps the index that
+      `appendClassList` returns and passes it with every condition.
+
+      ```java
+      QuerySpec qs = new QuerySpec();
+      int masterIdx = qs.appendClassList(WTPartMaster.class, true);
+
+      qs.appendWhere(new SearchCondition(WTPartMaster.class, WTPartMaster.NAME,
+              SearchCondition.LIKE, "Battery%"), new int[] { masterIdx });
+      qs.appendAnd();
+      qs.appendWhere(new SearchCondition(WTPartMaster.class, WTPartMaster.NUMBER,
+              SearchCondition.LIKE, "EB-%"), new int[] { masterIdx });
+
+      System.out.println(qs.toString());          // check the SQL while developing
+
+      QueryResult qr = PersistenceHelper.manager.find(qs);
+      System.out.println("Found " + qr.size() + " E1 battery masters");
+      while (qr.hasMoreElements()) {
+          Persistable[] row = (Persistable[]) qr.nextElement();
+          WTPartMaster master = (WTPartMaster) row[0];
+          System.out.println(master.getNumber() + "  " + master.getName());
+      }
+      ```
+
+      Want "name is Battery Pack 500 **or** Battery Pack 625"? Wrap the two conditions in
+      `appendOpenParen()` / `appendCloseParen()` with `appendOr()` between them, then `appendAnd()` the number
+      rule - exactly as you'd bracket it in SQL.
+
+  - type: simulation
+    title: Build Maya's query
+    intro: |
+      Assemble the spec in the right order and run it. Watch what each call adds - and what Windchill refuses
+      until a class is in the list.
+    headline: "classes: {classes} · WHERE {where} · result: {rows}"
+    initial: { classes: 0, where: "(none)", rows: "-", stage: empty, sqlShown: false }
+    actions:
+      - id: add-class
+        label: appendClassList(WTPartMaster.class, true)
+        when: { stage: empty }
+        do: [{ set: { classes: 1, stage: class-added } }]
+        log: Class added at index 0. Every condition will refer to this index.
+        blockedHint: The master is already in the class list.
+      - id: add-name
+        label: appendWhere(name LIKE 'Battery%', [0])
+        when: { stage: class-added }
+        do: [{ set: { where: "name LIKE 'Battery%'", stage: one-condition } }]
+        log: First condition added for the class at index 0.
+        blockedHint: Add the class first - a condition needs a class index. If you already have conditions, reset to start over.
+      - id: add-number
+        label: appendAnd() + number LIKE 'EB-%'
+        when: { stage: one-condition }
+        do: [{ set: { where: "name LIKE 'Battery%' AND number LIKE 'EB-%'", stage: two-conditions } }]
+        log: AND plus a second condition - now only E1 numbers qualify.
+        blockedHint: Add the name condition first; appendAnd joins two conditions.
+      - id: print-sql
+        label: Print toString()
+        when: { stage: [class-added, one-condition, two-conditions] }
+        do: [{ set: { sqlShown: true } }]
+        log: "SQL: SELECT ... FROM WTPartMaster A0 WHERE {where}"
+        blockedHint: There is no statement yet - add a class.
+      - id: run-broad
+        label: Run find (name only)
+        when: { stage: one-condition }
+        do: [{ set: { rows: "14 masters - E1 and Scooter S2 mixed" } }]
+        log: 14 rows. Scooter S2 batteries are in there too - Maya only wants E1.
+        blockedHint: Runs a spec with exactly one condition. Reset and add just the name condition to try it.
+      - id: run-narrow
+        label: Run find (name + number)
+        when: { stage: two-conditions }
+        do: [{ set: { rows: "6 E1 battery masters" } }]
+        log: 6 rows, every one an EB- number. Each element is a Persistable[] row; row[0] is the master.
+        blockedHint: Add both conditions first.
+      - id: reset
+        label: New QuerySpec()
+        do: [{ set: { classes: 0, where: "(none)", rows: "-", stage: empty, sqlShown: false } }]
+        log: Fresh, empty spec.
+    goals:
+      - label: Print the SQL before running
+        when: { sqlShown: true }
+        message: toString() is your cheapest debugger.
+      - label: Return only the 6 E1 battery masters
+        when: { rows: "6 E1 battery masters" }
+        message: Class first, conditions with its index, AND between them, then find.
+
+  - type: text
+    md: |
+      ### Query 2: follow the alternate links
+
+      An alternate is a `WTPartAlternateLink` - a many-to-many link between two part masters. Theo puts three
+      classes in the list (master, link, master) and joins them with the link's two **roles**. He makes the
+      link class non-selectable, so each row holds just the two masters.
+
+      ```java
+      QuerySpec qs = new QuerySpec();
+      int partIdx = qs.appendClassList(WTPartMaster.class, true);
+      int linkIdx = qs.appendClassList(WTPartAlternateLink.class, false);
+      int altIdx  = qs.appendClassList(WTPartMaster.class, true);
+
+      qs.appendWhere(new SearchCondition(WTPartMaster.class, WTPartMaster.NUMBER,
+              SearchCondition.EQUAL, "EB-10050"), new int[] { partIdx });
+
+      // role names come from the model, as in PTC's alternates example
+      qs.appendJoin(linkIdx, WTPartAlternateLink.ALTERNATES_ROLE, partIdx);
+      qs.appendJoin(linkIdx, WTPartAlternateLink.ALTERNATE_FOR_ROLE, altIdx);
+
+      QueryResult qr = PersistenceHelper.manager.find(qs);
+      while (qr.hasMoreElements()) {
+          Persistable[] row = (Persistable[]) qr.nextElement();
+          // getResultIndex maps a class index to its slot in the row
+          WTPartMaster alt = (WTPartMaster) row[qs.getResultIndex(altIdx)];
+          System.out.println("Alternate: " + alt.getNumber());
+      }
+      ```
+
+      ### Query 3: just the numbers, sorted
+
+      When Maya only needs numbers, selecting whole objects wastes work. A single-column select is much
+      cheaper. Give a sorted column an alias - and never a reserved word such as `number`.
+
+      ```java
+      QuerySpec qs = new QuerySpec();
+      int idx = qs.appendClassList(WTPartMaster.class, false);
+      ClassAttribute num = new ClassAttribute(WTPartMaster.class, WTPartMaster.NUMBER);
+      num.setColumnAlias("partNo");
+      qs.appendSelect(num, new int[] { idx }, false);
+      qs.appendWhere(new SearchCondition(WTPartMaster.class, WTPartMaster.NAME,
+              SearchCondition.LIKE, "Battery%"), new int[] { idx });
+      qs.appendOrderBy(new OrderBy(num, false), new int[] { idx });   // false = ascending
+      qs.setQueryLimit(200);
+      ```
+
+  - type: comparison
+    title: "Cheat sheet: current method vs deprecated form"
+    columns: [Use this, Not this (deprecated)]
+    rows:
+      - label: Start a multi-class spec
+        cells: ["new QuerySpec() then appendClassList(Class, boolean)", "new QuerySpec(Class[])"]
+      - label: Add a condition
+        cells: ["appendWhere(WhereExpression, int[])", "appendSearchCondition(...) or appendWhere without int[]"]
+      - label: Select a column
+        cells: ["appendSelect(ColumnExpression, int[], boolean)", "appendSelect(ColumnExpression, int, boolean)"]
+      - label: Sort
+        cells: ["appendOrderBy(OrderBy, int[])", "appendOrderBy(Class, String, boolean)"]
+      - label: Navigate from a link
+        cells: ["appendJoin(...) or the persistence manager's navigate", "QuerySpec(target, link, spec) - replaced by NavigateSpec"]
+    takeaway: If the Javadoc says Deprecated, it also names the replacement. Use it.
+
+  - type: scenario
+    variant: what-if
+    title: What if Maya wants a count?
+    start: s1
+    nodes:
+      - id: s1
+        md: Maya now wants only *how many* E1 battery masters exist. Theo adds a COUNT `SQLFunction` and calls `find`. It throws `AdvancedQueryAccessException`. Why?
+        choices:
+          - label: Aggregate functions can bypass access control, so Windchill blocks them by default
+            next: s2
+            good: true
+            feedback: Sub-selects, MINUS and INTERSECT, external tables, aggregate functions and ROWNUM all trip the check - on purpose.
+          - label: The class index is wrong
+            next: fail1
+            feedback: A wrong index gives wrong SQL or a different error. This exception is specifically the access-control safety catch.
+      - id: s2
+        md: This code runs only inside the rules service on the server, and the count reveals nothing secret. What now?
+        choices:
+          - label: Call setAdvancedQueryEnabled(true) on this one spec, document why, keep it server-side
+            next: s3
+            good: true
+            feedback: The attribute can only be set from server-side code - a deliberate, reviewable decision for one query.
+          - label: Switch every query in the project to the non-access-controlled method
+            next: fail2
+            feedback: That turns a safety catch into a hole. Use the bypass only where it's needed and justified.
+      - id: s3
+        md: With `find`, Windchill adds access-control columns to the SELECT - and for aggregates that can change the result or break the SQL. What's the training's answer?
+        choices:
+          - label: Run that specific query with PersistenceServerHelper.manager.query on the server
+            next: win
+            good: true
+            feedback: The server-side, non-access-controlled query method avoids the extra columns. It's the right tool for this narrow case.
+          - label: Count the rows of a full-object query in Java instead
+            next: partial1
+            feedback: It works and stays access-controlled, but it loads every object just to count them.
+      - id: win
+        md: One justified, commented, server-side count query. Code review approves it - and every other query stays on `find`.
+        outcome: success
+      - id: partial1
+        md: Correct number, slower page. Fine for six rows; not for sixty thousand.
+        outcome: partial
+      - id: fail1
+        md: Theo rewrites indexes for an hour. The exception never changes, because it was never about indexes.
+        outcome: fail
+      - id: fail2
+        md: Months later an audit finds a report that showed supplier-restricted parts to everyone. Bypasses must be the exception.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Querying the iteration for master data.** In the model a part's name is derived from
+      `WTPartMaster.name`, and alternates link masters, not iterations. If what you need is identity (number,
+      name) or a master-to-master link, put `WTPartMaster` in the class list - not `WTPart`.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Build specs in a small helper method per question (`findBatteryMasters`, `findAlternates`) and log
+      `toString()` at debug level. When a query returns nothing in test, the SQL in the log tells you within a
+      minute whether it's the class, the index, the role or the data.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: What does appendClassList return?
+        options: ["A QueryResult", "The SQL table name", "The number of rows", "The index of the class in the query"]
+        answer: 3
+        explanation: The index identifies that class in later appendWhere, appendJoin and appendSelect calls.
+      - kind: multi
+        prompt: Which calls belong to the current (not deprecated) API? (Choose all that apply.)
+        options: ["appendWhere(WhereExpression, int[])", "appendSearchCondition(SearchCondition)", "appendOrderBy(OrderBy, int[])", "appendSelect(ColumnExpression, int[], boolean)"]
+        answers: [0, 2, 3]
+        explanation: appendSearchCondition is deprecated and replaced by appendWhere with an int[] of class indexes.
+      - kind: single
+        prompt: Theo needs only part numbers for a 5,000-row export. What's the better query?
+        options: ["A QuerySpec with no conditions", "A single-column select with appendSelect and a non-selectable class", "Full WTPartMaster objects then getNumber() on each", "A WTPart query on every iteration"]
+        answer: 1
+        explanation: Single columns avoid building full objects and are much more efficient.
+      - kind: truefalse
+        prompt: PersistenceHelper.manager.find runs a query with access control.
+        answer: true
+        explanation: find applies access control; the server-side PersistenceServerHelper.manager.query does not and should be used sparingly.
+      - kind: order
+        prompt: Put the alternates query in order.
+        items: [Add the master class and keep its index, Add the link class as non-selectable, Add the second master class, Add the number condition for the first master, Join the link to both masters with its roles, Run find and read each Persistable row]
+        explanation: Classes first (each returns an index), then conditions and joins that use those indexes, then run and read.
+
+  - type: summary
+    points:
+      - A QuerySpec is a SQL question built from Java objects - classes, conditions, joins, columns and sort.
+      - appendClassList returns an index; pass it as int[] to appendWhere, appendSelect and appendOrderBy.
+      - Join through link classes with appendJoin and the model's role names, such as the alternate link roles.
+      - find runs with access control; advanced features throw AdvancedQueryAccessException unless server code enables them on purpose.
+      - Read results with hasMoreElements/nextElement; class-list queries return Persistable[] rows, and getResultIndex finds a class's slot.
