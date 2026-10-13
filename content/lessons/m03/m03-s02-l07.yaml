@@ -1,0 +1,289 @@
+id: m03-s02-l07
+subtitle: Three change admins, two boards, plus the people doing the work. Know who holds the baton at every step.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [change, roles, change-administrator, change-review-board, change-implementation-board, team]
+sources:
+  - id: te
+    where: "Module 6: Identify roles in the change management process; Change management process: Identify Need, Investigate Need, Change Planning, Change Implementation, Review and Audit Change; Activity: Create a problem report; Activity: Create a change request; Activity: Analyze a change request; Activity: Create a change notice to address a requested change; Activity: Complete a change notice to release product data"
+  - id: trn-cm-itc
+    where: "Intro to the change process: change process diagram (Anyone, Change Admin I, CRB, Change Admin II, CIB, Change Admin III) and Change Administrator responsibilities; Implementing changes: resolving the process (used only where the 13.x course manual agrees)"
+
+blocks:
+  - type: text
+    md: |
+      PR-0101 is in. Who picks it up? Who decides if a CR is worth it? Who writes the plan, who
+      checks it, who signs off the final result?
+
+      If the answer is *"uh, whoever's free"*, changes stall. Tasks sit in nobody's inbox. Or the
+      same person writes the plan, does the work and approves it - and nobody catches the mistake.
+
+      Windchill's out-of-the-box change process answers "who?" with **roles**. Each role owns a
+      slice of the five change steps you met in Section 1 (Identify Need through Review and Audit
+      Change). Put a real
+      person in each role on your product team, and every task finds its owner automatically.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the gatekeeper for incoming problems and requests" → *Change Admin I* (CA I)
+      - "the planner who writes the to-do list" → *Change Admin II* (CA II)
+      - "the final checker before release" → *Change Admin III* (CA III)
+      - "the group that says yes or no to a change request" → *[[change-review-board]]* (CRB)
+      - "the group that says yes or no to the plan" → *[[change-implementation-board|Change Implementation Board]]* (CIB)
+      - "the person doing one piece of work" → the change task's *assignee*; "the person checking it" → its *reviewer*
+      - "a job title Windchill hands tasks to" → a *[[role]]* on the product's *[[context-team]]*
+
+  - type: diagram
+    title: Who owns which step
+    caption: The five steps run left to right. Click a role to see what it does and when it shows up. The two boards only appear in the full track.
+    diagram:
+      width: 800
+      height: 430
+      groups:
+        - { label: "1 · Identify", x: 10, y: 10, w: 150, h: 410, tone: danger }
+        - { label: "2 · Investigate", x: 170, y: 10, w: 150, h: 410, tone: warning }
+        - { label: "3 · Plan", x: 330, y: 10, w: 150, h: 410, tone: primary }
+        - { label: "4 · Implement", x: 490, y: 10, w: 150, h: 410, tone: info }
+        - { label: "5 · Audit", x: 650, y: 10, w: 140, h: 410, tone: success }
+      nodes:
+        - id: anyone
+          label: Any user
+          sublabel: creates the PR
+          x: 20
+          y: 60
+          w: 130
+          tone: neutral
+          detail: |
+            In the course manual's setup, **all** users can create problem reports. Sam in field
+            service is a typical author. Creating a report doesn't decide anything - it starts the process.
+        - id: ca1
+          label: Change Admin I
+          sublabel: screens + decides
+          x: 20
+          y: 180
+          w: 130
+          tone: danger
+          detail: |
+            **CA I** screens problem reports (confirm, reject or send back to the author), reviews
+            change requests, collects impact information and communicates the decision to reject or
+            implement. CA I can also collect unresolved problem reports and create a change request.
+            Only users in this role can approve PRs through the *Analyze Problem Report* task.
+          real: At Acme, Maya holds CA I for the Scooter S2 product.
+        - id: crb
+          label: Change Review Board
+          sublabel: full track only
+          x: 180
+          y: 180
+          w: 130
+          tone: warning
+          detail: |
+            The **CRB** reviews a change request and approves it, denies it or asks for more
+            investigation. It's typically made up of people from design engineering, manufacturing
+            engineering and quality. It is only used in the **full track**.
+          real: At Acme the board is Kai, Ana and Leo, with Maya running the meeting.
+        - id: ca2
+          label: Change Admin II
+          sublabel: owns the plan
+          x: 340
+          y: 60
+          w: 130
+          tone: primary
+          detail: |
+            **CA II** creates the implementation plan in the change notice and monitors the work as
+            it's done. In the full track, CA II also records the CIB's decision to go ahead. CA II can
+            hand planning work to another expert but stays responsible for the whole plan.
+          real: At Acme, Kai holds CA II.
+        - id: cib
+          label: Change Implementation Board
+          sublabel: full track only
+          x: 340
+          y: 180
+          w: 130
+          tone: primary
+          detail: |
+            The **CIB** reviews the implementation plan in the change notice and approves or denies
+            it. Like the CRB, it's only used in the **full track**.
+        - id: assignee
+          label: Task assignee
+          sublabel: does the work
+          x: 500
+          y: 60
+          w: 130
+          tone: info
+          detail: |
+            Each change task names an **assignee** who edits the product data as the change notice
+            instructs. Assignees don't need to be change admins - in the course manual's example a
+            design engineer gets the task.
+          real: Priya is the assignee on most bracket tasks.
+        - id: reviewer
+          label: Task reviewer
+          sublabel: checks the work
+          x: 500
+          y: 180
+          w: 130
+          tone: info
+          detail: |
+            Each change task also names a **reviewer** who checks that the changes are clear, concise
+            and valid, and sends them back to the assignee if not.
+          real: Kai reviews Priya's CAD tasks.
+        - id: ca3
+          label: Change Admin III
+          sublabel: audits the CN
+          x: 660
+          y: 180
+          w: 120
+          tone: success
+          detail: |
+            **CA III** audits all the material related to a change once every task is complete, making
+            sure the resulting documentation is clear, concise and valid. Approval releases the objects.
+          real: At Acme, Leo from quality holds CA III.
+      edges:
+        - { from: anyone, to: ca1, label: PR }
+        - { from: ca1, to: crb, label: CR }
+        - { from: crb, to: ca2 }
+        - { from: ca2, to: cib, label: plan }
+        - { from: cib, to: assignee }
+        - { from: assignee, to: reviewer }
+        - { from: reviewer, to: ca3 }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Roles make the process **person-proof**. When Maya goes on holiday, the team lead adds a
+      colleague to CA I and the next PR goes to them - no workflow edits needed. Roles also split
+      **doing** from **checking**: the person who plans isn't the one who audits. That's what auditors
+      and customers want to see. The course manual notes these out-of-the-box roles were added to
+      follow the **CMII** change management standard, and you can rename or reshape them for your company.
+
+  - type: comparison
+    title: The change roles at a glance
+    columns: [Main step, What they decide or do, Used in]
+    rows:
+      - label: Any user
+        cells: [Identify Need, Creates and submits the problem report, Every change that starts with a PR]
+      - label: Change Admin I
+        cells: ["Identify and Investigate Need", "Confirms, rejects or returns PRs; reviews CRs; collects impact; communicates the decision", Fast and full track]
+      - label: Change Review Board
+        cells: [Investigate Need, "Approves, denies or asks for more investigation on the CR", Full track only]
+      - label: Change Admin II
+        cells: [Change Planning, "Creates the implementation plan in the CN and monitors it; records the CIB decision", Fast and full track]
+      - label: Change Implementation Board
+        cells: [Change Planning, Approves or denies the implementation plan, Full track only]
+      - label: Assignee and reviewer
+        cells: [Change Implementation, "Do the work in each change task, then check it", Every change task]
+      - label: Change Admin III
+        cells: [Review and Audit Change, Audits the finished change notice and approves or rejects it, Fast and full track]
+    takeaway: Three admins run the process, two boards add a decision in the full track, and the task people do and check the work.
+
+  - type: example
+    variant: real-world
+    title: Who touched CR-0101
+    industry: Micromobility
+    md: |
+      Sam raised **PR-0101** about the stretched pin hole. Maya (**CA I**) confirmed it and created
+      **CR-0101**. Because the fix touched stock, suppliers and tooling, she routed it **full track**:
+      the **CRB** - Kai, Ana and Leo - approved it. Kai (**CA II**) built CN-0101's plan, and the
+      **CIB** approved the plan. Priya and Ana did their tasks as **assignees**, Kai and Leo
+      **reviewed** them, and finally Leo (**CA III**) audited the change notice and released B.1.
+      Seven hand-offs, and every one is recorded on the objects.
+    takeaway: Every hand-off has a named role, so nobody has to guess who's next.
+
+  - type: walkthrough
+    title: See who holds the change roles on your product
+    who: Any team member who can view the product team
+    where: [Navigator, Browse, Recent Products, "<your product>", Team]
+    steps:
+      - title: Open the product's team
+        where: [Navigator, Browse, Recent Products, "<your product>", Team]
+        md: In the Navigator click **Browse**, open the **Recent Products** tab and click **Team** under your product.
+      - title: Show the roles
+        where: [Team, Members list]
+        md: |
+          From the list next to **Members**, choose **Local Team Roles and Members** to see each role
+          with its people, or **All People** to see each person with the roles they hold.
+      - title: Find the change roles
+        where: [Team, Members table]
+        md: |
+          Look for **Change Admin I**, **Change Admin II** and **Change Admin III** and the board roles
+          your company uses. These are the people who will receive change tasks for this product.
+    result: You know who screens your PRs, who plans the CN and who audits it - before you need them.
+
+  - type: callout
+    variant: note
+    md: |
+      In the course manual's training system, one user holds Change Admin I, II **and** III so a
+      single learner can run the whole process. That's a training shortcut. Your company decides how
+      many people hold each role, what the roles are called and which tasks they get - the
+      out-of-the-box roles are a starting point you can change.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Same person plans and audits.** If Kai is both CA II and CA III, he ends up auditing his own
+      plan, and fresh eyes never see it. Keep the planner and the auditor different people whenever
+      your team is big enough.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Put **at least two people** in Change Admin I. The course manual's example does exactly that:
+      a submitted problem report goes to both CA I users, so one person's holiday doesn't freeze every
+      new problem in the product.
+
+  - type: flashcards
+    cards:
+      - front: "Change Admin I (CA I)"
+        back: "Screens PRs, reviews CRs, collects impact and communicates the decision. Can create a CR from unresolved PRs."
+      - front: "Change Admin II (CA II)"
+        back: "Creates and monitors the implementation plan in the change notice; records the CIB decision."
+      - front: "Change Admin III (CA III)"
+        back: "Audits everything in a finished change so the resulting documentation is clear, concise and valid."
+      - front: "Change Review Board (CRB)"
+        back: "Approves, denies or asks for more investigation on a change request. Full track only."
+      - front: "Change Implementation Board (CIB)"
+        back: "Approves or denies the implementation plan in the change notice. Full track only."
+      - front: "Who can create a problem report?"
+        back: "Any user, in the course manual's out-of-the-box setup."
+      - front: "Assignee vs reviewer"
+        back: "The assignee does a change task's work; the reviewer checks it and can send it back."
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Sam submits a problem report. Who decides whether it's a valid problem?
+        options: [The Change Review Board, Change Admin I, Change Admin III, The task reviewer]
+        answer: 1
+        explanation: Change Admin I screens problem reports and can confirm, reject or send them back. The CRB looks at change requests, and CA III audits finished change notices.
+      - kind: single
+        prompt: Who reviews and approves the implementation plan in a full-track change?
+        options: [Change Review Board, Change Implementation Board, Change Admin I, Any user]
+        answer: 1
+        explanation: The CIB reviews the plan in the change notice. The CRB decides on the change request earlier. Both boards are full-track only.
+      - kind: truefalse
+        prompt: The Change Review Board takes part in every change, including fast-track ones.
+        answer: false
+        explanation: The course manual says the CRB and CIB roles are only used in the full track change process.
+      - kind: single
+        prompt: CN-0101's tasks are all done. Whose task is it to check the whole package before release?
+        options: [Change Admin II, The task assignee, Change Admin III, Change Admin I]
+        answer: 2
+        explanation: Change Admin III audits all material related to the change. CA II owns the plan; assignees did the work.
+      - kind: multi
+        prompt: Which are duties of Change Admin II? (Choose all that apply.)
+        options:
+          - Create the implementation plan in the change notice
+          - Record the CIB's decision to go ahead
+          - Screen incoming problem reports
+          - Monitor the work as it is completed
+        answers: [0, 1, 3]
+        explanation: CA II owns the plan from creation to completion. Screening problem reports belongs to CA I.
+
+  - type: summary
+    points:
+      - "Any user creates PRs; CA I screens PRs and reviews CRs; CA II plans in the CN; CA III audits the result."
+      - The CRB decides on change requests and the CIB on implementation plans - both in the full track only.
+      - Each change task has an assignee who does the work and a reviewer who checks it.
+      - Roles are filled per product on the Team page and can be adapted to your company.

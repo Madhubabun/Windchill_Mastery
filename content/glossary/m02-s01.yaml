@@ -43,3 +43,64 @@
   plain: A Windchill web page shown inside your CAD tool's own window.
   definition: The browser pane built into Creo Parametric (and into the Windchill Workgroup Manager client) that displays Windchill pages - workspace, search, information pages - so CAD users can work with Windchill without switching to a separate web browser.
   related: [creo, workgroup-manager, workspace]
+
+- id: document-template
+  term: Document template
+  plain: A ready-made starting file (and values) for a new Windchill document, like a standard meeting-minutes layout.
+  definition: A template offered in the Template list when creating a document. It can pre-fill the content file, attachments and attribute values so documents of that kind start the same way. The templates shown depend on the selected document type, and choosing one replaces picking a primary content file. Administrators create and manage the templates available in each context.
+  aka: [Windchill document template]
+  related: [document, primary-content, new-multiple-documents]
+
+- id: new-multiple-documents
+  term: New Multiple Documents
+  plain: One wizard that creates a whole batch of documents at once.
+  definition: A document creation action, launched from a folder's Folder Contents table (toolbar, New menu or drag and drop), that adds one row per new document. One type applies to every row; names and other attributes are set per row or in bulk with Edit Attribute Value. Name and Number are required for each row, and attachments are added afterwards by editing each document.
+  related: [document, document-template]
+
+- id: desktop-integration
+  term: Windchill Desktop Integration (DTI)
+  plain: The add-in that puts a Windchill tab inside Word, Excel, PowerPoint and Outlook.
+  definition: An add-in that, once installed and connected to an active Windchill server, adds a Windchill tab to Microsoft Office applications so users can create documents (from the open file or a template), create templates, open, search, check out, check in and change the state of Windchill documents without the web interface. Documents can also be created from File Explorer.
+  aka: [DTI, Office integration]
+  related: [document, document-template, check-in]
+
+- id: part-centric
+  term: Part-centric approach
+  plain: Build the BOM first in Windchill, then design and link the CAD to it.
+  definition: A product development approach in which the part structure is created independently of the CAD design, often before modelling starts, using tools such as the Product Structure Browser. Design and CAD-linking tasks are then handed to engineering teams. It fits supplier parts, items with no CAD and structures planned upfront.
+  aka: [part-first, top-down structure]
+  related: [cad-centric, part, auto-associate-parts]
+
+- id: cad-centric
+  term: CAD-centric approach
+  plain: Design in CAD first and let Windchill build the BOM from the CAD structure.
+  definition: A product development approach in which Windchill builds the part structure automatically from the CAD model structure when the CAD documents are checked in, typically with Auto Associate Parts to CAD Documents creating owner-associated parts.
+  aka: [CAD-driven]
+  related: [part-centric, owner-association, auto-associate-parts]
+
+- id: cad-drawing
+  term: CAD drawing
+  plain: The 2D sheet with views, dimensions and a title block, made from a 3D model.
+  definition: A two-dimensional CAD document, often generated from a 3D assembly in the CAD tool, then uploaded and checked in to Windchill. It is related to the model it is based on and that model's part, and its representations (for example PDF files) can be viewed without the CAD tool. Changing the drawing does not change the model.
+  aka: [Drawing, DRW]
+  related: [cad-document, representation, cad-document-template]
+
+- id: cad-parameter
+  term: CAD parameter
+  plain: An extra named value stored inside a CAD model, like DESCRIPTION or MODELED_BY.
+  definition: A named value on a CAD document, added or edited in the CAD tool (in Creo through Tools > Parameters). Once the CAD document is stored in Windchill, parameter values appear on its Details tab. They are not copied to the associated part unless an administrator enables that. Windchill can also publish values such as version and state into parameters for drawing title blocks.
+  aka: [Creo parameter]
+  related: [cad-document, cad-drawing]
+
+- id: out-of-date
+  term: Out of date (workspace object)
+  plain: Your workspace copy is older than the latest one on the server.
+  definition: The status of a workspace copy of a CAD document after the object has been iterated on the Windchill server. The Update action (Update out of date versions in the workspace, or Update in Creo's model tree) replaces it, and the CAD session's copy, with the latest iteration; with nothing selected, the whole workspace is checked.
+  related: [workspace, commonspace, cad-conflict]
+
+- id: import-to-workspace
+  term: Import to Workspace
+  plain: Bring a batch of existing CAD files from disk into your workspace in one go.
+  definition: A workspace action (Tools menu of the workspace object list) that brings CAD files from one or more local folders into the workspace. Windchill checks that dependents are present, that files are not corrupted and whether they already exist in Windchill. Files with issues still enter the workspace but cannot be checked in until resolved. Export from Workspace is the reverse, saving copies to a folder.
+  aka: [CAD import]
+  related: [workspace, incomplete-cad-document, cad-dependency]

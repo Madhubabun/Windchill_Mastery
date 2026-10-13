@@ -1,13 +1,32 @@
 id: m01-s02-check
 subtitle: Prove you can trace a click through Windchill - from browser to database and back.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.0.1
+updated: "2026-10-13"
 tags: [architecture, checkpoint]
+sources:
+  - id: ac
+    where: "Module 11: Describe the Windchill architecture; Describe the Windchill client; Describe the web server; Describe the Windchill server (server manager, method server with embedded Tomcat, background method server); Describe the database server; Describe LDAP integration; Identify optional servers"
+  - id: ac
+    where: "Module 14: What are file vaults?; Identify types of file vaults (replica vault)"
+  - id: ac
+    where: "Module 17: Perform a hot backup"
+  - id: te
+    where: "Module 1: Identify Windchill modules; Appendix A: Describe Windchill Manufacturing Process Management; Manage projects and programs in Windchill; Manage the quality of medical devices with Windchill"
+  - id: hc-mpmlink
+    label: PTC Help Center supplement
+    title: "Windchill MPMLink"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCInstallConfigGuide/WCInstall_WCMPMLink.html"
+    covers: "Windchill MPMLink is an add-on to Windchill PDMLink for manufacturing data management"
+  - id: hc-projectlink
+    label: PTC Help Center supplement
+    title: "Workflow Process Support in Windchill ProjectLink"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/workflow_chp/WFChp_WFProcessSupportInProjectLink.html"
+    covers: "Windchill ProjectLink is the name used in 13.1.2.0 for work in project and program contexts"
 
 blocks:
   - type: text
     md: |
-      Ten questions on **Windchill architecture**: the four tiers, the parts inside the server,
+      Ten questions on **Windchill architecture**: the four boxes, the parts inside the server,
       metadata vs content, and the Windchill solutions. Score 80% to pass. Every answer explains
       itself, so a miss is still a win.
 
@@ -17,22 +36,22 @@ blocks:
     questions:
       - kind: order
         prompt: Order the hops a Search request takes on its way **in**.
-        items: [Web browser, Web server (PTC HTTP Server), Servlet engine (Tomcat), Method server, Database]
-        explanation: The web server is the front door, Tomcat runs the web app and hands the work to a method server, and the method server queries the database (and the Solr index for keywords).
+        items: [Web browser, Web server (Apache), "Method server (through its embedded Tomcat servlet engine)", Database]
+        explanation: The web server is the front door and passes dynamic requests to the Tomcat servlet engine embedded in a method server. The method server runs the logic and queries the database (and the Solr index, where indexing is set up).
       - kind: single
         prompt: In the restaurant analogy, the method servers are the...
-        options: [Host at the front door, Waiters, Cooks, Storeroom]
+        options: [Host at the front door, Order hatch at each station, Cooks, Storeroom]
         answer: 2
-        explanation: Method servers do the real work - business logic, rules and access checks - like cooks. The web server is the host, Tomcat the waiters, the vault the storeroom.
+        explanation: Method servers do the real work - business logic, rules and access checks - like cooks. The web server is the host, Tomcat (inside each method server) the order hatch, the vault the storeroom.
       - kind: single
-        prompt: Which component starts, monitors and load-balances the method servers?
+        prompt: Which component manages the method servers and restarts one that has failed?
         options: [The server manager, The web server, The LDAP directory, The file vault]
         answer: 0
-        explanation: The server manager is the supervisor. It starts method servers, restarts failed ones, spreads work between them and coordinates caches.
+        explanation: The server manager is the supervisor. It manages method servers and user session credentials, restarts a failed method server automatically and keeps caches in sync.
       - kind: truefalse
-        prompt: Background method servers handle queued jobs such as visualization publishing, so users don't have to wait for them.
+        prompt: Background method servers handle back-end jobs such as generating visualization data, so users don't have to wait for them.
         answer: true
-        explanation: Work that can happen later goes onto queues processed by background method servers, keeping foreground method servers free for users.
+        explanation: Back-end work such as workflow task propagation, message queues and visualization data runs on background method servers, separate from the processes serving users.
       - kind: multi
         prompt: Which of these live in the **database**? (Choose all that apply.)
         options: [Part numbers and names, Lifecycle states, The CAD model file, References pointing to vault files]
@@ -65,23 +84,23 @@ blocks:
       - kind: truefalse
         prompt: Each Windchill solution keeps its own separate database, so data must be copied between them.
         answer: false
-        explanation: All solutions run on the same platform and database. That's what lets a complaint link to the exact part revision and its process plan.
+        explanation: The solutions run on one system and share its common services, so manufacturing data works on the same parts as engineering data without duplicating it.
 
   - type: flashcards
     title: Architecture deck
     cards:
-      - front: "The four main tiers"
-        back: "Client (browser/CAD), server, database, file vault."
+      - front: "The four boxes"
+        back: "Client (browser/CAD), server, database, file vault. PTC groups them into client, application and database layers."
       - front: "Web server"
-        back: "PTC HTTP Server (Apache-based): the front door for every request."
+        back: "Apache web server (Windows service PTC HTTP Windchill): the front door for every request."
       - front: "Servlet engine"
-        back: "Tomcat, embedded in Windchill: runs the web app, hands work to method servers."
+        back: "Tomcat, bundled with Windchill and embedded in each method server: takes requests from the web server."
       - front: "Method server"
         back: "Java process running business logic and access checks."
       - front: "Server manager"
-        back: "Starts, watches and load-balances method servers."
+        back: "Manages method servers and session credentials, restarts failed ones, syncs caches."
       - front: "Background method server"
-        back: "Processes queues like publishing and workflow robots."
+        back: "Runs back-end jobs: workflow task propagation, message queues, visualization data."
       - front: "Metadata"
         back: "Facts about an object, stored in the database (Oracle or SQL Server)."
       - front: "Content"
@@ -89,7 +108,7 @@ blocks:
       - front: "Replica site"
         back: "Copies of vault files near remote users for faster downloads."
       - front: "Search index"
-        back: "Solr-based index that makes keyword search fast."
+        back: "Optional Solr indexing server for full-text search of metadata and content."
       - front: "PDMLink vs ProjectLink"
         back: "PDMLink: engineering data and change. ProjectLink: project collaboration."
       - front: "MPMLink"
@@ -97,6 +116,6 @@ blocks:
 
   - type: summary
     points:
-      - Trace any request through browser → web server → Tomcat → method server → database.
+      - Trace any request through browser → web server → method server (with its embedded Tomcat) → database.
       - Metadata in the database, content in vaults - back up both together.
       - Solutions like PDMLink, ProjectLink, MPMLink and Quality share one platform.

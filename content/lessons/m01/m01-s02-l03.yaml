@@ -1,8 +1,19 @@
 id: m01-s02-l03
 subtitle: Every object has two halves. Lose one, and the other is almost useless.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.0.1
+updated: "2026-10-13"
 tags: [architecture, metadata, vault, backup]
+sources:
+  - id: ac
+    where: "Module 14: What are file vaults? (metadata stays in the database, linked to the file); Identify storage options (vaults by default, database BLOBs); Describe the file vaulting architecture; Identify file storage elements; Identify types of file vaults (cache, main, replica); File Server Administration > Vault Configuration"
+  - id: ac
+    where: "Module 17: Perform a hot backup (database, LDAP and vaults together); Back up file vaults (sequential file names)"
+  - id: ac
+    where: "Module 11: Describe the database server; Identify optional servers (file servers and replication)"
+  - id: te
+    where: "Module 2: Describe revision and iteration control; Locate data in Windchill; View information about objects (Details and Content tabs)"
+  - id: te
+    where: "Module 3: primary content and attachments of documents"
 
 blocks:
   - type: text
@@ -53,8 +64,7 @@ blocks:
           tone: primary
           detail: |
             Number SC-1042, name "Folding hinge", version B.3, state **In Work**, owner Priya, context
-            "E-Scooter S2", links to the part it describes, access rules - and a **reference** to the
-            file in the vault.
+            "E-Scooter S2", links to the part it describes - and a **reference** to the file in the vault.
         - id: content
           label: Content
           sublabel: big file
@@ -86,9 +96,10 @@ blocks:
           tone: success
           shape: cylinder
           detail: |
-            Folders on disk managed by Windchill. Files are stored under **system-generated names**,
-            so you can't recognise them by browsing the disk. (Windchill can also be set up to keep
-            content in the database, but production systems typically use vaults.)
+            Folders on disk managed by Windchill. Files are stored under **sequential, system-assigned
+            names**, so you can't recognise them by browsing the disk. (By default all content goes to
+            vaults. Windchill can also keep content in the database as BLOBs, but that gets slow for
+            large files.)
       edges:
         - { from: object, to: meta }
         - { from: object, to: content }
@@ -111,7 +122,7 @@ blocks:
     variant: why-it-matters
     md: |
       Backups, migrations and disaster recovery all hinge on this split. The database and the vaults
-      must be backed up **together, at the same moment** (or in a coordinated way). Migration
+      (and the LDAP directory) must be backed up **in a coordinated way**, so they match on restore. Migration
       specialists move both halves and then check that every reference still finds its file.
 
   - type: scenario
@@ -182,20 +193,20 @@ blocks:
 
   - type: walkthrough
     title: See both halves of an object
-    who: Any user with read access (step 3 needs a site administrator)
+    who: Any user with read access (step 4 needs a site administrator)
     steps:
       - title: Find the object
-        where: [Search, "<number or name>"]
+        where: [Windchill header, Search field]
         md: Search for a document or CAD document, for example the hinge drawing, and open its **information page**.
       - title: Read the metadata
-        where: [Information page, Details]
+        where: [Information page, Details tab]
         md: The attributes you see - number, name, version, state, context, dates - all come from the **database**.
       - title: Look at the content
-        where: [Information page, Content / Attachments]
+        where: [Information page, Content tab]
         md: The **primary content** and attachments listed here are the files stored in a **vault**. Downloading one fetches it from the vault (or a nearby replica).
       - title: "Admins only: view the vaults"
-        where: [Site, Utilities, File Server Administration]
-        md: Site administrators can see the configured vaults, file servers and replica sites here. Look, don't change, unless it's your job.
+        where: [Navigator, Browse, Site, Utilities, File Server Administration]
+        md: Site administrators can open the **Vault Configuration** utility here to see sites, hosts, vaults and folders. Look, don't change, unless it's your job.
     result: You can point at any object and say which parts live in the database and which live in a vault.
 
   - type: callout
@@ -207,7 +218,7 @@ blocks:
   - type: callout
     variant: pro-tip
     md: |
-      When planning a migration or a disk, size the two halves separately: the database grows with the
+      General sizing rule: when planning a migration or a disk, size the two halves separately: the database grows with the
       **number of objects**, while vaults grow with the **size of files** - and CAD vaults grow fast.
 
   - type: quiz
@@ -226,7 +237,7 @@ blocks:
           - Search works but downloads fail
           - Nothing - vaults hold everything
         answer: 1
-        explanation: Vault files have system-generated names. Without the database, there's no map from file to object, version and history.
+        explanation: Vault files have sequential, system-assigned names. Without the database, there's no map from file to object, version and history.
       - kind: truefalse
         prompt: Database and vault backups should be coordinated so they match the same point in time.
         answer: true

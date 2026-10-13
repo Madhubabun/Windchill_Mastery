@@ -35,16 +35,15 @@
 
 - id: contributing-association
   term: Contributing association
-  plain: A CAD model that adds its pieces to a part's structure without being in charge of the whole part.
-  definition: An active association (contributing content) in which a CAD document contributes its structure to a part that may also get structure from other CAD documents. Several contributing CAD documents can feed one part. A related variant, contributing image, contributes only to the part's visualization.
-  aka: [contributing content]
+  plain: A CAD model that feeds attributes to a part without being in charge of its structure.
+  definition: Either of two CAD-part association types that pass attributes but do not build the part's children. With Contributing Image the CAD document also represents the part, so the part appears in a parent's structure where the model is assembled; one is allowed per part, which suits flexible parts such as a cable routed differently in two places. With Contributing Content the CAD document passes attributes only, and the part does not appear in a structure through it.
+  aka: [contributing content, contributing image]
   related: [owner-association, image-association, build-link]
 
 - id: image-association
   term: Image association
-  plain: '"This CAD model shows what the part looks like" - but the BOM is edited in Windchill, not driven by CAD.'
-  definition: A passive association in which a CAD document represents the part visually but does not build the part's structure or attributes. The part's structure is maintained directly in Windchill. Contributing image is the variant used when several CAD documents together form the part's picture.
-  aka: [contributing image]
+  plain: '"This CAD model stands for the part" - nothing more: no children built, no attributes passed.'
+  definition: A CAD-part association that provides representation only. The CAD document does not build the part's structure or pass attributes, but when the model is assembled into an Owner-driven assembly, the part appears in that assembly's product structure after the build. A part can have many Image CAD documents, while each CAD document images one part. Contributing Image is the variant that also passes attributes.
   related: [owner-association, contributing-association, representation]
 
 - id: alternate-part
@@ -67,3 +66,15 @@
   definition: A comparison of two part structures - two versions of one assembly, an assembly against a baseline, or two different assemblies - that marks added, removed and changed lines, including changes to usage attributes such as quantity or find number.
   aka: [BOM compare, compare structure]
   related: [bom, multi-level-bom, master]
+
+- id: occurrence
+  term: Occurrence
+  plain: One named placement of a part inside its parent, like screw S3 of four.
+  definition: Information about one named usage of a part within an assembly's part structure. A usage can have occurrences up to its quantity; each occurrence is named by a reference designator and can carry a location. Occurrences are edited on the Occurrences tab of the structure and matter for manufacturing process plans, which must account for every occurrence they consume.
+  related: [reference-designator, uses-link, bom]
+
+- id: calculated-association
+  term: Calculated association
+  plain: The drawing-to-part link Windchill works out by itself.
+  definition: A CAD-to-part association created automatically when a drawing of an owner-associated CAD model is first uploaded. It is derived by Windchill rather than stored as a link users create or edit.
+  related: [owner-association, cad-drawing, cad-document]

@@ -1,14 +1,37 @@
 id: m01-s03-l06
 subtitle: Bookmark what you use, get pinged when things change - without drowning in email.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-13"
 tags: [favorites, subscriptions, notifications]
+sources:
+  - id: te
+    where: "Module 2: Customize the Home page (Subscriptions table), Activity: Explore the Windchill user interface (Recently Visited), Subscribe to Windchill objects; Module 6: Change management process capabilities (task notification)"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Product Actions"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/contexts/ContextsProductActionsRef.html"
+    covers: "Add to Favorites / Remove from Favorites for a product, and the Favorites view of the Products table; Subscribe sends e-mail when events occur"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Library Actions"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/contexts/ContextsLibActionsRef.html"
+    covers: "Add to Favorites for a library and the Favorites view of the Libraries table"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Creating a Subscription"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/subscriptions/Subscribe.html"
+    covers: "Subscribe from the Actions or right-click menu of an object, folder or context; event check boxes; To/Cc/Bcc subscribers; Immediately or digest delivery; Expiration Date deletes the subscription; notifications only for objects you can access"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Subscription Events"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/subscriptions/SubscribeEventsRef.html"
+    covers: "Event names such as Life Cycle State, Check Out/Check In and Revise"
 versionNotes:
-  - versions: ["All releases"]
+  - versions: ["13.1.2.0"]
     md: |
-      Where favorites appear (a star icon, an Actions menu entry, a favorites list in the header or
-      Navigator) has changed between releases. Subscriptions have been available for a long time from an
-      object's Actions menu, but the event names and dialog layout vary.
+      The 13.1.2.0 Help Center documents **Add to Favorites** for products and libraries. Favorites for
+      single parts or documents are not confirmed in our sources, so this lesson shows other ways to
+      get back to those quickly. The list of subscription events depends on which modules are installed.
 
 blocks:
   - type: text
@@ -16,43 +39,44 @@ blocks:
       You don't search for your best friend's number every time you call them - you saved it. And you
       follow accounts so their posts come to you. Windchill has both ideas:
 
-      - **Favorites** - shortcuts to objects and places you open all the time.
+      - **Favorites** - shortcuts to the products and libraries you open all the time.
       - **Subscriptions** - "tell me when this changes", delivered as **notifications**.
 
   - type: callout
     variant: terms
     md: |
       **Plain words → official term**
-      - "a bookmark inside Windchill" → [[favorite]]
+      - "mark this product so I find it fast" → [[favorite]]
       - "follow this object" → [[subscription|subscribe]]
-      - "the ping you get" → [[notification]] (usually an email)
+      - "the ping you get" → [[notification]] (an email)
       - "something you must do" → [[task]] - not a subscription; workflows assign it to you
 
   - type: comparison
     title: Favorite, subscription or task?
     columns: [Favorite, Subscription, Task]
     rows:
-      - { label: What it is, cells: [A shortcut you keep, A request to be told about events, Work a workflow assigns to you] }
-      - { label: Who creates it, cells: [You, "You (or someone with rights, for others)", The workflow] }
-      - { label: You get, cells: [Faster access, Notifications when events happen, An item in your task list (often plus an email)] }
-      - { label: Need to act?, cells: [No, Not necessarily - it's information, Yes - complete it] }
+      - { label: What it is, cells: [A marker on a product or library you use often, A request to be told about events, Work assigned to you - often by a workflow] }
+      - { label: Who creates it, cells: [You, "You - and you can add others as subscribers", The workflow or process] }
+      - { label: You get, cells: [A short Favorites view of the Products or Libraries table, Email notifications when events happen, An item in your My Tasks table] }
+      - { label: "Need to act?", cells: [No, Not necessarily - it's information, Yes - complete it] }
     takeaway: Favorites save clicks, subscriptions keep you informed, tasks need you.
 
   - type: walkthrough
-    title: Bookmark an object as a favorite
+    title: Make a product a favorite
     steps:
-      - title: Open the object
-        where: [Search, "<object>", Information page]
-        md: Open the information page of the object (or the context) you use often.
+      - title: Open the Products table
+        where: [Navigator, Browse, Recent Products, View All]
+        md: Open the full Products table (libraries work the same way from Recent Libraries).
       - title: Add it to favorites
-        where: [Information page, Actions, Add to Favorites]
+        where: [Products, "Scooter S2", Actions, Add to Favorites]
         md: |
-          Use the add-to-favorites option - in many releases it's in the **Actions** menu or shown as a
-          star icon. If you can't find it, your release may not offer it; the Navigator's recently visited
-          list is the fallback.
+          Open the product's actions (for example right-click its row) and choose **Add to Favorites**.
+          **Remove from Favorites** undoes it.
       - title: Open it later
-        where: [Header or Navigator, Favorites, "<object>"]
-        md: Open your favorites list and click the object. No searching needed.
+        where: [Products, view drop-down list, Favorites]
+        md: |
+          Pick the **Favorites** view of the Products table to see only your favorite products. For a
+          single part or document, use the Navigator's **Recently Visited** tab or a saved search instead.
 
   - type: walkthrough
     title: Subscribe to changes on an object
@@ -67,31 +91,32 @@ blocks:
       - title: Pick the events
         where: [Subscribe, Events]
         md: |
-          Choose only the events you care about - for example a **state change** (it got released) or a
-          **new revision**. Avoid "everything".
+          Tick only the events you care about - for example **Life Cycle State** (it got released) or
+          **Revise** (a new revision). Avoid "everything". You can also add teammates as subscribers.
       - title: Set an end date and save
         where: [Subscribe, Expiration, OK]
         md: |
-          If offered, set an expiration date so the subscription stops when your project ends. Save.
-          You can usually also subscribe to a **folder** or **context** to hear about new objects there.
-    result: When a chosen event happens, Windchill sends you a notification (usually by email) with a link back to the object.
+          Set an **Expiration Date** so the subscription is deleted automatically when your project
+          ends (left blank, it never expires). Choose **Immediately** or a scheduled digest, then save.
+          You can also subscribe to a **folder** or **context** to hear about new objects there.
+    result: When a chosen event happens, Windchill emails you a notification about the object - but only for objects you have access to.
 
   - type: simulation
     title: Follow the hinge, not the noise
     intro: |
-      You're the service engineer for the S2 scooter. You need to know the moment the hinge bracket gets
-      **released**. Set yourself up, then fast-forward the week.
+      You're the service engineer for the S2 scooter. You want the S2 product one click away, and you need
+      to know the moment the hinge bracket gets **released**. Set yourself up, then fast-forward the week.
     headline: "Favorite: {favorite} · Subscribed to: {events} · Notifications: {inbox}"
     initial: { favorite: false, events: nothing, inbox: 0 }
     actions:
       - id: fav
-        label: Add hinge bracket to favorites
+        label: Add the Scooter S2 product to favorites
         when: { favorite: false }
         do: [{ set: { favorite: true } }]
-        log: Added to favorites. Two clicks to open it from now on.
+        log: Scooter S2 is a favorite. The Products table's Favorites view now shows just your products.
         blockedHint: It's already a favorite.
       - id: sub-state
-        label: "Subscribe: state changes only"
+        label: "Subscribe: Life Cycle State only"
         when: { events: [nothing, every event] }
         do: [{ set: { events: state changes } }]
         log: Subscribed to state changes. You'll hear when it's released - nothing else.
@@ -115,7 +140,7 @@ blocks:
         log: "1 email: 'Hinge bracket 1000-0423 B.1 changed state to Released.' You open it from the link and update the service manual."
         blockedHint: Subscribe to state changes first.
     goals:
-      - label: Bookmark the hinge bracket
+      - label: Make Scooter S2 a favorite
         when: { favorite: true }
       - label: Get exactly one useful notification
         when: { inbox: 1, events: state changes }
@@ -144,13 +169,13 @@ blocks:
   - type: flashcards
     cards:
       - front: "Favorite"
-        back: "A personal shortcut to an object or place you open often. Saves clicks; sends no messages."
+        back: "A personal marker on a product or library you open often; the Favorites view of the Products or Libraries table lists them. Saves clicks; sends no messages."
       - front: "Subscription"
         back: "A request to be notified when chosen events happen to an object, folder or context."
       - front: "Notification"
-        back: "The message (usually email) Windchill sends for a subscription event or a new task. It links back to Windchill."
+        back: "The email Windchill sends when a subscribed event happens (or when work is routed to you). You act in Windchill, not in the email."
       - front: "Where do you subscribe?"
-        back: "From the object's information page - Actions → Subscribe (wording varies by release)."
+        back: "From the object's information page - Actions → Subscribe (or right-click the object, folder or context)."
       - front: "Subscription vs task"
         back: "A subscription informs you. A task is work a workflow assigned to you - you must complete it."
       - front: "How to avoid notification overload"
@@ -158,7 +183,7 @@ blocks:
 
   - type: summary
     points:
-      - Favorites are shortcuts - they save clicks and send nothing.
-      - Subscriptions notify you (usually by email) when chosen events happen.
+      - Favorites mark the products and libraries you use most - they save clicks and send nothing.
+      - Subscriptions email you when chosen events happen.
       - Subscribe from the object's Actions menu; choose specific events and an end date.
       - Tasks are different - they need your action and live in your Home task list.

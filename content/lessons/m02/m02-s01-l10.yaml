@@ -1,0 +1,228 @@
+id: m02-s01-l10
+subtitle: Drawings that follow their model, parts that start from a standard, and data that flows from Creo into Windchill.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [cad, drawings, cad-templates, parameters, creo, workspace]
+sources:
+  - id: te
+    where: "Module 4: Manage CAD data in Windchill: overview (CAD integration publishes version and state into parameters for title blocks); Manage CAD drawings; Activity: Create a CAD drawing based on an assembly; Create a CAD document from a template; Activity: Create a CAD part using a template stored in Windchill; Specify parameters for CAD documents; Activity: Use CAD document parameters"
+  - id: hc-cad-assoc-overview
+    label: PTC Help Center supplement
+    title: "CAD and Part Association Overview"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/ManagingCADandPartRelationships/MCPR_AssociationOview.html"
+    covers: "Calculated association created automatically when a drawing of an Owner-associated CAD model is first uploaded; it is not a modelled link in the database"
+
+blocks:
+  - type: text
+    md: |
+      Priya has three jobs before Friday:
+
+      1. Make a **drawing** of the S2 frame assembly for the welding supplier.
+      2. Start a new **bracket** part - using Acme's standard start part, not a blank file.
+      3. Make sure the bracket carries a **description** and the designer's name, so people
+         searching Windchill can tell what it is without opening Creo.
+
+      Each job is a different CAD object or feature: a 2D [[cad-drawing|drawing]], a
+      [[cad-document-template|CAD document template]] and [[cad-parameter|CAD parameters]]. All
+      three start in Creo and end up managed in Windchill.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the 2D sheet with views and dimensions" → [[cad-drawing|CAD drawing]] (.drw in Creo)
+      - "a ready-made starting file for a part or assembly" → [[cad-document-template|CAD document template]]
+      - "extra named values stored in the model" → [[cad-parameter|CAD parameters]]
+      - "make the WTPart at the same time" → *Create and Associate Part*
+      - "a viewable copy, e.g. PDF of the drawing" → [[representation]]
+
+  - type: animation
+    title: From assembly to managed drawing
+    diagram:
+      width: 820
+      height: 340
+      groups:
+        - { label: "Creo + workspace", x: 10, y: 10, w: 390, h: 320, tone: neutral }
+        - { label: Windchill commonspace, x: 420, y: 10, w: 390, h: 320, tone: info }
+      nodes:
+        - { id: asm, label: SC-2000.asm, sublabel: added to workspace, x: 30, y: 50, w: 170, tone: accent, shape: doc }
+        - { id: drw, label: New drawing, sublabel: from a drawing template, x: 220, y: 50, w: 160, tone: warning, shape: doc }
+        - { id: upload, label: Upload + Check In, sublabel: gets a number, x: 120, y: 200, w: 190, tone: neutral }
+        - { id: wdrw, label: Drawing A.1, sublabel: In Work, x: 450, y: 50, w: 160, tone: primary, shape: doc }
+        - { id: part, label: SC-2000 part, sublabel: related automatically, x: 630, y: 50, w: 160, tone: success }
+        - { id: rep, label: Representation, sublabel: PDF + viewables, x: 540, y: 210, w: 180, tone: info }
+      edges:
+        - { from: asm, to: drw, label: based on }
+        - { from: drw, to: upload }
+        - { from: upload, to: wdrw }
+        - { from: wdrw, to: part, dashed: true }
+        - { from: wdrw, to: rep }
+    chapters:
+      - title: Bring the assembly in
+        caption: Priya adds the frame assembly to her workspace from its information page (**Actions > Add to Workspace**). Its child parts come along.
+        show: [asm]
+        highlight: [asm]
+        seconds: 6
+      - title: Create the drawing in Creo
+        caption: "**File > New**, type **Drawing**, clear *Use default template*, then pick a drawing template. The drawing is created from the 3D assembly."
+        show: [asm, drw]
+        highlight: [drw]
+        flow: [asm>drw]
+        seconds: 7
+      - title: Upload, then check in
+        caption: Saving puts the drawing in the workspace. **Upload** gives it a Windchill number; **Check In** makes it visible to everyone.
+        show: [asm, drw, upload, wdrw]
+        highlight: [upload, wdrw]
+        flow: [drw>upload, upload>wdrw]
+        seconds: 7
+      - title: Linked to the part and viewable
+        caption: The drawing's **Related Objects** tab shows the assembly it's based on and the assembly's WTPart. Its **Content** tab offers a representation you can download - including a PDF - without Creo.
+        highlight: [part, rep]
+        flow: [wdrw>part, wdrw>rep]
+        seconds: 8
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Suppliers, inspectors and the shop floor live on drawings, not 3D models. Managing the drawing
+      next to its model means the PDF the supplier gets is from a known version. Templates make
+      every part start with the same units, layers and title block. Parameters put searchable facts
+      into the CAD data instead of someone's head.
+
+  - type: comparison
+    title: Three CAD features, three jobs
+    columns: [Drawing, CAD template, Parameters]
+    rows:
+      - label: What it is
+        cells: ["A 2D CAD document, often generated from a 3D assembly", "A starting file for a new part, assembly or drawing", "Named values stored in a CAD document"]
+      - label: Where you work with it
+        cells: ["Creo, then upload and check in", "Picked in Creo or from Windchill when creating", "Creo Tools tab > Parameters"]
+      - label: What Windchill shows
+        cells: ["Its own CAD document, related parts and representations", "The new CAD document built from it", "Values on the CAD document's Details tab"]
+      - label: Effect on the part
+        cells: ["Related to the model's WTPart", "Optional: Create and Associate Part", "Not copied to the WTPart unless an admin enables it"]
+    takeaway: Drawings document, templates standardise, parameters describe.
+
+  - type: walkthrough
+    title: Create a CAD part from a Windchill template
+    who: A Creo user with an active workspace
+    where: [Creo, Folder Browser, Workspace]
+    steps:
+      - title: Open your workspace
+        where: [Creo, Folder Browser, Folder Tree, "<your workspace>"]
+        md: In Creo's Folder Browser, open your workspace so its Object List is showing.
+      - title: Start a new CAD document
+        where: [Workspace, Object List toolbar, New CAD Document]
+        md: Click **New CAD Document** on the Object List toolbar. The New CAD Document window opens.
+      - title: Choose application, category and template
+        where: [New CAD Document, Authoring Application / Category / Template Name]
+        md: |
+          Set **Authoring Application** to Creo, **Category** to *CAD Part*, and pick the template
+          in **Template Name**. The number is generated for you.
+      - title: Name it and create the part too
+        where: [New CAD Document, Name]
+        md: |
+          Enter a name and tick **Create and Associate Part** so a WTPart is created and associated
+          at the same time. Click **OK**. Both objects appear in the workspace with the same name -
+          rename the WTPart if your naming rules differ.
+      - title: Model, then check in both
+        where: [Workspace, Check In]
+        md: Open the part in Creo, model it, then select the CAD part *and* the WTPart and **Check In**.
+    result: A new CAD part built on the standard template, with its WTPart, checked in together.
+
+  - type: callout
+    variant: note
+    md: |
+      Templates can also come from Creo itself: **File > New**, clear *Use default template*, and
+      pick from the templates in Creo's own folder. The course manual notes CAD engineers often
+      prefer those, but Windchill templates are shared more widely (the training uses one stored at
+      site level).
+
+  - type: walkthrough
+    title: Add parameters and see them in Windchill
+    who: A Creo user
+    steps:
+      - title: Open the Parameters window
+        where: [Creo, Tools tab, Model Intent, Parameters]
+        md: In the open model, click **Parameters** on the **Tools** tab.
+      - title: Fill in or add parameters
+        where: [Parameters window]
+        md: |
+          Type values for existing parameters (for example *DESCRIPTION* and *MODELED_BY*) or create
+          new ones. Click **OK**.
+      - title: Check in
+        where: [Creo, File, Check In, Custom Check In]
+        md: Check the part in. With **Auto Associate Parts to CAD Documents** selected, a WTPart is created for it.
+      - title: Look in Windchill
+        where: ["<CAD document> information page", Details tab]
+        md: |
+          The values appear in the **Object Specific** section of the CAD document's Details tab.
+          Open the associated WTPart: by default the parameters are **not** there.
+    result: Your parameters are searchable on the CAD document. Copying them to the part is an admin setting.
+
+  - type: exercise
+    title: Drawing, template and parameters in one go
+    environment: windchill-trial
+    goal: Practise all three features on a small test part in a training system.
+    steps:
+      - Create a new CAD part from a Windchill template with **Create and Associate Part** ticked.
+      - Add a *DESCRIPTION* parameter in Creo (**Tools > Parameters**) and save.
+      - Create a drawing of the part from a drawing template, then upload and check in the part, its WTPart and the drawing.
+      - "Open the drawing's information page: check **Related Objects** and the **Content** tab's representations."
+      - Open the CAD part's Details tab and find your parameter. Then look at the WTPart - is it there?
+    expected: |
+      The CAD part, its drawing and the WTPart are in Windchill at A.1. The drawing lists
+      the model and WTPart as related objects; the parameter shows on the CAD part but not on the
+      WTPart (unless your admin enabled copying).
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Editing the model to fix a drawing note.** Annotations added on a drawing don't change the
+      model it's based on. And the reverse matters too: the course manual notes that when the
+      underlying assembly is changed later, the drawing is iterated to match - so release the
+      model and its drawing together.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Windchill can push the CAD document's **version and life cycle state** into Creo parameters
+      that you can place in the drawing title block. A title block that reads the revision from
+      Windchill can't be out of step with it.
+
+  - type: callout
+    variant: note
+    md: |
+      **PTC Help Center supplement:** the 13.1.2.0 Help Center describes a *Calculated*
+      association that Windchill creates automatically when a drawing of an owner-associated CAD
+      model is first uploaded. It's worked out by Windchill rather than stored as a link you edit.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Priya adds a dimension note to the frame drawing and checks it in. What happens to the frame assembly model?
+        options: [It iterates to match, Nothing - the model isn't affected, It is checked out to her, Its parameters are overwritten]
+        answer: 1
+        explanation: Changing the drawing (for example adding annotations) doesn't affect the assembly it's based on.
+      - kind: single
+        prompt: Which option creates a WTPart together with the new CAD part in the New CAD Document window?
+        options: [Use default template, Create and Associate Part, Erase Not Displayed, Revert to Server Copy]
+        answer: 1
+        explanation: Create and Associate Part makes the WTPart and associates it to the new CAD document in the workspace.
+      - kind: truefalse
+        prompt: Parameters added in Creo appear on the associated WTPart automatically, out of the box.
+        answer: false
+        explanation: They show on the CAD document's Details tab. Copying them to the WTPart needs an administrator setting.
+      - kind: single
+        prompt: A supplier needs to see the frame drawing but has no Creo. What can you give them from Windchill?
+        options: [The local cache folder, A representation such as the PDF, The workspace, Nothing - they need Creo]
+        answer: 1
+        explanation: The drawing's Content tab offers representations, which include PDF files that open without Creo.
+
+  - type: summary
+    points:
+      - Drawings are created in Creo, often from an assembly, then uploaded and checked in as CAD documents.
+      - A checked-in drawing is related to its model and the model's WTPart, and offers representations like PDF.
+      - CAD templates come from Creo or from Windchill; New CAD Document can create and associate the part too.
+      - Creo parameters show on the CAD document's Details tab, not on the WTPart unless an admin enables it.

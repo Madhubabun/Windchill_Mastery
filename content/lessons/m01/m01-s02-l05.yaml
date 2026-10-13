@@ -1,0 +1,211 @@
+id: m01-s02-l05
+subtitle: Who does what in Windchill, and where the servers actually live.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [roles, administrators, implementation, on-premises, cloud, windchill-plus]
+sources:
+  - id: te
+    where: "Module 1: Who uses PLM?; Identify Windchill user roles; Identify Windchill core architecture and enterprise systems; Identify types of Windchill implementations; Windchill+ Readiness Diagnostic Extension"
+  - id: te
+    where: "Implementation strategy: Windchill implementation process; Windchill implementation project roles"
+  - id: te
+    where: "Module 2: Activity: Explore products and libraries (Team link, Members table); Module 6: Identify roles in the change management process (team page, Local Team Roles and Members)"
+
+blocks:
+  - type: text
+    md: |
+      You know the tiers now: browser, servers, [[database]], [[vault]]. Two questions are left.
+      **Who** works in Windchill, and **where** do those servers run?
+
+      Short answers: lots of different people, each with a clear job. And the servers can sit in
+      your company's own server room, in a cloud your company rents, or with PTC itself.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "sets things up from the screens: folders, processes, access, attributes" → *[[business-administrator|Business Administrator]]*
+      - "installs, upgrades and backs up the servers" → *[[system-administrator|System Administrator]]*
+      - "our servers, our building" → *[[windchill-on-premises|Windchill On-Premises]]*
+      - "our servers, someone else's cloud" → *[[windchill-private-cloud|Windchill Private Cloud]]* (also called customer cloud)
+      - "PTC runs it for us" → *[[windchill-plus|Windchill+]]*
+      - "the day the company switches to the new system" → *[[go-live|go-live]]*
+
+  - type: diagram
+    title: The main Windchill user roles
+    caption: Click a role to see what that person does. Real companies add their own roles too.
+    diagram:
+      width: 800
+      height: 400
+      groups:
+        - { label: Create and manage product data, x: 20, y: 200, w: 760, h: 180, tone: info }
+        - { label: Run the system, x: 20, y: 20, w: 760, h: 140, tone: neutral }
+      nodes:
+        - id: badmin
+          label: Business Admin
+          sublabel: configures in the UI
+          x: 80
+          y: 60
+          w: 260
+          h: 70
+          tone: warning
+          detail: |
+            Configures settings that can be changed directly from the Windchill screens, and turns
+            business requirements into setup: how data is stored and organised, processes, access
+            control and attributes.
+        - id: sadmin
+          label: System Admin
+          sublabel: servers + backups
+          x: 460
+          y: 60
+          w: 260
+          h: 70
+          tone: danger
+          detail: Installs and upgrades Windchill, looks after network matters and backups, and manages related systems around it.
+        - id: author
+          label: Author
+          sublabel: documents
+          x: 40
+          y: 260
+          w: 160
+          h: 64
+          tone: info
+          detail: Creates and manages [[document|documents]] in Windchill, such as specifications, test reports and manuals.
+        - id: caddes
+          label: CAD Designer
+          sublabel: CAD data
+          x: 225
+          y: 260
+          w: 160
+          h: 64
+          tone: accent
+          detail: Creates and manages [[cad-document|CAD data]] in Windchill, usually working from inside the CAD tool.
+        - id: config
+          label: Configuration Eng.
+          sublabel: BOMs
+          x: 410
+          y: 260
+          w: 160
+          h: 64
+          tone: primary
+          detail: Creates and manages [[bom|bill of materials]] data in Windchill.
+        - id: mfg
+          label: Manufacturing Eng.
+          sublabel: manufacturing data
+          x: 595
+          y: 260
+          w: 170
+          h: 64
+          tone: success
+          detail: Creates and manages manufacturing data in Windchill, for example manufacturing BOMs and process plans.
+
+  - type: text
+    md: |
+      These six are the roles PTC's Technical Essentials course describes. Around them, PLM touches
+      almost everyone: marketing and sales, purchasing and supply chain, service and support,
+      partners and managers. Many of them only *view* data (remember [[creo-view]] and role-based
+      apps from earlier in this module).
+
+  - type: comparison
+    title: Three ways to run Windchill
+    columns: [On-Premises, Private Cloud, Windchill+]
+    rows:
+      - label: Where the servers are
+        cells: ["At the customer's site (virtual machines included)", "In a third-party cloud environment", "At PTC"]
+      - label: Who runs the IT
+        cells: ["The customer", "A third-party cloud provider the customer directs", "PTC"]
+      - label: Who handles security and disaster recovery
+        cells: ["The customer, who carries the full cost of hardware, upgrades and admin staff", "The cloud provider", "PTC, plus maintenance, support, compliance and upgrades"]
+      - label: Main advantage
+        cells: ["Data stays on the customer's own site, which some customers strictly require", "Lower upfront cost and faster deployment than on-premises", "Simple, fast start with fewer customer resources; highly scalable; less downtime"]
+    takeaway: Same Windchill concepts everywhere. What changes is who looks after the servers.
+
+  - type: callout
+    variant: note
+    title: Most customers today
+    md: |
+      On-premises is the traditional way to install Windchill, and the course manual says most
+      existing customers run it this way. PTC offers a utility, the *Windchill+ Readiness Diagnostic
+      Extension*, that checks a system's version, modules and customizations to see how ready it is
+      to move to Windchill+.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Your role decides what you'll be trained on, what you can change and who you call when
+      something breaks. The implementation type decides whether "the server is slow" is a ticket for
+      your own IT team, your cloud provider or PTC. Knowing both saves hours of being bounced
+      between help desks.
+
+  - type: example
+    variant: real-world
+    title: Acme picks a home for Windchill
+    industry: Micromobility
+    md: |
+      Acme Mobility has one small IT team and no wish to run database backups at 2 a.m. They want
+      to start fast and grow without buying servers, so **Windchill+** wins.
+
+      Their bigger partner, a motor maker, works on defence contracts and must keep data on its own
+      site. It runs **Windchill On-Premises**, with its own system administrators.
+    takeaway: The right implementation type follows the company's rules and resources, not fashion.
+
+  - type: walkthrough
+    title: See who plays which role on your product
+    who: Any member of a product team
+    where: [Navigator, Browse, "<your product>", Team]
+    steps:
+      - title: Open your product
+        where: [Navigator, Browse, Products, "<your product>"]
+        md: In the **Navigator**, choose **Browse** and open your product.
+      - title: Open the team
+        where: ["<your product>", Team]
+        md: Click **Team**. The **Members** table lists the people an administrator added to this product's team.
+      - title: Show roles and members
+        where: [Team, Members]
+        md: If your release offers it, choose **Local Team Roles and Members** from the list beside Members to see each team role and who is in it.
+    result: You know who to ask for an approval, and which team roles your company uses.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      Don't mix up the two meanings of "role". The six roles above describe **jobs**. Inside a
+      product, Windchill also has **team roles** (the course's sample product has ones like *Design Engineers* and *Change Admin I*) that
+      decide who gets tasks and access. Your job title doesn't give you rights; your
+      [[role|team role]] does. You'll see this again in Module 4.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      An implementation project also has roles: a project manager, a customer success manager,
+      solution architects, plus the customer's own project manager and **key users**. If you're
+      ever asked to be a key user, say yes. You'll shape how Windchill works for your whole company.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Rosa needs to change which attributes a document type has, using the Windchill screens. Which role does this belong to?
+        options: [System Administrator, Business Administrator, Author, CAD Designer]
+        answer: 1
+        explanation: Business administrators configure settings available in the user interface, including attributes, processes, access control and data organisation. System administrators handle installation, upgrades, network and backups.
+      - kind: single
+        prompt: Who creates and manages BOM data?
+        options: [Author, Configuration Engineer, Manufacturing Engineer, System Administrator]
+        answer: 1
+        explanation: The Configuration Engineer owns bill of materials data. Manufacturing engineers manage manufacturing data, such as manufacturing BOMs and process plans.
+      - kind: single
+        prompt: A customer must keep all product data on its own premises. Which implementation type fits?
+        options: [Windchill+, Windchill Private Cloud, Windchill On-Premises]
+        answer: 2
+        explanation: On-premises keeps all components and data at the customer's site, which some customers strictly require.
+      - kind: truefalse
+        prompt: With Windchill+, the customer is responsible for upgrades and disaster recovery.
+        answer: false
+        explanation: With Windchill+, PTC takes care of application maintenance, support, security, compliance, disaster recovery and upgrades.
+
+  - type: summary
+    points:
+      - Main roles are Business Administrator, System Administrator, Author, CAD Designer, Configuration Engineer and Manufacturing Engineer.
+      - Companies add their own roles; many more people view Windchill data than create it.
+      - On-Premises means the customer runs everything on site; Private Cloud uses a third-party cloud; Windchill+ is run by PTC.
+      - Job roles describe work. Team roles inside a product decide tasks and access.

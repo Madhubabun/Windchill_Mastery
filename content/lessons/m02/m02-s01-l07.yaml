@@ -1,0 +1,300 @@
+id: m02-s01-l07
+subtitle: Stop starting from a blank page - and stop creating documents one by one.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [documents, templates, create, multiple-documents, bulk]
+sources:
+  - id: te
+    where: "Module 3: Create a document: workflow; Create multiple documents; Activity: Explore and create documents (Type and Template lists); Create a document from a document template; Activity: Create a document from a template"
+  - id: hc-doc-multi
+    label: PTC Help Center supplement
+    title: "Creating Multiple Documents"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/docmgmt/DocMgmtDocCreateMultiple.html"
+    covers: "Where New Multiple Documents is launched (Folder Contents toolbar, drag and drop, New menu, Structure tab Insert New); one Type for all rows; row options (local file, URL, external location, no content); bulk Edit Attribute Value; changing Type or view clears entered values; Name and Number required; attachments added afterwards by editing"
+
+blocks:
+  - type: text
+    md: |
+      Kai runs a design review every Thursday. Every week someone writes the minutes in a fresh Word
+      file - different headings, no action-item table, the logo missing half the time. And after the
+      Scooter S2 brake tests, Priya has **twelve** PDF reports to put into Windchill. Twelve times
+      through the New Document wizard? No thanks.
+
+      Windchill has a shortcut for each problem:
+
+      1. A **document template** gives every new document the same starting content and values.
+      2. **New Multiple Documents** creates a whole batch of documents in one go.
+
+      You already know how to create a single document ([[document]] basics were lesson 1). This
+      lesson is about doing it *faster and more consistently*.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a ready-made starting file for a document" → [[document-template|document template]]
+      - "the list where you pick it" → the *Template* list in the New Document wizard
+      - "make lots of documents in one go" → the *New Multiple Documents* wizard ([[new-multiple-documents]])
+      - "the main file of each document" → [[primary-content|primary content]]
+      - "change one field on many rows at once" → *Edit Attribute Value* (bulk edit)
+
+  - type: diagram
+    title: Three ways to start a document
+    caption: The course manual lists three starting points. Click each one.
+    diagram:
+      width: 800
+      height: 330
+      nodes:
+        - id: wizard
+          label: New Document wizard
+          sublabel: upload your own file
+          x: 20
+          y: 30
+          w: 220
+          tone: info
+          detail: |
+            The everyday route from lesson 1: pick a type, upload a file as primary content, fill in
+            the attributes, Finish.
+        - id: tmpl
+          label: From a template
+          sublabel: start from a standard file
+          x: 290
+          y: 30
+          w: 220
+          tone: accent
+          detail: |
+            Same wizard, but you pick a **template** from the Template list. The template supplies
+            the content (and can pre-fill attachments and attribute values), so you **don't** choose
+            a primary content source - the two options exclude each other.
+          real: Meeting minutes, requirement specs and test plans are classic template candidates.
+        - id: outside
+          label: Outside Windchill
+          sublabel: e.g. from Office
+          x: 560
+          y: 30
+          w: 220
+          tone: neutral
+          detail: |
+            You can also create the document from your desktop tools, for example Microsoft Office
+            with Windchill Desktop Integration installed. That's the next lesson.
+        - id: multi
+          label: New Multiple Documents
+          sublabel: a whole batch at once
+          x: 155
+          y: 200
+          w: 220
+          tone: success
+          detail: |
+            One wizard, many rows - one row per document. One type applies to all of them; names and
+            other attributes are set per row or in bulk.
+        - id: doc
+          label: Documents A.1
+          sublabel: In Work
+          x: 470
+          y: 200
+          w: 200
+          tone: primary
+          shape: doc
+          detail: Whatever the route, each new document starts at its first version (A.1 in the training system) in the initial life cycle state, In Work out of the box.
+      edges:
+        - { from: wizard, to: doc }
+        - { from: tmpl, to: doc }
+        - { from: outside, to: doc, dashed: true }
+        - { from: multi, to: doc, label: many }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Templates are how a company makes its documents **look and feel the same** - same headings,
+      same tables, same logo, same pre-filled attributes. Reviewers find things faster and audits go
+      smoother. Bulk creation matters at project kick-offs and test campaigns, when dozens of files
+      arrive at once: doing them one by one is slow, and people start cutting corners on attributes.
+
+  - type: example
+    variant: real-world
+    title: Thursday minutes, standardised
+    industry: Micromobility
+    md: |
+      Acme's document admin creates a **Design Review Minutes** template: a Word file with sections
+      for attendees, decisions and an action-item table, plus the Acme logo. Now Kai picks the
+      template in the New Document wizard, types a name, and starts writing straight into the
+      standard layout.
+
+      The twelve brake reports go in through **New Multiple Documents**: Priya selects all twelve
+      PDFs at once, sets the type to *Test Report* for the batch, fills in a shared description with
+      one bulk edit, and clicks OK.
+    takeaway: Templates fix consistency; multiple-document creation fixes speed.
+
+  - type: walkthrough
+    title: Create a document from a template
+    who: A team member with create rights in the folder
+    where: [Navigator, Browse, Products, "<your product>", Folders]
+    steps:
+      - title: Open the folder
+        where: [Navigator, Browse, Products, "Scooter S2", Folders, Documents]
+        md: Browse to the product, choose **Folders**, and open the folder the document belongs in.
+      - title: Start a new document
+        where: [Folder Contents, New Document]
+        md: Click **New Document** in the Folder Contents toolbar.
+      - title: Pick the type first
+        where: [New Document, Type]
+        md: |
+          Choose the document type. The **Template** list only shows templates that belong to the
+          selected type, and some types have none at all.
+      - title: Pick the template
+        where: [New Document, Template]
+        md: |
+          Choose the template. Once a template is selected you can't also pick a primary content
+          file - the template provides the content.
+      - title: Name it and keep it checked out
+        where: [New Document, Name]
+        md: |
+          Type a name. If you want to start editing right away, make sure **Check out and download**
+          is selected. Click **Next**, then **Finish**.
+      - title: Fill in the content and check in
+        where: ["<your document>", Check In]
+        md: |
+          The new document is checked out to you. Download its file, edit it, then **Check In** and
+          upload the edited file. The iteration goes up (A.1 to A.2); the revision stays A.
+    result: A new document built on your company's standard layout, with your content checked in.
+
+  - type: callout
+    variant: note
+    md: |
+      Templates are created and managed by **administrators**, per context. If the template you
+      expect isn't in the list, check the type you picked first - then ask your admin. The course
+      manual also notes these steps can be done with Windchill Desktop Integration if it's
+      installed.
+
+  - type: walkthrough
+    title: Create several documents at once
+    who: A team member with create rights in the folder
+    where: [Folder Contents, New Multiple Documents]
+    steps:
+      - title: Launch the wizard
+        where: [Folder Contents, New, New Multiple Documents]
+        md: |
+          In the folder, use the **New Multiple Documents** icon on the Folder Contents toolbar or
+          **New > New Multiple Documents** from the table's Actions or right-click menu. Dragging
+          files onto the Folder Contents table also works.
+      - title: Choose one type for the batch
+        where: [New Multiple Documents, Type]
+        md: |
+          The type applies to **every** new document. Choose it - and any extra attribute columns
+          in the table view - **before** adding rows: changing either later clears what you typed.
+      - title: Add one row per document
+        where: [New Multiple Documents, Attributes table]
+        md: |
+          Upload local files (select several with Ctrl or Shift), or add rows that link to a URL,
+          point to externally stored content, or have no content (only if your site allows
+          content-less documents). File names pre-fill the File Name field.
+      - title: Set attributes, one by one or in bulk
+        where: [Attributes table, Edit Attribute Value]
+        md: |
+          Edit cells row by row, or select several rows, click **Edit Attribute Value**, choose the
+          attribute from the Set menu and enter one value for all of them. **Name** and **Number**
+          are required for every row.
+      - title: Create them
+        where: [New Multiple Documents, OK]
+        md: Remove any rows you don't want, then click **OK**.
+    result: One document per row, all of the chosen type. Add attachments afterwards by editing each document.
+
+  - type: simulation
+    title: Twelve brake reports, one wizard
+    intro: |
+      You're Priya with a folder of brake test PDFs. Get them into **Scooter S2 → Tests** as
+      **Test Report** documents with a shared description - in one batch. Try switching the type
+      after adding rows to see what happens.
+    headline: "Type: {type} · Rows: {rows} · Description: {description} · Created: {created}"
+    initial: { type: none, rows: 0, description: empty, created: 0, done: false, wiped: false }
+    actions:
+      - id: type-tr
+        label: Type = Test Report
+        when: { done: false }
+        do: [{ set: { type: Test Report, rows: 0, description: empty } }]
+        log: Type set to Test Report for the whole batch. Any rows already in the table were cleared.
+        blockedHint: The documents are already created.
+      - id: switch-type
+        label: Switch type to Document now
+        when: { rows: 12, done: false }
+        do: [{ set: { type: Document, rows: 0, description: empty, wiped: true } }]
+        log: Type changed to Document. The table refreshes - all twelve rows and the description are gone.
+        blockedHint: Add rows first to see what a late type change does.
+      - id: upload
+        label: Upload 12 PDFs (Ctrl+click)
+        when: { type: [Test Report, Document], rows: 0, done: false }
+        do: [{ set: { rows: 12 } }]
+        log: Twelve rows added. Each file name pre-fills its File Name field.
+        blockedHint: Pick the type first - it applies to every row.
+      - id: bulk
+        label: Bulk edit - set Description on all rows
+        when: { rows: 12, done: false }
+        do: [{ set: { description: S2 brake campaign } }]
+        log: "Edit Attribute Value: Description = S2 brake campaign, applied to all 12 rows."
+        blockedHint: Add the rows first.
+      - id: ok
+        label: OK
+        when: { rows: 12, done: false }
+        do: [{ set: { created: 12, done: true } }]
+        log: "Twelve {type} documents created, each with its own number and name."
+        blockedHint: There's nothing to create yet - add rows first.
+    goals:
+      - label: Create 12 Test Reports with the shared description
+        when: { done: true, type: Test Report, description: S2 brake campaign }
+        message: One wizard, one type, one bulk edit - twelve consistent documents.
+      - label: "Spot the trap: change the type after adding rows"
+        when: { wiped: true }
+        message: Changing the type (or the table view) clears the table. Decide the type before you add rows.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Picking the type last.** In New Multiple Documents the type and the table view come first.
+      Change either after you've filled in twenty rows and the values are wiped. Same idea in the
+      single wizard: pick the type *before* looking for a template, because the template list
+      depends on it.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Add the attribute columns you need to the table view *before* uploading, then use one bulk
+      edit for anything shared (project, description, classification). Per-row typing is where
+      typos creep in.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: In the New Document wizard, Kai selects a template. What can he no longer choose?
+        options: [The document type, A primary content source, The document name, The folder]
+        answer: 1
+        explanation: The template provides the content, so the wizard doesn't let you also upload a primary content file. Type and name are still yours to set.
+      - kind: single
+        prompt: The Template list is empty for the type Kai picked. What's the most likely reason?
+        options:
+          - Templates are only available in libraries
+          - No templates are set up for that document type
+          - He must check out the folder first
+          - Templates only work for Excel files
+        answer: 1
+        explanation: The templates offered depend on the selected type, and some types have none. Administrators decide which templates exist in each context.
+      - kind: multi
+        prompt: Which are true for New Multiple Documents? (Choose all that apply.)
+        options:
+          - One type applies to every document in the batch
+          - Each row can have its own name
+          - Changing the type after adding rows keeps all values
+          - Attachments are added later by editing each document
+        answers: [0, 1, 3]
+        explanation: The type is shared, names are per row, and attachments are added afterwards. Changing the type or view clears the values you've entered.
+      - kind: truefalse
+        prompt: A document template can pre-fill attribute values as well as the content file.
+        answer: true
+        explanation: The course manual says a template may pre-populate content files, attachments and attribute values.
+
+  - type: summary
+    points:
+      - A document template gives new documents a standard starting file and values; admins manage them per context.
+      - Pick the type first - it decides which templates are offered - and a template replaces the primary content upload.
+      - New Multiple Documents creates many documents in one wizard; one type for all, names per row.
+      - Set the type and table view before adding rows, and use Edit Attribute Value for shared fields.

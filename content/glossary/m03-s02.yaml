@@ -46,3 +46,35 @@
   definition: A variance that accepts items already produced that do not conform to released requirements, for a specific lot or quantity, typically after review shows they are still fit for use.
   aka: [Concession]
   related: [variance, deviation]
+
+- id: change-implementation-board
+  term: Change Implementation Board (CIB)
+  plain: The group that says yes or no to the plan for doing a change.
+  definition: An out-of-the-box change role that reviews the implementation plan in a change notice and approves or denies it. In the out-of-the-box process it is only used in the full track; a Change Admin II records its decision. Companies can rename or reshape the role.
+  aka: [CIB]
+  related: [change-review-board, change-notice, implementation-plan, change-administrator, full-track-change]
+
+- id: change-intent
+  term: Change intent
+  plain: A note on each affected object saying what the change should do with it - keep it as is, revise it, or retire it.
+  definition: A value set on each affected object of a change task. Setting it to None releases the current version without revising it, which is used when data is released directly through a change notice. Configurations such as the PLM Foundation Pacesetter add values like Cancel, which a mapping rule links to a life cycle transition so the object ends up Canceled.
+  related: [affected-object, resulting-object, release-target, change-task]
+
+- id: release-target
+  term: Release target
+  plain: Which path the new version takes when the change finishes.
+  definition: A setting on the resulting objects of a change task that decides which life cycle transition they follow when the change notice completes, for example Change for a normal release. Other transition types for change processes include Obsolescence and Production Released.
+  related: [resulting-object, change-intent, transition, change-notice]
+
+- id: basic-track-change
+  term: Basic Track change process
+  plain: The PLM Foundation Pacesetter's express lane for releasing something for the first time.
+  definition: A change process in the PLM Foundation Pacesetter configuration meant for initial product release or long-lead items. A business rule checks that only objects at the initial revision A are released this way; anything at revision B or higher raises an Initial Release Conflict task.
+  aka: [Basic Track, Basic change notice]
+  related: [fast-track-change, full-track-change, initial-release-conflict, change-notice]
+
+- id: initial-release-conflict
+  term: Initial Release Conflict
+  plain: The task you get when someone tries to use the first-release shortcut on something that's already been released.
+  definition: A task the PLM Foundation Pacesetter generates after the Audit Change Notice task when a change request with category Initial Release, routed through the Basic Track, has a resulting object at revision B or higher. The object is not released; the conflict is resolved by creating a new change notice (for example Fast Track) and completing the task, which cancels the original change notice.
+  related: [basic-track-change, change-notice, change-request]

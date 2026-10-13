@@ -116,7 +116,7 @@ blocks:
     rows:
       - { label: Applies, cells: [Everywhere the original part is used, Only in one parent's use of the part] }
       - { label: Stored on, cells: [The part master (master-to-master), The uses link in the parent] }
-      - { label: Changes the parent?, cells: [No - parents stay untouched, "Yes - the parent is checked out and iterates"] }
+      - { label: "Changes the parent?", cells: [No - parents stay untouched, "Yes - the parent is checked out and iterates"] }
       - { label: Typical reason, cells: ["Second source, identical spec", Good enough in this assembly only] }
       - { label: Typical owner, cells: ["Component engineering, sourcing", The assembly's design engineer] }
       - { label: Example, cells: [FS-0621 for FS-0620 everywhere, SC-3125 for SC-3120 in wheel SC-3100] }

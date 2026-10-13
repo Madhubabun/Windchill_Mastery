@@ -1,0 +1,239 @@
+id: m02-s01-l09
+subtitle: Does the BOM come first, or the 3D model? Your company already picked - here's how to tell.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [cad, parts, bom, part-centric, cad-centric, auto-associate, product-structure]
+sources:
+  - id: te
+    where: "Module 4: Manage CAD data in Windchill: overview (CAD integration; CAD and Windchill product structures (eBOMs)); Describe the part-centric approach to product development; Describe the CAD-centric approach to product development; Update CAD documents: check in; Activity: Create a CAD part in Creo (Auto Associate Parts to CAD Documents)"
+  - id: te
+    where: "Module 5: Describe product structures; Create a BOM: techniques (Product Structure Browser, spreadsheet import, auto-associating from CAD, Save As); Edit a BOM"
+  - id: hc-cad-assoc-overview
+    label: PTC Help Center supplement
+    title: "CAD and Part Association Overview"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/ManagingCADandPartRelationships/MCPR_AssociationOview.html"
+    covers: "Auto Associate suits mature CAD structures where most associations are Owner type; by default the part structure is built at the next check-in of the CAD document"
+
+blocks:
+  - type: text
+    md: |
+      Two teams, two habits.
+
+      The **E-bike E1** team starts every project in a meeting room. Kai sketches the product
+      structure - frame, drive, battery, controller - creates the [[part|parts]] in Windchill, and
+      hands out design tasks: "Leo, model the motor mount for part EB-3300."
+
+      The **Scooter S2** team starts in Creo. Priya models the frame assembly, checks it in, and
+      Windchill builds the parts and the BOM from her CAD structure.
+
+      Both teams end up with a Windchill product structure (eBOM) and linked CAD. They just get there
+      from opposite ends. Windchill calls these the **part-centric** and the **CAD-centric**
+      approach.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "BOM first, CAD later" → [[part-centric|part-centric approach]]
+      - "CAD first, BOM built from it" → [[cad-centric|CAD-centric approach]]
+      - "the Windchill part tree" → *product structure* / eBOM (made of WTParts)
+      - "the tree of CAD files" → *CAD document structure*
+      - "Windchill creates or links a part for each CAD model at check-in" → [[auto-associate-parts|Auto Associate Parts to CAD Documents]]
+      - "the CAD model in charge of the part" → [[owner-association|owner association]]
+      - "the browser tool for editing part structures" → *Product Structure Browser (PSB)*
+
+  - type: diagram
+    title: Opposite starting points, same destination
+    caption: Left, the part-centric road. Right, the CAD-centric road. Click each box.
+    diagram:
+      width: 820
+      height: 400
+      groups:
+        - { label: Part-centric, x: 10, y: 10, w: 390, h: 250, tone: info }
+        - { label: CAD-centric, x: 420, y: 10, w: 390, h: 250, tone: accent }
+      nodes:
+        - id: plan
+          label: Plan the structure
+          sublabel: parts in Windchill
+          x: 30
+          y: 50
+          w: 170
+          tone: info
+          detail: |
+            The product structure is created **independently of the CAD design** - often before any
+            modelling starts - with tools like the Product Structure Browser (PSB).
+        - id: tasks
+          label: Hand out design
+          sublabel: "model part X"
+          x: 215
+          y: 50
+          w: 165
+          tone: info
+          detail: Once the basic structure exists, the work of designing and linking the CAD models is handed out to engineering teams, usually through workflows.
+        - id: link
+          label: Link CAD to parts
+          sublabel: to existing parts
+          x: 120
+          y: 160
+          w: 180
+          tone: info
+          detail: |
+            Designers associate their CAD documents with the parts that already exist - the
+            "top-down" use of association described in the course manual.
+        - id: model
+          label: Model in CAD
+          sublabel: Creo assembly
+          x: 440
+          y: 50
+          w: 165
+          tone: accent
+          detail: The designer builds the assembly in the CAD tool first. The CAD structure is the starting point.
+        - id: checkin
+          label: Check in
+          sublabel: Auto Associate on
+          x: 625
+          y: 50
+          w: 165
+          tone: accent
+          detail: |
+            At check-in, **Auto Associate Parts to CAD Documents** creates (or links) a WTPart for
+            each CAD document that doesn't have one yet.
+        - id: built
+          label: Structure is built
+          sublabel: from the CAD tree
+          x: 530
+          y: 160
+          w: 180
+          tone: accent
+          detail: |
+            Windchill builds the product structure from the CAD document structure. Owner-associated
+            parts iterate along with their CAD at each check-in.
+        - id: ebom
+          label: eBOM + linked CAD
+          sublabel: same end result
+          x: 310
+          y: 310
+          w: 200
+          tone: primary
+          detail: |
+            Either way you get WTParts linked to CAD documents. Non-CAD items - bought parts, liquids,
+            software - are added in Windchill, and the part structure can later be restructured into
+            other BOMs for manufacturing and service.
+      edges:
+        - { from: plan, to: tasks }
+        - { from: tasks, to: link }
+        - { from: link, to: ebom }
+        - { from: model, to: checkin }
+        - { from: checkin, to: built }
+        - { from: built, to: ebom }
+
+  - type: comparison
+    title: Part-centric vs CAD-centric
+    columns: [Part-centric, CAD-centric]
+    rows:
+      - { label: What comes first, cells: [The Windchill part structure, The CAD model structure] }
+      - { label: Who usually builds the BOM, cells: [Configuration managers in the PSB, CAD designers via check-in] }
+      - { label: How parts get created, cells: ["New part / Insert in the PSB, spreadsheet import", Auto Associate at CAD check-in] }
+      - { label: How CAD gets linked, cells: [Associated to existing parts, Owner association created with the part] }
+      - label: Good fit when...
+        cells: ["Parts come from suppliers, structure is planned upfront, items have no CAD", "The BOM closely matches the CAD assembly"]
+    takeaway: Ask "what exists first in this company - the part number or the model?" That's the answer.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      The approach decides **who owns the BOM** and **when it changes**. In a CAD-centric shop, a
+      designer's check-in can change the BOM - so designers need to understand parts. In a
+      part-centric shop, configuration managers control the structure and designers fill it in - so
+      someone has to keep CAD and parts linked. Mixing them up leads to duplicate parts, orphaned
+      models and BOMs nobody trusts.
+
+  - type: example
+    variant: case-study
+    title: Acme uses both - on purpose
+    industry: Micromobility
+    md: |
+      Acme's rule, written on the engineering wiki:
+
+      - **Designed sub-assemblies are CAD-centric.** The S2 frame (SC-2000), wheel (SC-3100) and
+        handlebar (SC-4000) start in Creo. Priya checks in with Auto Associate on, and the parts
+        and their structure follow the CAD.
+      - **Bought items and the top level are part-centric.** The battery pack SC-5100 comes from a
+        supplier with its own datasheet; Kai creates the part in the PSB before any CAD exists.
+        Grease, the user manual and the charger have no CAD at all, so they're added in Windchill.
+
+      **Outcome:** when a new engineer asked "do I create the part or does Creo?", the wiki answered
+      it in one line - and the duplicate-part reports dropped to zero.
+    takeaway: Most companies mix the two. What matters is that the rule is written down.
+
+  - type: walkthrough
+    title: Spot each approach in Windchill
+    who: Anyone who can open the product
+    steps:
+      - title: CAD-centric - look at the check-in options
+        where: [Creo, Workspace, Check In, Next]
+        md: |
+          In the Creo workspace, start a check-in and click **Next**. If **Auto Associate Parts to
+          CAD Documents** is selected, the check-in creates or links a WTPart for each new CAD
+          document. After check-in you see the CAD document *and* its WTPart in the workspace.
+      - title: Part-centric - look at the part structure
+        where: ["<part> information page", Structure tab]
+        md: |
+          Open a part's **Structure** tab. In the Product Structure Browser you can insert existing
+          or new parts under a parent and edit usage attributes - no CAD needed.
+      - title: Check how the CAD is linked
+        where: ["<part> information page", Related Objects]
+        md: |
+          Look for the related CAD documents and their association type. An **Owner** CAD document
+          means the structure follows the CAD at check-in. The lesson *Linking parts and CAD* in
+          the product-structure section explains all the types.
+    result: You can tell, for any part, whether its structure was driven by CAD or built in Windchill.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Auto Associate on, when a part already exists.** If the CAD document already has its part,
+      leave Auto Associate unticked - the course manual does exactly that when checking in a
+      modified assembly whose part is already associated. In a part-centric area, link the model
+      to the planned part instead of letting check-in generate a new one.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Part-centric doesn't mean "no CAD". It means the **part number exists first**. Give designers
+      the planned part numbers so they link their models to those parts instead of letting new
+      ones be generated.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: In which approach is the product structure created before the CAD design starts?
+        options: [CAD-centric, Part-centric, Both, Neither]
+        answer: 1
+        explanation: Part-centric means the structure is built independently - often before any modelling - and CAD is linked later.
+      - kind: single
+        prompt: Priya checks in a new Creo assembly with Auto Associate on, and Windchill builds the parts and their structure from it. Which approach is this?
+        options: [Part-centric, CAD-centric, Spreadsheet import, Save As]
+        answer: 1
+        explanation: Windchill building the product structure from the CAD structure at check-in is the CAD-centric approach.
+      - kind: multi
+        prompt: Which situations point to a part-centric approach? (Choose all that apply.)
+        options:
+          - Parts supplied by third parties
+          - Items with no planned CAD data, like oil
+          - A BOM that matches the CAD assembly closely
+          - A structure planned upfront and handed out as design tasks
+        answers: [0, 1, 3]
+        explanation: Supplier parts, non-CAD items and upfront planning favour building parts first. A BOM that mirrors the CAD fits CAD-centric work.
+      - kind: truefalse
+        prompt: In a CAD-centric approach, owner-associated parts are iterated when their CAD document is checked in.
+        answer: true
+        explanation: The course manual says any owner-associated WTParts iterate during the CAD check-in, whether or not they were checked out.
+
+  - type: summary
+    points:
+      - Part-centric - the part structure comes first and CAD is linked to existing parts.
+      - CAD-centric - Windchill builds the part structure from the CAD structure at check-in.
+      - Auto Associate at check-in and owner associations are the CAD-centric engine.
+      - Most companies mix both; write down which items follow which approach.

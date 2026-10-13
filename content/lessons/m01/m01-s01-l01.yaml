@@ -1,9 +1,12 @@
 # Reference lesson: copy this file's shape when writing new lessons.
 id: m01-s01-l01
 subtitle: Every product has a life story. PLM is how companies keep it straight.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.0.1
+updated: "2026-10-13"
 tags: [plm, lifecycle, basics]
+sources:
+  - id: te
+    where: "Module 1: What is Product Lifecycle Management (PLM)?; PLM and the enterprise; The PLM process; Manage product data; Manage changes to product data (problem reports, change requests, change notices)"
 
 blocks:
   - type: text
@@ -139,7 +142,7 @@ blocks:
   - type: callout
     variant: why-it-matters
     md: |
-      Industry studies regularly find engineers spend a large share of their week **searching for
+      General industry experience (not a Windchill fact): engineers lose a lot of time **searching for
       or recreating information**. In regulated industries (medical devices, aerospace, automotive),
       being unable to prove *which* design was built, and *why*, can stop a product from shipping.
 
@@ -154,7 +157,7 @@ blocks:
       **Without PLM:** engineering fixed the CAD model, but the factory kept building from an old
       drawing for three weeks, and the spare-parts team kept shipping the old hinge.
 
-      **With PLM:** a *problem report* captured the issue, a *change request* was reviewed by
+      **With PLM** (Windchill offers these three change objects): a *problem report* captured the issue, a *change request* was reviewed by
       engineering, manufacturing and service together, and a *change notice* released the new hinge.
       The factory, the supplier and the spare-parts catalogue all switched to the same new revision on
       the same day.
@@ -199,4 +202,4 @@ blocks:
       - A product's lifecycle runs from idea through design, validation, manufacture and service to retirement.
       - PLM keeps one controlled, traceable source of truth for all of it.
       - It solves version chaos, uncontrolled change and lost history.
-      - Windchill is the PLM system you'll learn in this course.
+      - Windchill, a family of PLM products from PTC, is the PLM system you'll learn in this course.

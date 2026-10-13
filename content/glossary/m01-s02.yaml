@@ -3,28 +3,28 @@
 - id: database
   term: Database (relational)
   plain: The giant, super-organised spreadsheet where Windchill keeps all the facts about every object.
-  definition: The relational database (Oracle or Microsoft SQL Server) that stores Windchill metadata - numbers, names, versions, states, relationships, access rules and pointers to file content.
+  definition: The relational database (Oracle or Microsoft SQL Server) that stores Windchill metadata - numbers, names, versions, states, relationships and the links to file content kept in vaults.
   aka: [RDBMS, Oracle, SQL Server]
   related: [metadata, vault, method-server]
 
 - id: index-search
   term: Index search (Solr)
   plain: A pre-built word index, like the index at the back of a book, that makes keyword searches fast.
-  definition: Windchill's full-text and keyword search service, based on Apache Solr. It keeps an index of object attributes (and optionally file text) so keyword searches don't have to scan the database.
+  definition: An optional Windchill indexing server that uses Solr for full-text search of object metadata and object content, so searches stay efficient as data grows. Some features, such as faceted search and Parts Classification, require it.
   aka: [Solr, full-text search]
   related: [quick-search, database]
 
 - id: background-queue
   term: Background queue
   plain: A to-do list of jobs Windchill works through behind the scenes, so you don't have to wait.
-  definition: A Windchill processing queue holding entries (for example publishing, workflow robots or scheduled jobs) that background method servers pick up and run asynchronously.
+  definition: A Windchill processing queue holding entries for back-end work (for example workflow task propagation or generating visualization data) that background method servers process, so users don't wait for it.
   aka: [queue]
   related: [method-server, cad-worker]
 
 - id: cad-worker
   term: CAD worker (visualization adapter)
   plain: A helper machine that turns heavy CAD files into lightweight 3D pictures anyone can open.
-  definition: A process, usually on a separate machine, that runs a CAD tool's adapter to publish representations (viewables) from CAD data, for viewing in Creo View or the browser.
+  definition: A visualization worker that scans Windchill content files and creates lightweight viewable representations for Creo View. It runs a Creo View adapter installed on the worker machine and is managed by the WVS Worker Agent.
   aka: [worker, publishing adapter]
   related: [representation, creo-view, background-queue]
 
@@ -38,13 +38,48 @@
 - id: windchill-plus
   term: Windchill+
   plain: Windchill as a cloud service - PTC runs the servers, you just log in.
-  definition: PTC's software-as-a-service (SaaS) offering of Windchill. The same tiers exist, but PTC hosts, operates and upgrades the servers, database and vaults.
+  definition: PTC's software-as-a-service (SaaS) delivery of Windchill. The application and data tiers run in a cloud environment managed by PTC, which takes responsibility for maintenance, security, disaster recovery and upgrades.
   aka: [Windchill SaaS]
   related: [windchill]
 
 - id: windchill-quality
   term: Windchill quality capabilities
   plain: The part of Windchill that tracks things going wrong - complaints, defects, root causes and fixes.
-  definition: Windchill capabilities for quality management such as nonconformances, CAPA (corrective and preventive action), customer complaints and risk/reliability analysis (for example FMEA). Exact packaging and names depend on the release and licence.
+  definition: Windchill modules for quality management such as Nonconformance Management, CAPA (corrective and preventive action) and Customer Experience Management for customer-reported issues. PTC's course presents them in its medical device suite and notes they also work for non-medical products.
   aka: [Windchill Quality, CAPA, nonconformance]
   related: [problem-report, pdmlink]
+
+- id: business-administrator
+  term: Business Administrator
+  plain: The admin who sets Windchill up from its screens - folders, processes, access and attributes.
+  definition: A Windchill user role that configures and manages settings available directly in the user interface, implementing business requirements for how data is stored and organized, processes, access control and attributes.
+  aka: [business admin]
+  related: [system-administrator, preference]
+
+- id: system-administrator
+  term: System Administrator
+  plain: The admin who installs, upgrades and backs up the Windchill servers.
+  definition: A Windchill user role responsible for installation, upgrades, network considerations, backups and related systems.
+  aka: [system admin, sysadmin]
+  related: [business-administrator, method-server, database]
+
+- id: windchill-on-premises
+  term: Windchill On-Premises
+  plain: Windchill running on servers at the company's own site.
+  definition: The traditional implementation type in which all Windchill components and related software (including virtual machines) are installed on servers at the customer site. The customer carries the total cost of ownership, including hardware, upgrades, disaster recovery and security, and needs staff to monitor and administer the system.
+  aka: [on-premises, on-prem]
+  related: [windchill-private-cloud, windchill-plus]
+
+- id: windchill-private-cloud
+  term: Windchill Private Cloud
+  plain: Windchill on servers in a third-party cloud that the company directs.
+  definition: An implementation type in which Windchill and related software run in a third-party cloud environment not managed by PTC. The cloud provider manages the isolated IT infrastructure and is responsible for disaster recovery, security and compliance. Also called customer cloud.
+  aka: [customer cloud, private cloud]
+  related: [windchill-on-premises, windchill-plus]
+
+- id: go-live
+  term: Go-live
+  plain: The day a company starts using the new system for real work.
+  definition: The point in an implementation when the configured system is deployed to the production server, required data has been migrated, and the company begins managing its product data in Windchill. Large projects may have several go-lives, one per stage.
+  aka: [go live date]
+  related: [windchill]

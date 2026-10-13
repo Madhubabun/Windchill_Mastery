@@ -1,8 +1,18 @@
 id: m01-s03-l02
 subtitle: Every object has a home address. Learn to read it and you'll never get lost.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-13"
 tags: [navigation, navigator, contexts, folders]
+sources:
+  - id: te
+    where: "Module 2: Describe products and libraries, Identify how access is controlled, Activity: Explore the Windchill user interface (Navigate a product context, Navigate a library context), Browse for objects; Module 5: Create a WTPart (Location attribute); Appendix A: Manage projects and programs in Windchill, Identify project characteristics"
+  - id: ac
+    where: "Module 1: Describe the Windchill context architecture (site, organization, product, library, project and program contexts)"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Workflow Process Support in Windchill ProjectLink"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/workflow_chp/WFChp_WFProcessSupportInProjectLink.html"
+    covers: "Windchill ProjectLink is the 13.1.2.0 name for work in project and program contexts"
 
 blocks:
   - type: text
@@ -50,7 +60,7 @@ blocks:
           w: 160
           h: 52
           tone: primary
-          detail: Usually your company. Holds company-wide rules (numbering, types, access policies) that products and libraries inherit.
+          detail: Usually your company (or a major business unit). Holds administrative settings such as business rules, preferences and templates for the products, libraries and projects inside it. It shouldn't hold design data.
         - id: prod-s2
           label: Product
           sublabel: Scooter S2
@@ -121,7 +131,7 @@ blocks:
     md: |
       Contexts are how real companies keep secrets and stay organised at the same time. A supplier sees
       only the project they're invited to. The e-bike team can't accidentally edit scooter parts. And
-      settings like the [[life-cycle]] or numbering can differ per context. Put an object in the wrong
+      settings like the [[life-cycle]] or templates can differ per context. Put an object in the wrong
       context and the wrong people see it - or the right people can't.
 
   - type: walkthrough
@@ -131,29 +141,32 @@ blocks:
       - title: Open the Navigator
         where: [Navigator, Browse]
         md: |
-          Expand the Navigator panel on the left (click its edge or icon if it's collapsed) and make
-          sure you're on the browsing view, not the search view.
+          Expand the Navigator panel on the left (click the Navigator bar; pin it if you want it to stay
+          open) and click **Browse** at the top.
       - title: Open Products
-        where: [Navigator, Browse, Products]
+        where: [Navigator, Browse, Recent Products, View All]
         md: |
-          Hover or click **Products**. You'll see the products you visited recently; choose
-          **View All** (or similar) to see every product you're a member of.
+          On the **Recent Products** tab you see the products you visited lately. Click **View All**
+          to open the Products table with every product you can access.
       - title: Pick your product
         where: [Products, "Scooter S2"]
-        md: The product's own pages open - its overview, team, folders, changes and more.
+        md: |
+          Click its name. In the Navigator, expand the product's node to see its pages - **Details**,
+          **Folders**, **Team**, **Tasks**, **Change Monitor** and more.
       - title: Open its folders
         where: [Products, "Scooter S2", Folders]
         md: |
-          Choose **Folders**. The folder tree appears; click a folder (e.g. *Frame*) to list its
-          contents in a table. Click any object's name to open its [[information-page]].
+          Choose **Folders**. Click a folder (e.g. *Frame*) in the Folders pane to list its contents in
+          the **Folder Contents** table. Click an object's name or its *View information* icon to open
+          its [[information-page]].
     result: You can see every object in a product folder by folder, and open any of them.
 
   - type: walkthrough
     title: Grab something from a library
     steps:
       - title: Open Libraries
-        where: [Navigator, Browse, Libraries]
-        md: Choose **Libraries** and then the library you need - e.g. *Standard Fasteners*.
+        where: [Navigator, Browse, Recent Libraries, View All]
+        md: On the **Recent Libraries** tab, click **View All**, then the library you need - e.g. *Standard Fasteners*.
       - title: Open the library's folders
         where: [Libraries, "Standard Fasteners", Folders]
         md: Libraries have folders too. Browse to the object, or search inside the library.
@@ -161,12 +174,12 @@ blocks:
 
   - type: callout
     variant: version-note
-    versions: ["Many releases"]
+    versions: ["13.x"]
     md: |
-      In many releases the Navigator has two tabs - **Browse** and **Search**. Under Browse you'll find
-      Home, Products, Libraries, Projects (if ProjectLink is used), Organizations and Site (admins only),
-      plus recently visited items. Newer releases restyle the header and panel, but this structure has
-      stayed the same. You only see the contexts you are a member of or have access to.
+      In the 13.x course material the Navigator has a **Browse** tab (with *Recent Products*,
+      *Recent Libraries* and *Recently Visited*), a **Changes** tab and a **Search** tab, and it can be
+      pinned open. Icons and layout shift between releases, so look for the same ideas if yours looks
+      different. You only see the contexts you have access to.
 
   - type: simulation
     title: Find it by browsing
@@ -252,8 +265,8 @@ blocks:
   - type: callout
     variant: pitfall
     md: |
-      **Creating objects in the wrong context or folder.** Moving them later is possible, but it can
-      change who has access, and it often needs extra rights. Before you click *New*, check the page
+      **Creating objects in the wrong context or folder.** Fixing it later is extra work, and because
+      access rules are set per context, a move can change who sees the object. Before you click *New*, check the page
       title/path to confirm you are in the right product and folder.
 
   - type: callout

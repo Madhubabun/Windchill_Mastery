@@ -1,8 +1,13 @@
 id: m01-s04-l01
 subtitle: A part is the "thing" in your product. Everything else in Windchill hangs off it.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.0.1
+updated: "2026-10-13"
 tags: [parts, wtpart, bom, structure]
+sources:
+  - id: te
+    where: "Module 1: eBOM and mBOM; Module 2: Describe business objects, Activity: Browse for objects (WTPart, part usage relationship), Activity: View information pages (Structure, Documents, Related Objects tabs); Module 4: CAD and Windchill product structures (eBOMs), Describe the CAD-centric approach; Module 5: Product development and BOMs: overview, Activity: Create a WTPart (End Item, Source, View, Default Unit), View part usage details (Quantity, Unit)"
+  - id: ac
+    where: "Module 9: Manage organization (object initialization rules for wt.part.WTPart and wt.epm.EPMDocument)"
 
 blocks:
   - type: text
@@ -133,9 +138,9 @@ blocks:
     rows:
       - { label: What it is, cells: [The physical item itself, A CAD file that models the item] }
       - { label: Who uses it, cells: ["Everyone: engineering, purchasing, factory, service", Mostly CAD designers] }
-      - { label: Has a file?, cells: [Not necessarily - it's mainly data, "Yes, the model or drawing file"] }
-      - { label: Exists without CAD?, cells: ["Yes - screws, glue, software, packaging", "No, it's the CAD file"] }
-      - { label: Forms the BOM, cells: ["Yes, through uses links", No - CAD has its own dependencies] }
+      - { label: "Has a file?", cells: [Not necessarily - it's mainly data, "Yes, the model or drawing file"] }
+      - { label: "Exists without CAD?", cells: ["Yes - screws, glue, software, packaging", "No, it's the CAD file"] }
+      - { label: Forms the BOM, cells: ["Yes, through uses links", "Not directly - but checking CAD in can build the part structure automatically"] }
     takeaway: The CAD model describes the part. The part is what you buy, build, count and service.
 
   - type: callout
@@ -158,7 +163,8 @@ blocks:
       screws ordered.
 
       **Fix:** the team added the screws as **parts** directly in the Windchill structure (no CAD
-      needed) with the right quantity on each uses link. ERP then ordered them automatically.
+      needed) with the right quantity on each uses link. Once the structure reached ERP, the screws
+      could be ordered like everything else.
     takeaway: A part can exist without CAD. If you need to buy it, build it or count it, it needs to be a part.
 
   - type: walkthrough
@@ -166,17 +172,17 @@ blocks:
     who: Any user who can read the product
     steps:
       - title: Find the part
-        where: [Search box at the top of the page]
+        where: [Search field at the top right of the page]
         md: Type the part number (for example `SC-2000`) and run the search. Make sure the type filter includes **Parts**.
       - title: Open its information page
         where: [Search results, part number link]
-        md: Click the number or name to open the part's **[[information-page]]**. The header shows number, name, version and state.
+        md: Click its *View information* icon (or its name) to open the part's **[[information-page]]**. The top of the page shows the name and number, and usually the version and state.
       - title: Explore the structure
         where: [Part information page, Structure tab]
-        md: Open the **Structure** tab. Expand the levels to see child parts with their quantity and unit. This is the BOM.
+        md: Open the **Structure** tab. Expand the levels to see child parts; the Quantity and Unit columns show how much of each is used. This is the BOM.
       - title: Find what describes it
-        where: [Part information page, related objects area]
-        md: Look at the related documents and CAD documents. The exact tab or table name varies by release - look for "Related", "Documents" or "CAD" in the tab list.
+        where: [Part information page, Related Objects]
+        md: Open the **Related Objects** tab to see the CAD documents and documents linked to the part. (Inside the Structure tab, the **Documents** tab in the right pane shows the same kinds of links.)
     result: You can name the part, its version and state, and list what it is made of.
 
   - type: callout

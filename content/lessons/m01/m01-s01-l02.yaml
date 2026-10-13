@@ -1,8 +1,25 @@
 id: m01-s01-l02
 subtitle: Four systems, one product. Learn who is the boss of which data.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.0.1
+updated: "2026-10-13"
 tags: [plm, pdm, erp, mes, integration, basics]
+sources:
+  - id: te
+    where: "Module 1: PLM and the enterprise; Manage product data; Manage changes to product data; Transform the bill of materials (BOM); Manage manufacturing processes (integration to ERP); Identify Windchill modules"
+  - id: te
+    where: "Appendix A: Manage the manufacturing process: overview (releasing to ERP and MES); Manage projects and programs in Windchill; Identify project characteristics"
+  - id: ac
+    where: "Module 2: license groups (PTC PDMLink Module License)"
+  - id: hc-mpmlink
+    label: PTC Help Center supplement
+    title: "Windchill MPMLink"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCInstallConfigGuide/WCInstall_WCMPMLink.html"
+    covers: "Windchill MPMLink is an add-on to Windchill PDMLink and the central repository for manufacturing data management"
+  - id: hc-projectlink
+    label: PTC Help Center supplement
+    title: "Workflow Process Support in Windchill ProjectLink"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/workflow_chp/WFChp_WFProcessSupportInProjectLink.html"
+    covers: "Windchill ProjectLink is the name used in 13.1.2.0 for work in project and program contexts"
 
 blocks:
   - type: text
@@ -58,7 +75,8 @@ blocks:
           shape: cylinder
           detail: |
             The heart of PLM. Owns CAD models, drawings, [[part|parts]], [[document|documents]], versions and
-            the engineering [[bom]]. In Windchill this is mainly [[pdmlink]].
+            the engineering [[bom]]. In Windchill this is the Product Data Management module, the base module
+            (licensed as [[pdmlink|Windchill PDMLink]]).
         - id: collab
           label: Collaboration
           sublabel: projects, suppliers
@@ -67,7 +85,7 @@ blocks:
           w: 150
           h: 70
           tone: info
-          detail: Sharing controlled data with suppliers and partners, and running project work. In Windchill, [[projectlink]] covers much of this.
+          detail: Sharing controlled data with suppliers and partners, and running project work. In Windchill, project and program contexts ([[projectlink]]) cover project work, and sharing objects into a project lets outside partners collaborate.
         - id: mpp
           label: Process planning
           sublabel: eBOM to mBOM
@@ -78,7 +96,7 @@ blocks:
           tone: accent
           detail: |
             Turning the [[ebom|engineering BOM]] into the [[mbom|manufacturing BOM]] and defining how it is built.
-            In Windchill this is [[mpmlink]].
+            In Windchill this is the Manufacturing Process Management module ([[mpmlink]]).
         - id: erp
           label: ERP
           sublabel: cost, stock, orders

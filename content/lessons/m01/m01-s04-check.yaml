@@ -1,8 +1,23 @@
 id: m01-s04-check
 subtitle: Parts, documents, CAD, changes, links and identity - prove you've got them.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-13"
 tags: [checkpoint, objects]
+sources:
+  - id: te
+    where: "Module 2: Describe business objects, Describe revision and iteration control; Module 3: Manage documents in Windchill: overview, Associate Windchill parts with documents; Module 4: CAD integration with Windchill; Module 5: Product development and BOMs: overview; Module 6: OOTB change management process: steps, Promotion process: overview"
+  - id: ac
+    where: "Module 9: Manage organization (wt.part.WTPart, wt.doc.WTDocument, wt.epm.EPMDocument)"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Configuring Part and Document Relationships (Products and Libraries)"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/pdm_admin_chp/PDMAdminChp_ConfigPartDocRelation.html"
+    covers: "Described-by shows the latest iteration of a document version; references shows the latest Released version via the master"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Renaming an Object"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/commonactions/CommonItemRename.html"
+    covers: "Name and number apply to all versions of an object"
 
 blocks:
   - type: text
@@ -43,19 +58,19 @@ blocks:
         items: [Problem Report, Change Request, Change Notice, Change Task]
         explanation: Report the issue, propose and approve a change, plan the implementation, then do the assigned work in tasks.
       - kind: single
-        prompt: A brand-new part has never been released and is ready to go. Which object typically moves it to Released?
+        prompt: Which object formally asks for a life cycle state change, such as In Work → Released, and is mostly used for non-engineering data?
         options: [Change Notice, Promotion Request, Problem Report, Variance]
         answer: 1
-        explanation: A Promotion Request reviews and moves objects to a new state. The full change process is usually reserved for changing data that's already released.
+        explanation: A Promotion Request collects objects and routes them for review or approval before their state changes. Engineering data usually goes through the change process, where a change notice can also release new data.
       - kind: single
-        prompt: A part is linked to test report B with **described by**. The report is revised to C. What does the part show?
-        options: [Report C, Report B, Nothing, An error]
+        prompt: A part is linked to test report version A with **described by**. The report is checked in again and goes from A.1 to A.2. What does the part show?
+        options: [A.1, A.2, Nothing, An error]
         answer: 1
-        explanation: Described-by links a part version to a specific document version. It stays on B until someone checks out the part and updates the link - which is exactly what you want for evidence.
+        explanation: Described-by points at a specific version of the document and shows that version's latest iteration.
       - kind: truefalse
-        prompt: A references link always resolves to the latest version of the document.
-        answer: true
-        explanation: References points at the document master, so it shows whatever the latest version is.
+        prompt: A references link shows the latest In Work version of a document, even if an older version is Released.
+        answer: false
+        explanation: References points at the document master and shows the latest Released version. Only if nothing is released does it show the latest working version.
       - kind: single
         prompt: Hinge SC-1042 is at A.3, Released. Someone revises it. What's the new version?
         options: [A.4, B.1, B.3, A.3 again]
@@ -85,13 +100,13 @@ blocks:
       - front: "Owner association"
         back: "The CAD model that defines a part's structure and attributes."
       - front: "Described by"
-        back: "Part version → a specific document version. Frozen in time."
+        back: "Part → a specific document version, shown at its latest iteration. Good for evidence."
       - front: "References"
-        back: "Part → document master. Always resolves to the latest."
+        back: "Part → document master. Shows the latest Released version."
       - front: "Problem Report → Change Request → Change Notice"
         back: "What's wrong → should we change it → how we'll do it (with Change Tasks)."
       - front: "Promotion Request"
-        back: "Moves a set of objects to a new state after a review."
+        back: "Asks for a life cycle state change for a set of objects after review or approval. Mostly for non-engineering data."
       - front: "Master"
         back: "Number and name shared by every version."
       - front: "Check in vs Revise"

@@ -1,299 +1,336 @@
 id: m03-s01-l02
-subtitle: "What's wrong? Should we change it? How do we do it? Who does what? Four questions, four objects."
-version: 1.0.0
-updated: "2026-10-05"
-tags: [change-management, problem-report, change-request, change-notice, change-task, change-review-board]
+subtitle: "Five steps, five decisions: from \"is this a real problem?\" to \"is it ready to release?\""
+version: 1.1.0
+updated: "2026-10-13"
+tags: [change-management, problem-report, change-request, change-notice, change-task, change-review-board, audit]
+sources:
+  - id: te
+    where: "Module 6: Value of the change management process; OOTB change management process: steps; Identify roles in the change management process; Change management process: Identify Need, Investigate Need, Change Planning, Change Implementation, Review and Audit Change; Activity: Create a problem report"
+  - id: pf
+    where: "Module 4: The change process (Basic, Fast and Full Track); Activity: Use the Basic Track change process to initially release a business object"
+  - id: trn-cm-itc
+    where: "Intro to the change process: closed loop change process overview and diagram (used only where the 13.x course manual agrees)"
 
 blocks:
   - type: text
     md: |
-      A good change process is like a relay race. Each runner answers **one question** and then hands
-      the baton on:
+      A good change process is like a relay race with **five legs**. Each runner makes **one
+      decision**, then hands the baton on:
 
-      1. **What's wrong?** Someone reports a problem.
-      2. **Should we change it?** The right people decide if it's worth it.
-      3. **How and when do we do it?** Someone plans the work.
-      4. **Who does which piece?** People do the work and the new versions get released.
+      1. **Is this a real problem?** Someone reports it and a change admin checks it.
+      2. **Should we change it, and how exactly?** Experts investigate and propose a solution.
+      3. **Who does what, by when?** Someone writes the plan.
+      4. **Is the work done right?** People do the work and a reviewer checks each piece.
+      5. **Is it ready to release?** An auditor checks everything, then the new versions go live.
 
-      In Windchill each runner is a **change object**. Learn which question each one answers and the
-      whole process clicks.
+      Windchill's out-of-the-box change process names these legs **Identify Need**, **Investigate
+      Need**, **Change Planning**, **Change Implementation** and **Review and Audit Change**. Learn
+      what each one decides and the whole process clicks.
 
   - type: callout
     variant: terms
     md: |
       **Plain words → official term**
-      - "Something's wrong" → *[[problem-report|Problem Report]]* (PR)
-      - "Should we change it?" → *[[change-request|Change Request]]* (CR, often called ECR)
-      - "The people who say yes or no" → *[[change-review-board|Change Review Board]]* (CRB, also CCB)
-      - "Approved - here's the plan" → *[[change-notice|Change Notice]]* (CN, often called ECN)
-      - "Your piece of the work" → *[[change-task|Change Task]]*
+      - "Is this a real problem?" → *Identify Need*, captured in a *[[problem-report|Problem Report]]* (PR)
+      - "Should we change it?" → *Investigate Need*, captured in a *[[change-request|Change Request]]* (CR, often called ECR)
+      - "The people who say yes or no to the request" → *[[change-review-board|Change Review Board]]* (CRB)
+      - "Who does what, by when?" → *Change Planning*, captured in a *[[change-notice|Change Notice]]* (CN) and its *[[implementation-plan]]*
+      - "Do the work" → *Change Implementation*, done in *[[change-task|Change Tasks]]*
+      - "Check it all before release" → *Review and Audit Change*
       - "What the change touches" → *[[affected-object|affected objects]]*; "what it produces" → *[[resulting-object|resulting objects]]*
 
   - type: animation
-    title: One change, start to finish
+    title: One change, five steps
     diagram:
       width: 820
       height: 360
       nodes:
-        - { id: pr, label: Problem Report, sublabel: "PR-0105 · what's wrong?", x: 20, y: 40, w: 180, tone: danger }
-        - { id: cr, label: Change Request, sublabel: "CR-0105 · should we?", x: 230, y: 40, w: 180, tone: warning }
-        - { id: ccb, label: Change board, sublabel: "Maya chairs the CCB", x: 230, y: 190, w: 180, tone: neutral, shape: pill }
-        - { id: cn, label: Change Notice, sublabel: "CN-0105 · how and when", x: 440, y: 40, w: 180, tone: primary }
-        - { id: t1, label: "Task: update CAD", sublabel: Priya, x: 440, y: 190, w: 170, tone: info }
-        - { id: t2, label: "Task: update drawing", sublabel: Priya, x: 440, y: 280, w: 170, tone: info }
-        - { id: rel, label: Released, sublabel: "SC-1048 rev C", x: 650, y: 190, w: 150, tone: success, shape: pill }
+        - { id: pr, label: "1 · Identify Need", sublabel: "PR-0105 · real problem?", x: 20, y: 40, w: 180, tone: danger }
+        - { id: cr, label: "2 · Investigate Need", sublabel: "CR-0105 · should we?", x: 230, y: 40, w: 180, tone: warning }
+        - { id: ccb, label: Change board, sublabel: "full track only", x: 230, y: 190, w: 180, tone: neutral, shape: pill }
+        - { id: cn, label: "3 · Change Planning", sublabel: "CN-0105 · who, by when?", x: 440, y: 40, w: 180, tone: primary }
+        - { id: t1, label: "4 · Implementation", sublabel: "Priya's tasks", x: 440, y: 190, w: 180, tone: info }
+        - { id: audit, label: "5 · Review and Audit", sublabel: Leo audits CN-0105, x: 640, y: 190, w: 160, tone: accent }
+        - { id: rel, label: Released, sublabel: "SC-1048 rev C", x: 640, y: 290, w: 160, tone: success, shape: pill }
       edges:
-        - { from: pr, to: cr, label: escalate }
+        - { from: pr, to: cr, label: accepted }
         - { from: cr, to: ccb, label: review }
-        - { from: ccb, to: cn, label: approved }
-        - { from: cn, to: t1 }
-        - { from: cn, to: t2 }
-        - { from: t1, to: rel }
-        - { from: t2, to: rel }
+        - { from: cr, to: cn, label: approved }
+        - { from: ccb, to: cn, dashed: true }
+        - { from: cn, to: t1, label: tasks }
+        - { from: t1, to: audit }
+        - { from: audit, to: rel, label: approve }
     chapters:
-      - title: "1 · What's wrong?"
-        caption: Sam in field service hears that S2 fold-locks rattle. He raises **PR-0105** and lists the SC-1048 bracket as an **affected object**, with photos. A PR describes the problem. It doesn't fix anything.
+      - title: "1 · Identify Need"
+        caption: Sam in field service hears that S2 fold-locks rattle. He raises **PR-0105** with photos and lists SC-1048 as an affected object. Maya, a change admin, checks it and decides it's **valid**. A PR describes the problem. It doesn't fix anything.
         show: [pr]
         highlight: [pr]
         flow: []
-      - title: "2 · Should we change it?"
-        caption: Kai's team analyses the PR and agrees a change is needed. They create **CR-0105** with the proposed fix (thicker bracket), the cost, the stock impact and the urgency.
+        seconds: 7
+      - title: "2 · Investigate Need"
+        caption: Kai's team works out scope, impact, cost and a precise fix (a thicker bracket) in **CR-0105**. By the end of this step, the **solution is confirmed**.
         show: [pr, cr]
         highlight: [cr]
         flow: [pr>cr]
-      - title: "3 · The board decides"
-        caption: The **change board** chaired by Maya reviews the CR - engineering, manufacturing, quality and service at one table. They can approve, reject or send it back for more info.
+      - title: The board (full track)
+        caption: For a big, costly change the CR goes to the **change review board** - engineering, manufacturing and quality at one table. Small changes can take the fast track without it.
         show: [pr, cr, ccb]
         highlight: [ccb]
         flow: [cr>ccb]
         seconds: 7
-      - title: "4 · Plan the work"
-        caption: Approved. A **Change Notice**, CN-0105, is created to implement the CR. The CN is the plan - which objects change, who does what, by when.
+      - title: "3 · Change Planning"
+        caption: Approved. **CN-0105** is the plan - the work authorization that lists which objects change, who does each task and by when.
         show: [pr, cr, ccb, cn]
         highlight: [cn]
-        flow: [ccb>cn]
-      - title: "5 · Do the work"
-        caption: The CN holds **change tasks**. Priya gets one to update the CAD and one to update the drawing. Each task lists what it starts from and the new versions it produces - the **resulting objects**.
-        show: [pr, cr, ccb, cn, t1, t2]
-        highlight: [t1, t2]
-        flow: [cn>t1, cn>t2]
+        flow: [cr>cn, ccb>cn]
+      - title: "4 · Change Implementation"
+        caption: Once the plan is approved, the change tasks land in people's task lists. Priya edits the CAD and drawing; a reviewer checks her work. The new versions stay **In Work** for now.
+        show: [pr, cr, ccb, cn, t1]
+        highlight: [t1]
+        flow: [cn>t1]
         seconds: 7
-      - title: "6 · Release"
-        caption: When all tasks are done and approved, the resulting objects are released - SC-1048 revision **C**. Every step is linked, so anyone can trace rev C back to Sam's report.
-        highlight: [rel]
-        flow: [t1>rel, t2>rel]
+      - title: "5 · Review and Audit Change"
+        caption: When every task is done, Leo **audits** the whole change notice. He approves, so SC-1048 rev **C** is **Released** and PR-0105 and CR-0105 count as resolved.
+        highlight: [audit, rel]
+        flow: [t1>audit, audit>rel]
+        seconds: 7
 
   - type: diagram
-    title: What each object decides
-    caption: Click each object to see the question it answers, who usually owns it and what it links to.
+    title: What each step decides
+    caption: Click each step to see the decision it makes, the object that carries it and who usually owns it.
     diagram:
       width: 800
-      height: 330
+      height: 360
       groups:
-        - { label: Decide, x: 10, y: 10, w: 400, h: 150, tone: warning }
-        - { label: Implement, x: 420, y: 10, w: 370, h: 310, tone: primary }
+        - { label: Decide whether, x: 10, y: 10, w: 400, h: 160, tone: warning }
+        - { label: Decide how and release, x: 10, y: 190, w: 780, h: 160, tone: primary }
       nodes:
-        - id: pr
-          label: Problem Report
-          sublabel: "What's wrong?"
+        - id: identify
+          label: Identify Need
+          sublabel: Problem Report
           x: 30
-          y: 60
+          y: 70
           w: 170
           tone: danger
           detail: |
-            **Decides:** nothing yet - it **captures** the problem. Who saw it, where, how often, with
-            evidence and the affected objects. Anyone with access can usually raise one: engineers,
-            service, quality, manufacturing.
-          real: At Acme, Sam raises most PRs from field data.
-        - id: cr
-          label: Change Request
-          sublabel: "Should we change it?"
+            **Decides:** is the reported problem or idea **valid**? Any user can create a problem
+            report. In the out-of-the-box process a **Change Admin I** analyses it and can confirm it,
+            reject it, or send it back to the author for clarification. Problem reports are
+            **optional** - issues can also start straight in a change request or change notice.
+          real: At Acme, Sam raises most PRs from field data and Maya screens them.
+        - id: investigate
+          label: Investigate Need
+          sublabel: Change Request
           x: 220
-          y: 60
+          y: 70
           w: 170
           tone: warning
           detail: |
-            **Decides:** *whether* to change, based on a business case - the proposed solution, cost,
-            impact on stock and suppliers, urgency. The change board approves or rejects it. One CR can
-            collect several related PRs.
-          real: At Acme, Maya's CCB meets weekly to review CRs.
-        - id: cn
-          label: Change Notice
-          sublabel: "How and when?"
-          x: 440
-          y: 60
+            **Decides:** *whether* to change and *what exactly* the solution is. The change request
+            captures scope, feasibility, downstream impact, proposed solutions, cost and business
+            justification. The solution should be confirmed by the end of this step, because the next
+            steps implement it. The routing (fast or full track) is decided here too.
+          real: At Acme, Maya's board reviews the full-track CRs.
+        - id: plan
+          label: Change Planning
+          sublabel: Change Notice
+          x: 30
+          y: 250
           w: 170
           tone: primary
           detail: |
-            **Decides:** *how* the approved change gets done - the implementation plan. It holds the
-            change tasks, their owners and due dates. An approved CR can lead to one or more CNs.
+            **Decides:** *how and when* the approved change gets done. The change notice is a
+            **work authorization** holding the implementation plan - the change tasks, their owners and
+            need dates. It can reference one or more change requests, or exist without one if your
+            administrator allows it. A **Change Admin II** owns the plan.
           real: At Acme, Kai's team owns the CNs for engineering changes.
-        - id: task
-          label: Change Task
-          sublabel: "Who does what?"
-          x: 440
-          y: 190
+        - id: implement
+          label: Change Implementation
+          sublabel: Change Tasks
+          x: 220
+          y: 250
           w: 170
           tone: info
           detail: |
-            **Decides:** nothing - it **does**. One task per piece of work, assigned to a person or role.
-            It lists the affected objects it starts from and the **resulting objects** it produces.
+            **Decides:** is each piece of work **acceptable**? When the plan is approved, the tasks are
+            delivered to their assignees automatically. The assignee edits the data; the task's reviewer
+            approves it or sends it back. The changed data stays **In Work** during this step.
           real: Priya gets her change tasks in her task list in Windchill.
+        - id: audit
+          label: Review and Audit
+          sublabel: Change Notice audit
+          x: 410
+          y: 250
+          w: 170
+          tone: accent
+          detail: |
+            **Decides:** is the whole change **clear, concise and valid** - ready to release? A
+            **Change Admin III** audits the change notice once all its tasks are complete, then
+            approves or rejects it. Approval releases the objects and resolves the related problem
+            reports and change requests.
+          real: At Acme, Leo from quality does the audit.
         - id: result
-          label: Resulting objects
+          label: Released
           sublabel: new revisions
-          x: 640
-          y: 190
-          w: 140
+          x: 610
+          y: 250
+          w: 160
           tone: success
           shape: doc
-          detail: The new versions the tasks create, such as SC-1048 rev C and SC-1048.drw rev C. They're typically released when the CN completes.
+          detail: The resulting objects, such as SC-1048 rev C and its drawing, move to Released. With the objects released, the change process is complete.
       edges:
-        - { from: pr, to: cr }
-        - { from: cr, to: cn, label: approved }
-        - { from: cn, to: task, label: contains }
-        - { from: task, to: result, label: produces }
+        - { from: identify, to: investigate }
+        - { from: investigate, to: plan, label: approved }
+        - { from: plan, to: implement, label: plan approved }
+        - { from: implement, to: audit, label: all tasks done }
+        - { from: audit, to: result, label: approve }
 
   - type: callout
     variant: why-it-matters
     md: |
       Splitting **"should we?"** from **"how do we?"** is the whole trick. Engineers love jumping
       straight to the fix. The CR forces a pause where manufacturing, quality and service say what the
-      change really costs *before* anyone touches released data. And because every object is linked,
-      auditors and customers can follow any revision back to the reason it exists.
+      change really costs *before* anyone touches released data. The audit at the end is the second
+      safety net: nothing gets released until someone has checked the complete package. And because
+      every object is linked, auditors and customers can follow any revision back to the reason it exists.
 
   - type: simulation
-    title: Drive a change through the process
+    title: Drive a change through the five steps
     intro: |
-      Move the bracket problem from report to release. Try rejecting the CR, too - in real life the
-      board often sends a request back for more information. This sandbox shows the **concept**; your
-      company's states and steps may differ.
-    headline: "SC-1048 · rev {bracket} · {stage} · tasks done {tasks}/2"
-    initial: { stage: PR open, tasks: 0, bracket: B }
+      Move the bracket problem from report to release. Try sending the CR back and asking for rework
+      on a task, too. This sandbox shows the **concept**; your company's states, routing options and
+      roles may differ.
+    headline: "SC-1048 · rev {bracket} · step: {stage} · tasks done {tasks}/2"
+    initial: { stage: Identify Need, tasks: 0, bracket: B }
     actions:
-      - id: analyze
-        label: Analyse the PR
-        when: { stage: PR open }
-        do: [{ set: { stage: PR analysed } }]
-        log: Kai's team confirms the problem and finds the cause - the bracket is too thin.
-        blockedHint: There's no open Problem Report to analyse.
-      - id: createcr
-        label: Create Change Request
-        when: { stage: PR analysed }
-        do: [{ set: { stage: CR under review } }]
-        log: CR-0105 created with the fix and its cost. It goes to Maya's change board.
-        blockedHint: Analyse the problem first - a CR needs a proposed fix.
-      - id: reject
-        label: "Board: send back"
-        when: { stage: CR under review }
+      - id: confirm-pr
+        label: "Change admin: confirm the PR"
+        when: { stage: Identify Need }
+        do: [{ set: { stage: Investigate Need } }]
+        log: Maya confirms PR-0105 is valid. Kai's team starts CR-0105 to investigate.
+        blockedHint: There's no problem report waiting for a decision.
+      - id: send-back
+        label: "Board: send CR back"
+        when: { stage: Investigate Need }
         do: [{ set: { stage: CR needs more info } }]
         log: The board wants supplier cost and stock numbers before deciding.
-        blockedHint: Nothing is in front of the board.
-      - id: rework
+        blockedHint: Nothing is waiting for the board.
+      - id: rework-cr
         label: Add info and resubmit CR
         when: { stage: CR needs more info }
-        do: [{ set: { stage: CR under review } }]
-        log: Cost and stock numbers added. The CR is back with the board.
+        do: [{ set: { stage: Investigate Need } }]
+        log: Cost and stock numbers added. The CR is back for a decision.
         blockedHint: The CR hasn't been sent back.
-      - id: approve
-        label: "Board: approve"
-        when: { stage: CR under review }
-        do: [{ set: { stage: CR approved } }]
-        log: Approved. Now someone needs to plan the implementation.
-        blockedHint: Nothing is in front of the board.
-      - id: createcn
-        label: Create Change Notice
-        when: { stage: CR approved }
-        do: [{ set: { stage: CN in work, tasks: 0 } }]
-        log: CN-0105 created with two change tasks - update CAD and update drawing.
-        blockedHint: A CN implements an approved CR. Get the CR approved first.
-      - id: dotask
-        label: Complete a change task
-        when: { stage: CN in work, tasks: [0, 1] }
+      - id: approve-cr
+        label: "Approve CR with a confirmed fix"
+        when: { stage: Investigate Need }
+        do: [{ set: { stage: Change Planning } }]
+        log: Approved - the fix is a thicker bracket. Now someone has to plan the work.
+        blockedHint: The need has to be confirmed and investigated first.
+      - id: approve-plan
+        label: Create CN and approve the plan
+        when: { stage: Change Planning }
+        do: [{ set: { stage: Change Implementation, tasks: 0 } }]
+        log: CN-0105 holds two tasks - update CAD and update drawing. They land in Priya's task list.
+        blockedHint: A CN implements an approved change. Get the CR approved first.
+      - id: do-task
+        label: Complete and review a task
+        when: { stage: Change Implementation, tasks: [0, 1] }
         do: [{ inc: tasks }]
-        log: Task done. {tasks} of 2 complete.
+        log: Task done and accepted by its reviewer. {tasks} of 2 complete. The data is still In Work.
         blockedHint: There are no open change tasks.
-      - id: release
-        label: Release the change
-        when: { stage: CN in work, tasks: 2 }
+      - id: rework-task
+        label: "Reviewer: ask for rework"
+        when: { stage: Change Implementation }
+        do: [{ set: { tasks: 0 } }]
+        log: The reviewer spots a missing tolerance. The work goes back for fixes and the count restarts in this sandbox.
+        blockedHint: Rework only happens while tasks are being implemented.
+      - id: audit
+        label: Audit the change notice
+        when: { stage: Change Implementation, tasks: 2 }
         do: [{ nextLetter: bracket }, { set: { stage: Released } }]
-        log: CN complete. SC-1048 rev {bracket} is Released and traceable back to PR-0105.
-        blockedHint: All change tasks must be complete first.
+        log: Leo audits CN-0105 and approves. SC-1048 rev {bracket} is Released and PR-0105 and CR-0105 are resolved.
+        blockedHint: The audit comes after every change task is complete.
     goals:
-      - label: Get the CR approved
-        when: { stage: CR approved }
-        message: The board said yes. That's a decision, not the work.
-      - label: Finish both change tasks
-        when: { tasks: 2 }
-        message: Tasks are where the real edits happen.
+      - label: Confirm the need
+        when: { stage: Investigate Need }
+        message: Step 1 decided the problem is real. Nothing has been fixed yet.
+      - label: Approve the plan
+        when: { stage: Change Implementation }
+        message: Steps 2 and 3 decided what to do and who does it.
       - label: Release revision C
         when: { stage: Released, bracket: C }
-        message: Report → decide → plan → do → release. That's the whole process.
+        message: Identify → Investigate → Plan → Implement → Review and Audit. That's the whole process.
 
   - type: walkthrough
-    title: Raise a Problem Report and find your change tasks
-    who: Any user allowed to create problem reports (depends on your company's permissions)
+    title: Start step 1 - raise a Problem Report - and find your change tasks
+    who: Any user (the course manual's out-of-the-box setup lets all users create problem reports)
     steps:
       - title: Open the thing that's wrong
         where: [Search, "<part> information page"]
         md: Search for the part by number (for example SC-1048) and open its information page.
       - title: Start a new Problem Report
-        where: ["<part> information page", Actions menu, New Problem Report]
+        where: ["<part> information page", Actions, New, New Problem Report]
         md: |
-          From the **Actions** menu choose the action to create a new **Problem Report**. Starting from
-          the part usually adds it as an affected object for you. You can also start from your product's
-          change area; names and locations depend on your configuration.
+          Click **Actions**, point to **New**, then choose **New Problem Report**. Because you started
+          from the part, it is already selected as the affected object.
       - title: Describe it like a detective
-        where: [New Problem Report, attributes and attachments]
-        md: Give it a clear name, describe what happened, where and how often, set the priority and attach evidence such as photos or measurements.
+        where: [New Problem Report, attributes]
+        md: Give it a clear name, describe what happened, set the category, priority and need date. Add attachments such as photos or measurements on the attachments step.
+      - title: Submit it
+        where: [New Problem Report, Finish, Submit Now]
+        md: Click **Finish**, then **Submit Now**. The report goes to the users in the Change Admin I role for analysis, and it appears on the part's **Changes** tab.
       - title: Pick up your change tasks later
-        where: [Home, Tasks / My Tasks]
-        md: When a CN assigns you a change task, it appears in your **task list** on Home. Open it to see the affected objects and record your resulting objects.
-    result: Your report is in the system with evidence attached, and you know where your change work will show up.
+        where: [Home, My Tasks]
+        md: When a CN assigns you a change task in step 4, it appears in the **My Tasks** table on Home. Open it to see the affected and resulting objects.
+    result: Step 1 has started, your report is linked to the part, and you know where your step 4 work will show up.
 
   - type: callout
     variant: note
     md: |
-      Not every PR becomes a CR - some are duplicates or not worth fixing. Several PRs can feed one CR,
-      and one approved CR can lead to more than one CN. The exact workflow, who approves and which
-      states each object passes through all **depend on your company's configuration**.
+      The five steps are the **out-of-the-box** process in the Windchill 13.x course manual. Not
+      every PR becomes a CR, several PRs can feed one CR, and a CN can sometimes be created without a
+      CR at all (a later lesson shows how). Companies often add their own activities, roles and
+      routes, so who approves what and which states each object passes through **depend on your
+      configuration**. After step 5 there is still the physical rollout in production, which follows
+      manufacturing schedules.
 
   - type: callout
     variant: pitfall
     md: |
       **Writing the solution into the Problem Report.** "Make the bracket 4 mm" isn't a problem, it's a
-      guess at a fix. Describe the symptom and evidence in the PR. Let the CR propose and justify the
-      solution, so the board can compare options.
+      guess at a fix. Describe the symptom and evidence in the PR (step 1). Let the CR propose and
+      confirm the solution (step 2), so the board can compare options.
 
   - type: callout
     variant: pro-tip
     md: |
-      Remember the four questions: **What? Should we? How? Who?** If you're ever unsure which object to
-      open, ask which question you're answering right now.
+      Memorise the five decisions: **Valid? Should we? Who and when? Done right? Ready to release?**
+      If you're ever unsure which object to open, ask which of those questions you're answering right now.
 
   - type: flashcards
     cards:
-      - front: "Problem Report (PR)"
-        back: "What's wrong? Captures the issue, evidence and affected objects. Decides nothing yet."
-      - front: "Change Request (CR / ECR)"
-        back: "Should we change it? The business case that the change board approves or rejects."
-      - front: "Change board (CRB / CCB)"
-        back: "The cross-functional group that decides on change requests."
-      - front: "Change Notice (CN / ECN)"
-        back: "How and when? The implementation plan for an approved change."
-      - front: "Change Task"
-        back: "Who does what? One piece of the work - turns affected objects into resulting objects."
+      - front: "Step 1 · Identify Need"
+        back: "Is the problem real? Captured in a Problem Report (optional). Change Admin I confirms, rejects or sends it back."
+      - front: "Step 2 · Investigate Need"
+        back: "Should we change it, and how exactly? Captured in a Change Request. The solution is confirmed by the end of this step."
+      - front: "Step 3 · Change Planning"
+        back: "Who does what, by when? Captured in a Change Notice and its implementation plan, owned by Change Admin II."
+      - front: "Step 4 · Change Implementation"
+        back: "Is each piece of work right? Assignees edit data in change tasks; reviewers accept it or send it back. Data stays In Work."
+      - front: "Step 5 · Review and Audit Change"
+        back: "Ready to release? Change Admin III audits the CN. Approval releases the objects and resolves the PRs and CRs."
+      - front: "Change board (CRB)"
+        back: "The cross-functional group that approves, denies or asks for more investigation on a change request - in the full track."
       - front: "Affected vs resulting objects"
-        back: "Affected = what the change touches today. Resulting = the new versions it produces."
-      - front: "Order of the change objects"
-        back: "Problem Report → Change Request → Change Notice → Change Tasks."
-      - front: "Where do change tasks show up?"
-        back: "In your task list on Home (Tasks / My Tasks)."
+        back: "Affected = what the change touches today. Resulting = the new versions it produces and releases."
+      - front: "Order of the five steps"
+        back: "Identify Need → Investigate Need → Change Planning → Change Implementation → Review and Audit Change."
 
   - type: summary
     points:
-      - "Four questions, four objects - What's wrong (PR), Should we (CR), How (CN), Who (change tasks)."
-      - The change board decides on the CR before anyone touches released data.
-      - The CN is the plan; change tasks do the work and produce the resulting objects.
-      - Every object is linked, so any new revision traces back to the original problem.
-      - Workflows, approvers and states depend on your company's configuration.
+      - "Five out-of-the-box steps: Identify Need, Investigate Need, Change Planning, Change Implementation, Review and Audit Change."
+      - Identify decides if the need is valid; Investigate decides whether to change and confirms the solution.
+      - Planning decides who does what by when; Implementation does and reviews the work while data stays In Work.
+      - Review and Audit decides if the change is ready - approval releases the objects and resolves the PR and CR.
+      - Activities, roles and routes are configurable, so your company's version may differ.
