@@ -1,0 +1,396 @@
+id: m07-s11-l01
+subtitle: Theo's first server code needs a home that Windchill starts every morning. That home is a service, and one property line decides whether it ever wakes up.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [customization, developer, architect, services, xconf, server-side]
+sources:
+  - id: trn-advdev
+    where: "Section 11: Overview of the Windchill service framework and registering with an xconf file; Section 12: Customization event listener and register a listener (service interface, StandardManager subclass, static factory with initialize(), performStartupProcess, getManagerService().addEventListener, xconfmanager -s wt.services.service entry with -t codebase/wt.properties -p, restart; @RemoteInterface note; myservice.xconf with ConfigurationRef to myservice-wt.properties.xconf); stand-alone RMI utility (output in the method server log)"
+  - id: cust
+    where: "Module 1: Types of Windchill customization (server customization); Module 3: Configure Eclipse for debugging (Property element with name, overridable, targetFile and value in an xconf file)"
+  - id: cus-overview
+    where: "Day 1 overview: Some key commands (xconfmanager -i for a custom services xconf, xconfmanager -p, tools.xml class)"
+  - id: hc-svc-mgmt
+    label: PTC Help Center supplement
+    title: "Service Management"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/customization/WCCG_Serv_DevelopServerLogic_ServMgmt.html"
+    covers: "Services declared as wt.services.service entries in wt.properties pairing interface and implementation; start order lowest number first; dependencies need lower numbers; no reserved number ranges, custom numbers well above Windchill's highest, recheck after upgrades, no duplicates; wt.services.Manager and StandardManager; performStartupProcess and performShutdownProcess; ManagerService starts the listed managers and dispatches events"
+  - id: hc-wplus-disallowed
+    label: PTC Help Center supplement
+    title: "Disallowed Customization (Windchill+ 13.1.2.0)"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/customization/DisallowedCust_Select.html"
+    covers: "On Windchill+, implementing or extending wt.services.ServiceEventListenerAdapter is disallowed"
+versionNotes:
+  - versions: ["All releases"]
+    md: |
+      PTC may renumber its own services in any release. Re-read the `wt.services.service` entries in your
+      installed `wt.properties` after every upgrade and confirm your custom number is still well above PTC's
+      highest and not a duplicate.
+  - versions: ["Windchill+"]
+    md: |
+      On [[windchill-plus|Windchill+]] you don't run xconfmanager on the server yourself: customizations and
+      property changes travel in a [[windchill-plus-ccd|CCD]] package built on a test system. Whether a given
+      server customization is accepted on Windchill+ is not covered by the course sources; note that PTC's
+      Windchill+ disallowed-customization list includes extending `ServiceEventListenerAdapter`, the listener
+      base class used in lesson 3. Check with PTC before you design around a custom service there.
+
+blocks:
+  - type: text
+    md: |
+      In m07-s09 Theo picked the right socket for Leo's rule: an [[event-listener]], hosted by a custom
+      **service**. Now he has to build that host.
+
+      Here's the catch. A listener is just an object. Somebody has to create it and hand it to Windchill
+      every time the [[method-server]] starts - at 6 a.m. after a patch, after a crash, after Rosa's Sunday
+      restart. Windchill won't run a random Java class for you. It runs the services that are **listed** in
+      its properties, in a fixed order, through a fixed set of startup hooks.
+
+      So this lesson is about two things: the shape of a service class, and the one property line that gets
+      it started.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "server code that Windchill starts and keeps alive" → [[windchill-service-class|service]] (also called a **manager**)
+      - "PTC's base class that does the boring parts" → `wt.services.StandardManager`
+      - "the hook that runs once when the service starts" → `performStartupProcess`
+      - "the service that starts all the others and delivers events" → **ManagerService**
+      - "the property line that lists a service" → [[service-registration-property|wt.services.service entry]]
+      - "a file that carries property changes, installed by xconfmanager" → **xconf file** (see [[site-xconf]])
+
+  - type: animation
+    title: What happens to a service when Windchill starts
+    diagram:
+      width: 840
+      height: 400
+      groups:
+        - { label: Method server, x: 200, y: 20, w: 620, h: 360, tone: accent }
+      nodes:
+        - id: props
+          label: wt.properties
+          sublabel: service entries
+          x: 20
+          y: 60
+          w: 160
+          shape: doc
+          tone: info
+          detail: |
+            In `codebase/wt.properties`, each service is a `wt.services.service.<number>` entry whose value
+            pairs the **service interface** with the **implementation class** to build, separated by a slash.
+        - id: mgr
+          label: ManagerService
+          sublabel: starts the list
+          x: 230
+          y: 60
+          w: 170
+          tone: primary
+          detail: |
+            The manager service starts the managers named in the properties and gives access to them. It also
+            runs Windchill's synchronous event dispatch - the part your listeners plug into.
+        - id: order
+          label: Number order
+          sublabel: lowest first
+          x: 230
+          y: 220
+          w: 170
+          tone: warning
+          detail: |
+            Services start from the lowest number to the highest. If your service depends on another one, that
+            one must have a lower number.
+        - id: factory
+          label: Static factory
+          sublabel: "newStandard...()"
+          x: 440
+          y: 60
+          w: 170
+          tone: accent
+          detail: |
+            The training's services all provide a public static factory, named after the class, that creates
+            the instance, calls `initialize()` and returns it.
+        - id: startup
+          label: performStartupProcess
+          sublabel: your startup work
+          x: 440
+          y: 220
+          w: 170
+          tone: success
+          detail: |
+            The hook `StandardManager` lets you override for startup work - most often subscribing listeners
+            through `getManagerService().addEventListener(...)`. Its partner for shutdown work is
+            `performShutdownProcess`.
+        - id: running
+          label: Service running
+          sublabel: listeners subscribed
+          x: 645
+          y: 140
+          w: 160
+          tone: success
+          detail: The service now lives as long as the method server. Any listener it subscribed will be called when its event fires.
+      edges:
+        - { from: props, to: mgr, label: reads }
+        - { from: mgr, to: order }
+        - { from: order, to: factory, label: builds }
+        - { from: factory, to: startup }
+        - { from: startup, to: running }
+    chapters:
+      - title: The list
+        caption: Every service Windchill will start is a numbered `wt.services.service` entry in `wt.properties`.
+        show: [props]
+        highlight: [props]
+        seconds: 5
+      - title: The starter
+        caption: When the method server starts, **ManagerService** reads the list.
+        show: [props, mgr]
+        highlight: [mgr]
+        flow: ["props>mgr"]
+        seconds: 5
+      - title: One at a time, by number
+        caption: Lowest number first. Dependencies need lower numbers than the services that use them.
+        show: [props, mgr, order]
+        highlight: [order]
+        flow: ["mgr>order"]
+        seconds: 6
+      - title: Build the instance
+        caption: The static factory creates the object and calls `initialize()`.
+        show: [props, mgr, order, factory]
+        highlight: [factory]
+        flow: ["order>factory"]
+        seconds: 5
+      - title: Startup hook
+        caption: "`performStartupProcess` runs - Theo will subscribe Leo's listener here in lesson 3."
+        show: [props, mgr, order, factory, startup]
+        highlight: [startup]
+        flow: ["factory>startup"]
+        seconds: 6
+      - title: Alive until shutdown
+        caption: The service and its listeners stay alive as long as the method server runs.
+        highlight: [running]
+        flow: ["startup>running"]
+        seconds: 5
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      A listener nobody subscribes is dead code that *looks* finished. Real projects lose days to this: the
+      class compiles, the tests on the developer's laptop pass, and on the test server nothing happens because
+      the property entry never made it into the build. Treat the registration as part of the code - versioned,
+      reviewed and deployed with it.
+
+  - type: text
+    md: |
+      ### The two Java files
+
+      The training's recipe for a service that isn't modeled in a modeling tool has four steps: a **service
+      interface**, a **standard service class** that implements it and extends `StandardManager`, **compile**
+      both into the codebase, and **register** the service with xconfmanager. Theo writes his in Acme's own
+      package, never in PTC's `wt` or `com.ptc` packages.
+
+      ```java
+      package com.acme.windchill.services;
+
+      // The interface names the service. It can stay empty.
+      // The training marks interfaces that remote clients may call with @RemoteInterface
+      // and says to leave that annotation out for a server-only service like this one.
+      public interface AcmeRulesService {
+      }
+      ```
+
+      ```java
+      package com.acme.windchill.services;
+
+      import wt.services.ManagerException;
+      import wt.services.StandardManager;
+      import wt.util.WTException;
+
+      public class StandardAcmeRulesService extends StandardManager implements AcmeRulesService {
+
+          private static final String CLASSNAME = StandardAcmeRulesService.class.getName();
+
+          @Override
+          public String getConceptualClassname() {
+              return CLASSNAME;
+          }
+
+          // Factory: build the instance and initialize it
+          public static StandardAcmeRulesService newStandardAcmeRulesService() throws WTException {
+              StandardAcmeRulesService service = new StandardAcmeRulesService();
+              service.initialize();
+              return service;
+          }
+
+          // Runs once when the method server starts this service
+          @Override
+          protected synchronized void performStartupProcess() throws ManagerException {
+              System.out.println(CLASSNAME + ": starting");
+              // Lesson 3: getManagerService().addEventListener(listener, eventKey);
+          }
+      }
+      ```
+
+      `System.out.println` from server code ends up in the method server log, which is exactly where Theo
+      will look for his "starting" line.
+
+  - type: walkthrough
+    title: Register the service through xconf
+    who: Theo (developer) with Rosa (system admin) for the restart
+    where: ["<WT_HOME>", codebase, com/acme/windchill/services]
+    steps:
+      - title: Pick a service number
+        where: ["<WT_HOME>", codebase, wt.properties]
+        md: |
+          Read the existing `wt.services.service.<number>` entries and note the highest one. No ranges are
+          reserved, so pick a number **well above** it and check it isn't used. Write it down in the code's
+          README - it must be rechecked after every upgrade.
+      - title: Write the property xconf
+        where: [codebase, com/acme/windchill/services, acme-services-wt.properties.xconf]
+        md: |
+          One `Property` element: the name is the service entry, the target is `codebase/wt.properties`, the
+          value is *interface/implementation*.
+
+          ```xml
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE Configuration SYSTEM "xconf.dtd">
+          <Configuration xmlns:xlink="http://www.w3.org/1999/xlink">
+            <!-- Acme rules service. NNNNNN = the number chosen in step 1 -->
+            <Property name="wt.services.service.NNNNNN" overridable="true"
+                      targetFile="codebase/wt.properties"
+                      value="com.acme.windchill.services.AcmeRulesService/com.acme.windchill.services.StandardAcmeRulesService"/>
+          </Configuration>
+          ```
+      - title: Write the wrapper xconf
+        where: [codebase, com/acme/windchill/services, acme-services.xconf]
+        md: |
+          The training uses a pair of files: a main xconf that only points at the property file with a
+          `ConfigurationRef`.
+
+          ```xml
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE Configuration SYSTEM "xconf.dtd">
+          <Configuration xmlns:xlink="http://www.w3.org/1999/xlink">
+            <!-- Do not edit after install: use xconfmanager to change properties -->
+            <ConfigurationRef xlink:href="acme-services-wt.properties.xconf"/>
+          </Configuration>
+          ```
+      - title: Compile into the codebase
+        where: [Windchill shell, ant -f bin/tools.xml class]
+        md: Compile the interface and the class so the class files land under the codebase (`-Dclass.includes` and `-Dclass.source` name the files and folder).
+      - title: Install and propagate
+        where: [Windchill shell, xconfmanager]
+        md: |
+          `xconfmanager -i <WT_HOME>/codebase/com/acme/windchill/services/acme-services.xconf` adds the file,
+          then `xconfmanager -p` writes the entry into `wt.properties`. Check it with
+          `xconfmanager -d wt.services.service.NNNNNN`.
+      - title: Restart and check the log
+        where: [Windchill shell, windchill stop / windchill start]
+        md: "Restart the method server. Search its log for the line `StandardAcmeRulesService: starting`. No line means the service never started - see the troubleshooting case below."
+    result: Windchill builds Theo's service on every start, and the registration lives in two versioned files instead of a one-off command.
+
+  - type: comparison
+    title: Two ways to write the same entry
+    columns: ["xconfmanager -s (one command)", "xconf file + xconfmanager -i"]
+    rows:
+      - label: What you type
+        cells: ["xconfmanager -s \"wt.services.service.NNNNNN=<interface>/<class>\" -t codebase/wt.properties -p", "Two small XML files, then xconfmanager -i and -p"]
+      - label: Where it's recorded
+        cells: ["In site.xconf, by xconfmanager", "In your own xconf file, linked into the configuration"]
+      - label: Good for
+        cells: ["A quick try on a development system", "Builds that move through test, QA and production"]
+      - label: Source control
+        cells: ["Only if someone copies the command into a script", "The files are the record - commit them with the Java"]
+    takeaway: Use the one-liner to experiment. Ship the xconf files.
+
+  - type: example
+    variant: real-world
+    title: One service, many rules
+    industry: Micromobility
+    md: |
+      Theo resists making one service per rule. `StandardAcmeRulesService` will host **all** of Acme's
+      server rules: Leo's test-report release check now, the E-Bike checks later. One interface, one property
+      entry, one place to look when something misbehaves - and one service number to recheck at upgrades.
+    takeaway: Fewer services means fewer numbers, fewer registrations and one obvious startup log line.
+
+  - type: scenario
+    variant: troubleshooting
+    title: The service that never says hello
+    start: s1
+    nodes:
+      - id: s1
+        md: After the restart there's no `starting` line in the method server log. What does Theo check first?
+        choices:
+          - label: Whether the wt.services.service entry is really in wt.properties
+            next: s2
+            good: true
+            feedback: "`xconfmanager -d` on the property name answers that in seconds. An xconf file that was installed but never propagated with -p leaves wt.properties unchanged."
+          - label: Rewrite performStartupProcess
+            next: fail1
+            feedback: If the service isn't registered, Windchill never calls your code at all - rewriting it changes nothing.
+      - id: s2
+        md: The entry is there. The log now shows an error that the class can't be found.
+        choices:
+          - label: Check that the compiled classes are in the codebase and the value spells both full class names exactly
+            next: win
+            good: true
+            feedback: The value is *interface/implementation* with full package names. One typo, or a class compiled into the wrong folder, and the factory can't be found.
+          - label: Give the service a lower number so it starts earlier
+            next: partial1
+            feedback: Order matters only when services depend on each other. It doesn't fix a missing class.
+      - id: win
+        md: "The value said `com.acme.windchill.service` instead of `services`. Fixed in the xconf file, reinstalled, propagated, restarted: `StandardAcmeRulesService: starting`."
+        outcome: success
+      - id: partial1
+        md: Same error, new number - and now the number sits closer to PTC's range. Fix the class name instead and put the number back.
+        outcome: partial
+      - id: fail1
+        md: An hour of edits to code that never runs. Always prove registration first.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Copying the training's service number.** Examples use a number that looks safe today. PTC reserves no
+      ranges and may renumber its own services in any release, so a copied number can collide later. Choose
+      yours from **your** `wt.properties`, well above the highest entry, and recheck it at every upgrade.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      If startup code must read Windchill data, the training's example temporarily switches to the
+      administrator inside a fresh session context (`SessionContext.newContext()`,
+      `SessionHelper.manager.setAdministrator()`) and restores the previous context in a `finally` block with
+      `SessionContext.setContext(prev)`. Keep that switch as short as possible - and keep subscribing listeners
+      free of data access altogether.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: What does the value of a wt.services.service entry contain?
+        options: ["The service interface and the implementation class, separated by a slash", Only the implementation class, The path to the xconf file, The method server name]
+        answer: 0
+        explanation: The entry pairs the interface with the class Windchill should build, for example `...AcmeRulesService/...StandardAcmeRulesService`.
+      - kind: single
+        prompt: Two custom services depend on each other - B needs A to be running. How should they be numbered?
+        options: ["Order doesn't matter", "A gets a lower number than B", "B gets a lower number than A", "The same number"]
+        answer: 1
+        explanation: Services start from the lowest number to the highest, so a service's dependencies need lower numbers.
+      - kind: order
+        prompt: Put Theo's steps in order.
+        items: [Write the interface and the StandardManager subclass, Compile them into the codebase, Install the xconf file with xconfmanager -i, Propagate with xconfmanager -p, Restart the method server and check the log]
+        explanation: Code, compile, register, propagate, restart. The service starts only after a restart picks up the new entry.
+      - kind: multi
+        prompt: Which are true for StandardManager subclasses? (Choose all that apply.)
+        options: ["They must live in the wt package", "Shutdown work can go in performShutdownProcess", "Startup work such as subscribing listeners goes in performStartupProcess", "The training's services provide a static factory that calls initialize()"]
+        answers: [1, 2, 3]
+        explanation: Startup and shutdown hooks are the two methods meant to be overridden, and the factory builds and initializes the instance. Custom code belongs in your own package, not PTC's.
+      - kind: truefalse
+        prompt: PTC reserves a number range for customer services, so any number in it is safe forever.
+        answer: false
+        explanation: The Help Center says no ranges are reserved and Windchill may renumber its services. Pick a number well above PTC's highest and recheck after upgrades.
+
+  - type: summary
+    points:
+      - A service is a class Windchill starts with the method server - an interface plus a StandardManager subclass.
+      - The training's services expose a static factory that creates the instance and calls initialize().
+      - performStartupProcess is where listeners get subscribed; performShutdownProcess handles shutdown work.
+      - A wt.services.service entry in wt.properties lists the service as interface/implementation; services start lowest number first.
+      - Ship the registration as versioned xconf files installed with xconfmanager -i and -p, then restart and check the log.

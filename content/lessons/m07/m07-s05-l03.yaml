@@ -1,0 +1,253 @@
+id: m07-s05-l03
+subtitle: The plant manager doesn't want a table - she wants bars on a timeline. Here's how to read one, and how to round-trip with Microsoft Project without losing work.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [project-management, gantt, schedule, microsoft-project, critical-path]
+sources:
+  - id: pm
+    where: "Module 1: Viewing project plans; Gantt Explorer; Microsoft Project interaction (download, import, export, Replace and Sync); Activity: Explore a Windchill project plan. Module 2: Create an activity (schedule attributes, predecessors, constraints); Schedule attributes; Project milestones (status calculation). Module 3: Project status; Edit project plan objects; Track Work wizard; Plan activity schedule calculation; Calendar management; Baselining; Sub project plans"
+
+blocks:
+  - type: text
+    md: |
+      Ana runs the **Lakeside** plant meeting every Monday. She asks Kai one question: *"When is the pilot
+      run, and what could make it late?"*
+
+      The **Plan** table lists every activity with its numbers. That's great for building the plan, but it
+      doesn't show *time* or *dependencies* at a glance. For that, Kai opens the **Gantt Explorer** - and
+      for the big replanning session, he works in **Microsoft Project** and brings the result back.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the bars-on-a-timeline view" → [[gantt-explorer]] (Gantt chart)
+      - "this can't start until that is done" → **predecessor** (dependency types like FS and SS)
+      - "the chain of steps that decides the finish date" → **critical path**
+      - "a snapshot of the plan to compare against later" → **baseline** and **variance report**
+      - "hours of effort" vs "calendar time" → **work** vs **duration**; share of a person's day → **resource units**
+
+  - type: diagram
+    title: Reading the Gantt Explorer
+    caption: Same plan objects as the Plan page, plus a timeline. Click each part.
+    diagram:
+      width: 820
+      height: 380
+      groups:
+        - { label: Left panel - plan objects, x: 10, y: 10, w: 300, h: 360, tone: neutral }
+        - { label: Right panel - Gantt chart, x: 330, y: 10, w: 480, h: 360, tone: primary }
+      nodes:
+        - id: list
+          label: Plan object list
+          sublabel: same table views as Plan
+          x: 40
+          y: 60
+          w: 240
+          tone: neutral
+          detail: The same plan objects and attributes as the Plan view, because the Gantt Explorer uses the same table views. Expand summary activities to see their children.
+        - id: header
+          label: Zoom buttons
+          sublabel: in the header
+          x: 360
+          y: 50
+          w: 180
+          tone: info
+          detail: Zoom the timeline in and out from the Gantt Explorer header.
+        - id: scroll
+          label: Scroll to
+          sublabel: jump to a row
+          x: 600
+          y: 50
+          w: 180
+          tone: info
+          detail: Moves the selected plan object to the left edge of the chart - handy for jumping to "Pilot run complete".
+        - id: bars
+          label: Bars and links
+          sublabel: dates + predecessors
+          x: 360
+          y: 170
+          w: 420
+          tone: accent
+          detail: Estimated dates and durations as bars, with lines for precedence relationships. Milestones have 0 or 1 day duration.
+        - id: critical
+          label: Highlight critical path
+          sublabel: toggle
+          x: 360
+          y: 280
+          w: 200
+          tone: danger
+          detail: Turns highlighting of the critical path on or off. Status colours roll up along this path, so it's where delays matter.
+        - id: readonly
+          label: Read-only
+          sublabel: nothing is saved
+          x: 600
+          y: 280
+          w: 180
+          tone: warning
+          detail: Changes made in the Gantt Explorer are **not** kept. It's a presentation view - edit on the Plan page.
+      edges:
+        - { from: list, to: bars }
+        - { from: header, to: bars }
+        - { from: scroll, to: bars }
+        - { from: critical, to: bars }
+
+  - type: walkthrough
+    title: Open the plan in the Gantt Explorer
+    who: Any project member who can see the plan (Kai, Ana)
+    where: [Browse, E1 Lakeside Launch, Plan, Actions, View in Gantt Explorer]
+    steps:
+      - title: Open the plan
+        where: [Navigator, Browse, E1 Lakeside Launch, Plan]
+        md: Open the **Schedule** tab. The **Entry** view shows each element's duration, predecessors and estimated start and finish.
+      - title: Launch the Gantt Explorer
+        where: [Plan, Actions, View in Gantt Explorer]
+        md: A separate window opens with the plan objects on the left and the chart on the right. Maximize it for meetings.
+      - title: Find what drives the finish date
+        where: [Gantt Explorer, Highlight critical path]
+        md: Turn on critical-path highlighting and expand the summary activities. Select "Pilot run complete" and use **Scroll to**.
+    result: Ana sees which activities sit on the critical path to the pilot run.
+
+  - type: animation
+    title: How one late deliverable turns the project Yellow
+    diagram:
+      width: 820
+      height: 300
+      nodes:
+        - { id: dlv, label: DLV-03 fixture, sublabel: deliverable, x: 20, y: 120, w: 160, tone: danger, shape: doc }
+        - { id: act, label: Build fixture, sublabel: activity, x: 220, y: 120, w: 160, tone: info }
+        - { id: sum, label: Prepare the line, sublabel: summary activity, x: 420, y: 120, w: 170, tone: accent }
+        - { id: proj, label: Project, sublabel: E1 Lakeside Launch, x: 630, y: 120, w: 170, tone: primary, shape: pill }
+        - { id: side, label: Order labels, sublabel: not on critical path, x: 420, y: 230, w: 170, tone: neutral }
+      edges:
+        - { from: dlv, to: act }
+        - { from: act, to: sum, label: critical }
+        - { from: sum, to: proj, label: critical }
+        - { from: side, to: proj, dashed: true }
+    chapters:
+      - title: Hexa reports a delay
+        caption: Ana sets DLV-03 to **Yellow** - not missed yet, but a problem that will cause a delay if nobody acts.
+        show: [dlv]
+        highlight: [dlv]
+      - title: The activity follows
+        caption: Any milestone or activity a Yellow deliverable is linked to turns **Yellow** too.
+        show: [dlv, act]
+        highlight: [act]
+        flow: [dlv>act]
+      - title: Up the critical path
+        caption: The activity is on the summary activity's critical path, so the summary activity turns Yellow.
+        show: [dlv, act, sum]
+        highlight: [sum]
+        flow: [act>sum]
+      - title: The whole project
+        caption: The summary activity is on the project's critical path - the **project** is now Yellow. Windchill always takes the worst status along the critical path.
+        show: [dlv, act, sum, proj, side]
+        highlight: [proj]
+        flow: [sum>proj]
+        seconds: 7
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Colours only work if everyone means the same thing. **Red**: a date or scope has been missed, or a
+      failure is identified. **Yellow**: not missed yet, but a known problem will cause a delay or less
+      content. **Green**: on target. Agree this at kick-off, or the dashboard turns into noise.
+
+  - type: comparison
+    title: The three scheduling numbers
+    columns: [What it means, Kept constant by]
+    rows:
+      - label: Duration
+        cells: ["Working time between start and finish (enter it, or an estimated finish date)", "Fixed Duration tasks"]
+      - label: Work
+        cells: ["Planned effort needed to finish", "Fixed Work tasks"]
+      - label: Resource units
+        cells: ["Share of the resource's working day, as a percentage", "Fixed Units tasks"]
+    takeaway: "Duration = Work / Resource Units. Change one and Windchill recalculates another, depending on the task type."
+
+  - type: example
+    variant: real-world
+    title: Predecessor shorthand
+    industry: Micromobility
+    md: |
+      Predecessors are written **ID, dependency type, offset**. `2SS+1 day` means "may start one day after
+      plan item 2 *starts*". If you type only `3,4`, the default **FS** (finish-to-start) applies - start
+      after items 3 and 4 finish. Kai's "Pilot run complete" milestone uses `3,4`.
+
+  - type: walkthrough
+    title: Round-trip the plan with Microsoft Project
+    who: Project members allowed to create and edit plan objects (Kai)
+    where: [Quick Links, Software Downloads, PTC Plug-in for Microsoft Project]
+    steps:
+      - title: Install the plug-in
+        where: [Windchill header, Quick Links, Software Downloads]
+        md: Accept the licence if asked, click **PTC Plug-in for Microsoft Project** and run the installer wizard.
+      - title: Export or build the plan in Microsoft Project
+        where: [Microsoft Project]
+        md: Edit the plan offline, or create it there from scratch. Plans travel as **.mpp** or **.xml**.
+      - title: Protect the live plan
+        where: [E1 Lakeside Launch, Plan]
+        md: Exporting does **not** lock the Windchill plan. Consider suspending the plan while you edit so team updates don't get overwritten.
+      - title: Import - Replace or Sync
+        where: [E1 Lakeside Launch, Plan]
+        md: |
+          When you import the plan into Windchill, a dialog asks whether to replace or sync.
+          **Replace** makes the Microsoft Project plan replace the whole Windchill plan. **Sync** only applies
+          elements that were added or changed.
+    result: The plan is back in Windchill, where the team executes it in real time.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Editing in the Gantt Explorer, or offline for days.** Gantt changes are never saved. And an exported
+      plan is a snapshot: while you edit it, others keep updating status in Windchill. A careless
+      **Replace** import can wipe their updates.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      PTC recommends **executing** the plan in Windchill even if you author it in Microsoft Project - the team
+      sees the live plan, deliverables and folders instead of a file that's updated now and then. Take a
+      **baseline** before big replans: the variance report compares the active baseline with the current
+      plan's durations and dates.
+
+  - type: callout
+    variant: note
+    md: |
+      If an activity has a resource assignment, set its status colour on the **resource assignment** (Edit
+      or Track Work), not on the activity - Windchill enforces this. Track work there too, so each person's
+      share is recorded correctly.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Ana drags a bar two days later in the Gantt Explorer and closes it. What happened to the plan?
+        options: [The activity moved two days, Nothing - the Gantt Explorer is read-only, The change waits for Kai's approval, The plan was suspended]
+        answer: 1
+        explanation: No changes made in the Gantt Explorer are retained. Edit the activity on the Plan page instead.
+      - kind: single
+        prompt: What does the predecessor entry `2SS+1 day` mean?
+        options: [Start one day after item 2 finishes, Start one day after item 2 starts, Finish one day after item 2 starts, Item 2 starts one day after this one]
+        answer: 1
+        explanation: SS is start-to-start; +1 day is the lag. With no type, finish-to-start (FS) is assumed.
+      - kind: single
+        prompt: Kai edited a plan offline and only wants his added and modified elements applied. Which import option?
+        options: [Replace, Sync, Export, Baseline]
+        answer: 1
+        explanation: Sync changes only added or modified plan elements; Replace swaps in the whole Microsoft Project plan.
+      - kind: truefalse
+        prompt: One Red activity on the critical path makes the whole project Red.
+        answer: true
+        explanation: Higher-level status uses the worst status of any item along the critical path.
+      - kind: single
+        prompt: A Fixed Duration activity has 40 hours of work over 10 working days. Ana's work estimate goes up to 80 hours. What changes?
+        options: [Duration doubles, Resource units go up, Nothing - work can't change, The activity turns Red]
+        answer: 1
+        explanation: Fixed Duration keeps duration constant and recalculates resource units when work changes (Duration = Work / Units).
+
+  - type: summary
+    points:
+      - The Plan table is for structure; the Gantt Explorer shows timeline, dependencies and the critical path - and is read-only.
+      - Status rolls up from deliverables to activities, summary activities and the project along the critical path.
+      - Duration = Work / Resource Units; the task type decides which value Windchill recalculates.
+      - The PTC plug-in exchanges plans with Microsoft Project (.mpp or .xml); Replace swaps the whole plan, Sync applies changes only.
+      - Exports don't lock the plan, so suspend it or sync carefully; take baselines to compare plans over time.

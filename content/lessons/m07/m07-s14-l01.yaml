@@ -1,0 +1,188 @@
+id: m07-s14-l01
+subtitle: Not everyone needs all of Windchill. Ana's line leads, Hana's buyers and Sam's technicians need one tile that does one job.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [navigate, view-apps, role-based-apps, thingworx]
+sources:
+  - id: nav
+    where: "Course scenario; Implementation team strategy; Module 1: Windchill Navigate overview; Key functionalities of Windchill Navigate apps; Why Windchill Navigate?; Windchill Navigate offerings; Out-of-the-box and custom apps; Collections and tasks; Tasks collections; Module 3: View design files; View drawings; View & Measure in 3D; View part properties; View parts lists; View part structures; View documents; View the document structure; Download a drawing bundle"
+  - id: nav-ct
+    where: "Module 1: Integrate PLM and mashups (custom tasks extend Navigate)"
+  - id: twx
+    where: "Module 1: ThingWorx IIoT Platform; ThingWorx Industrial IoT Platform Architecture (mashups)"
+versionNotes:
+  - versions: ["Navigate 9.7"]
+    md: |
+      The task list follows the Windchill Navigate Technical Essentials course (Windchill 13.1.0.0, Navigate
+      9.7.0). The tasks you see depend on your role, your licence and your Windchill version.
+
+blocks:
+  - type: text
+    md: |
+      At the Riverside plant, a line lead needs the latest drawing of the E1 motor mount. She doesn't have a
+      Windchill login - so she asks Priya, who exports a PDF, who emails it, who forgets to send the next
+      revision. Two days later, scrap.
+
+      **Hana** in procurement has the same problem with supplier quotes. **Sam** in field service has it with
+      parts lists. None of them want "Windchill". They want **one button that shows the right thing**.
+
+      That's [[windchill-navigate|Windchill Navigate]]: simple, role-based web apps on top of Windchill data.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "simple PLM apps for people outside engineering" → [[windchill-navigate|Windchill Navigate]]
+      - "one tile = one job" → a [[navigate-task|task (app)]]
+      - "look but don't touch" → **View** apps
+      - "take part in a process" → **Contribute** apps
+      - "a group of tiles on the home page" → **tasks collection**
+      - "the platform Navigate runs on" → [[thingworx|ThingWorx]]
+
+  - type: diagram
+    title: The Navigate landing page, collection by collection
+    caption: Each collection groups tasks for one kind of data. What appears depends on your role. Click a box.
+    diagram:
+      width: 820
+      height: 440
+      groups:
+        - { label: View tasks, x: 10, y: 20, w: 520, h: 270, tone: info }
+        - { label: Contribute tasks, x: 550, y: 20, w: 260, h: 270, tone: accent }
+        - { label: Built for you, x: 10, y: 310, w: 800, h: 120, tone: neutral }
+      nodes:
+        - id: parts
+          label: Part tasks
+          sublabel: 6 view tasks
+          x: 30
+          y: 60
+          w: 150
+          tone: info
+          detail: |
+            **View Design Files**, **View Drawing**, **View & Measure in 3D**, **View Part Properties**, **View
+            Parts List** and **View Part Structure**. Compare and download drawings, design files, structures
+            and parts lists, and measure models in Creo View.
+        - id: docs
+          label: Document tasks
+          sublabel: 2 view tasks
+          x: 200
+          y: 60
+          w: 150
+          tone: info
+          detail: |
+            **View Document** (attributes, representation or native content, attachments) and **View Document
+            Structure**.
+        - id: mfg
+          label: Manufacturing
+          sublabel: View Work Instructions
+          x: 370
+          y: 60
+          w: 150
+          tone: info
+          detail: |
+            Digital work instructions for the shop floor, from process plans authored in Windchill
+            Manufacturing Process Management. In Navigate 9.7.0 this task supports only Windchill as a data
+            source.
+        - id: other
+          label: Other tasks
+          sublabel: Download Drawing Bundle
+          x: 110
+          y: 190
+          w: 190
+          tone: info
+          detail: |
+            **Download Drawing Bundle** zips the drawings for a list of exact part or CAD document numbers,
+            with a summary of what was found and what wasn't.
+        - id: change
+          label: Change Management
+          sublabel: My Tasks · Report a Problem
+          x: 570
+          y: 60
+          w: 220
+          tone: accent
+          detail: |
+            **My Tasks** lists change request reviews assigned to you (approve, reject, analyze, reassign).
+            **Report a Problem** creates a Windchill [[problem-report]] from the shop floor or the field.
+        - id: custom
+          label: Custom tasks
+          sublabel: built in ThingWorx
+          x: 300
+          y: 340
+          w: 220
+          tone: neutral
+          detail: |
+            When no out-of-the-box task fits - for example data from Windchill **and** an ERP system - a
+            [[navigate-custom-task|custom task]] can be built with ThingWorx. That's a development project
+            with different licensing.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      People in manufacturing, procurement, service, sales and quality often get PLM data through manual
+      exports - which means delays and errors. Navigate gives them real-time, accurate data in a simple,
+      tailored interface, so engineers stop acting as information gatekeepers. Access is still controlled by
+      **Windchill permissions**: Navigate shows nothing Windchill wouldn't let that user see.
+
+  - type: comparison
+    title: The three Navigate offerings
+    columns: [View, Contribute, Connected PLM]
+    rows:
+      - label: What users do
+        cells: ["See PLM content, including 3D through the ThingView widget", "Take part in change management and reviews", "Use apps the company builds itself"]
+      - label: Typical users
+        cells: ["Shop floor, purchasing, sales", "Reviewers, service engineers raising problems", "Anyone a custom app is designed for"]
+      - label: Built with
+        cells: ["Out-of-the-box tasks, tailored", "Out-of-the-box tasks, tailored", "Prefabricated UI components and connectors in ThingWorx"]
+    takeaway: Start with View and Contribute; build only what the standard tasks can't do.
+
+  - type: example
+    variant: case-study
+    title: Acme maps people to tiles
+    industry: Micromobility
+    md: |
+      Before buying anything, Jordan (business admin) interviews people across Acme about how they get
+      product data today:
+
+      - **Ana's** line leads at Riverside print drawings and pin them up - **View Drawing** and **View Part
+        Structure** (3D with cross-selection between the model and the table).
+      - **Hana's** buyers need the source, supplier and cost of a part and drawings to send for quotes -
+        **View Part Properties**, **View Parts List** (export to CSV) and **Download Drawing Bundle**.
+      - **Sam's** technicians need specs in the field and a way to report recurring failures - **View
+        Document** and **Report a Problem**.
+      - Maya's change board members who rarely use Windchill - **My Tasks** to approve change requests.
+
+      Nobody needed a custom task yet. That's the cheap, fast outcome: out-of-the-box tasks need no
+      development, only tailoring.
+    takeaway: Map roles and pain points first; the tile list follows.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Assuming a Windchill licence covers Navigate.** It doesn't: Navigate needs its own licences, and those
+      only permit licensed functionality and data access in Windchill. Count your users per role before you
+      promise tiles to anyone.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      The tabs at the top of a part task (Drawings, Part Properties, Parts List, Part Structure) are shortcuts
+      into the other View apps for the same part - users rarely need to go back to the landing page.
+
+  - type: flashcards
+    cards:
+      - { front: Windchill Navigate, back: "Role- and task-based web apps that give non-expert users easy access to Windchill data." }
+      - { front: View apps, back: "Show up-to-date product information (parts lists, drawings, documents) without editing." }
+      - { front: Contribute apps, back: "Let users add or change data, e.g. My Tasks and Report a Problem." }
+      - front: Part tasks collection
+        back: "View Design Files, View Drawing, View & Measure in 3D, View Part Properties, View Parts List, View Part Structure."
+      - { front: Document tasks collection, back: "View Document and View Document Structure." }
+      - { front: "Where is data access granted?", back: "In Windchill (permissions), not in Navigate." }
+      - { front: Navigate offerings, back: "View, Contribute and Connected PLM (build your own apps)." }
+      - { front: Download Drawing Bundle, back: "Zips drawings for a list of exact part or CAD document numbers - no partial matches." }
+
+  - type: summary
+    points:
+      - Navigate gives non-expert users simple, role-based access to Windchill data from any supported browser.
+      - View apps show data; Contribute apps let users take part in processes such as change reviews and problem reports.
+      - Tasks are grouped into Part, Document, Change Management, Manufacturing, Other and Custom collections.
+      - Data access is always governed by Windchill permissions, and Navigate needs its own licences.
+      - When out-of-the-box tasks don't fit, custom tasks are built with ThingWorx.

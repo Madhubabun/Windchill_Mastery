@@ -1,0 +1,268 @@
+id: m07-s03-l02
+subtitle: An assembly never travels alone. Learn what Windchill collects with it - and what it quietly leaves behind.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [cad, creo, check-in, dependents, collector, conflicts]
+sources:
+  - id: te
+    where: "Module 4: Update CAD documents: check in; Activity: Update a CAD part and associated WTPart (Auto Check In and Custom Check In); Work with CAD assemblies; Activity: Modify a CAD assembly and its associated WTPart structure (Check In wizard, Set Options, Remove from Workspace, Auto Associate Parts to CAD Documents); Import and export CAD documents; Activity: Import and export CAD documents (incomplete CAD documents, Event Management, Conflict Management, Auto resolve incomplete objects)"
+  - id: hc-checkin
+    label: PTC Help Center supplement
+    title: "Checking In Objects to Windchill"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/cadx/CADxFileMenuObjCheckin.html"
+    covers: "Collect Objects step; Keep Checked Out; Set Options (Create Baseline by default, Auto Associate Parts to CAD Documents, New Promotion Request After Check In, Undo Checkout Unmodified Objects, Remove from Workspace, Auto resolve incomplete objects with its two methods, Attach Differences Report); required dependents can't be ignored"
+  - id: hc-collect
+    label: PTC Help Center supplement
+    title: "Configuring Collection"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WWGMCommonAdminActions/WWGMAdminConfCollect.html"
+    covers: "Collection modes (all dependents up front, required dependents up front, incremental); per-action defaults; collector preferences at site, organization, product or project level, lockable"
+  - id: hc-collect-adv
+    label: PTC Help Center supplement
+    title: "Collecting in Advanced Mode"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/cadx/CADxComActivCollectorIncremental.html"
+    covers: "Add Dependency (All, Required, None); Add drawings, Add parts, Add family objects, Add generics; Include, Exclude, Reset; Ignore objects in other contexts; Collection Rule column"
+  - id: hc-addws
+    label: PTC Help Center supplement
+    title: "Adding Objects to the Workspace"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/cadx/CADxFileMenuObjAdd.html"
+    covers: "Basic and Advanced tabs; Checkout options None, Initially selected and modified, Initially selected, Required, All"
+
+blocks:
+  - type: text
+    md: |
+      Priya has finished the new motor mount and wants to check in the whole **E1 frame assembly**,
+      `eb1_frame.asm`. She clicks Check In and Windchill shows a list with *more* objects than she
+      selected. Where did they come from? And why isn't the frame **drawing** on the list?
+
+      Windchill is **collecting**: starting from the object you pick (the *seed*), it follows CAD
+      dependencies and gathers what has to travel with it. Knowing the collection rules is how you avoid two
+      classic problems: checking in an assembly whose parts are missing, and forgetting the drawing that
+      everybody downstream needs.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the object I picked" → **initially selected object** (the seed)
+      - "files this model can't open without" → [[required-dependents]]
+      - "every file it references, needed or not" → **all dependents**
+      - "a CAD file Windchill knows about but can't fully resolve" → [[incomplete-cad-document]]
+      - "Windchill saying 'stop, there's a problem'" → [[cad-conflict|conflict]]
+      - "make a Windchill part for my new models" → [[auto-associate-parts]]
+
+  - type: diagram
+    title: What gets collected from eb1_frame.asm?
+    caption: Priya seeds the collector with the frame assembly. Click each object to see which rule brings it in.
+    diagram:
+      width: 820
+      height: 440
+      groups:
+        - { label: Required dependents, x: 230, y: 20, w: 330, h: 200, tone: success }
+        - { label: Needs an extra collection option, x: 230, y: 240, w: 570, h: 180, tone: warning }
+      nodes:
+        - id: seed
+          label: eb1_frame.asm
+          sublabel: initially selected
+          x: 20
+          y: 170
+          w: 180
+          tone: primary
+          detail: The seed object. Every collection starts here. In Basic mode the action's default rule decides which dependents join; in Advanced mode you can add more or exclude objects.
+        - id: mount
+          label: eb1_motor_mount.prt
+          sublabel: component
+          x: 250
+          y: 60
+          w: 170
+          tone: success
+          detail: A component the assembly uses - a **required dependent**. Without it the assembly can't be opened completely, so Windchill collects it with both the Required and the All rule.
+        - id: bolt
+          label: eb1_bolt_m6x20
+          sublabel: family instance
+          x: 250
+          y: 140
+          w: 170
+          tone: success
+          detail: A family table instance used in the assembly - also a dependent. Its **generic** and the other family members are not dependents; use **Add generics** or **Add family objects** in Advanced mode when you need them (see the next lesson).
+        - id: drawing
+          label: eb1_frame.drw
+          sublabel: drawing
+          x: 250
+          y: 290
+          w: 170
+          shape: doc
+          tone: warning
+          detail: The drawing references the assembly, not the other way round, so it is **not** a dependent of the assembly. Use **Add drawings** in Advanced mode to collect drawings of the selected CAD documents.
+        - id: parts
+          label: Windchill parts
+          sublabel: EB- part numbers
+          x: 440
+          y: 290
+          w: 160
+          tone: warning
+          detail: The associated Windchill parts come along when you use **Add parts**. At check-in, owner-associated parts are iterated anyway when their CAD document is checked in.
+        - id: other
+          label: Other-context file
+          sublabel: e.g. a library part
+          x: 620
+          y: 290
+          w: 160
+          tone: neutral
+          detail: Dependents stored in another context (for example a shared fastener library) are collected too - unless **Ignore objects in other contexts** is selected, which limits the collection to the seed's context.
+      edges:
+        - { from: seed, to: mount, label: uses }
+        - { from: seed, to: bolt, label: uses }
+        - { from: drawing, to: seed, label: references, dashed: true }
+        - { from: seed, to: parts, dashed: true }
+        - { from: seed, to: other, dashed: true }
+
+  - type: comparison
+    title: "Add to Workspace: what does the Checkout option check out?"
+    columns: [What gets checked out, Good for]
+    rows:
+      - label: None
+        cells: ["Nothing - objects are added read-only", "Looking at or reusing a design without changing it"]
+      - label: Initially selected
+        cells: ["Only the objects you picked", "Changing one model while its components stay as they are"]
+      - label: Initially selected and modified
+        cells: ["Your picks plus dependents already modified in the workspace (needs an active workspace)", "Picking up where you left off"]
+      - label: Required
+        cells: ["Your picks plus their required dependents", "Restructuring an assembly and its direct components"]
+      - label: All
+        cells: ["Your picks plus all dependents", "Big changes across a whole structure (locks a lot for others)"]
+    takeaway: Check out the least you need. Everything you lock is something a teammate can't edit.
+
+  - type: comparison
+    title: The Check In wizard's Set Options step
+    columns: [What it does, When to use it]
+    rows:
+      - label: Auto Associate Parts to CAD Documents
+        cells: ["Creates owner-associated parts for CAD documents that don't have one", "New models in a CAD-centric team. Clear it when the part already exists"]
+      - label: Remove from Workspace
+        cells: ["Clears the checked-in objects from your workspace afterwards", "You are done with the task"]
+      - label: Undo Checkout Unmodified Objects
+        cells: ["Releases dependents you checked out but never changed", "Always worth a look after an 'All' checkout"]
+      - label: Auto resolve incomplete objects
+        cells: ["Updates an incomplete object from a server object with the same file name then ignores it - or always ignores it", "Last resort; fixing the model in Creo is better"]
+      - label: Create Baseline by default
+        cells: ["Makes a baseline of what you check in", "Freezing a known state before a review"]
+      - label: New Promotion Request After Check In
+        cells: ["Starts a promotion request once every object checked in", "Design is ready for release review"]
+    takeaway: "Auto Check In skips this page and uses your workspace defaults; Custom Check In shows it."
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      A missing dependent means the next person who opens the assembly gets holes in the model - or a check-in
+      that fails at 6 p.m. A forgotten drawing means manufacturing works from an old print. Collection rules
+      are boring until they cost a production run.
+
+  - type: walkthrough
+    title: Custom check-in of an assembly with its drawing
+    who: A CAD user with the assembly checked out (Priya)
+    where: [Creo, File, Check In, Custom Check In]
+    steps:
+      - title: Start a Custom Check In
+        where: [File, Check In, Custom Check In]
+        md: With `eb1_frame.asm` open, choose **File → Check In → Custom Check In**. (**Auto Check In** would use your defaults and skip the wizard.) You can also start Check In from the workspace's Object List.
+      - title: Review the collected objects
+        where: [Check In, Collect Objects]
+        md: The first step lists the seed and the dependents collected by default. Use the list filter (for example **All**) to see checked-out objects that you haven't modified yet.
+      - title: Add the drawing
+        where: [Check In, Advanced, Add drawings]
+        md: In advanced collection, select the assembly and use **Add drawings**. `eb1_frame.drw` joins the list; the **Collection Rule** column shows why each object is there.
+      - title: Set the options
+        where: [Check In, Next, Set Options]
+        md: Click **Next**. The motor mount part already has its Windchill part, so clear **Auto Associate Parts to CAD Documents**. Select **Remove from Workspace** and **Undo Checkout Unmodified Objects**.
+      - title: Finish and watch Event Management
+        where: [Check In, Finish]
+        md: Click **Finish**. Creo is busy until the check-in completes. If it fails, open **Event Management** from the lower panel and use **View Conflicts** to read the reason.
+    result: The assembly, the new motor mount and the drawing are new iterations in the commonspace, and the owner-associated parts were iterated with them.
+
+  - type: scenario
+    variant: troubleshooting
+    title: The check-in that won't go through
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Priya imported legacy brake bracket files with **Import to Workspace**. Windchill flagged
+          `s2_bracket_old.prt` as an **incomplete CAD document**, but she clicked Finish anyway. Now
+          checking in `s2_brake.asm` fails. What does she do first?
+        choices:
+          - label: Open Event Management and view the conflict
+            next: s2
+            good: true
+            feedback: Read the error before you try fixes. Event Management → View Conflicts → the description says exactly what's wrong.
+          - label: Check in again with All dependents
+            next: f1
+            feedback: Collecting more doesn't make an incomplete document complete.
+      - id: s2
+        md: The conflict says the assembly depends on an incomplete CAD document. The original file was never copied with the legacy data. What next?
+        choices:
+          - label: Find the missing file and fix the model in Creo, then import again
+            next: win
+            good: true
+            feedback: That's the best practice the course guide recommends - repair the data before it goes into Windchill.
+          - label: Use Auto resolve incomplete objects → Always ignore
+            next: partial
+            feedback: It works if the site allows it and the object isn't a required dependent - but the ignored file simply never reaches Windchill.
+      - id: f1
+        md: Same failure, more locked objects. Priya has wasted ten minutes and blocked a colleague.
+        outcome: fail
+      - id: partial
+        md: The assembly checks in and opens, but without the ignored part. Everyone downstream sees a quietly incomplete structure until someone notices.
+        outcome: partial
+      - id: win
+        md: The repaired bracket imports cleanly, the assembly checks in, and the history shows a complete structure.
+        outcome: success
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **"Ignore objects in other contexts" looks harmless.** It limits collection to the seed's context, so
+      library parts used by your assembly drop out of the list. Changing the box also throws away what has been
+      collected so far (Windchill asks you to confirm). Use it on purpose, not by accident.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Admins: collector defaults are **preferences**, set per action (for example under the Check In node in
+      Preference Management) at site, organization, product or project level. Lock them at site or
+      organization level when every designer must, for example, always collect required dependents. PTC
+      University's *Managing Creo Parametric Dependents* course goes deeper.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Priya checks in eb1_frame.asm. Which object is NOT collected by a dependents rule?
+        options: [eb1_motor_mount.prt, The eb1_bolt_m6x20 instance used in the assembly, eb1_frame.drw, A library part used in the assembly]
+        answer: 2
+        explanation: The drawing references the assembly, so it isn't a dependent of it. Add it with the Add drawings option.
+      - kind: single
+        prompt: Which Add to Workspace Checkout option checks out the selected assembly plus the components it can't open without?
+        options: [None, Initially selected, Required, All]
+        answer: 2
+        explanation: Required checks out the initially selected objects and their required dependents. All also takes optional dependents.
+      - kind: truefalse
+        prompt: Auto Check In shows the Set Options page so you can choose options for this check-in.
+        answer: false
+        explanation: Auto Check In uses the defaults from your workspace configuration and doesn't show the Check In window. Custom Check In does.
+      - kind: multi
+        prompt: A check-in failed because of an incomplete CAD document. Which statements are true? (Choose all that apply.)
+        options: [Event Management shows the conflict details, Fixing the model in the CAD tool is the recommended approach, Auto resolve incomplete objects can ignore required dependents, A site setting may disable the ignore option]
+        answers: [0, 1, 3]
+        explanation: Required dependents can't be ignored. The ignore option can also be switched off by site settings.
+      - kind: single
+        prompt: Why clear Auto Associate Parts to CAD Documents when checking in an assembly whose models already have Windchill parts?
+        options: [It slows down the check-in, It would try to create parts that aren't needed, It deletes the existing parts, It breaks the drawing]
+        answer: 1
+        explanation: The option creates owner-associated parts for CAD documents that don't yet have one. The course guide clears it when a part is already associated.
+
+  - type: summary
+    points:
+      - Check In and Add to Workspace start from your selected objects and collect dependents by rule - required only, all, or incrementally.
+      - Drawings, parts, generics and family members are not dependents of an assembly; add them with the advanced collection options.
+      - Check out as little as you need; Undo Checkout Unmodified Objects releases what you didn't change.
+      - Incomplete CAD documents make check-ins fail. Read the conflict in Event Management and fix the model; auto-resolve is a last resort.
+      - Collector defaults are lockable preferences set per action.

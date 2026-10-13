@@ -1,0 +1,212 @@
+id: m07-s13-l05
+subtitle: Stop writing manuals. Write small topics once - and let structures assemble them into every manual you need.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [service, authoring, xml, dita, arbortext-editor]
+sources:
+  - id: sis
+    where: "Module 6: Author service content: overview; Create content using PTC Arbortext Editor; Perform topic-based authoring with XML and DITA; Activity: Add technical content to an information structure using Arbortext Editor"
+  - id: te
+    where: "Module 1: Manage service part information and instruction (step-by-step work instructions and service content)"
+
+blocks:
+  - type: text
+    md: |
+      The E1 and the Scooter S2 share the same battery latch. Zoe's predecessor wrote the latch procedure
+      **three times**: in the E1 owner's manual, the E1 workshop manual and the S2 workshop manual. When the
+      latch changed, two of the three got fixed.
+
+      Zoe writes it **once**, as a small self-contained topic, stores it in Windchill and links it into every
+      structure that needs it. Change it once - every publication picks it up.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "text with tags that say what each part *is*" → **XML** (Extensible Markup Language)
+      - "writing small reusable chunks instead of whole books" → **topic-based (structured) authoring**
+      - "the XML standard for topics" → [[dita]]
+      - "a topic that explains / a topic with steps / a lookup table" → **Concept / Task / Reference**
+      - "the XML editor" → **PTC Arbortext Editor**
+      - "the topic as stored in Windchill" → **dynamic document**
+
+  - type: diagram
+    title: Write once, assemble many times
+    caption: One topic in Windchill, linked into several structures. Click a box.
+    diagram:
+      width: 820
+      height: 420
+      groups:
+        - { label: Author, x: 10, y: 20, w: 200, h: 380, tone: neutral }
+        - { label: Windchill repository, x: 230, y: 20, w: 300, h: 380, tone: primary }
+        - { label: Where it's used, x: 550, y: 20, w: 260, h: 380, tone: info }
+      nodes:
+        - id: editor
+          label: Arbortext Editor
+          sublabel: XML authoring
+          x: 30
+          y: 170
+          w: 160
+          tone: accent
+          detail: |
+            Familiar word-processing feel, **real-time validation** of the XML, strong DITA support, configurable
+            and integrated with Windchill for content management. Many tasks - inserting cross-references,
+            finding and including graphics - can be automated.
+        - id: topic
+          label: Latch procedure
+          sublabel: task topic
+          x: 290
+          y: 80
+          w: 180
+          shape: doc
+          tone: primary
+          detail: |
+            A DITA **task** stored as a dynamic document. It can be understood on its own, so it can be used
+            in many contexts.
+        - id: concept
+          label: Battery safety
+          sublabel: concept topic
+          x: 290
+          y: 260
+          w: 180
+          shape: doc
+          tone: primary
+          detail: A **concept** topic. Formatting is separate from content, so the same text works in print and online.
+        - id: is-e1
+          label: E1 Service Manual
+          sublabel: information structure
+          x: 570
+          y: 50
+          w: 220
+          tone: info
+          detail: Content holders in the E1 structure point at the topics.
+        - id: ps-e1
+          label: E1 workshop manual
+          sublabel: publication structure
+          x: 570
+          y: 170
+          w: 220
+          tone: info
+          detail: A publication assembles the same topics into one output.
+        - id: is-s2
+          label: S2 service structure
+          sublabel: information structure
+          x: 570
+          y: 290
+          w: 220
+          tone: info
+          detail: The S2 links the same latch topic - no copy, no drift.
+      edges:
+        - { from: editor, to: topic, label: check in }
+        - { from: editor, to: concept }
+        - { from: topic, to: is-e1, dashed: true }
+        - { from: topic, to: ps-e1, dashed: true }
+        - { from: topic, to: is-s2, dashed: true }
+        - { from: concept, to: ps-e1, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      The course lists what this buys a service organisation: authoring in a collaborative, media-neutral
+      environment, 2D and 3D illustrations alongside the text, search and reuse of information elements across
+      contexts and formats, and a streamlined translation process. The results: less formatting and delivery
+      work, better quality and consistency, lower authoring cost and faster time to market.
+
+  - type: comparison
+    title: Traditional documents vs topic-based authoring
+    columns: [Traditional document, Topic-based authoring]
+    rows:
+      - label: Unit of work
+        cells: ["A whole manual or chapter", "A titled topic that makes sense on its own"]
+      - label: Formatting
+        cells: ["Mixed into the content", "Separate from content - applied at publish time"]
+      - label: Reuse
+        cells: ["Copy and paste", "Link the same topic into many structures"]
+      - label: Where-used
+        cells: ["Hard to know", "Links in the repository show every place a topic is used"]
+      - label: Change
+        cells: ["Edit every copy", "Edit once; structures pick up the new version"]
+    takeaway: Structured authoring gives you components that work together and separately.
+
+  - type: comparison
+    title: The three DITA information types
+    columns: [Concept, Task, Reference]
+    rows:
+      - label: Answers
+        cells: ["What is it? Why does it matter?", "How do I do it?", "What are the values?"]
+      - label: E1 example
+        cells: ["How the battery management system protects cells", "Replace the rear brake pads", "Master torque table"]
+      - label: In the course
+        cells: ["Concept dynamic documents, e.g. a torque data concept", "Task dynamic documents from a procedure template", "Not used in the activities"]
+    takeaway: Building on the general topic, DITA's typing keeps each chunk focused on one job.
+
+  - type: text
+    md: |
+      **Specialization and generalization.** DITA defines general models and lets organisations build their
+      own models on top of them. Any DITA-aware application can still process the specialised markup as if it
+      were the general one - this fallback is called **generalization**. Arbortext Editor's **Technical
+      Information Application (TIA)** is an example: an out-of-the-box doctype configuration with a DITA
+      specialization for service information.
+
+  - type: walkthrough
+    title: Bring a local XML topic into the E1 Service Manual
+    who: Zoe, in an author role in the product team
+    where: [Arbortext Editor, Object, Connect]
+    steps:
+      - title: Open the XML file and connect
+        where: [Arbortext Editor, File, Open, Object, Connect]
+        md: Open the local XML file, then connect to Windchill and sign in.
+      - title: Choose a workspace
+        where: [Connect dialog, Context, Workspace, New]
+        md: Pick the product context and create or choose a workspace (for example *Arbortext*).
+      - title: Save it into the structure
+        where: [File, Save As Server Object, Browse, Products, "<product>", Information Structures]
+        md: |
+          Browse to the information structure and the target group, click **Use Selection** next to **New
+          Objects In**, and keep *Keep objects checked out* and *Use location rules for child objects* ticked.
+      - title: Check the result in Windchill
+        where: [Browse, "<product>", Information Structure, Information Element List]
+        md: A textual content holder and a dynamic document (for example a concept) were created automatically, checked out to you.
+      - title: Edit from Windchill
+        where: [Dynamic document, Actions, Open In, Open in Arbortext Editor]
+        md: Make your change and save.
+      - title: Check in
+        where: [Arbortext Editor, Object, Check In Object]
+        md: Add a comment and tick **Remove From Workspace**. **Object → Object Properties** shows state, last update and version first.
+    result: The topic is a new iteration in Windchill and appears under its group in the information structure.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Writing topics that lean on each other.** "As described above..." breaks the moment the topic is reused
+      somewhere else. The topic level is exactly where authors must make content reusable without dependencies
+      on other content.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Pick the right **type and template** when you create a textual information element - for example a Task
+      with the *Arbortext Procedure* template for step-by-step work. The type shapes what the editor lets you
+      write.
+
+  - type: flashcards
+    cards:
+      - { front: XML, back: "A language for creating and publishing information that adds structure and meaning to otherwise unstructured content." }
+      - { front: Topic, back: "A titled unit of information that can be understood on its own and used in many contexts." }
+      - front: DITA
+        back: "An XML-based open standard for topic-based content, created by IBM and maintained by OASIS."
+      - { front: DITA information types, back: "Concept, Task and Reference - built on the general topic model." }
+      - { front: Generalization, back: "Processing specialised DITA markup as the general markup it was built from (fallback processing)." }
+      - { front: Arbortext Editor, back: "PTC's XML editor: word-processing feel, real-time validation, DITA support, integrated with Windchill." }
+      - front: Technical Information Application (TIA)
+        back: "Part of Arbortext Editor: an out-of-the-box doctype configuration with a DITA specialization for service information."
+      - front: Save As Server Object
+        back: "Arbortext Editor action that uploads a local XML file into Windchill - for example into an information structure group."
+
+  - type: summary
+    points:
+      - Service content is written as small, reusable topics rather than whole documents.
+      - XML separates content from formatting; DITA standardises topics as Concept, Task and Reference.
+      - Specialization lets companies extend DITA; generalization keeps it readable by any DITA tool.
+      - Arbortext Editor is the XML authoring tool, integrated with Windchill through workspaces and check in/out.
+      - Topics stored as dynamic documents can be linked into many information and publication structures.

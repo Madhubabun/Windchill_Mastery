@@ -1,0 +1,339 @@
+id: m07-s03-l05
+subtitle: The Lakeside fixture team lives in SOLIDWORKS. Workgroup Manager gets their files into Windchill without anyone switching tools.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [cad, workgroup-manager, third-party-cad, solidworks, multi-cad, system-admin]
+sources:
+  - id: te
+    where: "Module 4: Manage CAD data in Windchill: overview (CAD tools); Register a Windchill server with your CAD tool (Creo out of the box, other tools need Workgroup Manager). Module 1: Windchill What's New page covers Windchill and Windchill Workgroup Manager. Module 6 activity data: the WGM-AutoCAD product context"
+  - id: catalog
+    where: "CAD INTEGRATION: Windchill: Integrate third party CAD tools (self-guided); Windchill: Managing Creo Parametric Dependents"
+  - id: hc-wgm-overview
+    label: PTC Help Center supplement
+    title: "Windchill Workgroup Manager Overview"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WWGMIntroduction/WWGMGenericOverviewIntro.html"
+    covers: "Workgroup Manager is a common client for CAD data from many CAD applications; typical users; PDM actions from the client, from commands in the CAD tool, or from a browser"
+  - id: hc-wgm-arch
+    label: PTC Help Center supplement
+    title: "PDM System Architecture"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WWGMIntroduction/WWGMGenericOverviewWhatIsArch.html"
+    covers: "Authoring application, Workgroup Manager client, server workspace, Windchill database; register the authoring application after installing"
+  - id: hc-wgm-scenario
+    label: PTC Help Center supplement
+    title: "Initial Windchill Workgroup Manager Scenario"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WWGMIntroduction/WWGMGenericOverviewWhatIsScenario.html"
+    covers: "Install on the CAD workstation (client downloaded from the Windchill server); register CAD applications (one version of an application at a time); register servers (Server Management utility or PTC Windchill, Server Management in the CAD tool); Set as Primary Server; Activate a workspace; WGM starts with the CAD tool; Check In from the File menu"
+  - id: hc-wgm-components
+    label: PTC Help Center supplement
+    title: "Windchill Workgroup Manager Components"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WWGMIntroduction/WWGMGenericIntroIntroGlossary.html"
+    covers: "Folder, Favorites, History and Search navigators; commonspace, active and primary active workspace; workspace cache and local directory; Server, Application and Event Management utilities"
+  - id: hc-wgm-appmgmt
+    label: PTC Help Center supplement
+    title: "Application Management Utility"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WWGMIntroduction/WWGMGenericIntroApplicationManagerAbout.html"
+    covers: "Register the authoring application with Tools, Application Management; Windchill actions then appear in the CAD tool; list of supported authoring applications"
+  - id: hc-wgm-eventmgmt
+    label: PTC Help Center supplement
+    title: "Event Management Utility"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WWGMIntroduction/WWGMGenericIntroEventManagerAbout.html"
+    covers: "Tools, Event Management or the status-bar icon; PDM event history; view and resolve overridable and non-overridable conflicts; retry failed tasks"
+  - id: hc-wgm-actions
+    label: PTC Help Center supplement
+    title: "PDM Actions Accessible from CAD Authoring Applications"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WWGMIntroduction/WWGMGenericIntroPDMActions.html"
+    covers: "Which PDM actions each authoring application supports (Lock and Unlock, Save Modified Instances, Insert from Windchill, Save Viewable with Models, Upload and others)"
+  - id: hc-wgm-filetypes
+    label: PTC Help Center supplement
+    title: "File Types Supported by Windchill Workgroup Manager"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WWGMIntroduction/WWGMGeneric_GS_FileTypes.html"
+    covers: "Applications and file types: AutoCAD, Autodesk Inventor, CATIA V5, Creo CADDS 5, Creo Elements/Direct Drafting and Modeling, PTC Mathcad, NX, SOLIDWORKS"
+  - id: hc-wgm-lp
+    label: PTC Help Center supplement
+    title: "Windchill Workgroup Manager Documentation"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/sublandingpages/WWGM_LP.html"
+    covers: "Common topics plus per-application sections (PDM Actions, Advanced Techniques, Administration and Configuration, Preferences); installation in the separate Workgroup Manager Installation Guide on PTC's Reference Documents page"
+  - id: hc-wgm-sw-plus
+    label: PTC Help Center supplement
+    title: "SOLIDWORKS (Windchill+ 13.1.2.0 Help Center)"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/sublandingpages/WWGM_Intro_help_SolidWorks.html"
+    covers: "Workgroup Manager documentation for SOLIDWORKS is part of the Windchill+ Help Center too"
+versionNotes:
+  - versions: ["Windchill+"]
+    md: |
+      The Windchill+ 13.1.2.0 Help Center also carries Workgroup Manager documentation (for example the
+      SOLIDWORKS section), so third-party CAD integration is part of Windchill+ too. Installation is covered by the
+      separate Workgroup Manager Installation Guide; check it and the platform support information for your
+      exact CAD and Windchill versions.
+
+blocks:
+  - type: text
+    md: |
+      Ana runs manufacturing at the **Lakeside** plant. Her fixture designers build jigs and welding fixtures
+      for the E1 frame in **SOLIDWORKS**, not Creo. Until now their files lived on a shared drive, and nobody at
+      Riverside could tell which fixture matched which frame revision.
+
+      Kai wants them in Windchill. Ana's worry: *"My team isn't switching CAD tools."* They don't have to. Rosa,
+      the system admin, will install **Windchill Workgroup Manager** - PTC's bridge between non-Creo CAD tools
+      and Windchill - and the fixture team keeps working in SOLIDWORKS.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the bridge app for non-Creo CAD tools" → [[workgroup-manager]] (WGM)
+      - "the CAD tool you design in" → [[authoring-application]]
+      - "check in, check out, update... from inside the CAD tool" → [[pdm-action|PDM actions]]
+      - "the shared storage on the server" → [[commonspace]]
+      - "the workspace my saves go into" → [[primary-active-workspace]]
+
+  - type: diagram
+    title: How Workgroup Manager fits in
+    caption: Four pieces make up PTC's Workgroup Manager architecture, plus three utilities. Click each one.
+    diagram:
+      width: 820
+      height: 440
+      groups:
+        - { label: Designer workstation, x: 10, y: 10, w: 420, h: 420, tone: neutral }
+        - { label: Windchill server, x: 450, y: 10, w: 360, h: 420, tone: primary }
+      nodes:
+        - id: authoring
+          label: Authoring application
+          sublabel: e.g. SOLIDWORKS
+          x: 30
+          y: 50
+          w: 190
+          tone: accent
+          detail: The CAD tool where the design work happens. After WGM is installed you **register** the authoring application with it. Only one version of a given CAD application can be registered at a time.
+        - id: wgm
+          label: Workgroup Manager
+          sublabel: client you install
+          x: 230
+          y: 50
+          w: 180
+          tone: warning
+          detail: A common client application for CAD data from many CAD tools. It is installed on the same computer as the CAD tool (the client software is downloaded from the Windchill server) and starts automatically with a registered CAD application.
+        - id: navigators
+          label: Navigators
+          sublabel: Folder · Favorites · History · Search
+          x: 230
+          y: 160
+          w: 180
+          tone: info
+          detail: WGM's panels - Folder (servers, workspaces, CAD documents), Favorites, History, and Search (run and save searches for CAD documents).
+        - id: utilities
+          label: Utilities
+          sublabel: Server · Application · Event
+          x: 30
+          y: 160
+          w: 190
+          tone: info
+          detail: "**Server Management** registers servers and sets the primary one. **Application Management** (Tools → Application Management) registers your authoring application, after which Windchill actions appear in its interface. **Event Management** (Tools → Event Management, or the status-bar icon) lists PDM events and lets you view and resolve conflicts."
+        - id: cache
+          label: Workspace cache
+          sublabel: + local directory
+          x: 120
+          y: 300
+          w: 200
+          shape: cylinder
+          tone: info
+          detail: A local store of objects (content, attributes, status) for one workspace. The workspace local directory extends it on your hard drive for Windchill-managed CAD files.
+        - id: sws
+          label: Workspace on server
+          sublabel: private until check-in
+          x: 480
+          y: 80
+          w: 300
+          shape: cylinder
+          tone: primary
+          detail: Same idea as with Creo - your private server workspace. The **primary active workspace** on your primary server is the default for PDM actions.
+        - id: db
+          label: Windchill database
+          sublabel: commonspace
+          x: 480
+          y: 280
+          w: 300
+          shape: cylinder
+          tone: success
+          detail: The commonspace - products, projects and libraries where users with access can find, check out and reuse objects. Once a SOLIDWORKS file is checked in, Windchill manages it as a Windchill object like any other CAD document.
+      edges:
+        - { from: authoring, to: wgm, label: registered }
+        - { from: wgm, to: cache, label: save }
+        - { from: cache, to: sws, label: upload }
+        - { from: sws, to: db, label: check in }
+        - { from: utilities, to: wgm, dashed: true }
+        - { from: navigators, to: wgm, dashed: true }
+
+  - type: comparison
+    title: Creo integration vs Workgroup Manager
+    columns: [Creo Parametric, Third-party CAD via Workgroup Manager]
+    rows:
+      - label: Install
+        cells: ["Nothing extra - the integration comes with Creo", "Install the WGM client on the CAD workstation (downloaded from the Windchill server); a dedicated installer and Installation Guide"]
+      - label: First setup
+        cells: ["Register the server, choose a workspace, set the primary server", "Register the CAD application, then the server(s), set the primary server, activate a workspace"]
+      - label: Register a server
+        cells: ["File → Manage Session → Server Management", "WGM's Server Management utility, or PTC Windchill → Server Management in the CAD tool"]
+      - label: Where PDM actions start
+        cells: ["Creo menus, Model Tree, embedded browser", "WGM client, commands added to the CAD tool, or a web browser"]
+      - label: Shared concepts
+        cells: ["Workspace, local cache, commonspace, check in/out, Event Management", "The same - plus actions specific to each tool"]
+    takeaway: Learn the workspace model once with Creo and it carries over; what changes is the install, the registration and a few tool-specific actions.
+
+  - type: comparison
+    title: Same Windchill, different tool-specific actions
+    columns: [Kind of action, Tools PTC lists it for]
+    rows:
+      - label: Lock / Unlock
+        cells: ["Locking", "Inventor, Creo CADDS 5, CATIA V5, Creo Elements/Direct Modeling, NX, SOLIDWORKS"]
+      - label: Save Modified Instances
+        cells: ["Saving", "SOLIDWORKS"]
+      - label: Insert from Windchill
+        cells: ["Opening and importing", "NX (CATIA V5 has Insert Component and Replace Component from Windchill)"]
+      - label: Save Viewable with Models
+        cells: ["Saving", "Inventor, NX, SOLIDWORKS"]
+      - label: Upload
+        cells: ["Saving to the server", "Creo CADDS 5, CATIA V5, PTC Mathcad"]
+    takeaway: "Check the PDM Actions page for your tool before you write the team's work instructions - don't assume every Creo habit has a twin."
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Real companies are rarely single-CAD. Acquisitions, suppliers and specialist teams bring SOLIDWORKS,
+      NX, CATIA or AutoCAD data. If that data stays on file shares, it misses change control, where-used and
+      release states - exactly the things that make PLM worth paying for. Workgroup Manager lets each team keep
+      its tool while the company keeps **one** source of truth.
+
+  - type: walkthrough
+    title: First-time setup of Workgroup Manager on a fixture designer's PC
+    who: Rosa (system admin) with a Lakeside fixture designer
+    where: [Workgroup Manager, Server Management]
+    steps:
+      - title: Install the client next to the CAD tool
+        where: [Windchill server, Workgroup Manager client download]
+        md: Install Windchill Workgroup Manager on the same computer as SOLIDWORKS, using the client software downloaded from the Windchill server. Follow the Workgroup Manager Installation Guide (PTC Reference Documents page).
+      - title: Register the CAD application
+        where: [Workgroup Manager, Tools, Application Management]
+        md: In Workgroup Manager choose **Tools → Application Management** and register SOLIDWORKS. Once it is registered, Windchill actions appear in the SOLIDWORKS interface. Only one version of a CAD application can be registered at a time.
+      - title: Register the Windchill server
+        where: [Workgroup Manager, Server Management]
+        md: Open the **Server Management** utility in Workgroup Manager - or, in a connected CAD session, **PTC Windchill → Server Management** in the CAD tool - and register Acme's server.
+      - title: Set the primary server
+        where: [Workgroup Manager, Server node, Set as Primary Server]
+        md: Right-click the registered server and choose **Set as Primary Server**. You must do this before you can manage CAD objects in Windchill.
+      - title: Activate a workspace
+        where: [Workgroup Manager, Workspace, Activate]
+        md: Right-click a workspace (a default one or one you create, such as *Lakeside fixtures*) and choose **Activate**.
+      - title: Design, save, check in
+        where: [CAD tool, File, Check In]
+        md: Start SOLIDWORKS - Workgroup Manager starts with it. Save a fixture to the workspace (stored locally), and when it is ready to share use **Check In** from the **File** menu.
+    result: The fixture is a CAD document in the commonspace, next to the frame it fits, and visible to Riverside.
+
+  - type: example
+    variant: real-world
+    title: Fixtures that finally match the frame
+    industry: Micromobility
+    md: |
+      Three weeks after go-live, Maya's change notice revises the E1 frame. Because the Lakeside welding
+      fixture is now a CAD document in the same E-Bike E1 product, Kai finds it when he reviews what the frame
+      change affects and adds it to the change, and Ana's team gets a change task instead of a surprise on the shop floor. Nobody on her
+      team had to learn Creo.
+    takeaway: Workgroup Manager doesn't change how people design. It changes what the company can see.
+
+  - type: scenario
+    variant: troubleshooting
+    title: The CAD tool that won't connect
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          A fixture designer installed Workgroup Manager and opened SOLIDWORKS, but SOLIDWORKS shows no Windchill
+          commands at all. What does Rosa check first?
+        choices:
+          - label: That SOLIDWORKS is registered as an authoring application in Workgroup Manager
+            next: s2
+            good: true
+            feedback: Right. Windchill actions appear in the CAD tool only after it is registered (Tools → Application Management).
+          - label: Reinstall SOLIDWORKS
+            next: f1
+            feedback: The CAD tool is fine. The link to Workgroup Manager is what's missing.
+      - id: s2
+        md: SOLIDWORKS is now registered and the server is too. But check-in says there is no server to manage the data. What's missing?
+        choices:
+          - label: Set the registered server as the primary server
+            next: s3
+            good: true
+            feedback: The primary server is the one that manages your CAD data - it must be set before you can manage CAD objects.
+          - label: Register a second version of SOLIDWORKS
+            next: f2
+            feedback: Only one version of a CAD application can be registered at a time.
+      - id: s3
+        md: The designer checks in. Where should the team go for SOLIDWORKS-specific behaviour like Save Modified Instances?
+        choices:
+          - label: The SOLIDWORKS section of the Workgroup Manager documentation
+            next: win
+            good: true
+            feedback: Each tool has its own PDM Actions, Advanced Techniques, Administration and Configuration, and Preferences topics.
+          - label: The Creo Parametric integration guide
+            next: partial
+            feedback: The concepts match, but tool-specific actions are documented per tool.
+      - id: f1
+        md: Two hours later SOLIDWORKS is reinstalled and still not connected.
+        outcome: fail
+      - id: f2
+        md: The registration is refused and the designer is more confused than before.
+        outcome: fail
+      - id: partial
+        md: The team gets the basics right but misses SOLIDWORKS-only options until someone opens the right section.
+        outcome: partial
+      - id: win
+        md: Lakeside's fixture designers check in daily, and their work instructions point to the right documentation.
+        outcome: success
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Don't roll out on the Creo playbook alone.** The workspace, commonspace and check-in model are the
+      same, but the available PDM actions differ per CAD tool. Write per-tool work instructions from that tool's
+      Workgroup Manager section.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      PTC University has a self-guided course, **Windchill: Integrate third party CAD tools**, in its CAD
+      integration track. PTC's own training system even ships a **WGM-AutoCAD** product context - a handy
+      sandbox for practising with non-Creo data.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Which of these needs Windchill Workgroup Manager to connect to Windchill?
+        options: [Creo Parametric, SOLIDWORKS, The Windchill web interface, Creo View]
+        answer: 1
+        explanation: Creo's integration is built in. Third-party CAD tools such as SOLIDWORKS connect through Workgroup Manager.
+      - kind: order
+        prompt: Put the first-time Workgroup Manager setup in order.
+        items: [Install Workgroup Manager on the CAD workstation, Register the CAD application, Register the Windchill server, Set it as the primary server, Activate a workspace and start designing]
+        explanation: That is PTC's initial scenario. The primary server must be set before you can manage CAD objects in Windchill.
+      - kind: multi
+        prompt: Which are parts of PTC's Workgroup Manager architecture? (Choose all that apply.)
+        options: [The authoring application, The Workgroup Manager client, A workspace on the server, The Windchill database, A separate file share for each CAD tool]
+        answers: [0, 1, 2, 3]
+        explanation: The architecture has four pieces - authoring application, WGM client, server workspace and Windchill database. No separate file share is involved.
+      - kind: truefalse
+        prompt: You can register two versions of the same CAD application with Workgroup Manager at the same time.
+        answer: false
+        explanation: Only one version of a given CAD application can be registered at a time.
+      - kind: single
+        prompt: Where can a SOLIDWORKS user register a Windchill server?
+        options: ["File → Manage Session → Server Management", "WGM's Server Management utility, or PTC Windchill → Server Management in the CAD tool", Only in the Windchill web interface, In Creo View]
+        answer: 1
+        explanation: File → Manage Session → Server Management is Creo's path. With Workgroup Manager, use its Server Management utility or the PTC Windchill menu in the connected CAD tool.
+
+  - type: summary
+    points:
+      - Creo connects to Windchill out of the box; SOLIDWORKS, NX, CATIA V5, Inventor, AutoCAD and others connect through Windchill Workgroup Manager.
+      - "WGM's architecture: authoring application, WGM client, server workspace and Windchill database - plus Server, Application and Event Management utilities."
+      - "First setup: install, register the CAD application (one version at a time), register the server, set it as primary, activate a workspace."
+      - The workspace model is the same as with Creo; available PDM actions vary by CAD tool.
+      - Each tool has its own documentation section; installation lives in the separate Installation Guide.

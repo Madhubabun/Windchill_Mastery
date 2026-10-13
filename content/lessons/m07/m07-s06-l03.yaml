@@ -1,0 +1,270 @@
+id: m07-s06-l03
+subtitle: Twenty-three packs on screen, one requirement in your head. Facets cut the list; Find Similar asks "what else is like this one?"
+version: 1.0.0
+updated: "2026-10-13"
+tags: [classification, partslink, search, facets, find-similar, reuse]
+sources:
+  - id: pl
+    where: "PartsLink capabilities (refine results, Find Similar Objects); Module 2: Running a classification search; Faceted search results (conditions for the Refine Results pane, facet behaviour); Classification search and advanced search; Find Similar Objects; Activity: Perform a classification search (Classification Explorer, Refine Results Min/Max, Actions > Find Similar Objects, Value and Modifiers); Activity: Perform an advanced classification search (Keyword, Type, Classification, Criteria); Module 4: Installation and configuration overview (classification search properties); Preferences (Implicit Wildcard for Search in Structures)"
+  - id: hc-find-similar
+    label: PTC Help Center supplement
+    title: "Finding Similar Objects"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wcclassreuse/WCClassSearchFindSimilar.html"
+    covers: "Where the action appears (information page Actions menu; right-click in search results, folder contents and part structure browser); Find Similar Objects profile; only selected rows are searched; explicit values, absolute and percent modifiers, OR across extra legal values; base units and typing another unit"
+
+blocks:
+  - type: text
+    md: |
+      Priya is back in the **Li-ion packs** node: 23 packs. She needs 36 V and about 500 Wh. Scrolling is
+      not a strategy.
+
+      Two PartsLink tools turn a long list into a short one:
+      - **Refine Results** - tick and range filters built from the values in the list you already have.
+      - **Find Similar Objects** - start from one good part and search its node for others like it, with
+        one or two values changed.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "filters next to the results" → [[faceted-search|Refine Results pane (search facets)]]
+      - "parts like this one, but a bit different" → [[find-similar-objects|Find Similar Objects]]
+      - "± a tolerance around a value" → a **modifier** (absolute or percent) in Find Similar
+      - "the search index behind it all" → [[index-search|Windchill Index Search]] (Solr)
+
+  - type: diagram
+    title: When does the Refine Results pane appear?
+    caption: All six conditions must hold. Click each one - most "facets are missing" tickets end here.
+    diagram:
+      width: 820
+      height: 380
+      nodes:
+        - id: solr
+          label: Index Search on
+          sublabel: Solr operational
+          x: 20
+          y: 30
+          w: 180
+          tone: primary
+          detail: Windchill Index Search must be enabled and Solr running. PartsLink needs indexing anyway.
+        - id: pref
+          label: Preference = Yes
+          sublabel: Enable Search Facets
+          x: 220
+          y: 30
+          w: 180
+          tone: primary
+          detail: The **Enable Search Facets** preference must be set to Yes.
+        - id: types
+          label: Indexed types
+          sublabel: in the search
+          x: 420
+          y: 30
+          w: 180
+          tone: primary
+          detail: The search must include object types that are indexed.
+        - id: keyword
+          label: Keyword criteria
+          sublabel: Keyword field used
+          x: 620
+          y: 30
+          w: 180
+          tone: primary
+          detail: The search must include criteria entered in the **Keyword** field.
+        - id: related
+          label: No related-object
+          sublabel: criteria
+          x: 120
+          y: 140
+          w: 180
+          tone: warning
+          detail: Criteria under **Related Object Search** switch the pane off.
+        - id: iter
+          label: Iteration criteria
+          sublabel: not All or one iteration
+          x: 520
+          y: 140
+          w: 180
+          tone: warning
+          detail: If Iteration is set to All or to a unique iteration, there are no facets.
+        - id: pane
+          label: Refine Results
+          sublabel: facets from current results
+          x: 300
+          y: 260
+          w: 220
+          h: 70
+          tone: success
+          detail: |
+            The pane lists attributes and values **found in the current results** - not every possible value.
+            An attribute shows only if the results hold more than one value for it, and string attributes only
+            if a legal value list constrains them. Ticking a value refreshes the table **and** the facets.
+      edges:
+        - { from: solr, to: pane }
+        - { from: pref, to: pane }
+        - { from: types, to: pane }
+        - { from: keyword, to: pane }
+        - { from: related, to: pane, dashed: true }
+        - { from: iter, to: pane, dashed: true }
+
+  - type: comparison
+    title: Three ways to narrow a classification search
+    columns: [Refine Results (facets), Find Similar Objects, Advanced search with classification]
+    rows:
+      - label: Starts from
+        cells: [A result list, One selected classified object, An empty search form]
+      - label: Scope
+        cells: ["The objects already in the list", "The same classification node as the selected object", "Any node you pick (and its child nodes), plus other criteria"]
+      - label: How you filter
+        cells: ["Tick values, enter Min/Max ranges", "Change values, add absolute or percent modifiers, pick extra list values", "Keyword, type, classification node and classification attribute criteria"]
+      - label: Can you save it?
+        cells: [No - it refines the current list, Not described in the course, "Yes - these searches can be saved"]
+    takeaway: Facets to shrink a list, Find Similar to explore around a good candidate, advanced search for repeatable queries.
+
+  - type: walkthrough
+    title: Facets first, then Find Similar
+    who: Any user who can search classified parts
+    where: [Navigator, Search, Classification Explorer]
+    steps:
+      - title: Open the Classification Explorer
+        where: [Navigator, Search, Classification Explorer]
+        md: |
+          Choose the parts structure in the **Classification** drop-down (Part Classification on a standard
+          setup). The numbers next to nodes show how many objects sit under each.
+      - title: Pick the end node
+        where: [Batteries, Li-ion packs]
+        md: Click the node. Its classified objects fill the Search Results table and the Refine Results pane appears on the left.
+      - title: Refine with a range
+        where: [Refine Results, Nominal voltage / Capacity]
+        md: |
+          Expand an attribute, enter **Min** and **Max**, and click **Apply**. Watch the units - PTC's
+          exercise enters screw lengths in metres, the attribute's base unit, not in millimetres. Enter
+          voltage and capacity in whatever base unit Acme's attributes use.
+      - title: Open the best candidate
+        where: [Search Results, View Information]
+        md: Open the information page and check its classification attributes, state and where it's used.
+      - title: Find Similar Objects
+        where: [Information page, Actions, Find Similar Objects]
+        md: |
+          The window lists the object's classification attributes with their current values. Change a
+          **Value**, or add a **Modifier**, then **tick the row**. Only ticked rows are searched. Click
+          **Search**; results appear on the right, all from the same node.
+    result: A short list of packs that meet the requirement, plus near-misses worth a look.
+
+  - type: callout
+    variant: note
+    title: Modifiers and values in Find Similar
+    md: |
+      - **Explicit value** - just type a new value (for example 36 V).
+      - **Absolute modifier** - a fixed range in the attribute's base unit around the value.
+      - **Percent modifier** - for example ±10% around the value.
+      - **More list values** - for attributes with a legal value list you can pick extra values; they are
+        combined with OR (for example connector *XT60* or *XT90*).
+      - The **Units** column shows the base unit. You may type another unit explicitly in the value; it's
+        converted when you click Search.
+
+      Find Similar is also on the right-click menu in search results, folder contents and the part structure
+      browser. It needs indexing enabled for classification objects, and admins can limit who sees it with
+      the Find Similar Objects profile.
+
+  - type: simulation
+    title: Find a twin for EB-3104
+    intro: |
+      EB-3104 (Voltra, 36 V, 504 Wh, XT60) is on allocation. Priya needs an alternative pack from the same
+      node. Set up Find Similar, run it, and find a second source without changing the requirement.
+    headline: "Rows ticked: {rows} · Capacity modifier: {capmod} · Connector values: {conn} · Results: {results}"
+    initial: { rows: 0, voltageTicked: false, capTicked: false, capmod: none, conn: XT60, results: "-" }
+    actions:
+      - id: tick-voltage
+        label: Tick Nominal voltage (36 V)
+        when: { voltageTicked: false }
+        do: [{ set: { voltageTicked: true } }, { inc: rows }]
+        log: Nominal voltage row ticked - it will be searched at 36 V.
+        blockedHint: Already ticked.
+      - id: set-cap-mod
+        label: "Capacity: add a ±5% modifier"
+        do: [{ set: { capmod: "±5%" } }]
+        log: Modifier set on Capacity. Remember - it's ignored unless the row is ticked.
+      - id: tick-cap
+        label: Tick Capacity
+        when: { capTicked: false }
+        do: [{ set: { capTicked: true } }, { inc: rows }]
+        log: Capacity row ticked.
+        blockedHint: Already ticked.
+      - id: add-xt90
+        label: "Connector: also allow XT90"
+        do: [{ set: { conn: "XT60 OR XT90" } }]
+        log: Second legal value added - the two values are combined with OR.
+      - id: search
+        label: Search
+        do: [{ set: { results: "searched" } }]
+        log: "Searched the Li-ion packs node using only the ticked rows."
+      - id: read-results
+        label: Read the results
+        when: { results: "searched", voltageTicked: true, capTicked: true, capmod: "±5%" }
+        do: [{ set: { results: "EB-3122, EB-3140" } }]
+        log: "Two candidates: EB-3122 (Voltra, 500 Wh) and EB-3140 (a second supplier, 490 Wh, XT60). EB-3140 is your second source."
+        blockedHint: "Too broad or too narrow - tick Nominal voltage and Capacity, give Capacity a ±5% modifier, then search."
+    goals:
+      - label: Search with both key rows ticked
+        when: { voltageTicked: true, capTicked: true }
+        message: Only ticked rows count. A modifier on an unticked row does nothing.
+      - label: Find a second-source pack
+        when: { results: "EB-3122, EB-3140" }
+        message: Same node, same requirement, different supplier - a reuse win for Hana's report.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Facets and Find Similar are where the investment in clean attributes pays out. Design engineers find
+      parts by technical requirement in minutes, and they spot quickly when nothing fits - so the part can be
+      bought or requested instead of guessed. That's PTC's "faster time to market" argument in practice.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **"The facet I need isn't there."** Usually one of three things: every result has the same value (a
+      facet needs more than one value), it's a free-text string attribute with no legal value list, or the
+      search broke one of the six conditions - for example someone set the Iteration criterion to *All*.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Two admin settings make classification search friendlier: the property
+      `com.ptc.windchill.PartsLink.showNodeColumns.enabled` shows all node attributes as columns in the
+      results table, and the **Implicit Wildcard for Search in Structures** preference adds wildcards
+      automatically to keyword classification searches, so "ing" finds bearings and wing nuts.
+
+  - type: quiz
+    questions:
+      - kind: multi
+        prompt: Which conditions are required for the Refine Results pane? (Choose all that apply.)
+        options: [The Enable Search Facets preference is Yes, The search uses the Keyword field, The Iteration criterion is set to All, Windchill Index Search is enabled and Solr is running]
+        answers: [0, 1, 3]
+        explanation: Iteration set to All (or to one specific iteration) actually turns facets off. The other three are on PTC's list, together with indexed types and no related-object criteria.
+      - kind: single
+        prompt: In Find Similar, Priya enters a ±10% modifier on Capacity but doesn't tick the Capacity row. What happens?
+        options: [Capacity is searched at ±10%, Capacity is searched at the exact value, Capacity is not part of the search, The search fails]
+        answer: 2
+        explanation: Only ticked rows are searched. Changed values or modifiers on unticked rows are ignored.
+      - kind: single
+        prompt: Where does Find Similar Objects search?
+        options: [The whole Windchill database, The same classification node as the selected object, The parent node and all siblings, Only the current folder]
+        answer: 1
+        explanation: It searches for classified objects within the same classification node as the object you started from.
+      - kind: truefalse
+        prompt: The Refine Results pane lists every possible value of an attribute, even values no result has.
+        answer: false
+        explanation: Facet values come from the objects in the current result list, and they update as you filter.
+      - kind: single
+        prompt: Priya picks XT60 and XT90 for Connector in Find Similar. How are they combined?
+        options: [AND - a pack must have both, OR - either value matches, Only the first value is used, It's not allowed]
+        answer: 1
+        explanation: Extra values picked from a legal value list are included with an OR operator.
+
+  - type: summary
+    points:
+      - Refine Results builds facets from the current results; it needs Index Search, the facets preference, indexed types and Keyword criteria, and no related-object or All-iteration criteria.
+      - String attributes only become facets with a legal value list; attributes need more than one value in the results.
+      - Find Similar Objects searches the selected object's node; change values, add absolute or percent modifiers, pick extra list values (OR) - and tick the rows.
+      - Advanced search can use classification nodes and attributes as criteria and can be saved.

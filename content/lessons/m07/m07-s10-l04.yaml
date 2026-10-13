@@ -1,0 +1,284 @@
+id: m07-s10-l04
+subtitle: The user clicks Finish. What runs next, in what order, and inside which transaction? That's the form processor's job.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [customization, developer, form-processors, wizards, transactions, ui-framework]
+sources:
+  - id: cus-fp
+    where: "Form Processor theory: solution elements (1/2, 2/2); wizard processing control flow; class diagrams; task flow of DefaultFormProcessorController; task flow of form processing; processor delegates (1/3 to 3/3); delegate registration; code example; Form Result"
+  - id: cus-ex
+    where: "Customization All Exercises: Form Processor exercise (action with class attribute, wizard JSP, Part_FP doOperation)"
+  - id: trn-code
+    where: "ReassignDocTemplateFormProcessor and JNJUpdateFunctionalOwnerFormProcessor (checking only): doOperation, NmCommandBean helpers, FeedbackMessage, FormResult status"
+  - id: cus-overview
+    where: "Day 1 overview: NmCommandBean and its helper APIs"
+  - id: trn-framework
+    where: "Windchill Framework Customization slides: defining a new action (command class for a create form processor)"
+versionNotes:
+  - versions: ["All releases"]
+    md: The processing phases come from the customization training; check method signatures against the Javadoc of your release before you rely on them.
+  - versions: ["Windchill+"]
+    md: Form processors are custom Java code; on [[windchill-plus|Windchill+]] they are deployed through a [[windchill-plus-ccd|CCD]] package.
+
+blocks:
+  - type: text
+    md: |
+      Maya wants a **Quick E1 part** popup: type a number and a name, click OK, and a new E1 part exists in the
+      E1 product. The popup is a wizard (lesson 6). But the part doesn't create itself. Behind OK sits a
+      [[form-processor]], the server-side class that receives the form data and does the work, in fixed phases,
+      inside a database transaction.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the class that does the work after OK or Finish" → [[form-processor|ObjectFormProcessor]] (extend **DefaultObjectFormProcessor**)
+      - "everything about the request: form fields, context, selected objects" → **NmCommandBean**
+      - "the form data for one target object" → **ObjectBean**
+      - "a helper the processor calls for one subtask" → **ObjectFormProcessorDelegate**
+      - "the answer sent back: success or failure, messages, objects to refresh" → **FormResult**
+
+  - type: animation
+    title: What happens after OK
+    diagram:
+      width: 820
+      height: 420
+      groups:
+        - { label: Web tier, x: 20, y: 20, w: 240, h: 380, tone: neutral }
+        - { label: Method server, x: 280, y: 20, w: 520, h: 380, tone: primary }
+      nodes:
+        - id: browser
+          label: Wizard OK / Finish
+          sublabel: JavaScript submit
+          x: 40
+          y: 50
+          w: 200
+          tone: accent
+          shape: pill
+        - id: servlet
+          label: WizardServlet
+          sublabel: builds NmCommandBean
+          x: 40
+          y: 170
+          w: 200
+          tone: neutral
+        - id: dispatcher
+          label: FormDispatcher
+          sublabel: RMI call
+          x: 40
+          y: 290
+          w: 200
+          tone: neutral
+        - id: controller
+          label: Processor controller
+          sublabel: DefaultFormProcessorController
+          x: 300
+          y: 290
+          w: 230
+          tone: warning
+        - id: beans
+          label: ObjectBeans
+          sublabel: one per target object
+          x: 300
+          y: 170
+          w: 230
+          tone: info
+          shape: doc
+        - id: processor
+          label: ObjectFormProcessor
+          sublabel: your class
+          x: 560
+          y: 170
+          w: 220
+          tone: primary
+        - id: delegate
+          label: Delegates
+          sublabel: optional subtasks
+          x: 560
+          y: 50
+          w: 220
+          tone: info
+        - id: result
+          label: FormResult
+          sublabel: status · messages · OIDs
+          x: 560
+          y: 290
+          w: 220
+          tone: success
+          shape: pill
+      edges:
+        - { from: browser, to: servlet }
+        - { from: servlet, to: dispatcher }
+        - { from: dispatcher, to: controller }
+        - { from: controller, to: beans }
+        - { from: beans, to: processor }
+        - { from: processor, to: delegate, bidirectional: true }
+        - { from: processor, to: result }
+    chapters:
+      - title: The form is submitted
+        caption: Clicking **Finish**, **Apply**, **Save** or **Check In** calls a JavaScript function that posts to the **WizardServlet**.
+        show: [browser, servlet]
+        highlight: [browser]
+        flow: [browser>servlet]
+        seconds: 6
+      - title: NmCommandBean is filled
+        caption: The servlet loads the form data and context (such as where the wizard was launched) into an **NmCommandBean** and passes it to the **FormDispatcher**.
+        show: [browser, servlet, dispatcher]
+        highlight: [servlet]
+        flow: [servlet>dispatcher]
+        seconds: 6
+      - title: Over to the method server
+        caption: The FormDispatcher makes an RMI call to a **FormProcessorController** in the method server. The default one is enough for single-object wizards.
+        show: [browser, servlet, dispatcher, controller]
+        highlight: [controller]
+        flow: [dispatcher>controller]
+        seconds: 6
+      - title: Partition into ObjectBeans
+        caption: The controller creates one **ObjectBean** per target object, holding that object's form data plus data common to all. ProcessorBeans group the beans for processing.
+        show: [browser, servlet, dispatcher, controller, beans]
+        highlight: [beans]
+        flow: [controller>beans]
+        seconds: 7
+      - title: Your processor runs its phases
+        caption: The **ObjectFormProcessor** runs preProcess, doOperation, postProcess and postTransactionProcess, calling any registered **delegates** in each phase.
+        show: [browser, servlet, dispatcher, controller, beans, processor, delegate]
+        highlight: [processor, delegate]
+        flow: [beans>processor, processor>delegate]
+        seconds: 8
+      - title: The answer goes back
+        caption: A **FormResult** carries the status, any feedback messages and the OIDs of changed objects, so the client can refresh what's on screen.
+        highlight: [result]
+        flow: [processor>result]
+        seconds: 6
+
+  - type: comparison
+    title: The four phases
+    columns: [When, Typical work]
+    rows:
+      - label: preProcess
+        cells: ["Before the transaction starts", "Set up: create new objects and set their attributes from the form; for edits, fetch objects and apply the changes"]
+      - label: doOperation
+        cells: ["Inside the transaction", "The main database operation: store the new object or update the edited one"]
+      - label: postProcess
+        cells: ["Inside the same transaction", "Follow-up work that must roll back if it fails, such as sharing to another container or submitting to a workflow"]
+      - label: postTransactionProcess
+        cells: ["After commit", "Work that needs the committed result, such as checking the new object out"]
+    takeaway: "Order per phase: root ProcessorBean first, then its children. Commit happens only if the earlier steps succeed."
+
+  - type: walkthrough
+    title: Wire Maya's Quick E1 part processor
+    who: Windchill developer (Theo)
+    where: ["<Windchill>", src, com, acme, windchill, forms]
+    steps:
+      - title: Name the processor on the wizard's action
+        where: [codebase, config, actions, custom-actions.xml]
+        md: |
+          The `class` attribute on the command tells the framework which processor handles the wizard:
+
+          ```xml
+          <action name="acmeQuickE1Part">
+            <command windowType="popup" class="com.acme.windchill.forms.QuickE1PartProcessor"
+                     url="/netmarkets/jsp/acme/quickE1Part.jsp"/>
+          </action>
+          ```
+      - title: Override doOperation
+        where: [src, com, acme, windchill, forms, QuickE1PartProcessor.java]
+        md: |
+          ```java
+          public class QuickE1PartProcessor extends DefaultObjectFormProcessor {
+              @Override
+              public FormResult doOperation(NmCommandBean clientData, List<ObjectBean> objectBeans) throws WTException {
+                  FormResult result = new FormResult();
+                  HttpServletRequest request = clientData.getRequest();
+                  try {
+                      WTPart part = WTPart.newWTPart();
+                      part.setNumber(request.getParameter("acmeNumber"));
+                      part.setName(request.getParameter("acmeName"));
+                      part.setContainer(clientData.getContainer());
+                      PersistenceHelper.manager.save(part);
+                      result.setStatus(FormProcessingStatus.SUCCESS);
+                  } catch (WTPropertyVetoException e) {
+                      result.setStatus(FormProcessingStatus.FAILURE);
+                  }
+                  return setRefreshInfo(result, clientData, objectBeans);
+              }
+          }
+          ```
+          `acmeNumber` and `acmeName` are the input names in the wizard step JSP.
+      - title: Report problems clearly
+        where: [QuickE1PartProcessor.java]
+        md: |
+          For a message the user can read, create a `FeedbackMessage` (type such as `FeedbackType.FAILURE`, locale,
+          title), add text with `addMessage`, then call `result.addFeedbackMessage(...)` and set the status.
+      - title: Compile and restart
+        where: [Windchill shell]
+        md: Compile with the `class` target of `bin/tools.xml`, restart, and run the wizard from the E1 product.
+    result: Maya enters EB-1300 and Kickstand, clicks OK, and the part appears in the E1 product.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Because doOperation and postProcess share one transaction, a failure in postProcess rolls the create back
+      too. Put a step in the wrong phase and you get half-done data: a part that exists but never reached its
+      workflow, or a checkout attempted before the object is committed.
+
+  - type: comparison
+    title: Where does Theo's logic belong?
+    columns: [Put it in, Why]
+    rows:
+      - label: Hide the action unless the user may use it
+        cells: ["A validator (pre-validation)", "Decided before the page renders; the processor never runs"]
+      - label: Block Next when step 1 data is invalid
+        cells: ["A validator (post-submit)", "Stops the user inside the wizard with a message"]
+      - label: Create or update the object
+        cells: ["Processor preProcess and doOperation", "Inside the transaction"]
+      - label: Submit the new part to a workflow
+        cells: ["Processor postProcess", "Rolls back with the create if it fails"]
+      - label: Same subtask in many wizards
+        cells: ["An ObjectFormProcessorDelegate", "Reusable; called in each phase like the processor"]
+      - label: Change how a field is drawn
+        cells: ["A data utility", "Display logic, not processing"]
+    takeaway: Validators decide whether; processors and delegates do; data utilities draw.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **One wizard, one processor.** Each wizard is processed by a single ObjectFormProcessor class (multi-object
+      wizards may run several instances of it). For extra server-side work per step, register a **delegate**:
+      with a hidden `FormProcessorDelegate` input, with a `class` on a wizard step's command, or from a data
+      utility. Don't try to chain processors.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Call `setRefreshInfo(result, clientData, objectBeans)` before returning. Processing and response handling are
+      separated: the FormResult just lists the OIDs that changed, and the client refreshes whatever is showing them.
+
+  - type: quiz
+    questions:
+      - kind: order
+        prompt: Put the DefaultFormProcessorController's steps in order.
+        items: [preProcess, Transaction.start, doOperation, postProcess, Transaction.commit, postTransactionProcess]
+        explanation: Set-up runs outside the transaction; the main operation and follow-ups run inside it; commit only if they succeed; post-transaction work runs last.
+      - kind: single
+        prompt: Maya also wants each new part checked out right after creation. Which phase?
+        options: [preProcess, doOperation, postProcess, postTransactionProcess]
+        answer: 3
+        explanation: The training gives check-out after creation as the example for postTransactionProcess, after the object has been committed.
+      - kind: single
+        prompt: Which object partitions the form data into ObjectBeans?
+        options: [WizardServlet, FormProcessorController, ObjectFormProcessorDelegate, FormResult]
+        answer: 1
+        explanation: The FormProcessorController (by default DefaultFormProcessorController) creates one ObjectBean per target object and passes them to the processor.
+      - kind: truefalse
+        prompt: If a processor method returns FormProcessingStatus.FAILURE, the controller calls that processor's setResultNextAction() so it can prepare the response.
+        answer: true
+        explanation: That's how a failing processor gets a chance to set what the HTML response should show.
+
+  - type: summary
+    points:
+      - "Submit flows WizardServlet → NmCommandBean → FormDispatcher (RMI) → FormProcessorController → ObjectBeans → your ObjectFormProcessor."
+      - Extend DefaultObjectFormProcessor and override preProcess, doOperation, postProcess or postTransactionProcess as needed.
+      - doOperation and postProcess share one transaction; postTransactionProcess runs after commit.
+      - Name the processor with class= on the wizard action's command; use delegates for reusable subtasks.
+      - Return a FormResult with a status, optional FeedbackMessages and refresh info.

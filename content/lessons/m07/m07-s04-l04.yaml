@@ -1,0 +1,346 @@
+id: m07-s04-l04
+subtitle: Acme wants to sell a mobility scooter to clinics. Suddenly "we fixed it" isn't enough - you have to prove it, file it and label every device.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [quality, regulated-industries, medical-device, udi, regulatory-submission, audit, design-history-file]
+sources:
+  - id: te
+    where: "Manage the quality of medical devices with Windchill (Medical Device QMS groupings, CAPA, NC, CEM; Additional modules: Regulatory Hub, Audit Management Process, UDI); Accessing quality solutions from within Windchill PLM"
+  - id: hc-quality
+    label: PTC Help Center supplement
+    title: "Windchill Quality Management Solutions (Using the PTC Medical Device Suite)"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/sublandingpages/wqOvw.html"
+    covers: "Module groupings and what each module manages; Regulatory Hub, Audit Management and UDI"
+  - id: hc-dhf
+    label: PTC Help Center supplement
+    title: "Design History File and Device Master Record"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wqCommon/WQCommonVRDDesignHistoryFile.html"
+    covers: "What DHF and DMR contain; viewing, creating and updating them from a part's information page; exporting"
+  - id: hc-training
+    label: PTC Help Center supplement
+    title: "Training Tracking"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wqCommon/WQCommonVRDTrainingMatrix.html"
+    covers: "Training records on Controlled Documents, statuses and the Training On Release flag"
+  - id: hc-udi
+    label: PTC Help Center supplement
+    title: "About Unique Device Identification"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wqUDI/WQUDIAbout.html"
+    covers: "UDI purpose (Part 830), HL7 documents, GUDID submission, UDI to part cardinality"
+  - id: hc-regsub
+    label: PTC Help Center supplement
+    title: "Windchill Regulatory Submissions"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wqregulatorymaster/WQRMWCRegSubmissionProcess.html"
+    covers: "Regulatory submission purpose, default states, expiration, iterate and revise"
+  - id: hc-audit
+    label: PTC Help Center supplement
+    title: "Windchill Audit Management Process"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wqaudit/WCQMSAudit_WCAuditMgmntProcess.html"
+    covers: "Audit types supported, default states, templates, association with CAPA and NC"
+  - id: hc-cem-info
+    label: PTC Help Center supplement
+    title: "Customer Experience Information Page"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wqCommon/WQCEMInfoPageRef.html"
+    covers: "Regulatory tab with Regulatory Submission Summary and Drives Regulatory Submission tables"
+versionNotes:
+  - versions: ["All releases"]
+    md: |
+      Each module is licensed separately, and the course guide notes they can be deployed together or
+      independently. Module names vary between sources: the 13.0 course guide says **Regulatory Hub**, the
+      13.1.2.0 Help Center page is titled **Windchill Regulatory Submissions** and its licence is called the
+      **Regulatory Master** module. Availability on [[windchill-plus|Windchill+]] is not confirmed by these sources.
+
+blocks:
+  - type: text
+    md: |
+      Kai has news: Acme is developing **Acme Care**, a powered mobility scooter for physiotherapy clinics.
+      Acme's regulatory advisers expect it to be treated as a **medical device**. That changes the quality
+      rules overnight.
+
+      For the E-Bike E1, a closed loop was good practice. For a medical device it is the law: the FDA quality
+      system regulation and ISO 13485 expect controlled documents, a documented design history, CAPAs,
+      complaint handling, regulatory filings and a unique ID on every device. Leo has to map which
+      Windchill quality modules cover which of those - and he only has ten minutes with Kai.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "PTC's quality bundle for medical device makers" → the **PTC medical device suite** ([[windchill-quality]])
+      - "the evidence of how we designed it" → **Design History File** (DHF)
+      - "everything you need to build it" → **Device Master Record** (DMR)
+      - "the official ID on the device and its box" → [[unique-device-identification|UDI]]
+      - "the filing we send to a regulator" → [[regulatory-submission]]
+      - "checking we and our suppliers follow the process" → [[quality-audit|audit]]
+      - "complaints, defects and fixes" → [[customer-experience]], [[nonconformance]], [[capa|CAPA]]
+
+  - type: diagram
+    title: The quality modules around the product data
+    caption: Three groupings plus three add-ons. Click any module.
+    diagram:
+      width: 840
+      height: 470
+      groups:
+        - { label: QMS Document Control, x: 20, y: 20, w: 250, h: 170, tone: info }
+        - { label: QMS Design Control, x: 295, y: 20, w: 250, h: 170, tone: primary }
+        - { label: Surveillance and Corrective Action, x: 570, y: 20, w: 250, h: 260, tone: warning }
+        - { label: Additional modules, x: 20, y: 300, w: 525, h: 150, tone: neutral }
+      nodes:
+        - id: doc-control
+          label: Document Control
+          sublabel: training + licence tracking
+          x: 40
+          y: 70
+          w: 210
+          tone: info
+          detail: |
+            A preconfigured module with **training tracking** and **licence tracking**. Training records hang
+            on Controlled Documents: users in the assigned groups get training tasks, and with **Training On
+            Release** set, releasing a new revision cancels the old records and creates new ones.
+        - id: design-control
+          label: Design Control
+          sublabel: DHF · DMR · design review
+          x: 315
+          y: 70
+          w: 210
+          tone: primary
+          detail: |
+            A preconfigured module with the **design history file**, **device master record**, licence tracking,
+            design review and electronic signatures.
+        - id: capa
+          label: CAPA
+          x: 590
+          y: 60
+          w: 210
+          tone: warning
+          detail: Initiate, evaluate, assign, monitor, review and approve corrective and preventive actions, with several actions per CAPA.
+        - id: nc
+          label: Nonconformance
+          sublabel: split lot disposition
+          x: 590
+          y: 130
+          w: 210
+          tone: warning
+          detail: Record and track nonconformance reports, variances, deviations, exceptions and other manufacturing quality events.
+        - id: cem
+          label: Customer Experience
+          sublabel: post-market surveillance
+          x: 590
+          y: 200
+          w: 210
+          tone: warning
+          detail: Collect, track, trend and report customer-reported issues, with regulatory reporting built in.
+        - id: reg
+          label: Regulatory submissions
+          sublabel: "a.k.a. Regulatory Hub"
+          x: 40
+          y: 350
+          w: 160
+          h: 70
+          tone: neutral
+          detail: |
+            Tracks what you submit to regulators (examples PTC gives: 510(k), pre-market authorization, UL
+            certification). Default states In Progress, Completed, Cancelled; submissions can expire, and be
+            iterated or revised for follow-ups.
+        - id: audit
+          label: Audit Management
+          x: 210
+          y: 350
+          w: 150
+          h: 70
+          tone: neutral
+          detail: |
+            Internal (first-party) and supplier (second-party) audits as ISO 9001 requires, run from master
+            checklists. Results are kept per question for year-on-year comparison. Audits can be associated with
+            CAPAs and nonconformances.
+        - id: udi
+          label: UDI
+          sublabel: FDA GUDID
+          x: 370
+          y: 350
+          w: 160
+          h: 70
+          tone: neutral
+          detail: |
+            Create, edit and review UDIs, generate HL7 documents and submit them to the FDA's GUDID, then track
+            submissions and follow-ups. Works with the regulatory submissions module, where the UDI superset data
+            can live for region-specific submissions.
+        - id: part
+          label: Part · BOM · docs
+          sublabel: product data
+          x: 620
+          y: 340
+          w: 180
+          h: 80
+          tone: success
+          detail: |
+            The product data every module points at. A UDI links to **one** part; a part can have many UDIs.
+            The DHF and DMR are built around a part.
+      edges:
+        - { from: design-control, to: part, dashed: true, label: DHF / DMR }
+        - { from: udi, to: part, label: "1 part" }
+        - { from: udi, to: reg, label: superset data }
+        - { from: cem, to: reg, dashed: true, label: drives }
+        - { from: audit, to: capa, dashed: true }
+        - { from: doc-control, to: design-control, dashed: true }
+
+  - type: comparison
+    title: Which module answers which auditor question?
+    columns: [Module, What it manages]
+    rows:
+      - label: "Are staff trained on the current procedure?"
+        cells: ["Document Control", "Training records on Controlled Documents; statuses Pending, Required, Completed, Expired, Canceled"]
+      - label: "Show me how this design evolved."
+        cells: ["Design Control", "Design History File: documents, change notices, problem reports, variances gathered in a baseline for the part"]
+      - label: "What exactly do you build?"
+        cells: ["Design Control", "Device Master Record: approved BOM plus documents for manufacturing, distribution and service"]
+      - label: "How do you handle complaints?"
+        cells: ["Customer Experience Management", "Customer experiences, follow-ups, investigations and regulatory reporting"]
+      - label: "What happens to bad material?"
+        cells: ["Nonconformance", "Disposition of nonconforming items, including split lots"]
+      - label: "How do you prevent recurrence?"
+        cells: ["CAPA", "Root cause, actions, confirmation and effectiveness"]
+      - label: "What did you file, and when does it expire?"
+        cells: ["Regulatory submissions", "Submissions, their state, expiration and follow-ups"]
+      - label: "How is each device identified?"
+        cells: ["UDI", "UDIs linked to parts, HL7 documents, GUDID submissions"]
+      - label: "Do your suppliers follow the process?"
+        cells: ["Audit Management", "First- and second-party audits against master checklists"]
+    takeaway: One auditor question, one module - and every answer points back at the same part data.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      A medical device maker can be asked to show the full story of a device in minutes: who was trained,
+      how the design changed, what was released, every complaint and what was done about it. When those
+      records live in the same system as the parts and changes, that story is a few clicks. When they live in
+      spreadsheets, it's a week of panic. The course guide also notes these modules work for **non-medical**
+      products - Acme could run CAPA and NC for the E1 the same way.
+
+  - type: walkthrough
+    title: Build and read a part's design history file
+    who: A Design Control user on the Acme Care top-level part (Leo or Kai)
+    where: [Part information page, Customize, Quality, Design History File]
+    steps:
+      - title: Add the DHF tab
+        where: [Part information page, New tab, Customize, Quality, Design History File]
+        md: |
+          Open the part's information page, create a new tab and choose **Customize → Quality → Design
+          History File**. The **Design History File Objects** table lists the objects in the DHF baseline
+          for this part revision.
+      - title: Create or refresh it
+        where: [Actions, Create Design History File]
+        md: |
+          If none exists yet, choose **Actions → Create Design History File**: Windchill builds a baseline
+          with the current part as primary object. Later, **Actions → Update Design History File** refreshes
+          it. Sites can also schedule automatic builds.
+      - title: Filter what you see
+        where: [Design History File Objects, Filter]
+        md: Filter by category, object type or state. Removed documents and subparts stay in the DHF - that's the point of a history.
+      - title: Add approved objects to the DMR
+        where: [Design History File Objects, Actions, Add to Device Master Record]
+        md: |
+          Select approved objects and choose **Actions → Add to Device Master Record**. If the part has no
+          DMR yet, one is created and named after the part. Add a **Customize → Quality → Device Master
+          Record** tab to see it.
+      - title: Hand it to the auditor
+        where: [Actions, Export List to File, Export List to PDF with Cover Page]
+        md: Export the list as a PDF with a cover page (who generated it, when, and which part), or to other formats such as Excel.
+    result: Leo can show an auditor the design history and device master record of Acme Care straight from the part.
+
+  - type: text
+    md: |
+      ### Where UDI and regulatory submissions fit
+
+      Think of them as the **outbound** end of the loop:
+
+      - A **customer experience** has a **Regulatory** tab with a *Regulatory Submission Summary* table and a
+        *Drives Regulatory Submission* table - so a serious complaint can be traced to the report filed with
+        the regulator.
+      - The **UDI** module captures the UDI superset information, links each UDI to one part (a part may
+        carry many), produces HL7 documents and submits them to the FDA's GUDID through an electronic gateway.
+        UDIs can be created in Windchill or imported from a spreadsheet.
+      - **Regulatory submissions** hold the filings themselves and their life cycle: In Progress, Completed
+        or Cancelled by default, with expiration dates and follow-ups.
+
+  - type: example
+    variant: case-study
+    title: Leo's rollout plan for Acme Care
+    industry: Medical device (mobility)
+    md: |
+      Leo proposes three phases:
+
+      1. **Document Control** first - procedures as Controlled Documents with training tracking, so Lakeside
+         operators are trained on each released revision.
+      2. **Design Control** next - a DHF for the Acme Care top-level part from the first prototype, so the
+         design history builds itself instead of being reconstructed later.
+      3. **Surveillance and Corrective Action** before launch - CEM, NC and CAPA - then **UDI** and
+         **regulatory submissions** for the market filings.
+
+      The groupings can be deployed together or independently, so the phasing works. PTC also offers them
+      with a Value-Ready Deployment from its Global Services organization.
+    takeaway: Start with the records an auditor asks for first - training and design history - not the most exciting module.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Building the DHF at the end.** The DHF baseline keeps items even after they are removed from the
+      structure - but only if it was being built while the design changed. Deleted objects are not kept.
+      Start it early, or you'll be rebuilding history from email.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      A UDI links to exactly **one** part, but a part can have many UDIs (one per package level, for
+      example). Agree the part structure for packaging before the first UDI is created - re-pointing them
+      later is painful.
+
+  - type: flashcards
+    cards:
+      - front: Three medical device QMS groupings
+        back: Document Control; Design Control; Surveillance and Corrective Action (CAPA, NC, CEM).
+      - front: Design History File (DHF)
+        back: The collected design artifacts for a device part - documents, change notices, problem reports, variances - kept as a baseline.
+      - front: Device Master Record (DMR)
+        back: The approved information needed to produce the device - BOM and related documents.
+      - front: Training On Release
+        back: Document Control flag - releasing a new revision cancels old training records and creates new ones.
+      - front: UDI to part
+        back: A UDI links to one part; a part can have many UDIs.
+      - front: GUDID
+        back: The FDA's Global Unique Device Identification Database - the UDI module submits HL7 documents to it.
+      - front: Regulatory submission default states
+        back: In Progress, Completed, Cancelled.
+      - front: Audit types Windchill supports
+        back: First-party (internal) and second-party (for example supplier) audits.
+      - front: Are the quality modules only for medical devices?
+        back: No - the course guide says they can manage the quality of non-medical products too.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Which grouping contains CAPA, Nonconformance and Customer Experience Management?
+        options: [QMS Document Control, QMS Design Control, QMS Surveillance and Corrective Action, Regulatory Hub]
+        answer: 2
+        explanation: Surveillance and Corrective Action is the installer that bundles CAPA, NC and CEM.
+      - kind: multi
+        prompt: Which belong to the Design Control module? (Choose all that apply.)
+        options: [Design history file, Device master record, Design review, Split lot disposition, Electronic signatures]
+        answers: [0, 1, 2, 4]
+        explanation: Split lot disposition belongs to Nonconformance. Design Control covers DHF, DMR, licence tracking, design review and electronic signatures.
+      - kind: truefalse
+        prompt: One UDI can be linked to several parts in Windchill.
+        answer: false
+        explanation: It's the other way round - a UDI links to only one part, while a part can have many UDIs.
+      - kind: single
+        prompt: A serious complaint led to a report filed with the regulator. Where on the customer experience do you find it?
+        options: [Regulatory tab, Members tab, Timeline tab only, It can't be linked]
+        answer: 0
+        explanation: The customer experience's Regulatory tab holds the Regulatory Submission Summary and Drives Regulatory Submission tables.
+
+  - type: summary
+    points:
+      - PTC's medical device suite supports FDA QSR and ISO 13485 processes in three groupings - Document Control, Design Control, Surveillance and Corrective Action.
+      - Design Control gives each part a Design History File and a Device Master Record, reached from the part's information page.
+      - Regulatory submissions track filings and their expiry; UDI manages device identifiers and GUDID submissions; Audit Management runs first- and second-party audits.
+      - Customer experiences link to regulatory submissions; UDIs link to one part each; audits link to CAPAs and nonconformances.
+      - Modules are licensed and deployable independently, and work for non-medical products too.

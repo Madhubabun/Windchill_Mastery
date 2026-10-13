@@ -1,0 +1,261 @@
+id: m07-s13-l03
+subtitle: One tree per product, systems on the branches, content on the leaves - and a rule that authors don't get to rearrange it on a whim.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [service, information-structure, service-information-manager, best-practices]
+sources:
+  - id: sis
+    where: "Module 3: What are service structures?; Work with information structures: overview; Add objects to an information structure; Populate and publish information structures; Create an information structure: best practices; Activity: Create and populate an information structure"
+  - id: te
+    where: "Appendix A: Organize and manage service content in Windchill"
+
+blocks:
+  - type: text
+    md: |
+      Zoe has a pile of E1 service content: a torque table, a battery-swap procedure, a wiring guide, the
+      owner's manual, a brand-new parts list. Dumped in a folder, it's useless - nobody can tell which page
+      belongs to which part of the bike.
+
+      So she builds the E1's service **map** first: the bike broken into the systems a technician thinks in -
+      *Battery*, *Drive*, *Brakes*, *Frame* - with content attached to each. Windchill calls that map an
+      [[information-structure]].
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the service map of one product" → [[information-structure]] (one of them is the **primary**)
+      - "a branch, like Brakes" → **information group**
+      - "a leaf pointing at one piece of content" → **information element**
+      - "the wrapper that hangs content in the tree" → **content holder** (textual, parts list or illustration)
+      - "an XML topic written in Arbortext" → **dynamic document** (for example a concept or a task)
+
+  - type: diagram
+    title: Anatomy of the E1 Service Manual information structure
+    caption: Groups give the shape; information elements point at content. Click a box.
+    diagram:
+      width: 820
+      height: 440
+      groups:
+        - { label: Structure, x: 10, y: 20, w: 520, h: 400, tone: primary }
+        - { label: Content objects, x: 550, y: 20, w: 260, h: 400, tone: neutral }
+      nodes:
+        - id: root
+          label: E1 Service Manual
+          sublabel: information structure
+          x: 170
+          y: 40
+          w: 200
+          tone: primary
+          detail: |
+            The top of the structure, usually one standalone product. Only **one primary** information
+            structure per product or library context; others can exist and structures can be nested.
+        - id: g-battery
+          label: Battery
+          sublabel: group
+          x: 30
+          y: 160
+          w: 140
+          tone: accent
+          detail: |
+            **Groups** stand for systems, sub-systems and major components. They can be linked directly to
+            service information, can be soft-typed, and can carry applicability.
+        - id: g-brakes
+          label: Brakes
+          sublabel: group
+          x: 200
+          y: 160
+          w: 140
+          tone: accent
+          detail: Another system group. Keep the breakdown to systems and sub-systems a technician recognises.
+        - id: g-ref
+          label: Reference
+          sublabel: group
+          x: 370
+          y: 160
+          w: 140
+          tone: accent
+          detail: A group for shared reference content, such as a master torque table.
+        - id: e-swap
+          label: Swap battery
+          sublabel: textual holder
+          x: 30
+          y: 300
+          w: 140
+          tone: info
+          detail: |
+            An **information element** in a **textual content holder**. It points to one dynamic document -
+            here a *task* created from a procedure template.
+        - id: e-pl
+          label: PL-E1-02
+          sublabel: parts list holder
+          x: 200
+          y: 300
+          w: 140
+          tone: info
+          detail: A parts list inside a parts list holder. Parts lists are covered in the next lesson.
+        - id: e-torque
+          label: Torque table
+          sublabel: textual holder
+          x: 370
+          y: 300
+          w: 140
+          tone: info
+          detail: A *concept* dynamic document. The same content can be pointed to from several places.
+        - id: dd-task
+          label: Task topic
+          sublabel: dynamic document
+          x: 590
+          y: 110
+          w: 180
+          shape: doc
+          tone: neutral
+          detail: |
+            One content holder links to one dynamic document, but a dynamic document can be linked to many
+            content holders - that's how content is reused.
+        - id: dd-concept
+          label: Concept topic
+          sublabel: dynamic document
+          x: 590
+          y: 230
+          w: 180
+          shape: doc
+          tone: neutral
+          detail: When you add an existing dynamic document, Windchill creates a content holder for it if none is linked yet.
+        - id: doc
+          label: Regular document
+          sublabel: e.g. Word file
+          x: 590
+          y: 340
+          w: 180
+          shape: doc
+          tone: neutral
+          detail: Ordinary Windchill documents (and reference documents) can be inserted too.
+      edges:
+        - { from: root, to: g-battery }
+        - { from: root, to: g-brakes }
+        - { from: root, to: g-ref }
+        - { from: g-battery, to: e-swap }
+        - { from: g-brakes, to: e-pl }
+        - { from: g-ref, to: e-torque }
+        - { from: e-swap, to: dd-task, dashed: true }
+        - { from: e-torque, to: dd-concept, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      The information structure is how end users **find** product information, and it is the backbone for
+      publishing. Because it is organised by product system, it also makes it much easier to see which
+      service content a change to a part will hit.
+
+  - type: walkthrough
+    title: Create and populate the E1 Service Manual
+    who: Zoe, a member of the product team with rights to create service objects
+    where: [Browse, "<product>", Information Structure]
+    steps:
+      - title: Prepare a folder
+        where: [Browse, "<product>", Folders, New Folder]
+        md: Create a folder such as *Information Structure Objects* so all structure objects end up in one place.
+      - title: Open the information structure node
+        where: [Browse, "<product>", Information Structure]
+        md: The first time anyone clicks **Information Structure** for a product or library, Windchill creates an empty information structure automatically.
+      - title: Make it primary and name it
+        where: [Actions, Set as Primary Information Structure]
+        md: |
+          Set it as primary. Then on the **Structure** tab right-click it and use **Edit → Rename**
+          (*E1 Service Manual*) and **Edit → Edit Attributes** to set the **Default Content Location** to your
+          folder. Use **Move** from the folder view to move the structure itself there.
+      - title: Add groups
+        where: [Structure tab, right-click structure, Insert New, Insert New Group]
+        md: |
+          Add one group at a time, or use **Insert New → Insert New Multiple Groups** to add Battery, Drive,
+          Brakes and Frame in one go. Confirm the authoring language when asked. Drag groups to reorder them.
+      - title: Insert existing content
+        where: [Structure tab, Insert Existing, Insert Existing Information Element]
+        md: Pick the type in **Search On** (for example Document, Dynamic Document or Parts List), search and insert. Windchill wraps it in a content holder.
+      - title: Create new content in place
+        where: [Right-click group, Insert New, Insert New Textual Information Element]
+        md: |
+          Choose a type such as **Concept** or **Task**, the authoring language and a template. Other options
+          on the same menu: **Insert New Document**, **Insert New Parts List Information Element** and
+          **Insert New Graphic Information Element**.
+      - title: Record what drives the content
+        where: [Select group, Impacted By tab, Add Association]
+        md: |
+          Associate the service part that the group's content depends on (for example the *Brakes* group with
+          its sBOM part). From that row you can run an **impact analysis report** after a part change.
+      - title: Check in and tidy up
+        where: [Structure tab, Checkouts, All Checkouts]
+        md: Check in all objects, then cut and paste any holders that landed in the product root into your folder.
+    result: |
+      The E1 Service Manual has groups and content. Select a group and open the **Information Element List**
+      tab to see what it holds.
+
+  - type: comparison
+    title: Best practices from PTC's course
+    columns: [Practice, Why]
+    rows:
+      - label: Define at product family level
+        cells: ["If you use the product hierarchy part soft type (family, type, model), build the structure at the family level", "Consistent delivery and maximum reuse"]
+      - label: Break into systems and sub-systems
+        cells: ["Mirror the major systems of the product", "The hierarchy can be reused in publication structures, and change impact analysis gets simpler"]
+      - label: No more than three levels
+        cells: ["Keep navigation shallow; make exceptions only where needed", "End users find content faster"]
+      - label: Treat it as business administration
+        cells: ["Authors don't casually reorganise it; changes go through a formal change process", "Minimises the impact on end users"]
+    takeaway: Design the tree once, carefully - then protect it like any other controlled object.
+
+  - type: example
+    variant: real-world
+    title: Zoe's three-level rule
+    industry: Micromobility
+    md: |
+      Zoe's first draft went *E1 → Drive → Motor → Mount → Bolts → Torque*. Six levels. Sam tested it on a
+      tablet and gave up at level four. The final version is **E1 Service Manual → Drive → Motor**, with the
+      torque values in the shared *Reference* group and linked where they're used.
+    takeaway: Depth hides content. Reuse beats nesting.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Letting every author restructure the tree.** Once the structure is defined it should go through a
+      formal change process. A renamed or moved group changes how every technician finds content - and can
+      break the hierarchy that publication structures reuse.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Once populated, use the structure's filters - **configuration specification**, **option**,
+      **attribute** and **service effectivity** - to check what one product variant sees, and **compare**
+      information structures to review product changes. Publishing it as an XML bundle for a delivery
+      application needs a WVS worker and a WVS publishing rule set up first.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: How many primary information structures can a product context have?
+        options: ["Exactly one", "One per language", "As many as you like", "One per sBOM"]
+        answer: 0
+        explanation: A product or library can have several information structures, but only one is the primary.
+      - kind: single
+        prompt: What does an information element do?
+        options: ["Stores the XML text itself", "Points to a single content object such as a dynamic document, illustration or parts list", "Defines a system of the product", "Sets applicability for the whole structure"]
+        answer: 1
+        explanation: Information elements represent content in the structure, each pointing to one content object. Groups represent systems and sub-systems.
+      - kind: truefalse
+        prompt: One dynamic document can be linked to several content holders.
+        answer: true
+        explanation: A content holder links to one dynamic document, but a dynamic document can be associated with many holders - that's how content is reused.
+      - kind: multi
+        prompt: Which are PTC's best practices for information structures? (Choose all that apply.)
+        options: ["Break it into major systems and sub-systems", "Keep it to no more than three levels where possible", "Let each author reorganise it as needed", "Define it at product family level if you use a product hierarchy"]
+        answers: [0, 1, 3]
+        explanation: The structure should be treated as a business administration activity with a formal change process - not reorganised casually by authors.
+
+  - type: summary
+    points:
+      - An information structure is a product-centric hierarchy of operating and service content; one per context is primary.
+      - Groups represent systems and sub-systems; information elements point to content through content holders.
+      - Create it from Browse → product → Information Structure, then add groups and new or existing content on the Structure tab.
+      - Use the Impacted By tab to link groups to the parts their content depends on.
+      - Keep it shallow, system-based and under formal change control.

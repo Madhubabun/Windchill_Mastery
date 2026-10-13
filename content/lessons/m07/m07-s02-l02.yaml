@@ -1,0 +1,327 @@
+id: m07-s02-l02
+subtitle: One structure holds every E1 that could ever exist. A variant specification remembers which one you built.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [options-and-variants, overloaded-bom, configurable-products, variant-specification, variants]
+sources:
+  - id: ov
+    where: "Module 1: How are options and variants implemented in Windchill?; Module 2: Implementation process steps; Configurable structure overview; Activity: Create the configurable product structure; Module 4: Implementation process steps; Create a variant specification and variant; Comparing variant specifications; Activity: Create a variant specification and variant"
+  - id: trn-options
+    where: "Core concepts: variant specification; stand-alone, managed and organized variant specifications"
+
+blocks:
+  - type: text
+    md: |
+      Kai's spreadsheet listed 54 possible E1 builds. Creating 54 separate BOMs would mean 54 copies of
+      the same drive unit, the same brakes, the same saddle - and 54 places to update when Brakeworks
+      changes a caliper.
+
+      Windchill does it the other way round. You build **one** structure that contains every part any E1
+      could use, mark the alternatives with choices, and let Windchill **derive** each bike from it. The
+      record of how one bike was derived is its **variant specification**.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "one structure with every possible part" → [[overloaded-bom|overloaded or 150% BOM]] (configurable structure)
+      - "the top of that structure" → **configurable product** (a configurable module that is also an end item)
+      - "a slot holding all the alternatives for one area" → [[configurable-module]] (configurable part)
+      - "the parts inside that slot" → **module variants**
+      - "one finished, buildable bike" → **variant** (100% BOM)
+      - "the saved record of how it was configured" → [[variant-specification]]
+
+  - type: diagram
+    title: Reading the E1 overloaded BOM
+    caption: Grey boxes are configurable modules, set as collapsible so they vanish from variants. Click any box.
+    diagram:
+      width: 840
+      height: 430
+      nodes:
+        - id: top
+          label: EB-1000 E-Bike E1
+          sublabel: configurable product · end item
+          x: 300
+          y: 20
+          w: 240
+          tone: primary
+          detail: |
+            The **configurable product**: a part created with **Configurable Module = Yes** and **Create as
+            End Item = Yes**. It plays the role an end item plays in a normal structure. It has no CAD
+            document of its own.
+        - id: m-batt
+          label: Battery Module
+          sublabel: "EB-1100 · collapsible"
+          x: 20
+          y: 130
+          w: 180
+          tone: neutral
+          detail: |
+            A [[configurable-module]] with **Collapsible = Yes**, so it does not appear in the variant -
+            only the battery chosen for that bike does.
+        - id: m-frame
+          label: Frame Module
+          sublabel: "EB-1200 · collapsible"
+          x: 230
+          y: 130
+          w: 180
+          tone: neutral
+          detail: Holds the Graphite and Mint frames. Exactly one will be picked.
+        - id: m-rack
+          label: Rack Module
+          sublabel: "EB-1300 · collapsible"
+          x: 440
+          y: 130
+          w: 180
+          tone: neutral
+          detail: Holds the rear rack, which is in the bike only when Rear Rack = Yes.
+        - id: drive
+          label: Drive unit
+          sublabel: "EB-1500 · standard"
+          x: 650
+          y: 130
+          w: 170
+          tone: success
+          detail: A standard part with no choice assigned. Every variant gets it.
+        - id: b400
+          label: 400 Wh pack
+          sublabel: "Battery = 400 Wh"
+          x: 20
+          y: 250
+          w: 180
+          tone: accent
+          detail: A module variant. Usually a real assembly with its own CAD model.
+        - id: b625
+          label: 625 Wh pack
+          sublabel: "Battery = 625 Wh"
+          x: 20
+          y: 340
+          w: 180
+          tone: accent
+          detail: Another module variant (the 500 Wh pack sits between them in the real structure).
+        - id: fgra
+          label: Frame Graphite
+          sublabel: "Frame Colour = Graphite"
+          x: 230
+          y: 250
+          w: 180
+          tone: accent
+          detail: Chosen when Frame Colour = Graphite.
+        - id: fmint
+          label: Frame Mint
+          sublabel: "Frame Colour = Mint"
+          x: 230
+          y: 340
+          w: 180
+          tone: accent
+          detail: Chosen when Frame Colour = Mint.
+        - id: rack
+          label: Rear rack
+          sublabel: "Rear Rack = Yes"
+          x: 440
+          y: 250
+          w: 180
+          tone: accent
+          detail: Filtered out when Rear Rack = No.
+      edges:
+        - { from: top, to: m-batt }
+        - { from: top, to: m-frame }
+        - { from: top, to: m-rack }
+        - { from: top, to: drive }
+        - { from: m-batt, to: b400 }
+        - { from: m-batt, to: b625 }
+        - { from: m-frame, to: fgra }
+        - { from: m-frame, to: fmint }
+        - { from: m-rack, to: rack }
+
+  - type: comparison
+    title: 150% vs 100%
+    columns: [Overloaded BOM (configurable structure), Variant (100% BOM)]
+    rows:
+      - label: Contains
+        cells: ["Every component of every supported variation", "Only the parts for one configuration"]
+      - label: Top part
+        cells: ["Configurable product EB-1000", "A new variant part, e.g. EB-V2001"]
+      - label: Configurable modules
+        cells: ["Present, holding the alternatives", "Replaced by the chosen module variants; collapsible modules disappear"]
+      - label: Can you build it?
+        cells: ["No - a bike can't have three batteries", "Yes - it's the sellable product"]
+      - label: Who maintains it
+        cells: ["Configuration engineers and options managers", "Generated through Configure; tracked by its variant specification"]
+    takeaway: You maintain one 150% structure. Variants are derived from it, never hand-built.
+
+  - type: walkthrough
+    title: Create the configurable product and its modules
+    who: A configuration engineer with create rights in the product (Kai)
+    where: [Browse, Products, E-Bike E1, Folders]
+    steps:
+      - title: Check the preference
+        where: [Preference Management, Configurable Module Support]
+        md: |
+          Jordan confirms the **Configurable Module Support** preference is set to *Yes*. Without it you
+          can't create configurable parts.
+      - title: Create the configurable product
+        where: [E-Bike E1, Folders, "<folder>", New Part]
+        md: |
+          Click **New Part**, type *Part*. Set **Configurable Module** = *Yes* and **Create as End Item** =
+          *Yes*. Number *EB-1000*, name *E-Bike E1*, then **Finish**.
+      - title: Insert the configurable modules
+        where: [EB-1000, Structure tab, Insert New, Insert Multiple New]
+        md: |
+          Open EB-1000's **Structure** tab and choose **Insert Multiple New**. Pick type *Part* with
+          **Configurable Module** = *Yes*, then add one row per module - Battery, Frame, Rack. Select all
+          rows, use **Edit Attribute Value** to set **Collapsible** = *Yes*, and **Finish**.
+      - title: Add the alternatives
+        where: [Structure tab, "<module>", Insert, Insert Existing]
+        md: |
+          Add the existing packs, frames and rack as children of their module (Insert Existing, or copy
+          from the Parts folder and paste onto the module). Add the drive unit directly under EB-1000.
+      - title: Check everything in
+        where: [My Checkouts, Check In]
+        md: Inserting children checks the parents out. Check them all in.
+    result: |
+      EB-1000 shows three collapsible modules full of alternatives, plus standard parts. A module can also
+      contain another configurable module - in that case it isn't set as collapsible.
+
+  - type: text
+    md: |
+      ### From filter to variant specification
+
+      Once choices are assigned (next lessons), right-click the configurable product and choose
+      **Configure**. The Configure window walks through five steps:
+
+      | Step | What happens |
+      | --- | --- |
+      | **Set Filter** | Choose expansion criteria and choices in the option filter |
+      | **Set Parameters** | Enter inputs for advanced selection logic |
+      | **Preview** | See existing variant specifications and variants that already match |
+      | **Variant Specification** | Save a new variant specification (name, description, folder) |
+      | **Module Variant** | Request deliverables - typically *Create New Module Variant* |
+
+      The result is two objects: the **variant** (a new part structure) and the **variant
+      specification**, which records the selected choices. The Preview step is your chance to reuse: if a
+      matching variant already exists, don't make another one.
+
+      PTC's supporting notes name three kinds: **stand-alone** (from Configure or created
+      programmatically), **managed** (created inside a product family) and **organized** (a stand-alone
+      one inserted into a product family).
+
+  - type: simulation
+    title: Configure an E1 for a customer
+    intro: |
+      You're Ana, configuring the bike in Lakeside order 1187: **Cargo trim, Mint frame**. Set the filter,
+      check the preview, then save a variant specification and request the variant. Watch the counters.
+    headline: "Trim {trim} · Battery {battery} · Frame {frame} · Rack {rack} · Step: {step}"
+    initial: { trim: "-", battery: "-", frame: "-", rack: "-", step: Set Filter, specs: 0, variants: 0 }
+    actions:
+      - id: pick-cargo
+        label: "Choose Trim Line = Cargo"
+        when: { step: Set Filter }
+        do: [{ set: { trim: Cargo, battery: 625 Wh, rack: "Yes" } }]
+        log: "Cargo selected. The include rule pre-selects Battery = 625 Wh and Rear Rack = Yes."
+        blockedHint: Choices are set in the Set Filter step.
+      - id: pick-city
+        label: "Choose Trim Line = City"
+        when: { step: Set Filter }
+        do: [{ set: { trim: City, battery: 400 Wh, rack: "No" } }]
+        log: "City selected. The include rule pre-selects Battery = 400 Wh. That's not this order."
+        blockedHint: Choices are set in the Set Filter step.
+      - id: pick-mint
+        label: "Choose Frame Colour = Mint"
+        when: { step: Set Filter }
+        do: [{ set: { frame: Mint } }]
+        log: Frame Colour = Mint. The Mint frame stays; the Graphite frame will be filtered out.
+        blockedHint: Choices are set in the Set Filter step.
+      - id: next-preview
+        label: Next to Preview
+        when: { step: Set Filter, trim: Cargo, frame: Mint }
+        do: [{ set: { step: Preview } }]
+        log: "Preview: no existing variant specification matches Cargo · 625 Wh · Mint · Rack. A new one is needed."
+        blockedHint: Set the filter to match the order first (Cargo and Mint).
+      - id: save-spec
+        label: Create new variant specification
+        when: { step: Preview }
+        do: [{ inc: specs }, { set: { step: Module Variant } }]
+        log: "Variant specification 'E1 Cargo 625 Mint' saved to the Variants folder. It records your choices."
+        blockedHint: Go through Preview first.
+      - id: make-variant
+        label: Create new module variant
+        when: { step: Module Variant }
+        do: [{ inc: variants }, { set: { step: Done } }]
+        log: "Variant EB-V2002 appears under Completed Deliverables. The collapsible modules are gone from its structure."
+        blockedHint: Save the variant specification first.
+      - id: restart
+        label: Start a new Configure
+        when: { step: Done }
+        do: [{ set: { step: Set Filter, trim: "-", battery: "-", frame: "-", rack: "-" } }]
+        log: Configure restarted with a cleared filter.
+    goals:
+      - label: Create the variant specification
+        when: { specs: 1 }
+        message: The spec is the record of the choices - your proof of what was configured.
+      - label: Create the variant for order 1187
+        when: { variants: 1, step: Done }
+        message: One 100% BOM, derived from EB-1000 - nothing was copied by hand.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Six months from now a customer calls about bike EB-V2002. Service needs to know **what was chosen**,
+      not just what was built. The variant specification answers that. You can also **compare** two
+      variant specifications - open one, use the compare action in its **Actions** menu, search for the
+      other, and see choices and structure side by side.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Forgetting Collapsible.** If the modules aren't collapsible, every variant carries empty
+      "Battery Module" and "Frame Module" levels into the BOM that goes to manufacturing. Set
+      Collapsible when you create the modules - unless the module holds another configurable module.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Give every configurable structure a **Variants** tab: on the configurable product's information page
+      add a new tab, rename it *Variants*, and use **Customize → Related Objects** to show *Variants* and
+      *Variant Specifications*. One click from the 150% structure to everything derived from it.
+
+  - type: callout
+    variant: note
+    md: |
+      The course text names the compare action **Compare Information** in its overview and **Compare
+      Variant Solution** in its hands-on steps. Look for either name in the variant specification's Actions
+      menu.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Which two settings make a new part the top of a configurable structure?
+        options: ["Configurable Module = Yes and Create as End Item = Yes", "Collapsible = Yes and End Item = No", "Assembly Mode = Separable and Configurable Module = No", Any part with children]
+        answer: 0
+        explanation: The configurable product is both a configurable module and an end item.
+      - kind: single
+        prompt: Why are the Battery, Frame and Rack modules set to Collapsible?
+        options: [So they can't be edited, So they don't appear in the variant structure, So their children are always included, So they get CAD documents]
+        answer: 1
+        explanation: Collapsible configurable modules are replaced by the chosen module variants and don't show up in the variant.
+      - kind: order
+        prompt: Put the steps of the Configure window in order.
+        items: [Set Filter, Set Parameters, Preview, Variant Specification, Module Variant]
+        explanation: Filter and parameters define the configuration; Preview shows matches that already exist; then you save the spec and request the variant.
+      - kind: multi
+        prompt: What does a finished Configure run produce? (Choose all that apply.)
+        options: [A variant specification recording the choices, A variant part structure, A copy of the whole 150% structure, A new option set]
+        answers: [0, 1]
+        explanation: Configure creates the variant specification and, through Module Variant, the variant. The 150% structure and option set are untouched.
+      - kind: truefalse
+        prompt: In an overloaded BOM, configurable products and modules normally have their own CAD documents.
+        answer: false
+        explanation: The parts and assemblies under the modules carry the CAD models; configurable products and modules normally have none.
+
+  - type: summary
+    points:
+      - The overloaded (150%) BOM holds every component of every variation; the variant (100% BOM) holds one configuration.
+      - A configurable product is a configurable module plus end item; collapsible modules vanish from variants.
+      - Configure runs Set Filter, Set Parameters, Preview, Variant Specification and Module Variant.
+      - The variant specification records the choices and can be compared with others.
+      - Check Preview for an existing match before creating a new variant.

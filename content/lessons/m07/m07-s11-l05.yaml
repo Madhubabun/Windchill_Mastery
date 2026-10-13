@@ -1,0 +1,263 @@
+id: m07-s11-l05
+subtitle: Theo's rules service works on dev. Now it has to become "Acme build 2026.11" - a thing you can install three more times, identically, and still recognise after the next patch.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [customization, developer, architect, build, deployment, maintenance]
+sources:
+  - id: cust
+    where: "Module 1: Customer build (what a build is made of, versioned builds, customizations cannot be restored easily, importance of tracking the build); Deploying Windchill custom code (development, test/integration, QA/validation, production); Customization process (build and launch steps, deploy and release tools, traceability); What may be changed when you customize Windchill; Updates and server maintenance (CPS, certificate update, hardware resizing; impact when a patch fixes a bug or touches a wtSafeArea file; upgrades and major platform changes); Best practices (documented deployment methodology, wtSafeArea); Module 3: xconfmanager -p and windchill stop / start"
+  - id: trn-advdev
+    where: "Section 12: register a service with xconfmanager and restart; Customizing DB column length for WTPartMaster (wtCustom partModel.properties UpperLimit entry, tools.xml custom_column, UpgradeManager -cs, CompareSchema report, run SQL scripts as schema owner, restart)"
+  - id: ac
+    where: "Module 11: Deploy Windchill+ with the CCD utility (only supported tool for Windchill+ from 12.1.2.0; also usable on-premises; what a CCD structure may contain; BAC packages for business administration changes)"
+versionNotes:
+  - versions: ["Windchill+"]
+    md: |
+      On [[windchill-plus|Windchill+]], the [[windchill-plus-ccd|CCD]] utility is the only supported way to
+      deploy customizations and configurations (from 12.1.2.0). You build the CCD structure on an on-premises
+      or private-cloud test system - customization files, load files, properties, and a Business
+      Administration Change (BAC) package for business configuration. The build discipline in this lesson
+      still applies: the CCD package *is* your versioned build. Section m07-s08 covers CCD itself.
+
+blocks:
+  - type: text
+    md: |
+      Theo's service, Leo's listener and the attribute helper all work on his development server. Kai asks
+      the question every Windchill program manager eventually asks: *"Which version of our customization is
+      on production right now - and could you rebuild it tomorrow if the server burned down?"*
+
+      If the honest answer is "the files Theo copied over last Tuesday, plus a fix he made directly on the
+      server", Acme doesn't have a build. It has a snowflake. This lesson turns Theo's work into a **customer
+      build**: versioned, complete, deployable the same way to every environment, and still understandable
+      when the next Critical Patch Set (CPS) arrives.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "everything that makes Acme's Windchill *Acme's*, with a version number" → **customer build**
+      - "PTC's install media and patches" → **base version**, **maintenance release**, **temp patches**
+      - "a patch bundle from PTC" → **Critical Patch Set (CPS)**
+      - "moving the build from one server to the next" → **deployment** (development → test/integration → QA/validation → production)
+      - "Windchill+'s packaging tool" → [[windchill-plus-ccd|CCD]]
+
+  - type: diagram
+    title: What's inside a customer build
+    caption: Five layers. PTC can give you three of them again. The other two only exist if you kept them. Click each.
+    diagram:
+      width: 840
+      height: 420
+      groups:
+        - { label: Restorable from PTC, x: 20, y: 20, w: 390, h: 380, tone: neutral }
+        - { label: Only in your source control, x: 430, y: 20, w: 390, h: 380, tone: warning }
+      nodes:
+        - id: base
+          label: Base version
+          sublabel: install media
+          x: 50
+          y: 70
+          w: 330
+          tone: neutral
+          detail: The Windchill release you installed. Easy to reproduce - download it again.
+        - id: mr
+          label: Maintenance release
+          sublabel: release updates
+          x: 50
+          y: 180
+          w: 330
+          tone: neutral
+          detail: The maintenance level on top of the base. Also reproducible from PTC.
+        - id: patches
+          label: Temp patches
+          sublabel: e.g. a CPS
+          x: 50
+          y: 290
+          w: 330
+          tone: neutral
+          detail: Patches applied to fix specific issues. Reproducible - but record **which** ones, because they are part of the build.
+        - id: config
+          label: Configurations
+          sublabel: xconf · OIRs · types · ACLs
+          x: 460
+          y: 90
+          w: 330
+          tone: warning
+          detail: |
+            Everything set through the UI or admin tools that your build relies on: xconf files, OIRs, subtype
+            and attribute definitions, life cycle and workflow templates, groups, teams, roles, access control
+            rules, context templates, document templates, indexing policies.
+          real: For Theo's release - the E-Bike Part attributes his helper reads.
+        - id: custom
+          label: Customizations
+          sublabel: Java · JSP · RB · tasks
+          x: 460
+          y: 250
+          w: 330
+          tone: danger
+          detail: |
+            Code (Java, JSP, Info*Engine tasks), RB files for text, siteMod copies of PTC files, and the xconf
+            files that register services. PTC's guide is blunt: these **cannot be restored easily** - if they're
+            not in source control, they're gone.
+          real: StandardAcmeRulesService, AcmeDocLinkRule, the attribute helper, two xconf files.
+      edges:
+        - { from: base, to: mr }
+        - { from: mr, to: patches }
+        - { from: patches, to: config, dashed: true }
+        - { from: config, to: custom }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      A tracked build pays off three ways, all named in PTC's guide: anyone can **rebuild the same
+      environment** from the known version (developers, testers and the customer see the same thing); the team
+      keeps a list of **known and fixed issues per build**, so "is it fixed?" has an answer; and the **source
+      files of that exact build** are available when the next change starts. That's true even with no
+      customization at all.
+
+  - type: walkthrough
+    title: Release "Acme build 2026.11" to production
+    who: Theo (build), Rosa (system admin), Leo (acceptance)
+    where: [Source control, Test, QA, Production]
+    steps:
+      - title: Freeze and tag the build
+        where: [Source control, tag acme-build-2026.11]
+        md: |
+          Everything in one tagged version: Java sources, the two xconf files, any wtCustom and siteMod
+          files, load files, plus a **manifest** that lists the base version, maintenance release and patches
+          it was tested on. Link each change to its issue so the build has a known-issues and fixed-issues
+          list.
+      - title: Deploy to test/integration
+        where: [Test server, Windchill shell]
+        md: |
+          Install from the tagged build with your deploy script (the training names Ant, Gradle or Maven for
+          this): compiled classes into the codebase, then `xconfmanager -i` for each new xconf file and
+          `xconfmanager -p`, then `windchill stop` and `windchill start`.
+      - title: Test like production
+        where: [Test server]
+        md: Test has production's architecture (cluster, method servers, authentication), so it's where you run deployment, integration, functional and regression tests - including the "listener stays silent" cases from lesson 3.
+      - title: Promote the same build to QA
+        where: [QA server]
+        md: Same tag, same script - never a rebuild. QA is identical to production; users run acceptance tests here and Leo signs off.
+      - title: Deploy to production
+        where: [Production server, Windchill shell]
+        md: The finalized build, the same script, a planned restart window. Check the method server log for the service's startup line.
+      - title: Record what's live
+        where: [Release notes, build manifest]
+        md: Write down which build is on which environment, and the known issues that shipped with it. That record answers Kai's question in one line.
+    result: Production runs acme-build-2026.11, and Rosa could rebuild it on a new server from the tag and the manifest.
+
+  - type: text
+    md: |
+      ### When the build changes the database
+
+      Some customizations aren't just files. The training's example: widening the part master's **name**
+      column. That release carries extra deployment steps, and they must run on **every** environment, in
+      order:
+
+      1. Put the entry `WTPartMaster.name.UpperLimit=<new value>` in
+         `<WT_HOME>/wtCustom/wt/part/partModel.properties` (part of the build).
+      2. Regenerate the class info: `ant -f bin/tools.xml custom_column -Dgen.input=wt.part`.
+      3. Generate the SQL scripts in a Windchill shell: `UpgradeManager -cs`.
+      4. Read the *Altered Tables* / *Tables to be Altered* section of the CompareSchema report under
+         `<WT_HOME>/Upgrade/UpgradeReports/CompareSchema`.
+      5. Run the listed SQL scripts as the Windchill database **schema owner**, then restart Windchill.
+
+      A step like this is why "copy the class files" isn't a deployment method. The build's runbook has to say
+      what runs, where, and in which order.
+
+  - type: comparison
+    title: "Cheat sheet: what each kind of change means for custom code"
+    columns: [Examples, What to do with the build]
+    rows:
+      - label: Update or maintenance
+        cells: ["CPS, certificate update, hardware resizing", "Usually little impact. Retest anything the CPS fixes that your code relied on or worked around, and compare any file it changed in the safe area"]
+      - label: Upgrade
+        cells: ["For example 12.1 to 13.1", "Plan months ahead; expect code changes; recheck service numbers and deprecated APIs; ship as a new build"]
+      - label: Platform change
+        cells: ["Oracle to SQL Server, monolithic to clustered, Windows to Linux", "End-to-end testing on a test system with the new platform; part of release planning"]
+      - label: Your own change
+        cells: ["A new rule, a fixed bug, a wider column", "A new build version through test and QA - never a hot edit on production"]
+    takeaway: Small PTC changes mean targeted retests. Big ones mean a planned release. Your changes always mean a new build.
+
+  - type: scenario
+    variant: what-if
+    title: What if Friday goes wrong?
+    start: s1
+    nodes:
+      - id: s1
+        md: Friday 4 p.m. Leo finds a typo in the veto message on production. Rosa offers to edit and recompile the class right on the production server. It would take five minutes. What does Theo say?
+        choices:
+          - label: Fix it in source control, build 2026.11.1, and push it through test - production gets the same build on Monday
+            next: s2
+            good: true
+            feedback: A typo can wait until Monday. A production server that no longer matches any build can't be rebuilt.
+          - label: Do it - it's only a message
+            next: fail1
+            feedback: Production now runs code that exists nowhere else. The next deployment silently reverts it - or worse, mixes versions.
+      - id: s2
+        md: The next CPS arrives. Its notes list a fix for a life cycle issue Theo had worked around inside his listener. What now?
+        choices:
+          - label: Install the CPS on test first, retest the listener, and remove the workaround in a new build if it's no longer needed
+            next: win
+            good: true
+            feedback: Exactly the case PTC's guide flags - a patch that fixes a bug your code depends on needs retesting.
+          - label: Install on production directly - CPSs rarely affect custom code
+            next: partial1
+            feedback: Usually true. But this one touches exactly the behaviour your code works around.
+      - id: win
+        md: CPS on test, listener retested, workaround removed in build 2026.12. Production gets the CPS and the new build together, with a manifest that says so.
+        outcome: success
+      - id: partial1
+        md: Production is fine - this time. The workaround now fights the fix in an edge case nobody tested, and it surfaces three weeks later.
+        outcome: partial
+      - id: fail1
+        md: Six weeks later, build 2026.12 deploys over the hot fix. The typo is back, and nobody knows why the class on production had a different date.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Rebuilding for each environment.** Compiling again for QA or production means QA tested something
+      slightly different from what goes live. Build once, tag it, and promote the same artefacts through every
+      environment.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Treat configuration like code. OIRs, types, templates and xconf files your custom code depends on belong
+      in the build manifest too - a listener that reads `IPRating` is broken on any system where that
+      attribute doesn't exist.
+
+  - type: quiz
+    questions:
+      - kind: multi
+        prompt: Which make up a customer build? (Choose all that apply.)
+        options: ["Maintenance release", "Temp patches", "Customizations and configurations", "The users' browser versions", "Base version"]
+        answers: [0, 1, 2, 4]
+        explanation: PTC's guide defines the build as base version, maintenance release, temp patches, customizations and configurations - and builds are versioned.
+      - kind: single
+        prompt: Which part of the build is hardest to restore?
+        options: [The customizations, The base version, The maintenance release, The temp patches]
+        answer: 0
+        explanation: PTC's parts can be downloaded again. Customizations exist only where you kept them.
+      - kind: order
+        prompt: Put the deployment path in order.
+        items: [Tag the build in source control, Deploy to test/integration, Run integration and regression tests, Promote the same build to QA for acceptance, Deploy to production, Record which build is live]
+        explanation: One tagged build moves forward through each environment, and the record closes the loop.
+      - kind: truefalse
+        prompt: A CPS can affect custom code when it fixes a bug your code was relying on or working around.
+        answer: true
+        explanation: PTC's guide names two triggers - a patch fixing a known bug that needs retesting, and a CPS modifying a file in the safe area.
+      - kind: single
+        prompt: A release widens the part master's name column. Who runs the generated SQL scripts?
+        options: ["Nobody - xconfmanager -p does it", "The Windchill database schema owner", "Any Windchill user", "The method server automatically"]
+        answer: 1
+        explanation: The training's steps end with running the scripts from the CompareSchema report as the schema owner, then restarting Windchill.
+
+  - type: summary
+    points:
+      - A customer build = base version + maintenance release + temp patches + customizations + configurations, and it's versioned.
+      - PTC can restore its parts; only source control can restore yours.
+      - Build once, tag it, and promote the same build through test, QA and production with a scripted deployment.
+      - Track known and fixed issues per build so everyone can reproduce and answer "which version is live?"
+      - Updates need targeted retests; upgrades and platform changes need planned releases; your changes always need a new build.

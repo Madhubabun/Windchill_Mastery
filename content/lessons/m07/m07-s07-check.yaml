@@ -1,0 +1,88 @@
+id: m07-s07-check
+subtitle: Prove you can connect Windchill to ERP, plants and apps - patterns, products, targets and the REST API.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [integration, erp, esi, rest, odata, checkpoint]
+sources:
+  - id: esi
+    where: "Module 1: ERP and PLM comparison (data ownership); Module 2: Windchill-ERP integration options; What is Windchill ESI?; Windchill ESI architecture; ERP Connector; Comparing integration options; Open API interface"
+  - id: erp
+    where: "Module 1: ERP Connector overview; ERP Connector in comparison to ESI; ERP integration software: decision flow; ERP Connector administration (ESI Administrators and ESI Authors). Module 2: Distribution targets; Distribution target assignment strategy; Publishing business objects (RTM workflow); ESI Transaction Administration (Enable Post Result, Pending)"
+  - id: rest
+    where: "Module 2: WRS overview and domains. Module 3: Entity Data Model; WRS OData URLs; Methods used by WRS; HTTP status codes; Query parameters; Securing WRS requests (CSRF nonce). Module 4: WRS framework configuration; Configure entities in a domain (navigation properties, inherits). Module 5: Extend WRS domains (restrictions); Create a custom domain"
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **integrations**: PLM-ERP patterns and data ownership, the digital thread, ERP
+      Connector versus ESI, distribution targets and transactions, and Windchill REST Services from first
+      GET to custom domains. Score 80% to pass. Every answer explains itself.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: Ines sorts data by owner. Which item belongs to ERP rather than to Windchill?
+        options: [The engineering BOM of the E1, The CAD model of the frame, Stock levels and purchase orders at Riverside, The change notice that released the frame]
+        answer: 2
+        explanation: PLM owns product data - CAD, specifications, engineering BOMs and change orders. ERP owns execution data such as material masters, inventory and purchase orders.
+      - kind: single
+        prompt: Which integration option is point-to-point, needs no middleware and is one-way out of the box?
+        options: [Full Windchill ESI, ERP Connector, A ThingWorx mashup, Windchill REST Services]
+        answer: 1
+        explanation: ERP Connector writes the response to File, FTP or Email targets with no middleware; closed loop needs extra configuration. Full ESI uses TIBCO middleware and is closed loop.
+      - kind: single
+        prompt: "In PTC's decision flow, a customer has 300 Windchill users, no middleware preference and runs SAP. What's the recommendation?"
+        options: [ERP Connector, Windchill ESI, Customize ERP Connector, A custom WRS domain]
+        answer: 1
+        explanation: Over about 100 users, neutral to TIBCO and SAP or Oracle leads to Windchill ESI. Smaller sites usually start with ERP Connector.
+      - kind: truefalse
+        prompt: ERP Connector and full ESI share the ESI services and the Release to Manufacturing workflow.
+        answer: true
+        explanation: Both build on the same ESI services and Open API and publish through the RTM workflow - one reason a site can start small and grow.
+      - kind: multi
+        prompt: Ines sets up publishing for Riverside and Lakeside with ERP Connector. Which statements are true? (Choose all that apply.)
+        options: ["ERP Connector targets can be of type File, FTP or Email", Creating or deleting targets needs ESI Administrators plus site Administrators membership, "With Enable Post Result set to No, a delivered transaction stays Pending until ERP posts a result", The Windchill Loader can delete targets in bulk]
+        answers: [0, 1, 2]
+        explanation: SAP, Oracle Applications and MES are ESI target types. The loader can create or modify targets but not delete them.
+      - kind: single
+        prompt: Which statement best describes the digital thread?
+        options: [A TIBCO message queue between Windchill and SAP, The connected flow of product data from engineering out to manufacturing, service and the rest of the business, A Windchill workflow template, The ERP's material master]
+        answer: 1
+        explanation: It's the idea of carrying product data without re-typing across functions. ESI, WRS and ThingWorx-based apps are ways to build it.
+      - kind: single
+        prompt: Theo's integration creates a part with POST and gets a 403 although his URL and body are correct. What's the most likely cause?
+        options: [The domain version doesn't exist, The calling user lacks permission for the action, A $filter operation isn't implemented, The server crashed]
+        answer: 1
+        explanation: 403 means the request was well formed but denied - WRS applies the user's permissions. 404 is a missing version, navigation or entity; 501 an unimplemented operation; 500 a runtime failure. And remember that changes also need a CSRF nonce.
+      - kind: single
+        prompt: How does a client read the Entity Data Model of the ProdMgmt domain?
+        options: ["GET .../servlet/odata/ProdMgmt/$metadata", "GET .../servlet/odata/ProdMgmt/Parts?$expand=Uses", "POST .../servlet/odata/ProdMgmt/GetCSRFToken()", Open Parts.json in the browser]
+        answer: 0
+        explanation: Adding $metadata to the domain root returns the EDM in CSDL (XML) - entities, structural and navigation properties, functions and actions.
+      - kind: multi
+        prompt: Theo extends the ProdMgmt domain. Which rules apply? (Choose all that apply.)
+        options: ["Put new files under codebase/rest/custom/domain, mirroring the PTC folders", You may add entities and properties, You may change the definition of an existing PTC property, Never modify files under codebase/rest/ptc/domain]
+        answers: [0, 1, 3]
+        explanation: Extensions are add-only and live in the custom configuration path, which WRS merges with PTC's. Changing PTC definitions isn't allowed, and edited PTC files are overwritten by updates.
+      - kind: order
+        prompt: Put the steps of building a custom WRS domain in order.
+        items: [Decide the domain id and version, Create the domain JSON file, Create the version folder with import.json, Create the entity folder and entity files, Test the EDM at the $metadata URL]
+        explanation: PTC's sequence. Once it works, the custom domain also appears in the API catalog.
+
+  - type: flashcards
+    title: Integrations deck
+    cards:
+      - { front: PLM vs ERP ownership, back: "PLM owns product data (CAD, specs, eBOM, changes). ERP owns execution data (materials, stock, purchasing)." }
+      - { front: ERP Connector, back: "Point-to-point ESI product - File, FTP or Email targets, XML or JSON, open loop by default, hard-coded logic." }
+      - { front: Full Windchill ESI, back: "Middleware-based (TIBCO), closed loop, turnkey for SAP and Oracle Applications." }
+      - { front: Distribution target, back: "Where published data goes - a file location or server for ERP Connector, a plant in ERP for ESI." }
+      - { front: RTM workflow, back: "Release to Manufacturing - the workflow that runs every publication to distribution targets." }
+      - { front: Enable Post Result = No, back: "Delivered transactions stay Pending until ERP calls PostResult - true closed loop status." }
+      - { front: WRS domain, back: "One OData service for a functional area (ProdMgmt, DocMgmt...) with its own id and versions. Not an administrative domain." }
+      - { front: $metadata, back: "Add it to a domain root URL to get the EDM in CSDL." }
+      - { front: CSRF_NONCE, back: "Header required on POST, PATCH and DELETE. Get the value from GetCSRFToken() in PTC Common." }
+      - { front: Custom configuration path, back: "codebase/rest/custom/domain - your extensions and domains; merged with PTC's and untouched by updates." }
+      - { front: inherits, back: "Entity JSON section that pulls in Windchill capabilities - subtypeable, softattributable, workable, versioned, lifecycleManaged..." }
+      - { front: Bound function vs bound action, back: "Function = read only, called with GET. Action = changes state, called with POST." }

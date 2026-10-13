@@ -1,0 +1,101 @@
+id: m07-s09-check
+subtitle: Can you decide when to code, find your way in the model, pick the right socket and keep it all upgrade-safe?
+version: 1.0.0
+updated: "2026-10-11"
+tags: [customization, developer, checkpoint]
+sources:
+  - id: cust
+    where: "Module 1: Why customize Windchill?; Customization process; Deploying Windchill custom code; Updates and server maintenance; Customer build; Module 2: Directories and files; wtSafeArea; Windchill customization resources; Module 3: Eclipse configuration and debugging"
+  - id: cus-overview
+    where: "Day 1 overview: Windchill Client Architecture and common Java services; NmOid and NmSimpleOid; development environment and key commands"
+  - id: trn-advdev
+    where: "Section 11: QuerySpec (deprecated methods, join support with link roles); attribute methods (PersistableAdapter); Section 12: event listener and service registration"
+  - id: hc-svc-event
+    label: PTC Help Center supplement
+    title: "Service Event Management"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/customization/WCCG_Serv_DevelopServerLogic_ServEventMgmt.html"
+    covers: "Listeners run synchronously in the emitter's transaction and can veto by throwing an exception"
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **customization and extension points**: configure-first decisions, the information model,
+      choosing extension points, the development environment and upgrade-safe practice. Score 80% to pass.
+      Every answer explains itself.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: Kai asks for E-Bike parts to start in a new life cycle. What does Theo recommend?
+        options: [A life cycle template and an OIR - configuration, A listener that sets the life cycle on create, A custom wizard, A new Java subclass of WTPart]
+        answer: 0
+        explanation: Life cycle templates and object initialization rules are configured in the UI. Configure first; code only when configuration can't meet the need.
+      - kind: multi
+        prompt: Which belong to the lifetime cost of a customization? (Choose all that apply.)
+        options: [Initial build and test, Retesting after patches and updates, Possible code changes at upgrades, PTC's licence for the base product]
+        answers: [0, 1, 2]
+        explanation: PTC's guide names higher initial and maintenance costs and the need to carry custom code through updates and upgrades. The base licence isn't a customization cost.
+      - kind: single
+        prompt: Theo searches parts by name with a QuerySpec. Which class holds the name?
+        options: [WTPartMaster, FolderMembership, WTPartAlternateLink, SubFolder]
+        answer: 0
+        explanation: A part's name is derived from WTPartMaster.name; masters hold the identity shared by all versions.
+      - kind: truefalse
+        prompt: In the Windchill information model, a relationship such as folder membership is itself a stored object with two named roles.
+        answer: true
+        explanation: Link classes like FolderMembership have roles (FOLDER_ROLE, MEMBER_ROLE) that you use to navigate or join.
+      - kind: single
+        prompt: Where does a "no release without a linked part" rule belong so it holds on every path?
+        options: [An event listener on the life cycle set-state event, A hidden action in the part menu, A data utility, A JSP page]
+        answer: 0
+        explanation: A listener runs inside the operation and can veto it by throwing an exception. UI changes only affect one screen.
+      - kind: multi
+        prompt: Which statements about listeners are true? (Choose all that apply.)
+        options: [They run synchronously in the same transaction as the operation, They can veto a pre-event by throwing an exception, They are usually registered in a service's startup method, They run later in a background queue by default]
+        answers: [0, 1, 2]
+        explanation: Listeners are synchronous and in the emitter's transaction - so keep them fast. The hosting service registers them at startup.
+      - kind: single
+        prompt: Which environment is identical to production and used for load tests and user acceptance?
+        options: [QA/validation, Development, Test/integration only, A developer laptop]
+        answer: 0
+        explanation: QA/validation is identical to production. Test/integration shares production's architecture and is used for deployment, integration and regression tests.
+      - kind: order
+        prompt: Put the steps to enable remote debugging in order.
+        items: [Add the method server debug-args property in site.xconf, Run xconfmanager -p, Restart Windchill, Create a Remote Java Application configuration in Eclipse, Start debugging]
+        explanation: The property must reach wt.properties and the method server must restart with it before Eclipse can attach.
+      - kind: single
+        prompt: Theo must change a PTC JSP. What's the upgrade-safe way?
+        options: ["Save the original in ptcOrig, put the changed copy in siteMod with a header comment and BEGIN/END CUSTO markers", Edit it in place under codebase, Rename the original and keep both in codebase, Put the whole file in wtCustom]
+        answer: 0
+        explanation: The installer checks the safe area and preserves siteMod files. wtCustom is only for text tailoring in rbInfo files.
+      - kind: multi
+        prompt: In a code review, which lines should Theo flag for upgrade risk? (Choose all that apply.)
+        options: ["qs.appendSearchCondition(cond)", "new LWCNormalizedObject(...)", "qs.appendWhere(cond, new int[] { idx })", "new PersistableAdapter(obj, null, locale, op)"]
+        answers: [0, 1]
+        explanation: appendSearchCondition is deprecated in favour of appendWhere(WhereExpression, int[]), and LWCNormalizedObject was replaced by PersistableAdapter in 10.2 and later.
+
+  - type: flashcards
+    title: Customization and extension points deck
+    cards:
+      - front: Configuration vs customization
+        back: "Configuration: UI and admin tools, no code. Customization: adding or changing Java code and codebase files."
+      - front: Five customization types
+        back: "Lightweight, user interface (client), Windchill server, workflow, and integration (REST, ERP Connector)."
+      - front: WTPartMaster vs WTPart
+        back: "The master holds number and name shared by all versions; WTPart holds each iteration."
+      - front: Link class
+        back: "A stored relationship with two named roles, e.g. FolderMembership (FOLDER_ROLE, MEMBER_ROLE)."
+      - front: NmSimpleOid
+        back: "Represents a non-persisted object - something not created yet or a wrapper around a persistable."
+      - front: Event listener
+        back: "Server code subscribed to an event; runs in the operation's transaction and can veto a pre-event by throwing."
+      - front: Customization tab
+        back: "Appears when the site preference Client Customization is Yes; links to UI customization resources and the Javadoc."
+      - front: "xconfmanager -d wt.jdk"
+        back: "Shows the JDK folder Windchill uses - point Eclipse at the same JDK."
+      - front: siteMod
+        back: "Your modified copies of PTC files; the installer preserves them at updates and upgrades."
+      - front: Deprecated QuerySpec calls
+        back: "Replace appendSearchCondition and single-index overloads with appendWhere(WhereExpression, int[])."

@@ -1,0 +1,51 @@
+# New glossary terms introduced in section m07-s05 (Project management and collaboration).
+- id: project-plan
+  term: Project plan
+  plain: The schedule inside a Windchill project - who does what, and by when.
+  definition: The top-level plan object of a Windchill project. It holds any number of activities, summary activities and milestones, plus summary data for the plan as a whole. Windchill rolls durations, work, percent complete and status colour up through the plan, and team members update it together rather than leaving it to the project manager alone. A plan can be built in Windchill or imported from Microsoft Project.
+  aka: [Plan]
+  related: [project-context, summary-activity, project-milestone, project-deliverable, gantt-explorer]
+
+- id: summary-activity
+  term: Summary activity
+  plain: A parent step that groups smaller steps under it.
+  definition: A plan activity that has child activities, milestones or other summary activities. Once an activity becomes a summary activity (for example with Increase Indent on its children), it stops storing its own work, cost and status; those values are calculated from its children. Its status colour follows the worst status on its critical path.
+  related: [project-plan, project-milestone]
+
+- id: project-milestone
+  term: Milestone (project plan)
+  plain: A checkpoint in the plan - a date or a goal, not a chunk of work.
+  definition: A plan object with a duration of 0 or 1 day that marks either a date (a date marker milestone) or a goal (a goal measurement milestone). A milestone becomes a goal measurement milestone when deliverables are linked to it; its finish date then moves to the latest deliverable finish date and its percent complete is the simple average of those deliverables. It is created with the same wizard as an activity by selecting Mark activity as milestone.
+  aka: [Date marker milestone, Goal measurement milestone]
+  related: [project-plan, project-deliverable]
+
+- id: project-deliverable
+  term: Deliverable (project plan)
+  plain: The thing the project must actually produce, linked to the step that produces it.
+  definition: A plan object that links an activity or milestone to its tangible output, such as a document, part or CAD document in the project (its subject), or an item kept outside Windchill. It stores work status such as percent complete, work done and risk. Deliverables count as children of activities, so an activity's estimated finish date is calculated from its deliverables. Only project managers create deliverables, activities and milestones.
+  related: [project-plan, project-milestone, action-item]
+
+- id: action-item
+  term: Action item
+  plain: A quick to-do in a project that isn't part of the formal plan.
+  definition: A project task used to capture an issue to resolve or a piece of supporting work that is not tracked in the project plan. Unlike activities, milestones and deliverables, any team member can create one and assign it to someone. It appears on the assignee's Tasks page and on the project's Tasks page, and is resolved by setting its state to Resolved, entering 100 as done, or entering an actual finish date.
+  related: [project-deliverable, task]
+
+- id: gantt-explorer
+  term: Gantt Explorer
+  plain: A timeline picture of the project plan that you can show to anyone.
+  definition: A read-only window that shows the project plan as a list of plan objects on the left and a Gantt chart on the right, with zoom, Scroll to and Highlight critical path controls. It uses the same table views as the Plan page. Changes made in the Gantt Explorer are not kept in the project, so edits are made on the Plan page or with Edit and Track Work.
+  related: [project-plan]
+
+- id: pdm-checkout
+  term: PDM checkout
+  plain: Lending a product's object to a project so the project team can change it.
+  definition: A way of adding an object from a product or library (PDM) to a project that creates a project-specific version the project team can edit, while the original stays locked in PDM. Documents, parts and CAD documents can be PDM checked out, and one object can be checked out to several projects, though only one of them can send it back. The work returns with Send to PDM, or is thrown away by undoing the PDM checkout, which deletes the project iterations and unlocks the original.
+  aka: [PDM Check-out]
+  related: [send-to-pdm, project-context, check-out]
+
+- id: send-to-pdm
+  term: Send to PDM
+  plain: Handing project work back to the product or library where it belongs.
+  definition: The project action that moves objects from a project to a product or library. For an object that was PDM checked out, the latest project iteration becomes the latest iteration of the original object, which is unlocked unless you keep it checked out to the project. For an object created in the project, you choose PDM Checkin (send it and keep a shared copy visible in the project) or Keep Checked Out. Sending a CAD document with a build rule to a part version runs an EPM build.
+  related: [pdm-checkout, project-context]

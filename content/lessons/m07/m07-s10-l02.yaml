@@ -1,0 +1,304 @@
+id: m07-s10-l02
+subtitle: A table in Windchill is two answers to two questions - what does it look like, and what's in it? Builders give both.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [customization, developer, mvc, builders, tables, trees, ui-framework]
+sources:
+  - id: cus-mvc
+    where: "MVC Builders theory: MVC recap; request handling; servlet and URL mapping; DispatcherServlet application context; handlers and ComponentController; builder types; how to find a builder; internals of ComponentController; typical MVC components; specifying the component id; registering builders (scanning, explicit); MVC table example; MVCBuilder.java and MVCNonPersistableTableBuilder.java (checking only); Exercises 3 and 4; practice cases"
+  - id: trn-framework
+    where: "Windchill Framework Customization slides: MVC, MVC components, MVC builders, registering builders, samples, MVC builder search; MVC.pptx; Windchill Client Customization: two customization paths"
+  - id: cus-ex
+    where: "Customization All Exercises: MVC Table Builder (Persistable) and (Non-Persistable); custom.xml and custom-actions.xml entries"
+  - id: cust
+    where: "Introduction to Windchill Customization: Customization tab"
+versionNotes:
+  - versions: ["All releases"]
+    md: |
+      The MVC framework arrived with Windchill 10.0 according to the training's history slide, and the samples were
+      built on 12.1. The builder pattern is the same idea in 13.x; check signatures against the Javadoc for your
+      release.
+  - versions: ["Windchill+"]
+    md: Builders are custom Java code. On [[windchill-plus|Windchill+]] they are deployed with the [[windchill-plus-ccd|CCD utility]], not copied to the server.
+
+blocks:
+  - type: text
+    md: |
+      Kai's **E1 parts** page needs an actual table: name, number, type, last modified, created. Theo could
+      hand-write HTML in a JSP, but Windchill has a better way. He writes a small Java class, a
+      [[mvc-builder|builder]], that answers two questions: *what columns does the table have?* and *which rows go
+      in it?* Windchill does the rest: selection checkboxes and the same look as every other Windchill table.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the description of the table: label, columns, selectable or not" → **ComponentConfig** (here a `TableConfig`)
+      - "the rows" → **ComponentData**
+      - "both together, ready to draw" → **ComponentDefinition** (the *model* in MVC)
+      - "the traffic cop that handles the request" → **ComponentController** (the *controller*)
+      - "the unique name a page uses to ask for your table" → **component id**, set with `@ComponentBuilder`
+      - "the Java class that supplies config and data" → [[mvc-builder|MVC builder]]
+
+  - type: animation
+    title: From click to table
+    diagram:
+      width: 820
+      height: 400
+      groups:
+        - { label: Web container, x: 20, y: 20, w: 260, h: 360, tone: neutral }
+        - { label: MVC framework, x: 300, y: 20, w: 500, h: 360, tone: primary }
+      nodes:
+        - id: click
+          label: User clicks action
+          sublabel: ptc1/<handler>/<id>
+          x: 40
+          y: 60
+          w: 220
+          tone: accent
+          shape: pill
+        - id: dispatcher
+          label: DispatcherServlet
+          sublabel: mapped in web.xml
+          x: 40
+          y: 200
+          w: 220
+          tone: neutral
+        - id: controller
+          label: ComponentController
+          sublabel: the controller
+          x: 320
+          y: 60
+          w: 200
+          tone: primary
+        - id: resolver
+          label: Builder resolver
+          sublabel: ComponentBuilderResolver
+          x: 570
+          y: 60
+          w: 210
+          tone: warning
+        - id: config
+          label: Config builder
+          sublabel: ComponentConfig
+          x: 320
+          y: 200
+          w: 200
+          tone: info
+        - id: data
+          label: Data builder
+          sublabel: ComponentData
+          x: 570
+          y: 200
+          w: 210
+          tone: info
+        - id: definition
+          label: ComponentDefinition
+          sublabel: the model
+          x: 440
+          y: 310
+          w: 220
+          tone: success
+          shape: pill
+      edges:
+        - { from: click, to: dispatcher }
+        - { from: dispatcher, to: controller }
+        - { from: controller, to: resolver, label: component id }
+        - { from: resolver, to: config }
+        - { from: resolver, to: data }
+        - { from: config, to: definition }
+        - { from: data, to: definition }
+    chapters:
+      - title: An MVC request arrives
+        caption: A typical MVC resource looks like `ptc1/<handler_key>/<componentId>`. The handler key picks the handler; the component id names what to build.
+        show: [click, dispatcher]
+        highlight: [click]
+        flow: [click>dispatcher]
+        seconds: 6
+      - title: Spring's front controller
+        caption: The **DispatcherServlet** (declared in `codebase/WEB-INF/web.xml`) takes every MVC request and uses handler mappings to pass it on.
+        show: [click, dispatcher, controller]
+        highlight: [dispatcher]
+        flow: [dispatcher>controller]
+        seconds: 6
+      - title: Find the builders
+        caption: The **ComponentController** asks a **ComponentBuilderResolver** for the config and data builders registered under that component id.
+        show: [click, dispatcher, controller, resolver]
+        highlight: [controller, resolver]
+        flow: [controller>resolver]
+        seconds: 7
+      - title: Describe it, then fill it
+        caption: One builder answers *what does it look like* (ComponentConfig), the other *what's in it* (ComponentData). One class can do both.
+        show: [click, dispatcher, controller, resolver, config, data]
+        highlight: [config, data]
+        flow: [resolver>config, resolver>data]
+        seconds: 7
+      - title: The model is ready
+        caption: Config plus data make the **ComponentDefinition**, the model. A view (JSP) renders it as a normal Windchill table.
+        highlight: [definition]
+        flow: [config>definition, data>definition]
+        seconds: 6
+
+  - type: comparison
+    title: Two kinds of rows
+    columns: [Persistable table, Non-persistable table]
+    rows:
+      - label: Rows are
+        cells: ["Windchill objects from the database, such as WTPart", "Plain Java objects you create in code (a POJO with getters)"]
+      - label: buildComponentData returns
+        cells: ["The result of a query: QuerySpec + SearchCondition, then PersistenceHelper.manager.find", "A java.util.List of your own objects"]
+      - label: Column ids
+        cells: ["Attribute names such as name, number, type, thePersistInfo.modifyStamp", "Your object's property names, with a display label passed as the second argument"]
+      - label: Typical use
+        cells: ["Lists of parts, documents, changes", "Summaries, calculated values, data from another system"]
+    takeaway: Same builder pattern - only buildComponentData changes.
+
+  - type: walkthrough
+    title: Build and register a table builder
+    who: Windchill developer (Theo)
+    where: ["<Windchill>", src, com, acme, windchill, mvc]
+    steps:
+      - title: Write the builder
+        where: [src, com, acme, windchill, mvc, E1PartsTableBuilder.java]
+        md: |
+          Extend `AbstractComponentBuilder`, give it a component id with `@ComponentBuilder`, and override both
+          methods:
+
+          ```java
+          @ComponentBuilder("com.acme.windchill.mvc.e1PartsTable")
+          public class E1PartsTableBuilder extends AbstractComponentBuilder {
+
+              @Override
+              public ComponentConfig buildComponentConfig(ComponentParams params) throws WTException {
+                  ComponentConfigFactory factory = getComponentConfigFactory();
+                  TableConfig table = factory.newTableConfig();
+                  table.setLabel("E-Bike E1 parts");
+                  table.setSelectable(true);
+                  table.addComponent(factory.newColumnConfig("number", true));
+                  table.addComponent(factory.newColumnConfig("name", true));
+                  table.addComponent(factory.newColumnConfig("thePersistInfo.modifyStamp", true));
+                  return table;
+              }
+
+              @Override
+              public Object buildComponentData(ComponentConfig config, ComponentParams params) throws Exception {
+                  QuerySpec qs = new QuerySpec(WTPart.class);
+                  qs.appendWhere(new SearchCondition(WTPart.class, WTPart.NUMBER, SearchCondition.LIKE, "EB-%"), null);
+                  return PersistenceHelper.manager.find(qs);
+              }
+          }
+          ```
+      - title: Register it with Spring
+        where: [codebase, config, mvc, custom.xml]
+        md: |
+          Either scan a package (preferred for typical cases) or declare the bean explicitly:
+
+          ```xml
+          <mvc:builder-scan base-package="com.acme.windchill.mvc"/>
+          <!-- or -->
+          <bean class="com.acme.windchill.mvc.E1PartsTableBuilder"/>
+          ```
+          The scan looks across the whole classpath, so name a specific package, never a broad one.
+      - title: Point an action at the component id
+        where: [codebase, config, actions, custom-actions.xml]
+        md: |
+          ```xml
+          <action name="acmeE1Parts">
+            <component name="com.acme.windchill.mvc.e1PartsTable" windowType="page"/>
+          </action>
+          ```
+          Then list the action in an action model (lesson 1). A JSP can also include the component with
+          `<jsp:include page="${mvc:getComponentURL('com.acme.windchill.mvc.e1PartsTable')}"/>`.
+      - title: Compile and restart
+        where: [Windchill shell]
+        md: Compile with `ant -f bin/tools.xml class` (setting `-Dclass.source` and `-Dclass.includes`), restart Windchill, and open the action.
+    result: |
+      The E1 parts table opens with Windchill's standard table look. If it doesn't, search for the component id
+      with **Find Builders** on the Customization tab.
+
+  - type: simulation
+    title: Get the E1 parts table on screen
+    intro: |
+      Theo's builder exists only as an idea. Do the steps in a sensible order and get the table to render.
+      Buttons unlock when the step before them is done.
+    headline: "Builder: {builder} · Registered: {registered} · Action: {action} · Table: {table}"
+    initial: { builder: none, registered: "no", action: "no", restarted: "no", table: not shown }
+    actions:
+      - id: write-config
+        label: Write buildComponentConfig
+        when: { builder: none }
+        do: [{ set: { builder: config only } }]
+        log: TableConfig with label, selectable flag and three columns. No rows yet.
+      - id: write-data
+        label: Write buildComponentData
+        when: { builder: config only }
+        do: [{ set: { builder: complete } }]
+        log: "QuerySpec on WTPart with number LIKE EB-%, returned through PersistenceHelper.manager.find."
+        blockedHint: Describe the table first.
+      - id: register
+        label: Add builder-scan to custom.xml
+        when: { builder: complete, registered: "no" }
+        do: [{ set: { registered: "yes" } }]
+        log: Spring will now find classes in com.acme.windchill.mvc carrying @ComponentBuilder.
+        blockedHint: Finish the builder before registering it.
+      - id: add-action
+        label: Add a component action
+        when: { registered: "yes", action: "no" }
+        do: [{ set: { action: "yes" } }]
+        log: acmeE1Parts now opens the component id in a page window.
+        blockedHint: Register the builder first so the id exists.
+      - id: restart
+        label: Compile and restart
+        when: { action: "yes", restarted: "no" }
+        do: [{ set: { restarted: "yes", table: rendered } }]
+        log: Build successful, Windchill restarted. The E1 parts table renders with the standard look.
+        blockedHint: Nothing new to deploy yet.
+    goals:
+      - label: Render the E1 parts table
+        when: { table: rendered }
+        message: Config, data, registration, action, restart. That's the whole MVC table recipe.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Two builders, one id.** If two builders claim the same component id, Spring initialization fails while the
+      method server starts. To replace a PTC builder on purpose, use the `OverrideComponentBuilder` annotation
+      instead of reusing its id.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      You can split one component into two classes: mark one `@ComponentBuilder(value="...", type=ComponentBuilderType.CONFIG_ONLY)`
+      and the other `DATA_ONLY`. A builder can serve several ids, and `@TypeBased` ties a builder to types such as
+      WTPart or WTDocument. **Trees** follow the same pattern with a `TreeConfig` and a data builder that implements
+      `TreeDataBuilderAsync`; the training points to the Customization Guide for a full tree example.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: In Windchill's MVC, which object is the *model*?
+        options: [ComponentController, ComponentDefinition, DispatcherServlet, TableConfig]
+        answer: 1
+        explanation: ComponentConfig and ComponentData together form the ComponentDefinition, the model. ComponentController is the controller; DispatcherServlet is Spring's front controller servlet.
+      - kind: single
+        prompt: Kai wants an extra "Created on" column. Which method does Theo change?
+        options: [buildComponentData, buildComponentConfig, The action's command, custom.xml]
+        answer: 1
+        explanation: Columns describe how the table looks, so they're added in buildComponentConfig with another newColumnConfig. The data query doesn't change.
+      - kind: multi
+        prompt: Which are valid ways to register a builder? (Choose all that apply.)
+        options: ["`<mvc:builder-scan base-package=...>` in custom.xml", "A `<bean class=...>` entry in custom.xml", A selector in service.properties, An entry in custom-actionModels.xml]
+        answers: [0, 1]
+        explanation: Builders register with Spring through automatic scanning or explicit bean declarations in codebase/config/mvc/custom.xml. service.properties is for data utilities and validators.
+      - kind: truefalse
+        prompt: A non-persistable table can return a plain List of your own Java objects from buildComponentData.
+        answer: true
+        explanation: That's what makes it non-persistable. The rows don't come from a database query, and the column ids match your object's properties.
+
+  - type: summary
+    points:
+      - "Spring's DispatcherServlet hands MVC requests (ptc1/<handler>/<id>) to the ComponentController, which resolves builders by component id."
+      - A config builder describes the component (ComponentConfig, such as TableConfig or TreeConfig); a data builder supplies ComponentData.
+      - Extend AbstractComponentBuilder, set the id with @ComponentBuilder, and override buildComponentConfig and buildComponentData.
+      - Register builders in codebase/config/mvc/custom.xml by package scan or bean entry, then open them from an action's component element.
+      - Persistable tables query Windchill objects; non-persistable tables return a list of your own objects.

@@ -1,0 +1,58 @@
+# New glossary terms introduced in section m07-s13 (Service information and service parts).
+- id: service-information-manager
+  term: Windchill Service Information Manager
+  plain: The Windchill module where service teams organise, filter and publish everything a technician needs to read.
+  definition: An optional Windchill module (it needs [[pdmlink|Windchill PDMLink]]) for managing service content in a product-centric way. Technical authors and publication managers use it to build an [[information-structure]] and [[publication-structure|publication structures]], set [[service-applicability]] so content can be filtered per product configuration, track the impact of engineering changes on service content and publish output such as PDFs or bundles for a delivery application like Arbortext Content Delivery.
+  aka: [SIM, Windchill SIM]
+  related: [windchill-service-parts, information-structure, publication-structure, service-applicability]
+
+- id: windchill-service-parts
+  term: Windchill Service Parts
+  plain: The add-on that turns engineering BOMs into spare-parts lists and parts catalogs.
+  definition: An optional Windchill module that is deployed on top of [[service-information-manager|Windchill Service Information Manager]] (which must be installed first). It reuses the [[ebom]] or [[mbom]] to build a [[service-bom]], lets authors create [[parts-list|parts lists]] with illustrations made in Creo Illustrate or Arbortext IsoDraw, routes them for review and collects them into illustrated parts catalogs.
+  related: [service-information-manager, service-bom, parts-list]
+
+- id: service-bom
+  term: Service BOM (sBOM)
+  plain: The parts structure seen through a technician's eyes - only the bits you can actually replace.
+  definition: A downstream view of one or more source BOMs (usually the [[ebom]]) that shows how a product is serviced. It holds serviceable parts reused from the source, new service-only parts (for example a special repair tool) and service assemblies or kits that group several source parts. Out of the box it lives in the Service [[part-view|view]]. Links back to the source parts let engineering changes be flagged in the sBOM, and it is built in the Service Associative Part Structure Browser.
+  aka: [sBOM, Service bill of materials]
+  related: [ebom, mbom, part-view, new-view-version, windchill-service-parts]
+
+- id: information-structure
+  term: Information structure
+  plain: The service team's map of a product - systems and sub-systems with the right content hung on each one.
+  definition: A product-centric hierarchy of the operating and service information for a product or library. It is broken down into groups (systems, sub-systems, major components) and information elements that each point to one content object such as a dynamic document, an illustration or a [[parts-list]]. A context can have several, but only one primary information structure. It can be filtered (configuration specification, option, attribute and service effectivity filters), compared and published as an XML bundle.
+  related: [service-information-manager, publication-structure, parts-list, service-applicability]
+
+- id: publication-structure
+  term: Publication structure
+  plain: The running order of one manual - which content goes in, in what order, with a table of contents and an index.
+  definition: A service structure that defines how content from information structures, libraries or other sources is organised into one publication, such as a repair manual, a parts catalog or a user manual. It can hold publication sections, information elements, a table of contents, an index and other (nested) publication structures. It is filtered like an [[information-structure]] and is usually published with Arbortext Publishing Engine to PDF, a web output bundle or a Windchill representation.
+  related: [information-structure, service-information-manager, translation-package]
+
+- id: parts-list
+  term: Parts list
+  plain: An ordered, numbered list of spare parts for one assembly, ready to print or put online.
+  definition: A [[windchill-service-parts|Windchill Service Parts]] object that turns the unordered parts of a [[service-bom]] into a meaningful sequence with item numbers, quantities and other usage attributes. It can be built by adding sBOM parts in the Parts List Editor or generated automatically from an assembly, can include parts that are not in the sBOM, can carry related parts (replacement, supplementary, supersede) and can have Creo Illustrate or Arbortext IsoDraw illustrations attached as related objects.
+  aka: [Spare parts list]
+  related: [service-bom, windchill-service-parts, information-structure]
+
+- id: service-applicability
+  term: Service applicability
+  plain: Tags that say which product versions a piece of service content is for, so filtering shows only what fits.
+  definition: The product variability assigned to service content so that structures can be filtered to one configuration. It can be service effectivity (for example serial number or date ranges), option-and-choice expressions or advanced expressions, and it can be set on an [[information-structure]], a [[publication-structure]], a [[parts-list]] or a BOM through the Manage Applicability dialog. Assigned item expressions apply to an object everywhere it is used; assigned usage expressions apply only in one context.
+  related: [information-structure, publication-structure, effectivity, serial-effectivity]
+
+- id: dita
+  term: DITA (Darwin Information Typing Architecture)
+  plain: A shared XML rulebook for writing content as small, reusable topics.
+  definition: An XML-based open standard for structured, topic-based content. IBM created it in the early 2000s and the OASIS DITA Technical Committee now maintains it. Its basic unit is the topic, a titled piece of information that makes sense on its own, with information types for Concept, Task and Reference. Specialization lets an organisation define its own models on top of the general ones, which any DITA-aware tool can still process as the general model. Arbortext Editor supports DITA, and its Technical Information Application includes a DITA specialization for service information.
+  aka: [Darwin Information Typing Architecture]
+  related: [information-structure]
+
+- id: translation-package
+  term: Translation package
+  plain: The zip of content you send a translation vendor, plus the record Windchill keeps of it.
+  definition: A package that Windchill Service Information Manager creates from a service structure for each selected target language and vendor. It can contain XML source documents, an XML manifest, XLIFF files (XML Localization Interchange File Format) for publication structures and parts lists, a log file and a default representation of the structure root. Windchill creates a [[baseline]] for each package. When the translated package comes back to the monitored import folder, the translated objects are checked in as new versions of their target-language objects and set to the translated state defined in [[preference|preferences]].
+  related: [publication-structure, baseline, preference, reusable-attribute]

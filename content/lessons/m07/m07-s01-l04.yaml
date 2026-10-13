@@ -1,0 +1,253 @@
+id: m07-s01-l04
+subtitle: Riverside and Lakeside build the same E1 in different ways. Give each plant its own view of the part - or decide that it doesn't need one.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [mpmlink, views, view-versions, plants, mbom]
+sources:
+  - id: mpm-bom
+    where: "Module 2: BOM Transformer tool. Module 3: Scenario 1: Managing multiple plants; Scenario 3: 1 mBOM manages multiple plant data; Activity: Create BOMs for multiple plants"
+  - id: te
+    where: "BOM module: Specify a configuration specification (View filter); Manufacturing Process Management overview (factory-specific bills of material)"
+
+blocks:
+  - type: text
+    md: |
+      Acme's second plant, **Lakeside**, starts building the E1 next quarter. Ana visits and finds a
+      different world: no side bench for an electrical kit, a different packing line, and a market that
+      needs its own owner's manual.
+
+      One mBOM can't describe both plants honestly. But Ana also doesn't want an unlinked copy that
+      drifts away from engineering. The answer lives in a concept you met back in Module 1: **views**.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a lens on the same part - Design, Manufacturing, a plant" → [[part-view|view]]
+      - "the version of a part that belongs to one view" → **view version** (made with [[new-view-version|New View Version]] or New Downstream Branch)
+      - "a factory BOM for one plant" → a **plant-specific BOM** in its own view
+      - "which views exist and which feeds which" → [[view-network]]
+      - "one BOM shared by plants, with per-plant details attached" → [[plant-data|Plant Data]]
+      - "the admin tool where views live" → **View Administration**
+
+  - type: diagram
+    title: One part master, several view versions
+    caption: The E1 top part has one number. Each view holds its own version of it, with its own children. Click a box.
+    diagram:
+      width: 820
+      height: 420
+      nodes:
+        - id: master
+          label: E-Bike E1
+          sublabel: one part number
+          x: 320
+          y: 30
+          w: 180
+          shape: pill
+          tone: neutral
+          detail: |
+            One part master. The views below are **versions of the same part**, not different parts.
+            Each view version evolves with its own revisions and iterations.
+        - id: design
+          label: E1 (Design)
+          sublabel: the eBOM
+          x: 320
+          y: 140
+          w: 180
+          tone: info
+          detail: The default view on every part. Parts created before MPMLink was installed are all in Design unless configured otherwise.
+        - id: mfg
+          label: E1 (Manufacturing)
+          sublabel: generic mBOM
+          x: 60
+          y: 280
+          w: 200
+          tone: accent
+          detail: The out-of-the-box downstream view. If one mBOM serves every plant, this may be all you need, plus Plant Data for per-plant details.
+        - id: riverside
+          label: E1 (Riverside)
+          sublabel: with electrical kit
+          x: 310
+          y: 280
+          w: 200
+          tone: warning
+          detail: A plant view created by the administrator, placed under Manufacturing. Riverside's BOM uses the kit and chassis groupings.
+          real: Stored in Manufacturing/Riverside.
+        - id: lakeside
+          label: E1 (Lakeside)
+          sublabel: own manual · no kit
+          x: 560
+          y: 280
+          w: 200
+          tone: warning
+          detail: Another plant view. Lakeside's BOM has a different structure and its own manufacturing-only manual part.
+          real: Stored in Manufacturing/Lakeside.
+      edges:
+        - { from: master, to: design }
+        - { from: design, to: mfg, label: equivalent link, dashed: true }
+        - { from: design, to: riverside, label: equivalent link, dashed: true }
+        - { from: design, to: lakeside, label: equivalent link, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Many companies run several plants, and the out-of-the-box pair (one eBOM, one mBOM) won't fit them.
+      Plant views keep each factory's BOM **honest and linked**: Lakeside's differences are visible,
+      owned and still tied to engineering through equivalent links. PTC lists confirming the view
+      network as one of the first steps of a successful MPMLink implementation - change it late and you
+      rework structures.
+
+  - type: comparison
+    title: Three ways to handle more than one plant
+    columns: [A view per plant, One mBOM + Plant Data, Alternate BOMs]
+    rows:
+      - label: Use when
+        cells: ["Plants build the product differently", "Plants build the same structure but differ in details", "Production lines inside one plant need different BOMs"]
+      - label: Structure
+        cells: ["A separate downstream BOM per plant view", "One shared mBOM", "Several alternates in the same view"]
+      - label: Plant differences live in
+        cells: ["The structure itself", "Plant Data objects on mBOM parts (status, storage location, sourcing, process)", "Each alternate's structure"]
+      - label: Admin setup
+        cells: ["New views in View Administration + preference", "Attributes on the Plant Data type + preferences", "Alternate value picked in the filter"]
+      - label: Cost of growth
+        cells: ["One more view and BOM per plant", "One more Plant Data object per part and plant", "Avoids a new view for every line"]
+    takeaway: Different structure → different view. Same structure, different facts → Plant Data. Different line → alternate BOM (lesson 6).
+
+  - type: walkthrough
+    title: Add Riverside and Lakeside plant views
+    who: A business or site administrator (Jordan), then Ana for the BOMs
+    where: [Browse, Site, Utilities, View Administration]
+    steps:
+      - title: Create the views
+        where: [Navigator, Browse, Site, Utilities, Business Administration, View Administration]
+        md: |
+          Click **New View**, name it *Riverside*, OK. Right-click it → **Move View** and choose
+          **Manufacturing** as the **Parent View**. Repeat for *Lakeside*. You can also rename the
+          out-of-the-box Design and Manufacturing views if Acme has its own BOM names.
+      - title: Make them visible in the BOM Transformer
+        where: [Site, Utilities, Preference Management, Associativity, List of Applicable Views]
+        md: |
+          **Set Preference** and add the new view names to the existing value. This preference controls
+          which views appear in the BOM Transformer and the Edit Filter wizard.
+      - title: Give each plant a folder
+        where: [Products, "E-Bike E1", Folders, Manufacturing, New Folder]
+        md: Ana creates *Riverside* and *Lakeside* folders inside Manufacturing.
+      - title: Build and save a filter for the plant view
+        where: [BOM Transformer, Right pane, Filter, Edit Filter]
+        md: |
+          Remove the Manufacturing and Design view rows, choose **View = Lakeside**, tick **Include
+          Work in Progress**, **Add**, tick **Apply to top level object**, OK. Then **Filter → Saved
+          Filters → Save Filter** as *Lakeside*. You need a filter for every new view.
+      - title: Branch the plant BOM
+        where: [Left pane, "E-Bike E1 (Design)", New Downstream Branch]
+        md: |
+          The **Downstream View** is already Lakeside because of the filter. Set the location to
+          Manufacturing/Lakeside and OK. Parts you Insert New under it get View = Lakeside and the
+          Lakeside folder automatically. Drag, group and check in as usual.
+    result: |
+      The BOM Transformer shows the eBOM on the left and the Lakeside BOM on the right. Switch the saved
+      filter to Riverside to see the other plant's BOM against the same eBOM.
+
+  - type: example
+    variant: case-study
+    title: Two plants, one bike
+    industry: Micromobility
+    md: |
+      **Riverside** builds the E1 for the home market. Its BOM: electrical kit (phantom), rolling
+      chassis, reused drive unit and battery, the home-market owner's manual and carton.
+
+      **Lakeside** builds export bikes on a shorter line. No kit bench - controller, display and harness
+      go straight onto the frame. It ships with an export manual (**EB-M1010**, a Lakeside-only part).
+
+      At first Nia suggested copying the Riverside BOM into Lakeside and editing it. Ana pushed back:
+      a copy has no equivalent links, so a brake change from Kai would have to be found by hand in two
+      places. Instead Jordan created both plant views under Manufacturing, and Ana branched each plant
+      BOM from the eBOM.
+
+      Six weeks later Kai swapped the brake set. Both plant BOMs flagged the change through their own
+      equivalent links - no spreadsheet comparison needed.
+    takeaway: Give a plant its own view when its structure really differs - and branch it from the eBOM so it stays linked.
+
+  - type: scenario
+    variant: what-if
+    title: Does Lakeside need its own view?
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Hana (sourcing) says: *"Lakeside buys the carton locally and stores the battery in a different
+          warehouse. Otherwise they build the E1 exactly like Riverside."* What do you propose?
+        choices:
+          - label: Keep one mBOM and record Lakeside's sourcing and storage as Plant Data
+            next: good-plantdata
+            good: true
+            feedback: Same structure, different facts - that's what Plant Data is for.
+          - label: Create a Lakeside view and a full second BOM
+            next: s2
+            feedback: It works, but you'd maintain two identical structures.
+          - label: Copy the Riverside BOM with Save As and edit it
+            next: fail-copy
+            feedback: A copy loses the equivalent links to the eBOM.
+      - id: s2
+        md: |
+          Jordan has created the Lakeside view. A month later both BOMs are still identical apart from
+          two attributes, and every engineering change has to be applied twice. What now?
+        choices:
+          - label: Move the differences into Plant Data on a single mBOM for new products
+            next: partial-recover
+            good: true
+            feedback: Better late than never - and a lesson for the next product.
+          - label: Keep going; it's only twice the work
+            next: fail-copy
+            feedback: Twice the work, twice the chance of a mismatch.
+      - id: good-plantdata
+        md: |
+          One mBOM, linked to the eBOM, with a Riverside and a Lakeside Plant Data object on the battery
+          and carton. If Lakeside's structure ever really diverges, you can still add a plant view then.
+        outcome: success
+      - id: partial-recover
+        md: The plant view wasn't wrong, just more than needed. Simplifying is right - plan the view network before the next product.
+        outcome: partial
+      - id: fail-copy
+        md: Unlinked or duplicated BOMs drift. Sooner or later a plant builds a bike that engineering already changed.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **"I created the view but I can't see it."** New views appear in the BOM Transformer and the Edit
+      Filter wizard only after they are added to the **List of Applicable Views** preference - and you
+      still need a filter (saved, ideally) for each view before New Downstream Branch picks it up.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Name views after the business, not the tool. PTC notes companies often have internal names for
+      their BOMs; the out-of-the-box Design and Manufacturing views can be renamed, and new views can
+      carry plant names. Write the agreed view network on one page and get engineering, every plant and
+      the ERP team to sign it before anyone creates a view.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: What is the E1 (Lakeside) top part, compared with the E1 (Design) top part?
+        options: [A completely separate part with a new number, A different view version of the same part, A baseline, A document]
+        answer: 1
+        explanation: Plant BOMs created with New Downstream Branch are view versions of the same part master, linked by equivalent links.
+      - kind: single
+        prompt: Where does an administrator create a new plant view?
+        options: [Type and Attribute Management, View Administration under Site Utilities, The product's Folders page, Policy Administration]
+        answer: 1
+        explanation: Views are created (and moved under a parent such as Manufacturing) in View Administration.
+      - kind: truefalse
+        prompt: If two plants build the same structure and differ only in storage location and sourcing, PTC's material suggests one mBOM with Plant Data rather than two identical BOMs.
+        answer: true
+        explanation: Plant Data captures plant-specific information on a single mBOM instead of duplicating the structure.
+
+  - type: summary
+    points:
+      - A view version is the version of one part master that belongs to a view (Design, Manufacturing, or a plant).
+      - Add plant views in View Administration, place them under Manufacturing and list them in the List of Applicable Views preference.
+      - Create a filter per view; New Downstream Branch then creates the plant BOM in that view.
+      - Use a plant view when the structure differs; use Plant Data when only the facts differ.
+      - Confirm the view network early - it is one of the first steps of an MPMLink implementation.

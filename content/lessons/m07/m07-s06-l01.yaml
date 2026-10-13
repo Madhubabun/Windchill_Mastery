@@ -1,0 +1,227 @@
+id: m07-s06-l01
+subtitle: A tree on one product is a nice idea. A tree that every engineer, buyer and plant searches before creating a part is a cost-cutting machine.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [classification, partslink, reuse, search, business-admin]
+sources:
+  - id: pl
+    where: "Course scenario; Implementation team strategy; Implementation strategy; Module 1: Windchill PartsLink Classification overview; Why use PartsLink Classification?; PartsLink capabilities; Business use cases; Implementation considerations; Module 2: Running a classification search; Activity: Perform a classification search; Module 4: Installation and configuration overview (Properties: wt.audit.displayFindSimilarObjectAuditCriteria)"
+
+blocks:
+  - type: text
+    md: |
+      Acme's first classification pilot (back in Module 4) covered fasteners for the E1. It worked: fewer
+      duplicate screws. Now **Hana**, Acme's new sourcing lead, has a bigger ask. Scooter S2, E1 and the
+      Lakeside plant together buy over 4,000 different parts, and she suspects a few hundred are the same
+      thing under different numbers - especially batteries from **Voltra Cells**.
+
+      Scaling classification isn't "more nodes". It's making **search-before-create** the normal way to
+      work, for every role, and being able to show it pays off.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the Windchill add-on for classifying" → [[partslink|Windchill PartsLink]]
+      - "walking the tree to find a part" → [[classification-explorer|Classification Explorer]] ([[classification-search]])
+      - "ticking filters to shrink the list" → [[faceted-search|Refine Results (faceted search)]]
+      - "parts like this one, but a bit different" → [[find-similar-objects|Find Similar Objects]]
+      - "using what already exists" → [[part-reuse]]
+
+  - type: diagram
+    title: Who uses classification at scale
+    caption: PTC's PartsLink course names these roles. Click each to see what they do.
+    diagram:
+      width: 820
+      height: 380
+      nodes:
+        - id: lib
+          label: Classified library
+          sublabel: Fasteners · Batteries · ...
+          x: 310
+          y: 150
+          w: 200
+          h: 70
+          tone: primary
+          shape: cylinder
+          detail: |
+            The [[classification-structure]] plus every classified part and document, kept in an index so
+            classification searches are fast. PartsLink requires index search to be installed and running.
+        - id: comp
+          label: Component engineer
+          sublabel: classifies new parts
+          x: 20
+          y: 30
+          w: 200
+          tone: accent
+          detail: |
+            Creates and manages COTS and purchased parts, and is the main role that **classifies** new objects.
+            Also searches to locate parts. At Acme that's Hana's team for bought parts.
+          real: Hana's two component engineers own the Batteries branch.
+        - id: admin
+          label: Classification admin
+          sublabel: maintains tree + attributes
+          x: 600
+          y: 30
+          w: 200
+          tone: warning
+          detail: |
+            Creates and maintains the structure and attributes, working with stakeholders on what to classify.
+            Documents and parts may have separate admins. At Acme: Jordan.
+        - id: design
+          label: Design engineer
+          sublabel: searches before creating
+          x: 20
+          y: 280
+          w: 200
+          tone: success
+          detail: |
+            Searches by design characteristics to find a part to reuse. PTC notes that **every** Windchill user
+            benefits from the better search, not just designers. At Acme: Priya.
+        - id: doclib
+          label: Documentation librarian
+          sublabel: classifies documents
+          x: 600
+          y: 280
+          w: 200
+          tone: info
+          detail: Creates and classifies documents - datasheets, manuals, specifications.
+      edges:
+        - { from: comp, to: lib, label: classify }
+        - { from: admin, to: lib, label: maintain }
+        - { from: design, to: lib, label: search }
+        - { from: doclib, to: lib, label: classify }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      PTC lists three benefits for PartsLink: **engineering productivity** (find parts fast by keyword,
+      parameters and visual navigation), **lower product cost** (less duplication, inventory and maintenance,
+      especially for purchased parts) and **faster time to market** (find, analyse and reuse instead of
+      redesigning - and spot quickly what isn't available yet so it can be bought). Without classification,
+      parts are told apart only by names and descriptions that differ by author, which is exactly how
+      duplicates are born.
+
+  - type: example
+    variant: case-study
+    title: Hana's battery audit
+    industry: Micromobility
+    md: |
+      Hana picks the **Batteries** branch as Acme's second pilot - purchased parts, high value, one main
+      supplier. Following PTC's advice to start with bought or COTS parts:
+
+      1. **Jordan** adds end nodes *Li-ion packs* and *Cells* under *Batteries*, with attributes Nominal
+         voltage, Capacity (Wh) and Connector type.
+      2. Hana's component engineers classify the 140 battery parts across E1 and S2.
+      3. A Classification Explorer search on *Li-ion packs*, refined to 36 V and 490-510 Wh, returns
+         **EB-3104**, **EB-3117** and **EB-3122** - three numbers for the same Voltra pack.
+      4. Maya runs a change to keep EB-3104 and phase out the other two.
+
+      **The new rule:** before anyone requests a new battery, they search the node first. PartsLink also
+      supports exactly this inside Supplier Management's new part introduction - search to see whether the
+      part already exists.
+    takeaway: Start where duplicates cost the most - bought parts - and make "search the node first" part of the process, not a tip.
+
+  - type: simulation
+    title: Search before you create
+    intro: |
+      Priya needs a 36 V, roughly 500 Wh pack for an E1 prototype. Work the way Acme now expects -
+      tree, refine, check - and decide whether to reuse or request a new part. The counters at the top are
+      what Hana reports each month.
+    headline: "Node: {node} · Results: {results} · Reused: {reused} · New part requests: {requests}"
+    initial: { node: "-", results: 0, refined: false, checked: false, reused: 0, requests: 0 }
+    actions:
+      - id: open-batteries
+        label: "Open Batteries → Li-ion packs"
+        do: [{ set: { node: Li-ion packs, results: 23, refined: false, checked: false } }]
+        log: "Li-ion packs selected: 23 classified packs from all products."
+      - id: refine
+        label: "Refine: 36 V, 490-510 Wh"
+        when: { node: Li-ion packs }
+        do: [{ set: { results: 1, refined: true } }]
+        log: "Refine Results applied. One pack left: EB-3104, Voltra Cells, 504 Wh."
+        blockedHint: Pick the classification node first - facets refine the current results.
+      - id: check
+        label: Open EB-3104 and check its state and attributes
+        when: { refined: true }
+        do: [{ set: { checked: true } }]
+        log: "EB-3104 is released, used in the S2 Plus and stocked at Riverside. Its attributes match the requirement."
+        blockedHint: Narrow the results first.
+      - id: reuse
+        label: Reuse EB-3104 in the prototype
+        when: { checked: true }
+        do: [{ inc: reused }, { set: { node: "-", results: 0, refined: false, checked: false } }]
+        log: Reused. No new part number, no new supplier qualification, no new bin at Lakeside.
+        blockedHint: Check the candidate before you reuse it.
+      - id: request-new
+        label: Request a new battery part
+        do: [{ inc: requests }]
+        log: "New part request logged. Hana's team will ask: did you search Li-ion packs first?"
+    goals:
+      - label: Reuse a pack instead of creating one
+        when: { reused: 1 }
+        message: That's one avoided duplicate - and one data point for the reuse report.
+      - label: Reuse without raising any new part request
+        when: { reused: 1, requests: 0 }
+        message: Perfect search-before-create.
+
+  - type: text
+    md: |
+      ### Measuring reuse
+
+      Windchill doesn't hand you a single "reuse score", so Hana defines her own KPIs and reports them
+      monthly. These are Acme's choices, not PTC features:
+
+      | KPI | How Hana gets it |
+      | --- | --- |
+      | **Classification coverage** | Classified parts ÷ parts in scope (all bought parts). Should approach 100%, because objects must be classified when created. |
+      | **New part requests per month** | Count from the new part process; should fall as reuse rises. |
+      | **Reuse ratio on a new product** | Existing library parts ÷ total parts in the new product's BOM. |
+      | **Duplicates retired** | Parts phased out after a classification search found a twin. |
+
+      One PartsLink setting is useful here: the property **wt.audit.displayFindSimilarObjectAuditCriteria**
+      shows detailed XML content for a *Similar Part Create* event in the audit report, so you can see
+      what criteria someone used before creating a similar part.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Classifying only new parts.** If the 4,000 existing parts stay unclassified, every search misses
+      them and people go back to creating. PTC lists "objects, new and existing, must be classified" as an
+      implementation consideration - plan the backlog, starting with the most-bought kinds.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Decide early whether classified parts live in **dedicated libraries** (for example a standard parts
+      library) - one of PTC's listed implementation questions. One well-known home for classified bought
+      parts makes reuse the default.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: PTC recommends starting a PartsLink rollout with which objects?
+        options: [All parts and documents at once, A pilot set of bought or COTS parts, Only CAD documents, Only parts created after go-live]
+        answer: 1
+        explanation: Start with a pilot set of bought or COTS parts, then add other parts and documents as needed.
+      - kind: single
+        prompt: Which Windchill capability must be installed and running for PartsLink?
+        options: [Visualization workers, Index search, ThingWorx, File server replication]
+        answer: 1
+        explanation: PartsLink requires indexing to be installed and running on the Windchill server.
+      - kind: multi
+        prompt: How does PartsLink extend Supplier Management? (Choose all that apply.)
+        options: [Manufacturer and vendor parts can be classified, A classification search can check whether a part exists during new part introduction, It replaces the approved manufacturer list, It creates suppliers automatically]
+        answers: [0, 1]
+        explanation: The course lists exactly these two extensions. That's why PTC calls PartsLink plus SUMA a best practice.
+      - kind: truefalse
+        prompt: Windchill provides a built-in "reuse score" for each product.
+        answer: false
+        explanation: The course doesn't describe one. Companies define their own reuse KPIs from classification coverage, new part requests and BOM reuse.
+
+  - type: summary
+    points:
+      - PartsLink classifies parts and documents by function and attributes and needs index search running.
+      - Component engineers classify, classification admins maintain, designers and everyone else search.
+      - Start with bought or COTS parts, classify existing parts too, and make search-before-create the rule.
+      - Measure reuse with your own KPIs - coverage, new part requests, BOM reuse ratio, duplicates retired.

@@ -1,0 +1,339 @@
+id: m07-s06-l04
+subtitle: Lakeside's 300-row spreadsheet of part classes shouldn't be typed in by hand - and part names shouldn't depend on who typed them.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [classification, partslink, data-loading, autonaming, administration]
+sources:
+  - id: pl
+    where: "Implementation strategy (existing structures in ERP or Excel as a starting point; load an example classification); Module 4: Installation and configuration overview (classification binding attribute, demo structure, indexing, UpdateClassificationStructure command, wt.csm.exportInternalNames); Data loading (demo classification load files and csvContentRoot); Create and update classification structures (namespaces, Export to CSV or XML, Import from JAR or ZIP); The classification autonaming rule (Autonaming Rule, Rule Measurement System, Enforce Autonaming Rule, profiles to override); Activity: Update a classification structure (Part Classification constraint in Type and Attribute Management); Activity: Create an autonaming rule (CSM_NODE_NAME, plus sign, quoted text, SI, inherited by child nodes)"
+  - id: hc-class-import
+    label: PTC Help Center supplement
+    title: "Import a Classification Structure"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wcclassreuse/WCClassReuseClassStructImport.html"
+    covers: "Site administrators only; JAR or ZIP; whole structure imported; matching by internal name (update, create, delete load file in Windchill/temp/LWCTypeImpExp); overrides and cannot be undone; one structure under the root node"
+  - id: hc-class-csv
+    label: PTC Help Center supplement
+    title: "Import Classification Structure from CSV File"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wcclassreuse/WCClassReuseImportCSV.html"
+    covers: "CSV import format differs from Export to CSV; prerequisites (enumerations, reusable attributes, quantities of measure); CSVToXMLGenerator; zip and import; initial structure only; no autonaming rules or images"
+  - id: hc-autoname
+    label: PTC Help Center supplement
+    title: "Autonaming Rules"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wcclassreuse/WCClassReuseNodeAutoName.html"
+    covers: "Rule elements (CSM_NODE_NAME, attribute internal names, quoted strings, functions on numbers); Rule Measurement System overrides the user preference; names not updated after attribute or rule changes; not enforced with more than one node; Override Name profile action and Preview Name; ClassificationReportGenerator API"
+
+blocks:
+  - type: text
+    md: |
+      Lakeside's old ERP has a material classification: 300 classes in a spreadsheet, with key
+      characteristics per class. Jordan could click **Insert Node** 300 times. He won't.
+
+      This lesson covers the two admin jobs that make a library scale: **getting structures in and out of
+      Windchill in bulk**, and **letting the node write the part name** so every pack is named the same way.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "load a whole tree from a file" → [[classification-import|classification structure import]] (JAR or ZIP)
+      - "PTC's sample tree" → [[demo-classification-data|demo classification data]]
+      - "the tree's name, like Parts" → [[classification-namespace|namespace]]
+      - "the node writes the Name for you" → [[autonaming-rule|autonaming rule]]
+      - "who may type their own name anyway" → the **Override Name** action in a [[profile]]
+
+  - type: diagram
+    title: Three ways a classification structure gets into Windchill
+    caption: Pick the route by where the structure comes from. Click each box.
+    diagram:
+      width: 820
+      height: 420
+      groups:
+        - { label: Sources, x: 10, y: 20, w: 230, h: 380, tone: neutral }
+        - { label: Windchill, x: 560, y: 20, w: 250, h: 380, tone: neutral }
+      nodes:
+        - id: demo
+          label: Demo load files
+          sublabel: loadFiles/PartsLink/demoClf
+          x: 30
+          y: 50
+          w: 190
+          shape: doc
+          tone: info
+          detail: |
+            PTC ships a demo classification that is **not** loaded automatically. Three XML load files -
+            quantities of measure (QOM), attributes and nodes - are loaded in that order. First edit the
+            content root path in the nodes file so its attachments are found. Use it as a reference on a
+            newly installed server, not as your company's tree.
+        - id: csv
+          label: Your CSV file
+          sublabel: e.g. from ERP or Excel
+          x: 30
+          y: 175
+          w: 190
+          shape: doc
+          tone: accent
+          detail: |
+            PTC suggests existing structures in ERP or Excel as a starting point. The CSV import format has
+            Node and Attribute rows (parent internal name, internal name, display name, namespace,
+            instantiable, data type, constraints...). It is **not** the same as the file Export to CSV writes.
+        - id: export
+          label: Export from test
+          sublabel: XML/CSV, or JAR/ZIP
+          x: 30
+          y: 300
+          w: 190
+          shape: doc
+          tone: success
+          detail: |
+            **Actions → Export** in the Classification Tree writes the structure to CSV or XML. Set
+            `wt.csm.exportInternalNames` to true if the CSV should also carry node and attribute internal names.
+        - id: gen
+          label: CSVToXMLGenerator
+          sublabel: Windchill shell
+          x: 300
+          y: 175
+          w: 200
+          tone: warning
+          detail: |
+            Converts your CSV into the XML import format, in the same folder. The server doesn't need to be
+            running. Zip the XML before importing. Enumerations, reusable attributes and quantities of
+            measure must already exist.
+        - id: loader
+          label: Load the files
+          sublabel: demo only
+          x: 300
+          y: 50
+          w: 200
+          tone: info
+          detail: The demo files are loaded as Windchill load files. The online help has the exact procedure.
+        - id: import
+          label: Actions → Import
+          sublabel: site administrator
+          x: 590
+          y: 175
+          w: 200
+          tone: danger
+          detail: |
+            In the Classification Tree, **Actions → Import** with a JAR or ZIP. It imports the **whole**
+            structure, matches by internal name, and overrides the existing structure - it can't be undone.
+        - id: tree
+          label: Classification tree
+          sublabel: indexed for search
+          x: 590
+          y: 300
+          w: 200
+          shape: cylinder
+          tone: primary
+          detail: |
+            The structure must be indexed to support keyword searches. If indexing has problems (or after a
+            migration), re-index it from a Windchill shell with
+            `windchill com.ptc.windchill.csm.struct.UpdateClassificationStructure`, using site administrator
+            credentials.
+      edges:
+        - { from: demo, to: loader }
+        - { from: loader, to: tree }
+        - { from: csv, to: gen, label: convert }
+        - { from: gen, to: import, label: zipped XML }
+        - { from: export, to: import, label: JAR/ZIP }
+        - { from: import, to: tree }
+
+  - type: comparison
+    title: What Import does with each node and attribute
+    columns: [What Import does, What it means for you]
+    rows:
+      - label: In the file and in Windchill
+        cells: ["Updated (matched by internal name)", "Safe way to change display names, descriptions and attributes"]
+      - label: In the file only
+        cells: [Created, New nodes and attributes appear]
+      - label: In Windchill only
+        cells: ["Not removed directly - a delete load file is generated in Windchill/temp/LWCTypeImpExp", "Review that file before anything is deleted"]
+    takeaway: Internal names are the join key. Change one and Import sees a new node plus an orphan.
+
+  - type: walkthrough
+    title: Build Lakeside's first structure from CSV
+    who: Jordan, with site administrator rights for the import
+    steps:
+      - title: Prepare the prerequisites
+        where: [Type and Attribute Management]
+        md: |
+          Make sure the global enumerations, reusable attributes and quantities of measure the CSV refers to
+          already exist. The CSV route doesn't create them.
+      - title: Write the CSV
+        where: [Spreadsheet, CSV]
+        md: |
+          One row per node and per attribute, in the import column layout from the Help Center (not the
+          Export to CSV layout). Use clean internal names - they are the key for every later update.
+      - title: Convert it
+        where: [Windchill shell, CSVToXMLGenerator]
+        md: |
+          Run the `com.ptc.windchill.csm.csvtoxml.CSVToXMLGenerator` utility with the CSV path (add
+          `-verbose` when debugging). The XML lands next to the CSV. Zip it.
+      - title: Import on the test server first
+        where: [Browse, Classification Administration, Manage Classifications, Actions, Import]
+        md: |
+          Read the warning - Import overrides the existing structure and can't be undone - then browse to the
+          ZIP and click **OK**. Check the confirmation (or the error) and review the tree.
+      - title: Connect the namespace to the type
+        where: [Browse, Site, Utilities, Type and Attribute Management, Part, Part Classification, Constraints]
+        md: |
+          The Part type's classification binding attribute names the namespace and node used to classify
+          parts. Check the **Classification** constraint points at the right structure.
+      - title: Promote to production
+        where: [Classification Tree, Actions, Export]
+        md: |
+          Once tested, export the structure and import the exported package (JAR or ZIP) on production in a
+          planned window, then confirm keyword search finds the new nodes (re-index if not).
+    result: 300 classes in Windchill, keyed by internal names that later loads can update safely.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Using the CSV route to update.** PTC's help says the CSV-to-XML utility is for creating an
+      **initial** structure only: anything the CSV doesn't contain is overwritten and removed. It also can't
+      carry images or autonaming rules. After go-live, change the structure in Manage Classifications (or by
+      a tested export/import), and add autonaming rules on the nodes afterwards.
+
+  - type: text
+    md: |
+      ### Autonaming: let the node write the name
+
+      Many companies already have naming conventions for bought parts - usually the node name plus a few key
+      values. An [[autonaming-rule|autonaming rule]] on a node fills **Name** automatically for objects
+      classified there. Elements are joined with `+`:
+
+      | Element | Meaning |
+      | --- | --- |
+      | `CSM_NODE_NAME` | The node's display name |
+      | `Nominal_Voltage` | The value of a node attribute, by **internal name** |
+      | `" / "` | Literal text in double quotes |
+
+      Jordan's rule on **Li-ion packs** (inherited by its child nodes):
+
+      ```text
+      CSM_NODE_NAME + " " + Nominal_Voltage + " / " + Capacity_Wh + " Wh / " + Connector_Type
+      ```
+
+      A pack with 36 V, 504 and XT60 gets a name along the lines of `Li-ion packs 36 V / 504 Wh / XT60`.
+      Values with units are shown in the node's **Rule Measurement System** (for example SI), which overrides
+      the user's own measurement system preference.
+
+  - type: walkthrough
+    title: Set the rule on the node
+    who: A classification administrator
+    where: [Browse, Classification Administration, Manage Classifications]
+    steps:
+      - title: Edit the node
+        where: [Namespaces, Parts, Batteries, Li-ion packs, Actions, Edit]
+        md: Select the node and open it in edit mode with **Actions → Edit**.
+      - title: Write the rule
+        where: [Autonaming Rule tab, Autonaming Rule]
+        md: Type the rule using `CSM_NODE_NAME`, attribute internal names and quoted text, joined with `+`.
+      - title: Choose units and switch it on
+        where: [Rule Measurement System, Enforce Autonaming Rule]
+        md: Pick the measurement system (for example **SI**) and set **Enforce Autonaming Rule** to **Yes**. Click **Done**.
+      - title: Test with a new part
+        where: [Libraries, Folders, New Part, Part Classification]
+        md: |
+          Create a part, pick the node with the classification Find icon, fill the classification attributes
+          on the next step and finish. Check the generated **Name**.
+    result: Every new Li-ion pack is named by the same pattern, whoever creates it.
+
+  - type: scenario
+    variant: what-if
+    title: What if... (autonaming edition)
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          The rule has run for a month. Hana's team finds a typo in 40 packs' **Connector_Type** values and
+          corrects them through a change. What happens to those parts' names?
+        choices:
+          - label: Nothing - the names keep the old value
+            next: s2
+            good: true
+            feedback: Right. Once created, a generated name is not dynamic. Changing an attribute later does not update the name.
+          - label: The names update automatically
+            next: f1
+            feedback: They don't. Generated names are set at creation.
+      - id: s2
+        md: |
+          Jordan now changes the rule to put the connector first. Do the 500 existing packs get renamed?
+        choices:
+          - label: No - existing names stay; plan a separate rename if you need one
+            next: s3
+            good: true
+            feedback: Modifying a rule doesn't update existing object names. The ClassificationReportGenerator API can list classified parts that don't conform to a rule.
+          - label: Yes, on the next check-in
+            next: f1
+            feedback: Not by itself. Existing names are not updated to match a changed rule.
+      - id: s3
+        md: |
+          Priya classifies a special pack on **two** nodes at once and says autonaming "stopped working". Why?
+        choices:
+          - label: Rules are not enforced when more than one node is selected
+            next: s4
+            good: true
+            feedback: Exactly. Name becomes editable again when a second node is added or the node is cleared.
+          - label: Indexing is down
+            next: f1
+            feedback: Indexing affects search, not the naming rule.
+      - id: s4
+        md: |
+          Sales wants a marketing-friendly name on one pack. Can a user type their own name on an enforced node?
+        choices:
+          - label: Only if the site admin grants the Override Name action in a profile
+            next: win
+            good: true
+            feedback: With that profile action a Preview Name link and an Override Name checkbox appear when classifying.
+          - label: Anyone can just overwrite the Name field
+            next: f1
+            feedback: On an enforced node the Name field is generated; overriding needs the profile action.
+      - id: win
+        md: You now know when autonaming applies, when it doesn't, and what it never does after the fact.
+        outcome: success
+      - id: f1
+        md: That assumption would give Acme inconsistent names - the very thing the rule was meant to stop.
+        outcome: fail
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Put the autonaming rule on the **parent** node when its children share a pattern - PTC's exercise
+      sets the rule on *Sensors* and the child nodes inherit it. Keep every attribute you use in the rule
+      on the create layout: an attribute in the rule that isn't in the create window is ignored, and an
+      empty generated name stops the create with an error.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Which file types does the Classification Tree's Import action accept?
+        options: [CSV only, JAR or ZIP, XLSX, Any XML load file]
+        answer: 1
+        explanation: Import takes a JAR or ZIP. A CSV first goes through CSVToXMLGenerator and the XML is zipped.
+      - kind: single
+        prompt: A node exists in Windchill but not in the file you import. What happens?
+        options: [It is deleted immediately, It is left alone and a delete load file is generated, The import fails, It is renamed]
+        answer: 1
+        explanation: Matching is by internal name; items only in Windchill get a generated delete load file in Windchill/temp/LWCTypeImpExp.
+      - kind: multi
+        prompt: Which elements can an autonaming rule contain? (Choose all that apply.)
+        options: [CSM_NODE_NAME, Attribute internal names, Text in double quotes, The creator's user name]
+        answers: [0, 1, 2]
+        explanation: Node name, node attributes by internal name and quoted strings, joined with plus signs. The creator isn't an element.
+      - kind: truefalse
+        prompt: After you change an autonaming rule, existing objects are renamed to match it.
+        answer: false
+        explanation: Generated names are fixed at creation; neither rule changes nor attribute changes update them.
+      - kind: single
+        prompt: Which command re-indexes a classification structure from a Windchill shell?
+        options: ["windchill com.ptc.windchill.csm.struct.UpdateClassificationStructure", "windchill wt.load.LoadFromFile", "windchill start", Setting Enable Search Facets to Yes]
+        answer: 0
+        explanation: Run UpdateClassificationStructure with site administrator credentials, for example after a migration or indexing problems. LoadFromFile loads data files, windchill start starts the server, and the facets preference only affects the Refine Results pane.
+
+  - type: summary
+    points:
+      - Demo classification data is a sample you load on purpose (QOM, attributes, nodes), after fixing the content root path.
+      - A first structure can come from CSV via CSVToXMLGenerator; zip the XML and use Actions → Import (site admins only, JAR/ZIP, whole structure, can't be undone).
+      - Import matches by internal name - update, create, or generate a delete load file. Use CSV only for the initial build.
+      - Autonaming rules join CSM_NODE_NAME, attribute internal names and quoted text with plus signs; set the measurement system and enforce the rule.
+      - Generated names never update later; rules aren't enforced with two nodes; Override Name needs a profile action.

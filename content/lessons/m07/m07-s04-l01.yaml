@@ -1,0 +1,409 @@
+id: m07-s04-l01
+subtitle: A rider's complaint about a rattling battery is the start of a loop - and the loop only closes when the design data changes and the rattle stops.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [quality, closed-loop-quality, capa, customer-experience, change-management]
+sources:
+  - id: te
+    where: "Change management process: overview (capabilities, OOTB change management process steps, roles); Activity: Create a problem report; Manage the quality of medical devices with Windchill; Accessing quality solutions from within Windchill PLM"
+  - id: hc-quality
+    label: PTC Help Center supplement
+    title: "Windchill Quality Management Solutions (Using the PTC Medical Device Suite)"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/sublandingpages/wqOvw.html"
+    covers: "The quality modules (CAPA, Nonconformance, Customer Experience Management) and what each one manages"
+  - id: hc-quality-nav
+    label: PTC Help Center supplement
+    title: "Windchill Quality Management Navigation"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wqCommon/WCQMSQMSTable.html"
+    covers: "Quality contexts, the Quality table and its views, integral and standalone installations"
+  - id: hc-cem
+    label: PTC Help Center supplement
+    title: "The Windchill Customer Experience Management Process"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wqcem/WQCEMOview.html"
+    covers: "Customer experiences connect field input to parts, BOMs, suppliers and documents, and with risk processes to failure modes and risk codes"
+  - id: hc-capa-flow
+    label: PTC Help Center supplement
+    title: "CAPA Process Flow"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCQMSCapa/WCQMSCAPAProcessFlow.html"
+    covers: "CAPA states including the optional Confirmation and Effectiveness steps"
+versionNotes:
+  - versions: ["All releases"]
+    md: |
+      The quality modules are licensed separately from core Windchill PLM, and many sites run only some of
+      them. The Help Center pages used here are for 13.1.2.0. Whether a given quality module is offered on
+      [[windchill-plus|Windchill+]] is not confirmed by the sources for this lesson - check your subscription.
+
+blocks:
+  - type: text
+    md: |
+      Three weeks after the **E-Bike E1** ships, **Sam** in field service hears the same story four times:
+      *"the battery rattles on cobblestones, and once it popped out."* Riders are annoyed. One fall and it
+      becomes much worse than annoying.
+
+      Sam could fix each bike by hand and move on. That's an **open loop**: the problem gets patched in the
+      field, the factory keeps building the same latch, and the design data never learns anything.
+
+      **Leo**, Acme's quality engineer, wants a **closed loop**: the complaint is recorded, investigated
+      down to a root cause, fixed *in the product data* through a controlled change, and then checked to
+      prove the rattle has really gone.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the whole report → fix → prove-it loop" → [[closed-loop-quality]]
+      - "what the customer told us" → a [[customer-experience]] (CEM record; complaints live here)
+      - "this batch doesn't match its spec" → a [[nonconformance]]
+      - "find the root cause, fix it, prove the fix works" → a [[capa|CAPA]]
+      - "the controlled fix to the design data" → [[problem-report]] → [[change-request]] → [[change-notice]] (Module 3)
+      - "the Windchill space where quality records live" → a [[quality-context]]
+      - "the family of quality features" → [[windchill-quality]]
+
+  - type: animation
+    title: One rattle, all the way round the loop
+    caption: Play it through. Each chapter is one hand-off between people and records.
+    diagram:
+      width: 820
+      height: 440
+      groups:
+        - { label: Quality records, x: 20, y: 20, w: 380, h: 200, tone: warning }
+        - { label: Change and product data, x: 420, y: 20, w: 380, h: 200, tone: primary }
+        - { label: Learning, x: 220, y: 250, w: 380, h: 170, tone: info }
+      nodes:
+        - id: field
+          label: Field report
+          sublabel: riders + Sam
+          x: 40
+          y: 70
+          w: 150
+          tone: neutral
+          shape: pill
+          detail: Complaints arrive from customers, dealers and service. On their own they are just anecdotes.
+        - id: cx
+          label: CX-0045
+          sublabel: customer experience
+          x: 220
+          y: 70
+          w: 160
+          tone: warning
+          shape: doc
+          detail: |
+            Leo logs the complaint as a [[customer-experience]]. Customer Experience Management collects,
+            tracks and trends quality issues that customers report, and links them to parts, BOMs, suppliers
+            and documents.
+        - id: capa
+          label: CAPA-0031
+          sublabel: root cause + actions
+          x: 220
+          y: 150
+          w: 160
+          tone: danger
+          shape: doc
+          detail: |
+            A [[capa|CAPA]] request is raised from the customer experience. Once a reviewer accepts it, the
+            team investigates the root cause and plans corrective and preventive actions.
+        - id: change
+          label: PR → CR → CN
+          sublabel: change process
+          x: 440
+          y: 70
+          w: 160
+          tone: primary
+          detail: |
+            The fix to the design is not done inside the CAPA. It goes through the normal change process
+            from Module 3: a [[problem-report]] identifies the need, a [[change-request]] investigates it and a
+            [[change-notice]] plans and implements it.
+        - id: data
+          label: Latch EB-2410 B
+          sublabel: released design
+          x: 630
+          y: 70
+          w: 150
+          tone: success
+          detail: The revised part and its CAD and documents are released through the change notice. New bikes get the new latch.
+        - id: verify
+          label: Effectiveness check
+          sublabel: did it work?
+          x: 540
+          y: 150
+          w: 160
+          tone: success
+          shape: pill
+          detail: |
+            The CAPA can include optional **Confirmation** and **Effectiveness** steps. Here the team checks
+            that complaints about the latch stop after the change is in production.
+        - id: risk
+          label: Design risk analysis
+          sublabel: e.g. FMEA
+          x: 330
+          y: 310
+          w: 160
+          tone: info
+          detail: |
+            What was learned feeds back into risk analysis for the next design, for example an [[fmea|FMEA]]
+            in [[windchill-risk-and-reliability]] (a separate PTC product - lesson 3). With both in place,
+            customer experiences can be coded with failure modes, effects and risk codes from design.
+      edges:
+        - { from: field, to: cx, label: log }
+        - { from: cx, to: capa, label: New CAPA Request }
+        - { from: capa, to: change, label: fix needed }
+        - { from: change, to: data, label: release }
+        - { from: data, to: verify }
+        - { from: verify, to: capa, label: close }
+        - { from: verify, to: risk, dashed: true, label: lessons }
+        - { from: risk, to: cx, dashed: true, label: risk codes }
+    chapters:
+      - title: The complaint arrives
+        caption: Four riders, one symptom. Leo records it once, as **CX-0045**, instead of four emails.
+        show: [field, cx]
+        highlight: [cx]
+        flow: [field>cx]
+        seconds: 6
+      - title: It becomes a CAPA
+        caption: The pattern is real, so Leo raises **CAPA-0031** straight from the customer experience. The source record stays linked.
+        show: [field, cx, capa]
+        highlight: [capa]
+        flow: [cx>capa]
+        seconds: 6
+      - title: Root cause leads to the design
+        caption: The latch spring is too weak for rough roads. Fixing that means changing released data, so it goes through **change management**.
+        show: [field, cx, capa, change]
+        highlight: [change]
+        flow: [capa>change]
+        seconds: 7
+      - title: The fix is released
+        caption: The change notice releases latch **EB-2410** at revision B. Riverside builds with it from then on.
+        show: [field, cx, capa, change, data]
+        highlight: [data]
+        flow: [change>data]
+        seconds: 6
+      - title: Prove it, then close
+        caption: Effectiveness check - complaints stop. Only now is CAPA-0031 closed. **That's the loop closing.**
+        show: [field, cx, capa, change, data, verify]
+        highlight: [verify]
+        flow: [data>verify, verify>capa]
+        seconds: 7
+      - title: Learn for next time
+        caption: The latch failure mode goes into design risk analysis so the Scooter S2 team doesn't repeat it.
+        highlight: [risk]
+        flow: [verify>risk, risk>cx]
+        seconds: 7
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Without the loop, the same defect keeps getting built - and every field fix costs far more than
+      changing a drawing. In regulated industries such as medical devices the loop isn't optional: PTC's
+      medical device suite exists so companies can follow the processes required by the FDA quality system
+      regulation and ISO 13485. Auditors want to see the complaint, the root cause, the change and the proof,
+      all linked.
+
+  - type: example
+    variant: case-study
+    title: How Acme traced the rattle back to the design
+    industry: Micromobility
+    md: |
+      1. **Field → record.** Sam passes the four reports to Leo, who logs **CX-0045** against the E1 and
+         attaches the riders' photos.
+      2. **Record → pattern.** At the **Lakeside** plant, Ana's incoming inspection finds a batch of latch
+         springs below spec. That becomes nonconformance **NC-0120** - a second clue pointing at the same part.
+      3. **Pattern → root cause.** Leo raises **CAPA-0031** from CX-0045. The investigation shows the spring
+         force in the latch design (part **EB-2410**) is marginal; the weak batch only made it fail sooner.
+      4. **Root cause → design change.** Leo creates a problem report on EB-2410. Maya runs it through a
+         change request and a change notice; Priya updates the CAD; Kai approves; revision B is released.
+      5. **Change → proof.** Six weeks after Riverside switches to revision B, no new latch complaints. The
+         CAPA's effectiveness step is completed and CAPA-0031 closes.
+    takeaway: The loop links field data to the exact part revision that fixed it - that link is what makes it "closed".
+
+  - type: diagram
+    title: Where quality records live
+    caption: Quality records sit in quality contexts. Click a box to see how they reach the product data.
+    diagram:
+      width: 800
+      height: 330
+      groups:
+        - { label: Quality context, x: 20, y: 20, w: 360, h: 290, tone: warning }
+        - { label: Product context (E-Bike E1), x: 420, y: 20, w: 360, h: 290, tone: primary }
+      nodes:
+        - id: q-table
+          label: Quality table
+          sublabel: Navigator, quality icon
+          x: 40
+          y: 60
+          w: 160
+          tone: neutral
+          detail: |
+            The **Quality** table lists the current and backlog quality contexts you are a member of. Views
+            include Active Member, All, Favorites and Guest Member.
+        - id: q-records
+          label: CX · NC · CAPA
+          sublabel: quality records
+          x: 40
+          y: 170
+          w: 160
+          tone: warning
+          shape: doc
+          detail: |
+            Quality contexts are shown with a quality icon and store the quality solution information.
+            Each record's work arrives as tasks in the **Quality Tasks** table and in **My Tasks**.
+        - id: q-mode
+          label: Integral or standalone
+          x: 220
+          y: 110
+          w: 140
+          h: 70
+          tone: info
+          detail: |
+            In an **integral** installation, products stay in their own product contexts and quality records
+            point at them. In a **standalone** installation, products are kept in the quality context itself.
+        - id: p-parts
+          label: Parts + BOM
+          sublabel: EB-2410
+          x: 450
+          y: 60
+          w: 150
+          tone: primary
+          detail: The released design data a fix must change - parts, BOMs, CAD documents.
+        - id: p-changes
+          label: Change objects
+          sublabel: PR · CR · CN
+          x: 450
+          y: 180
+          w: 150
+          tone: primary
+          detail: Problem reports, change requests and change notices live with the product data and change it under control.
+      edges:
+        - { from: q-table, to: q-records }
+        - { from: q-records, to: q-mode, dashed: true }
+        - { from: q-records, to: p-parts, label: affected item }
+        - { from: q-records, to: p-changes, label: drives a change }
+        - { from: p-changes, to: p-parts, label: revises }
+
+  - type: walkthrough
+    title: Find your quality contexts
+    who: Any member of a quality context (Leo)
+    where: [Navigator, Quality, View All]
+    steps:
+      - title: Open the Quality table
+        where: [Navigator, Quality icon]
+        md: In the Navigator, click the **quality** icon. Quality solutions are shown as contexts, marked with that icon.
+      - title: See them all
+        where: [Quality, View All]
+        md: Click **View All**. The **Quality** table opens with every current and backlog quality context you belong to.
+      - title: Filter the view
+        where: [Quality table, View]
+        md: |
+          Switch the view to **Active Member**, **Favorites** or **Guest Member** to narrow the list, or use
+          the find-in-table icon to type part of a name.
+      - title: Open the context
+        where: [Quality table, "<context name>"]
+        md: Click the context name to open it and reach its quality records and tasks.
+    result: Leo sees "E1 Quality" in his Quality table and opens it to work on CX-0045.
+
+  - type: scenario
+    variant: challenge
+    title: Close the loop - or just patch it?
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Four rattle complaints are in. Sam has spare latches in the van. What should happen first?
+        choices:
+          - label: Log one customer experience and link the four reports
+            next: s2
+            good: true
+            feedback: Right - one record means the pattern is visible and trendable.
+          - label: Sam swaps the latches and tells nobody
+            next: fail1
+            feedback: The riders are happy for now, but the factory keeps building the same latch.
+      - id: s2
+        md: |
+          CX-0045 shows a clear pattern, and NC-0120 at Lakeside points at the same part. What next?
+        choices:
+          - label: Raise a CAPA from the customer experience
+            next: s3
+            good: true
+            feedback: A CAPA drives the root-cause investigation and keeps the customer experience linked as its source.
+          - label: Ask Priya to quietly edit the released CAD
+            next: fail2
+            feedback: Released data can only change through the change process. A quiet edit breaks traceability.
+      - id: s3
+        md: |
+          Root cause found: the latch spring in EB-2410 is too weak. How does the fix reach production?
+        choices:
+          - label: Problem report, change request, change notice - revision B released
+            next: s4
+            good: true
+            feedback: The fix lands in the product data with full change history.
+          - label: Close the CAPA now - root cause is known
+            next: partial1
+            feedback: Knowing the cause isn't the same as fixing it - or proving the fix works.
+      - id: s4
+        md: |
+          Revision B is in production at Riverside. Can CAPA-0031 close today?
+        choices:
+          - label: Not yet - run the effectiveness check first
+            next: win
+            good: true
+            feedback: Closing after proof is what makes the loop closed.
+          - label: Yes, the change notice is done
+            next: partial2
+            feedback: The change is done, but nobody has checked that the rattle stopped.
+      - id: win
+        md: Six weeks, zero new latch complaints. Leo closes CAPA-0031 and adds the failure mode to the design risk analysis. **Loop closed.**
+        outcome: success
+      - id: fail1
+        md: Two months later, 40 more complaints. Same latch, same rattle - now with a recall question.
+        outcome: fail
+      - id: fail2
+        md: The audit finds a released part that changed with no change record. Now there are two problems.
+        outcome: fail
+      - id: partial1
+        md: The CAPA is closed but the design hasn't changed. The next batch rattles too.
+        outcome: partial
+      - id: partial2
+        md: Probably fine - but "probably" is not evidence. The loop is open at the last step.
+        outcome: partial
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Fixing it inside the quality record.** A CAPA tracks the investigation and actions, but released
+      parts and CAD still change only through change management. If the CAPA says "spring changed" and there
+      is no change notice behind it, the loop has a hole exactly where auditors look.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Raise the CAPA **from** the customer experience or nonconformance (its Actions menu has
+      **New CAPA Request**). The source record is then listed with the CAPA automatically, so the trace
+      from complaint to fix starts linked instead of relying on someone typing "see CX-0045".
+
+  - type: quiz
+    questions:
+      - kind: order
+        prompt: Put Acme's closed loop in order.
+        items: [Record the customer experience, Raise a CAPA and find the root cause, Change the design through PR/CR/CN, Release the revised part, Check effectiveness and close the CAPA]
+        explanation: Record, investigate, change the data, release, prove. Skip the last step and the loop is still open.
+      - kind: single
+        prompt: Which record captures "riders say the battery rattles"?
+        options: [Nonconformance, Customer experience, Change notice, Variance]
+        answer: 1
+        explanation: Customer Experience Management collects and tracks quality issues that customers report, including complaints. A nonconformance is for items that don't meet their specification.
+      - kind: truefalse
+        prompt: Once the root cause is known, the CAPA can be closed.
+        answer: false
+        explanation: The fix still has to be implemented through a controlled change and, if the planner asked for them, confirmed and checked for effectiveness.
+      - kind: single
+        prompt: In an integral quality installation, where do the products live?
+        options: [In the quality context, In their own product contexts, In a personal cabinet, In Windchill Risk and Reliability]
+        answer: 1
+        explanation: Integral mode keeps products in their own contexts. Standalone mode keeps them in the quality context.
+
+  - type: summary
+    points:
+      - Closed-loop quality means a problem is recorded, investigated, fixed in the product data and proven fixed - then fed back into design risk analysis.
+      - Customer experiences hold what customers report; nonconformances hold items that miss their spec; CAPAs drive root cause and actions.
+      - The design fix travels through the normal change process (problem report, change request, change notice), not inside the quality record.
+      - Quality records live in quality contexts, reached from the Navigator's quality icon and the Quality table.
+      - The loop only closes after an effectiveness check shows the problem has gone.

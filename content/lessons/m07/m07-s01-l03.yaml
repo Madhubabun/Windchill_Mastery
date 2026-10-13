@@ -1,0 +1,282 @@
+id: m07-s01-l03
+subtitle: The mBOM says what goes into the E1. The process plan says in which steps, at which station, with which tools - and which part is used in which step.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [mpmlink, process-plan, operations, part-allocation, manufacturing-resources]
+sources:
+  - id: mpm-pp
+    where: "Implementation strategy; Module 1: Why use process plans?; End-to-end process. Module 3: Process plans overview; Operations; Manufacturing resource allocation; Part allocation; Part allocation types; Activity: Create a process plan; Activity: Allocate parts to process plan operations"
+  - id: mpm-bom
+    where: "Module 1: Windchill MPMLink architecture"
+  - id: te
+    where: "BOM module: occurrences and reference designators; Manufacturing Process Management architecture"
+
+blocks:
+  - type: text
+    md: |
+      Ana's Riverside mBOM is done. The line supervisor reads it and asks the obvious question:
+      *"Great - so what do my people actually do, in what order, and with what?"*
+
+      That's the job of a **process plan**. For the E1 Ana creates **PP-E1-10 Riverside final assembly**
+      with four steps: **OP-10** build the electrical kit, **OP-20** build the rolling chassis,
+      **OP-30** fit drive unit and battery, **OP-40** final check and pack. Then she decides which
+      station, tools, materials and skills each step needs - and which mBOM parts get used up where.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the recipe for building one part or assembly" → [[process-plan]]
+      - "one step in the recipe" → [[mpm-operation|operation]] (it can hold **sub-operations**)
+      - "the station, tools, consumables and know-how" → [[manufacturing-resource|manufacturing resources]]
+      - "this part is used up in this step" → [[part-allocation]]
+      - "each individual use of a part, e.g. bolt 1 of 4" → **occurrence**, named by a [[reference-designator]]
+      - "the shop-floor how-to page" → [[work-instruction]] (next lessons)
+
+  - type: diagram
+    title: What hangs off a process plan
+    caption: A process plan links the mBOM part it builds, a plant, and its operations. Click to explore.
+    diagram:
+      width: 820
+      height: 470
+      nodes:
+        - id: mbom
+          label: E-Bike E1
+          sublabel: mBOM top part
+          x: 30
+          y: 60
+          w: 170
+          tone: accent
+          detail: |
+            The process plan is linked to the part it describes how to build - usually the top-level mBOM
+            part. That link is what lets you allocate the mBOM's parts to operations.
+        - id: plant
+          label: Riverside
+          sublabel: Plant + resource tree
+          x: 30
+          y: 330
+          w: 170
+          tone: neutral
+          detail: |
+            A plant (with its resource structure) is associated with the plan to say where it can be
+            executed. Plans, sequences and operations can be associated with one or more plants.
+        - id: plan
+          label: PP-E1-10
+          sublabel: process plan
+          x: 300
+          y: 190
+          w: 170
+          tone: warning
+          detail: |
+            Holds operations, optional sequences and standard procedures. With it you define the steps,
+            their order, time, cost and constraints, the resources and skills, and which parts are used
+            where. Subtypeable and life-cycle managed.
+        - id: op10
+          label: OP-10
+          sublabel: electrical kit
+          x: 580
+          y: 30
+          w: 200
+          tone: primary
+          detail: |
+            The **operation** is the core element: description, time and cost, quantity, required
+            resources, referenced manufacturing capability, parts to assemble, documents and
+            illustrations. Always sequenced with an execution number.
+        - id: op20
+          label: OP-20
+          sublabel: rolling chassis
+          x: 580
+          y: 120
+          w: 200
+          tone: primary
+          detail: "At most **one work center** and **one manufacturing capability** per operation - but many parts, documents, plants and other resources."
+        - id: op30
+          label: OP-30
+          sublabel: drive unit + battery
+          x: 580
+          y: 210
+          w: 200
+          tone: primary
+          detail: Operations can contain sub-operations, any number of levels deep. Operation templates let you reuse attribute values.
+        - id: op40
+          label: OP-40
+          sublabel: final check + pack
+          x: 580
+          y: 300
+          w: 200
+          tone: primary
+          detail: The carton and manual from the mBOM are allocated here.
+        - id: res
+          label: Allocated resources
+          sublabel: work center · tooling · material · skill
+          x: 560
+          y: 395
+          w: 240
+          tone: neutral
+          detail: |
+            Per operation: at most one work center, plus any process materials, tooling and skills.
+            MPMLink checks compatibility links as you allocate.
+      edges:
+        - { from: plan, to: mbom, label: describes how to build }
+        - { from: plan, to: plant, label: executed at }
+        - { from: plan, to: op10 }
+        - { from: plan, to: op20 }
+        - { from: plan, to: op30 }
+        - { from: plan, to: op40 }
+        - { from: op30, to: res, dashed: true }
+        - { from: mbom, to: op20, label: parts allocated, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      A process plan turns tribal knowledge ("Dev always does the harness first") into a managed,
+      versioned object linked to the exact mBOM it builds. When the part allocation status says 100%,
+      nobody has forgotten a bolt - and the allocation type tells ERP exactly how many of each part to
+      book for the job.
+
+  - type: walkthrough
+    title: Create PP-E1-10 and give it operations and resources
+    who: A manufacturing engineer with MPMLink (Ana)
+    where: [Browse, Products, "E-Bike E1", Folders, Manufacturing]
+    steps:
+      - title: Start from the mBOM
+        where: [Folders, Manufacturing, "E-Bike E1 (Manufacturing)", Actions, Open in, Open in BOM Transformer]
+        md: |
+          The easiest route: open the **Manufacturing** version of the E1 in the BOM Transformer. A
+          process plan created there is automatically associated with that mBOM part.
+      - title: Insert the process plan
+        where: [BOM Transformer, Process Plan tab, Insert New]
+        md: |
+          On the **Process Plan** tab (lower right pane) click **Insert New**, name it, and set
+          **Occurrence Allocation From Any Level** to *Yes* so occurrences of child parts can be
+          allocated. Then right-click the plan → **View Information**.
+      - title: Associate the plant
+        where: [Process plan, Structure tab, Open Tree Picker]
+        md: |
+          **Open Tree Picker**, search on type **Plant**, find *Riverside*, **Load** it. The plant shows
+          with all its child resources. Copy the plant and **Paste** it onto the process plan.
+      - title: Add operations
+        where: [Structure tab, Insert, Insert Operations]
+        md: |
+          **Insert Operations**, enter how many (4), select them all, right-click → **Editing → Rename
+          Operations** and give each a name.
+      - title: Allocate resources
+        where: [Open Tree Picker, Load, "Riverside", drag to operation]
+        md: |
+          Drag the work center, tooling and process materials from the loaded plant onto the right
+          operations. Windchill may offer to copy default time and cost from the work center, and shows
+          the work center's compatibility links for review. (You can also use **Allocate Resource** on
+          the **Processing Resources** tab.)
+      - title: Check in and review
+        where: [My Checkouts, Check In, Apply to All]
+        md: Check everything in. The plan's **Uses** tab shows each operation in detail, including timing.
+    result: PP-E1-10 is linked to the E1 mBOM and the Riverside plant, with four operations and their resources.
+
+  - type: walkthrough
+    title: Allocate mBOM parts to operations
+    who: Ana
+    where: [Folders, Manufacturing, "E-Bike E1 (Manufacturing)", Structure]
+    steps:
+      - title: Occurrence the mBOM first
+        where: [mBOM part, Structure tab, Edit, Auto Create Occurrences]
+        md: |
+          Parts without an occurrence can't be allocated. **Auto Create Occurrences** adds one to every
+          usage that doesn't have one yet (existing, hand-made occurrences are left alone). The action
+          appears when the **Display Auto Create Occurrences Action** preference is *Yes*.
+      - title: Open the plan next to its mBOM
+        where: [Manufacturing folder, "PP-E1-10", Structure tab, Open Related Object]
+        md: |
+          **Open Related Object** shows the mBOM beside the plan with each part's allocation status and
+          a visualization pane.
+      - title: Drag parts onto operations
+        where: [Related object pane, select parts, drag to operation]
+        md: |
+          Drag the kit's children to OP-10, the chassis to OP-20, and so on. Allocation happens on
+          **occurrences**.
+      - title: Split a usage when one step can't take them all
+        where: [Related object pane, part, Split Usage Link]
+        md: |
+          The drive unit is held by 4 identical bolts on one usage, but 2 are fitted in OP-30 and 2 in
+          OP-40. **Split Usage Link** with *Quantity on new usage* = 2 makes two usages of 2, so each can
+          go to a different operation.
+      - title: Confirm nothing is missing
+        where: [Left pane, Display Part Allocation Status]
+        md: At 100% every part is allocated, and allocated parts grey out in the visualization.
+    result: Every occurrence in the E1 mBOM belongs to exactly one operation.
+
+  - type: comparison
+    title: Part allocation types and what ERP receives
+    columns: [Meaning, Quantity sent to ERP]
+    rows:
+      - label: (blank - default)
+        cells: ["No type set", "The BOM quantity"]
+      - label: Consumed
+        cells: ["Taken from stock and assembled", "The BOM quantity, as-is"]
+      - label: Produced
+        cells: ["Created while making another part", "The BOM quantity, as-is"]
+      - label: Disassembled
+        cells: ["Temporarily taken apart", "A negative quantity"]
+      - label: Destroyed
+        cells: ["Destroyed by the process, e.g. testing", "A negative quantity"]
+    takeaway: Most allocations are BOM allocated parts; "Operated On" parts sit outside the BOM but are referenced by the operation.
+
+  - type: callout
+    variant: pitfall
+    title: One usage, two operations
+    md: |
+      A BOM allocation means "this component is now assembled" - it can't be assembled again. So the
+      same usage can't be allocated to two operations (unless they are in a parallel sequence), and an
+      operation consumes the **full** quantity of the usage. Need to spread 4 bolts over two steps?
+      Split the usage link first.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      PTC's end-to-end order is worth taping to your monitor: **finalise the mBOM → create resources
+      (organised under a plant, reused where possible) → create the plan, link plant and mBOM → assign
+      resources → occurrence and allocate parts → work instructions → routing plans**. And start with
+      one pilot mBOM, not the whole catalogue.
+
+  - type: flashcards
+    title: Process plan deck
+    cards:
+      - { front: Process plan, back: "Structured, step-by-step instructions to produce, inspect, repair or maintain the part it is linked to." }
+      - front: Operation
+        back: "The core manufacturing step: description, time, cost, quantity, resources, capability, parts, documents, illustrations. Can have sub-operations."
+      - front: Work centers per operation
+        back: "At most one (and at most one manufacturing capability). Many tools, materials, skills, parts and documents are fine."
+      - front: Auto Create Occurrences
+        back: "Adds an occurrence to every usage that has none, so every part can be allocated. Leaves existing occurrences alone."
+      - front: Split Usage Link
+        back: "Splits one usage into two (e.g. 4 bolts into 2 + 2) so the parts can be allocated to different operations."
+      - front: BOM allocated vs Operated On
+        back: "BOM allocated parts are in the related mBOM. Operated On parts are outside it but referenced by the operation."
+      - front: Disassembled / Destroyed allocation
+        back: "Sends a negative quantity to ERP."
+      - front: Tree Picker
+        back: "Loads a plant (or part) structure next to the process plan so you can drag resources onto operations."
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Ana tries to drag a bracket onto OP-20 but it won't allocate. The bracket has no occurrence. What fixes it?
+        options: [Revise the bracket, Run Auto Create Occurrences on the mBOM structure, Add a work center to OP-20, Check out the process plan]
+        answer: 1
+        explanation: Allocation works on occurrences. Auto Create Occurrences adds one wherever it's missing.
+      - kind: single
+        prompt: How many work centers can be allocated to OP-30?
+        options: [None, At most one, Exactly two, As many as needed]
+        answer: 1
+        explanation: An operation has at most one work center and one manufacturing capability, but can have many other resources.
+      - kind: truefalse
+        prompt: A part allocated as Destroyed sends a negative quantity to ERP.
+        answer: true
+        explanation: Disassembled and Destroyed send negative quantities; blank, Consumed and Produced send the BOM quantity.
+
+  - type: summary
+    points:
+      - A process plan is linked to the part it builds (usually the mBOM top part) and to the plants where it runs.
+      - Operations carry the step's description, time, cost, resources, parts and documents; they can nest.
+      - Each operation has at most one work center; tooling, process materials and skills are added freely.
+      - Parts are allocated by occurrence - occurrence the mBOM first and split usages to spread quantities.
+      - The allocation type decides the quantity sent to ERP.

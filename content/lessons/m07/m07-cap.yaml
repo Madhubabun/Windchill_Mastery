@@ -1,0 +1,501 @@
+id: m07-cap
+subtitle: Three batteries, two colours, two plants and one ERP system. Make the E-Bike E1 buildable without six copies of the BOM.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [capstone, options-and-variants, mpmlink, bom-transformation, erp, esi, integration-note]
+sources:
+  - id: ov
+    where: "Module 1: What is Windchill Options and Variants; How are options and variants implemented. Module 2: Implementation process steps; Configurable structure overview (configurable product, configurable part, collapsible, parts); Activity: Create the configurable product structure. Module 3: Options and choices; Option types (required, single-choice); Rules (include, exclude, enable, conditional); Option pool; Option sets; Assigning option choices; Activity: create option set, assign option set, assign expressions. Module 4: Filter a configurable structure using choices; Create a variant specification and variant (Configure window); Comparing variant specifications"
+  - id: mpm-bom
+    where: "Module 1: What is an mBOM and why do we need it; BOM transformation; MPMLink process overview. Module 2: BOM Transformer tool (Design and Manufacturing view versions, upstream and downstream); BOM transformation process steps 1-6; equivalent links; MPMLink license group. Module 3: Scenario 1 managing multiple plants (View Administration); Scenario 3 Plant Data; Scenario 4 complex view networks; Activity: Create BOMs for multiple plants (New View, Move View, List of Applicable Views preference). Module 4: Best practices; integrate mBOM creation and maintenance with the change process"
+  - id: erp
+    where: "Module 1: Object types supported by ERP Connector. Module 2: Distribution targets (types, Manage Distribution utility, SAP Plant attribute, Default for Context, View To Distribution Target Mappings); Distribution target assignment strategy (top-level, explicit, default; Distribution Target Finder preference); How to trigger a publication (Send To Distribution Target, maturity state, change notice release, Release To Manufacturing workflow)"
+  - id: esi
+    where: "Module 2: Windchill ESI features (publish parts, BOMs, documents, ECNs, process plans, options and variants; production BOM per organization or plant)"
+
+blocks:
+  - type: text
+    md: |
+      **Launch week minus six.** Kai drops the brief into the team chat:
+
+      > "E-Bike E1 ships in three battery sizes (**400 Wh, 500 Wh, 625 Wh**) and two frame colours
+      > (**Graphite** and **Mint**). Riverside builds it, and from month two Lakeside builds it too.
+      > Sales wants a configurator. Finance wants it in ERP. I do **not** want six copies of the BOM."
+
+      Six combinations today, more next year. Copy-paste BOMs would turn every engineering change
+      into six edits and a guessing game. You'll use what Module 7 taught you instead: one
+      **configurable** structure, **variants** filtered out of it, an [[mbom]] built associatively from
+      the [[ebom]], and a clear note on **what goes to [[erp|ERP]] and when**.
+
+      You'll play four roles: Kai (options), Priya (the configurable structure), Ana (manufacturing)
+      and Ines (integration).
+
+  - type: callout
+    variant: note
+    title: Your mission checklist
+    md: |
+      1. **Model the options**: Battery and Frame Colour, their choices and one business rule.
+      2. **Configure a customer variant** from the configurable structure.
+      3. **Transform the eBOM into plant-specific mBOMs** for Riverside and Lakeside.
+      4. **Write a one-page integration note**: what goes to ERP, and what event sends it.
+
+  - type: callout
+    variant: terms
+    title: Plain words → Windchill words
+    md: |
+      | Plain words | Official term |
+      | --- | --- |
+      | "The library of every option we could ever offer" | **Option pool** (on the product or library) |
+      | "The options this product actually uses" | **Option set**, assigned to the product |
+      | "One BOM holding every possible version" | **Configurable product** structure, also called the overloaded or 150% BOM |
+      | "A bucket that holds the alternatives for one slot" | **Configurable part** (configurable module), usually set to **Collapsible** |
+      | "The record of what the customer picked" | **Variant specification** |
+      | "One buildable bike" | **Variant** (the 100% BOM) |
+      | "The tool where engineering's BOM becomes manufacturing's" | **BOM Transformer** in [[mpmlink]] |
+      | "The link that remembers which mBOM part came from which eBOM part" | **Equivalent link** |
+      | "Where ERP data gets sent" | **Distribution target** |
+
+  - type: diagram
+    title: From one configurable bike to plant BOMs in ERP
+    caption: Follow the chain left to right. Click any box.
+    diagram:
+      width: 820
+      height: 440
+      groups:
+        - { label: Options and variants, x: 20, y: 20, w: 380, h: 400, tone: primary }
+        - { label: MPMLink, x: 420, y: 20, w: 200, h: 400, tone: accent }
+        - { label: ERP, x: 640, y: 20, w: 160, h: 400, tone: info }
+      nodes:
+        - id: pool
+          label: Option pool
+          sublabel: Battery · Frame Colour
+          x: 40
+          y: 60
+          w: 160
+          tone: primary
+          detail: |
+            Options and their choices live in an option pool on the product (or a library). Here:
+            **Battery** with 400 Wh, 500 Wh and 625 Wh, and **Frame Colour** with Graphite and Mint.
+            Rules between choices live here too. Options and choices can be life-cycle managed.
+        - id: set
+          label: Option set
+          sublabel: E1 Options
+          x: 220
+          y: 60
+          w: 160
+          tone: primary
+          detail: |
+            A subset of options and choices referenced from one or more option pools. The option set
+            **assigned** to the product decides which options and choices are offered when someone
+            filters or configures. Its default life-cycle state is In Work.
+        - id: cfg
+          label: EB-1000 E1
+          sublabel: configurable product
+          x: 40
+          y: 180
+          w: 160
+          tone: warning
+          detail: |
+            The top of the overloaded (150%) structure: every battery and every frame colour is in it.
+            Under it sit **configurable parts** for Battery and Frame, each holding the alternatives,
+            with choices assigned on the usage links.
+        - id: spec
+          label: Variant spec
+          sublabel: what was picked
+          x: 220
+          y: 180
+          w: 160
+          tone: success
+          detail: |
+            Created by the **Configure** action. It records the choices that were selected (for example
+            500 Wh + Graphite) and acts as the placeholder for the variant.
+        - id: variant
+          label: Variant
+          sublabel: EB-V2001 (100% BOM)
+          x: 130
+          y: 310
+          w: 170
+          tone: success
+          detail: |
+            One buildable, sellable bike. The collapsible configurable parts don't appear in it; only the
+            parts selected by the choices do.
+        - id: ebom
+          label: eBOM
+          sublabel: Design view
+          x: 440
+          y: 60
+          w: 160
+          tone: neutral
+          detail: |
+            Engineering's structure, in the **Design** view version (the default view on parts). It opens in
+            the left (upstream) pane of the BOM Transformer.
+        - id: mbom-rv
+          label: Riverside mBOM
+          sublabel: downstream view
+          x: 440
+          y: 200
+          w: 160
+          tone: accent
+          detail: |
+            A downstream view version for the Riverside plant, linked to the eBOM by **equivalent links**,
+            with manufacturing assemblies, phantoms and manufacturing-only parts added.
+        - id: mbom-lk
+          label: Lakeside mBOM
+          sublabel: downstream view
+          x: 440
+          y: 310
+          w: 160
+          tone: accent
+          detail: |
+            A second plant view under Manufacturing. If both plants built identically you could instead keep
+            **one** mBOM and capture plant differences with **Plant Data** objects.
+        - id: dt-rv
+          label: ERP-Riverside
+          sublabel: target · plant RV01
+          x: 655
+          y: 200
+          w: 130
+          tone: info
+          detail: |
+            A **distribution target**: the destination for published data. An SAP-type target carries a
+            System ID, Client and **Plant**.
+        - id: dt-lk
+          label: ERP-Lakeside
+          sublabel: target · plant LK01
+          x: 655
+          y: 310
+          w: 130
+          tone: info
+          detail: The Lakeside plant's distribution target. Lakeside's mBOM and parts are published here.
+      edges:
+        - { from: pool, to: set, label: referenced by }
+        - { from: set, to: cfg, label: assigned to product }
+        - { from: cfg, to: spec, label: Configure }
+        - { from: spec, to: variant }
+        - { from: ebom, to: mbom-rv, label: transform }
+        - { from: ebom, to: mbom-lk, label: transform }
+        - { from: mbom-rv, to: dt-rv, label: publish }
+        - { from: mbom-lk, to: dt-lk, label: publish }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Configurable products exist so that **one** structure carries the variability. When Priya changes the
+      battery bracket, she changes it once and every variant that uses it is right. The same idea runs through
+      MPMLink: the mBOM is **linked** to the eBOM, not copied, so a design change can be traced into each
+      plant's BOM instead of being rediscovered on the shop floor.
+
+  - type: walkthrough
+    title: "Step 1: Model the options (Kai)"
+    who: A product manager or option administrator with rights on the E-Bike E1 product
+    where: [Browse, Products, E-Bike E1, Details, Option Pool]
+    steps:
+      - title: Open the option pool
+        where: [Browse, Products, E-Bike E1, Details, Option Pool]
+        md: |
+          Open the product's information page and go to the **Option Pool** tab. A new product's pool is empty.
+      - title: Create the two options
+        md: |
+          Click **New Option** and create **Battery** and **Frame Colour**. Make both **required** (a variant
+          can't skip them) and **single-choice** (one battery per bike, one colour per frame).
+      - title: Create the choices
+        md: |
+          Select each option and use **New Choice**: 400 Wh, 500 Wh and 625 Wh for Battery; Graphite and
+          Mint for Frame Colour.
+      - title: Add the business rule
+        md: |
+          At launch, Mint frames ship only with the two smaller batteries. Capture that as an **exclude
+          rule** between **625 Wh** and **Mint** (an invalid combination). Use **New Exclude Rule** on the
+          Exclude Rules tab.
+      - title: Build and assign the option set
+        where: [Option Sets, New Option Set]
+        md: |
+          Create an option set named **E1 Options**, add Battery and Frame Colour with **Manage Choices**,
+          then on the product's **Option Sets** tab use **Assign Option Set**.
+    result: E-Bike E1 now offers exactly two options, five choices and one rule to anyone who filters or configures it.
+
+  - type: walkthrough
+    title: "Step 1b: Shape the configurable structure (Priya)"
+    who: A design engineer, with the Configurable Module Support preference set to Yes
+    steps:
+      - title: Create the configurable product
+        md: |
+          Create part **EB-1000 E-Bike E1** with **Configurable Module = Yes** and **Create as End Item = Yes**.
+          It is both the end item and the top configurable module.
+      - title: Add the configurable parts
+        where: [EB-1000, Structure, Insert New]
+        md: |
+          On the **Structure** tab insert two configurable parts, **E1 Battery** and **E1 Frame**, and set
+          **Collapsible = Yes** so they won't appear in the finished variants.
+      - title: Add the alternatives
+        md: |
+          Under E1 Battery insert the three battery packs (EB-1101 400 Wh, EB-1102 500 Wh, EB-1103 625 Wh).
+          Under E1 Frame insert EB-1201 Graphite and EB-1202 Mint. Parts that every bike uses (motor, wheels,
+          brakes) go straight under EB-1000 with **no** choice assigned.
+      - title: Assign choices on the usage links
+        md: |
+          Right-click each alternative and use **Assign Expression** to give it its choice (EB-1103 →
+          Battery = 625 Wh, and so on). Assigning on the **usage link** means the choice only applies where
+          the part is used in this structure. Check in everything when you're done.
+    result: A single 150% BOM that holds all six combinations.
+
+  - type: simulation
+    title: "Step 2: Configure a customer variant"
+    intro: |
+      A dealer orders a **500 Wh, Mint** E1. Pick the choices in the option filter, check the result, save the
+      variant specification and request the variant. The exclude rule is live: watch what it blocks. Use
+      **Start over** to try another combination.
+    headline: "Battery {battery} · Frame {colour} · Filter {filter} · Spec {spec} · Variant {variant}"
+    initial: { battery: "-", colour: "-", filter: not applied, spec: none, variant: none }
+    actions:
+      - id: pick-400
+        label: Battery 400 Wh
+        when: { spec: none }
+        do: [{ set: { battery: 400 Wh, filter: not applied } }]
+        log: Battery set to 400 Wh.
+        blockedHint: The specification is saved. Start over to change choices.
+      - id: pick-500
+        label: Battery 500 Wh
+        when: { spec: none }
+        do: [{ set: { battery: 500 Wh, filter: not applied } }]
+        log: Battery set to 500 Wh.
+        blockedHint: The specification is saved. Start over to change choices.
+      - id: pick-625
+        label: Battery 625 Wh
+        when: { spec: none, colour: ["-", Graphite] }
+        do: [{ set: { battery: 625 Wh, filter: not applied } }]
+        log: Battery set to 625 Wh.
+        blockedHint: "Exclude rule: 625 Wh can't be combined with Mint. Pick Graphite first, or another battery."
+      - id: pick-graphite
+        label: Frame Graphite
+        when: { spec: none }
+        do: [{ set: { colour: Graphite, filter: not applied } }]
+        log: Frame Colour set to Graphite.
+        blockedHint: The specification is saved. Start over to change choices.
+      - id: pick-mint
+        label: Frame Mint
+        when: { spec: none, battery: ["-", 400 Wh, 500 Wh] }
+        do: [{ set: { colour: Mint, filter: not applied } }]
+        log: Frame Colour set to Mint.
+        blockedHint: "Exclude rule: Mint can't be combined with 625 Wh. Pick a smaller battery first."
+      - id: apply-filter
+        label: Apply option filter
+        when: { battery: [400 Wh, 500 Wh, 625 Wh], colour: [Graphite, Mint], spec: none }
+        do: [{ set: { filter: applied } }]
+        log: "Filtered EB-1000: battery {battery} and frame {colour} remain, the other alternatives drop out, and the collapsible configurable parts disappear."
+        blockedHint: Both options are required. Pick a battery and a colour first.
+      - id: save-spec
+        label: Save variant specification
+        when: { filter: applied, spec: none }
+        do: [{ set: { spec: saved } }]
+        log: "Variant specification saved: it records Battery = {battery} and Frame Colour = {colour}."
+        blockedHint: Test the choices with the option filter before you save a specification.
+      - id: request-variant
+        label: Request module variant
+        when: { spec: saved, variant: none }
+        do: [{ set: { variant: EB-V2001 } }]
+        log: "Variant EB-V2001 created: one buildable bike, a 100% BOM."
+        blockedHint: Save the variant specification first.
+      - id: reset
+        label: Start over
+        when: { battery: ["-", 400 Wh, 500 Wh, 625 Wh] }
+        do: [{ set: { battery: "-", colour: "-", filter: not applied, spec: none, variant: none } }]
+        log: Cleared. Pick new choices.
+    goals:
+      - label: Configure a 625 Wh bike (and see which colour is left)
+        when: { battery: 625 Wh, colour: Graphite }
+        message: "Once 625 Wh is chosen, Mint is blocked (and vice versa). That's the exclude rule doing its job: invalid combinations can't be configured."
+      - label: Build the dealer's 500 Wh Mint variant
+        when: { battery: 500 Wh, colour: Mint, variant: EB-V2001 }
+        message: "Filter, then specification, then variant: the same order as the Configure window (Set Filter → Preview → Variant Specification → Module Variant)."
+
+  - type: walkthrough
+    title: "Step 2 in Windchill: the Configure window"
+    where: [EB-1000, Structure, Configure]
+    steps:
+      - title: Test with the option filter first
+        where: [EB-1000, Structure, Edit Filter, Option Filter]
+        md: |
+          On the configurable product's **Structure** tab, open **Edit Filter → Option Filter**, pick 500 Wh and
+          Mint, and expand all levels. Check the right battery and frame remain and the rules behave.
+      - title: Configure
+        md: Right-click EB-1000 and choose **Configure**.
+      - title: Work through the steps
+        md: |
+          **Set Filter** (choices), **Set Parameters** (only if you use advanced logic), **Preview** (any
+          existing matching specifications or variants?), **Variant Specification** (save it), **Module
+          Variant** (request the variant).
+      - title: Compare if needed
+        where: [Variant specification, Actions, Compare Information]
+        md: Compare two variant specifications from the specification's Actions menu when sales asks "what's different?".
+    result: A variant specification and variant EB-V2001 for the dealer's bike.
+
+  - type: walkthrough
+    title: "Step 3: Plant-specific mBOMs (Ana)"
+    who: Ana, a manufacturing engineer in the MPMLink license group and the product's Manufacturing Engineer role
+    steps:
+      - title: Confirm the view network
+        where: [Site, Utilities, View Administration]
+        md: |
+          Acme decides: eBOM in **Design**, one mBOM per plant. Create views **Riverside** and **Lakeside** with
+          **New View**, then use **Move View** to put each under **Manufacturing**.
+      - title: Make the views visible
+        where: [Site, Utilities, Preference Management, Associativity]
+        md: Add Riverside and Lakeside to the **List of Applicable Views** preference so they appear in the BOM Transformer and the Edit Filter wizard.
+      - title: Open the eBOM in BOM Transformer
+        md: |
+          Open the E1 end item's eBOM. The Design structure is in the left (upstream) pane; the right
+          (downstream) pane starts empty.
+      - title: Create the Riverside view version of the top item
+        md: |
+          Create a new downstream view version of the top-level end item for Riverside. Windchill creates the
+          **equivalent link** to the Design version.
+      - title: Shape the mBOM
+        md: |
+          Add **manufacturing parts** for assemblies Riverside physically builds and stores (for example
+          EB-M1001 rear-wheel-and-motor kit), **phantom** manufacturing parts where it helps processing, reuse the
+          Design parts under them wherever you can, and add **manufacturing-only parts** such as the owner's
+          manual, packaging and stickers.
+      - title: Repeat for Lakeside
+        md: Do the same in the Lakeside view, reflecting how Lakeside actually assembles the bike.
+    result: Two plant mBOMs, each tied back to the same eBOM through equivalent links.
+
+  - type: comparison
+    title: One mBOM per plant or one mBOM with Plant Data?
+    columns: [A BOM per plant (plant views), One mBOM + Plant Data]
+    rows:
+      - label: Use it when
+        cells: [The plants really build it differently, The plants build the same structure but differ in details]
+      - label: Plant differences live in
+        cells: [Separate downstream view versions, Plant Data objects attached to the mBOM]
+      - label: Typical differences
+        cells: [Different kits and sub-assemblies, "Storage location, tooling, make-or-buy"]
+      - label: Setup
+        cells: [New views + List of Applicable Views preference, "Plant attributes, List of Plant-Specific Views and Views with Specific Plant Data preferences"]
+    takeaway: Lakeside assembles the battery and motor as one kit; Riverside doesn't. That's a structural difference, so Acme picks a BOM per plant.
+
+  - type: scenario
+    variant: what-if
+    title: "What if Priya changes the battery bracket next week?"
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Both plant mBOMs exist and are In Work. Priya needs to revise the battery bracket in the eBOM.
+          How do you run the change?
+        choices:
+          - label: One change notice with two tasks, eBOM update first, then mBOM update
+            next: s2
+            good: true
+            feedback: That's the integrated pattern. Sequencing makes the mBOM task wait for the reviewed eBOM change.
+          - label: Priya edits the eBOM; Ana will notice eventually
+            next: fail1
+            feedback: Without a tracked task, nobody owns updating the plant BOMs.
+          - label: Ana updates both mBOMs first, then Priya changes the eBOM
+            next: fail2
+            feedback: The mBOM would be built from a design that doesn't exist yet.
+      - id: s2
+        md: |
+          On the mBOM update task, what goes into the task besides the mBOM?
+        choices:
+          - label: The eBOM, as an affected object
+            next: win
+            good: true
+            feedback: Right. The eBOM is added to the mBOM update task as an affected object so Ana sees exactly what changed upstream.
+          - label: Nothing else
+            next: partial1
+            feedback: It works, but Ana has to hunt for what changed.
+      - id: win
+        md: The eBOM task completes and is reviewed, then Ana updates both plant mBOMs using the equivalent links to see what moved. Every step is on record.
+        outcome: success
+      - id: partial1
+        md: The change gets done, but the trail between design change and plant change is thin. Add the eBOM to the task next time.
+        outcome: partial
+      - id: fail1
+        md: Two weeks later Lakeside builds with the old bracket. The equivalent links would have shown the difference, but nobody was asked to look.
+        outcome: fail
+      - id: fail2
+        md: Ana restructures for a design that then changes again in review. Double work, and the mBOM briefly describes a bike nobody designed.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    title: The fast way that becomes the slow way
+    md: |
+      Creating a new part **number** for every mBOM item "to keep things separate" feels tidy, but best practice
+      is to **reuse Design view parts** in the mBOM as much as possible. Every new number is another object to
+      revise, publish and keep in step. Use new view versions or new numbers only where the business really
+      needs them.
+
+  - type: callout
+    variant: pro-tip
+    title: Settle the view network before anyone transforms anything
+    md: |
+      Deciding how many BOMs Acme has (Design, Manufacturing, Riverside, Lakeside) is one of the first steps of an
+      MPMLink rollout. Draw it, agree it with engineering, manufacturing and ERP, then create the views. Changing
+      the network after plant BOMs exist is painful.
+
+  - type: exercise
+    title: "Step 4: Write the integration note (Ines)"
+    environment: paper
+    goal: |
+      Write a one-page note for Kai and the ERP team: **what** E1 data goes to ERP, **where** it goes, and
+      **which event** sends it.
+    steps:
+      - "**Destinations**: two distribution targets, ERP-Riverside (plant RV01) and ERP-Lakeside (LK01). Note that an SAP-type target carries System ID, Client and Plant."
+      - "**What is published**: parts, the plant mBOMs, documents the plants need, the option set (if ERP runs the configurator), and process plans once MPMLink plans exist. Check each against what your ERP system supports."
+      - "**How objects find their target**: pick an assignment strategy (explicit, top-level or default for context) and say which value the Distribution Target Finder preference will have. Mention that the View To Distribution Target Mappings preference restricts which part views go to which target."
+      - "**When it is sent**: choose the trigger, for example when the change notice is released, or when parts reach a maturity state set in the Configuration Specification State preference. Both start the Release To Manufacturing workflow. Manual Send To Distribution Target is for exceptions."
+      - "**Who watches it**: who checks failed transactions and who is in the ESI Administrators group."
+    expected: |
+      A short note with two targets, a clear list of object types, one named assignment strategy and one named
+      trigger, plus an owner for failures. A reader should be able to answer "if I release CN-0xyz, what lands in
+      Lakeside's ERP?".
+
+  - type: quiz
+    title: Capstone check
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Where do you create the Battery and Frame Colour options and their choices?
+        options: [In the product's option pool, Directly on each battery part, In the BOM Transformer, In the variant specification]
+        answer: 0
+        explanation: Options and choices are created in an option pool on a product or library. An option set then references the ones a product uses.
+      - kind: single
+        prompt: Why are the E1 Battery and E1 Frame configurable parts set to Collapsible?
+        options: [So they load faster, So they don't appear in the variant structure, So they can't be revised, So ERP ignores them]
+        answer: 1
+        explanation: Collapsible configurable parts disappear from the variant; only the alternative selected by the choices remains.
+      - kind: truefalse
+        prompt: The motor, which every E1 uses, should get a choice assigned so it appears in every variant.
+        answer: false
+        explanation: If a part is always included, no choice is assigned. Choices limit a part to certain conditions.
+      - kind: single
+        prompt: Which rule type stops 625 Wh and Mint being configured together?
+        options: [Include rule, Exclude rule, Enable rule, Alias]
+        answer: 1
+        explanation: An exclude rule captures choices that must not be selected at the same time.
+      - kind: order
+        prompt: Put the variant steps in order.
+        items: [Assign choices on the usage links, Test with the option filter, Save the variant specification, Request the module variant]
+        explanation: Choices first, then test them with the option filter, then the Configure window records the specification and generates the variant.
+      - kind: single
+        prompt: Riverside and Lakeside assemble the E1 differently. What fits best?
+        options: [One mBOM with Plant Data, A downstream view per plant under Manufacturing, Six eBOMs, Copy the eBOM into each plant's folder]
+        answer: 1
+        explanation: Different structures call for separate plant views. Plant Data suits plants that share one structure but differ in details like storage location or make-or-buy.
+      - kind: multi
+        prompt: Which events can send E1 data to ERP automatically? (Choose all that apply.)
+        options: [A change notice is released, An object reaches the state set in the Configuration Specification State preference, Someone opens the BOM Transformer, A variant specification is compared]
+        answers: [0, 1]
+        explanation: Change notice release and reaching the configured maturity state (with the automatic ESI workflow preference on) both trigger publishing through the Release To Manufacturing workflow.
+
+  - type: summary
+    points:
+      - Options and choices live in an option pool; an option set assigned to the product decides what can be picked.
+      - A configurable product holds every alternative (the 150% BOM); collapsible configurable parts group them and vanish from variants.
+      - Choices go on usage links; always-used parts get none. Rules such as exclude rules block invalid combinations.
+      - The Configure window turns choices into a variant specification and a variant (the 100% BOM).
+      - The BOM Transformer builds downstream mBOMs from the Design eBOM, linked by equivalent links. Plant views or Plant Data handle multiple plants.
+      - Run mBOM creation and maintenance through change notices, with the eBOM task sequenced before the mBOM task.
+      - Distribution targets, an assignment strategy and a trigger (CN release, maturity state, RTM workflow) decide what reaches ERP and when.

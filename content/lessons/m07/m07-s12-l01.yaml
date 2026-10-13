@@ -1,0 +1,268 @@
+id: m07-s12-l01
+subtitle: Acme has four "different" brake calipers that are secretly the same one. Component and supplier management is how you stop paying for that.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [supplier-management, suma, csm, sourcing, part-reuse]
+sources:
+  - id: suma
+    where: "Course scenario; Implementation team strategy; Implementation strategy. Module 1: Manage suppliers in Windchill with SUMA: overview; Managing parts: the challenge; Windchill Component and Supplier Management (CSM): the solution; CSM process: overview; Business challenges addressed by CSM; Supplier management challenges; CSM: benefits; SUMA capabilities; SUMA architecture; Install SUMA"
+  - id: te
+    where: "Integrate and manage supply chain data: overview; Manage suppliers and components with Windchill Supplier Management; What is the Component and Supplier Management (CSM) process?"
+
+blocks:
+  - type: text
+    md: |
+      **Hana** has just joined Acme Mobility as sourcing lead. On day one she runs a report on brake
+      parts for the **E-Bike E1** and **Scooter S2** and finds four separate Acme part numbers for
+      hydraulic brake calipers. Three of them are the very same **Brakeworks GmbH** caliper, created by
+      three engineers who each couldn't find the others' part.
+
+      Every extra part number costs money: it gets stocked, priced, approved and maintained. Hana's job
+      is to steer Acme towards a **short list of trusted parts and suppliers** - and Windchill has a
+      name for that whole effort.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "using the parts and suppliers we already trust" → [[component-and-supplier-management]] (CSM)
+      - "the Windchill add-on for suppliers and bought parts" → [[supplier-management]] (SUMA)
+      - "sorting parts so people can find them" → [[classification]] with PartsLink
+      - "our part number for something we buy" → [[oem-part]] (also called an internal part)
+      - "the maker's and seller's version of it" → [[manufacturer-part]] and [[vendor-part]]
+      - "the allowed sources for a part" → [[approved-manufacturer-list|AML]] and [[approved-vendor-list|AVL]]
+      - "asking properly for a new bought part" → [[part-request]]
+
+  - type: diagram
+    title: CSM in one picture
+    caption: Inputs on the left, the CSM process in the middle, rationalized results on the right. Click a box.
+    diagram:
+      width: 840
+      height: 430
+      groups:
+        - { label: Inputs, x: 10, y: 10, w: 220, h: 410, tone: neutral }
+        - { label: CSM process (PartsLink + SUMA), x: 250, y: 10, w: 330, h: 410, tone: primary }
+        - { label: Results, x: 600, y: 10, w: 230, h: 410, tone: success }
+      nodes:
+        - id: need
+          label: Required parts
+          sublabel: new and existing
+          x: 30
+          y: 50
+          w: 180
+          tone: neutral
+          detail: What engineering needs, plus the parts already in Windchill that might do the job.
+        - id: supdata
+          label: Supplier data
+          sublabel: contacts · AMLs · AVLs
+          x: 30
+          y: 160
+          w: 180
+          tone: neutral
+          detail: Supplier contact details, existing approved manufacturer and vendor lists, compliance requirements and the quality criteria a supplier must meet to count as qualified.
+        - id: erp-in
+          label: Other systems
+          sublabel: e.g. cost from ERP
+          x: 30
+          y: 290
+          w: 180
+          tone: neutral
+          detail: Not everything lives in PLM. Cost details, for example, may come from an [[erp|ERP]] system.
+        - id: request
+          label: 1 Request a new part
+          x: 280
+          y: 40
+          w: 270
+          h: 50
+          tone: accent
+          detail: Raise a part request, check it isn't a duplicate, update the classification structure or qualify a supplier if needed, find supplier parts that satisfy it, create the CAD library part if needed, release it.
+        - id: supparts
+          label: 2 Manage supplier parts
+          x: 280
+          y: 110
+          w: 270
+          h: 50
+          tone: accent
+          detail: Define approved manufacturers and vendors, assess sourcing status of product configurations, create manufacturer and vendor parts and associate them to the OEM parts the company needs.
+        - id: qualify
+          label: 3 Qualify new suppliers
+          x: 280
+          y: 180
+          w: 270
+          h: 50
+          tone: accent
+          detail: Identify sourcing and selection contexts, create supplier records, define supplier preferences and qualify suppliers.
+        - id: classify
+          label: 4 Classify parts
+          x: 280
+          y: 250
+          w: 270
+          h: 50
+          tone: info
+          detail: Search the classification schema for the right node and classify new parts.
+        - id: structure
+          label: 5 Manage classification
+          x: 280
+          y: 320
+          w: 270
+          h: 50
+          tone: info
+          detail: Create or update the classification schema, define class attributes and constraints, and cleanse and standardize reference data.
+        - id: out-parts
+          label: Qualified parts
+          sublabel: properly classified
+          x: 620
+          y: 60
+          w: 190
+          tone: success
+          detail: New parts that are unique, classified and ready to release.
+        - id: out-sup
+          label: Qualified suppliers
+          x: 620
+          y: 160
+          w: 190
+          tone: success
+          detail: Suppliers that have been registered, evaluated and approved for use.
+        - id: out-ctx
+          label: Sourcing contexts
+          sublabel: e.g. per plant
+          x: 620
+          y: 250
+          w: 190
+          tone: success
+          detail: Conditions such as geography under which different supplier choices apply - covered in the next lesson.
+        - id: out-pref
+          label: Preferences
+          sublabel: preferred vs approved
+          x: 620
+          y: 340
+          w: 190
+          tone: success
+          detail: Which parts and suppliers are preferred, merely approved, or not to be used.
+      edges:
+        - { from: need, to: request }
+        - { from: supdata, to: qualify }
+        - { from: erp-in, to: supparts, dashed: true }
+        - { from: request, to: out-parts }
+        - { from: qualify, to: out-sup }
+        - { from: supparts, to: out-pref }
+        - { from: qualify, to: out-ctx }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      PTC's SUMA course quotes an analyst estimate that **30-40%** of a manufacturer's parts are duplicates
+      or have acceptable substitutes, and that introducing a new part number carries a yearly cost in the
+      thousands of dollars per item. Engineers often find it easier to create a new part than to find a
+      qualified existing one - acquisitions and product variety make it worse. That's **proliferation**,
+      and it hits parts, materials *and* suppliers.
+
+  - type: example
+    variant: case-study
+    title: The four calipers
+    industry: Micromobility
+    md: |
+      Hana's four caliper numbers trace back to one cause: nobody could **find** the first one. The
+      description said "CALIPER HYD FRONT", the second engineer searched for "brake caliper", the third
+      for "disc brake". Each created a new Acme part and asked purchasing to set it up.
+
+      Hana works the CSM steps:
+      1. **Classify** - the calipers go under a classification node with attributes such as mounting
+         type, so the next search is by what the part *is*.
+      2. **Qualify the supplier** - Brakeworks GmbH is registered and qualified once.
+      3. **Manage supplier parts** - one Acme caliper part gets an AML pointing at the Brakeworks
+         manufacturer part, marked *Preferred*.
+      4. **Request new parts properly** - from now on, new bought parts go through a part request that
+         starts with a duplicate check.
+    takeaway: One OEM part, one qualified supplier, one AML - instead of four part numbers and four price agreements.
+
+  - type: comparison
+    title: Who gains what from CSM
+    columns: [Enterprise, Engineering, Sourcing]
+    rows:
+      - label: Cost
+        cells: ["Lower cost of goods sold", "Fewer late-stage engineering changes", "Better volume pricing; lower inventory and faster turns"]
+      - label: Speed
+        cells: ["Faster time to market by involving suppliers early", "Higher engineering productivity", "Streamlined sourcing processes"]
+      - label: Quality and reuse
+        cells: ["Better quality from known-good parts; no hard-to-get or obsolete parts in new designs", "More reuse of preferred parts and suppliers; more focus on innovation", "Proliferation controls stop unnecessary new parts and suppliers"]
+    takeaway: PTC reports typical customer results of 2-5% lower direct material cost and 10-25% better engineering productivity - treat these as vendor-reported figures.
+
+  - type: text
+    md: |
+      ### What SUMA adds to Windchill
+
+      - **Suppliers** (manufacturers and vendors), **sourcing contexts** and **sourcing rules**, managed
+        from a Suppliers tab in the Navigator.
+      - **OEM parts** linked to **manufacturer and vendor parts** through AMLs and AVLs, visible on an
+        AML/AVL tab of the part (the tab only exists when SUMA is installed) and on the Structure tab.
+      - Out-of-the-box sourcing statuses **Preferred**, **Approved** and **Do not use**, settable by rules.
+      - An out-of-the-box **part request** workflow for introducing new bought parts.
+      - Search and reports that use supplier data - for example a BOM report with AML/AVL information
+        or a list of sole-source OEM parts. SUMA has no separate reporting module.
+      - Supplier-part create, read, update and delete through REST (a PTC Supplier Management domain).
+
+  - type: callout
+    variant: note
+    title: How SUMA is installed
+    md: |
+      SUMA is optional and has no separate installer: it comes with the [[ptc-solution-installer|PTC
+      Solution Installer]] (or is added later by updating the installation) and uses the same database as
+      the rest of Windchill. It runs on PDMLink, including a server where PDMLink and ProjectLink are
+      co-installed, but **not** on a standalone ProjectLink server. It leans on PartsLink for
+      classification search.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Buying the module, skipping the clean-up.** SUMA can't recognise duplicates that nobody can find.
+      Without classification and consistent part descriptions, people keep creating new parts. CSM is
+      PartsLink *and* SUMA *and* a habit of searching first.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      PTC lists prerequisites before a SUMA rollout: engineering data management (CAD, BOM, documents)
+      and release and change management should already be working. Get those right, then configure
+      SUMA, then suppliers, then supplier parts, then part requests - in that order.
+
+  - type: flashcards
+    title: CSM basics
+    cards:
+      - front: Component and Supplier Management (CSM)
+        back: Processes to find, select and use preferred parts and suppliers during development and sourcing. In Windchill = PartsLink + SUMA.
+      - front: The five CSM steps
+        back: Request a new part · manage supplier parts · qualify new suppliers · classify parts · manage the classification structure.
+      - front: Proliferation
+        back: Too many duplicate parts, materials and suppliers - often because creating a part is easier than finding one.
+      - front: SUMA install
+        back: Optional, via the PTC Solution Installer, same database. Not on a standalone ProjectLink server.
+      - front: OEM part
+        back: Your internal part with Source = Buy or Buy - Single Source. Gets AMLs and AVLs.
+      - front: Out-of-the-box sourcing statuses
+        back: Preferred, Approved, Do not use.
+
+  - type: quiz
+    questions:
+      - kind: multi
+        prompt: Which modules make up PTC's Component and Supplier Management solution? (Choose all that apply.)
+        options: [PartsLink, Supplier Management (SUMA), MPMLink, Windchill Navigate]
+        answers: [0, 1]
+        explanation: CSM is mainly Parts Classification (PartsLink) together with Supplier Management (SUMA).
+      - kind: truefalse
+        prompt: All the information CSM needs must be stored in Windchill.
+        answer: false
+        explanation: Some of it may come from other systems - cost details, for example, may come from ERP.
+      - kind: single
+        prompt: Hana wants a list of Acme's sole-source OEM parts. Which statement fits?
+        options: [SUMA's own reporting module does it, Windchill reporting can include supplier information, You must export to ERP first, It needs a customization]
+        answer: 1
+        explanation: SUMA has no extra reporting module; it adds supplier information to existing Windchill reporting, such as a report of sole-source OEM parts.
+
+  - type: summary
+    points:
+      - CSM steers the company to a standard set of preferred parts, materials and suppliers; in Windchill it is PartsLink plus SUMA.
+      - Its five steps are request a part, manage supplier parts, qualify suppliers, classify parts and manage the classification structure.
+      - Duplicates are expensive; finding before creating is the core habit.
+      - SUMA manages suppliers, contexts, rules, OEM parts, manufacturer and vendor parts, AMLs, AVLs and part requests.
+      - SUMA is optional, installed with the PSI into the same database, and not supported on a standalone ProjectLink server.

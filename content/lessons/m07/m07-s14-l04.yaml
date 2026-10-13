@@ -1,0 +1,351 @@
+id: m07-s14-l04
+subtitle: Navigate runs on ThingWorx - and so could a live dashboard of the Riverside E1 line. Model it, connect it, show it.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [thingworx, thing-model, mashups, iiot, connectivity, developer]
+sources:
+  - id: twx
+    where: "Module 1: ThingWorx Industrial IoT Platform Architecture (client, application and data tiers; Composer, Mashup Builder, Edge, Connection Server, Foundation, persistence providers, data tables); ThingWorx Development Process (Experience, Model, Connect, Build, Analyze, Deploy); Import and Export"
+  - id: twx
+    where: "Module 2: Control Access in ThingWorx (authentication, visibility, run time and design time permissions, application keys)"
+  - id: twx
+    where: "Module 3: Identify ThingWorx Entities; Examine Characteristics of Things; Examine Model Hierarchies and Modeling Patterns; Data Structures and Entities; Authoring Services; Activity: Create the Thing Model"
+  - id: twx
+    where: "Module 4: What Needs to be Connected; Review Device Connectivity Options (EMS connection process, Edge SDKs, Kepware, Connection Server); REST API Capabilities"
+  - id: twx
+    where: "Module 5: Describe the Mashup UI Build Process; Build a Mashup; Data Services and Bindings; Mashup Events; Mashup Styling; Mashup Best Practices"
+  - id: nav-ct
+    where: "Module 1: Component architecture (Navigate business logic as Thing Templates and Things)"
+versionNotes:
+  - versions: ["ThingWorx 9.x"]
+    md: |
+      Based on the ThingWorx Technical Essentials course (ThingWorx 9.3.6). PTC's Navigate 9.7 course used ThingWorx
+      Composer 9.70. Widget lists, themes and connectivity options vary by ThingWorx release - check the ThingWorx
+      Help Center for yours.
+
+blocks:
+  - type: text
+    md: |
+      Every Navigate tile you've met is a ThingWorx [[mashup]], and every Navigate component's business logic is
+      a ThingWorx Thing. To build or debug custom tasks, Theo needs the platform underneath: [[thingworx|ThingWorx]].
+
+      Its home turf is the Industrial IoT. So Theo practises on something real: Ana wants a live view of the
+      **Riverside E1 line** - each station's power draw and torque-tool status, with a warning when something
+      drifts. Same toolbox, different data.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a digital copy of one real thing" → a **Thing** (a digital twin)
+      - "the blueprint every copy is made from" → a **Thing Template**
+      - "a reusable bundle of properties and services" → a **Thing Shape**
+      - "all of the above together" → the [[thing-model|Thing Model]]
+      - "a little table passed between services" → an [[infotable]] (its columns defined by a **Data Shape**)
+      - "the always-open line from a machine" → the [[alwayson-protocol|AlwaysOn protocol]]
+      - "the web page users see" → a [[mashup]], wired with [[mashup-binding|data services and bindings]]
+
+  - type: diagram
+    title: Theo's Thing Model for the Riverside line
+    caption: Hybrid pattern - reusable bits in shapes, station-specific bits in the template. Click a box.
+    diagram:
+      width: 820
+      height: 420
+      groups:
+        - { label: Shapes (reusable), x: 10, y: 20, w: 380, h: 120, tone: info }
+        - { label: Templates (blueprints), x: 10, y: 160, w: 800, h: 110, tone: accent }
+        - { label: Things (instances), x: 10, y: 290, w: 800, h: 120, tone: success }
+      nodes:
+        - id: meter
+          label: PowerMeter.TS
+          sublabel: CurrentPower · CostPerKWh
+          x: 30
+          y: 60
+          w: 170
+          tone: info
+          detail: |
+            A Thing Shape: properties, services, events and subscriptions that many kinds of asset share. Theo puts
+            a `CalculateCost` service here, so every station that implements the shape gets it.
+        - id: torque
+          label: TorqueTool.TS
+          sublabel: TorqueNm · ToolStatus
+          x: 210
+          y: 60
+          w: 170
+          tone: info
+          detail: |
+            Another shape, with an **alert** on TorqueNm and a **subscription** that reacts to it. Property names
+            must stay unique across the hierarchy - no second "TorqueNm" in the template.
+        - id: generic
+          label: GenericThing
+          sublabel: system template
+          x: 30
+          y: 190
+          w: 170
+          tone: neutral
+          detail: |
+            The system-level template at the top. It gives every Thing basics such as reading its property values
+            and setting access control. Others include Database Thing, Timer Thing and Remote Thing templates.
+        - id: station
+          label: E1Station.TT
+          sublabel: StationNo · BuildingId
+          x: 300
+          y: 190
+          w: 190
+          tone: accent
+          detail: |
+            The Thing Template: based on GenericThing, implements both shapes and adds station-only properties.
+            Change it once and every station Thing picks up the change.
+          real: A Thing or template can implement many shapes but derives from exactly one template.
+        - id: s10
+          label: E1Line01Station10
+          sublabel: frame + fork
+          x: 30
+          y: 320
+          w: 200
+          tone: success
+          detail: A Thing - one real station at Riverside. Its property values (current power, torque) live only in this running instance.
+        - id: s20
+          label: E1Line01Station20
+          sublabel: battery + motor
+          x: 300
+          y: 320
+          w: 200
+          tone: success
+          detail: Created from the same template - or by **Duplicate** - so it inherits everything.
+        - id: helper
+          label: E1LineHelper
+          sublabel: helper Thing
+          x: 590
+          y: 320
+          w: 200
+          tone: neutral
+          detail: |
+            A helper Thing isn't a twin of anything. It holds services, for example to create station Things or to
+            feed a mashup.
+      edges:
+        - { from: generic, to: station, label: base }
+        - { from: meter, to: station, label: implements }
+        - { from: torque, to: station, label: implements }
+        - { from: station, to: s10 }
+        - { from: station, to: s20 }
+
+  - type: comparison
+    title: Four ways to shape a model
+    columns: [How it works, Trade-off]
+    rows:
+      - label: One-time
+        cells: ["Thing from a system template, functionality added on the Thing", "Simple, not scalable - only for truly unique things"]
+      - label: Parent-child
+        cells: ["Things get everything from parent templates; no shapes", "Easy to create Things, hard to share generic functionality"]
+      - label: Shape-based
+        cells: ["All functionality in shapes, inherited by templates and Things", "Very reusable, but many shapes need good organisation"]
+      - label: Hybrid
+        cells: ["Reusable bits in shapes, the rest in templates", "Fewer shapes, less complexity - Theo's choice"]
+    takeaway: "Rules: one base template per Thing or template, any number of shapes, no circular references, unique property names."
+
+  - type: text
+    md: |
+      ### What a Thing carries
+
+      - **Properties** - a name and a base type (STRING, NUMBER, LOCATION, INFOTABLE...). Each value has a
+        **timestamp** and a **quality**. Turn on *Logged* to keep history in a **value stream**; otherwise only
+        the current value exists. *Persist* keeps the value across a restart.
+      - **Services** - JavaScript functions run on the Thing.
+      - **Events and subscriptions** - an event fires on a condition; a subscription runs code when it fires.
+      - **Alerts** - rules on a property (for example *Above* a limit) that raise an alert event.
+      - **Configuration tables** - rarely changing constants, such as connection details.
+
+      Theo's service on the PowerMeter shape, written fresh in the ThingWorx style (`me` is the current Thing,
+      `result` is the return value, `logger` writes to the script log):
+
+      ```javascript
+      // CalculateCost - output type NUMBER
+      let cost = me.CurrentPower * me.CostPerKWh;
+      me.CurrentCost = cost;
+      if (cost > me.CostWarnLimit) {
+          logger.warn("CalculateCost: energy cost above limit");
+      }
+      result = cost;
+      ```
+
+      Where data lives: an **infotable** is in memory and passes rows between services and widgets; a **data
+      table** stores rows persistently (best below about 100,000 rows); **streams** hold event-style records and
+      **value streams** hold property history.
+
+  - type: animation
+    title: How a station's torque tool connects (Edge MicroServer)
+    diagram:
+      width: 820
+      height: 300
+      nodes:
+        - id: device
+          label: Torque tool + EMS
+          sublabel: Station 10
+          x: 20
+          y: 120
+          w: 180
+          tone: warning
+          detail: The ThingWorx Edge MicroServer (EMS) runs on or next to the device and talks to the platform.
+        - id: cs
+          label: Connection Server
+          sublabel: optional
+          x: 260
+          y: 120
+          w: 170
+          tone: neutral
+          detail: Routes AlwaysOn traffic. PTC advises one above about 25,000 assets, and connection servers are required for high availability.
+        - id: foundation
+          label: ThingWorx Foundation
+          sublabel: platform hub
+          x: 490
+          y: 120
+          w: 170
+          tone: primary
+          detail: Authenticates the device, processes data and runs services and subscriptions.
+        - id: thing
+          label: Remote Thing
+          sublabel: E1Line01Station10
+          x: 690
+          y: 40
+          w: 120
+          tone: success
+          detail: Things bound to EMS devices use a RemoteThing template. Binding sets isConnected to true.
+        - id: db
+          label: Persistence
+          sublabel: model + data
+          x: 690
+          y: 200
+          w: 120
+          shape: cylinder
+          tone: info
+          detail: A model provider stores entity definitions and current state; a data provider stores runtime data like value streams.
+      edges:
+        - { from: device, to: cs, label: wss }
+        - { from: cs, to: foundation }
+        - { from: foundation, to: thing, label: bind }
+        - { from: thing, to: db, label: values }
+    chapters:
+      - title: Open and upgrade
+        caption: The EMS opens an HTTP(S) connection and upgrades it to a **WebSocket** - the AlwaysOn protocol.
+        show: [device, cs, foundation]
+        flow: [device>cs, cs>foundation]
+        seconds: 6
+      - title: Authenticate
+        caption: The device proves itself with an **application key**, tied to a user with only the permissions it needs.
+        highlight: [foundation]
+        show: [device, cs, foundation]
+        seconds: 6
+      - title: Bind
+        caption: The device is **bound** to its Remote Thing; properties and services map to values and functions on the device.
+        show: [device, cs, foundation, thing]
+        highlight: [thing]
+        flow: [foundation>thing]
+        seconds: 6
+      - title: Synchronise and push
+        caption: The platform sends stored configuration, then the device **pushes** property changes. Logged values go to persistence.
+        flow: [device>cs, cs>foundation, foundation>thing, thing>db]
+        seconds: 7
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Not every connection is a device. ThingWorx also connects to security providers (Active Directory, SSO),
+      persistence providers and enterprise systems - which is exactly what Navigate's connector to Windchill is.
+      Other options: **Kepware** servers for industrial protocols (tags bound to properties through an
+      IndustrialGateway Thing), Edge SDKs for .NET, C and Java, and the **REST API**, where URLs read like
+      `/Thingworx/Things/E1Line01Station10/Properties/CurrentPower`. GET reads; services need **POST**.
+
+  - type: walkthrough
+    title: Model, then show it
+    who: Theo in ThingWorx Composer, with design time permissions
+    where: [ThingWorx Composer, New]
+    steps:
+      - title: Create the shapes
+        where: [Composer, New, Thing Shape]
+        md: Create PowerMeter.TS and TorqueTool.TS. On **Properties and Alerts**, add properties with base types; tick **Persist** and **Log** where needed.
+      - title: Create the template
+        where: [Composer, New, Thing Template]
+        md: Name it E1Station.TT, set **Base Thing Template** to GenericThing and add both shapes under **Implemented Shapes**.
+      - title: Create the Things
+        where: [E1Station.TT tab, More, Create Thing]
+        md: Create E1Line01Station10, then use **More → Duplicate** for Station 20.
+      - title: Keep history
+        where: [Composer, New, Value Stream]
+        md: Create a value stream and select it on the template's **General Information** page, so logged properties keep their history.
+      - title: Add logic
+        where: [PowerMeter.TS, Services, Add, Local (JavaScript)]
+        md: Write CalculateCost. Add an alert on TorqueNm under **Properties and Alerts** and a subscription to it under **Subscriptions**.
+      - title: Build the mashup
+        where: [Composer, New, Mashup]
+        md: |
+          Add the station Thing's services as **data services**, bind results to widgets (Grid for an infotable,
+          Gauge or LED Display for one value), and trigger them with **Execute on Load** or a button's
+          **Clicked** event.
+    result: Ana opens a responsive mashup showing each Riverside station's power, cost and torque status.
+
+  - type: text
+    md: |
+      ### Mashups in one breath
+
+      Built in **Mashup Builder**, a low-code drag-and-drop editor. **Responsive** mashups fill any screen;
+      **static** ones keep fixed dimensions; you can mix both. **Layouts** and containers give structure;
+      **widgets** display data (Grid, charts, Gauge) or take input (Text Field, Slider, List, Button). A **service
+      only runs when an event triggers it** - Loaded, Clicked, SelectedRowsChanged or ServiceInvokeCompleted.
+      The **Bindings panel** draws the whole wiring left to right, which is how you spot an infinite loop. A
+      **master mashup** holds the shared frame (logo, menu); a **style theme** styles everything, with
+      **state definitions** for conditional formatting such as red cells above a limit.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Importing over production.** When ThingWorx imports an entity with the same name as an existing one, it
+      **replaces it completely** - no warning, no merge, even for system entities. Promote in order
+      (extensions, then entities, then data) through test or staging, and remember exports don't include
+      extensions, data in streams or data tables, file repositories or collection permissions.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Four gates stand between a user and a value: **authentication**, **visibility**, **run time permission**
+      and **design time permission**. Grant run time permission per service rather than on all services, and
+      give each device its own application key on a least-privilege user. When a mashup misbehaves, add
+      `&__trace` to its URL to log what runs on load - and test the service directly on the Thing to see whether
+      the bug is in the mashup or the service.
+
+  - type: quiz
+    title: Check your understanding
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: How many Thing Templates can E1Station.TT be based on, and how many Thing Shapes can it implement?
+        options: ["One template, any number of shapes", "Any number of templates, one shape", "One of each", "Any number of both"]
+        answer: 0
+        explanation: Every Thing and Thing Template derives from exactly one Thing Template, but can implement as many Thing Shapes as needed.
+      - kind: single
+        prompt: Theo changes a property definition on TorqueTool.TS. What happens to E1Line01Station10?
+        options: [Nothing until he recreates the Thing, It picks up the change through the template that implements the shape, Only new Things get it, He must edit each Thing by hand]
+        answer: 1
+        explanation: Changes to shapes and templates flow down to everything that implements them - the point of modeling with reuse.
+      - kind: single
+        prompt: CurrentPower is not logged. What history does ThingWorx keep for it?
+        options: [Full history in a value stream, Only the current value, The last 100 values, A daily average]
+        answer: 1
+        explanation: Without logging to a value stream, only the current value exists and historical information is lost.
+      - kind: order
+        prompt: Put the Edge MicroServer connection steps in order.
+        items: [Open an HTTP or HTTPS connection, Upgrade it to a WebSocket (AlwaysOn), Authenticate with an application key, Bind the device to its Thing, Synchronise configuration, Push property changes]
+        explanation: Connect, upgrade, authenticate, bind, synchronise, then push data - the sequence PTC describes for EMS.
+      - kind: multi
+        prompt: A Grid in Ana's mashup stays empty. Which could explain it? (Choose all that apply.)
+        options: [No event triggers the data service, The service result isn't bound to the Grid, Ana lacks run time permission on the service, The mashup is responsive instead of static]
+        answers: [0, 1, 2]
+        explanation: Services only run when an event triggers them, results must be bound to the widget, and run time permissions control who can execute services. Responsive versus static only affects layout.
+
+  - type: summary
+    points:
+      - ThingWorx has client, application and data tiers; Composer builds the Thing Model and Mashup Builder builds the UI.
+      - Things are instances, Thing Templates are blueprints (one per Thing), Thing Shapes are reusable bundles (many per Thing).
+      - Properties, services, events, subscriptions, alerts and configuration tables give a Thing its behaviour; infotables, data shapes, data tables and streams hold data.
+      - Devices connect through Edge (AlwaysOn), Kepware or the REST API; enterprise systems through connectors and REST.
+      - Mashups show data through data services, bindings and events - and Navigate tasks are built the same way.

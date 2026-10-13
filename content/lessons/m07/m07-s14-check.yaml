@@ -1,0 +1,101 @@
+id: m07-s14-check
+subtitle: Prove you can put the right tile in front of the right person - and build one when none exists.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [navigate, thingworx, checkpoint]
+sources:
+  - id: nav
+    where: "Module 1: Windchill Navigate overview; Windchill Navigate offerings; Collections and tasks; Module 2: Windchill Navigate licensing; Windchill Navigate roles; Custom roles; Role-based tailoring; Activity 2-1; Common tailoring for the Part tasks collection; Module 3: Download a drawing bundle; Module 4: My Tasks; Report a problem; Configure the Report a Problem task"
+  - id: nav-ct
+    where: "Module 1: Elements of a custom task; Windchill Navigate components overview; Component architecture; Component communication; Module 2: Integration connectors; OData Connector; Troubleshoot connectivity; Module 3: Ordinals configuration properties; Module 4: Add the custom task to the landing page"
+  - id: twx
+    where: "Module 1: ThingWorx Industrial IoT Platform Architecture; Import and Export; Module 2: Control Access in ThingWorx; Module 3: Identify ThingWorx Entities; Examine Model Hierarchies and Modeling Patterns; Examine Characteristics of Things; Module 4: Review Device Connectivity Options; REST API Capabilities; Module 5: Build a Mashup; Data Services and Bindings"
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **Windchill Navigate and ThingWorx**: who Navigate is for and its View apps, roles,
+      licences and tailoring, My Tasks and Report a Problem, custom tasks with components and the OData
+      Connector, and the ThingWorx Thing Model, connectivity and mashups. Score 80% to pass. Every answer
+      explains itself.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: Hana's buyers need a part's source, supplier and cost, plus its drawings to send out for quotes. Which approach does PTC's guidance favour first?
+        options: [A custom task built in ThingWorx, "Out-of-the-box View tasks such as View Part Properties and Download Drawing Bundle, tailored for their role", Full Windchill licences and training, Exporting reports by email each week]
+        answer: 1
+        explanation: Out-of-the-box tasks need no development, only tailoring, and cost far less to deploy. Custom tasks are for gaps the standard tasks can't cover.
+      - kind: truefalse
+        prompt: A Windchill Navigate licence lets users see Windchill data that their Windchill permissions would otherwise hide.
+        answer: false
+        explanation: Navigate licences only permit licensed functionality. Access to Windchill functions and data is still controlled by Windchill permissions.
+      - kind: order
+        prompt: Put Jordan's steps to give a new Service role the Report a Problem tile in order.
+        items: [Create a user group with the PLMAppsRolesTag model tag, Add the technicians as members, Add the group to a Navigate contribute licence group, Toggle Report a Problem on for the role in Edit Collection and save, Complete the task's context tailoring]
+        explanation: The tagged group becomes the role, members join it, a licence group lets them into Navigate, and tailoring makes the task visible and usable. A new role sees no tasks until they're switched on.
+      - kind: single
+        prompt: Ana's line leads share one terminal across three shifts on the Riverside floor. Which licence group type fits?
+        options: [Named, Concurrent, Designated computer, Connected PLM]
+        answer: 2
+        explanation: Designated computer licence groups cover shared devices such as kiosks and shop-floor workstations used by several operators.
+      - kind: multi
+        prompt: Which statements about Report a Problem are true? (Choose all that apply.)
+        options: [An administrator must tailor the context before it works for users, Only product and library contexts are supported, The context can be changed after submission in Windchill, A failed attachment upload can point to missing CORS configuration in Windchill]
+        answers: [0, 1, 3]
+        explanation: Context tailoring is required, only product and library contexts are supported, and CORS is the thing to check for attachment failures. Once submitted, the context can't be changed in Navigate or Windchill.
+      - kind: single
+        prompt: What can a reviewer do with a change request review task in My Tasks?
+        options: ["Approve, Reject, Analyze or Reassign it", Edit the change request's affected CAD files, Create a new change notice, Delete it from Windchill]
+        answer: 0
+        explanation: My Tasks lists change request review tasks with details, affected items, attachments and activity, and lets the reviewer approve, reject, analyze or reassign.
+      - kind: multi
+        prompt: Theo is building a custom Navigate task. Which belong to it? (Choose all that apply.)
+        options: [A mashup tagged TWXNavigate:AppMashup, An integration connector such as an OData Connector using Windchill REST Services, A Thing based on PTC.Converge.App.Customized.AccessAppConfigTemplate pointing to the home mashup, A Windchill workflow template]
+        answers: [0, 1, 2]
+        explanation: A custom task is a mashup, data sources and an integration connector; the AppThing puts the tile in the Custom tasks collection. No Windchill workflow template is needed.
+      - kind: single
+        prompt: GetEndpointList fails on Theo's new OData Connector. Which is one of PTC's suggested fixes?
+        options: [Remove a ThingWorx port number from the Base URL, Delete the mashup, Add PLMAppsRolesTag to the connector, Switch the mashup to static]
+        answer: 0
+        explanation: PTC suggests checking the connector fields for typos, removing a ThingWorx port from the Base URL and checking that endpoint versions aren't deprecated.
+      - kind: single
+        prompt: Two station Things must share a CalculateCost service and a power alert, plus a few station-only properties. Which modeling choice matches the hybrid pattern?
+        options: ["Put CalculateCost and the alert in a Thing Shape, station-only properties in the Thing Template, and create Things from the template", "Add everything directly to each Thing", "Make each Thing implement two Thing Templates", "Put everything in a Data Shape"]
+        answer: 0
+        explanation: Hybrid puts reusable functionality in shapes and the rest in templates. A Thing derives from exactly one template, and Data Shapes only define data structures.
+      - kind: single
+        prompt: Ana's mashup Grid is bound to a service result but stays empty when the page opens. What's missing most likely?
+        options: [An event that triggers the service, such as Execute on Load or the mashup Loaded event, A master mashup, A style theme, A value stream]
+        answer: 0
+        explanation: A data service only runs when an event triggers it. Execute on Load or binding the Loaded event runs it when the mashup opens.
+
+  - type: flashcards
+    title: Navigate and ThingWorx deck
+    cards:
+      - front: Windchill Navigate
+        back: "Role-based web apps on ThingWorx that give non-expert users simple access to Windchill data; access is still governed by Windchill permissions."
+      - front: View vs Contribute apps
+        back: "View apps show product data without editing. Contribute apps (My Tasks, Report a Problem) let users take part in processes."
+      - front: Navigate role
+        back: "A ThingWorx user group with the PLMAppsRolesTag model tag. One per user. New roles see no tasks until switched on."
+      - front: Navigate licence groups
+        back: "View, Contribute or Manufacturing, each as named, concurrent (licence held 24 hours) or designated computer groups."
+      - front: Edit Collection vs pencil icon
+        back: "Edit Collection tailors all tasks in a collection for a role. The pencil icon tailors one task."
+      - front: Latest filter, latest iteration of latest revision only = Yes
+        back: "Returns only the newest iteration of the newest revision (e.g. C.1)."
+      - front: Parts of a custom task
+        back: "A mashup, data sources and an integration connector (the OData Connector reads Windchill through WRS)."
+      - front: Navigate component
+        back: "Reusable composite building block (UI, business logic, model, data adapter) configured with JSON, e.g. Item List, Tiles, Attributes."
+      - front: Thing, Thing Template, Thing Shape
+        back: "Instance; blueprint (exactly one per Thing); reusable bundle of properties and services (any number)."
+      - front: Infotable
+        back: "In-memory table base type passed between services and widgets, with columns defined by a Data Shape."
+      - front: AlwaysOn protocol
+        back: "ThingWorx Edge WebSocket connection: open, upgrade, authenticate with an application key, bind, synchronise, push."
+      - front: Mashup data flow
+        back: "Add a data service, bind its result to widget properties, trigger it with an event."

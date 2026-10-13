@@ -1,0 +1,104 @@
+id: m07-s06-check
+subtitle: Prove you can run classification at Acme's scale - reuse, governance, smart search, bulk loading and autonaming.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [classification, partslink, checkpoint]
+sources:
+  - id: pl
+    where: "Implementation team strategy; Implementation strategy; Module 1: PartsLink overview, capabilities, business use cases, implementation considerations; Module 2: Running a classification search; Faceted search results; Classification search and advanced search; Find Similar Objects; Module 3: Classification structure; Classification attributes; Module 4: Installation and configuration overview (indexing, properties, preferences); Data loading; Create and update classification structures and attributes; The classification autonaming rule; Activities: Update a classification structure; Create an autonaming rule"
+  - id: hc-find-similar
+    label: PTC Help Center supplement
+    title: "Finding Similar Objects"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wcclassreuse/WCClassSearchFindSimilar.html"
+    covers: "Only selected rows are searched; OR across extra legal values"
+  - id: hc-node-info
+    label: PTC Help Center supplement
+    title: "Node Information Page"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wcclassreuse/WCClassReuseNodeInfo.html"
+    covers: "Internal name locked once objects are classified; Instantiable"
+  - id: hc-class-import
+    label: PTC Help Center supplement
+    title: "Import a Classification Structure"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wcclassreuse/WCClassReuseClassStructImport.html"
+    covers: "Site administrators only; JAR or ZIP; overrides the structure; matching by internal name"
+  - id: hc-autoname
+    label: PTC Help Center supplement
+    title: "Autonaming Rules"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wcclassreuse/WCClassReuseNodeAutoName.html"
+    covers: "Generated names are not updated; not enforced with more than one node"
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **PartsLink and classification at scale**: search-before-create and reuse KPIs,
+      governing the library, facets and Find Similar, and loading structures and autonaming. Score 80% to
+      pass. Every answer explains itself.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: Hana wants to roll PartsLink out beyond the fastener pilot. Where does PTC recommend starting?
+        options: [All parts and documents at once, A pilot set of bought or COTS parts, CAD documents first, Only parts created after go-live]
+        answer: 1
+        explanation: Start with bought or COTS parts, where duplicates cost most, then add other parts and documents. Existing parts must be classified too, or searches miss them.
+      - kind: single
+        prompt: Which Windchill capability must be installed and running for PartsLink, classification search and Find Similar to work?
+        options: [Index search, Visualization workers, ThingWorx, Replication]
+        answer: 0
+        explanation: PartsLink requires indexing. Find Similar Objects is only available when indexing is enabled for classification objects, and facets need Solr running.
+      - kind: truefalse
+        prompt: Windchill reports a built-in reuse score per product, so Acme doesn't need its own KPIs.
+        answer: false
+        explanation: The course describes no such score. Hana defines KPIs such as classification coverage, new part requests and the reuse ratio of a new BOM.
+      - kind: single
+        prompt: Jordan must stop users classifying parts on the retired node "Packs (old)" while its parts are moved. What's the safest first step?
+        options: [Delete the node, Set Instantiable to No, Change its internal name, Remove its attributes]
+        answer: 1
+        explanation: Instantiable = No keeps the node visible but unselectable. Deleting first would remove the node (and its children) before the parts are moved; the internal name can't be changed once parts are classified on it.
+      - kind: multi
+        prompt: Which belong in Acme's rules for a new class? (Choose all that apply.)
+        options: [Name nodes by function - not by supplier or project, Put attributes shared by all children on the parent, Give text attributes a legal value list, Let every engineer create nodes directly]
+        answers: [0, 1, 2]
+        explanation: Nodes group by function; parents pass attributes down to children; string attributes become facets only with a legal value list. Changes go through the Classification Administrators group, not everyone.
+      - kind: single
+        prompt: Priya's search returns 40 packs, all with the same connector type. Why is there no Connector facet in Refine Results?
+        options: [Facets are off for parts, An attribute appears only when the results hold more than one value for it, Connector must be in the Keyword field, Find Similar must run first]
+        answer: 1
+        explanation: Facets come from the current results, and an attribute with a single value across them has nothing to filter, so it isn't shown.
+      - kind: single
+        prompt: In Find Similar Objects, Priya adds a ±5% modifier on Capacity and ticks only the Voltage row. Which criteria are searched?
+        options: [Voltage and Capacity ±5%, Voltage only, Capacity only, Nothing - the search fails]
+        answer: 1
+        explanation: Only ticked rows are included. A modifier on an unticked row is ignored.
+      - kind: order
+        prompt: Put Jordan's route for building Lakeside's first structure from a spreadsheet in order.
+        items: [Make sure enumerations and reusable attributes exist, Write the CSV in the import layout, Convert it with CSVToXMLGenerator, Zip the XML, "Run Actions → Import in the Classification Tree"]
+        explanation: The CSV route needs its prerequisites first, then CSV → XML → ZIP → Import. Use it for the initial structure only.
+      - kind: single
+        prompt: Who can run the Import action on a classification structure, and what should they know first?
+        options: ["Any classification administrator - it only adds nodes", "Site administrators - it imports the whole structure, overrides the existing one and can't be undone", "Any user - it creates a copy", "Only PTC support"]
+        answer: 1
+        explanation: Import is limited to site administrators. It matches by internal name, imports the entire structure and overrides what's there, so test it first.
+      - kind: multi
+        prompt: Which statements about autonaming are true? (Choose all that apply.)
+        options: [The rule can join CSM_NODE_NAME with attribute internal names and quoted text using plus signs, Changing an attribute later updates the name automatically, The rule isn't enforced when more than one node is selected, Site admins can let certain users override the generated name with profiles]
+        answers: [0, 2, 3]
+        explanation: Generated names are fixed at creation - neither attribute changes nor rule changes update them. The other three statements are correct.
+
+  - type: flashcards
+    title: Classification at scale deck
+    cards:
+      - { front: Search before create, back: "Acme's rule - search the classification node (and refine) before requesting any new part." }
+      - { front: Classification Administrators, back: "The group that maintains structures and attributes. wt.csm.defaultCSMAdminGroup can point to a custom group." }
+      - { front: Instantiable node, back: "A node users can select when classifying. No = visible but not selectable." }
+      - { front: Node internal name, back: "Letters, numbers, periods, hyphens, underscores. Locked once objects are classified on the node." }
+      - { front: Attribute inheritance, back: "Attributes on a parent node are inherited by every child - gather shared ones to the parent." }
+      - { front: Refine Results pane, back: "Facets built from the current results. Needs Solr, Enable Search Facets = Yes, indexed types and Keyword criteria." }
+      - { front: String facets, back: "Only appear when the attribute is constrained by a legal value list." }
+      - { front: Find Similar Objects, back: "Searches the selected object's node; edit values, add absolute or percent modifiers, tick the rows to search." }
+      - { front: Classification Import, back: "Actions → Import, JAR or ZIP, site admins only. Whole structure, matched by internal name, can't be undone." }
+      - { front: CSVToXMLGenerator, back: "Converts an import-format CSV into XML for a first classification structure. Not for updates." }
+      - { front: CSM_NODE_NAME, back: "Autonaming rule element replaced by the node's display name." }
+      - { front: UpdateClassificationStructure, back: "Windchill shell command to re-index a classification structure, run with site admin credentials." }

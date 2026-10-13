@@ -1,0 +1,309 @@
+id: m07-s12-l04
+subtitle: Kai needs a new brake lever for the E1. Instead of inventing a part number, he asks properly - and twelve tasks later Acme has a released, sourced, modelled part.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [supplier-management, suma, part-request, workflow, life-cycle, oem-part]
+sources:
+  - id: suma
+    where: "Implementation team strategy (roles: Design Engineer, PR Coordinator, Component Engineer, Supply Base Manager); Implementation strategy (Request new parts); Module 1: Making sense of the CSM steps. Module 4: What is a part request?; Part request reports; Part request life cycle and workflow; Why request a new part?; Initiate a new part request; Life cycle of a part request; Workflow of a part request; Create OEM part with reference AML task; ECAD/MCAD embedded implementation process; Request MCD from Mfr task; Activity: Request a new part"
+  - id: te
+    where: "Integrate and manage supply chain data: Request a new part using Supplier Management: process"
+  - id: hc-suma-pr-lifecycle
+    label: PTC Help Center supplement
+    title: "Life Cycle States of the Part Request Process"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/suppliermgmt/SumaNPRConfigureLifecycle.html"
+    covers: "Out-of-the-box part request life cycle states (Open, In Work, Under Review, Implementation, Pending Approval, Released, Canceled) and what each means"
+
+blocks:
+  - type: text
+    md: |
+      The 2027 **E-Bike E1** gets a new hydraulic brake lever. Kai's first instinct is the old Acme
+      habit: create a part, type a description, ask Hana to "sort out the supplier".
+
+      That habit is exactly how Acme ended up with four caliper numbers (lesson 1). So this time Kai
+      searches by classification first, finds nothing that fits, and raises a **part request**. From
+      that moment a workflow takes over: someone checks it isn't a duplicate, Hana creates the
+      Acme part and its approved manufacturer list, Priya sorts out the CAD model, costs are checked -
+      and only then is the new part **released**.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a formal ask for a new bought part" → [[part-request]] (PR)
+      - "the Acme part the request ends up producing" → [[resultant-part]] - always an [[oem-part]]
+      - "the shortcut when you already did the homework" → [[part-request-fast-track|Fast Track]]
+      - "the maker's list of substances in the part" → [[material-composition-declaration]] (MCD)
+      - "the steps and who does them" → the out-of-the-box PR [[workflow]]
+      - "where the request is in its life" → the PR [[life-cycle]] and its [[lifecycle-state|states]]
+      - "the people assigned to the PR's tasks" → the **PR Team**
+
+  - type: animation
+    title: The out-of-the-box part request, start to finish
+    diagram:
+      width: 820
+      height: 400
+      nodes:
+        - { id: de, label: Design Engineer, sublabel: Kai · New Part Request, x: 20, y: 30, w: 190, tone: info }
+        - { id: review, label: PR Review, sublabel: PR Coordinator · Maya, x: 250, y: 30, w: 190, tone: neutral }
+        - { id: oem, label: OEM part + AML, sublabel: Component Engineer · Hana, x: 480, y: 30, w: 200, tone: accent }
+        - { id: mcd, label: Request MCD, sublabel: from the manufacturer, x: 480, y: 140, w: 200, tone: neutral }
+        - { id: cad, label: ECAD/MCAD process, sublabel: Priya · model, x: 250, y: 140, w: 190, tone: warning }
+        - { id: avl, label: Sources · AVL · cost, sublabel: Hana · Supply Base, x: 20, y: 140, w: 190, tone: accent }
+        - { id: approve, label: Approve PR, x: 250, y: 260, w: 190, tone: success }
+        - { id: released, label: Released, sublabel: OEM + mfr parts, x: 480, y: 260, w: 200, shape: pill, tone: success }
+        - { id: monitor, label: PR Monitor, sublabel: Kai watches / cancels, x: 20, y: 260, w: 190, tone: info }
+      edges:
+        - { from: de, to: review, label: submit }
+        - { from: review, to: oem, label: approve }
+        - { from: oem, to: mcd }
+        - { from: mcd, to: cad }
+        - { from: cad, to: avl }
+        - { from: avl, to: approve }
+        - { from: approve, to: released }
+        - { from: de, to: monitor, dashed: true }
+    chapters:
+      - title: Kai raises the request
+        caption: In the E1 **Design** folder Kai chooses **New Part Request**. Creating it starts the workflow; the PR is **Open**.
+        show: [de]
+        highlight: [de]
+      - title: Prepare and submit
+        caption: A **Prepare PR** task lands in Kai's **My Tasks**. He submits it - and a **PR Monitor** task appears so he can track or cancel it.
+        show: [de, monitor]
+        highlight: [monitor]
+        flow: [de>monitor]
+      - title: Is it complete? Is it a duplicate?
+        caption: The PR Coordinator checks the information and searches for existing parts. Approve, send back for rework, choose **Fast Track** - or cancel.
+        show: [de, monitor, review]
+        highlight: [review]
+        flow: [de>review]
+      - title: The Acme part is born
+        caption: The Component Engineer creates the **OEM part and its AML** and attaches it to the PR as the **resultant part**.
+        show: [de, monitor, review, oem]
+        highlight: [oem]
+        flow: [review>oem]
+      - title: Substances and CAD
+        caption: An **MCD** can be requested from the manufacturer, then the embedded **ECAD/MCAD Implementation** process gathers or builds the CAD data.
+        show: [de, monitor, review, oem, mcd, cad]
+        highlight: [mcd, cad]
+        flow: [oem>mcd, mcd>cad]
+      - title: Sources, vendors, cost
+        caption: Alternate sources, the **AVL** and the cost estimates are added and validated.
+        show: [de, monitor, review, oem, mcd, cad, avl]
+        highlight: [avl]
+        flow: [cad>avl]
+      - title: Approve and release
+        caption: The PR is approved; the OEM part and its manufacturer parts are **Released** and the team is told.
+        show: [de, monitor, review, oem, mcd, cad, avl, approve, released]
+        highlight: [released]
+        flow: [avl>approve, approve>released]
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      PTC describes the PR process as a way to **"close the loop"** and stop bad parts getting into PLM.
+      It is built for everyday situations: new parts arriving all the time that must be classified,
+      old parts that never were, and parts engineers bring in with little control over them. Every new
+      bought part comes out classified, with approved manufacturers (and vendors if needed) and the
+      technical documentation it needs - not just a number on a BOM.
+
+  - type: comparison
+    title: Three ways Kai can start a request
+    columns: [What Kai provides, What happens next]
+    rows:
+      - label: By description
+        cells: ["A description plus a downloaded manufacturer data sheet and part number, attached to the PR", "A similar part is created; if the Component Engineer proposes an alternate, Kai lists the critical characteristics it must meet"]
+      - label: By manufacturer and number
+        cells: ["The manufacturer part name and number of a part he found that isn't in Windchill yet", "The normal workflow sources and creates it"]
+      - label: Fast Track
+        cells: ["An OEM part, its manufacturer part and the AML created up front and attached to the PR (candidate parts go under Related Parts)", "If the Component Engineer finds them suitable, AML creation and implementation are skipped"]
+    takeaway: The more homework is attached, the shorter the route - but someone still checks it.
+
+  - type: walkthrough
+    title: Raise and run a part request for the E1 brake lever
+    who: Kai (Design Engineer), Maya (PR Coordinator), Hana (Component Engineer and Supply Base Manager), Priya (MCAD roles)
+    where: [Navigator, Products, "E-Bike E1", Folders, Design, Actions, New, New Part Request]
+    steps:
+      - title: Search before you ask
+        where: [Search, Classification search]
+        md: |
+          The usual first step is to look for the part - ideally with a PartsLink classification search,
+          so you search by what the part *is*. If a suitable part exists, there's nothing to request.
+      - title: Create the request
+        where: [Products, "E-Bike E1", Folders, Design, Actions, New, New Part Request]
+        md: |
+          Click **Next**, set **Priority** and **Multiple Sources Required** (*Yes* means the part may be
+          bought from more than one supplier). Put the technical specs in **Description** and the reason
+          in **Justification**. Attachments and related parts are optional now. **Finish** - the
+          workflow starts.
+      - title: Prepare and submit
+        where: [Home, My Tasks, Prepare PR]
+        md: Add a comment, keep the routing option **Submit**, **Complete Task**. A **PR Monitor** task now sits in Kai's My Tasks.
+      - title: Review the request
+        where: [Home, My Tasks, PR Review]
+        md: |
+          Maya opens the PR from the **Subject** link and checks the Details, **Resultant Part** (empty
+          for now) and **Related Parts**. She searches once more for duplicates, then routes **Approve**.
+          A request missing information goes back to Kai for rework.
+      - title: Create the OEM part with its AML
+        where: [Home, My Tasks, Create OEM Part with Reference AML]
+        md: |
+          Hana creates **EB-5130** in the Design folder with **Source = Buy**, then on its **AML/AVL**
+          tab picks a sourcing context and uses **Create new manufacturer or vendor part for this list**
+          for Brakeworks parts **BW-7710** (Approved) and **BW-7711** (Preferred). Then **Actions → Edit
+          Part Request → Related Parts**, find EB-5130 as the **Resultant Part**, **Check In**. Leave
+          **is Electronic Part?** clear - a brake lever is mechanical - and complete the task.
+      - title: Request the MCD
+        where: [Home, My Tasks, Request MCD from Mfr]
+        md: If Brakeworks has a Material Composition Declaration it is requested and attached to the manufacturer parts; otherwise route **No**.
+      - title: Get the CAD model in
+        where: [Home, My Tasks, Determine MCAD Model Requirements]
+        md: |
+          Priya attaches a requirements file to the PR (**Edit Part Request → Set Attachments**), then in
+          **MCAD Model Development** associates the model with EB-5130 (**Related Objects → CAD/Dynamic
+          Documents → Edit Associations**). **MCAD Model Review** and **MCAD Model Release** follow.
+      - title: Sources, vendors and cost
+        where: [Home, My Tasks, Find Alternate Sources]
+        md: |
+          Hana completes **Find Alternate Sources** and **Create AVL** (adding Northgate only if needed),
+          then attaches the cost estimate in **Validate Cost Estimates** and approves.
+      - title: Approve and close
+        where: [Home, My Tasks, Approve PR]
+        md: |
+          Check the resultant part is checked in, review **Process → Routing/Process History**, route
+          **Approve**. Switch My Tasks to **Closed** to see every completed task.
+    result: |
+      EB-5130, BW-7710, BW-7711 and the PR itself are **Released**. The PR's **Updates** table lists
+      them, and the AML's sourcing status tells buyers BW-7711 is the first choice.
+
+  - type: text
+    md: |
+      ### The PR life cycle (PTC Help Center supplement)
+
+      | State | What it means |
+      | --- | --- |
+      | **Open** | The PR has been created and the workflow starts |
+      | **In Work** | The PR is going through the document control review |
+      | **Under Review** | Optional - the Component Engineer is reviewing it |
+      | **Implementation** | The PR is validated; the OEM part and AML exist while CAD symbols or models, alternate sources, AVL and target cost are developed |
+      | **Pending Approval** | The OEM part is ready for release approval - CAD, AML, AVL and target cost are complete |
+      | **Released** | The PR is approved; the new OEM part and manufacturer parts are released |
+      | **Canceled** | The PR has been canceled |
+
+      These are the out-of-the-box states; your Site Administrator can customize them, so check your
+      own system's life cycle template.
+
+  - type: scenario
+    variant: troubleshooting
+    title: Hana's stubborn task
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Hana completes **Create OEM Part with Reference AML**, but a minute later the same task is back
+          in her My Tasks with special instructions. What's the most likely cause?
+        choices:
+          - label: She didn't attach a resultant part to the PR, or the part attached isn't an OEM part
+            next: s2
+            good: true
+            feedback: Right - the task re-executes in both cases and the instructions say which.
+          - label: A system error - she should ask Rosa to restart the server
+            next: fail1
+            feedback: The workflow is doing what it was built to do.
+      - id: s2
+        md: |
+          The instructions say *the resultant part is not an OEM part*. EB-5130 is attached. What do you
+          check?
+        choices:
+          - label: Its Source attribute - it must be Buy or Buy - Single Source
+            next: s3
+            good: true
+            feedback: Hana created it with Source = Make by mistake.
+          - label: Whether EB-5130 is classified
+            next: s2-wrong
+            feedback: Classification helps search, but that's not what the check looks at.
+      - id: s2-wrong
+        md: The resultant-part check is about the OEM part itself. Look at what makes a part an OEM part.
+        choices:
+          - label: Check the Source attribute
+            next: s3
+      - id: s3
+        md: |
+          Fixed. Next week Kai wants a seat clamp whose OEM part, Brakeworks part and AML he has already
+          set up. How should he request it?
+        choices:
+          - label: Create the PR and attach the prepared parts so it can follow the Fast Track route
+            next: win
+            good: true
+            feedback: If the Component Engineer finds them suitable, AML creation and implementation are skipped.
+          - label: Skip the PR - the parts already exist
+            next: partial1
+            feedback: Then nobody checks for duplicates and nothing records why the part was introduced.
+      - id: win
+        md: Request first, prepared parts attached, a reviewer in the loop. Fast and controlled.
+        outcome: success
+      - id: partial1
+        md: The part may be fine, but Acme is back to parts nobody reviewed. Use the PR - Fast Track keeps it quick.
+        outcome: partial
+      - id: fail1
+        md: A restart won't help - the task comes straight back until the resultant part is an OEM part with Source Buy or Buy - Single Source.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    title: Nobody gets the tasks
+    md: |
+      The PR process assigns tasks through the **PR Team**, which out of the box is filled with the
+      **Administrators** group. Configure it with your real roles (Design Engineer, PR Coordinator,
+      Component Engineer, Supply Base Manager, CAD roles) before go-live, or every task lands with the
+      admins.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Want an overview? Add a tab to your Home page and choose **Customize → Reports** to show the
+      **My Part Requests** and **Active Part Requests** reports. And remember the PR is a versioned
+      object: it **iterates** on every check-in (A.1 → A.2 → A.3) and can be **revised** - for example
+      after it was rejected.
+
+  - type: callout
+    variant: note
+    md: |
+      PTC treats the out-of-the-box PR workflow as a **sample**. Companies usually adapt it - for example
+      to cover electro-mechanical parts needing both ECAD and MCAD work, or to bypass CAD development
+      when the manufacturer already provides the model.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Where does Kai start a new part request in the course's flow?
+        options: ["The product's Folders page: Actions → New → New Part Request", "Site → Utilities → Part Request Administration", "The OEM part's AML/AVL tab", "Change → New Change Request"]
+        answer: 0
+        explanation: The PR is created from the folder contents' Actions menu (New → New Part Request), which also starts the workflow.
+      - kind: single
+        prompt: Which role creates the OEM part and its AML during the PR process?
+        options: [Design Engineer, PR Coordinator, Component Engineer, Supply Base Manager]
+        answer: 2
+        explanation: The Component Engineer creates the OEM part and AML and attaches it as the resultant part. The Supply Base Manager handles the AVL and cost.
+      - kind: truefalse
+        prompt: When the is Electronic Part? box is cleared, the PR follows the mechanical path in the ECAD/MCAD Implementation process.
+        answer: true
+        explanation: Checked routes it down the electronic path (footprint and symbol); cleared assumes a mechanical part (CAD model).
+      - kind: multi
+        prompt: Who or what can cancel a part request? (Choose all that apply.)
+        options: [The reviewer at the PR Review activity, The creator through the PR Monitor task, Any vendor on the AVL, The MCD document]
+        answers: [0, 1]
+        explanation: Cancelling is a routing option at PR Review, and the creator can cancel from PR Monitor. Either ends the process (Canceled state).
+      - kind: order
+        prompt: Put these out-of-the-box PR life cycle states in order for a request that goes all the way.
+        items: [Open, In Work, Implementation, Pending Approval, Released]
+        explanation: Created (Open), reviewed (In Work, optionally Under Review), OEM part and AML built (Implementation), ready to approve (Pending Approval), then Released.
+
+  - type: summary
+    points:
+      - A part request is a controlled route for introducing a new bought part, ending in a released OEM part with an AML.
+      - Search by classification first; create the PR from the folder's Actions → New → New Part Request.
+      - Tasks arrive in My Tasks - prepare, review, OEM part with AML, MCD, CAD, sources, AVL, cost and approval.
+      - The resultant part must be an OEM part (Source Buy or Buy - Single Source), or the task repeats.
+      - Fast Track skips AML creation and implementation when suitable parts are attached up front.
+      - The PR has its own life cycle (Open to Released or Canceled), iterates on check-in and can be revised.

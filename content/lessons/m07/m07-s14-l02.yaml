@@ -1,0 +1,363 @@
+id: m07-s14-l02
+subtitle: Sam's field team needs one tile - Report a Problem. Getting it on their screen takes four switches, in the right order.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [navigate, administration, tailoring, licensing, change-management]
+sources:
+  - id: nav
+    where: "Module 2: Windchill Navigate licensing (license groups, license types); Identify current business processes and needs; Evaluate license requirements; Windchill Navigate roles; Custom roles; Role-based tailoring; Activity 2-1: Create a custom role; Common tailoring for the Part tasks collection (search options, partial matches, search filters, task visibility, task-specific tailoring); Common tailoring for other tasks collections"
+  - id: nav
+    where: "Module 4: My Tasks; Activity 4-1: Participate in a change task; Report a problem; Configure the Report a Problem task (troubleshoot errors); Activity 4-2: Create a problem report"
+  - id: twx
+    where: "Module 2: Control Access in ThingWorx (user groups and visibility, for context)"
+versionNotes:
+  - versions: ["Navigate 9.7"]
+    md: |
+      Based on the Windchill Navigate Technical Essentials course (Windchill 13.1.0.0, Navigate 9.7.0, ThingWorx
+      Composer 9.70). In Navigate 9.7.0, **My Tasks** supports only the *Conduct Online CRB Review* task type.
+      Check the Navigate Help Center for your release before promising other task types.
+
+blocks:
+  - type: text
+    md: |
+      Jordan has the green light: Acme bought Navigate. Sam's field technicians are first in line. They need to
+      raise a [[problem-report]] the moment a customer's E1 shows a cracked battery tray - straight from the
+      field, in a browser, without a Windchill course.
+
+      Jordan creates a group, adds Sam, opens Navigate... and Sam sees a **blank screen**. Then no tiles at all.
+      Then the tile, but the report won't submit. Each time, one switch was missing.
+
+      This lesson is about those switches: **roles, licences, tailoring** - and the two apps that let
+      non-experts actually *take part* in Windchill processes: **My Tasks** and **Report a Problem**.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the team a user belongs to in Navigate" → [[navigate-role|tailoring role]] (a ThingWorx user group)
+      - "the label that makes a group show up as a role" → the **PLMAppsRolesTag** model tag
+      - "the group that proves you paid for Navigate" → a Navigate [[license-group|licence group]]
+      - "settings for a whole row of tiles" → common [[navigate-tailoring|tailoring]] (**Edit Collection**)
+      - "settings for one tile" → task-specific tailoring (the **pencil icon**)
+      - "apps that let you act, not just look" → **Contribute** tasks: My Tasks and Report a Problem
+
+  - type: diagram
+    title: Four switches between Sam and a tile
+    caption: A tile appears only when every switch is on. Click each box to see what it controls and what breaks without it.
+    diagram:
+      width: 820
+      height: 400
+      groups:
+        - { label: ThingWorx Composer, x: 180, y: 20, w: 420, h: 170, tone: neutral }
+        - { label: Navigate tailoring pages, x: 180, y: 210, w: 420, h: 170, tone: accent }
+      nodes:
+        - id: user
+          label: Sam (user)
+          sublabel: field technician
+          x: 20
+          y: 170
+          w: 140
+          shape: pill
+          tone: primary
+          detail: A Windchill user who signs in to Navigate from a browser. Navigate decides what Sam sees; Windchill decides what Sam may touch.
+        - id: group
+          label: Service user group
+          sublabel: tag PLMAppsRolesTag
+          x: 200
+          y: 60
+          w: 180
+          tone: info
+          detail: |
+            Navigate roles are just ThingWorx user groups. Created under **Browse → Security → User Groups** with
+            the **AccessAppTags:PLMAppsRolesTag** model tag, the group appears in **Select role to tailor**.
+            Without the tag it's an ordinary group and never shows up as a role.
+          real: Each user should be in exactly one tailoring role. Two roles make tasks behave unpredictably.
+        - id: licence
+          label: Licence group
+          sublabel: navigate_contribute_...
+          x: 400
+          y: 60
+          w: 180
+          tone: warning
+          detail: |
+            The role (or user) must be a member of a Navigate licence group. Report a Problem is a Contribute
+            task, so Sam's group goes into **navigate_contribute_named_group**. Without a licence group, Sam
+            gets a **blank screen**.
+        - id: collection
+          label: Edit Collection
+          sublabel: task visibility
+          x: 200
+          y: 250
+          w: 180
+          tone: accent
+          detail: |
+            A new custom role sees **no tasks** until an administrator toggles them on. In the Change
+            Management collection, Jordan picks the Service role and switches **Report a Problem** on, then
+            **Save**.
+        - id: task
+          label: Task tailoring
+          sublabel: pencil icon
+          x: 400
+          y: 250
+          w: 180
+          tone: accent
+          detail: |
+            Report a Problem won't work until its required tailoring is complete - above all, the **context**
+            reports are created in. Only product and library contexts are supported.
+        - id: wc
+          label: Windchill
+          sublabel: permissions
+          x: 640
+          y: 170
+          w: 160
+          shape: cylinder
+          tone: success
+          detail: |
+            Navigate licences only permit licensed functions; **data access is still controlled by Windchill
+            permissions**. Sam must be allowed to create problem reports of that type in that context.
+      edges:
+        - { from: user, to: group, label: member of }
+        - { from: group, to: licence, label: member of }
+        - { from: group, to: collection, label: role, dashed: true }
+        - { from: collection, to: task }
+        - { from: licence, to: wc, label: licensed }
+        - { from: task, to: wc, label: creates PR }
+
+  - type: comparison
+    title: Navigate licence types and how they're counted
+    columns: [Navigate View, Navigate Contribute, Navigate Manufacturing]
+    rows:
+      - label: Tasks unlocked
+        cells: ["View tasks in Part, Document and Other collections", "View and Contribute tasks incl. Change Management", "View and Contribute tasks incl. Change Management"]
+      - label: Named group
+        cells: [navigate_view_named_group, navigate_contribute_named_group, navigate_manufacturing_named_group]
+      - label: Concurrent group
+        cells: [navigate_view_concurrent_group, navigate_contribute_concurrent_group, navigate_manufacturing_concurrent_group]
+      - label: Shared kiosk group
+        cells: [navigate_view_designated_computer_group, navigate_contribute_designated_computer_group, navigate_manufacturing_designated_computer_named_group]
+    takeaway: "Named = a fixed list of registered users. Concurrent = a pool; an active user holds a licence for 24 hours. Designated computer = a shared terminal, e.g. a shop-floor kiosk used across shifts."
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Roles stop **oversharing**: Hana's buyers may need parts lists but not drawings, and Ana's line leads need
+      drawings but not cost. Licences decide what you pay for. Get the role map and the licence count *before*
+      install - PTC's guidance is to request a Detailed License Report per site and size the licences from the
+      use cases, not after users start complaining.
+
+  - type: walkthrough
+    title: Give Sam's team the Report a Problem tile
+    who: Navigate administrator (Jordan) signed in to ThingWorx Composer and Navigate
+    where: [ThingWorx Composer, Browse, Security, User Groups]
+    steps:
+      - title: Create the role as a user group
+        where: [Composer, Browse, Security, User Groups, New]
+        md: |
+          Name it **Service**, pick the Navigate custom project, and in **Tags** select the
+          **AccessAppTags:PLMAppsRolesTag** model tag. **Save**.
+      - title: Add the members
+        where: [Service user group, Members tab]
+        md: Drag Sam (and the other technicians) from **Available Members** to **Members**. **Save**.
+      - title: Check the role is visible
+        where: [Navigate landing page, Part tasks collection, Edit Collection]
+        md: Open **Select role to tailor**. *Service* should now be in the list. If not, check the tag.
+      - title: Add the role to a licence group
+        where: [Composer, Browse, Security, User Groups, navigate_contribute_named_group]
+        md: Click **Edit**, then on the **Members** tab drag the *Service* group into **Members**. **Save**.
+      - title: Switch the task on for the role
+        where: [Navigate landing page, Change Management tasks collection, Edit Collection]
+        md: |
+          Choose the *Service* role. Both My Tasks and Report a Problem are off by default for a new role.
+          Toggle **Report a Problem** on and **Save**.
+      - title: Set where reports go
+        where: [Change Management tasks collection, Report a Problem, pencil icon]
+        md: |
+          For the *Service* role, choose how the [[context]] is set: a list users pick from, a **fixed
+          context** they never see, or a **default context** they can change. Acme uses a fixed context: the
+          E-Bike E1 [[product-context|product]]. **Save**.
+      - title: Test as the user
+        where: [Private browser window, Navigate URL]
+        md: Sign in as a test technician and refresh. The tile appears; a short test report confirms permissions.
+    result: Sam's team sees Report a Problem - and only what their role allows.
+
+  - type: text
+    md: |
+      ### What else lives on the Edit Collection page
+
+      Common tailoring sets shared behaviour for **every task in the collection, for one role**:
+
+      | Option | What it does |
+      | --- | --- |
+      | Object type to find | Part, CAD Document or both. Picking both when you need one slows search. |
+      | Max search results | Default 50 for wildcard searches - set it high enough. |
+      | Max recent searches | How many items the Recent tab keeps. |
+      | Attributes in results | Up to five extra attribute values on result tiles. |
+      | Show partial matches | Lets users type `*` wildcards (leading, trailing, middle). |
+      | Search filter | One of: Saved Filter, Saved search, Latest, Version, Effectivity Date. |
+      | Display "View in Windchill" | Adds a link back to the object in Windchill. |
+
+      The **Latest** filter is the one Ana's line leads care about. With *Show latest iteration of latest
+      revision only?* = **Yes**, a part with versions A.1-A.3, B.1-B.2 and C.1 returns just **C.1**. With **No**,
+      it returns the newest iteration of each [[revision]]: A.3, B.2 and C.1. You can also offer lifecycle
+      state and view (Design or Manufacturing) drop-downs.
+
+  - type: example
+    variant: real-world
+    title: Maya's change board, minus the meetings
+    industry: Micromobility
+    md: |
+      Ana sits on Maya's [[change-review-board]] but rarely opens Windchill. Jordan tailors **My Tasks** for the
+      Manufacturing role (pencil icon on the tile): adds the **Priority** attribute, moves it just below
+      **Status**, keeps **Enable Export** on and leaves the row limit at the default 100 (it can go to 1,000).
+
+      Next morning Ana filters **Status** to *Potential*, sees a high-priority [[change-request]] about the E1
+      motor mount, reads the **Details**, opens the part from **Affected Items** (it opens in View Part
+      Properties), checks the photo under **Attachments** and the other reviewers under **Activity**, then
+      clicks **Approve** with a comment. In PTC's training setup the approval asks for an e-signature with
+      Windchill credentials. The task moves to *Completed*. Other options sit under the ellipsis: **Analyze**
+      and **Reassign**.
+    takeaway: My Tasks turns a change review into a two-minute job for people who never learned Windchill.
+
+  - type: simulation
+    title: Switch Sam on
+    intro: |
+      Flip the switches in any order and watch what Sam would get. Goal: Sam can submit a problem report.
+    headline: "Group: {group} · Licence: {licence} · Tile: {tile} · Context: {context}"
+    initial: { group: none, licence: none, tile: hidden, context: unset }
+    actions:
+      - id: create-plain-group
+        label: Create Service group (no tag)
+        when: { group: none }
+        do: [{ set: { group: untagged } }]
+        log: Group created - but it is missing from Select role to tailor. A plain user group isn't a Navigate role.
+      - id: create-tagged-group
+        label: Create Service group with PLMAppsRolesTag
+        when: { group: none }
+        do: [{ set: { group: tagged } }]
+        log: The Service role now appears in Select role to tailor.
+      - id: add-tag
+        label: Add PLMAppsRolesTag to the group
+        when: { group: untagged }
+        do: [{ set: { group: tagged } }]
+        log: Tag added. The group now shows up as a role on the tailoring pages.
+      - id: add-licence
+        label: Add group to navigate_contribute_named_group
+        when: { group: [untagged, tagged], licence: none }
+        do: [{ set: { licence: contribute } }]
+        log: Licensed. Sam no longer gets a blank screen - but a new role still sees no tasks.
+        blockedHint: Create the group first, or it's already licensed.
+      - id: toggle-tile
+        label: Toggle Report a Problem on (Edit Collection)
+        when: { group: tagged, tile: hidden }
+        do: [{ set: { tile: shown } }]
+        log: Saved for the Service role. With a licence, the tile now appears for Sam.
+        blockedHint: The role must be tagged to appear in Select role to tailor.
+      - id: set-context
+        label: Set the fixed context in task tailoring
+        when: { tile: shown, context: unset }
+        do: [{ set: { context: "E-Bike E1" } }]
+        log: Reports from this role go to the E-Bike E1 product. The task's required tailoring is complete.
+        blockedHint: Turn the tile on for the role first.
+    goals:
+      - label: The tile appears for Sam
+        when: { group: tagged, licence: contribute, tile: shown }
+        message: Role tagged, licensed and switched on - three of four switches.
+      - label: Sam can submit a problem report
+        when: { group: tagged, licence: contribute, tile: shown, context: "E-Bike E1" }
+        message: All four switches on. Windchill permissions still decide whether the report is accepted.
+
+  - type: scenario
+    variant: troubleshooting
+    title: The report that won't submit
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Sam opens **Report a Problem**, fills in *Short Description*, picks category *Quality Issue*, attaches a
+          photo of the cracked tray and clicks **Report Problem**. Error. What do you check first?
+        choices:
+          - label: "Sam's Windchill permission to create problem reports in that context"
+            next: s2
+            good: true
+            feedback: Right place to start - Navigate licences never grant Windchill data access.
+          - label: Reinstall Navigate
+            next: f1
+            feedback: Nothing suggests the installation is broken. The error is about this user and this report.
+      - id: s2
+        md: |
+          Permissions are fine, and a test without the photo works. Only reports **with attachments** fail. What
+          is the likely cause?
+        choices:
+          - label: Windchill isn't configured to allow Cross-Origin Resource Sharing (CORS)
+            next: ok
+            good: true
+            feedback: PTC lists CORS as the thing to verify when attachments fail to upload from Navigate.
+          - label: The problem report type isn't instantiable
+            next: p1
+            feedback: That would break every report of that type, with or without a photo.
+      - id: ok
+        md: Rosa configures Windchill to allow CORS. Sam's photo uploads, and the report lands in the E1 product for Maya's change administrator.
+        outcome: success
+      - id: p1
+        md: Close, but that cause would break every submission of that type. Re-read the clue - only attachments fail.
+        outcome: partial
+      - id: f1
+        md: A reinstall cost a day and changed nothing. Start from the user's permissions and the error pattern.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Deleting or untagging a role group.** If the user group is deleted in Composer (or loses
+      PLMAppsRolesTag), the role vanishes from the tailoring pages and its users lose **all** tasks. And once a
+      problem report is submitted, its context can't be changed - in Navigate or in Windchill - so get the
+      context tailoring right before go-live.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      When you use the **Saved search** filter, take the saved searches from the Windchill **site** context. A
+      saved search from a product or library can be restricted for some users. Keywords typed in Navigate
+      override the saved search's keyword, and *Object type to find* and *Max search results* still apply on top.
+
+  - type: quiz
+    title: Check your understanding
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Jordan created a Service user group in Composer, but it doesn't appear in Select role to tailor. What's missing?
+        options: [A Navigate licence group, The PLMAppsRolesTag model tag, A Windchill context, A task-specific tailoring page]
+        answer: 1
+        explanation: Navigate lists only user groups carrying the AccessAppTags:PLMAppsRolesTag tag as roles. Licences decide whether users can use Navigate at all, not whether the role is listed.
+      - kind: single
+        prompt: Sam is in the tagged Service group but sees a blank screen after signing in. Which fix fits?
+        options: [Toggle all tasks on for the role, Add the group to a Navigate licence group such as navigate_contribute_named_group, Give Sam a second role, Set a default context]
+        answer: 1
+        explanation: A blank screen means no Navigate licence. Report a Problem is a Contribute task, so the contribute licence group fits.
+      - kind: truefalse
+        prompt: A newly created custom role automatically sees all out-of-the-box tasks.
+        answer: false
+        explanation: By default a custom role has access to no tasks. The administrator toggles each task on in Edit Collection and saves.
+      - kind: multi
+        prompt: Which can an administrator set on the common tailoring page of the Part tasks collection? (Choose all that apply.)
+        options: [Object type to find, Up to five attributes in search results, One search filter such as Latest, The Windchill access control rules for parts]
+        answers: [0, 1, 2]
+        explanation: Common tailoring shapes search and task visibility for a role. Access control stays in Windchill.
+      - kind: single
+        prompt: Latest filter, *latest iteration of latest revision only* = No. A part has A.1-A.3, B.1-B.2 and C.1. What does a search return?
+        options: [C.1 only, "A.3, B.2 and C.1", All six versions, A.1 only]
+        answer: 1
+        explanation: No returns the latest iteration of every revision. Yes would return only C.1.
+      - kind: single
+        prompt: What can Ana do on a change request in My Tasks?
+        options: ["Approve, Reject, Analyze or Reassign", Edit the affected part's CAD model, Change the change request's lifecycle template, Delete the change request]
+        answer: 0
+        explanation: My Tasks is a Contribute app for review tasks - approve or reject (with comments), analyze or reassign - plus details, affected items, attachments and activity.
+
+  - type: summary
+    points:
+      - A Navigate role is a ThingWorx user group tagged PLMAppsRolesTag; each user belongs to exactly one.
+      - Users also need a Navigate licence group (View, Contribute or Manufacturing; named, concurrent or designated computer).
+      - New roles see no tasks; switch tasks on per role in Edit Collection, tailor single tasks with the pencil icon, and save.
+      - My Tasks lets reviewers approve, reject, analyze or reassign change request review tasks; Report a Problem creates problem reports in a tailored context.
+      - Windchill permissions still decide what Navigate users can see and create.

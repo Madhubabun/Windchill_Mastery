@@ -1,0 +1,215 @@
+id: m07-s05-l04
+subtitle: A.1 goes into the project, A-1.2 comes out, and the product lands on A.2. Follow one document on its round trip - and learn the emergency exit.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [project-management, data-sharing, pdm-checkout, send-to-pdm, undo]
+sources:
+  - id: pm
+    where: "Module 2: Create a project (Synchronize Sharing, Synchronization User, Sharing Filter, Allow Sharing). Module 4: Overview and best practices; Data sharing actions; Share from PDM to a project; Send objects to PDM; Manage PDM checkout objects; Undo a PDM checkout; Activity: Share and modify objects in a project"
+  - id: te
+    where: "Identify project characteristics (share, check out and add consultants as project members)"
+
+blocks:
+  - type: text
+    md: |
+      The E1 needs a few new parts for the Lakeside fixture, so the **E1 Lakeside parts list** document in
+      the E-Bike E1 product has to be updated. Ana's project team will do it, not the product team.
+
+      Kai moves the document into the **E1 Lakeside Launch** project with a [[pdm-checkout]], the team
+      edits it there, and it goes home with [[send-to-pdm]]. Simple - as long as you understand what
+      happens to the **versions** and the **lock** at each step.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "PDM" → your controlled [[product-context|product]] or [[library]] data
+      - "put a product object into a project" → **Add to Project** (or copy and paste into a project folder)
+      - "lend it so the project can edit" → [[pdm-checkout]] (creates a project-specific version)
+      - "give it back" → [[send-to-pdm]], with **PDM Check-in** or **Keep Checked Out**
+      - "cancel the loan, throw away project edits" → **undo the PDM checkout**
+      - "move between projects" → **Project to Project** via the clipboard
+
+  - type: animation
+    title: One document's round trip
+    diagram:
+      width: 820
+      height: 320
+      groups:
+        - { label: E-Bike E1 product (PDM), x: 10, y: 10, w: 330, h: 300, tone: primary }
+        - { label: E1 Lakeside Launch project, x: 400, y: 10, w: 410, h: 300, tone: accent }
+      nodes:
+        - { id: src, label: Parts list A.1, sublabel: in the product, x: 40, y: 60, w: 200, tone: primary, shape: doc }
+        - { id: lock, label: Locked in PDM, sublabel: checked out to project, x: 40, y: 200, w: 200, tone: warning, shape: pill }
+        - { id: proj, label: Parts list A-1.1, sublabel: project version, x: 440, y: 60, w: 200, tone: accent, shape: doc }
+        - { id: iter, label: Parts list A-1.2, sublabel: after check-in, x: 440, y: 200, w: 200, tone: accent, shape: doc }
+        - { id: back, label: Product A.2, sublabel: shared back, x: 660, y: 130, w: 130, tone: success, shape: doc }
+      edges:
+        - { from: src, to: proj, label: PDM checkout }
+        - { from: src, to: lock, dashed: true }
+        - { from: proj, to: iter, label: check out / in }
+        - { from: iter, to: back, label: Send to PDM }
+    chapters:
+      - title: Add to Project with PDM Check-out
+        caption: Kai adds parts list **A.1** to the project and picks **PDM Check-out** instead of Share.
+        show: [src]
+        highlight: [src]
+      - title: A temporary project version
+        caption: The project gets **A-1.1** - a temporary version that tracks project changes. The product's copy is locked and shows it is checked out to a project.
+        show: [src, proj, lock]
+        highlight: [proj, lock]
+        flow: [src>proj]
+      - title: The team iterates in the project
+        caption: Ana checks it out and in inside the project - now **A-1.2**. Nobody in the product sees these iterations yet.
+        show: [src, proj, lock, iter]
+        highlight: [iter]
+        flow: [proj>iter]
+      - title: Send to PDM
+        caption: The latest project iteration becomes the latest iteration of the original - the product shows **A.2**. The lock is released and the document stays **shared** in the project.
+        show: [src, proj, iter, back]
+        highlight: [back]
+        flow: [iter>back]
+        seconds: 7
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      The lock is the whole point: project people can change the object without colliding with work in
+      the product, and the product only sees the result once someone decides it's ready. The temporary
+      version (A-1.x) makes it obvious which copy is the project's.
+
+  - type: walkthrough
+    title: PDM checkout to the project and back
+    who: A product team member with rights to add to projects (Kai); project members (Ana)
+    where: [Browse, Recent Products, E-Bike E1, Folders]
+    steps:
+      - title: Add the document to the project
+        where: [E-Bike E1, Folders, Documents, right-click, Add to, Add to Project]
+        md: Use **Find** to pick the project (E1 Lakeside Launch) and **Browse** to choose the project folder, then click **Next**.
+      - title: Choose the access level
+        where: [Add Objects to a Project, Next]
+        md: |
+          Select the parts list and click **PDM Check-out** (or **Share** for read-only). Click **Finish**.
+          In the product's folder the object now shows the *checked out to one or more projects* icon.
+      - title: Edit inside the project
+        where: [Browse, Recent Projects, E1 Lakeside Launch, General folder]
+        md: Open the document - it's at **A-1.1**. **Actions → Check Out**, change it, **Actions → Check In**. It iterates to A-1.2.
+      - title: Send it home
+        where: [Document information page, Actions, Send to PDM]
+        md: |
+          In the Send to PDM wizard keep **PDM Check-in** as the selected action and click **Finish**. The
+          object is no longer checked out to the project but stays shared there, so the team can still view it.
+      - title: Check the product
+        where: [E-Bike E1, Folders, Documents, parts list, History tab]
+        md: The product shows **A.2**. The product iterates only when Send to PDM completes, however many times the project iterated.
+    result: The updated parts list is back in the product, unlocked, and visible read-only in the project.
+
+  - type: comparison
+    title: Send to PDM vs undo PDM checkout
+    columns: [Send to PDM, Undo PDM checkout]
+    rows:
+      - label: Project iterations
+        cells: ["Latest one becomes the original's latest iteration", "All iterations created in the project are deleted"]
+      - label: The PDM original
+        cells: ["Unlocked - unless you choose to keep it checked out to the project", "Unlocked so PDM users can carry on"]
+      - label: What the project keeps
+        cells: ["The latest version, shared back", "The original, added as a shared object if it isn't shared already"]
+      - label: Use when
+        cells: ["The work is reviewed and good", "The project work should be thrown away"]
+    takeaway: Send to PDM keeps the work; undo throws it away and gives the object back untouched.
+
+  - type: comparison
+    title: Objects created in the project - two send options
+    columns: [What happens, Where the project stands]
+    rows:
+      - label: PDM Checkin
+        cells: ["The object goes to the product or library", "A shared version stays visible in the project"]
+      - label: Keep Checked Out
+        cells: ["The object goes to the product or library", "It is immediately checked out to the project again"]
+    takeaway: New fixture documents Hexa creates in the project can move to the product for permanent storage this way.
+
+  - type: scenario
+    variant: what-if
+    title: Two projects, one bracket
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          The E1 battery bracket part is PDM checked out to **E1 Lakeside Launch** *and* to a second
+          project, **E1 Cold Weather Test**. Both teams have edited it. What can happen?
+        choices:
+          - label: "Only one project can use Send to PDM on it"
+            next: s2
+            good: true
+            feedback: Right. An object can be checked out to several projects at once, but only one of them can send it back.
+          - label: "Both projects send it and Windchill merges the edits"
+            next: f1
+            feedback: There is no merge. Only one project can Send to PDM on an object checked out to several.
+      - id: s2
+        md: |
+          Lakeside's version wins and is sent to PDM. The Cold Weather team decides to drop their version.
+          They undo the PDM checkout in their project. What changes?
+        choices:
+          - label: "Their project iterations are deleted; the other project's work isn't affected"
+            next: s3
+            good: true
+            feedback: Undoing in one project has no effect on the design alternatives in other projects.
+          - label: "Lakeside's sent-back version is rolled back too"
+            next: f2
+            feedback: No - undo only affects the project where you do it.
+      - id: s3
+        md: |
+          Bonus fact: if the bracket were still checked out to another project, the PDM original would stay
+          locked until the PDM checkout is undone on the **last** design alternative.
+        outcome: success
+      - id: f1
+        md: The second team's work can't go back that way. Plan who sends what before checking out to several projects.
+        outcome: fail
+      - id: f2
+        md: Undo is local to one project. Re-read the comparison above.
+        outcome: partial
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Undo is not "cancel my last edit".** Undoing a PDM checkout deletes **every** iteration made in the
+      project and removes associations created there - for example a document-to-part link the team added.
+      Be sure nobody still needs that work before you undo.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Projects can watch shared objects for you. At creation, **Synchronize Sharing** with **Scheduled
+      synchronize** updates out-of-sync shared objects automatically as the chosen **Synchronization User**
+      (by default the project owner); **Identify out-of-sync shared objects** shows an icon in folder tables
+      when a shared object has changed in the product.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Right after a PDM checkout, what version does the project show for a document that was A.1 in the product?
+        options: ["A.1", "A.2", "A-1.1", "B.1"]
+        answer: 2
+        explanation: The project gets a temporary version (A-1.1) used to track project changes. It returns to the normal scheme when sent back.
+      - kind: multi
+        prompt: Which object kinds can be shared and PDM checked out to projects? (Choose all that apply.)
+        options: [Documents, Parts (WTParts), CAD documents, Change notices]
+        answers: [0, 1, 2]
+        explanation: Documents, WTParts and CAD documents can be shared and checked out to projects.
+      - kind: single
+        prompt: The project team's edits turned out to be wrong. Kai wants the product's original back and unlocked. What should he do?
+        options: [Send to PDM, Undo the PDM checkout, Suspend the project, Delete the project folder]
+        answer: 1
+        explanation: Undoing the PDM checkout deletes the project iterations, unlocks the original and shares it to the project.
+      - kind: truefalse
+        prompt: Sending a CAD document to PDM can trigger an EPM build if a build rule links it to a part version.
+        answer: true
+        explanation: If a build rule exists between the CAD document version and a part version, an EPM build is performed.
+
+  - type: summary
+    points:
+      - Add to Project offers Share (read-only), PDM Check-out (editable, original locked) and Copy (new object).
+      - A PDM checkout creates a temporary project version (A-1.x); the product iterates only after Send to PDM.
+      - Send to PDM keeps the work, unlocks the original (unless kept checked out) and shares the result back.
+      - Undoing a PDM checkout deletes project iterations and project-made associations, and unlocks the original.
+      - An object can be checked out to several projects, but only one can send it back.

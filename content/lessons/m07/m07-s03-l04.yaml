@@ -1,0 +1,303 @@
+id: m07-s03-l04
+subtitle: The E1 frame comes from Creo, the motor controller board from an electronics tool. Windchill is where they meet.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [cad, multi-cad, ecad, mcad, idx, collaboration]
+sources:
+  - id: te
+    where: "Module 4: Manage CAD data in Windchill: overview (CAD tools whose data Windchill manages; CAD integration with Windchill; CAD and Windchill product structures); Describe the CAD-centric approach; Identify characteristics of CAD documents; Register a Windchill server with your CAD tool (Workgroup Manager for other CAD tools). Module 2: Access CAD documents using Creo View"
+  - id: hc-wgm-filetypes
+    label: PTC Help Center supplement
+    title: "File Types Supported by Windchill Workgroup Manager"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WWGMIntroduction/WWGMGeneric_GS_FileTypes.html"
+    covers: "CAD applications handled through Workgroup Manager and their file types (AutoCAD, Autodesk Inventor, CATIA V5, Creo Elements/Direct, NX, SOLIDWORKS, PTC Mathcad, Creo CADDS 5)"
+  - id: hc-creo-idx-windchill
+    label: PTC Help Center supplement
+    title: "ECAD-MCAD Collaboration Workflows: Sharing EDMD IDX Files (Creo Help Center)"
+    url: "https://support.ptc.com/help/creo/creo_pma/usascii/electrical_design/ecad/Using_EDA_Files.html"
+    covers: "IDX files shared by email, shared folder or a PLM system such as Windchill; Workgroup Manager for ECAD preference so the primary content is the latest IDX; Mark Out of Date for General secondary content (Yes recommended); baselines as separate documents, increments as iterations of one document. This is a Creo Help Center page; the Windchill 13.1.2.0 Help Center has no ECAD exchange page we could fetch."
+  - id: hc-creo-ecad-to-mcad
+    label: PTC Help Center supplement
+    title: "ECAD to MCAD Workflow (Creo Help Center)"
+    url: "https://support.ptc.com/help/creo/creo_plus/usascii/electrical_design/ecad/ECAD_to_MCAD_Workflow.html"
+    covers: "Baseline IDX, incremental proposal, accept or reject, response file, repeat until designs match, new baseline"
+  - id: hc-creo-mcad-to-ecad
+    label: PTC Help Center supplement
+    title: "MCAD to ECAD Workflow (Creo Help Center)"
+    url: "https://support.ptc.com/help/creo/creo_plus/usascii/electrical_design/ecad/MCAD_to_ECAD_Workflow.html"
+    covers: "MCAD starts the board (board part, mounting holes, ECAD areas); ECAD places mechanical components with reference designators; Creo View ECAD Compare and ECAD Validate; EDA files as compare-to-designs; incremental IDX proposals"
+versionNotes:
+  - versions: ["All releases"]
+    md: |
+      The ECAD-MCAD exchange steps here come from PTC's **Creo** Help Center (current Creo releases, where the
+      tool is called ECAD Collaboration). The Windchill side is plain document and CAD data management. Check the
+      Creo and Workgroup Manager documentation for your exact versions before you roll out the process.
+
+blocks:
+  - type: text
+    md: |
+      The **E-Bike E1** isn't just metal. Inside the down tube sits a **motor controller board**. Priya
+      designs the enclosure and frame in Creo - that's **MCAD** (mechanical CAD). Acme's electronics designer
+      lays out the circuit board in a PCB layout tool - that's **ECAD** (electronic CAD).
+
+      Two tools, two file formats, one product. If the board grows 2 mm and nobody tells Priya, the
+      controller won't fit in the frame. This lesson shows how Windchill holds data from many CAD tools in one
+      place, and how ECAD and MCAD designers trade board changes without emailing screenshots.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "data from more than one CAD tool in one system" → multi-CAD (each file a [[cad-document]])
+      - "the plug-in for non-Creo CAD tools" → [[workgroup-manager]]
+      - "electronics and mechanical designers keeping one board in sync" → [[ecad-mcad-collaboration]]
+      - "the file that carries board changes between the two" → [[idx-file|EDMD IDX file]]
+      - "the starting version both sides agree on" → **baseline** IDX
+      - "a proposed change since the baseline" → **incremental** IDX
+
+  - type: diagram
+    title: Many CAD tools, one Windchill
+    caption: Every authoring tool feeds CAD documents into the same product. Click a box.
+    diagram:
+      width: 820
+      height: 420
+      groups:
+        - { label: Authoring tools, x: 10, y: 10, w: 250, h: 400, tone: neutral }
+        - { label: Windchill product E-Bike E1, x: 290, y: 10, w: 520, h: 400, tone: primary }
+      nodes:
+        - id: creo
+          label: Creo Parametric
+          sublabel: built-in integration
+          x: 30
+          y: 50
+          w: 210
+          tone: accent
+          detail: Creo connects to Windchill out of the box - register the server and go (lesson 1 of this section).
+        - id: other-mcad
+          label: Other MCAD tools
+          sublabel: SOLIDWORKS · NX · CATIA V5
+          x: 30
+          y: 150
+          w: 210
+          tone: accent
+          detail: Tools such as SOLIDWORKS need **Windchill Workgroup Manager** installed before they can talk to Windchill. PTC's Workgroup Manager file-type list also covers AutoCAD, Autodesk Inventor, CATIA V5, NX, Creo Elements/Direct and more (next lesson).
+        - id: ecad
+          label: ECAD layout tool
+          sublabel: circuit board design
+          x: 30
+          y: 260
+          w: 210
+          tone: warning
+          detail: The electronics designer's tool. Board changes travel to and from Creo as **EDMD IDX** files, which can be stored and iterated in Windchill.
+        - id: cad-docs
+          label: CAD documents
+          sublabel: icon per type and tool
+          x: 310
+          y: 60
+          w: 220
+          shape: doc
+          tone: primary
+          detail: Windchill stores CAD content as **CAD document** objects. Each has an icon that shows its type and its authoring application, so a mixed product is easy to read at a glance.
+        - id: idx-docs
+          label: IDX documents
+          sublabel: baseline · increments
+          x: 310
+          y: 260
+          w: 220
+          shape: doc
+          tone: warning
+          detail: PTC's recommendation for ECAD-MCAD exchange through Windchill - keep each **baseline** IDX as its own document, and keep the **incremental** IDX files between two baselines as iterations of one document.
+        - id: parts
+          label: Parts and eBOM
+          sublabel: EB- part numbers
+          x: 570
+          y: 60
+          w: 220
+          tone: success
+          detail: The CAD integration can build the part structure from the CAD structure. The part structure is neutral - it doesn't care which tool authored the geometry - and can also hold things nobody models in CAD.
+        - id: viewer
+          label: Creo View
+          sublabel: no native CAD needed
+          x: 570
+          y: 260
+          w: 220
+          tone: info
+          detail: Lightweight viewables let anyone look at and annotate designs from any tool without owning that CAD application - one of the course guide's examples is not needing SOLIDWORKS just to look.
+      edges:
+        - { from: creo, to: cad-docs, label: check in }
+        - { from: other-mcad, to: cad-docs, label: via WGM }
+        - { from: ecad, to: idx-docs, label: IDX }
+        - { from: cad-docs, to: parts, label: associate }
+        - { from: cad-docs, to: viewer, dashed: true }
+
+  - type: comparison
+    title: MCAD and ECAD at a glance
+    columns: [MCAD (mechanical), ECAD (electronic)]
+    rows:
+      - label: E1 example
+        cells: ["Frame, enclosure, motor mount", "Motor controller circuit board"]
+      - label: Typical tool
+        cells: ["Creo Parametric (or another MCAD tool via Workgroup Manager)", "A PCB layout tool"]
+      - label: Owns on the board
+        cells: ["Board outline and mounting holes; positions that must fit the enclosure", "Electrical layout; places mechanical parts like switches and connectors with reference designators"]
+      - label: Exchange format
+        cells: ["EDMD IDX (baseline and incremental)", "EDMD IDX (baseline and incremental)"]
+      - label: Review tools in PTC's flow
+        cells: ["Creo ECAD Collaboration; Creo View ECAD Compare", "Creo View ECAD Validate and Compare"]
+    takeaway: Neither side owns the whole board. The IDX loop is how they negotiate the shared parts of it.
+
+  - type: animation
+    title: One loop of the ECAD-MCAD exchange
+    caption: Follow one board change from the electronics designer to Priya and back, with Windchill keeping the history.
+    diagram:
+      width: 800
+      height: 320
+      nodes:
+        - { id: ecad, label: ECAD designer, sublabel: PCB layout tool, x: 20, y: 40, w: 180, tone: warning }
+        - { id: mcad, label: Priya (MCAD), sublabel: Creo, x: 600, y: 40, w: 180, tone: accent }
+        - { id: base, label: Baseline IDX, sublabel: own document, x: 300, y: 20, w: 200, shape: doc, tone: primary }
+        - { id: incr, label: Incremental IDX, sublabel: iterations, x: 300, y: 130, w: 200, shape: doc, tone: info }
+        - { id: resp, label: Response IDX, sublabel: accepted · rejected, x: 300, y: 240, w: 200, shape: doc, tone: success }
+      edges:
+        - { from: ecad, to: base, label: agree }
+        - { from: base, to: mcad, label: agree }
+        - { from: ecad, to: incr, label: propose }
+        - { from: incr, to: mcad, label: review }
+        - { from: mcad, to: resp, label: decide }
+        - { from: resp, to: ecad, label: update }
+    chapters:
+      - title: Agree on a baseline
+        caption: Both sides agree on a **baseline** IDX describing the board. Store it in Windchill as its own document.
+        show: [ecad, mcad, base]
+        highlight: [base]
+        flow: [ecad>base, base>mcad]
+        seconds: 6
+      - title: ECAD proposes a change
+        caption: The board needs a bigger connector. The ECAD tool writes an **incremental** IDX containing only the proposed changes.
+        show: [ecad, mcad, base, incr]
+        highlight: [incr]
+        flow: [ecad>incr]
+        seconds: 6
+      - title: MCAD reviews
+        caption: Priya opens the proposal, checks it against the frame and **accepts or rejects** each change.
+        show: [ecad, mcad, base, incr]
+        highlight: [mcad]
+        flow: [incr>mcad]
+        seconds: 6
+      - title: The response goes back
+        caption: Priya returns the updated IDX - the **response**. In Windchill it is simply the next iteration of the incremental document.
+        highlight: [resp]
+        flow: [mcad>resp, resp>ecad]
+        seconds: 6
+      - title: Repeat, then re-baseline
+        caption: The loop repeats until both designs match. Then the team saves a **new baseline** as a new document and starts fresh.
+        highlight: [base]
+        seconds: 6
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Late ECAD-MCAD mismatches are some of the most expensive bugs in hardware: a connector that hits a rib,
+      a mounting hole that misses a standoff. A versioned, reviewable proposal loop - stored in the same PLM
+      system as everything else - catches these while they are still a file change, not a scrapped board run.
+
+  - type: example
+    variant: case-study
+    title: "The controller board that grew"
+    industry: Micromobility
+    md: |
+      Mid-way through the E1 programme, the electronics designer needs a larger power connector on the motor
+      controller board. Before Windchill, Acme emailed PDF screenshots and the frame team found out at the first
+      prototype build.
+
+      This time the electronics designer sends an **incremental IDX** proposal, checked in as the next iteration
+      of the *E1 controller board - increments* document. Priya opens it in Creo, sees that the new connector
+      clashes with the down-tube rib, **rejects** that one change and **accepts** a moved mounting hole. Her
+      response IDX goes back as the next iteration. Two loops later the designs match, the team saves a new
+      baseline document, and Kai can see the whole negotiation in the iteration history.
+    takeaway: Store the conversation, not just the result - baselines as documents, proposals as iterations.
+
+  - type: walkthrough
+    title: Set Windchill up to hold the IDX exchange
+    who: Jordan (business admin) with the ECAD and MCAD leads
+    where: [Preference Management, CAD Data Management, Content Handling, Mark Out of Date]
+    steps:
+      - title: Decide where the files live
+        where: [Browse, Products, E-Bike E1, Folders]
+        md: Pick one folder in the E1 product for board exchange files, so both designers find them in the same place.
+      - title: One document per baseline
+        where: [E-Bike E1, Folders, New Document]
+        md: Create a separate document for each agreed **baseline** IDX (for example *E1 controller board - baseline 1*).
+      - title: One document for the increments
+        where: [E-Bike E1, Folders, Check Out, Check In]
+        md: Keep all **incremental** IDX files between two baselines as **iterations of one document**. Each proposal or response is a check-in.
+      - title: Keep the primary content current
+        where: [Preference Management]
+        md: Ask the admin to set the **Windchill Workgroup Manager for ECAD** preference that PTC's ECAD documentation calls for, so the IDX file attached as primary content is always the latest version. (The exact preference name isn't given on that page - check the Workgroup Manager for ECAD documentation for your release.)
+      - title: Flag stale attachments
+        where: [Preference Management, CAD Data Management, Content Handling, Mark Out of Date, General]
+        md: Set **General** to **Yes** (PTC's recommendation; the default is No). Then General secondary content is marked out of date whenever the primary content is iterated, and the user is warned at check-in.
+    result: Every board negotiation has a clear, searchable history in the E1 product.
+
+  - type: exercise
+    title: Plan Acme's ECAD-MCAD exchange
+    environment: paper
+    goal: Write a one-page exchange plan for the E1 motor controller board that both the ECAD designer and Priya can follow.
+    steps:
+      - Decide **who creates the first baseline** - the MCAD side (board outline, mounting holes, areas) or the ECAD side.
+      - Name the Windchill **folder and documents** (one per baseline, one for increments between baselines).
+      - Define the **review loop** - who proposes, who accepts or rejects, and how fast a response is expected.
+      - Write the **re-baseline rule** - for example, "when both designs match, or before every prototype build".
+      - List the **preferences** to ask the admin for (ECAD primary content, Mark Out of Date for General content).
+    expected: |
+      A plan with a clear baseline owner, a document per baseline, increments stored as iterations of one
+      document, a named reviewer on each side and a re-baseline trigger - so the history explains every change
+      to the board's mechanical interface.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **One new document per proposal** feels tidy but buries the history in dozens of look-alike documents.
+      PTC's advice is the opposite: a new document only for a new **baseline**, and increments as **iterations**
+      of one document.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      In PTC's MCAD-first flow the mechanical side places the board and holes, but leaves switches and
+      connectors to the ECAD designer, who places them with the right **reference designators**. That way the
+      names match in both tools from day one and nobody types designators twice.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Which CAD tool connects to Windchill out of the box, without installing Workgroup Manager?
+        options: [SOLIDWORKS, Creo Parametric, CATIA V5, AutoCAD]
+        answer: 1
+        explanation: The Creo integration is built in. Tools such as SOLIDWORKS need Windchill Workgroup Manager installed first.
+      - kind: order
+        prompt: Put one ECAD-MCAD exchange loop in order.
+        items: [Both sides agree on a baseline IDX, The ECAD designer sends an incremental IDX with proposed changes, The MCAD designer accepts or rejects the changes, The updated IDX goes back as a response, A new baseline is saved once the designs match]
+        explanation: Baseline, proposal, decision, response - repeated until the designs match - then a new baseline.
+      - kind: single
+        prompt: How does PTC recommend storing incremental IDX files between two baselines in Windchill?
+        options: [One new document per file, As iterations of a single document, As attachments on the baseline, Outside Windchill on a share]
+        answer: 1
+        explanation: Each baseline gets its own document; the increments between baselines are iterations of one document.
+      - kind: truefalse
+        prompt: To review a SOLIDWORKS model, a manufacturing engineer must have SOLIDWORKS installed.
+        answer: false
+        explanation: Creo View lets people look at and annotate lightweight viewables from Windchill, reducing the need for the native CAD application.
+      - kind: single
+        prompt: What does setting Mark Out of Date for General secondary content to Yes do?
+        options: [Deletes old IDX files, Marks General secondary content out of date when the primary content is iterated and warns at check-in, Blocks check-in of IDX files, Converts IDX into CAD documents]
+        answer: 1
+        explanation: PTC recommends Yes so attachments that no longer match the latest primary IDX are flagged. The default is No, which carries them forward unchanged.
+
+  - type: summary
+    points:
+      - Windchill manages CAD data from Creo, SOLIDWORKS, CATIA, AutoCAD and other tools as CAD documents in one product.
+      - Creo connects out of the box; other CAD tools need Windchill Workgroup Manager.
+      - The part structure is tool-neutral, and Creo View lets anyone review designs without the native CAD tool.
+      - ECAD and MCAD designers sync a board through EDMD IDX files - a baseline, then incremental proposals and responses.
+      - In Windchill, keep each baseline as its own document and the increments as iterations of one document; flag stale attachments with Mark Out of Date.

@@ -1,0 +1,241 @@
+id: m07-s13-l04
+subtitle: An sBOM is a pile of parts. A parts list puts them in order, numbers them and gives them a picture with callouts.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [service, parts-list, illustration, creo-illustrate, service-parts]
+sources:
+  - id: sis
+    where: "Module 1: What can you do with Windchill Service Parts?; Module 4: Review Windchill Service Parts; Use parts lists; Create and edit parts lists; Activity: Work with parts lists in an information structure; Module 5: Define authoring illustrations: overview; Add an illustration to a parts list; Finalize the illustration manually and check it in; Activity: Create an illustration from a parts list"
+  - id: te
+    where: "Appendix A: Manage spare parts information in Windchill"
+versionNotes:
+  - versions: ["All releases"]
+    md: |
+      The illustration steps assume Creo Illustrate is installed and configured for Windchill, as in the
+      course environment. Arbortext IsoDraw is the other supported illustration tool.
+
+blocks:
+  - type: text
+    md: |
+      Sam is at a dealer, phone in hand: *"Which bolt holds the battery mount - the M5 or the M6?"* The sBOM
+      knows, but it's just a list of parts in no particular order.
+
+      Zoe turns that into something a technician can use: a [[parts-list]] for the battery mount, `PL-E1-01`,
+      with item numbers, quantities and an exploded picture where callout 4 points straight at the bolt.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "an ordered spare-parts list for one assembly" → [[parts-list]]
+      - "the editor you build it in" → **Parts List Editor** (the parts list's Structure tab)
+      - "a numbered label pointing at a part in a picture" → **callout**
+      - "a parts list with pictures, in a book" → **illustrated parts catalog**
+      - "a part that can stand in for another" → [[alternate-part]] (everywhere) or [[substitute-part]] (in one structure)
+
+  - type: animation
+    title: From sBOM to illustrated parts list
+    diagram:
+      width: 820
+      height: 400
+      nodes:
+        - id: sbom
+          label: Service BOM
+          sublabel: EB-1000 Service
+          x: 20
+          y: 160
+          w: 150
+          tone: neutral
+        - id: plist
+          label: PL-E1-01
+          sublabel: parts list
+          x: 220
+          y: 160
+          w: 150
+          tone: accent
+        - id: pvz
+          label: Structure document
+          sublabel: .pvz from the list
+          x: 420
+          y: 60
+          w: 160
+          shape: doc
+          tone: info
+        - id: c3di
+          label: ILL-E1-01
+          sublabel: .c3di in Creo Illustrate
+          x: 420
+          y: 260
+          w: 160
+          shape: doc
+          tone: primary
+        - id: out
+          label: Published output
+          sublabel: .pvz / PDF
+          x: 640
+          y: 160
+          w: 150
+          shape: doc
+          tone: success
+      edges:
+        - { from: sbom, to: plist, label: Add to Parts List }
+        - { from: plist, to: pvz, label: New Illustration }
+        - { from: pvz, to: c3di }
+        - { from: c3di, to: out, label: publish }
+        - { from: c3di, to: plist, label: related object, dashed: true }
+    chapters:
+      - title: Pick parts from the sBOM
+        caption: In the Parts List Editor, Zoe adds the E1 sBOM and selects the battery mount parts. They become numbered items with quantities.
+        show: [sbom, plist]
+        highlight: [plist]
+        flow: ["sbom>plist"]
+      - title: Windchill makes a structure document
+        caption: "**New Illustration** first creates a parts list structure document - a `.pvz` representation of the list - as input for Creo Illustrate."
+        show: [sbom, plist, pvz]
+        highlight: [pvz]
+        flow: ["plist>pvz"]
+      - title: Creo Illustrate builds the picture
+        caption: From that input Creo Illustrate creates its own document (`.c3di`). Item numbers from the parts list drive **automatic callouts**.
+        show: [sbom, plist, pvz, c3di]
+        highlight: [c3di]
+        flow: ["pvz>c3di"]
+      - title: Publish and link
+        caption: The finished illustration is published as another `.pvz` for online viewing, or as PDF. It is stored as a **related object** of the parts list and travels with it through its lifecycle.
+        highlight: [out, c3di]
+        flow: ["c3di>out", "c3di>plist"]
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      A service BOM has no meaningful order. A parts list adds the order, the callouts and the attributes
+      (when a part is used, under which conditions) that let a technician pick the **right** part. Because
+      the pictures come from engineering data, authors don't redraw anything - and lists can be linked to
+      their callouts automatically.
+
+  - type: walkthrough
+    title: Build PL-E1-01 inside the information structure
+    who: Zoe, in a parts author role in the product team
+    where: [Browse, "<product>", Information Structure, Structure tab]
+    steps:
+      - title: Create the parts list in the right group
+        where: [Right-click group, Insert New, Insert New Parts List Information Element]
+        md: |
+          Name it and confirm the authoring language. (You can also create a parts list directly in a folder
+          and add it to a structure later; its Information Type defaults to Parts List.)
+      - title: Open it in the Parts List Editor
+        where: [Right-click parts list holder, Open In, Open Content in Parts List Editor]
+        md: The parts list's own **Structure** tab is the editor.
+      - title: Attach the sBOM
+        where: [Structure tab, Related Objects, Add BOM]
+        md: Search for the product and pick its **Service** view. The sBOM opens as a new tab in the lower right pane.
+      - title: Add parts
+        where: [sBOM tab, select parts, right-click, Add to Parts List]
+        md: Expand the sBOM, select the parts (Shift+click for a range) and add them.
+      - title: Set quantities and serviceability
+        where: [Structure tab, Items tab]
+        md: |
+          Edit the **Quantity** of each item, type in the **Enter Name** row to add a part that isn't in the
+          sBOM, and set **Serviceable** to No for items such as tools.
+      - title: Add a replacement part
+        where: [Select item, Related Parts tab, Replacements, Add Alternate Part]
+        md: |
+          The **Related Parts** tab manages three relationship types: **Replacement** (alternate or substitute),
+          **Supplementary** (extra items needed for the job) and **Supersede** (a part that permanently
+          replaces another).
+      - title: Check in and look at the visualization
+        where: [Check Out/In, Check In, Visualization tab]
+        md: Parts with CAD data highlight in the 3D view when selected; new parts without CAD data won't appear.
+    result: |
+      PL-E1-01 holds ordered, quantified items. Tip: for an assembly that needs no rework, open the part's
+      **Structure** tab and use **Service → Generate → Generate Parts Lists for Selected Parts** instead -
+      the generated list lands in the product's root folder by default.
+
+  - type: walkthrough
+    title: Add illustration ILL-E1-01 to the parts list
+    who: Zoe, in an illustrator role, with Creo Illustrate configured
+    where: [Parts List Editor, Structure tab, Related Objects, Illustration, New Illustration]
+    steps:
+      - title: Start a new illustration
+        where: [Related Objects, Illustration, New Illustration]
+        md: Choose the **Creo Illustrate** template (or Arbortext IsoDraw), enter a name. By default it's stored with the parts list.
+      - title: Check the filter
+        where: [Configuration Specification tab]
+        md: |
+          Make sure the filter uses the **Service** view and includes work in progress if you want it. Attribute,
+          option and service effectivity filters can tailor the output too.
+      - title: Let Windchill build it
+        where: [Finish]
+        md: Wait for the window to close on its own - Windchill creates the structure document and the `.c3di`.
+      - title: Finish it in Creo Illustrate
+        where: [Illustration, Actions, Open In, Open in Creo Illustrate]
+        md: |
+          Create a figure (callouts are generated for the selected parts), adjust orientation, explode parts,
+          add notes. Then **File → Windchill → Check In**.
+      - title: After the parts list changes
+        where: [Right-click illustration, Update Illustration]
+        md: Add the part to the list, run **Update Illustration**, open it again in Creo Illustrate and confirm the updated source link. Then check in both the illustration and the parts list.
+    result: The illustration is linked to PL-E1-01 as a related object; the Relationships tab shows the PVZ it's based on.
+
+  - type: comparison
+    title: Creo Illustrate or Arbortext IsoDraw?
+    columns: [Creo Illustrate, Arbortext IsoDraw]
+    rows:
+      - label: Starts from
+        cells: ["CAD data of the parts list", "CAD data of the parts list"]
+      - label: Callouts and hotspots
+        cells: ["Generated automatically", "Manual, or via a transitory XML step"]
+      - label: Updating callouts later
+        cells: ["Supported", "No automatic update of callouts"]
+      - label: Extra views
+        cells: ["Several views in one illustration; a 2D version can be made from the 3D view", "Not detailed in the course"]
+    takeaway: The course focuses on Creo Illustrate because its callouts follow the parts list.
+
+  - type: example
+    variant: case-study
+    title: The bolt that wasn't in the sBOM
+    industry: Micromobility
+    md: |
+      Lakeside's dealers report that every battery-mount repair also needs two new **thread-locking
+      washers**. They aren't in the sBOM. Zoe adds them on the **Items** tab of PL-E1-01, marks the old
+      mount bolt as **superseded** by the M6 version Kai released, runs **Update Illustration**, ticks the new
+      washer in Creo Illustrate's sBOM pane to add it to the figure and gives it a note callout. After
+      check-in, the next published parts list shows Sam the right parts - and the right picture.
+    takeaway: Parts lists can go beyond the sBOM - but changes to them must flow into the illustration.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Closing the New Illustration window early.** Creating the illustration can take a while; the course
+      warns to let the window close by itself. And remember IsoDraw won't update callouts automatically -
+      a parts list change means rework there.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Moving a parts list holder to another folder? In the **Move** window use **Collect Related Service
+      Objects** and tick *Associated Parts Lists* so the parts list itself moves with its holder.
+
+  - type: quiz
+    questions:
+      - kind: single
+        prompt: Why turn an sBOM into a parts list?
+        options: ["To change the part numbers", "To order the components meaningfully and add items linked to callouts", "To create the eBOM", "To translate the parts"]
+        answer: 1
+        explanation: An sBOM is an unordered list of components. The parts list orders them, adds line items tied to callouts and adds usage attributes.
+      - kind: single
+        prompt: Which Related Parts table records that a new part permanently replaces an old one?
+        options: [Replacements, Supplementary Parts, Supersedes, Alternates only]
+        answer: 2
+        explanation: Supersedes identifies parts that permanently replace another part, for example when the original is out of production.
+      - kind: truefalse
+        prompt: An illustration made from a parts list is stored as a related object of the parts list.
+        answer: true
+        explanation: After you check it in, the illustration is a related object of the parts list and travels with it through its lifecycle.
+
+  - type: summary
+    points:
+      - A parts list orders sBOM parts, adds item numbers, quantities and usage attributes, and can include non-sBOM parts.
+      - Build it in the Parts List Editor - Add BOM, then Add to Parts List - or generate it from an assembly.
+      - Related Parts manages replacement, supplementary and supersede relationships.
+      - New Illustration creates a .pvz structure document and a .c3di that you finish in Creo Illustrate.
+      - Use Update Illustration after the parts list changes; IsoDraw does not update callouts automatically.

@@ -1,0 +1,303 @@
+id: m07-s13-l06
+subtitle: One overloaded structure for every E1 - then a filter and a publication structure turn it into the exact manual for one bike.
+version: 1.0.0
+updated: "2026-10-11"
+tags: [service, applicability, options-and-choices, publication-structure, filtering]
+sources:
+  - id: sis
+    where: "Module 7: Define service applicability: overview; Manage service applicability; Options and choices; Option pool; Rules for options and choices: overview and types; Option sets; Activity: Use options, choices, and rules to manage applicability in an information structure; Module 8: Describe publication structures; Add a table of contents to a publication structure; Add an index to a publication structure; Add content to a publication structure; Activity: Create a publication structure"
+  - id: te
+    where: "Appendix A: Organize and manage service content in Windchill (publication structures)"
+versionNotes:
+  - versions: ["All releases"]
+    md: |
+      Options, choices, rules and option sets belong to Windchill's Options and Variants capability, covered
+      in depth in its own section. This lesson uses them only for service applicability, as the service
+      course does.
+
+blocks:
+  - type: text
+    md: |
+      Acme sells the E1 with three batteries (**400, 500 and 625 Wh**) and two frame colours. The 625 Wh pack
+      has its own mounting procedure. Zoe could build six information structures. Instead she builds **one**
+      that holds everything - and tags each piece of content with *which bikes it is for*.
+
+      That tagging is [[service-applicability]]. A filter then shows a technician only the content for the bike
+      in front of them, and a [[publication-structure]] turns the filtered content into a real manual.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "which bikes this content is for" → [[service-applicability]]
+      - "by serial number or date" → **service effectivity** (see [[serial-effectivity]], [[date-effectivity]])
+      - "a feature and its possible values" → **option** and **choice** (Battery = 625 Wh)
+      - "the list of options a product may use" → **option pool**, narrowed into an **option set** assigned to the product
+      - "one structure holding all variants" → **overloaded** service structure
+      - "pick a configuration and hide the rest" → **option filter**
+
+  - type: animation
+    title: Filtering the overloaded E1 Service Manual
+    diagram:
+      width: 820
+      height: 420
+      groups:
+        - { label: E1 Service Manual (overloaded), x: 10, y: 20, w: 520, h: 380, tone: primary }
+      nodes:
+        - id: root
+          label: E1 Service Manual
+          sublabel: all variants
+          x: 160
+          y: 40
+          w: 220
+          tone: primary
+        - id: g-battery
+          label: Battery
+          sublabel: group
+          x: 40
+          y: 150
+          w: 140
+          tone: accent
+        - id: g-frame
+          label: Frame
+          sublabel: group
+          x: 360
+          y: 150
+          w: 140
+          tone: accent
+        - id: e-400
+          label: Mount 400/500
+          sublabel: Battery = 400 or 500
+          x: 30
+          y: 280
+          w: 150
+          tone: info
+        - id: e-625
+          label: Mount 625 Wh
+          sublabel: Battery = 625 Wh
+          x: 200
+          y: 280
+          w: 150
+          tone: info
+        - id: e-paint
+          label: Touch-up Mint
+          sublabel: Colour = Mint
+          x: 370
+          y: 280
+          w: 140
+          tone: info
+        - id: filter
+          label: Option filter
+          sublabel: 625 Wh + Graphite
+          x: 600
+          y: 160
+          w: 190
+          tone: warning
+      edges:
+        - { from: root, to: g-battery }
+        - { from: root, to: g-frame }
+        - { from: g-battery, to: e-400 }
+        - { from: g-battery, to: e-625 }
+        - { from: g-frame, to: e-paint }
+        - { from: filter, to: root, label: Edit Filter, dashed: true }
+    chapters:
+      - title: One structure, every variant
+        caption: The overloaded structure holds content for all batteries and colours. Nothing is filtered yet.
+        show: [root, g-battery, g-frame, e-400, e-625, e-paint]
+      - title: Tag the content
+        caption: "Through **Manage Applicability**, Zoe assigns **item expressions** - for example *E1 Battery = 625 Wh* on the 625 Wh mounting task."
+        show: [root, g-battery, g-frame, e-400, e-625, e-paint]
+        highlight: [e-400, e-625, e-paint]
+      - title: Apply an option filter
+        caption: "Sam's bike is 625 Wh, Graphite. On the Structure tab: **Edit Filter → Option Filter**, pick the choices."
+        highlight: [filter]
+        flow: ["filter>root"]
+      - title: Only matching content stays
+        caption: The 400/500 mount and the Mint touch-up disappear. Content without applicability, or with applicability that doesn't involve the chosen options, stays visible.
+        show: [root, g-battery, g-frame, e-625, filter]
+        highlight: [e-625]
+
+  - type: comparison
+    title: The building blocks of applicability
+    columns: [What it is, Service example]
+    rows:
+      - label: Service effectivity
+        cells: ["Serial number and date ranges that identify configurations still serviceable", "Brake procedure valid from E1 serial 20 000"]
+      - label: Option and choices
+        cells: ["A product feature and its possible values; options can be Required or single-choice; numeric and Boolean options exist", "E1 Battery: 400 / 500 / 625 Wh"]
+      - label: Rules
+        cells: ["Include, exclude, enable and conditional (IF/THEN) rules; aliases group choices", "Exclude a combination that is never sold"]
+      - label: Option set
+        cells: ["A subset of options and choices from the option pool, assigned to a product; it decides which choices you can use", "E1 option set assigned to the E-Bike E1 product"]
+      - label: Item vs usage expression
+        cells: ["Item expressions apply to the object everywhere; usage expressions only in one context", "The 625 Wh task is always 625-only"]
+    takeaway: Applicability can be set on information structures, publication structures, parts lists and BOMs.
+
+  - type: walkthrough
+    title: Assign applicability and test it with a filter
+    who: Zoe; the options and the option set must already exist and be assigned to the product
+    where: [Browse, "<product>", Information Structure, Structure tab]
+    steps:
+      - title: Check the product's option set
+        where: [Browse, "<product>", Details, Option Sets tab]
+        md: The **Assigned Option Set** table shows which set the product uses. Options themselves live on the **Option Pool** tab.
+      - title: Open Manage Applicability
+        where: [Structure tab, right-click group or holder, Manage Applicability]
+        md: You can assign **expressions** (based on the option set) or **service effectivity**.
+      - title: Assign an item expression
+        where: [Assigned Item Expressions, Assign Item Expression]
+        md: Pick the option (for example *E1 Battery*), tick the choices it applies to and click OK, then Close.
+      - title: Filter the structure
+        where: [Structure tab, Filter, Edit Filter, Option Filter]
+        md: Select a choice for each option you want to test and click OK. The structure redraws with only the applicable content.
+      - title: Clear the filter
+        where: [Edit Filter, Option Filter, Clear]
+        md: Clear all choice selections to see the whole overloaded structure again.
+
+  - type: diagram
+    title: What goes into a publication structure
+    caption: A publication is assembled from pieces - mostly reused from the information structure. Click a box.
+    diagram:
+      width: 820
+      height: 380
+      nodes:
+        - id: ps
+          label: E1 Workshop Manual
+          sublabel: publication structure
+          x: 300
+          y: 30
+          w: 220
+          tone: primary
+          detail: |
+            Created from **Browse → product → Publication Structures → New Publication Structure**. Set its
+            folder and **Default Content Location**. Publication structures can be nested.
+        - id: toc
+          label: Table of Contents
+          sublabel: placeholder
+          x: 20
+          y: 170
+          w: 150
+          tone: neutral
+          detail: No content of its own - marks where a generated TOC goes. It is inserted as the **first** object of the selected structure or section.
+        - id: section
+          label: Battery section
+          sublabel: publication section
+          x: 190
+          y: 170
+          w: 150
+          tone: accent
+          detail: |
+            Adds hierarchy. Inserting an information structure **group** (Insert Before / After / as First /
+            Last Child) brings it in as a section - with its content and applicability.
+        - id: element
+          label: Safety note
+          sublabel: information element
+          x: 360
+          y: 170
+          w: 150
+          tone: info
+          detail: Content that isn't in the information structure can be added too, even from another context.
+        - id: nested
+          label: Parts catalog
+          sublabel: nested structure
+          x: 530
+          y: 170
+          w: 150
+          tone: info
+          detail: Another publication structure, nested for reuse across publications.
+        - id: index
+          label: Index
+          sublabel: placeholder
+          x: 690
+          y: 170
+          w: 110
+          tone: neutral
+          detail: Marks where a generated index goes. Inserted as the **last** object of the selected structure or section.
+        - id: out
+          label: PDF / web bundle
+          sublabel: via Arbortext Publishing Engine
+          x: 300
+          y: 300
+          w: 220
+          shape: doc
+          tone: success
+          detail: |
+            Publish the whole structure, a section or single topics. Formats include PDF, a web output bundle
+            and a standard Windchill representation; Arbortext Publishing Engine needs extra configuration.
+      edges:
+        - { from: ps, to: toc }
+        - { from: ps, to: section }
+        - { from: ps, to: element }
+        - { from: ps, to: nested }
+        - { from: ps, to: index }
+        - { from: ps, to: out, label: publish, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Without applicability, every variant means another manual to maintain. With an overloaded structure and
+      filters, one set of content serves every configuration - and publication structures can be compared to
+      see the impact of a product change before anything is published.
+
+  - type: scenario
+    variant: troubleshooting
+    title: The manual that lost a chapter
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Zoe filters the E1 Workshop Manual for a **400 Wh** bike. The whole *Battery mount* section is gone,
+          although a 400 Wh bike obviously has a battery mount. What does she check first?
+        choices:
+          - label: The applicability on the Battery mount section
+            next: s2
+            good: true
+            feedback: Right - a filter only hides things whose applicability doesn't match.
+          - label: Delete the section and rebuild it
+            next: f1
+            feedback: Rebuilding loses the links to the information structure and doesn't fix the cause.
+      - id: s2
+        md: |
+          Manage Applicability shows an item expression *E1 Battery = 625 Wh* on the section. It came in when
+          Zoe inserted the group from the information structure. Where should she fix it?
+        choices:
+          - label: Edit it in the publication structure - it's the same expression
+            next: s3
+            good: true
+            feedback: Correct. Applicability carried over from the information structure is shared - changing it in the publication structure changes the information structure too.
+          - label: Add a second expression only in the publication structure
+            next: p1
+            feedback: Possible, but now the information structure still hides the section for 400 Wh bikes.
+      - id: s3
+        md: |
+          The expression was meant for one task only. Zoe removes it from the section and assigns
+          *E1 Battery = 625 Wh* to the 625 Wh mounting task instead. She filters again: the section is back for
+          400 Wh bikes, with the right task inside.
+        outcome: success
+      - id: p1
+        md: The publication looks right, but the next manual built from the information structure loses the section again. Fix the source, not the symptom.
+        outcome: partial
+      - id: f1
+        md: The new section has no applicability - and no link to the information structure content. Two places to maintain now.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Assuming the publication structure is a copy.** Renaming a holder or changing its applicability in a
+      publication structure changes it in the information structure too - they are the same objects.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Put applicability as **high** in the structure as is true (on the group when the whole system differs)
+      and as **low** as needed (on one task when only that task differs). Then test each sellable combination
+      with the option filter before publishing.
+
+  - type: summary
+    points:
+      - Applicability can be service effectivity, option-and-choice expressions or advanced expressions.
+      - Set it with Manage Applicability on information structures, publication structures, parts lists and BOMs.
+      - The product's assigned option set decides which options and choices are available; the option filter shows one configuration.
+      - A publication structure assembles sections, information elements, a TOC, an index and nested structures into one publication.
+      - Content inserted from the information structure keeps its applicability - and edits to it are shared.
