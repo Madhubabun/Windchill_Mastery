@@ -1,8 +1,18 @@
 id: m03-s04-l01
 subtitle: One engine says where an object is. The other moves people. Learn to tell them apart.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [lifecycle, workflow, life-cycle-template, workflow-template, process]
+sources:
+  - id: ac
+    where: "Module 5: Identify process management objects; Describe Windchill life cycles (phase and gate; state-specific access); Identify life cycle types (basic and advanced); Describe object life cycle resolution (OIRs); Create a life cycle (Life Cycle Template Administration); Identify life cycle transition types; Create transitions (Promote, Lock, Revise, Set State); Describe workflow templates (Activity, Connector, Robot, Terminal nodes and links); Describe combined and change and promotion request workflows; Assign activities in a workflow; Use robots to automate tasks; Associate workflow templates to advanced life cycles; Activity: Create a workflow template (Set State method robot, Workflow Template Administration)"
+  - id: te
+    where: "Module 2: Activity: View information pages (History tab); Identify how access is controlled (lifecycles). Module 6: Activity: Create and approve a promotion request (Process tab: Routing/Process History, Process Status, open the workflow process manager if you are an administrator)"
+  - id: hc-process-manager-node-display
+    label: PTC Help Center supplement
+    title: "Process Manager Node Display"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wfprocessmgr/WFProcessMgrProcessStatusAbout.html"
+    covers: "Process Manager node colours (running green, completed light grey, not started white)"
 
 blocks:
   - type: text
@@ -29,9 +39,9 @@ blocks:
       - "the station an object is at" → *[[lifecycle-state|life cycle state]]*
       - "the recipe for a process" → *[[workflow-template|workflow template]]*
       - "one running copy of that recipe" → *process* (a workflow process instance)
-      - "a box in the recipe, like Review or Approve" → *[[workflow-activity|activity]]*
+      - "a box in the recipe, like Review or Approve" → *[[workflow-activity|assigned activity]]*
       - "a to-do that lands in your inbox" → *[[task]]*, technically a *[[work-item|work item]]*
-      - "an automatic step nobody clicks" → *robot* (for example a set state robot)
+      - "an automatic step nobody clicks" → *[[workflow-robot|robot]]* (for example a Method robot of type Set State)
 
   - type: diagram
     title: Two engines, one change
@@ -64,7 +74,8 @@ blocks:
           tone: accent
           detail: |
             An **assigned activity**. Windchill creates a **work item** for each person in the
-            role, for example Kai as reviewer. The process waits here until they finish.
+            role, for example Kai as reviewer, and it appears in their **My Tasks** table. The process
+            waits here until they finish.
           real: Most "why is nothing happening?" questions end at an activity like this one, waiting on a person.
         - id: vote
           label: Approve?
@@ -85,8 +96,8 @@ blocks:
           w: 160
           tone: primary
           detail: |
-            A **robot** is an automatic activity. This one tells the life cycle engine to move the
-            objects to Released. No human clicks it.
+            A **robot** is an automatic node. A Method robot of type **Set State** - the most common
+            use of a robot - moves the object to a state such as Released. No human clicks it.
         - id: inwork
           label: In Work
           sublabel: state
@@ -94,7 +105,7 @@ blocks:
           y: 290
           w: 150
           tone: neutral
-          detail: The first state. Authors can edit here. Access rules are usually loosest in this state.
+          detail: The first state. A typical life cycle gives authors modify access here and takes it away once the object is Released.
         - id: underreview
           label: Under Review
           sublabel: state
@@ -103,8 +114,8 @@ blocks:
           w: 150
           tone: warning
           detail: |
-            A "frozen while we look" state. Many companies lock editing here. The workflow often
-            sets this state at the start of a review.
+            A "frozen while we look" state. In a promotion, a **Lock** transition can hold objects here
+            while the request is under review, with different access rules from In Work.
         - id: released
           label: Released
           sublabel: state
@@ -112,14 +123,14 @@ blocks:
           y: 290
           w: 150
           tone: success
-          detail: The trusted state. Manufacturing, buying and service work from here.
-          real: In most setups only a workflow robot or an admin can put something into Released.
+          detail: The trusted state. Manufacturing, buying and service work from here. Once a part is Released, it is changed only through the change process.
+          real: Objects usually reach Released through a change notice or promotion request process, not by hand.
       edges:
         - { from: start, to: review }
         - { from: review, to: vote }
         - { from: vote, to: robot, label: approve }
         - { from: vote, to: review, label: reject, dashed: true }
-        - { from: inwork, to: underreview, label: promote }
+        - { from: inwork, to: underreview, label: lock }
         - { from: underreview, to: released, label: promote }
         - { from: underreview, to: inwork, label: demote, dashed: true }
         - { from: start, to: underreview, dashed: true, label: sets }
@@ -157,17 +168,17 @@ blocks:
         highlight: [proc]
         flow: [priya>proc]
       - title: The workflow moves the object
-        caption: First thing the process does is ask the life cycle to set the bracket to **Under Review**. Now nobody can sneak in an edit.
+        caption: First the bracket is moved to **Under Review** (Acme's life cycle uses a **Lock** transition for this). Its access rules there block edits, so nobody can sneak one in.
         show: [s1, s2, priya, proc]
         highlight: [s2]
         flow: [proc>s2, s1>s2]
       - title: A human decides
-        caption: Kai gets a **task** in his inbox. The process **waits**. It can wait for minutes or for weeks, which is why stuck tasks matter.
+        caption: Kai gets a **task** in his My Tasks table. The process **waits**. It can wait for minutes or for weeks, which is why stuck tasks matter.
         show: [s1, s2, priya, proc, task]
         highlight: [task]
         flow: [proc>task]
       - title: The robot finishes the job
-        caption: Kai approves. A **set state robot** asks the life cycle to move the bracket to **Released**. Two engines, one result.
+        caption: Kai approves. An automatic **robot** moves the bracket to **Released**. Two engines, one result.
         highlight: [robot, s3]
         flow: [task>robot, robot>s3, s2>s3]
         seconds: 8
@@ -179,13 +190,13 @@ blocks:
       - label: Question it answers
         cells: ["Where is this object now?", "Who has to do what next?"]
       - label: Made of
-        cells: ["States, transitions (promote, demote, revise) and phases", "Activities, robots, connectors and links between them"]
+        cells: ["States (each with a phase and a gate) and transitions such as Promote, Lock, Revise and Set State", "Activity, connector, robot and terminal nodes, joined by links"]
       - label: Lives on
-        cells: [Every versioned object such as parts and documents, "A process, usually started by a change object or promotion request"]
+        cells: ["Business objects such as parts and documents, assigned by object initialization rules", "A process instance - for parts and documents usually the one of a change object or promotion request"]
       - label: Time
         cells: [Always there - every version has a state, "Runs for a while, then completes or is terminated"]
       - label: Controls
-        cells: ["What you may do at each state, often including who can edit", "Who gets tasks, how votes route, what happens automatically"]
+        cells: ["Which state-changing actions are offered, and (via access rules) who can edit", "Who gets tasks, how votes route, what happens automatically"]
       - label: Admin builds it in
         cells: [Life cycle template administration, Workflow template administration]
       - label: Acme example
@@ -209,8 +220,8 @@ blocks:
       Ana, Acme's manufacturing engineer, tried to fix a typo on the routing note for SC-1048. The
       edit action was greyed out. She pinged Kai: "Is the workflow broken?"
 
-      Kai checked: the bracket was **Under Review**. That state's access rules block edits for
-      everyone except admins. Nothing was broken. The *life cycle* was doing its job while the
+      Kai checked: the bracket was **Under Review**. At Acme, that state's access rules block
+      edits for everyone except admins. Nothing was broken. The *life cycle* was doing its job while the
       *workflow* waited for Leo's quality review. Ana added a comment to Leo's review instead, and
       the fix went into the next iteration after the review sent it back to In Work.
     takeaway: Greyed-out edit buttons are usually a state thing. Silent waiting is usually a workflow thing.
@@ -221,31 +232,32 @@ blocks:
     steps:
       - title: Open the object
         where: [Search, "SC-1048", information page]
-        md: Search for the bracket and open its **information page**. The header and the attributes show its current **state**.
-      - title: Check the life cycle history
-        where: ["<object> information page", History]
+        md: Search for the bracket and open its **information page**. The top right corner shows its current **state**.
+      - title: Check the history
+        where: ["<object> information page", History tab]
         md: |
-          Look at the history for the object. Many setups show a life cycle history listing every
-          state change, when it happened and who or what did it. A state set "by the system" is
-          usually a workflow robot at work.
+          The **History** tab shows a timeline of events such as new versions and state changes.
+          After a promotion, the **Authorization** column links to the promotion request that
+          changed the state.
       - title: Find the related process
-        where: ["<change object> information page", Processes or Process History]
+        where: ["<promotion request or change object> information page", Process tab]
         md: |
-          Open the promotion request or change object that is moving the bracket. Look for an area
-          that lists **processes** or routing history. It shows which activities are done, which
-          are open and who holds them. Names of this area differ between releases and setups.
+          Open the promotion request or change object that is moving the bracket and click its
+          **Process** tab. The **Process Status** table lists the tasks, done and open; the
+          **Routing/Process History** table shows the process itself.
       - title: Open the graphical view
-        where: ["<process>", Process Manager or View Process]
-        md: If you have access, open the process in the **[[process-manager|Process Manager]]** view. It draws the workflow and colours the activity that is running now.
+        where: [Process tab, Routing/Process History, workflow process manager]
+        md: Administrators can open the **[[process-manager|Process Manager]]** from the Routing/Process History table. It draws the workflow; the running node is green, completed nodes light grey and nodes not yet reached white.
     result: You can say where the object is (state) and what it is waiting for (open activity and owner).
 
   - type: callout
     variant: note
     md: |
-      Who wires the two together? An administrator. The life cycle template can name which
-      workflow runs for a phase or a state, and change objects get their own workflow templates. In
-      most companies object initialization rules decide which life cycle a new object gets. You
-      don't need to build any of this as a user. You just need to read it.
+      Who wires the two together? An administrator. Object initialization rules decide which life
+      cycle template a new object gets. A **basic** life cycle moves only through transitions; an
+      **advanced** one can start a workflow in the phase or gate of a state. Most parts and
+      documents use basic life cycles and get their workflow from a promotion request or change
+      object instead. You don't need to build any of this as a user. You just need to read it.
 
   - type: callout
     variant: pitfall
@@ -268,25 +280,25 @@ blocks:
         prompt: You can't edit SC-1048 because it is **Under Review**. Which engine is stopping you?
         options: [The workflow, The life cycle (state-based access rules), The vault, Your workspace]
         answer: 1
-        explanation: Access to edit is usually tied to the state. Under Review locks editing in many setups. The workflow may have set that state, but the block itself comes from the life cycle and its access rules.
+        explanation: Access to edit is usually tied to the state - life cycles are one of the ways access is granted. The workflow may have set that state, but the block itself comes from the state's access rules.
       - kind: single
         prompt: "Which one decides that Kai, not Priya, gets the approval task?"
         options: [The life cycle template, The workflow (its activity and role assignment), The object's revision, The folder]
         answer: 1
-        explanation: Workflows assign activities to roles or people. The life cycle knows nothing about who must review.
+        explanation: An assigned activity's Participants tab names the users, groups, roles or actors who get the task. Roles are then resolved to people through teams.
       - kind: multi
         prompt: Which belong to a **workflow template**? (Choose all that apply.)
         options: [Activities, Robots, States such as Released, Links and connectors]
         answers: [0, 1, 3]
-        explanation: States belong to the life cycle template. A workflow is made of activities, robots, connectors and the links that join them.
+        explanation: States belong to the life cycle template. A workflow is made of activity, robot, connector and terminal nodes and the links that join them.
       - kind: truefalse
         prompt: Every versioned part has a life cycle state, even when no workflow is running on it.
         answer: true
-        explanation: State is always there. Workflows come and go - they start, run and complete.
+        explanation: State is always there. Workflows come and go - they start, run and end.
 
   - type: summary
     points:
       - The life cycle is the stations - states and allowed transitions. It answers "where is it?"
       - The workflow is the crew - activities, tasks, robots and routing. It answers "who does what next?"
-      - Workflows often move objects through states using set state robots.
+      - Workflows often move objects through states using Set State robots.
       - Can't edit? Check the state. Nothing happening? Check the process and its open task.

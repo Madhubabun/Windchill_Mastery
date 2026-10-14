@@ -1,8 +1,33 @@
 id: m03-s04-check
 subtitle: Life cycles, workflows, tasks, votes and stuck processes - prove you can keep change moving.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [checkpoint, lifecycle, workflow, routing, delegation]
+sources:
+  - id: ac
+    where: "Module 5: Describe Windchill life cycles; Identify life cycle transition types; Describe workflow templates; Define assigned activities; Add connectors and terminals to a workflow; Use robots to automate tasks; Define workflow template properties (Responsible Role). Module 2: deleting users and groups (tasks go to the responsible role)"
+  - id: te
+    where: "Module 2: Tasks and the My Tasks table. Module 6: Activity: Create and approve a promotion request (Process tab)"
+  - id: hc-my-tasks-actions
+    label: PTC Help Center supplement
+    title: "Actions on the My Tasks Table"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/assignments/AssignmentsMyTasksTableRef.html"
+    covers: "Accept on Any and All activities; Reassign"
+  - id: hc-voting-example
+    label: PTC Help Center supplement
+    title: "Voting Example: Three Events"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/workflow/WFEventRoute3.html"
+    covers: "Tally methods any and all"
+  - id: hc-process-manager-node-display
+    label: PTC Help Center supplement
+    title: "Process Manager Node Display"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wfprocessmgr/WFProcessMgrProcessStatusAbout.html"
+    covers: "Node colours; Restart Aborted Activity"
+  - id: hc-delegate-work
+    label: PTC Help Center supplement
+    title: "Delegate Work"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/calendar/CalDelegWork.html"
+    covers: "Calendar delegation when enabled by site administrators"
 
 blocks:
   - type: text
@@ -24,31 +49,31 @@ blocks:
           - Ana must have lost her license
           - The vault is locked
         answer: 1
-        explanation: Editing rights are usually tied to the life cycle state. Under Review locks edits on purpose while a review runs. Nothing is broken.
+        explanation: Editing rights are usually tied to the life cycle state. At Acme, Under Review blocks edits on purpose while a review runs. Nothing is broken.
       - kind: multi
         prompt: Which of these are parts of a **life cycle template**? (Choose all that apply.)
-        options: [States such as In Work and Released, Transitions such as promote and demote, Routing options such as Approve, Assigned activities]
+        options: [States such as In Work and Released, Transitions such as Promote and Revise, Routing options such as Approve, Assigned activities]
         answers: [0, 1]
         explanation: The life cycle holds states and allowed transitions. Routing options and activities belong to workflow templates.
       - kind: single
         prompt: How does a workflow usually move an object to Released at the end of an approval?
-        options: [The approver edits the state field by hand, A set state robot asks the life cycle to change the state, The object revises itself, The CAD tool does it on check-in]
+        options: [The approver edits the state field by hand, A Set State robot changes the object's state, The object revises itself, The CAD tool does it on check-in]
         answer: 1
-        explanation: Robots are automatic workflow steps. A set state robot is the bridge between the workflow engine and the life cycle engine.
+        explanation: Robots are automatic workflow steps, and setting the life cycle state is their most common job. A Set State robot is the bridge between the workflow and the life cycle.
       - kind: order
         prompt: Leo gets a shared review task for CN-0451. Put his steps in order.
-        items: [Open it from Home → My Tasks, Accept it so Ana knows it's taken, Open the change notice and affected objects, Choose a routing option and comment, Complete Task]
-        explanation: Find it, claim it if it's shared, review the real objects, decide with a comment, then complete to move the process on.
+        items: [Open it from the My Tasks table, Accept it so Ana's copy is removed, Open the change notice and its objects, Choose a routing option and comment, Complete Task]
+        explanation: Find it, accept it if it's shared on an Any activity, review the real objects, decide with a comment, then complete to move the process on.
       - kind: single
         prompt: Priya is assigned a review task but has no time this week. Ana holds the same role. What's the best move?
         options: [Ignore it until next week, Approve without looking, Reassign it to Ana with a comment, Ask Ana to log in as Priya]
         answer: 2
-        explanation: Reassigning keeps the process moving and records who acted. Approving blind or sharing logins corrupts the audit trail.
+        explanation: Reassigning (with a reason for reassignment) keeps the process moving and records who acted. Approving blind or sharing logins corrupts the audit trail.
       - kind: single
-        prompt: The CCB activity on CR-0450 uses "all must approve". Maya and Leo approve; Ana hasn't voted yet. What happens?
+        prompt: The CCB activity on CR-0450 uses an "all" tally - Approve wins only if everyone picks it. Maya and Leo approve; Ana hasn't voted yet. What happens?
         options: [It routes to approved, It routes to rework, It keeps waiting for Ana's vote, It cancels the change]
         answer: 2
-        explanation: A voting activity routes only when its tally rule can be decided. With "all must approve", it needs Ana's vote.
+        explanation: A voting activity routes once the votes can be tallied. With an "all" tally, it needs Ana's vote.
       - kind: truefalse
         prompt: Conditional routing picks the next path from a rule, without anyone choosing an option.
         answer: true
@@ -57,25 +82,25 @@ blocks:
         prompt: Kai goes hiking for two weeks with open tasks. Which actions keep the process honest and moving? (Choose all that apply.)
         options:
           - Reassign his tasks to a qualified colleague with a comment
-          - Set a delegate or out-of-office option if his setup has one
+          - Delegate his calendar days, if the site has enabled delegation
           - Share his password with Priya
           - Ask for a backup to be added to his team role
         answers: [0, 1, 3]
         explanation: Reassigning, delegating and adding role backups all keep a clean record. Shared logins break it.
       - kind: single
-        prompt: All human tasks on CN-0451 are done, but SC-1048.drw is still Under Review. The drawing is checked out to Priya. What's the right fix?
+        prompt: All human tasks on CN-0451 are done, but SC-1048.drw is still Under Review. The Process Manager shows the Set State robot node in red (aborted). What's the right fix?
         options:
-          - Restart the whole process
-          - Priya checks it in, then an admin retries the failed step
+          - Terminate the whole process and start again
+          - Send an admin the details so they can fix the cause and restart the aborted activity
           - Set the drawing to Released by hand
           - Wait - it will sort itself out
         answer: 1
-        explanation: A checked-out object often makes a set state robot fail. Fix the data, then ask an admin to retry the step with a precise ticket.
+        explanation: An aborted activity stays aborted. An admin with the right permissions fixes the cause and uses Restart Aborted Activity - your precise ticket makes that fast.
       - kind: single
         prompt: Thirty promotion requests are all stuck at the same review activity. What's the most likely cause?
         options: [Thirty lazy reviewers, The review role on the team is empty or points to someone who left, The vault is full, Each request has a typo]
         answer: 1
-        explanation: Many stalls at one step point to the setup behind that step, usually team roles. Fixing the role and reassigning clears them all.
+        explanation: Many stalls at one step point to the setup behind that step, usually team roles. Tasks nobody can take go to the workflow's Responsible Role. Fixing the role and reassigning clears them all.
 
   - type: flashcards
     title: Lifecycle and workflow deck
@@ -83,24 +108,24 @@ blocks:
       - front: "Life cycle vs workflow"
         back: "Life cycle = where an object is (states). Workflow = who does what next (activities and tasks)."
       - front: "Life cycle template"
-        back: "Admin-defined states and the transitions allowed between them."
+        back: "Admin-defined states (phase + gate) and the transitions allowed between them, such as Promote, Lock, Revise and Set State."
       - front: "Workflow template"
-        back: "The process recipe. Each run creates a process instance from it."
+        back: "The process recipe: activity, connector, robot and terminal nodes joined by links. Each run creates a process instance."
       - front: "Assigned activity"
         back: "A workflow step that creates tasks for people and waits for them."
       - front: "Robot"
         back: "An automatic workflow step, such as set state, notify or timer."
       - front: "Work item"
-        back: "The task in your list. Accept (if shared), review, choose an option, Complete Task."
+        back: "The task in your My Tasks table. Accept (if shared), review, choose an option, Complete Task."
       - front: "Routing"
         back: "How the workflow picks its next path - manual, voting (tally) or conditional."
       - front: "Tally rule"
-        back: "How votes combine, for example all must approve or any reject sends it back."
+        back: "How votes combine - for example any, all, percent, number or plurality."
       - front: "Delegation"
-        back: "A stand-in acts on your tasks while you're away - by reassigning or an out-of-office setting."
+        back: "A stand-in acts for you while you're away - by reassigning tasks or delegating calendar days (if enabled)."
       - front: "Process Manager"
-        back: "The graphical view of a running process. Shows which activity it's waiting on."
+        back: "The graphical view of a process. Green = running, grey = done, white = not started, orange/red = failed or aborted."
       - front: "Five reasons a workflow stalls"
-        back: "Busy person, empty role, waiting parallel branch, failed robot, object not ready (e.g. checked out)."
+        back: "Busy person, empty role, waiting parallel branch (And connector), failed robot, a life cycle with no allowed transition."
       - front: "When to call the admin"
-        back: "Failed robots, retries, restarts or terminations, and fixing roles in bulk."
+        back: "Aborted robots (Restart Aborted Activity), suspends or terminations, life cycle fixes and fixing roles in bulk."

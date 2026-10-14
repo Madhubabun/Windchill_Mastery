@@ -1,8 +1,15 @@
 id: m03-s02-l01
 subtitle: '"It''s broken" is a complaint. A good problem report is a case file.'
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [change, problem-report, evidence, affected-objects]
+sources:
+  - id: te
+    where: "Module 2: Activity: Explore the Windchill user interface (Navigate changes: Issues and Variances tables); Module 6: OOTB change management process: steps; Change management process: Identify Need; Activity: Create a problem report; Activity: Analyze a problem report"
+  - id: ac
+    where: "Appendix B: Describe the out-of-the-box change objects data model; Describe the problem report life cycle and workflow; Configure change management preferences and administration (Affected End Items Display)"
+  - id: trn-cm-itc
+    where: "Intro to the change process: Creating problem reports (set attributes, affected end items, affected objects, attachments) - used only where the 13.x course manual agrees"
 
 blocks:
   - type: text
@@ -26,7 +33,7 @@ blocks:
       - "the things that have the problem" → *[[affected-object|affected objects]]*, for example SC-1048 A.2
       - "the products customers actually have" → *affected end items*, for example the Scooter S2
       - "photos, test data, field notes" → *evidence*, stored as [[attachment|attachments]]
-      - "the person who triages incoming reports" → *[[change-administrator]]*
+      - "the person who triages incoming reports" → *Change Admin I*, one of the [[change-administrator|change administrator]] roles
 
   - type: diagram
     title: Anatomy of a strong problem report
@@ -75,8 +82,10 @@ blocks:
           w: 200
           tone: warning
           detail: |
-            Is anyone at risk? Is a line stopped? Priority and a **need date** help the change
-            administrator decide what gets looked at first. Safety issues jump the queue.
+            Is anyone at risk? Is a line stopped? The **Priority**, **Need Date** and **Category**
+            fields (for example *Design Issue*) help Change Admin I decide what gets looked at first.
+            The **Requester** field says who raised it - which can be someone outside Windchill, like
+            a customer.
         - id: affected
           label: Affected objects
           sublabel: SC-1048 A.2
@@ -96,7 +105,8 @@ blocks:
           tone: danger
           detail: |
             The sellable products that contain the bad part. This tells the business how big the
-            blast radius is. Many configurations have a separate table for this.
+            blast radius is. The wizard shows an **Affected End Items** table when the administrator
+            has the *Affected End Items Display* preference set to Yes.
         - id: evidence
           label: Evidence
           sublabel: photos, data, logs
@@ -141,8 +151,8 @@ blocks:
 
   - type: walkthrough
     title: Create a problem report from the part
-    who: Any user allowed to report problems (often everyone with read access to the product)
-    where: ["<affected part> information page", Actions, New Problem Report]
+    who: Any user - in the out-of-the-box process, all users can create problem reports
+    where: ["<affected part> information page", Actions, New, New Problem Report]
     steps:
       - title: Find the part with the problem
         where: [Search, SC-1048]
@@ -150,110 +160,118 @@ blocks:
           Search for the part number and open its [[information-page]]. Check the version: are
           you looking at the one actually in the field (here A.2, Released)?
       - title: Start a new problem report
-        where: [Information page, Actions menu, New Problem Report]
+        where: [Information page, Actions, New, New Problem Report]
         md: |
-          Starting from the part usually pre-fills it as an affected object. You can also start
-          from a product's **Changes** area or a "New Problem Report" action in the change area of
-          your product. The exact place depends on your release and configuration.
+          Click **Actions**, point to **New** and choose **New Problem Report**. Because you started
+          from the part, it is already selected as the affected object.
       - title: Fill in the facts
         where: [New Problem Report, attributes step]
         md: |
-          Enter the **name** (your title), **description**, **priority**, **need date** and any
-          category or source fields your company added. Keep facts and suspected causes separate.
+          Enter the **Name** (your title), the **Requester**, the **Category**, the **Priority**, the
+          **Need Date** and the **Description**. Keep facts and suspected causes separate.
+      - title: Check affected end items and objects
+        where: [New Problem Report, Affected End Items, Affected Objects]
+        md: |
+          Add the **Scooter S2** as an affected end item if your wizard shows that table. Confirm
+          SC-1048 A.2 is in the affected objects. Add other parts only if they really have the problem.
       - title: Attach the evidence
-        where: [New Problem Report, attachments step]
+        where: [New Problem Report, Set Attachments]
         md: Upload photos, measurements and logs. Name files so they make sense later, like `SC-1048_pinhole_serial-S2-0417.jpg`.
-      - title: Check affected objects and end items
-        where: [New Problem Report, affected objects step]
+      - title: Link related changes
+        where: [New Problem Report, Select Associations]
         md: |
-          Confirm SC-1048 A.2 is listed. Add the **Scooter S2** as an affected end item if your
-          form has that table. Add other parts only if they really have the problem.
+          If a related change object exists, link it. **Associated Process Objects** take part in
+          closing the process together; **Associated Reference Objects** are just references.
       - title: Submit
-        where: [New Problem Report, Finish]
+        where: [New Problem Report, Finish, Submit Now]
         md: |
-          Click **Finish**. The PR gets its number (PR-0101) and its workflow starts. Usually a
-          [[change-administrator]] receives a task to review it.
+          Click **Finish**, then **Submit Now**. The PR gets its number (PR-0101), its state becomes
+          **Under Review**, and the users in the **Change Admin I** role get an **Analyze Problem
+          Report** task.
     result: PR-0101 exists, it is linked to SC-1048, and it appears on the part's Changes tab for everyone to see.
 
   - type: simulation
     title: Build PR-0101 until triage accepts it
     intro: |
-      You're Sam. Build the problem report, submit it and see what the change administrator does
+      You're Sam. Build the problem report, submit it and see what Maya, the Change Admin I, does
       with it. In this sandbox the form won't let you submit until the report has a **clear
-      title**, **evidence** and an **affected object** - just like a strict change admin.
+      title**, **evidence** and an **affected object** - just like a strict change admin. Real
+      Windchill doesn't enforce those rules for you.
     headline: "PR-0101 · {state} · title: {title} · evidence: {evidence} · affected: {affected}"
-    initial: { state: Draft, title: none, evidence: none, affected: none }
+    initial: { state: Open, title: none, evidence: none, affected: none }
     actions:
       - id: vague
         label: 'Title it "Scooter broken"'
-        when: { state: Draft }
+        when: { state: Open }
         do: [{ set: { title: vague } }]
         log: 'Title set to "Scooter broken". Search for "fold-lock" won''t ever find this.'
-        blockedHint: You can only edit the report while it's a draft.
+        blockedHint: You can only edit the report before it's submitted.
       - id: clear
         label: Write a specific title
-        when: { state: Draft }
+        when: { state: Open }
         do: [{ set: { title: clear } }]
         log: 'Title set to "Fold-lock pin hole elongates on SC-1048 after approx. 400 folds".'
-        blockedHint: You can only edit the report while it's a draft.
+        blockedHint: You can only edit the report before it's submitted.
       - id: photos
         label: Attach photos + caliper data
-        when: { state: Draft }
+        when: { state: Open }
         do: [{ set: { evidence: attached } }]
         log: Three photos and a measurement sheet are attached. Nobody has to drive to the depot to see it.
-        blockedHint: You can only edit the report while it's a draft.
+        blockedHint: You can only edit the report before it's submitted.
       - id: addpart
         label: Add SC-1048 A.2 as affected
-        when: { state: Draft }
+        when: { state: Open }
         do: [{ set: { affected: SC-1048 A.2 } }]
         log: SC-1048 A.2 is now an affected object. The PR shows up on the bracket's Changes tab.
-        blockedHint: You can only edit the report while it's a draft.
+        blockedHint: You can only edit the report before it's submitted.
       - id: submit
         label: Submit
-        when: { state: Draft, title: clear, evidence: attached, affected: SC-1048 A.2 }
+        when: { state: Open, title: clear, evidence: attached, affected: SC-1048 A.2 }
         do: [{ set: { state: Under Review } }]
-        log: PR-0101 submitted. Maya, the change administrator, gets a review task in her inbox.
+        log: PR-0101 submitted and Under Review. Maya, in the Change Admin I role, gets an Analyze Problem Report task.
         blockedHint: Not ready. You need a specific title, evidence and an affected object.
       - id: sendback
         label: "Maya: send back for more info"
         when: { state: Under Review }
-        do: [{ set: { state: Draft } }]
-        log: Maya returned it with a comment asking for the scooter serial numbers. Back to Draft.
+        do: [{ set: { state: Open } }]
+        log: Maya sent it back to the author asking for the scooter serial numbers. Back to you for clarification.
         blockedHint: Maya can only act on a submitted report.
       - id: accept
-        label: "Maya: accept and raise a CR"
+        label: "Maya: confirm the problem"
         when: { state: Under Review }
         do: [{ set: { state: Accepted } }]
-        log: Accepted. Maya links PR-0101 to a new change request so engineering can work out a fix.
+        log: Confirmed. PR-0101 is Accepted and ready for a change request, so engineering can work out a fix.
         blockedHint: Maya can only act on a submitted report.
       - id: reset
         label: Start a fresh report
         when: { state: Accepted }
-        do: [{ set: { state: Draft, title: none, evidence: none, affected: none } }]
+        do: [{ set: { state: Open, title: none, evidence: none, affected: none } }]
         log: New empty draft. Try building it in a different order.
         blockedHint: Finish the current report first.
     goals:
       - label: Get PR-0101 submitted
         when: { state: Under Review }
-        message: Complete reports get through the door. Vague ones stay drafts.
+        message: Complete reports get through the door. Vague ones never leave your desk.
       - label: Get PR-0101 accepted
         when: { state: Accepted }
-        message: Accepted PRs feed a change request - the next lesson.
+        message: Confirmed PRs feed a change request - the next lesson.
 
   - type: callout
     variant: note
     md: |
-      What happens after triage **depends on your company's configuration**. Common outcomes:
-      accept and raise a [[change-request]], merge it into an existing PR that describes the same
-      issue, or close it with a reason (not a real problem, user error, already fixed). Some
-      companies skip the PR entirely for internal ideas and start straight at the CR.
+      In the out-of-the-box process, Change Admin I can **confirm** the report (it moves to
+      Accepted and is ready for a [[change-request]]), **reject** it, or **send it back** to the
+      author for clarification. A rejected or duplicate report is closed, and the author gets an
+      email with the reason. Problem reports are optional: an issue can also start straight in a
+      change request or change notice. Your company may have changed these steps.
 
   - type: callout
     variant: pitfall
     md: |
       **Duplicate PRs.** Ten service techs each report the same wobble, so the change admin gets
-      ten PRs. Before you create one, open the part's **Changes** tab and look for an open PR on
-      the same issue. If there is one, add your evidence to it (or comment) instead.
+      ten PRs. Before you create one, open the part's **Changes** tab (or **Browse** > **Changes** >
+      **Issues** with *All Open*) and look for an open PR on the same issue. If there is one, send
+      your evidence to its author or the Change Admin I instead.
 
   - type: callout
     variant: pro-tip
@@ -288,7 +306,7 @@ blocks:
         prompt: You're about to report the wobble and you see an open PR for the same issue on SC-1048. What's best?
         options:
           - Create your own PR anyway so your name is on it
-          - Add your evidence to the existing PR or comment on it
+          - Send your evidence to the existing PR's author or the Change Admin I
           - Ignore it, someone else is handling it
           - Start a change notice yourself
         answer: 1
@@ -299,4 +317,4 @@ blocks:
       - A problem report captures what's wrong - not how to fix it.
       - Strong PRs have a specific title, facts, priority, evidence and affected objects.
       - Linking the affected part makes the issue visible on the part's Changes tab.
-      - A change administrator triages the PR; what happens next depends on your configuration.
+      - Change Admin I confirms, rejects or sends back the PR; your company may have changed these steps.

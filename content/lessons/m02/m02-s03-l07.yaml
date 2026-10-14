@@ -1,8 +1,13 @@
 id: m02-s03-l07
 subtitle: Reusing a part saves money - until you change it. Where-used tells you who you're about to surprise.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [bom, where-used, reuse, impact, change]
+sources:
+  - id: te
+    where: "Module 2: Activity exploring a part's information page (Where Used tab lists parents from the immediate parent up to the highest-level assemblies, to see the impact of design changes on end items; CAD document Related Objects > Where Used table); Module 5: Describe product structures (end items); Create a BOM: techniques (Save As); Create baselines"
+  - id: trn-pdmlink
+    where: "04 Parts and Product Structure: uses links a parent version to the child's master; used-by relationship and the Where Used table for impact analysis"
 
 blocks:
   - type: text
@@ -20,9 +25,9 @@ blocks:
       **Plain words → official term**
       - "who uses this part?" → *[[where-used|where-used]]*
       - "just the direct parents" → *single-level where-used*
-      - "all the way up to the products we sell" → *multi-level where-used* (up to the *end items*)
+      - "all the way up to the products we sell" → *multi-level where-used* (up to the *end items*, the finished products)
       - "what a change will touch" → *impact* (the parents become candidate [[affected-object|affected objects]])
-      - "still fits, still works, same job" → *interchangeable* (often called *form, fit and function*)
+      - "still fits, still works, same job" → *interchangeable* (general PLM term, often *form, fit and function*)
 
   - type: animation
     title: Looking up the tree from one hinge
@@ -60,7 +65,7 @@ blocks:
         flow: [hinge>frame, hinge>fold, hinge>s3frame]
         seconds: 7
       - title: All the way to the end items
-        caption: A **multi-level** where-used climbs to the products. Two are released and selling; one is a prototype. Three product teams, three opinions.
+        caption: Expanding the **Where Used** table climbs to the products. Two are released and selling; one is a prototype. Three product teams, three opinions.
         highlight: [s2, e1, s3]
         flow: [frame>s2, fold>e1, s3frame>s3]
         seconds: 7
@@ -70,7 +75,7 @@ blocks:
         seconds: 8
 
   - type: comparison
-    title: Revise the shared part, or give the change a new number?
+    title: Revise the shared part, or give the change a new number? (general PLM practice)
     columns: [Revise the same part, New part number]
     rows:
       - { label: When, cells: ["The change is interchangeable - fits and works everywhere", Some parent can't take the change] }
@@ -83,14 +88,14 @@ blocks:
     variant: why-it-matters
     md: |
       Uses links point to a child's **master**, so a new revision of a shared part shows up in every
-      parent that views *Latest* - across products, teams and sometimes sites. Released baselines
-      keep the old revision, which protects history, but the *next* build of every product is
-      affected. A five-minute where-used beats a recall.
+      parent that views *Latest* - across products, teams and sometimes sites. A baseline holds one
+      exact version of each part, so baselined history keeps the old revision, but the *next* build
+      of every product is affected. A five-minute where-used beats a recall.
 
   - type: walkthrough
     title: Run a where-used query
     who: Anyone with read access to the part
-    where: ["<part> information page", Where Used]
+    where: ["<part> information page", Where Used tab]
     steps:
       - title: Open the part
         where: [Search, "SC-1042", Information page]
@@ -98,27 +103,24 @@ blocks:
       - title: Open where-used
         where: ["SC-1042 information page", Where Used tab]
         md: |
-          Choose the **Where Used** tab (in some releases it sits under a Structure or Related
-          Objects area). You'll see the parts whose structures use this part.
-      - title: Choose levels and versions
-        where: [Where Used, levels / filter]
+          Click the **Where Used** tab. Its table starts at the part and lists the assemblies that
+          use it.
+      - title: Climb to the end items
+        where: [Where Used tab, expand nodes]
         md: |
-          Expand parents to climb level by level, or use the expand-all or multi-level option to
-          reach the end items. A filter decides whether you see only the latest versions of the
-          parents or every version that ever used the part. Labels vary by release.
-      - title: Add useful columns
-        where: [Where Used, Columns / view settings]
-        md: Show **State**, **Context** (which product) and **Version**. Released parents in other products are the ones to worry about most.
-      - title: Get a report or export
-        where: ["SC-1042 information page", Actions, Reports]
-        md: |
-          For a shareable list, run a where-used report from the part's reports (often a multi-level
-          where-used report), or export the table. Attach it to your change request.
+          Expand the nodes. The table goes from the immediate parent assembly all the way up to the
+          highest-level assemblies - for SC-1042, the three frames and then the products.
+      - title: Note what's live
+        where: [Where Used tab, "<parent>", information page]
+        md: Open the parents that matter and note their **version** and **state**. Released parents in other products are the ones to worry about most.
+      - title: Share the result
+        where: [Change request, description or attachments]
+        md: Record the list of affected assemblies and end items in your change request, so reviewers see the full impact.
     result: You know every assembly and product that uses SC-1042, with their states - your impact list.
 
   - type: callout
     variant: note
-    md: CAD documents have their own where-used, showing which CAD assemblies and drawings reference a model. Check both when a change touches geometry.
+    md: CAD documents have their own where-used too - the **Where Used** table on the CAD document's **Related Objects** tab shows which CAD assemblies it is a member of. Check both when a change touches geometry.
 
   - type: simulation
     title: Impact check before the change
@@ -200,7 +202,7 @@ blocks:
   - type: callout
     variant: pitfall
     md: |
-      **Running only a single-level where-used.** The direct parent might be an Acme sub-assembly you
+      **Looking only at the direct parents.** The direct parent might be an Acme sub-assembly you
       know well - while three levels up sits a released product from another team. Always climb to the
       end items before judging impact.
 

@@ -1,8 +1,15 @@
 id: m02-s02-l03
 subtitle: In Work, Under Review, Released - each state is a promise about who can touch the data and who can trust it.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [lifecycle, states, access, release]
+sources:
+  - id: te
+    where: "Module 2: Identify how access is controlled (lifecycles grant access). Module 3: Activity: Explore and create documents (OOTB states In Work, Released, Canceled; History tab). Module 5: Set State activities (Released, Under Review). Module 6: Activity: Create and approve a promotion request (state shown on the information page)"
+  - id: ac
+    where: "Describe Windchill life cycles; Identify life cycle types; Create a basic life cycle template: example (In Work, Rework, Under Review, Released, Obsolete); Identify life cycle transition types; Define a version series (Design, Prototype, Released example)"
+  - id: pf
+    where: "Explore and refine business configurations: life cycle transitions (OOTB change review keeps objects In Work; Under Review added by configuration); Canceled state for obsolete documents"
 
 blocks:
   - type: text
@@ -15,8 +22,10 @@ blocks:
       - **Handed in** - the teacher is marking it; you shouldn't be editing it now.
       - **Graded** - it's final and on your record. Want to improve it? Write a new version.
 
-      Windchill objects travel the same road. The usual names are **In Work → Under Review →
-      Released**, and later **Obsolete** when nobody should use it any more.
+      Windchill objects travel the same road. Out of the box Windchill ships with **In Work**,
+      **Released** and **Canceled**; most companies add their own states. A typical template - the
+      one this lesson uses - runs **In Work → Under Review → Released**, and later **Obsolete**
+      when nobody should use it any more.
 
   - type: callout
     variant: terms
@@ -25,7 +34,7 @@ blocks:
       - "where it is on its journey" → *[[lifecycle-state|lifecycle state]]*
       - "the map of possible stops and roads" → *[[life-cycle|life cycle template]]*
       - "draft" → *In Work* · "being checked" → *Under Review* · "approved, build it" → *Released*
-      - "retired - don't use in new designs" → *Obsolete* (some companies also use *Canceled* for designs that never made it)
+      - "retired - don't use in new designs" → *Obsolete* (in a configured template; out of the box, withdrawn data goes to *Canceled*)
 
   - type: animation
     title: The hinge's journey to Released
@@ -50,7 +59,7 @@ blocks:
         show: [inwork]
         highlight: [inwork]
       - title: Hand it in
-        caption: When A.3 looks right, it's submitted for review and moves to **Under Review**. In most setups editing is now blocked so reviewers check a stable design.
+        caption: When A.3 looks right, it's submitted for review and moves to **Under Review**. In this template editing is now blocked so reviewers check a stable design. (Out of the box, Windchill's change review leaves objects In Work - Under Review is something companies add.)
         show: [inwork, review]
         highlight: [review]
         flow: [inwork>review]
@@ -60,7 +69,7 @@ blocks:
         highlight: [inwork]
         flow: [review>inwork]
       - title: Approved
-        caption: This time it passes. **Released** - the factory, purchasing and suppliers may now use it. Normal users can no longer check it out.
+        caption: This time it passes. **Released** - the factory, purchasing and suppliers may now use it. Access rules for this state typically remove modify access, so normal users can no longer check it out.
         show: [inwork, review, released]
         highlight: [released]
         flow: [inwork>review, review>released]
@@ -142,9 +151,9 @@ blocks:
       - { label: Check out and modify, cells: [Yes, No, No, No] }
       - { label: View and download, cells: [Team, Yes, Yes, Yes] }
       - { label: Use in a new design, cells: [Not for production, Wait, Yes, No] }
-      - { label: Revise, cells: [Usually not, No, Yes, Rarely] }
+      - { label: Revise, cells: [Depends on setup, No, Yes, Rarely] }
       - { label: Delete, cells: [Often allowed, No, No, No] }
-    takeaway: Who can do what in each state is set by access rules per state - this table is the common pattern.
+    takeaway: Who can do what in each state is set by your administrator's access rules and life cycle transitions - this table is an illustration of a common pattern, not a Windchill default.
 
   - type: callout
     variant: why-it-matters
@@ -171,16 +180,19 @@ blocks:
     who: Anyone with read access
     steps:
       - title: See the current state
-        where: ["<object> information page", header]
-        md: The **State** appears next to the version in the header and in most search result tables. Add a State column to your table views if it's missing.
-      - title: See the state history
-        where: ["<object> information page", History]
-        md: |
-          The history area shows when each version changed state and who did it. Depending on
-          release it may be called *Life Cycle History* or *Maturity History*.
-      - title: See the possible states
         where: ["<object> information page", Details]
-        md: The details usually name the **life cycle template** the object follows. Your administrator defines which states it contains and how objects may move between them.
+        md: The **state** is shown at the top of the information page and on the **Details** tab. In tables, create a custom table view with a State column if it's missing.
+      - title: See the state history
+        where: ["<object> information page", History, Timeline History]
+        md: |
+          The **Timeline History** on the History tab shows actions on the object over time,
+          including setting a new state.
+      - title: See which moves are allowed
+        where: ["<object> information page", Actions]
+        md: |
+          Transition actions such as **Set State** or **Revise** appear on the Actions menu only
+          where the object's life cycle template defines a path from its current state - and your
+          access allows it. Your administrator defines the template's states and transitions.
     result: You know the current state, how the object got there and which states it can move to.
 
   - type: scenario
@@ -224,9 +236,9 @@ blocks:
   - type: callout
     variant: pitfall
     md: |
-      **Assuming every company uses the same states.** Some add *Prototype* and *Production*,
-      some use *Design* or *Concept* instead of In Work, some have different templates for
-      documents and parts. Learn **your** company's templates before your first release.
+      **Assuming every company uses the same states.** Some add *Prototype* or *Rework*, some use
+      *Design* instead of In Work, some have different templates for documents and parts. Learn
+      **your** company's templates before your first release.
 
   - type: callout
     variant: pro-tip
@@ -246,7 +258,7 @@ blocks:
       - front: "Obsolete"
         back: "Retired. Kept for history and service, not for new designs."
       - front: "Life cycle template"
-        back: "The admin-defined map of states and allowed moves between them."
+        back: "The admin-defined map of states and the transitions (allowed moves) between them."
       - front: "Does state belong to the object or the version?"
         back: "The version. A.4 can be Released while B.1 is In Work."
 
@@ -269,7 +281,7 @@ blocks:
 
   - type: summary
     points:
-      - States show maturity - In Work, Under Review, Released, Obsolete are the common ones.
+      - "States show maturity. Out of the box: In Work, Released, Canceled; a typical company template adds Under Review and Obsolete."
       - Each state decides what you can do through access rules set by your company.
       - Released data is changed by revising, never by editing in place.
       - State belongs to each version, so different revisions can be in different states.

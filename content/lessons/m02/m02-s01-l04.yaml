@@ -1,8 +1,28 @@
 id: m02-s01-l04
 subtitle: Creo talks to Windchill natively. Everyone else brings a translator.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [cad, creo, workgroup-manager, embedded-browser, cad-document]
+sources:
+  - id: te
+    where: "Module 4: Manage CAD data in Windchill: overview; Describe the CAD-centric approach; Explore the Creo CAD integration user interface; Register a Windchill server with your CAD tool; Use workspaces to manage CAD data: overview; Activity: Register a Windchill server in Creo and create a workspace"
+  - id: ac
+    where: "Perform Workgroup Manager maintenance tasks (common framework for CAD applications, workspace cache, Tools > Server Management)"
+  - id: hc-wgm-ui
+    label: PTC Help Center supplement
+    title: "Getting Familiar with the Windchill Workgroup Manager User Interface"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WWGMIntroduction/WWGMGeneric_GS_GetFamiliar.html"
+    covers: "Workgroup Manager window areas (navigators, embedded browser, message area); the embedded browser is what connects the CAD application to the Windchill server; once connected, Windchill adds data management actions such as Check In and Check Out to the CAD application and changes Open and Save"
+  - id: hc-wgm-cache-nx
+    label: PTC Help Center supplement
+    title: "Managing Cache (NX)"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WWGMforNX/WWGMNXAdvTechManageCache.html"
+    covers: "Windchill Workgroup Manager documentation exists for NX (alongside the CATIA V5 and Autodesk Inventor pages of the same name), confirming these CAD tools connect through Workgroup Manager"
+  - id: hc-cad-naming
+    label: PTC Help Center supplement
+    title: "Policy-Managed Naming and Numbering"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/ProEWCInteg/ProEWCIntegCustObjNameNumberManagePolicy.html"
+    covers: "A CAD document's Number and File Name must both be unique within the Windchill site"
 
 blocks:
   - type: text
@@ -50,9 +70,9 @@ blocks:
           w: 200
           tone: primary
           detail: |
-            Creo has the Windchill connection built in. Its **embedded browser** shows Windchill pages
-            (workspace, search, information pages) inside the Creo window. You register a Windchill
-            server once, pick a workspace and work.
+            Creo has the Windchill connection built in. Its **embedded browser** (the Creo Parametric
+            browser) shows Windchill pages - workspace, commonspace, information pages - inside the
+            Creo window. You register a Windchill server once, pick a workspace and work.
         - id: other
           label: SOLIDWORKS / NX ...
           sublabel: other CAD tools
@@ -61,8 +81,8 @@ blocks:
           w: 200
           tone: accent
           detail: |
-            Third-party CAD tools don't know Windchill natively. They get a Windchill add-in menu, and
-            the heavy lifting is done by the Workgroup Manager client.
+            Third-party CAD tools need the Workgroup Manager application to connect to Windchill.
+            Once connected, Windchill adds actions such as Check In and Check Out to the CAD tool.
         - id: wgm
           label: Workgroup Manager
           sublabel: separate client
@@ -71,9 +91,10 @@ blocks:
           w: 200
           tone: accent
           detail: |
-            A separate Windchill client application with its own window and embedded browser. It
-            reads the CAD tool's files and links and handles check-in, check-out and downloads.
-          real: Recent releases use one unified Windchill Workgroup Manager client for many CAD tools. Older setups had a separate one per tool.
+            A separate Windchill client application with its own window: navigators, an embedded
+            browser that shows Windchill pages and a message area. The embedded browser is what
+            connects the CAD tool to the Windchill server.
+          real: PTC describes Windchill Workgroup Manager as one common framework that integrates Windchill with various CAD applications.
         - id: cache
           label: Local cache
           sublabel: workspace files on disk
@@ -109,9 +130,10 @@ blocks:
           tone: success
           shape: doc
           detail: |
-            Each CAD file becomes one CAD document with a number, a name and a unique **file name**.
-            Dependencies (assembly → components, drawing → model) are stored too, and CAD documents
-            can be associated with [[part|parts]] - automatically at check-in if your company sets it up.
+            Each CAD file becomes one CAD document with a number, a name and a **file name** - number
+            and file name must both be unique in Windchill. Dependencies between components and
+            drawings are stored too, and Windchill can build the matching [[part|part]] structure
+            automatically at check-in (the CAD-centric approach).
       edges:
         - { from: creo, to: cache }
         - { from: other, to: wgm, label: add-in }
@@ -125,15 +147,15 @@ blocks:
     columns: [Creo Parametric, Workgroup Manager]
     rows:
       - label: Used for
-        cells: [PTC Creo Parametric, "SOLIDWORKS, NX, CATIA V5, Inventor, AutoCAD and others"]
+        cells: [PTC Creo Parametric, "For example SOLIDWORKS, CATIA, NX, Inventor, AutoCAD"]
       - label: Extra install
-        cells: [None - built into Creo, The Workgroup Manager client plus its CAD add-in]
+        cells: [None - comes out of the box with Creo, The Workgroup Manager application]
       - label: Windchill pages show in
         cells: [Creo's embedded browser, The client's own window (also an embedded browser)]
       - label: Workspace and local cache
         cells: [Yes, Yes]
       - label: Check in from
-        cells: [Inside Creo, The CAD tool's Windchill menu or the client]
+        cells: [Creo's menus or its embedded browser, The CAD tool's added Windchill actions or the client]
       - label: Result in Windchill
         cells: [CAD documents with dependencies, CAD documents with dependencies]
     takeaway: Different doorways, same room. Workspaces, check-in and CAD documents work the same way.
@@ -142,8 +164,7 @@ blocks:
     variant: why-it-matters
     md: |
       Real companies rarely use one CAD tool. Acme designs the frame in Creo, but its motor supplier
-      sends SOLIDWORKS models and the electronics team works in ECAD tools that have their own
-      Windchill integrations. Integrations let all of it land in **one** place with **one** set of
+      sends SOLIDWORKS models. Integrations let all of it land in **one** place with **one** set of
       versions, states and change processes. Without them, CAD files live on shared drives - and
       nobody knows which `frame_final_v3_REAL.asm` is real.
 
@@ -168,23 +189,26 @@ blocks:
     steps:
       - title: Open Server Management
         where: [Creo, File, Manage Session, Server Management]
-        md: In Creo, open the server management dialog. This is where Windchill servers are registered.
+        md: In Creo, open the **Server Management** window. This is where Windchill servers are registered.
       - title: Register the server
-        where: [Server Management, Servers, Register]
+        where: [Server Management, Server, Register New Server]
         md: |
-          Add a new server: give it a short name and the Windchill URL your IT team provides. Log in
-          when asked.
-      - title: Choose a workspace and make it active
-        where: [Server Management, Workspace]
+          Give the server a short **Name** and paste the Windchill URL your IT team provides into
+          **Location**. Click **Check** and log in with your Windchill user name and password.
+      - title: Choose a workspace
+        where: [Register New Server, Workspaces]
         md: |
-          Pick an existing workspace or create a new one in the right context (for example Scooter
-          S2). Set the server as **active**.
+          A list of workspaces appears - Windchill creates one automatically for each product and
+          library you can access (*Workspace on <name>*). Pick one and click **OK**.
+      - title: Make it the primary server
+        where: [Server Management, "<server>", Set as Primary Server]
+        md: Right-click the server and choose **Set as Primary Server**, then close the window.
       - title: Work from the embedded browser
-        where: [Creo, Embedded browser, Workspace page]
+        where: [Creo, Folder Browser, Workspace]
         md: |
-          Creo's embedded browser now shows your workspace. Open, check out and check in from here
-          or from Creo's Windchill commands. Menu placement varies by Creo release.
-    result: Creo is connected. Files you open and save go through your Windchill workspace.
+          Click **Workspace** in the Folder Browser to see your active workspace in the Creo
+          Parametric browser. Check out and check in from Creo's menus or from the workspace page.
+    result: Creo is connected to its primary server. Files you save go to your workspace's local cache, ready to upload and check in.
 
   - type: walkthrough
     title: Connect another CAD tool through a Workgroup Manager
@@ -192,18 +216,18 @@ blocks:
     steps:
       - title: Start the Workgroup Manager client
         where: [Windchill Workgroup Manager]
-        md: Launch the client from your computer. It has its own window with an embedded browser.
+        md: Launch the client (installed by IT). It has its own window with navigators, an embedded browser and a message area.
       - title: Register the Windchill server
         where: [Workgroup Manager, Tools, Server Management]
-        md: Register the server URL and pick or create a workspace - the same idea as in Creo.
-      - title: Connect your CAD application
-        where: [Workgroup Manager, CAD application setup]
         md: |
-          Point the client at your installed CAD tool so its Windchill add-in is enabled. The exact
-          step name differs by client release and CAD tool.
-      - title: Work from the CAD tool's Windchill menu
-        where: ["<CAD tool>", Windchill menu]
-        md: Open from and save to the workspace, then check in from the CAD tool's Windchill menu or the client.
+          Server Management is where the client's servers and workspace cache are managed. Register
+          the server and pick a workspace - the same idea as in Creo. The exact registration steps
+          for your CAD tool are in its Workgroup Manager guide in the Help Center.
+      - title: Work from the CAD tool
+        where: ["<CAD tool>", Windchill actions]
+        md: |
+          Once your CAD tool is connected, Windchill adds actions such as **Check In** and **Check
+          Out** to it, and Open and Save work with the Windchill workspace.
     result: Your CAD tool is connected. Its files become CAD documents in Windchill with their links intact.
 
   - type: scenario
@@ -250,14 +274,15 @@ blocks:
     md: |
       **Uploading CAD files as plain documents.** Windchill will store them, but it won't know that
       the assembly needs its components or that the drawing shows the model. Always bring CAD in
-      through the CAD integration (or a planned migration tool), never through *New Document*.
+      through the CAD integration (for existing files, *Import to Workspace* - lesson 11), never
+      through *New Document*.
 
   - type: callout
     variant: pro-tip
     md: |
-      CAD document **file names must be unique** in Windchill (for example `sc-2000_frame.asm`).
-      Agree a naming rule with your team before the first check-in - renaming hundreds of files
-      later is painful.
+      CAD document **numbers and file names must be unique** across the whole Windchill site (for
+      example `sc-2000_frame.asm`). Agree a naming rule with your team before the first check-in -
+      renaming hundreds of files later is painful.
 
   - type: quiz
     passMark: 0.7
@@ -270,7 +295,7 @@ blocks:
           - Creo files must be uploaded through the web browser
           - Creo can't use workspaces
         answer: 1
-        explanation: Creo Parametric has the Windchill integration built in, including an embedded browser that shows the workspace and other Windchill pages.
+        explanation: Creo Parametric connects to Windchill out of the box, including an embedded browser that shows the workspace and other Windchill pages. Other CAD tools need the Workgroup Manager.
       - kind: multi
         prompt: What do Creo and a Workgroup Manager have in common? (Choose all that apply.)
         options: [They use a workspace, They keep files in a local cache, They create CAD documents with dependencies, They need a separate client install]
@@ -285,5 +310,5 @@ blocks:
     points:
       - CAD data enters Windchill from the CAD tool, so its dependencies stay intact.
       - Creo Parametric has the integration built in, with an embedded browser.
-      - Other CAD tools connect through a Workgroup Manager client and add-in.
+      - Other CAD tools connect through the Windchill Workgroup Manager application.
       - Both routes use a workspace and local cache and create CAD documents.

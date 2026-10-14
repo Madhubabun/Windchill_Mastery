@@ -1,8 +1,13 @@
 id: m03-s02-l03
 subtitle: The board said yes. Now turn a decision into a plan with names and dates on it.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [change, change-notice, change-task, implementation-plan]
+sources:
+  - id: te
+    where: "Module 6: Change management process: Change Planning; Activity: Create a change notice to address a requested change; Activity: Create a change notice to release product data (Template, Complexity, Sequence); Change management process: Change Implementation; Activity: Implement and approve a change specified in a change notice; Activity: Complete a change notice to release product data (Rework option); Change management process: Review and Audit Change"
+  - id: ac
+    where: "Appendix B: Describe the change notice life cycle and workflow; Describe the change activity/change notice task life cycle and workflow; Configure change management preferences and administration (Optional Review Allowed, Sequenced Plan Execution Order)"
 
 blocks:
   - type: text
@@ -53,12 +58,12 @@ blocks:
         - { from: r3, to: rel }
     chapters:
       - title: The decision arrives
-        caption: CR-0101 is approved. In many setups its workflow gives the **change administrator** a task to create the change notice.
+        caption: CR-0101 is approved. The workflow gives the **Change Admin II** users a **Create New Change Notice** task.
         show: [cr]
         highlight: [cr]
         seconds: 5
       - title: A change notice is born
-        caption: Maya creates **CN-0101** and links it to CR-0101. The CN inherits the "why"; now it needs the "how".
+        caption: Kai, the Change Admin II, creates **CN-0101** from that task, so it is linked to CR-0101. The CN inherits the "why"; now it needs the "how".
         show: [cr, cn]
         highlight: [cn]
         flow: [cr>cn]
@@ -69,17 +74,17 @@ blocks:
         flow: [cn>t1, cn>t2, cn>t3]
         seconds: 7
       - title: Tasks produce new versions
-        caption: Each assignee revises the affected objects. The new versions - **resulting objects** - are linked to the task. They stay In Work while the change is open.
+        caption: While planning, Kai revises each task's affected objects, so the new B versions appear as **resulting objects**. The assignees then edit them. They stay **In Work** while the change is open.
         show: [cr, cn, t1, t2, t3, r1, r2, r3]
         highlight: [r1, r2, r3]
         flow: [t1>r1, t2>r2, t3>r3]
         seconds: 7
       - title: Review each task
-        caption: Each task's reviewer checks the work. A reviewer can send a task back - only that task, not the whole change.
+        caption: Each task's reviewer checks the work. If it isn't acceptable, the reviewer chooses **Rework** and it goes back for fixes.
         highlight: [t1, t2, t3]
         seconds: 6
       - title: Audit and release
-        caption: When every task is done, the CN is audited and resolved. The resulting objects are typically **released together** - so the factory gets bracket, frame BOM and instructions as one set.
+        caption: When every task is done, Leo (Change Admin III) audits CN-0101. Approval **releases the resulting objects together** - so the factory gets bracket, frame BOM and instructions as one set.
         highlight: [rel]
         flow: [r1>rel, r2>rel, r3>rel]
         seconds: 7
@@ -93,79 +98,92 @@ blocks:
       all of it, or none of it.
 
   - type: walkthrough
-    title: Plan CN-0101 (change administrator)
-    who: The change administrator - here Maya
-    where: [Home, My Tasks, "create change notice task"]
+    title: Plan CN-0101 (Change Admin II)
+    who: A member of the Change Admin II role - here Kai
+    where: [Home, My Tasks, Create New Change Notice]
     steps:
-      - title: Start the change notice
-        where: [Home, My Tasks]
+      - title: Start the change notice from your task
+        where: [Home, My Tasks, Create New Change Notice, Actions on Subject, New Change Notice]
         md: |
-          Open the task the approved CR created for you. If your process doesn't create one, open
-          CR-0101 and look in its **Actions** menu for a "New Change Notice" action.
+          Open the **Create New Change Notice** task. In **Actions on Subject**, click the **Actions
+          on Subject** button and choose **New Change Notice**.
       - title: Fill in the header
-        where: [New Change Notice, attributes step]
-        md: Give it a clear name ("Strengthen SC-1048 fold-lock bracket"), a need date and a description that points back to CR-0101.
-      - title: Build the implementation plan
-        where: [Change notice, Implementation Plan or Change Tasks area]
+        where: [New Change Notice, Set Attributes]
         md: |
-          Add one **change task** per chunk of work. For each: a name, an **assignee**, a
-          **reviewer**, a need date, and the affected objects it covers (Task 1 gets SC-1048 A.2
-          and SC-1048.drw).
-      - title: Check coverage
-        where: [Change notice, affected objects summary]
+          Select **Propagate information** to copy the CR's details. Pick a **Template** if your
+          company has one, give it a clear name ("Strengthen SC-1048 fold-lock bracket") and a
+          precise description of the fix. Click **Next**.
+      - title: Add a change task
+        where: [New Change Notice, Implementation Plan, New Change Task]
         md: |
-          Every affected object from the CR should be covered by some task. An orphan affected
-          object means work nobody owns.
-      - title: Submit the plan
-        where: [Task page, Complete Task]
-        md: Complete your task. Depending on configuration, the plan may need approval before the tasks are sent to the assignees.
-    result: CN-0101 has three tasks with owners and dates, and every affected object is covered.
+          Click **New Change Task**, choose the **Change Task** type, and fill in a name, description,
+          **Assignee** (Priya), **Reviewer** (Kai) and **Need Date**.
+      - title: Collect the affected objects
+        where: [New Change Task, Affected Objects]
+        md: |
+          Add SC-1048 by name, then use **Collect affected objects** and **Collect related CAD /
+          Dynamic documents** to pull in its CAD model and drawing.
+      - title: Revise and set the release target
+        where: [New Change Task, Affected Objects, Revise, Resulting Objects, Set Release Target]
+        md: |
+          Select the affected objects and click **Revise**. The new B versions appear in the
+          **Resulting Objects** table, In Work. Select them, click **Set Release Target** and keep
+          **Change**. Click **Finish**.
+      - title: Repeat for every chunk of work
+        where: [New Change Notice, Implementation Plan, Sequence]
+        md: |
+          Add Task 2 (Kai, frame BOM) and Task 3 (Ana, work instruction) the same way. If one task
+          must finish first, type numbers in the **Sequence** boxes.
+      - title: Submit and complete your task
+        where: [New Change Notice, Finish, Submit Now, Task Completion, Complete Task]
+        md: |
+          Click **Finish** and **Submit Now**, then complete the Create New Change Notice task with a
+          comment. On the full track the CIB reviews the plan first; then the tasks go to their assignees.
+    result: CN-0101 has three tasks with owners, reviewers and dates, and every affected object has its new resulting version.
 
   - type: walkthrough
     title: Complete your change task (assignee)
     who: The task assignee - here Priya on Task 1
-    where: [Home, My Tasks, Task 1 of CN-0101]
+    where: [Home, My Tasks, Complete Change Notice Task]
     steps:
       - title: Open the task
-        where: [Home, My Tasks]
-        md: Open the work item, then open the change task itself. Read the CR and PR links first - know *why* before you change *what*.
-      - title: Create the new revision from the affected object
-        where: [Change task, Affected Objects table, Revise]
-        md: |
-          Select SC-1048 A.2 (and its CAD model and drawing) and use **Revise**. Revising from
-          inside the task usually adds the new B.1 versions as **resulting objects** automatically.
-          If you revise somewhere else, you must add them to the task yourself.
+        where: [Home, My Tasks, Complete Change Notice Task]
+        md: Click **Complete Change Notice Task**. On the **Details** tab, read the subject's attributes and the linked CR and PR - know *why* before you change *what*.
+      - title: Find your resulting objects
+        where: [Complete Change Notice Task, Resulting Objects tab]
+        md: The **Resulting Objects** tab lists the new versions you will edit - here SC-1048 B.1, its CAD model and drawing, all In Work.
       - title: Do the actual work
-        where: [Creo or your authoring tool, workspace]
-        md: Change the thickness, add the bushing, update the drawing. Check in. The resulting objects iterate (B.1 → B.2) but stay In Work.
+        where: ["<resulting CAD document> information page", Actions, Open In, Open in Creo]
+        md: Open the CAD document in Creo, change the thickness, add the bushing, update the drawing and check in. The objects iterate (B.1 → B.2) but stay In Work.
       - title: Check the resulting objects table
-        where: [Change task, Resulting Objects table]
+        where: [Complete Change Notice Task, Resulting Objects tab]
         md: Make sure every new version is listed - part, model and drawing. Missing items here are the number one reason changes go wrong (next lesson).
       - title: Complete the task
-        where: [Task page, Complete Task]
-        md: Add a short comment on what you did. Kai, the reviewer, now gets a review task.
-    result: Task 1 is done, its resulting objects are linked, and the reviewer has the next move.
+        where: [Complete Change Notice Task, Details tab, Task Completion, Complete Task]
+        md: Add a short comment on what you did, sign with your user name and password if asked, and click **Complete Task**. Kai, the reviewer, now gets a **Review Change Notice Task**.
+    result: Task 1 is done, its resulting objects are up to date, and the reviewer has the next move.
 
   - type: simulation
     title: Drive CN-0101 to release
     intro: |
-      Play every role. Both tasks must be done **and approved** before Maya can audit and resolve
-      the change notice. Try rejecting a task to see that only that task goes back.
+      Play every role. Both tasks must be done **and approved** before Leo can audit the change
+      notice. Try asking for rework to see the work go back. This sandbox shows the **concept**;
+      exactly where reworked tasks go depends on your configuration.
     headline: "CN-0101 · {cn} · Task 1 (CAD): {cad} · Task 2 (BOM): {bom} · SC-1048 {bracket}"
-    initial: { cn: Implementation, cad: Open, bom: Open, bracket: A.2 Released, rejections: 0 }
+    initial: { cn: Implementation, cad: Open, bom: Open, bracket: B.1 In Work, rejections: 0 }
     actions:
       - id: revise
-        label: "Priya: revise SC-1048 in Task 1"
+        label: "Priya: edit SC-1048 B.1 and check in"
         when: { cad: Open }
-        do: [{ set: { cad: Working, bracket: B.1 In Work } }]
-        log: SC-1048 B.1 created and added as a resulting object. A.2 stays Released for now.
-        blockedHint: Task 1 already has its resulting object.
+        do: [{ set: { cad: Working, bracket: B.2 In Work } }]
+        log: Priya edits the planned B.1 in Creo and checks in. It iterates to B.2 and stays In Work. A.2 stays Released for now.
+        blockedHint: Task 1 is already being worked on.
       - id: finishcad
         label: "Priya: complete Task 1"
         when: { cad: Working }
         do: [{ set: { cad: In Review } }]
         log: Task 1 complete. Kai gets a review task.
-        blockedHint: Revise the bracket first, and only complete work that's in progress.
+        blockedHint: Edit the bracket first, and only complete work that's in progress.
       - id: approvecad
         label: "Kai: approve Task 1"
         when: { cad: In Review }
@@ -173,10 +191,10 @@ blocks:
         log: Task 1 approved. The drawing shows 4 mm and the bushing.
         blockedHint: Nothing to review on Task 1 right now.
       - id: rejectcad
-        label: "Kai: reject Task 1"
+        label: "Kai: ask for rework on Task 1"
         when: { cad: In Review }
         do: [{ set: { cad: Working } }, { inc: rejections }]
-        log: "Rejected: the drawing is missing the bushing press-fit tolerance. Back to Priya - Task 2 is untouched."
+        log: "Rework: the drawing is missing the bushing press-fit tolerance. The work goes back for fixes before anything is released."
         blockedHint: Nothing to review on Task 1 right now.
       - id: finishbom
         label: "Kai: update SC-2000 BOM + complete Task 2"
@@ -191,34 +209,35 @@ blocks:
         log: Task 2 approved. Manufacturing is happy with the new screw.
         blockedHint: Nothing to review on Task 2 right now.
       - id: audit
-        label: "Maya: audit + resolve CN"
+        label: "Leo: audit and approve the CN"
         when: { cn: Implementation, cad: Approved, bom: Approved }
-        do: [{ set: { cn: Resolved, bracket: B.1 Released } }]
-        log: CN-0101 resolved. SC-1048 B.1 and SC-2000 B.1 are Released together.
-        blockedHint: Every task must be approved before the CN can be resolved.
+        do: [{ set: { cn: Audit approved, bracket: B.2 Released } }]
+        log: Leo approves the audit. SC-1048 and SC-2000 are Released together at their new revisions.
+        blockedHint: Every task must be complete and reviewed before the audit.
       - id: reset
         label: Run it again
-        when: { cn: Resolved }
-        do: [{ set: { cn: Implementation, cad: Open, bom: Open, bracket: A.2 Released, rejections: 0 } }]
+        when: { cn: Audit approved }
+        do: [{ set: { cn: Implementation, cad: Open, bom: Open, bracket: B.1 In Work, rejections: 0 } }]
         log: Back to the start of CN-0101.
         blockedHint: Finish this run first.
     goals:
-      - label: Send a task back once
+      - label: Ask for rework once
         when: { rejections: 1 }
-        message: A rejection only reopens that task. The rest of the plan keeps moving.
+        message: Rework sends the work back for fixes - nothing has been released yet.
       - label: Get both tasks approved
         when: { cad: Approved, bom: Approved }
         message: Every piece is reviewed. Now the CN can be audited.
-      - label: Resolve CN-0101
-        when: { cn: Resolved }
+      - label: Get the audit approved
+        when: { cn: Audit approved }
         message: Everything is released as one set. That's the CN doing its job.
 
   - type: callout
     variant: note
     md: |
-      Task roles, the number of review steps and whether the CN plan needs its own approval all
-      **depend on your company's configuration**. Some companies also add an audit step, often
-      done by a [[change-administrator]], before resolving the CN.
+      In the out-of-the-box process, the CIB reviews the plan only on the **full track**, and a
+      Change Admin III always audits the finished change notice. Administrators can change a lot:
+      for example, preferences can let a change task be planned **without a review**, or make the
+      tasks run in **sequence**. Your company's setup decides.
 
   - type: callout
     variant: pitfall
@@ -239,14 +258,14 @@ blocks:
         back: "One assignee's piece of the work, with a reviewer, need date, affected and resulting objects."
       - front: "Implementation plan"
         back: "All the change tasks on a CN, with owners and dates."
-      - front: "When are resulting objects typically released?"
-        back: "When the CN is resolved - all together."
-      - front: "Rejecting one change task"
-        back: "Sends only that task back to its assignee. Other tasks keep going."
+      - front: "When are resulting objects released?"
+        back: "When the Change Admin III approves the change notice audit - all together."
+      - front: "Rework"
+        back: "The reviewer's option when work isn't acceptable. It goes back for fixes before anything is released."
 
   - type: summary
     points:
-      - An approved CR leads to a change notice; the CN holds the implementation plan.
-      - Each change task has an assignee, a reviewer, a need date and its own affected objects.
-      - Assignees revise affected objects and link the new versions as resulting objects.
-      - When all tasks are approved, the CN is audited and resolved, and the results release together.
+      - An approved CR gives a Change Admin II a task to create the change notice, which holds the implementation plan.
+      - Each change task has an assignee, a reviewer, a need date, affected objects and resulting objects.
+      - Revising the affected objects in the task creates the resulting objects; assignees edit them while they stay In Work.
+      - When all tasks are complete and reviewed, the Change Admin III audits the CN, and approval releases the results together.

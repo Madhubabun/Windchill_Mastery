@@ -1,8 +1,18 @@
 id: m02-s02-check
 subtitle: Versions, states, filters and snapshots - prove you can read and control an object's history.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [checkpoint, versioning, lifecycle]
+sources:
+  - id: te
+    where: "Module 2: Describe revision and iteration control. Module 5: Create a BOM using Save As; Specify a configuration specification; Create baselines. Module 6: change and promotion processes overview; Promotion process: overview"
+  - id: ac
+    where: "Harvard versioning schemes; Describe Windchill life cycles; Create a basic life cycle template: example; Administer Windchill views; access permissions (Set State, New View Version)"
+  - id: hc-baseline-info
+    label: PTC Help Center supplement
+    title: "Baseline Information Page"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/baselines/BaselineInfo.html"
+    covers: "Once locked, only the user who locked it or an administrator can change the baseline"
 
 blocks:
   - type: text
@@ -42,16 +52,16 @@ blocks:
         prompt: A version is **Under Review**. What can a normal team member typically do with it?
         options: [Check it out and fix typos, "View it, mark it up and complete review tasks", Delete it, Revise it]
         answer: 1
-        explanation: Under Review usually locks editing so reviewers check a stable design. Viewing, markups and review tasks are what this state is for. Exact rules come from your company's access settings.
+        explanation: In a template with an Under Review state, editing is usually locked so reviewers check a stable design. Viewing, markups and review tasks are what this state is for. Exact rules come from your company's access settings - Under Review isn't an out-of-the-box state.
       - kind: truefalse
         prompt: Set State and a promotion request both leave an approval record showing who reviewed the objects.
         answer: false
         explanation: Set State changes the state directly with no review - the history shows who flipped it, nothing more. Only the promotion request routes review and approval and keeps that record.
       - kind: single
-        prompt: A brand-new battery bracket and its drawing are ready for their first release. What's the everyday way to release them?
+        prompt: A brand-new battery bracket and its drawing are ready for their first release. Which of these routes them for approval and releases them together?
         options: [Ask an admin for Set State, A promotion request with both objects, Save As into a Released folder, Revise to B]
         answer: 1
-        explanation: A promotion request collects the bracket and drawing, routes them for approval and moves both to Released together - with evidence.
+        explanation: A promotion request collects the bracket and drawing, routes them for approval and moves both to Released together - with evidence. Many companies release engineering data through a change notice instead.
       - kind: single
         prompt: Why can the Scooter S2 structure show hinge B.2 to one user and A.3 to another?
         options:
@@ -73,7 +83,7 @@ blocks:
       - kind: truefalse
         prompt: Locking a managed baseline stops anyone from revising the objects in it.
         answer: false
-        explanation: Locking freezes the baseline's member list. The objects keep evolving; the baseline just keeps pointing at the versions it captured.
+        explanation: Locking restricts changes to the baseline itself (only the person who locked it or an administrator can change it). The objects keep evolving; the baseline just keeps pointing at the versions it captured.
 
   - type: flashcards
     title: Versioning and lifecycle deck
@@ -87,13 +97,13 @@ blocks:
       - front: "Save As"
         back: "New number, new master, fresh history. For genuinely new items."
       - front: "New View Version"
-        back: "Same part master, another view - e.g. Manufacturing next to Design."
+        back: "Same part master, another view - e.g. Manufacturing next to Design (Design B gives Manufacturing B.A)."
       - front: "Interchangeable change"
         back: "Same item - revise. Not interchangeable - new number."
       - front: "In Work → Under Review → Released → Obsolete"
-        back: "Draft → being checked → approved → retired."
+        back: "A typical company template: draft → being checked → approved → retired. (Out of the box: In Work, Released, Canceled.)"
       - front: "Set State"
-        back: "Direct state change, no review. Usually admin-only."
+        back: "Direct state change, no review. Only for users granted the Set State permission."
       - front: "Promotion request"
         back: "Collect objects, review and approve, then move to the target state - with a record."
       - front: "Config spec"
@@ -101,4 +111,4 @@ blocks:
       - front: "Latest vs Latest Released"
         back: "Latest includes In Work. Latest Released is the newest approved."
       - front: "Managed baseline"
-        back: "A named, lockable list of exact versions - a snapshot for audits and milestones."
+        back: "A named list of exact versions - a snapshot for audits and milestones. Lock it so only you or an admin can change it."

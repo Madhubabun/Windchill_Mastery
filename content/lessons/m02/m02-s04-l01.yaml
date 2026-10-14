@@ -1,8 +1,15 @@
 id: m02-s04-l01
 subtitle: The buyer, the tester and the boss all need to see the hinge. None of them has Creo.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [visualization, creo-view, representation, viewing]
+sources:
+  - id: te
+    where: "Module 1: Visualization and review; Module 2: Access CAD documents using Creo View; Activity: Open a CAD model in Creo View (Actions > Open in > Open in Creo View, Creo View Startup and edition, zoom/rotate/pan, Model tab); Module 4: Activity with a drawing (Content tab > Representations/Annotations > Save Representation, PDF in the representation)"
+  - id: ac
+    where: "Describe Windchill Visualization Services (WVS): publishing to representations, thumbnails launch Creo View; Describe the WVS architecture (Publisher, Worker Agent, Loader); Configure WVS (Creo View Adapters on worker machines); View and manage WVS publication jobs; Configure Creo View and Publish Rules (check-in, schedule or manual triggers)"
+  - id: trn-pdmlink
+    where: "02 Navigation: Visualization overview (publishing usually automatic at check-in from Workgroup Managers; click the thumbnail to open Creo View); Creo View client types (Creo View, Creo View Lite, Creo View Express)"
 
 blocks:
   - type: text
@@ -14,8 +21,8 @@ blocks:
       But the buyer needs to see it before ordering, the test lab needs to check where the sensor goes,
       and Kai wants a quick look before the review. None of them has a CAD licence - or wants one.
 
-      So Windchill makes a lightweight "watch-only" copy of the design, and everyone opens it in a free
-      or low-cost viewer. That viewer is **Creo View**.
+      So Windchill makes a lightweight "watch-only" copy of the design, and everyone opens it in a
+      viewer that doesn't need the CAD tool. That viewer is **Creo View**.
 
   - type: callout
     variant: terms
@@ -68,9 +75,9 @@ blocks:
           tone: info
           shape: doc
           detail: |
-            A [[representation]] is published from the CAD data: shapes, colours, structure and some
-            data - but no design history. It's much smaller and opens in [[creo-view]].
-          real: Many companies publish representations automatically on every check-in, so the copy is always fresh.
+            A [[representation]] is published from the CAD data into a lightweight, neutral format.
+            You can view, measure and annotate it in [[creo-view]], but not change the design.
+          real: Windchill is typically configured to publish automatically when CAD documents are checked in, so the copy stays fresh.
         - id: buyer
           label: Buyer
           sublabel: purchasing
@@ -180,10 +187,10 @@ blocks:
     rows:
       - { label: Who opens it, cells: [Designers with Creo, Almost anyone with access] }
       - label: Can you change the design?
-        cells: ["Yes - features, sketches, dimensions", "No - view, measure, section, mark up"]
+        cells: ["Yes - features, sketches, dimensions", "No - view, measure, section, annotate"]
       - { label: File size, cells: [Large, Much smaller] }
       - label: Drawings
-        cells: [Native drawing file, "Published 2D view, often PDF-like"]
+        cells: [Native drawing file, "Published drawing representation, which can include PDF files"]
       - { label: Typical users, cells: [Design engineers, "Reviewers, buyers, factory, service"] }
     takeaway: Designers edit the native file. Everyone else looks at the representation.
 
@@ -213,44 +220,48 @@ blocks:
       - title: Open its information page
         where: ["SC-1042", Information page]
         md: |
-          Click the name. The information page usually shows a **thumbnail** of the model in a
-          visualization area, if a representation has been published.
+          Click the **View information** icon. If a representation has been published, you'll see a
+          **thumbnail** of the model.
       - title: Launch the viewer
-        where: [Information page, Thumbnail]
+        where: [Information page, Actions, Open in, Open in Creo View]
         md: |
-          Click the thumbnail, or use the **View in Creo View** action (often an icon next to the
-          thumbnail or in the Actions menu - wording varies by release). Depending on your setup, the
-          model opens in a **browser-based viewer** or in the **Creo View** desktop app.
+          Choose **Actions > Open in > Open in Creo View**, or click the thumbnail. Confirm the launch
+          prompt; the **Creo View Startup** dialog may ask which edition to use (for example **Creo
+          View Lite**) - pick it and click **Start**. A part's **Structure** tab also has a
+          **Visualization** tab that shows the model inside Windchill.
       - title: Look around
         where: [Creo View]
         md: |
-          Spin with the mouse, zoom with the wheel, pick a component to highlight it in the structure
-          tree. You are looking at a copy - nothing you do here changes the CAD data.
+          Zoom with the scroll wheel, rotate by holding the right mouse button, and pan by holding the
+          wheel. Click a component to highlight it in the **Model** tab tree. You are looking at a
+          copy - nothing you do here changes the CAD data.
     result: You see the managed version of the model in 3D without opening any CAD tool.
 
   - type: walkthrough
-    title: Open a drawing in Creo View
+    title: Open a drawing's representation
     who: Any user with read access to the drawing
     where: [Search, "<drawing>", Information page]
     steps:
       - title: Find the drawing, not just the model
         where: [Search, "SC-1042.drw"]
         md: |
-          Drawings are their own CAD documents. Search for the drawing, or open the model's information
-          page and look at its related CAD documents (for example on a related-objects tab) to jump to it.
-      - title: View the published drawing
-        where: ["Drawing information page", Thumbnail]
+          Drawings are their own CAD documents. Search for the drawing, or open the model's or part's
+          information page and look at its related objects to jump to it.
+      - title: Open the drawing's representation
+        where: ["Drawing information page", Content tab, "Representations/Annotations"]
         md: |
-          Click the thumbnail or the view action. Creo View opens the drawing sheets. Use the page or
-          sheet controls to move between sheets, and zoom into dimensions and notes.
+          On the **Content** tab, the **Representations/Annotations** table lists the published
+          representations; the *default* row is the one the thumbnail opens. Open it in Creo View,
+          or right-click it and choose **Save Representation** to download it - a drawing's
+          representation can include PDF files you can read without any PTC viewer.
     result: You can read the official drawing - dimensions, tolerances and notes - without Creo.
 
   - type: callout
     variant: pitfall
     md: |
       **No thumbnail? The object might simply not be published yet** - or publishing failed. That's not
-      a missing file. Large assemblies can sit in the queue for a while. Check again later, or ask your
-      admin to look at the publishing queue (next lesson shows how).
+      a missing file. Large assemblies can sit in the queue for a while. Check again later, or look in
+      the **WVS Job Monitor** (next lesson shows how).
 
   - type: callout
     variant: pro-tip
@@ -261,9 +272,10 @@ blocks:
   - type: callout
     variant: note
     md: |
-      Creo View comes in different packages. A free *Lite* viewer covers basic viewing; licensed
-      packages add tools such as measuring, sectioning, markup and compare. Exactly which tools you have
-      depends on your company's licences and release.
+      Creo View comes in editions. *Creo View Express* gives basic viewing without a licence;
+      *Creo View Lite* adds limited viewing and markup - in the PTC course it measures, sections and
+      saves annotations; full *Creo View* includes all functionality, and some of its applications
+      need extra licences. Which edition you get depends on your company.
 
   - type: quiz
     passMark: 0.7
@@ -290,15 +302,15 @@ blocks:
   - type: flashcards
     cards:
       - front: "Creo View"
-        back: "PTC's viewer for 3D models and drawings. No CAD licence needed to look."
+        back: "PTC's viewer for 3D models and drawings. No CAD tool needed to look."
       - front: "Representation"
         back: "The lightweight viewable copy published from CAD data."
       - front: "How do you open a model in Creo View?"
-        back: "Information page → click the thumbnail or the View in Creo View action."
+        back: "Information page → Actions > Open in > Open in Creo View, or click the thumbnail."
 
   - type: summary
     points:
       - Native CAD is for editing. Representations are for looking - by almost anyone.
       - Windchill publishes representations from CAD data, often on check-in.
-      - Open a model or drawing from its information page by clicking the thumbnail or view action.
+      - Open a model or drawing from its information page with Actions > Open in > Open in Creo View, or the thumbnail.
       - Always check which version you're viewing before you comment.

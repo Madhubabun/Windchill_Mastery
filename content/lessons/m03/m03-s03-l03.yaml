@@ -1,8 +1,18 @@
 id: m03-s03-l03
 subtitle: "A task just landed in your list. Review it properly, vote with confidence, and reject in a way that actually helps."
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [tasks, review, approval, reject, promotion-request]
+sources:
+  - id: te
+    where: "Module 6: Promotion process: overview; Activity: Create and approve a promotion request (Home page My Tasks table, Review Promotion Request and Approve Promotion Request tasks, Promotion Objects and Details tabs, Process Status table, Task Completion Comments box, Complete Task, Process tab with Task History)"
+  - id: ac
+    where: "Module 5: Describe the Promotion Request Approval process (parallel review and approval; any rejection resets objects; process ends after reviewer feedback); Describe the Promotion Request Review process; Assign activities in a workflow (Tasks table, task form); Define assigned activities (digital signatures, routing)"
+  - id: hc-reassign-task
+    label: PTC Help Center supplement
+    title: "Reassigning a Task"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/assignments/AssignmentsTaskReassign.html"
+    covers: "Reassign from the Tasks table or the task's Actions list; Reason for reassignment; email to the new assignee; Reassignment History"
 
 blocks:
   - type: text
@@ -21,8 +31,8 @@ blocks:
     md: |
       **Plain words → official term**
       - "Windchill is asking you to do something" → *[[task]]* (also called a work item)
-      - "please look and comment" → *[[review-task]]*
-      - "please decide yes or no" → *[[approval-task]]* with a *vote* (Approve or Reject)
+      - "please look and comment" → *[[review-task]]*, such as *Review Promotion Request*
+      - "please decide yes or no" → *[[approval-task]]*, such as *Approve Promotion Request*, with a *vote* (Approve or Reject)
       - "I'm done with this task" → *Complete Task*
       - "the steps that created your task" → the promotion request's *[[workflow]]*
 
@@ -35,7 +45,9 @@ blocks:
       - label: You give
         cells: [Comments, A vote plus a comment]
       - label: Can it stop the promotion?
-        cells: [Not by itself - but approvers read it, "Yes - a Reject stops it"]
+        cells: [No - but approvers can read it, "Yes - any Reject ends it in a rejection"]
+      - label: Does the process wait for it?
+        cells: ["Yes - the process ends only after reviewers give feedback", Yes - every approver must vote]
       - label: Acme example
         cells: [Ana checks the mount can be made, Kai decides if it's Released]
     takeaway: Reviewers inform. Approvers decide. Both leave a written trail.
@@ -43,51 +55,52 @@ blocks:
   - type: walkthrough
     title: Complete a review or approval task
     who: Anyone assigned as a reviewer or approver
-    where: [Home, Tasks / My Tasks]
+    where: [Home, My Tasks]
     steps:
       - title: Find your task
-        where: [Home, Tasks / My Tasks]
+        where: [Home, My Tasks]
         md: |
-          Open your task list from **Home**. Each row shows the task name, what it's about (for
-          example PROM-0310) and when it's due. You may also get an email notification with a
-          link. Click the task name to open it.
+          Open the **Home** page and look at the **My Tasks** table. You'll see tasks such as
+          *Review Promotion Request* or *Approve Promotion Request*. Sort by a column if the list is
+          long, and click the task name to open it.
       - title: Read the request
-        where: [Task page, Promotion request details]
+        where: [Task page, Promotion Objects tab]
         md: |
-          Read the description and the **target state**. Then check the list of promotion objects
-          and their exact versions. Is everything there that should be? A part without its
-          drawing is a red flag.
+          On the **Promotion Objects** tab, check the objects, their exact versions and the state
+          they move to. Is everything there that should be? A part without its drawing is a red flag.
+          The **Details** tab shows the description and the **Process Status** table.
       - title: Look at the objects
-        where: [Promotion objects, "<object> information page", View in Creo View]
+        where: [Promotion Objects tab, "<object> information page"]
         md: |
-          Open each object that matters to you. View CAD and drawings in Creo View and check
-          attributes and history. Manufacturing checks makeability, quality checks inspection
-          notes - look through your own lens.
+          Open each object that matters to you and check its content, attributes and history.
+          Manufacturing checks makeability, quality checks inspection notes - look through your own lens.
       - title: Write your comment
-        where: [Task page, Comments]
+        where: [Task page, Task Completion, Comments]
         md: |
-          Type what you found, even if it's good news. "Checked clamp torque note and tolerances
-          on sheet 2 - fine for our CNC" is evidence. A blank comment is not.
+          In the **Task Completion** section, type what you found in **Comments**, even if it's good
+          news. "Checked clamp torque note and tolerances on sheet 2 - fine for our CNC" is evidence.
+          A blank comment is not.
       - title: Vote (approval tasks only)
-        where: [Task page, Routing or vote options]
+        where: [Task page, Task Completion, Routing options]
         md: |
-          Choose **Approve** or **Reject**. The exact option names come from your company's
-          process, so you might also see choices like *Rework*.
+          Choose **Approve** or **Reject**. Custom promotion workflows can offer other options, because
+          an administrator defines each activity's routing choices.
       - title: Complete the task
         where: [Task page, Complete Task]
         md: |
-          Click **Complete Task**. The task leaves your list and the process moves on. Some
-          setups ask you to confirm with your password as an electronic signature.
+          Click **Complete Task**. The task leaves your My Tasks table. If an administrator set the
+          activity to require a digital signature, you'll be asked for it here.
     result: |
-      Your comment and vote are stored on the request's process history. The requester (and
-      any auditor later) can see who said what, and when.
+      Your comment and vote are stored with the process. On the promotion request's **Process** tab,
+      the requester (and any auditor later) can see the completed tasks and the task history.
 
   - type: callout
     variant: note
     md: |
-      Out of office? Many setups let a task be **reassigned** or delegated, but who may do that
-      depends on your permissions and your company's configuration. Ask your change manager
-      before you leave, not after the deadline.
+      Out of office? A task can be **reassigned**: select it in the Tasks table and use **Reassign**,
+      pick the new person and enter a **Reason for reassignment**. The new assignee gets an email,
+      and the reason lands in the reassignment history. Your site may limit reassignment to people in
+      the same role. Do it before you leave, not after the deadline.
 
   - type: text
     md: |
@@ -105,10 +118,11 @@ blocks:
   - type: simulation
     title: "PROM-0310: review it, then decide"
     intro: |
-      First you're **Ana**, reviewing. Then you're **Kai**, approving. This sandbox shows the
-      **concept** of how tasks move a promotion request, not a Windchill screen. Try the lazy
-      path too and see what it costs.
-    headline: "PROM-0310 · {promState} · objects {objects} · review {review} · vote {vote} · round {round}"
+      You play **Ana**, reviewing, and **Kai**, approving. In the Promotion Request Approval Process
+      both tasks run **in parallel**, so Kai can vote at any time - but a useful rejection needs Ana's
+      finding. Acme's life cycle locks the objects in **Under Review** while the request runs. This
+      sandbox shows the **concept**, not a Windchill screen. Try the lazy path too and see what it costs.
+    headline: "Phone mount · attempt {round} · request {promState} · objects {objects} · review {review} · vote {vote}"
     initial:
       promState: Under Review
       objects: Under Review
@@ -148,26 +162,26 @@ blocks:
         label: "Ana: complete review task"
         when: { review: Open, comment: [vague, useful] }
         do: [{ set: { review: Done } }]
-        log: Review complete. Kai's approval task is now active.
+        log: Review complete. Ana's comment is on record for Kai and for the requester.
         blockedHint: Write a comment before completing the review.
       - id: approve
         label: "Kai: vote Approve"
-        when: { review: Done, vote: Pending }
+        when: { vote: Pending }
         do: [{ set: { vote: Approved, promState: Approved, objects: Released } }]
-        log: Approved. Every promotion object moves to Released together.
-        blockedHint: Kai votes after the review is complete and while the vote is pending.
+        log: Approved. Every promotion object moves to Released together. The process itself ends only once the reviewers have given feedback.
+        blockedHint: Kai has already voted on this attempt.
       - id: rejectvague
         label: "Kai: reject with 'Not OK'"
-        when: { review: Done, vote: Pending }
+        when: { vote: Pending }
         do: [{ set: { vote: Rejected, promState: Rejected, objects: In Work, reason: vague } }]
-        log: Rejected. Objects go back to In Work. Priya has no idea what to fix.
-        blockedHint: Kai votes after the review is complete and while the vote is pending.
+        log: Rejected. The process ends in a rejection and the objects return to In Work. Priya has no idea what to fix.
+        blockedHint: Kai has already voted on this attempt.
       - id: rejectuseful
         label: "Kai: reject - move hole to 8 mm"
-        when: { review: Done, vote: Pending }
+        when: { comment: useful, vote: Pending }
         do: [{ set: { vote: Rejected, promState: Rejected, objects: In Work, reason: useful } }]
-        log: Rejected with a clear reason. Priya knows exactly what to change.
-        blockedHint: Kai votes after the review is complete and while the vote is pending.
+        log: Rejected with a clear reason, based on Ana's finding. Priya knows exactly what to change.
+        blockedHint: Kai needs a specific finding first - Ana's comment on the hole gives him one.
       - id: explain
         label: "Kai: call Priya to explain"
         when: { vote: Rejected, reason: vague }
@@ -175,19 +189,19 @@ blocks:
         log: A 20-minute call later Priya knows what to fix. That belonged in the comment.
         blockedHint: Only needed after a vague rejection.
       - id: resubmit
-        label: "Priya: fix and resubmit"
+        label: "Priya: fix and submit a new request"
         when: { vote: Rejected, reason: [useful, explained] }
         do:
           - inc: round
           - set: { promState: Under Review, objects: Under Review, review: Open, opened: false, looked: false, comment: none, vote: Pending, reason: none }
-        log: Priya moves the hole, checks in and resubmits. Round {round} starts with Ana's review.
+        log: Priya moves the hole, checks in and creates a new promotion request. Attempt {round} sends fresh tasks to Ana and Kai.
         blockedHint: Priya needs to know what to fix first.
       - id: reset
         label: Start over
         when: { vote: Approved }
         do:
           - set: { round: 1, promState: Under Review, objects: Under Review, review: Open, opened: false, looked: false, comment: none, vote: Pending, reason: none }
-        log: Sandbox reset. PROM-0310 is waiting for review again.
+        log: Sandbox reset. The phone mount is waiting for review again.
         blockedHint: Finish a promotion first.
     goals:
       - label: Complete the review with a specific comment
@@ -196,7 +210,7 @@ blocks:
       - label: Reject with a useful reason
         when: { vote: Rejected, reason: useful }
         message: What, where, why and what to do - Priya can fix it right away.
-      - label: Get the fixed design Released in round 2
+      - label: Get the fixed design Released on attempt 2
         when: { objects: Released, round: 2 }
         message: One clear rejection, one fix, one approval. That's the process working.
 
@@ -228,34 +242,35 @@ blocks:
   - type: callout
     variant: pro-tip
     md: |
-      Found a tiny issue but the rest is solid? Check how your company handles it. Some teams
-      approve with a comment and fix it in the next change, others always reject. Agree on the
-      rule once with your change manager so every approver acts the same way.
+      Found a tiny issue but the rest is solid? Check how your company handles it (this is company
+      policy, not a Windchill setting). Some teams approve with a comment and fix it in the next
+      change, others always reject. Agree on the rule once with your change manager so every
+      approver acts the same way.
 
   - type: flashcards
     title: Tasks deck
     cards:
       - front: "Where do you find your tasks?"
-        back: "Home → Tasks / My Tasks (plus email notifications with a link)."
+        back: "In the My Tasks table on your Home page."
       - front: "Review task"
-        back: "Look and comment. Informs the approvers."
+        back: "Look and comment. Informs the approvers; the process waits for your feedback but you don't decide."
       - front: "Approval task"
-        back: "Vote Approve or Reject, with a comment. Can stop the promotion."
+        back: "Vote Approve or Reject, with a comment. Any Reject ends the promotion in a rejection."
       - front: "Complete Task"
-        back: "Submits your comment and vote and moves the process on."
+        back: "Submits your comment and vote. The task leaves your My Tasks table."
       - front: "Four parts of a useful rejection"
         back: "What is wrong, where, why it matters, what to do."
       - front: "What happens to objects on rejection?"
-        back: "Typically they go back to an earlier state (like In Work) so the owner can fix them."
+        back: "They stay in, or return to, their original state (like In Work). A fix needs a new promotion request."
       - front: "Why comment when approving?"
         back: "It's evidence of what you checked - for the requester and for audits."
       - front: "Can't review in time?"
-        back: "Ask about reassigning or delegating early. Who can do it depends on configuration."
+        back: "Reassign it early, with a reason for reassignment. Your site may limit it to people in the same role."
 
   - type: summary
     points:
-      - Find tasks under Home → Tasks / My Tasks, then read the request and its target state.
+      - Find tasks in the My Tasks table on Home, then check the Promotion Objects and Details tabs.
       - Open the objects and look through your own lens before you comment.
-      - Reviewers comment; approvers vote Approve or Reject, then Complete Task.
+      - Reviewers comment; approvers vote Approve or Reject, in parallel; then Complete Task.
       - A useful rejection says what, where, why and what to do.
       - Your comment and vote are a permanent record - make them count.

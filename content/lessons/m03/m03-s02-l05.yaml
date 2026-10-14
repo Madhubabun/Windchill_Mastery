@@ -1,28 +1,38 @@
 id: m03-s02-l05
 subtitle: Mark up the BOM in red, read the ripple effects, and only then make it real.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [change, redline, bom, impact-analysis, where-used]
+sources:
+  - id: te
+    where: "Module 2: Activity: View information pages (Where Used and Changes tabs); Module 6: Plan concurrent changes to the same affected objects; Identify best practices when using redlines; Use a redline to manage concurrent change: example; Explore some of the options on the Changes tab (Change Monitor, Reports)"
+  - id: pf
+    where: "Module 4: Plan concurrent changes to the same affected objects; Activity: Plan concurrent changes using the BOM redline (Enable BOM Redline preference, Change Summary Redline column, BOM Redline tab, View Summary Report); Assess the impact of a change to a business object"
+versionNotes:
+  - versions: ["12.0.1+"]
+    md: The course manuals say the redline feature arrived in Windchill 12.0.1.0 and was much improved in 12.0.2.0. It ships out of the box, but an administrator must switch it on.
 
 blocks:
   - type: text
     md: |
-      Kai owns Task 2 of CN-0101: update the **SC-2000 frame assembly**. The new bracket is 1 mm
-      thicker, so the two M5×12 screws that hold it are now too short. They need to become M5×16,
-      plus a washer each.
+      Kai is planning CN-0101, and Task 2 is his own: update the **SC-2000 frame assembly**. The new
+      bracket is 1 mm thicker, so the two M5×12 screws that hold it are now too short. They need to
+      become M5×16, plus a washer each.
 
-      He could just open the structure and start editing. But reviewers would then see *"SC-2000
-      B.1"* with no clue what moved. Instead Kai **redlines** it: he marks his edits on the
-      structure like a teacher's red pen - *remove this, add that, change this quantity* - so
-      everyone can see exactly what changes before it becomes real.
+      There's a catch. **CN-0095**, the frame paint change, is already open on SC-2000. If Kai creates
+      SC-2000 B.1 now, the two changes trip over each other. So he **redlines** it instead: he marks
+      his edits on the structure like a teacher's red pen - *remove this, add that, change this
+      quantity* - on the latest released SC-2000, without creating the next revision yet. Everyone can
+      see exactly what will change, and the paint change can keep going in parallel.
 
   - type: callout
     variant: terms
     md: |
       **Plain words → official term**
-      - "marking proposed BOM edits in red" → *[[redline]]* (BOM redline, redlining)
-      - "turning the markup into the real new version" → *applying* the redline
-      - "the ripple effects, written down" → *[[change-impact-analysis]]*, often summarised in an impact report
+      - "marking proposed BOM edits in red" → *[[redline]]* (BOM redline)
+      - "turning the markup into the real new version" → the redline is *merged* when the next revision is created with **Revise** inside the change
+      - "the switch that turns it on" → the *Enable BOM Redline* preference
+      - "the ripple effects, written down" → *[[change-impact-analysis]]* (general PLM practice)
       - "everywhere this part is used" → *[[where-used]]*
 
   - type: diagram
@@ -34,15 +44,15 @@ blocks:
       nodes:
         - id: frame
           label: SC-2000 frame assy
-          sublabel: redline in Task 2
+          sublabel: redline on A.3
           x: 300
           y: 20
           w: 200
           h: 64
           tone: primary
           detail: |
-            The assembly being redlined. The redline is captured **in the context of the change
-            task**, so it carries the who, why and when of every edit.
+            The redline is created from **CN-0101** while it's being planned, on the latest released
+            version (A.3). No B.1 exists yet, so CN-0095 can plan its own changes to the same assembly.
         - id: tube
           label: SC-2010 main tube
           sublabel: unchanged
@@ -68,7 +78,7 @@ blocks:
           y: 160
           w: 170
           tone: danger
-          detail: Marked for removal. It stays in the real BOM until the redline is applied.
+          detail: Old entries are shown struck through. It stays in the real BOM until the redline is merged into the next revision.
         - id: newscrew
           label: SC-2511 M5×16
           sublabel: "ADDED · qty 2"
@@ -87,12 +97,12 @@ blocks:
           detail: An extra line. Added in the redline so the reviewer sees it next to the screw swap that needs it.
         - id: hinge
           label: SC-1042 hinge
-          sublabel: "CHANGED · find no."
+          sublabel: "CHANGED · qty"
           x: 400
           y: 290
           w: 170
           tone: warning
-          detail: Shown here as an example only. Not every edit is add or remove - quantities, units and other usage attributes can be marked as changed too.
+          detail: Shown here as an example only. Not every edit is add or remove - a redline can also change a quantity.
       edges:
         - { from: frame, to: tube }
         - { from: frame, to: bracket }
@@ -104,49 +114,56 @@ blocks:
   - type: callout
     variant: why-it-matters
     md: |
-      A BOM edit that nobody can see is a BOM edit nobody can review. Redlines turn "trust me" into
-      "here are the four lines that change". Manufacturing can plan stock, purchasing can order
-      the new screw, and the reviewer approves *exactly* what will be applied - nothing more.
+      Without redlines, two changes on the same assembly have ugly choices: back out one change's
+      edits so the other can pass, or release revisions out of order. A redline lets both teams plan
+      at the same time. When one change releases, Windchill brings the other change's open redlines
+      up to date - or marks them as **suspect** if the edits conflict and a person has to sort it out.
+      And a visible markup turns "trust me" into "here are the four lines that change".
 
   - type: walkthrough
-    title: Redline a BOM in a change task
-    who: The change task assignee - here Kai on Task 2
-    where: [Home, My Tasks, Task 2 of CN-0101]
+    title: Plan a BOM change with a redline
+    who: The Change Admin II planning the change notice (here Kai); an administrator switches the feature on
+    where: [CN-0101 information page, Change Summary, Redline, Create]
     steps:
-      - title: Open the change task
-        where: [Home, My Tasks]
-        md: Open the work item and then the change task. Check that SC-2000 is in its affected objects.
-      - title: Start a redline on the assembly
-        where: [Change task, Affected Objects table, SC-2000, Actions]
+      - title: Make sure redlines are switched on
+        where: [Navigator, Browse, Organizations, "<your org>", Utilities, Preference Management]
         md: |
-          Look for a **redline** action on the affected assembly (it may be called something
-          like "Create Redline" or open a structure editor in redline mode). The exact name,
-          location and availability **depend on your release and configuration**. If you don't
-          see it, ask your change administrator how BOM edits are proposed in your company.
+          An administrator searches the preference tree for **redline** and sets **Enable BOM
+          Redline** to **Yes**.
+      - title: Show the Redline column
+        where: [CN-0101 information page, Change Summary, Customize]
+        md: |
+          On the change notice, open the **Change Summary** table. From its view list choose
+          **Customize** and save a view that includes the **Change Intent** and **Redline** columns.
+      - title: Create the redline
+        where: [Change Summary, Redline column, Create]
+        md: In the SC-2000 row, click **Create** in the **Redline** column. The **BOM Redline** tab opens on the latest released structure.
       - title: Mark your edits
-        where: [Structure editor, redline mode]
+        where: [BOM Redline tab, Uses tab]
         md: |
-          Remove SC-2510, add SC-2511 with quantity 2, add SC-2520 with quantity 2. Each edit is
-          shown as added, removed or changed instead of silently overwriting the structure.
-      - title: Save and explain
-        where: [Redline, Save, then task comments]
-        md: Save the redline. In the task comment, say why ("bracket +1 mm, screws need +4 mm engagement").
-      - title: Send it for review
-        where: [Task page, Complete Task]
-        md: Complete your task. The reviewer opens the redline and sees each marked line.
-      - title: Apply after approval
-        where: [Change task, redline, Apply]
+          Remove SC-2510 with **Remove selected**, insert the SC-2511 screw and SC-2520 washer lines
+          and type quantity **2** for each. Each edit is tracked with visual markers instead of
+          silently overwriting the structure. Then right-click SC-2000 and **Check In** the redline.
+      - title: Revise inside the change to merge it
+        where: [Edit change task, Affected Objects, Change Intent, Revise]
         md: |
-          Once approved, the redline is applied to create the new structure version (SC-2000 B.1),
-          which becomes a resulting object. Who applies it and when is set by your process.
-    result: Task 2 has a reviewable redline, and after approval a resulting SC-2000 B.1 that matches it exactly.
+          When it's time to implement, set the affected SC-2000's **Change Intent** to **Revise** and
+          click **Revise** in the change task. The planned redline edits are merged into the new
+          revision, SC-2000 B.1, which becomes a resulting object.
+      - title: Look back at it any time
+        where: [CN-0101 information page, Actions, View Summary Report]
+        md: |
+          The redline stays viewable during and after the change - use **View** in the Redline
+          column, or **View Summary Report** on the change notice to see the redline changes listed.
+    result: Task 2 has a visible, reviewable redline, and the resulting SC-2000 B.1 contains exactly the planned edits.
 
   - type: simulation
     title: Redline sandbox for SC-2000
     intro: |
-      Mark up the frame assembly, send it for review and apply it. The real BOM only changes when
-      you **apply** an approved redline. The reviewer (Ana) won't approve unless the screw swap is
-      in the markup - try submitting without it.
+      Mark up the frame assembly, get the plan reviewed and then revise. The real BOM only changes
+      when the redline is **merged** into the next revision. In this sandbox the plan reviewer (Ana)
+      won't approve unless the screw swap is in the markup - try sending it without. How redlines are
+      reviewed in your company depends on its change process.
     headline: "SC-2000 {structure} · redline: {redline} · screw: {screw} · washer: {washer}"
     initial: { structure: A.3 Released, redline: Draft, screw: SC-2510 M5x12, washer: none }
     actions:
@@ -154,7 +171,7 @@ blocks:
         label: Mark screw swap to SC-2511
         when: { redline: Draft, screw: SC-2510 M5x12 }
         do: [{ set: { screw: SC-2511 M5x16 (redlined) } }]
-        log: SC-2510 marked removed, SC-2511 marked added. The real BOM hasn't changed.
+        log: SC-2510 shown struck through, SC-2511 marked added. The real BOM hasn't changed.
         blockedHint: Only while the redline is a draft and the swap isn't marked yet.
       - id: unswap
         label: Undo screw swap
@@ -175,13 +192,13 @@ blocks:
         log: Washer removed from the markup.
         blockedHint: Nothing to undo.
       - id: submit
-        label: Submit redline for review
+        label: Check in the redline for plan review
         when: { redline: Draft }
         do: [{ set: { redline: In Review } }]
-        log: Ana gets a review task showing every marked line.
-        blockedHint: The redline is already submitted.
+        log: The redline is checked in. Ana looks at every marked line as part of the plan.
+        blockedHint: The redline is already checked in.
       - id: reject
-        label: "Ana: reject"
+        label: "Ana: send back"
         when: { redline: In Review }
         do: [{ set: { redline: Draft } }]
         log: "Ana: the 12 mm screws are too short for the 4 mm bracket. Back to draft."
@@ -191,16 +208,16 @@ blocks:
         when: { redline: In Review, screw: SC-2511 M5x16 (redlined) }
         do: [{ set: { redline: Approved } }]
         log: Approved. The markup is exactly what will change.
-        blockedHint: Ana won't approve without the screw swap. Reject it and fix the markup.
+        blockedHint: Ana won't approve without the screw swap. Send it back and fix the markup.
       - id: apply
-        label: Apply redline
+        label: Revise SC-2000 in the change task
         when: { redline: Approved }
-        do: [{ set: { redline: Applied, structure: B.1 In Work, screw: SC-2511 M5x16 } }]
-        log: Applied. SC-2000 B.1 now exists with the new screws - a resulting object of Task 2.
-        blockedHint: Only an approved redline can be applied.
+        do: [{ set: { redline: Merged, structure: B.1 In Work, screw: SC-2511 M5x16 } }]
+        log: Revised inside CN-0101. The redline is merged, and SC-2000 B.1 is a resulting object of Task 2.
+        blockedHint: Revise only after the planned redline is approved.
       - id: reset
         label: Start over
-        when: { redline: Applied }
+        when: { redline: Merged }
         do: [{ set: { structure: A.3 Released, redline: Draft, screw: SC-2510 M5x12, washer: none } }]
         log: Back to SC-2000 A.3 with an empty redline.
         blockedHint: Finish this run first.
@@ -208,25 +225,27 @@ blocks:
       - label: Get a redline approved
         when: { redline: Approved }
         message: The reviewer approved exactly what's marked.
-      - label: Apply a redline with screw and washer
-        when: { redline: Applied, washer: SC-2520 x2 }
-        message: The real structure changed only now - and only as approved.
+      - label: Merge a redline with screw and washer
+        when: { redline: Merged, washer: SC-2520 x2 }
+        message: The real structure changed only now - and only as planned.
 
   - type: text
     md: |
       ### Reading a change impact report
 
-      Before a CR is approved (and again before a task is applied), someone asks *"what else does
-      this hit?"* The answer is a **change impact report**. Some companies use built-in tables
-      on the change request, some run a report, some export to a spreadsheet. The *content* is
-      what matters. Here is what the one for the screw swap boils down to (example data, not a
-      Windchill screen):
+      Before a CR is approved, someone asks *"what else does this hit?"* The written answer is often
+      called a **change impact report**. That's general PLM practice, not one fixed Windchill screen:
+      you collect the facts from the **Where Used** and **Changes** tabs, the change **Reports** under
+      **Browse** > **Changes**, and the change notice's **View Summary Report**. (The PLM Foundation
+      Pacesetter's full track even adds impact assessment tasks for areas like design,
+      manufacturing, procurement, quality and service.) Stock and order numbers usually come from
+      ERP. Here is what the one for the screw swap boils down to (example data, not a Windchill screen):
 
       | Section | What it says for SC-2510 → SC-2511 | How to read it |
       | --- | --- | --- |
       | Where used | SC-2510 is used in **SC-2000** and **SC-4000 handlebar** | Your redline only touches SC-2000. The handlebar keeps SC-2510. |
       | End items | Scooter S2 (via both) | Every S2 is affected by the SC-2000 part of the change. |
-      | Open changes | CN-0095 is revising SC-2000 | Coordinate, or the two changes collide. |
+      | Open changes | CN-0095 is changing SC-2000 | Plan with redlines and coordinate, or the two changes collide. |
       | Stock + orders | 5,000 SC-2510 in stock · 0 SC-2511 | Don't scrap SC-2510 - the handlebar still needs it. Order SC-2511. |
       | Documents | Work instruction for frame assembly references the screw | Needs updating - that's Task 3. |
 
@@ -261,7 +280,7 @@ blocks:
           - label: "Nobody can tell - so a changed fit means a new number: keep the redline swap to SC-2511"
             next: win
             good: true
-            feedback: Yes. If form, fit or function changes, it usually deserves a new part number. You'll go deeper in the configuration management section.
+            feedback: Yes. As a general rule, if form, fit or function changes, it deserves a new part number. You'll go deeper in the configuration management section.
       - id: win
         md: |
           Kai keeps the redline: SC-2510 out, SC-2511 in, only on SC-2000. The handlebar is untouched,
@@ -281,9 +300,9 @@ blocks:
   - type: callout
     variant: pitfall
     md: |
-      **Editing the released structure directly "because it's quicker".** Even if your permissions
-      allow it, you lose the review trail, the impact check and the link to the change. When
-      someone asks why the screw changed, the answer is "no idea".
+      **Creating the resulting revision too early.** Once a change task has a resulting object, no
+      new redline can be created on it - and the next revision is already taken. Plan with the
+      redline first and revise when implementation starts. By then, all redlines should be approved.
 
   - type: callout
     variant: pro-tip
@@ -291,7 +310,8 @@ blocks:
 
   - type: summary
     points:
-      - A redline marks proposed BOM edits - added, removed, changed - in the context of a change task.
-      - The real structure changes only when an approved redline is applied, producing a resulting object.
-      - A change impact report covers where used, end items, open changes, stock and documents.
+      - A redline marks proposed BOM edits - added, removed, changed - on the latest released structure while a change notice is planned.
+      - The real structure changes only when the next revision is created with Revise inside the change, which merges the redline.
+      - Redlines let several change notices plan changes to the same object at once; an administrator must enable them.
+      - A change impact report (general practice) covers where used, end items, open changes, stock and documents.
       - Revising a shared part changes it everywhere; a change in fit usually needs a new part number.

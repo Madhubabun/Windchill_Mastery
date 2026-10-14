@@ -1,8 +1,18 @@
 id: m02-s02-l06
 subtitle: Take a photo of your product data at the moment that matters - and find it again years later, exactly as it was.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [baseline, configuration-management, audit, compliance]
+sources:
+  - id: te
+    where: "Module 5: Specify a configuration specification (Baseline, Change and Promotion Request types); Create baselines; Activity: Create a baseline of a BOM. Module 6: Create a promotion request (promotion baseline). Module 2: Effectivity tab (set through a change notice)"
+  - id: ac
+    where: "Object numbering scheme rules (baselines are numbered); change task affected object types (Managed baseline)"
+  - id: hc-baseline-info
+    label: PTC Help Center supplement
+    title: "Baseline Information Page"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/baselines/BaselineInfo.html"
+    covers: "Baseline Actions menu: Lock, Unlock and Compare Information (compares two baselines); once locked, only the user who locked it or an administrator can change the baseline; Locked By shown on the Details tab"
 
 blocks:
   - type: text
@@ -23,7 +33,7 @@ blocks:
       **Plain words → official term**
       - "a photo of the data at one moment" → *[[baseline]]*
       - "a baseline you create and name yourself" → *managed baseline*
-      - "freeze it so nobody can change the list" → *lock* the baseline
+      - "freeze the list so only I (or an admin) can change it" → *lock* the baseline
       - "show the structure as it was in the photo" → *Baseline* [[configuration-specification|config spec]]
       - "one version per object" → one version per [[master]]
 
@@ -46,9 +56,10 @@ blocks:
           tone: success
           shape: doc
           detail: |
-            A managed baseline has its own number, name, context, folder and lifecycle. Its member
-            list says "E1 frame **A.5**, battery bracket **B.3**, motor mount **A.2**, test report **C.1**…"
-            Locked, so nobody can add or swap members.
+            A managed baseline has its own number, name, context, folder and life cycle state. Its
+            member list says "E1 frame **A.5**, battery bracket **B.3**, motor mount **A.2**, test
+            report **C.1**…" Locked, so only Priya (who locked it) or an administrator can change
+            its members.
           real: Typical baselines - design reviews, prototype builds, certification submissions, customer deliveries.
         - { id: bl-frame, label: Frame A.5, x: 45, y: 140, w: 200, tone: success }
         - { id: bl-bracket, label: Battery bracket B.3, x: 45, y: 210, w: 200, tone: success }
@@ -76,13 +87,13 @@ blocks:
     columns: [Managed baseline, Promotion request or change record, Effectivity]
     rows:
       - label: Created by
-        cells: [You - on purpose, Automatically as part of the process, Change or configuration managers]
+        cells: [You - on purpose, Automatically as part of the process, "Usually set through a change notice"]
       - label: Holds
         cells: [Any set of versions you collect, The exact versions that were promoted or changed, Validity ranges on versions]
       - label: Best for
         cells: ["Milestones: reviews, builds, certification", Proof of what was approved together, What was built into a unit or date]
       - label: Can be used as a config spec
-        cells: [Yes, "Rarely in practice (a promotion request is technically a kind of baseline)", Yes]
+        cells: [Yes - the Baseline filter, "Yes - Promotion Request and Change filters (a promotion request holds a promotion baseline)", Yes - Unit or Date Effectivity]
     takeaway: When the moment matters to someone outside engineering, make a managed baseline and lock it.
 
   - type: callout
@@ -95,29 +106,27 @@ blocks:
 
   - type: walkthrough
     title: Create, lock and use a managed baseline
-    who: Team members allowed to create baselines in the context (locking is often restricted)
+    who: Team members allowed to create baselines in the context
     steps:
       - title: Start from the top object
-        where: ["<top part> information page", Actions, Add to Baseline]
-        md: |
-          Open the top part (for example E-bike E1) and choose **Add to Baseline**. You can also
-          create an empty one from a folder with **New → New Baseline**. Wording can vary by
-          release.
+        where: ["<top part> information page", Actions, Add to, Add to Baseline]
+        md: Open the top part (for example E-bike E1) and choose **Actions > Add to > Add to Baseline**.
       - title: Create a new baseline
-        where: [Add to Baseline, New baseline]
-        md: Choose to create a new baseline. Give it a clear name ("E1 Certification - Oct 2026"), a description and a folder in the product.
+        where: [Add to Baseline, New Baseline]
+        md: Click **New Baseline**, give it a clear name ("E1 Certification - Oct 2026") and click **OK**.
       - title: Collect the right versions
-        where: [Add to Baseline, Collect]
+        where: [Add to Baseline, Baseline Objects, Collect Objects]
         md: |
-          Include the children and related objects you need - drawings, CAD, test documents. The
-          collection follows a config spec, so check it picks the versions you mean (often Latest
-          Released). One version per master ends up in the baseline.
+          Select the rows and click **Collect Objects**; switch to *As a Structure with Associated
+          Objects*, then use **Collect related CAD / Dynamic documents** and **Collect related
+          documents** to bring in drawings and test documents. Check the versions are the ones you
+          mean - a baseline holds one version of each object. Click **OK**.
       - title: Check and lock
         where: ["<baseline> information page", Actions, Lock]
-        md: Review the member list on the baseline's information page, then **Lock** it so members can't be added, removed or replaced. Some companies release the baseline instead, or as well.
+        md: Review the members on the baseline's **Related Objects** tab, then **Lock** it. From then on only you or an administrator can change it.
       - title: Use it later
-        where: ["<top part> information page", Structure tab, Filter, Baseline]
-        md: Set the structure's config spec to **Baseline** and pick it. The structure shows exactly the versions in the snapshot. You can also compare the baseline with Latest to see what changed since.
+        where: ["<top part> information page", Structure tab, Filter, Edit Filter, Baseline]
+        md: Set the structure's config spec to **Baseline** and pick it. The structure shows exactly the versions in the snapshot. To see what changed between two milestones, use **Compare Information** on the baseline to compare it with another baseline.
     result: A named, locked snapshot you can reopen as a structure and hand to an auditor.
 
   - type: example
@@ -128,7 +137,7 @@ blocks:
       **The situation.** Acme submits the E-bike E1 to an independent lab for safety
       certification. Kai asks Priya to create the managed baseline **"E1 Certification - Oct
       2026"** from the E1 top part, collecting all parts, drawings, the battery spec and the test
-      reports at Latest Released. She locks it.
+      reports. She checks the versions and locks it.
 
       **Eighteen months later.** The E1 has had 40 changes. An auditor from the certification body
       arrives with a question: *"The frame in your certified sample - which revision, and is that
@@ -180,11 +189,11 @@ blocks:
           - The latest version of everything, updated automatically
           - Only the top part
         answer: 1
-        explanation: A baseline references exact versions; it doesn't duplicate files. Because it points at specific versions, it never drifts as new ones are created.
+        explanation: A baseline holds one specific version and iteration of each object you add. Because it points at specific versions, it never drifts as new ones are created.
       - kind: truefalse
         prompt: After you lock a baseline, its members can still be revised as normal - the baseline just keeps pointing at the old versions.
         answer: true
-        explanation: Locking freezes the baseline's member list, not the objects. Work continues; the snapshot stays the same.
+        explanation: Locking restricts changes to the baseline itself (only the person who locked it or an administrator can change it), not to the objects. Work continues; the snapshot stays the same.
       - kind: single
         prompt: An auditor asks which versions were in the certified E1. What's the fastest reliable answer?
         options:
@@ -197,7 +206,7 @@ blocks:
 
   - type: summary
     points:
-      - A baseline is a snapshot - a list of exact versions, one per master.
-      - Create it with Add to Baseline, collect carefully, then lock it.
+      - A baseline is a snapshot - a list of exact versions, one per object.
+      - Create it with Add to Baseline, collect carefully, then lock it so only you or an admin can change it.
       - Use it as a config spec to see the structure exactly as it was.
       - Baselines plus change records let you prove the past in an audit.

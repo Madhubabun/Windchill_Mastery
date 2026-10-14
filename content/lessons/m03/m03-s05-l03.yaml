@@ -1,8 +1,11 @@
 id: m03-s05-l03
 subtitle: New revision or brand-new part number? Three letters decide - F, F, F.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.0.1
+updated: "2026-10-14"
 tags: [interchangeability, form-fit-function, revise, part-number, change-impact]
+sources:
+  - id: te
+    where: "Module 2: Activity: View information pages (Where Used tab). Module 5: Create a BOM using Save As (copy with new names and numbers); Activity: Create a WTPart and add it to a BOM (New Part); Specify a configuration specification (part masters resolved to versions). Module 6: change notices with affected and resulting objects; Revise"
 
 blocks:
   - type: text
@@ -16,7 +19,9 @@ blocks:
         codes and paperwork - for nothing.
 
       The test is simple: **can the new part swap in for the old one, and the old for the new, in
-      every place it's used, with no other changes?** If yes, revise. If no, new number.
+      every place it's used, with no other changes?** If yes, revise. If no, new number. (This
+      form-fit-function rule is general configuration management practice; Windchill gives you the
+      where-used data and the actions, your company's numbering policy makes the call.)
 
   - type: callout
     variant: terms
@@ -94,7 +99,8 @@ blocks:
           tone: success
           detail: |
             Interchangeable: **revise** the part (SC-1048 A.2 → B.1). Parents don't need to change,
-            because the uses link points at the part's master, not at one version.
+            because the structure links to the part's master; the configuration specification picks
+            which version is shown.
         - id: renumber
           label: New part number
           sublabel: and revise the parents
@@ -169,8 +175,8 @@ blocks:
       - title: List every use
         where: ["<part> information page", Where Used]
         md: |
-          Open **Where Used** for the part. Note every parent assembly, across all products you can
-          see. Remember that where-used only shows contexts you have access to.
+          Open the part's **Where Used** tab. Note every parent assembly, across all products you can
+          see. Remember that you only see what your access rights let you read.
       - title: Check the interfaces
         where: ["<parent> information page", Structure tab]
         md: Open each parent and check the parts that touch yours. Do the mounting points still line up for both old and new?
@@ -267,7 +273,8 @@ blocks:
   - type: callout
     variant: note
     md: |
-      Rules for one-way interchangeability (new replaces old, but not the other way) differ between
+      Rules for one-way interchangeability (new replaces old, but not the other way) are general
+      practice and differ between
       companies and industries. Many give it a new number; some revise and control stock with the
       change notice. Follow your company's numbering policy.
 

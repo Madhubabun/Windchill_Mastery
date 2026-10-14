@@ -1,8 +1,20 @@
 id: m02-s02-l02
 subtitle: Three buttons that all "make something new" - and only one of them keeps your history in one piece.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [versioning, revise, save-as, view-version, interchangeability]
+sources:
+  - id: te
+    where: "Module 2: Describe revision and iteration control (New Revision). Module 5: Create a BOM: techniques (Create a BOM using Save As). Module 6: Activity: change task Revise of affected objects into resulting objects"
+  - id: ac
+    where: "Administer Windchill views: What are Windchill views?; Configure custom views (view-dependent parts and end items, B.A labels). Access control permissions (Revise, New View Version). Identify life cycle transition types (Revise covers revise, new view version and one-off version)"
+  - id: trn-pdmlink
+    where: "04 Introduction to Windchill PDMLink - BOM: uses relationship from part version to child part master"
+  - id: hc-part-common
+    label: PTC Help Center supplement
+    title: "Common Part Information"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/ccm_oview/CCMOviewPartCommonInfo.html"
+    covers: "The part master stores information common to every version, including the unique part number and name"
 
 blocks:
   - type: text
@@ -25,7 +37,7 @@ blocks:
       - "next edition of the same thing" → *[[revise|Revise]]* (A.3 → B.1)
       - "copy it into a new thing" → *[[save-as|Save As]]* (new number, new [[master]])
       - "same part, other team's lens" → *[[new-view-version|New View Version]]* (for example Design → Manufacturing [[part-view|view]])
-      - "can the new one replace the old one everywhere?" → *interchangeability* (often called the form-fit-function rule)
+      - "can the new one replace the old one everywhere?" → *interchangeability* (the form-fit-function rule - general PLM practice, not a Windchill setting)
 
   - type: diagram
     title: Which button? A three-question decision
@@ -54,7 +66,7 @@ blocks:
             Could a new hinge replace an old one in **every** scooter already built and in every
             spare-parts bin - same mounting, same size, same job? If yes, it's the same item. If no,
             it's a different item.
-          real: Many companies write this rule into their change process. Ask your change manager for yours.
+          real: This is general PLM practice, not a Windchill feature. Many companies write it into their change process - ask your change manager for yours.
         - id: q2
           label: Another discipline?
           sublabel: e.g. manufacturing
@@ -83,8 +95,10 @@ blocks:
           w: 200
           tone: accent
           detail: |
-            Creates a version of the **part** in another view (for example Manufacturing) on the same
-            master. Each view then evolves on its own. Parts only - documents and CAD don't have views.
+            Creates a version of the **part** in another view (for example Manufacturing, built from
+            the Design version) on the same master. Its label carries the source revision - from
+            Design B you get Manufacturing **B.A**. Each view version follows its own life cycle.
+            Only parts and end items have views.
         - id: saveas
           label: Save As
           sublabel: new number · fresh history
@@ -93,9 +107,9 @@ blocks:
           w: 200
           tone: warning
           detail: |
-            A new object with its own number and history, starting from a copy of the original. The
-            original keeps its own where-used and history. Right when the result is genuinely a
-            different item.
+            A new object with its own name, number and history, starting from a copy of the
+            original. The original keeps its own where-used and history. Right when the result is
+            genuinely a different item.
       edges:
         - { from: start, to: q1 }
         - { from: q1, to: q2, label: "yes - same item" }
@@ -116,11 +130,11 @@ blocks:
       - label: Where-used
         cells: ["Parents still use this master", "Same master - shared where-used", "Nobody uses the copy yet"]
       - label: Works on
-        cells: ["Parts, documents, CAD", "Parts only", "Parts, documents, CAD"]
+        cells: ["Parts, documents, CAD", "Parts and end items only", "Parts and CAD - often a whole structure"]
       - label: Typical trigger
         cells: ["Approved change to a released item", "Downstream team needs its own version", "A new variant or a new design started from an old one"]
       - label: Typical control
-        cells: ["Often via a change notice task", "Often by manufacturing engineering", "Usually anyone who can create in the context"]
+        cells: ["Revise permission - often used inside a change task", "New View Version permission - often manufacturing engineering", "Create rights in the target context"]
     takeaway: Same item → Revise. Same item in another discipline → New View Version. Different item → Save As.
 
   - type: callout
@@ -167,7 +181,7 @@ blocks:
             feedback: That creates a new item nobody uses. The S2 assembly still points at SC-1042.
           - label: Check out A.3 and edit it in place
             next: f2
-            feedback: A.3 is Released - normal users can't check it out, and if they could, the factory's record would change under them.
+            feedback: A.3 is Released - business rules normally stop anyone checking it out, and if they could, the factory's record would change under them.
       - id: s2
         md: |
           **Request 2:** the E-bike E1 needs a hinge like SC-1042, but with **wider mounting holes**
@@ -215,21 +229,21 @@ blocks:
       - title: Revise
         where: ["<object> information page", Actions, Revise]
         md: |
-          Pick the Released version, choose **Revise**, confirm. You get the next revision, usually
-          In Work. Many companies do this from the **change task** instead, so the new revision is
-          recorded as a resulting object of the change.
+          Pick the Released version, choose **Revise** and confirm on the Revise page. You get the
+          next revision, usually In Work. Many companies do this from the **change task** instead
+          (select the affected objects, click **Revise**), so the new revisions become resulting
+          objects of the change.
       - title: Save As
         where: ["<object> information page", Actions, Save As]
         md: |
-          Give the copy a new number (or let Windchill generate one) and a name. For CAD, related
-          objects such as drawings can be included and renamed together. The copy starts its own
-          history.
+          Give the copy new names and numbers. Save As on a part structure typically copies the
+          matching CAD structure too. The copy starts its own history.
       - title: New View Version
         where: ["<part> information page", Actions, New View Version]
         md: |
-          Parts only. Choose the target view (for example Manufacturing). Depending on your release
-          and setup, manufacturing teams may instead create downstream views from a BOM
-          transformation tool rather than this action.
+          Parts and end items only, and only if you hold the New View Version permission. Choose
+          the target view (for example Manufacturing). The views available are set up by your site
+          administrator.
     result: You know where each action is and which one fits the change in front of you.
 
   - type: callout
@@ -266,7 +280,7 @@ blocks:
       - kind: truefalse
         prompt: New View Version works on parts, documents and CAD documents alike.
         answer: false
-        explanation: Views (like Design and Manufacturing) belong to parts. Documents and CAD documents don't have view versions.
+        explanation: Views (like Design and Manufacturing) belong to parts and end items. Documents and CAD documents don't have view versions.
       - kind: multi
         prompt: Which situations call for Save As? (Choose all that apply.)
         options:

@@ -1,8 +1,31 @@
 id: m02-s03-l05
 subtitle: Spot-the-difference for BOMs - and how to hand a clean report to someone who'll never open Windchill.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [bom, structure, compare, reports, export, configuration]
+sources:
+  - id: te
+    where: "Module 2: part structure reports such as multilevel BOMs and parts lists; Module 5: Filter a BOM; Specify a configuration specification (Latest default, As Matured, Baseline); Activity: Filter BOMs (Edit Filter, Saved Filters)"
+  - id: hc-struct-compare
+    label: PTC Help Center supplement
+    title: "Compare to Part Structure"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/prodstructure/PMStructureComparePart.html"
+    covers: "Launch from Actions > Compare > Compare to Part Structure, the Structure tab toolbar or the right-click menu; each side set by its configuration specification filter; shows added or removed parts and attribute differences"
+  - id: hc-struct-compare-start
+    label: PTC Help Center supplement
+    title: "Starting a Part to Part Structure Comparison"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/prodstructure/PMStructureComparePartStart.html"
+    covers: "Parts tab with Left Side and Right Side, Enter Number/Name and Version; Edit Filter and Saved Filters per side; both sides start identical, so change the right side"
+  - id: hc-struct-compare-results
+    label: PTC Help Center supplement
+    title: "Interpreting Part to Part Structure Comparison Results"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/prodstructure/PMStructureComparePartResults.html"
+    covers: "Child, relation, usage attribute and attribute differences; blank row where there is no equivalent object; Show only differences; Previous and Next difference; Export list to file exports only displayed rows"
+  - id: hc-part-reports
+    label: PTC Help Center supplement
+    title: "Reports Action Set - Parts"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/prodstructure/PMStructureReports.html"
+    covers: "Reports in the Structure tab toolbar open BOM Reports in a new browser tab; report names (Single-Level BOM, Single-Level Consolidated BOM, Multi-Level BOM, Multi-Level Components List, Multi-Level BOM with Replacements...); Export action and Export list to file"
 
 blocks:
   - type: text
@@ -11,22 +34,22 @@ blocks:
       changed in the frame between the released version and Priya's new one?"
 
       Nobody wants to scroll two 200-line BOMs side by side and squint. Windchill can **compare**
-      two structures and mark every added, removed and changed line for you. And when the answer has
-      to go to purchasing or a supplier who never logs in, you run a **BOM report** and export it.
+      two structures and flag every difference for you. And when the answer has to go to purchasing
+      or a supplier who never logs in, you run a **BOM report** or export the structure.
 
   - type: callout
     variant: terms
     md: |
       **Plain words → official term**
       - "the tree with all the columns" → *structure view* (the part's **Structure** tab)
-      - "which versions the tree shows" → *configuration specification* (Latest, released, baseline…)
-      - "spot the difference between two BOMs" → *[[structure-compare|structure compare]]* (also *BOM compare*)
-      - "the BOM as a printable table" → *BOM report* (single-level, multi-level, components list…)
-      - "download the table" → *export* (usually to a spreadsheet or CSV)
+      - "which versions the tree shows" → *configuration specification* (Latest, As Matured, Baseline…)
+      - "spot the difference between two BOMs" → *[[structure-compare|structure compare]]* (the action is *Compare to Part Structure*)
+      - "the BOM as a printable table" → *BOM report* (Single-Level BOM, Multi-Level BOM, Multi-Level Components List…)
+      - "download the table" → *Export* / *Export list to file*
 
   - type: diagram
     title: Reading a compare result
-    caption: Frame SC-2000 released A.3 (left) vs A.5 (right). Click a line to see how compare marks it.
+    caption: Frame SC-2000 released A.3 (left) vs A.5 (right), simplified. Click a line to see how compare flags it.
     diagram:
       width: 800
       height: 420
@@ -41,7 +64,7 @@ blocks:
           w: 310
           h: 50
           tone: neutral
-          detail: "**Identical.** Same child, same usage attributes on both sides. Most compare views let you hide identical lines so only differences remain."
+          detail: "**Identical.** Same child, same usage attributes on both sides. Switch to **Show only differences** and lines like this disappear."
         - id: r-tube
           label: SC-2010 tube ×1
           x: 450
@@ -58,8 +81,9 @@ blocks:
           w: 310
           tone: danger
           detail: |
-            **Only on the left.** The old hinge is gone in A.5. Because the replacement is a different
-            part (a different master), compare shows a *replace* as one removed line plus one added line.
+            **Only on the left.** The old hinge is gone in A.5. The replacement is a different part
+            (a different master), so compare finds no equivalent: SC-1042 gets a blank row opposite it
+            on the right - a *relation difference*.
         - id: r-hinge
           label: SC-1043 hinge ×1
           sublabel: added
@@ -67,14 +91,14 @@ blocks:
           y: 130
           w: 310
           tone: success
-          detail: "**Only on the right.** The two-piece hinge that replaced SC-1042."
+          detail: "**Only on the right.** The two-piece hinge that replaced SC-1042, with a blank row opposite it on the left."
         - id: l-screw
           label: FS-0620 screw ×4
           x: 40
           y: 220
           w: 310
           tone: warning
-          detail: "**Changed.** The same child on both sides, but a usage attribute differs - here quantity 4 on the left."
+          detail: "**Changed.** The same child on both sides, but a usage attribute differs - here quantity 4 on the left. Compare flags it as a *usage attribute difference*."
         - id: r-screw
           label: FS-0620 screw ×6
           sublabel: quantity changed
@@ -82,7 +106,7 @@ blocks:
           y: 220
           w: 310
           tone: warning
-          detail: Quantity 6 on the right. Compare highlights the changed cell. Find number, unit or reference designator changes show the same way.
+          detail: Quantity 6 on the right. Selecting the difference icon opens a window listing the usage attribute differences. Reference designator changes are flagged the same way.
         - id: r-latch
           label: SC-1050 latch ×1
           sublabel: added
@@ -90,7 +114,7 @@ blocks:
           y: 310
           w: 310
           tone: success
-          detail: "**Only on the right.** A brand-new line. On the left there's an empty gap where it would be."
+          detail: "**Only on the right.** A brand-new line. On the left there's a blank row where it would be."
       edges:
         - { from: l-tube, to: r-tube, label: same }
         - { from: l-screw, to: r-screw, label: changed }
@@ -101,8 +125,8 @@ blocks:
     rows:
       - { label: Answers, cells: ["What is in it now?", "What changed between two?", Give me this BOM as a table] }
       - { label: Typical user, cells: [Designers browsing, "Reviewers, change boards", "Purchasing, suppliers, auditors"] }
-      - { label: "Interactive?", cells: ["Yes - expand, filter, view in Creo View", "Yes - hide identical, jump to differences", "Mostly static, export-friendly"] }
-      - { label: Watch out for, cells: [The configuration in use, Which two things you picked, The configuration and levels chosen] }
+      - { label: "Interactive?", cells: ["Yes - expand, filter, Visualization tab", "Yes - show only differences, jump to the next one", "Opens in a new browser tab, ready to share"] }
+      - { label: Watch out for, cells: [The configuration in use, The filter on each side, The filter it was run with] }
     takeaway: Browse with the structure view, review changes with compare, share with a report.
 
   - type: callout
@@ -115,50 +139,54 @@ blocks:
   - type: walkthrough
     title: Compare two structures
     who: Anyone with read access to both structures
-    where: ["<part> information page", Structure tab, Compare]
+    where: ["<part> information page", Actions, Compare, Compare to Part Structure]
     steps:
-      - title: Open the first structure
-        where: ["SC-2000 information page", Structure tab]
-        md: Open the frame's Structure tab. Set the configuration to show the version you want on the left - for example the released A.3.
-      - title: Start a compare
-        where: [Structure tab, Actions or toolbar, Compare]
+      - title: Start the compare from the part
+        where: ["SC-2000 information page", Actions, Compare, Compare to Part Structure]
         md: |
-          Choose the compare action. Depending on release it may be called **Compare**, **Compare
-          Structure** or **BOM Compare**, and it may sit in the toolbar, a right-click menu or the
-          Actions menu.
-      - title: Pick what to compare against
-        where: [Compare, choose version / part / baseline]
+          Open the frame's information page and choose **Actions > Compare > Compare to Part
+          Structure**. On the Structure tab you'll also find it under the **Compare** drop-down in the
+          toolbar's Tools set, or on the right-click menu. The part you start from goes on the left.
+      - title: Set up the two sides
+        where: [Compare to Part Structure, Parts tab, Left Side / Right Side]
         md: |
-          Pick the other side: another version of the same part (A.5), a baseline that contains it,
-          or a different part altogether (for example the frame of a sister product).
+          Both sides start as the same structure, which would show no differences - so change the
+          right side. Pick another **Version** from the list (A.5), type another part's number, or
+          use **Edit Filter** on a side to apply a different configuration specification, such as a
+          baseline. Click **OK**.
       - title: Read the differences
-        where: [Compare results, filter differences]
+        where: [Compare results, Show only differences]
         md: |
-          Lines are marked as added, removed, changed or identical. Hide identical lines, expand
-          levels as needed, and check the changed cells (quantity, find number, designators).
+          The structures sit side by side with difference columns in between: *child* (something
+          differs further down), *relation* (no equivalent on the other side - a blank row),
+          *usage attribute* (for example quantity) and *attribute*. Turn on **Show only differences**
+          and use **Next difference** to step through them.
+      - title: Export what you found
+        where: [Compare results, Export list to file]
+        md: Expand the branches you need first - **Export list to file** saves only the rows that are displayed.
     result: You see exactly what changed between the two frames, line by line.
 
   - type: walkthrough
-    title: Run and export a BOM report
+    title: Run a BOM report and export
     who: Anyone with read access to the part
-    where: ["<part> information page", Actions, Reports]
+    where: ["<part> information page", Structure tab, Reports]
     steps:
-      - title: Open the report list
-        where: ["SC-2000 information page", Actions, Reports]
+      - title: Select the right structure
+        where: ["SC-2000 information page", Structure tab, Filter]
+        md: Reports use the structure of the part selected in the tree, as currently filtered. Set the configuration specification first - for example *As Matured* for released data.
+      - title: Open the report
+        where: [Structure tab, Reports, BOM Reports]
         md: |
-          Open the part's **Actions** menu and look for **Reports** (in some setups it's its own
-          menu or tab). You'll see reports such as a single-level BOM, a multi-level BOM, and a
-          components list with quantities rolled up. Names and the list vary by release and company.
-      - title: Choose the report and its configuration
-        where: [Reports, Multi-Level BOM Report]
-        md: Pick the report and set the configuration it should use (for example latest released). The configuration decides which child versions appear.
-      - title: Export it
-        where: [Report output, Export]
+          Click **Reports** in the Structure tab toolbar (or **BOM Reports** from its drop-down). The
+          reports open in a new browser tab. Pick one: **Single-Level BOM**, **Multi-Level BOM**
+          (indented, every level), or **Multi-Level Components List** (one total per component, no levels).
+      - title: Export the structure itself
+        where: [Structure tab, Export]
         md: |
-          Export or save the output - commonly as a spreadsheet, CSV or PDF, depending on the report.
-          Any Windchill table also usually offers an **export list to file** option in its table
-          actions menu.
-    result: A BOM file you can send to purchasing or a supplier, labelled with the configuration it was run with.
+          To get a file, use the **Export** action on the Structure tab and choose a format. The file
+          holds only the branches and columns visible in the tree, so expand what you need first.
+          The **Uses** and **Occurrences** tabs also offer **Export list to file**.
+    result: A BOM you can send to purchasing or a supplier, labelled with the configuration it was run with.
 
   - type: simulation
     title: Find every difference
@@ -178,7 +206,7 @@ blocks:
         label: Compare A.3 with A.5
         when: { right: [none, A.3] }
         do: [{ set: { right: A.5 } }]
-        log: Compare done. 3 lines on the left, 4 on the right. Everything except the tube is marked as different.
+        log: Compare done. 3 lines on the left, 4 on the right. Everything except the tube is flagged as different.
         blockedHint: You're already comparing with A.5.
       - id: cmp-self
         label: Compare A.3 with A.3
@@ -190,7 +218,7 @@ blocks:
         label: Inspect the tube line
         when: { right: A.5 }
         do: [{ set: { right: A.5 } }]
-        log: SC-2010 tube ×1 on both sides - identical. Tip - hide identical lines to focus on what changed.
+        log: SC-2010 tube ×1 on both sides - identical. Tip - Show only differences hides lines like this.
         blockedHint: Compare with A.5 first.
       - id: latch
         label: Inspect the latch line
@@ -202,7 +230,7 @@ blocks:
         label: Inspect the hinge lines
         when: { right: A.5 }
         do: [{ set: { hinge: replaced } }]
-        log: SC-1042 only on the left, SC-1043 only on the right. Removed + added = a replace.
+        log: SC-1042 only on the left, SC-1043 only on the right, each with a blank row opposite. Gone + new in the same spot = a replace.
         blockedHint: Compare with A.5 first.
       - id: screws
         label: Inspect the screw line
@@ -214,12 +242,12 @@ blocks:
         label: Export the compare for the meeting
         when: { right: A.5, latch: added, hinge: replaced, screws: "4 → 6" }
         do: [{ set: { exported: "yes" } }]
-        log: Exported to a spreadsheet, titled "SC-2000 A.3 vs A.5". The board reviews 3 changes instead of 6 lines.
+        log: Export list to file done. You rename it "SC-2000 A.3 vs A.5". The board reviews 3 changes instead of 6 lines.
         blockedHint: Inspect every marked line first - the board will ask about each one.
     goals:
       - label: Find all three differences
         when: { latch: added, hinge: replaced, screws: "4 → 6" }
-        message: Added, replaced (removed + added) and changed. Those are the three shapes every BOM difference takes.
+        message: Added, replaced (gone + new) and changed. Those are the three shapes most BOM differences take.
       - label: Export the result for the change board
         when: { exported: "yes" }
         message: Ready for Thursday. Always note which two versions you compared.
@@ -252,7 +280,7 @@ blocks:
           The report was run with **Latest**. That resolved frame SC-2000 to A.5 (In Work), which uses
           SC-1043. The released frame is A.3, with SC-1042. What do you tell purchasing?
         choices:
-          - label: Re-run the report with a released (or baseline) configuration before ordering
+          - label: Re-run the report with a released (As Matured) or baseline configuration before ordering
             next: win
             good: true
             feedback: Exactly. Buy from what's released, not from work in progress.
@@ -261,7 +289,7 @@ blocks:
             feedback: Expensive - and it hides the real problem, which will come back on the next order.
       - id: win
         md: |
-          Purchasing re-runs the report with the **latest released** configuration and orders SC-1042.
+          Purchasing re-runs the report with an **As Matured** (released) configuration and orders SC-1042.
           Acme also adds the configuration name to the export file name so this can't happen silently again.
         outcome: success
       - id: meh
@@ -289,8 +317,8 @@ blocks:
   - type: callout
     variant: pro-tip
     md: |
-      In compare, turn on **show differences only** (or hide identical lines) first. A 300-line
-      structure with 4 changes becomes a 4-line review.
+      In compare, turn on **Show only differences** first. A 300-line structure with 4 changes
+      becomes a short review - and Windchill remembers your choice next time.
 
   - type: quiz
     passMark: 0.7
@@ -299,7 +327,7 @@ blocks:
         prompt: A compare shows SC-1042 only on the left and SC-1043 only on the right, at the same position. What happened?
         options: [Two separate mistakes, The hinge was replaced by a different part, SC-1042 was revised to SC-1043, The compare is broken]
         answer: 1
-        explanation: Different numbers mean different part masters, so compare shows a replace as one removed line plus one added line.
+        explanation: Different numbers mean different part masters, so compare finds no equivalent for either - each shows with a blank row opposite it.
       - kind: single
         prompt: Purchasing wants to order parts for production. Which configuration should their BOM report use?
         options: [Latest, Latest released (or a released baseline), Whatever the default is, The configuration in Priya's workspace]
@@ -308,7 +336,7 @@ blocks:
       - kind: truefalse
         prompt: Structure compare can show a difference even when the same child part is on both sides.
         answer: true
-        explanation: If a usage attribute such as quantity, find number or a reference designator changed, compare marks the line as changed.
+        explanation: If a usage attribute such as quantity or a reference designator changed, compare flags a usage attribute difference.
       - kind: multi
         prompt: Which belong on an exported BOM so nobody misreads it later? (Choose all that apply.)
         options: [The top part number and revision, The configuration used, The export date, The designer's favourite colour]
@@ -318,6 +346,6 @@ blocks:
   - type: summary
     points:
       - The Structure tab shows what's in a BOM - always with a configuration.
-      - Structure compare marks added, removed and changed lines. A replace shows as removed + added.
-      - BOM reports (single-level, multi-level, components list) produce shareable tables you can export.
+      - Compare to Part Structure flags parts with no equivalent (blank rows) and usage attribute and attribute differences.
+      - BOM reports (Single-Level BOM, Multi-Level BOM, Multi-Level Components List) give shareable tables; Export saves what's displayed.
       - Exports are snapshots - label them with part, revision and configuration.

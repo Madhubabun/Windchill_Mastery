@@ -1,8 +1,17 @@
 id: m03-s01-l03
 subtitle: Not every change needs a board meeting. Learn when to take the express lane - and when it's a trap.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [change-management, fast-track, full-track, change-review-board, change-notice]
+sources:
+  - id: te
+    where: "Module 6: Identify roles in the change management process (CRB, CIB, 80/20 Fast and Full Track); Change management process: Investigate Need; Activity: Analyze a change request (Fast-Track Approval, Full-Track Online Review, Full-Track Offline Review); Activity: Create a change notice to release product data (Complexity: Fast Track, Full Track, Basic)"
+  - id: pf
+    where: "Module 4: The change process (Basic, Fast and Full Track); Activity: Use the Fast Track change process to revise a business object; Activity: Use the Full Track change process to revise a business object"
+  - id: ac
+    where: "Appendix B: Describe the change request life cycle and workflow; Describe the change request process for offline and online CRB processes; Describe the change notice life cycle and workflow (Schedule CIB Review)"
+  - id: trn-cm-itc
+    where: "Intro to the change process: change process diagram (Full Track and Fast Track routes); Creating change requests: Analyzing change requests, Fast Track versus Full Track (used only where the 13.x course manual agrees)"
 
 blocks:
   - type: text
@@ -11,131 +20,172 @@ blocks:
       Nobody wants to wait behind a full trolley to buy one apple.
 
       Change works the same way. A typo in a drawing note shouldn't need the same board meeting as a
-      new bracket material. So most companies have two routes:
+      new bracket material. Windchill's out-of-the-box change process has two routes for a change
+      request:
 
-      - **Full track** - the whole process: Problem Report, Change Request, board decision, then a
-        Change Notice with tasks.
-      - **Fast track** - a shortcut for small, low-risk changes, usually going straight to a Change
-        Notice without a separate Change Request.
+      - **Full track** - the change request is reviewed by the **change review board**, and later the
+        change notice's plan is reviewed by the **change implementation board** before work starts.
+      - **Fast track** - the same change request and change notice, but **without the two board
+        reviews**. The change admins move it along.
+
+      The route is picked by the **Change Admin I** while analysing the change request. The course
+      manual says that typically about **80%** of changes are fast track and **20%** full track.
 
   - type: callout
     variant: terms
     md: |
       **Plain words → official term**
-      - "the complete route with a board decision" → *[[full-track-change|full track change]]*
-      - "the express lane for small stuff" → *[[fast-track-change|fast track change]]*
-      - "does it still fit, look and work the same?" → *form, fit and function* (FFF)
-      - "can the old and new parts be swapped freely?" → *interchangeability*
+      - "the route with board reviews" → *[[full-track-change|full track change]]*
+      - "the express lane without board reviews" → *[[fast-track-change|fast track change]]*
+      - "the board that decides on the request" → *[[change-review-board]]* (CRB)
+      - "the board that decides on the plan" → *[[change-implementation-board]]* (CIB)
+      - "the task where the route is picked" → *Analyze Change Request*, with its *routing options*
+      - "does it still fit, look and work the same?" → *[[form-fit-function|form, fit and function]]* (FFF), a general PLM idea
+      - "can the old and new parts be swapped freely?" → *[[interchangeability]]*, also general PLM practice
 
   - type: diagram
     title: Two routes to the same release
-    caption: Both routes end with a Change Notice, tasks and released revisions. Click a box to compare.
+    caption: Both routes use a change request, a change notice with tasks and a final audit. Full track adds two board reviews. Click a box to compare.
     diagram:
-      width: 800
+      width: 860
       height: 300
       groups:
-        - { label: Full track, x: 10, y: 10, w: 780, h: 130, tone: warning }
-        - { label: Fast track, x: 10, y: 160, w: 780, h: 130, tone: success }
+        - { label: Full track, x: 10, y: 10, w: 840, h: 130, tone: warning }
+        - { label: Fast track, x: 10, y: 160, w: 840, h: 130, tone: success }
       nodes:
         - id: fpr
           label: Problem Report
-          x: 30
+          sublabel: optional
+          x: 20
           y: 60
-          w: 140
+          w: 120
           tone: danger
-          detail: Captures the problem and evidence. Often the starting point on the full track.
+          detail: Captures the problem and evidence. Problem reports are optional - an issue can also start straight in a change request.
         - id: fcr
           label: Change Request
-          x: 190
+          sublabel: Change Admin I
+          x: 160
           y: 60
-          w: 140
+          w: 120
           tone: warning
-          detail: The business case. Cost, stock, suppliers, safety and urgency are written down so the board can judge.
+          detail: |
+            The business case: scope, impact, cost and the proposed solution. In the **Analyze Change
+            Request** task, Change Admin I picks a full-track routing option.
         - id: fccb
-          label: Board decision
-          x: 350
+          label: CRB review
+          x: 300
           y: 60
-          w: 140
+          w: 120
           tone: neutral
           shape: pill
-          detail: Maya's change board approves, rejects or asks for more information. This is the step fast track skips.
+          detail: The change review board approves, denies or asks for more investigation. Typical members come from design engineering, manufacturing engineering and quality. Fast track skips this.
         - id: fcn
           label: Change Notice
-          x: 510
+          sublabel: Change Admin II plans
+          x: 440
           y: 60
-          w: 130
+          w: 120
           tone: primary
-          detail: The implementation plan with change tasks.
+          detail: The change notice holds the implementation plan - the change tasks with their assignees, reviewers and need dates.
+        - id: fcib
+          label: CIB review
+          x: 580
+          y: 60
+          w: 120
+          tone: neutral
+          shape: pill
+          detail: The change implementation board approves or denies the plan before the tasks go out. Fast track skips this too.
         - id: frel
           label: Released
-          x: 660
+          sublabel: after CA III audit
+          x: 720
           y: 60
-          w: 110
+          w: 120
           tone: success
           shape: pill
-          detail: New revisions released and traceable to the CR and PR.
+          detail: The tasks are done and reviewed, Change Admin III audits the change notice, and approval releases the resulting objects.
+        - id: spr
+          label: Problem Report
+          sublabel: optional
+          x: 20
+          y: 210
+          w: 120
+          tone: danger
+          detail: Same as on the full track.
+        - id: scr
+          label: Change Request
+          sublabel: Change Admin I
+          x: 160
+          y: 210
+          w: 120
+          tone: warning
+          detail: |
+            Still a change request, still analysed. Change Admin I picks **Fast-Track Approval** in
+            the Analyze Change Request task, and the request goes straight on to change planning.
         - id: scn
           label: Change Notice
-          x: 190
+          sublabel: Change Admin II plans
+          x: 440
           y: 210
-          w: 300
+          w: 120
           tone: primary
-          detail: |
-            On the fast track the change starts here. The CN still lists affected objects, has tasks,
-            and is usually reviewed by someone before release - just without the full board.
-            Exactly how this works **depends on your company's configuration**.
+          detail: The same kind of change notice and tasks as the full track, but no CIB review of the plan.
         - id: srel
           label: Released
-          x: 660
+          sublabel: after CA III audit
+          x: 720
           y: 210
-          w: 110
+          w: 120
           tone: success
           shape: pill
-          detail: Still a new, traceable revision. Fast track is shorter, not sloppier.
+          detail: Still reviewed task by task, still audited, still a new traceable revision. Fast track is shorter, not sloppier.
       edges:
         - { from: fpr, to: fcr }
-        - { from: fcr, to: fccb }
+        - { from: fcr, to: fccb, label: full track }
         - { from: fccb, to: fcn }
-        - { from: fcn, to: frel }
+        - { from: fcn, to: fcib }
+        - { from: fcib, to: frel }
+        - { from: spr, to: scr }
+        - { from: scr, to: scn, label: fast track }
         - { from: scn, to: srel }
 
   - type: comparison
     title: Fast track vs full track
     columns: [Fast track, Full track]
     rows:
-      - label: Typical route
-        cells: ["Change Notice (no separate Change Request)", "Problem Report → Change Request → board → Change Notice"]
+      - label: Who picks the route
+        cells: ["Change Admin I, in the Analyze Change Request task", "Change Admin I, in the Analyze Change Request task"]
+      - label: Board reviews
+        cells: [None, "CRB reviews the change request; CIB reviews the change notice's plan"]
       - label: Use it for
-        cells: ["Low-risk fixes - typos, missing notes, clarifications", "Anything that affects form, fit, function, safety, cost or suppliers"]
-      - label: Who decides
-        cells: ["A delegated approver, such as a change analyst", "The change board (CRB / CCB)"]
-      - label: Impact on stock and parts already made
-        cells: [None - existing parts are still good, "Needs a decision - use up, rework or scrap"]
-      - label: Speed
-        cells: [Hours to days, Days to weeks]
-      - label: Paper trail
-        cells: [Shorter but still traceable, Full - from problem to release]
-    takeaway: Fast track is a shorter route, not a way around the rules. Still a CN, still tasks, still a new revision.
+        cells: ["Low impact and cost - the cost limit is usually set by company policy", "High impact and cost that needs close analysis, often across departments"]
+      - label: How common
+        cells: ["About 80% of changes (the course manual's typical figure)", About 20% of changes]
+      - label: Still has a change notice, tasks, reviews and an audit?
+        cells: [Yes, Yes]
+    takeaway: Fast track is a shorter route, not a way around the rules. Same objects, same audit, fewer board reviews.
 
   - type: callout
     variant: why-it-matters
     md: |
-      If every change goes full track, the board drowns in typo fixes and real issues wait in the queue.
-      If too much goes fast track, risky changes slip past the people who should have seen them. Real
-      companies write down **clear rules** for which changes may take the fast track, and audits check
-      that the rules were followed.
+      If every change goes full track, the boards drown in typo fixes and real issues wait in the
+      queue. If too much goes fast track, risky changes slip past the people who should have seen
+      them. Real companies write down **clear rules** for which changes may take the fast track, and
+      audits check that the rules were followed.
 
   - type: text
     md: |
       ### The quick test
 
-      Ask these questions about the change. If **any** answer is "yes", take the **full track**.
+      This checklist is **general PLM practice**, not a Windchill setting - your company's change
+      policy is what counts. Ask these questions about the change. If **any** answer is "yes", it's a
+      **full track** candidate.
 
       1. Does it change **form, fit or function** - shape, size, material, performance?
       2. Can the new part **not** be swapped freely with the old one?
       3. Does it touch **safety**, regulations or certification?
       4. Does it affect **cost**, **suppliers**, tooling or **stock** already made?
-      5. Does it need input from **several teams** to judge?
+      5. Does it need input from **several departments** to judge?
 
       All "no"? It's a fast track candidate - if your company's rules allow it.
 
@@ -152,8 +202,8 @@ blocks:
           - label: Fast track
             next: c2
             good: true
-            feedback: Right. It's a documentation fix with no effect on the part. A Change Notice is enough.
-          - label: Full track with a board review
+            feedback: Right. It's a documentation fix with no effect on the part. Maya can approve it as fast track - no board needed.
+          - label: Full track with board reviews
             next: slow
             feedback: Technically allowed, but you've just added a typo to the board's agenda.
       - id: c2
@@ -183,7 +233,7 @@ blocks:
       - id: win
         md: |
           Three for three. You judged each change by its **impact**, not by how big the edit looks. That's
-          exactly how a good change analyst thinks.
+          exactly how a good Change Admin I thinks.
         outcome: success
       - id: slow
         md: |
@@ -202,33 +252,37 @@ blocks:
         outcome: fail
 
   - type: walkthrough
-    title: Start a fast track change (when your rules allow it)
-    who: Users allowed to create change notices directly (depends on your company's configuration)
+    title: Pick the track for a change request
+    who: A member of the Change Admin I role for the product (at Acme, Maya)
+    where: [Home, My Tasks, Analyze Change Request]
     steps:
-      - title: Check the rules first
-        where: [Your company's change policy]
-        md: Confirm the change meets your fast track criteria. If you're unsure, ask your change manager (at Acme, Maya).
-      - title: Open the affected object
-        where: [Search, "<object> information page"]
-        md: Find the drawing or part by number and open its information page. Check the **Changes** tab for an open change first.
-      - title: Create the Change Notice
-        where: ["<object> information page", Actions menu, New Change Notice]
+      - title: Open the analysis task
+        where: [Home, My Tasks]
+        md: In the **My Tasks** table click **Analyze Change Request**. The task's information page opens.
+      - title: Read the change request
+        where: [Analyze Change Request, Details tab, Subject link]
+        md: Open the change request from the task's **Subject** link. Check its description, proposed solution and affected objects against your company's fast track rules.
+      - title: Choose a routing option
+        where: [Analyze Change Request, Task Completion]
         md: |
-          From the **Actions** menu choose the action to create a new **Change Notice**. In some setups
-          you instead create a change request and mark it as a simple or fast track change. Follow what
-          your company has configured.
-      - title: Explain why it's fast track
-        where: [New Change Notice, description]
-        md: Write a clear description and why it qualifies - for example "documentation only, no form, fit or function impact".
-    result: The change runs on the short route but still produces a traceable new revision.
+          Click **Task Completion**. Choose **Fast-Track Approval** for a low-impact change, or
+          **Full-Track Online Review** to add approval tasks for the CRB and CIB roles in Windchill.
+          **Full-Track Offline Review** means the boards meet outside Windchill and a Change Admin II
+          records the results. You can also reject the request or reassign it.
+      - title: Explain and complete
+        where: [Task Completion, Comments, Complete Task]
+        md: Write a comment that says why the route fits - for example "documentation only, no form, fit or function impact" - and click **Complete Task**.
+    result: The change request moves on by the route you chose, and your reason is recorded with the task.
 
   - type: callout
     variant: note
-    title: Fast track setups vary
+    title: Names and setups vary
     md: |
-      Windchill supports both routes, but how fast track is set up differs by company. Some create
-      Change Notices directly, some use a "simple" vs "complex" setting on the change object to choose
-      a shorter workflow. Treat your company's change policy as the source of truth.
+      The routing option names above are from the out-of-the-box process in the Windchill 13.x course
+      manual. A change notice also has a **Complexity** setting (Fast Track, Full Track or Basic), and
+      configurations such as the PLM Foundation Pacesetter add a **Basic Track** for first releases.
+      PTC expects these processes to be adapted to each company, so treat your company's change
+      policy as the source of truth.
 
   - type: callout
     variant: pitfall
@@ -247,14 +301,14 @@ blocks:
     passMark: 0.7
     questions:
       - kind: single
-        prompt: What do fast track and full track changes have in common?
+        prompt: What do fast track and full track changes have in common in the out-of-the-box process?
         options:
-          - Both need the change board to meet
-          - Both end with a Change Notice producing new released revisions
-          - Both start with a Problem Report
+          - Both need the change review board to meet
+          - Both go through a change request, a change notice with tasks and a Change Admin III audit
+          - Both skip the change request
           - Neither leaves a record
         answer: 1
-        explanation: Both routes implement the change through a Change Notice and its tasks, and both produce traceable new revisions. Fast track mainly skips the separate Change Request and board decision.
+        explanation: Both routes use the same change objects and end with an audit. Full track adds the CRB review of the request and the CIB review of the plan.
       - kind: multi
         prompt: Which changes should take the full track? (Choose all that apply.)
         options:
@@ -263,25 +317,29 @@ blocks:
           - A fix for a fold-lock that can open while riding
           - A new supplier for a machined part
         answers: [0, 2, 3]
-        explanation: Material, safety and supplier changes have real impact and need the board. A spelling fix with no effect on the part is a typical fast track candidate.
+        explanation: Material, safety and supplier changes have real impact and need the boards. A spelling fix with no effect on the part is a typical fast track candidate.
       - kind: truefalse
         prompt: A change to a small, cheap part can always use the fast track.
         answer: false
         explanation: Judge the impact, not the size. A tiny spring that keeps a scooter folded is safety-critical.
       - kind: single
-        prompt: Who decides exactly how fast track works in your Windchill?
+        prompt: Where is the track chosen in the out-of-the-box process?
         options:
-          - It's the same in every Windchill installation
-          - Your company's configuration and change policy
-          - Whoever creates the change
-          - The supplier
+          - When the problem report is created
+          - In the Analyze Change Request task, by Change Admin I
+          - In the Audit Change Notice task
+          - By the supplier
         answer: 1
-        explanation: Windchill supports short and full routes, but the details - who may use fast track and which workflow runs - are configured per company.
+        explanation: Change Admin I picks a routing option - Fast-Track Approval or a Full-Track review - while analysing the change request.
+      - kind: truefalse
+        prompt: In the out-of-the-box process, fast track means creating a change notice without a change request.
+        answer: false
+        explanation: Fast track still has a change request; it skips the two board reviews. Releasing data through a change notice without a change request is a separate option your administrator has to allow.
 
   - type: summary
     points:
-      - Full track - Problem Report, Change Request, board decision, Change Notice with tasks.
-      - Fast track - a shorter route for low-risk changes, usually a Change Notice without a separate CR.
-      - Choose by impact - form, fit, function, safety, cost, suppliers and stock mean full track.
-      - Both routes still produce traceable new revisions.
-      - How fast track is set up depends on your company's configuration and policy.
+      - Full track adds a CRB review of the change request and a CIB review of the change notice's plan.
+      - Fast track uses the same change request, change notice, tasks and audit - just without the board reviews.
+      - Change Admin I picks the route in the Analyze Change Request task; typically about 80% of changes are fast track.
+      - Choose by impact - form, fit, function, safety, cost, suppliers and stock point to full track (general practice).
+      - Route names and rules are configurable, so follow your company's change policy.

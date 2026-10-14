@@ -8,14 +8,14 @@
 - id: undo-checkout
   term: Undo checkout
   plain: '"Never mind" - cancel your edit and throw away the working copy.'
-  definition: Cancels a check-out. The working copy and any changes made to it are discarded, no new iteration is created and the object becomes available to others again. Administrators (or users with the right permission) can undo another user's check-out.
+  definition: Cancels a check-out. Changes made to the working copy are deleted, no new iteration is created and the object becomes available to others again. Normally only the user who checked the object out can undo it; an administrative Undo Check Out (described for users with the Product Manager role) handles other users' check-outs. For CAD documents in a workspace, local content can be kept depending on preferences.
   aka: [Undo check out, Cancel checkout]
   related: [check-out, check-in, iteration]
 
 - id: local-cache
   term: Local cache
   plain: The hidden folder on your own computer where your CAD tool keeps workspace files.
-  definition: A folder on the user's machine where a CAD integration (Creo Parametric or a Workgroup Manager) stores copies of workspace files and workspace information. Saving in the CAD tool writes here first. Its location is set by the client (for Creo it is often under the user's application-data folder) and it can be cleared when it becomes corrupted, after uploading any unsaved work.
+  definition: A folder on the user's machine where a CAD integration (Creo Parametric or a Workgroup Manager) stores copies of workspace files and workspace information. Saving in the CAD tool writes here first; uploading copies changes to the server-side workspace. Workgroup Manager clients show and clear it from Tools > Server Management (Cache tab). It can be cleared when it becomes corrupted, after uploading any unsaved work; working directly in the cache folder is discouraged.
   related: [workspace, server-side-workspace, commonspace]
 
 - id: server-side-workspace
@@ -34,8 +34,8 @@
 - id: cad-conflict
   term: Conflict (CAD check-in)
   plain: Windchill saying "wait, this won't work yet" during a check-in, check-out or download.
-  definition: A problem Windchill detects while processing a workspace action - for example an object checked out by someone else, a newer iteration on the server, a file name that already exists or a missing dependent. Some conflicts can be resolved with a suggested action or overridden, others block the action until they are fixed.
-  aka: [Check-in conflict, Collision]
+  definition: A problem Windchill detects while processing a CAD or workspace action - for example an object checked out by someone else, an object modified without being checked out, an out-of-date workspace copy, a file name that already exists or an incomplete CAD document (missing dependent). Conflicts are listed in a Conflicts dialog box or, for failed events, in Event Management's Conflict Management window. Some can be resolved with a retry option or overridden, others block the action until they are fixed.
+  aka: [Check-in conflict]
   related: [workspace, check-in, cad-dependency]
 
 - id: embedded-browser
