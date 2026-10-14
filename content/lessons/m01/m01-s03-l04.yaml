@@ -1,8 +1,18 @@
 id: m01-s03-l04
 subtitle: Every object has a profile page. Learn to read it like a detective.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-13"
 tags: [information-page, history, where-used, attributes]
+sources:
+  - id: te
+    where: "Module 2: View information about objects, Activity: View information pages (Details, Structure, Related Objects, Changes, History, Where Used, New Tab / Customize); Module 3: View information about documents, Activity: Explore and create documents (History tab: Version History, Timeline History), Activity: Update a document (check-in Comments); Module 6: Promotion process: overview"
+  - id: ac
+    where: "Module 2: Manage participants (deleted users still appear in iteration history and life cycle history)"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "History Information Tables"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/objectoview/ObjectOviewInfoTablesHistory.html"
+    covers: "Version History lists all iterations and revisions; Life Cycle History and Maturity History record state changes, with who promoted the object and when; other history tables exist"
 
 blocks:
   - type: text
@@ -17,8 +27,8 @@ blocks:
       **Plain words → official term**
       - "the object's profile page" → [[information-page]]
       - "its facts: number, name, state, owner" → *attributes* (see [[metadata]])
-      - "every save in order" → *iteration history* (see [[iteration]])
-      - "when it moved from In Work to Released" → *life cycle history* (often called *maturity history*)
+      - "every save in order" → *version history* - every iteration and revision (see [[iteration]])
+      - "when it moved from In Work to Released" → *life cycle history* / *maturity history*
       - "what assemblies use this part" → [[where-used]]
 
   - type: diagram
@@ -48,8 +58,8 @@ blocks:
           h: 60
           tone: accent
           detail: |
-            Check out, revise, subscribe, add to favorites, start a change... The menu only shows the
-            actions **you** are allowed to do on this object in its current state.
+            Check out, revise, subscribe, report a problem... The menu depends on the object's type and
+            state and on **your** permissions, so two people can see different actions.
         - id: thumb
           label: Thumbnail
           sublabel: 3D / preview
@@ -69,8 +79,8 @@ blocks:
           tone: warning
           detail: |
             Each tab is a chapter of the object's story. Typical tabs include **Details** (attributes),
-            **Structure** (for parts), related objects, **Changes**, **History** and **Where Used**. You can
-            often add or rearrange tabs.
+            **Structure**, **Related Objects**, **Changes**, **History** and **Where Used** (for parts).
+            The tabs depend on the object type, and you can add your own tab with the tables you choose.
         - id: body
           label: Tab content
           sublabel: attributes + tables
@@ -104,8 +114,8 @@ blocks:
         - { id: a3, label: A.3 · In Work, sublabel: Priya fixes radius, x: 350, y: 40, w: 145, tone: neutral }
         - { id: rel, label: A.3 · Released, sublabel: via promotion, x: 520, y: 40, w: 140, tone: success }
         - { id: b1, label: B.1 · In Work, sublabel: revised for CN-0042, x: 685, y: 40, w: 130, tone: accent }
-        - { id: iter, label: Iteration history, sublabel: who saved what, x: 160, y: 170, w: 170, tone: info }
-        - { id: life, label: Life cycle history, sublabel: state changes, x: 500, y: 170, w: 170, tone: warning }
+        - { id: iter, label: Version history, sublabel: every iteration, x: 160, y: 170, w: 170, tone: info }
+        - { id: life, label: Maturity history, sublabel: state changes, x: 500, y: 170, w: 170, tone: warning }
       edges:
         - { from: a1, to: a2 }
         - { from: a2, to: a3 }
@@ -115,16 +125,16 @@ blocks:
         - { from: rel, to: life, dashed: true }
     chapters:
       - title: Born as A.1
-        caption: Sam creates the hinge bracket. Windchill records **who** and **when** - forever.
+        caption: Sam creates the hinge bracket. Windchill records who created it and when.
         show: [a1]
         highlight: [a1]
       - title: Every check-in is a new iteration
-        caption: Priya checks it in twice, each time with a comment. A.1 → A.2 → A.3. Each row in the **iteration history** shows the modifier, date and comment.
+        caption: Priya checks it in twice, typing a comment each time. A.1 → A.2 → A.3. The **version history** on the History tab lists every iteration.
         show: [a1, a2, a3, iter]
         highlight: [a2, a3, iter]
         flow: [a1>a2, a2>a3, a2>iter]
       - title: Released
-        caption: A promotion moves A.3 to **Released**. The **life cycle history** records the state change and who approved it.
+        caption: A promotion request moves A.3 to **Released**. The **maturity history** records the state change, who promoted it and when.
         show: [a1, a2, a3, rel, iter, life]
         highlight: [rel, life]
         flow: [a3>rel, rel>life]
@@ -143,30 +153,32 @@ blocks:
       - title: Read the identity strip and attributes
         where: [Information page, Details]
         md: |
-          Check type, number, name, version and state at the top. The **Details** tab shows attributes
-          such as created by/on, last modified by/on, and any company-specific attributes.
+          Check the name, number and version at the top (type and state are often shown there too). The
+          **Details** tab lists the attributes, such as when it was last modified, plus any
+          company-specific ones.
       - title: See what it's connected to
-        where: [Information page, "Related objects / Structure"]
-        md: For a part, open **Structure** to see its children, and the related-objects area to see its CAD models, documents and changes.
+        where: [Information page, "Structure / Related Objects / Changes"]
+        md: For a part, open **Structure** to see its children, **Related Objects** for its CAD documents and documents, and **Changes** for change objects linked to it.
       - title: See where it's used
         where: [Information page, Where Used]
         md: |
-          Open **Where Used** to list the assemblies that use this part. Essential before you change it.
+          Open **Where Used** to list the assemblies that use this part, up to the top-level products. Essential before you change it.
       - title: Check the history
         where: [Information page, History]
         md: |
-          Open **History**. The iteration history lists every check-in with who, when and the comment;
-          the life cycle (maturity) history lists state changes.
+          Open **History**. The version history lists every iteration and revision, and the timeline
+          shows events such as new versions and state changes. Your site may also show tables like the
+          life cycle or maturity history.
     result: You can tell what the object is, where it's used, and who changed it and when.
 
   - type: callout
     variant: version-note
-    versions: ["10.x and later"]
+    versions: ["13.x"]
     md: |
-      Modern releases show information pages as **tabs** that you can personalise - add a tab, choose
-      which tables it shows, or reorder. Tab names vary by release and object type (e.g. "Related
-      Objects" vs. related items shown on other tabs), so if you don't see a tab, look at the others or
-      add one. Some history views (like audit events) only appear if your admin enabled them.
+      In 13.x, information pages show **tabs** that you can personalise - add a tab and choose which
+      tables it shows. Tab names depend on the object type and on installed modules (for example the
+      AML/AVL tab needs Windchill Supplier Management), so if you don't see a tab, look at the others or
+      add one.
 
   - type: simulation
     title: "Detective mode: who changed the hinge?"
@@ -192,7 +204,7 @@ blocks:
         label: Open History tab
         when: { tab: [Details, Where Used, Changes, Structure], who: false }
         do: [{ set: { tab: History, who: true } }, { inc: clues }]
-        log: "Clue! Iteration A.3 by Priya Shah, 12 May, comment: 'bend radius 4 → 5 mm per test report'."
+        log: "Clue! The version history shows iteration A.3, checked in by Priya Shah on 12 May."
         blockedHint: You already found this clue (or you're on this tab).
       - id: where
         label: Open Where Used tab
@@ -209,7 +221,7 @@ blocks:
     goals:
       - label: Find who changed it and when
         when: { who: true }
-        message: The iteration history records every check-in with user, date and comment.
+        message: The version history lists every iteration, so you can see who saved which one.
       - label: Find what it affects
         when: { used: true }
       - label: Collect all three clues
@@ -234,7 +246,7 @@ blocks:
     variant: pro-tip
     md: |
       Write useful **check-in comments** ("bend radius 4 → 5 mm per test report TR-77"), not "update".
-      Future you, reading the History tab, will be grateful.
+      Future you, trying to work out why an iteration exists, will be grateful.
 
   - type: quiz
     questions:
@@ -244,10 +256,10 @@ blocks:
         answer: 2
         explanation: Where Used lists the parents that use this part. Structure goes the other way - it lists the part's own children.
       - kind: single
-        prompt: Where do you find who checked in iteration A.3 and their comment?
-        options: [The identity strip, The iteration history on the History tab, The Actions menu, Where Used]
+        prompt: Where do you see every iteration of the bracket, including A.3?
+        options: [The identity strip, The version history on the History tab, The Actions menu, Where Used]
         answer: 1
-        explanation: The iteration history records each check-in with the user, date and comment.
+        explanation: The version history on the History tab lists all previous iterations and revisions of the object.
       - kind: truefalse
         prompt: The Actions menu on an information page shows the same actions to every user.
         answer: false
@@ -257,5 +269,5 @@ blocks:
     points:
       - The information page is an object's profile - identity strip, actions, tabs.
       - Details holds attributes; Structure shows children; Where Used shows parents.
-      - History tells the story - iterations (who saved what) and life cycle state changes.
+      - History tells the story - every iteration and revision, plus state changes.
       - Always check the version and state before you trust what you're reading.

@@ -1,0 +1,257 @@
+id: m02-s01-l11
+subtitle: Keep your workspace fresh, bring legacy CAD in cleanly, and take copies out when you need to.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [cad, workspace, out-of-date, update, import, export, incomplete]
+sources:
+  - id: te
+    where: "Module 4: Explore the Creo CAD integration user interface (Model Tree Update command); Manage out-of-date workspace objects; Import and export CAD documents; Activity: Import and export CAD documents (Import to Workspace, incomplete CAD documents, Auto resolve incomplete objects, Save a Backup, Export from Workspace)"
+
+blocks:
+  - type: text
+    md: |
+      Monday morning. Kai checked in a new iteration of the hinge on Friday night. Priya's workspace
+      still holds Thursday's copy. If she starts editing now, she's building on old data - and the
+      check-in will stop her with an *out of date* conflict (you met that in the conflicts lesson).
+
+      Same week, Acme buys a small company. Its 400 Creo files sit on a network drive and need to
+      get into Windchill. And the welding supplier wants a zipped copy of the frame model.
+
+      Three moves cover all of this: **Update** out-of-date objects, **Import to Workspace**, and
+      **Export from Workspace**.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "there's a newer one on the server" → [[out-of-date|out of date]]
+      - "get the newest iterations into my workspace and Creo" → *Update*
+      - "bring CAD files from disk into Windchill" → [[import-to-workspace|Import to Workspace]]
+      - "save copies of CAD files to a folder" → *Export from Workspace*
+      - "a CAD file Windchill can't resolve" → [[incomplete-cad-document|incomplete CAD document]]
+      - "my private area" → [[workspace]]; "the shared area" → [[commonspace]]
+
+  - type: animation
+    title: Staying up to date
+    diagram:
+      width: 800
+      height: 300
+      nodes:
+        - { id: kai, label: Kai checks in, sublabel: hinge A.4, x: 20, y: 40, w: 170, tone: accent, shape: pill }
+        - { id: common, label: Commonspace, sublabel: hinge A.4, x: 300, y: 40, w: 190, tone: success, shape: cylinder }
+        - { id: ws, label: "Priya's workspace", sublabel: hinge A.3, x: 300, y: 190, w: 190, tone: warning }
+        - { id: flag, label: Out-of-date marker, sublabel: on the A.3 row, x: 580, y: 190, w: 190, tone: danger }
+        - { id: creo, label: Creo session, sublabel: now shows A.4, x: 580, y: 40, w: 190, tone: info }
+      edges:
+        - { from: kai, to: common, label: check in }
+        - { from: common, to: ws, label: Update }
+        - { from: ws, to: flag, dashed: true }
+        - { from: ws, to: creo }
+    chapters:
+      - title: A newer iteration lands
+        caption: Kai checks in hinge **SC-1042 A.4**. Commonspace now has a newer iteration than Priya's workspace copy.
+        show: [kai, common, ws]
+        highlight: [common]
+        flow: [kai>common]
+        seconds: 6
+      - title: The workspace notices
+        caption: Because the CAD document was iterated on the server, Priya's workspace copy is **marked out of date**.
+        show: [kai, common, ws, flag]
+        highlight: [flag]
+        flow: [ws>flag]
+        seconds: 6
+      - title: Update
+        caption: Priya selects the hinge and clicks **Update out of date versions** on the workspace toolbar. The Update page collects what's needed; she confirms.
+        show: [kai, common, ws, flag]
+        highlight: [ws]
+        flow: [common>ws]
+        seconds: 7
+      - title: Workspace and Creo are current
+        caption: Both the workspace and the open Creo session now hold **A.4**. Her edits will start from the latest data.
+        highlight: [ws, creo]
+        flow: [ws>creo]
+        seconds: 6
+
+  - type: walkthrough
+    title: Update out-of-date objects
+    who: A Creo user with an active workspace
+    steps:
+      - title: Look for out-of-date objects
+        where: [Creo, Folder Browser, Workspace, Object List]
+        md: Open your workspace. Objects whose server copy has been iterated are marked as out of date.
+      - title: Select what to update - or nothing
+        where: [Workspace, Object List]
+        md: |
+          Select the objects you want to refresh. If you select **nothing**, Windchill checks the
+          **whole workspace**, lists every out-of-date object and asks you to confirm.
+      - title: Run Update
+        where: [Workspace toolbar, Update out of date versions]
+        md: |
+          Click **Update out of date versions**. The Update page lets you collect related objects and
+          choose how content is handled. Confirm.
+      - title: Or update from the model tree
+        where: [Creo, Model Tree, right-click, Update]
+        md: In Creo's Model Tree, right-click a model and choose **Update** to replace the version in session with the latest available one.
+    result: Your workspace and Creo session hold the latest iterations from the server.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Most "my change disappeared" stories start with someone editing a stale copy. Updating
+      before you check out is the cheapest habit in CAD data management. And imports are how
+      years of legacy CAD arrive at the start of a Windchill project - a messy import means messy
+      data in the system for years.
+
+  - type: comparison
+    title: Ways to get CAD in and out
+    columns: [What it does, When to use it]
+    rows:
+      - label: Open in Creo + Save
+        cells: [Saving while connected puts the files in your workspace, A handful of files - slow for big sets]
+      - label: Import to Workspace
+        cells: ["Brings many CAD files from many folders in one go, checks them first", "Legacy data, supplier data, any bulk load"]
+      - label: Export from Workspace
+        cells: [Copies selected CAD documents to a folder as versioned Creo files, Sharing or working outside Windchill]
+      - label: "Creo Save a Backup"
+        cells: [Saves the open model and dependents to a folder, A quick local backup of one assembly]
+    takeaway: Import for bulk in, export for copies out. Opening and saving one by one doesn't scale.
+
+  - type: walkthrough
+    title: Import CAD files into your workspace
+    who: A Creo user with an active workspace
+    steps:
+      - title: Open Import to Workspace
+        where: [Creo, Workspace, Object List, Tools, Import to Workspace]
+        md: In the workspace's Object List, open the **Tools** menu and choose **Import to Workspace**.
+      - title: Add the files
+        where: [Import to Workspace, Files table, Add]
+        md: Click **Add** and select CAD files. Repeat for other folders - you can collect files from several folders on one screen.
+      - title: Let Windchill check them
+        where: [Import to Workspace, Next]
+        md: |
+          Click **Next**. Windchill opens the files and checks that dependents are present, nothing
+          is corrupted, and whether any file already exists in Windchill. Problem files are flagged.
+      - title: Decide on flagged files
+        where: [Import to Workspace, Object List]
+        md: |
+          For files that already exist you can modify the existing object or reuse it. For broken
+          files, the best practice is to **stop and fix them in Creo** before importing.
+      - title: Finish, then check in
+        where: [Import to Workspace, Finish]
+        md: |
+          Click **Finish**. Everything lands in the workspace - including files with issues - but
+          objects with unresolved issues can't be checked in until they're fixed.
+    result: The CAD files are in your workspace, ready to check in to commonspace.
+
+  - type: walkthrough
+    title: Export CAD documents from your workspace
+    steps:
+      - title: Select and export
+        where: [Creo, Workspace, Object List, Tools, Export from Workspace]
+        md: Select the assembly and choose **Tools > Export from Workspace**. The **Advanced** tab shows the dependents that come along.
+      - title: Pick a folder
+        where: [Export from Workspace, Basic, Browse]
+        md: On the **Basic** tab, browse to a target folder and click **OK**.
+    result: The assembly and its parts are saved to the folder as versioned Creo files that others can open or re-import.
+
+  - type: scenario
+    variant: what-if
+    title: The import with two bad files
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Priya imports 40 Creo files from the acquired company. After **Next**, two rows are
+          flagged: an assembly and a part that are **incomplete** - a referenced file is missing.
+          What's the best practice?
+        choices:
+          - label: Stop, fix the files in Creo, then import again
+            next: s2
+            good: true
+            feedback: That's the course manual's recommendation. Fixing at the source keeps bad data out of Windchill.
+          - label: Finish anyway and check everything in straight away
+            next: s1-fail
+            feedback: The files will reach the workspace, but anything containing the incomplete document fails at check-in with a conflict.
+      - id: s1-fail
+        md: |
+          Check-in of the assembly fails. Event Management shows the conflict: it contains an
+          incomplete CAD document. Now what?
+        choices:
+          - label: Check in again with Auto resolve incomplete objects - Always ignore
+            next: partial
+            feedback: It works - but the incomplete part is left out of Windchill and out of the assembly structure.
+          - label: Go back and fix the file in Creo
+            next: s2
+            good: true
+            feedback: Still the best fix, even after the first failure.
+      - id: s2
+        md: |
+          Fixed and re-imported. Three files turn out to **already exist** in Windchill from an
+          earlier test import. What do you do?
+        choices:
+          - label: Reuse the existing Windchill objects (or update them on purpose)
+            next: win
+            good: true
+            feedback: Right - decide per object. Duplicates would split history.
+          - label: Rename the files so they import as new objects
+            next: partial
+            feedback: Now two objects describe the same design. Someone will pick the wrong one.
+      - id: win
+        md: Clean import. Every file resolved, no duplicates, and the assembly opens in Creo from Windchill exactly as it did on the old drive.
+        outcome: success
+      - id: partial
+        md: The data is in, but with a gap or a duplicate. Someone will spend next week cleaning it up. Fix at the source next time.
+        outcome: partial
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **"Always ignore" hides the problem.** The *Auto resolve incomplete objects* option lets a
+      check-in go through, but with *Always ignore* the incomplete document is simply left out -
+      the assembly in Windchill no longer contains it. Use it only when you really mean "this file
+      doesn't belong".
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Before you check out anything, click **Update out of date versions** with nothing selected.
+      Windchill scans your whole workspace in one go - a two-second habit that prevents most
+      out-of-date conflicts.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Priya clicks Update out of date versions without selecting anything. What happens?
+        options:
+          - Nothing - she must select objects first
+          - Windchill checks the whole workspace and asks before updating
+          - Every object is checked out to her
+          - The workspace is deleted and re-created
+        answer: 1
+        explanation: With no selection, Windchill checks the entire workspace for out-of-date objects, lists them and prompts for confirmation.
+      - kind: single
+        prompt: Why is Import to Workspace better than opening and saving each file in Creo for a big legacy set?
+        options:
+          - It skips check-in
+          - It brings many files from several folders at once and checks them first
+          - It converts files to PDF
+          - It automatically releases them
+        answer: 1
+        explanation: Import handles many files in one go and checks dependents, corruption and existing objects. Opening and saving one by one is inefficient.
+      - kind: truefalse
+        prompt: Files flagged with issues during import are kept out of the workspace.
+        answer: false
+        explanation: They're still added to the workspace, but you can't check them in until the issues are resolved.
+      - kind: single
+        prompt: The supplier needs Creo files of the spray-head assembly. Which Windchill action?
+        options: [Import to Workspace, Export from Workspace, Update, Undo checkout]
+        answer: 1
+        explanation: Export from Workspace saves the selected assembly and its dependents to a folder as versioned Creo files.
+
+  - type: summary
+    points:
+      - Workspace copies are marked out of date when the server copy is iterated; Update brings the latest into the workspace and Creo.
+      - Update with nothing selected checks the whole workspace.
+      - Import to Workspace brings many CAD files in at once and checks them; fix flagged files in Creo first.
+      - Export from Workspace saves versioned copies to a folder; Always ignore leaves incomplete files out.

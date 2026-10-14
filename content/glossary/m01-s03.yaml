@@ -3,7 +3,7 @@
 - id: wildcard
   term: Wildcard
   plain: A star (*) in a search that means "anything can go here".
-  definition: A character in search text that matches any sequence of characters. In Windchill searches `*` is the wildcard, so `1000-04*` finds every number starting with 1000-04 and `*hinge*` finds names containing "hinge".
+  definition: A character in search text that matches any sequence of characters. In Windchill searches `*` is the wildcard, so `1000-04*` finds every number starting with 1000-04 and `*hinge*` finds names containing "hinge". Without index search a keyword must match a whole name or number, so wildcards matter even more.
   aka: ["*", asterisk]
   related: [quick-search, advanced-search]
 
@@ -16,19 +16,19 @@
 
 - id: favorite
   term: Favorite
-  plain: A bookmark inside Windchill for an object or place you open often.
-  definition: A personal shortcut to an object or context, kept in a favorites list so you can reopen it without searching or browsing. Availability and placement of favorites vary by release.
+  plain: A marker on a product or library you open often, so you find it fast.
+  definition: A personal marker set with the Add to Favorites action on a product or library. The Favorites view of the Products or Libraries table then lists only the ones you marked. Favorites for single parts or documents are not confirmed in the sources used here.
   aka: [favorites, bookmark]
   related: [subscription, navigator]
 
 - id: subscription
   term: Subscription
   plain: Asking Windchill to tell you when something happens to an object.
-  definition: A personal (or, with rights, group) request to be notified when chosen events happen to an object, folder or context - for example a state change, a check-in or a new revision. Notifications are usually sent by email.
+  definition: A request to be notified by email when chosen events happen to an object, folder or context - for example Life Cycle State, Check Out/Check In or Revise. You can add other users as subscribers and set an expiration date; subscribers only get notifications for objects they can access.
   related: [notification, favorite]
 
 - id: notification
   term: Notification
   plain: A message from Windchill telling you something happened or something needs you.
-  definition: A message, usually an email, sent by Windchill because of a subscription event or a workflow (for example a new task). It points you to the object or task in Windchill, where you act.
+  definition: An email sent by Windchill because of a subscription event or a process step (for example a task routed to you). It tells you something happened; you act on the object or task in Windchill.
   related: [subscription, task, workflow]

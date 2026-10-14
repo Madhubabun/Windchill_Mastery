@@ -1,8 +1,19 @@
 id: m01-s02-l02
 subtitle: Open the "Windchill server" box and meet the crew inside.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-13"
 tags: [architecture, method-server, tomcat, server-manager]
+sources:
+  - id: ac
+    where: "Module 11: Describe the Windchill architecture; Describe the Windchill client; Describe the web server; Describe the Windchill server (server manager, method server with an embedded Tomcat servlet engine, background method server); Identify optional servers (Solr indexing); Describe the clustered configuration"
+  - id: ac
+    where: "Module 12: Identify Windchill services (PTC HTTP Windchill service = Apache web server; Server Manager and Method Servers)"
+  - id: ac
+    where: "Module 15: Tune servers (method server and Tomcat share one heap)"
+  - id: ac
+    where: "Module 18: Manage log files and alerts (Site > Utilities > Server Status, Monitoring Tools, method server logs)"
+  - id: ac
+    where: "Module 8: access permissions (Read, Modify)"
 
 blocks:
   - type: text
@@ -12,9 +23,10 @@ blocks:
       Picture a busy restaurant on a Friday night:
 
       - The **host at the front door** greets every guest and checks the reservation.
-      - The **waiters** take orders to the kitchen and bring plates back.
+      - Each **cook's station** has its own order hatch, where tickets come in and plates go out.
       - The **cooks** actually make the food.
-      - The **kitchen manager** decides which cook takes which order and replaces anyone who collapses.
+      - The **kitchen manager** keeps the cooks working, replaces anyone who collapses and keeps
+        everyone's notes in sync.
       - The **prep cooks in the back** chop vegetables for later, so the line cooks don't have to.
 
       Windchill's server works the same way. Each role has an official name.
@@ -23,15 +35,15 @@ blocks:
     variant: terms
     md: |
       **Plain words → official term**
-      - "host at the front door" → *[[web-server]]* (the **PTC HTTP Server**, based on Apache)
-      - "waiters" → *[[servlet-engine]]* (**Apache Tomcat**, embedded in Windchill)
+      - "host at the front door" → *[[web-server]]* (an **Apache** web server; on Windows its service is called *PTC HTTP Windchill*)
+      - "order hatch at each station" → *[[servlet-engine]]* (**Tomcat**, bundled with Windchill and embedded in each method server)
       - "cooks" → *[[method-server|method servers]]* (Java processes running the business logic)
       - "kitchen manager" → *[[server-manager]]*
       - "prep cooks in the back" → *background method servers* working through [[background-queue|queues]]
 
   - type: diagram
     title: Inside the Windchill server
-    caption: Click each part. Requests flow left to right; the server manager supervises the cooks.
+    caption: Click each part. Requests flow left to right; Tomcat runs inside each method server, and the server manager supervises them.
     diagram:
       width: 820
       height: 420
@@ -45,31 +57,20 @@ blocks:
           w: 140
           h: 56
           tone: accent
-          detail: Sends requests over HTTPS. Creo talks to the same front door through Workgroup Manager.
+          detail: Sends requests to the web server. A Creo session or a Workgroup Manager goes through the same front door.
         - id: web
           label: Web server
-          sublabel: PTC HTTP Server
+          sublabel: Apache
           x: 200
-          y: 50
+          y: 120
           w: 180
           h: 60
           tone: info
           detail: |
-            **The front door.** Based on Apache. Receives every request, handles HTTPS, often handles
-            login (checking you against the directory), serves simple static files, and forwards the
-            rest to the servlet engine.
-        - id: tomcat
-          label: Servlet engine
-          sublabel: Tomcat
-          x: 200
-          y: 150
-          w: 180
-          h: 60
-          tone: info
-          detail: |
-            **The waiters.** Apache Tomcat, embedded in Windchill, runs the web application that builds
-            the pages you see. It doesn't do the heavy business work itself - it hands that to a
-            method server and returns the answer.
+            **The front door.** An Apache web server. It receives client requests, hosts static content
+            (HTML, images, JavaScript, stylesheets) itself, and passes requests for dynamic content to
+            the servlet engine inside a method server. Big sites can put it behind a reverse proxy or
+            run several web servers behind a load balancer.
         - id: sm
           label: Server manager
           sublabel: the supervisor
@@ -79,21 +80,22 @@ blocks:
           h: 60
           tone: warning
           detail: |
-            **The kitchen manager.** Starts the method servers, watches them, restarts one if it dies,
-            spreads the work between them and coordinates shared caches. On a big system there can be
-            server managers on several machines (a *cluster*).
+            **The kitchen manager.** A Java application by PTC that manages the method servers and user
+            session credentials, restarts a method server automatically if it dies, and keeps caches in
+            sync between method servers. In a *cluster*, sister server managers on other hosts sync too.
         - id: ms1
           label: Method server 1
-          sublabel: foreground
+          sublabel: foreground + Tomcat
           x: 420
           y: 60
           w: 200
           h: 60
           tone: primary
           detail: |
-            **A cook.** A Java process that runs Windchill's business logic - searching, checking in,
-            changing states, enforcing access rules. Foreground method servers handle what users are
-            waiting for right now.
+            **A cook.** A Java process (written by PTC) that processes all client transactions and talks
+            to the database and LDAP - searching, checking in, changing states, applying access rules.
+            Its embedded **Tomcat servlet engine** takes requests from the web server and sends the
+            response back. Foreground method servers handle what users are waiting for right now.
         - id: ms2
           label: Method server 2
           sublabel: foreground
@@ -103,8 +105,8 @@ blocks:
           h: 60
           tone: primary
           detail: |
-            **Another cook.** Busy systems run several method servers (often on several machines) so
-            hundreds of users can work at once.
+            **Another cook.** You can run several method servers per host, and several hosts in a
+            cluster, so many users can work at once.
         - id: bgms
           label: Background MS
           sublabel: works the queues
@@ -114,8 +116,9 @@ blocks:
           h: 60
           tone: neutral
           detail: |
-            **A prep cook.** A background method server works through queues of jobs nobody needs to
-            wait for: visualization publishing requests, workflow robots, scheduled clean-ups and more.
+            **A prep cook.** A background method server is dedicated to back-end jobs nobody needs to
+            wait for, such as propagating workflow tasks, sending and receiving data with message queues,
+            and generating visualization data.
         - id: db
           label: Database
           sublabel: Oracle / SQL Server
@@ -128,9 +131,8 @@ blocks:
           detail: The order book. Method servers read and write all metadata here.
       edges:
         - { from: browser, to: web, label: HTTPS, bidirectional: true }
-        - { from: web, to: tomcat, bidirectional: true }
-        - { from: tomcat, to: ms1, bidirectional: true }
-        - { from: tomcat, to: ms2, bidirectional: true }
+        - { from: web, to: ms1, bidirectional: true }
+        - { from: web, to: ms2, bidirectional: true }
         - { from: sm, to: ms2, dashed: true, label: manages }
         - { from: sm, to: bgms, dashed: true }
         - { from: ms1, to: db, bidirectional: true }
@@ -144,17 +146,15 @@ blocks:
       height: 380
       nodes:
         - { id: browser, label: Browser, sublabel: you, x: 20, y: 170, w: 130, h: 56, tone: accent }
-        - { id: web, label: Web server, sublabel: front door, x: 175, y: 170, w: 140, h: 56, tone: info }
-        - { id: tomcat, label: Servlet engine, sublabel: Tomcat, x: 340, y: 170, w: 140, h: 56, tone: info }
-        - { id: sm, label: Server manager, sublabel: supervisor, x: 340, y: 40, w: 140, h: 56, tone: warning }
-        - { id: ms, label: Method server, sublabel: business logic, x: 510, y: 170, w: 150, h: 56, tone: primary }
-        - { id: index, label: Search index, sublabel: Solr, x: 690, y: 60, w: 120, h: 60, tone: neutral }
-        - { id: db, label: Database, sublabel: metadata, x: 690, y: 280, w: 120, h: 70, tone: success, shape: cylinder }
+        - { id: web, label: Web server, sublabel: front door, x: 190, y: 170, w: 150, h: 56, tone: info }
+        - { id: sm, label: Server manager, sublabel: supervisor, x: 400, y: 40, w: 150, h: 56, tone: warning }
+        - { id: ms, label: Method server, sublabel: Tomcat + business logic, x: 390, y: 170, w: 170, h: 56, tone: primary }
+        - { id: index, label: Search index, sublabel: Solr, x: 650, y: 60, w: 150, h: 60, tone: neutral }
+        - { id: db, label: Database, sublabel: metadata, x: 650, y: 280, w: 150, h: 70, tone: success, shape: cylinder }
       edges:
         - { from: browser, to: web, bidirectional: true }
-        - { from: web, to: tomcat, bidirectional: true }
-        - { from: tomcat, to: sm, label: which cook?, bidirectional: true }
-        - { from: tomcat, to: ms, bidirectional: true }
+        - { from: web, to: ms, bidirectional: true }
+        - { from: sm, to: ms, label: manages, dashed: true }
         - { from: ms, to: index, bidirectional: true }
         - { from: ms, to: db, bidirectional: true }
     chapters:
@@ -164,39 +164,34 @@ blocks:
         highlight: [browser]
         seconds: 4
       - title: The front door
-        caption: The **web server** receives the HTTPS request and makes sure you are logged in.
+        caption: The **web server** receives the request. Static files it serves itself; a search needs dynamic content, so it passes the request on.
         show: [browser, web]
         highlight: [web]
         flow: [browser>web]
-      - title: A waiter takes the order
-        caption: The web server passes the request to the **servlet engine** (Tomcat), which runs the search page's code.
-        show: [browser, web, tomcat]
-        highlight: [tomcat]
-        flow: [web>tomcat]
-      - title: Which cook is free?
-        caption: The **server manager** points the request to an available method server, spreading work so no single one is overloaded.
-        show: [browser, web, tomcat, sm]
-        highlight: [sm]
-        flow: [tomcat>sm, sm>tomcat]
-      - title: The cook gets to work
-        caption: A **method server** runs the real search logic. This is where Windchill's rules live.
-        show: [browser, web, tomcat, sm, ms]
+      - title: Into a method server
+        caption: The **Tomcat servlet engine** embedded in a **method server** takes the request. The method server runs the real search logic - this is where Windchill's rules live.
+        show: [browser, web, ms]
         highlight: [ms]
-        flow: [tomcat>ms]
+        flow: [web>ms]
+      - title: The supervisor in the background
+        caption: The **server manager** keeps the method servers running, holds user session credentials and keeps caches in sync. If a method server dies, it restarts it.
+        show: [browser, web, ms, sm]
+        highlight: [sm]
+        flow: [sm>ms]
       - title: Look up the keyword
-        caption: For a keyword like "hinge", the method server asks the **Solr search index** for matching objects - much faster than scanning every row.
-        show: [browser, web, tomcat, sm, ms, index]
+        caption: Where Solr indexing is set up, the keyword search uses the **Solr search index**, which covers object metadata and file content.
+        show: [browser, web, ms, sm, index]
         highlight: [index]
         flow: [ms>index, index>ms]
       - title: Fetch facts and check access
-        caption: It reads details from the **database** and filters out anything you're not allowed to see. Two users can get different results for the same search.
+        caption: It reads details from the **database** and only lists objects you have Read permission for. Two users can get different results for the same search.
         highlight: [db]
         flow: [ms>db, db>ms]
         seconds: 7
       - title: Back to your screen
-        caption: Results travel back the way they came - method server → Tomcat → web server → browser. Usually in well under a second or two.
+        caption: Results travel back the way they came - method server → web server → browser.
         highlight: [browser]
-        flow: [ms>tomcat, tomcat>web, web>browser]
+        flow: [ms>web, web>browser]
         seconds: 7
 
   - type: callout
@@ -269,28 +264,27 @@ blocks:
   - type: callout
     variant: pro-tip
     md: |
-      Admins can check which method servers are running and how busy they are from the Windchill
-      monitoring tools (look under **Site → Utilities** for the server status page in most
-      releases). Ask your admin to show you once - it makes the architecture click.
+      Admins can check which server processes are running on the **Server Status** page
+      (**Site > Utilities > Server Status**), which also links to the **Monitoring Tools**. Ask your admin to show you once - it makes the architecture click.
 
   - type: flashcards
     cards:
-      - front: "Web server (PTC HTTP Server)"
-        back: "The front door: receives HTTPS requests, handles login, forwards work to the servlet engine."
+      - front: "Web server (Apache)"
+        back: "The front door: receives requests, serves static content and passes dynamic requests to the servlet engine."
       - front: "Servlet engine (Tomcat)"
-        back: "The waiters: runs the web application and passes the real work to a method server."
+        back: "Bundled with Windchill and embedded in each method server: takes requests from the web server and returns the response."
       - front: "Method server"
         back: "The cooks: Java processes that run Windchill's business logic and enforce access rules."
       - front: "Server manager"
-        back: "The kitchen manager: starts, watches, restarts and load-balances method servers."
+        back: "The kitchen manager: manages method servers and session credentials, restarts a failed method server and syncs caches."
       - front: "Background method server"
-        back: "The prep cooks: work through queues such as publishing and workflow robots."
+        back: "The prep cooks: back-end jobs such as workflow task propagation, message queues and visualization data."
       - front: "Search index (Solr)"
         back: "Makes keyword searches fast by looking up a pre-built index."
 
   - type: summary
     points:
-      - The web server (PTC HTTP Server) is the front door for every request.
-      - The servlet engine (Tomcat) runs the web app and hands work to method servers.
-      - Method servers run the business logic, including access checks; the server manager supervises and balances them.
+      - The web server (Apache) is the front door for every request.
+      - Each method server has an embedded Tomcat servlet engine that takes requests from the web server.
+      - Method servers run the business logic, including access checks; the server manager supervises them and restarts any that fail.
       - Background method servers process queues so users don't wait for long jobs.

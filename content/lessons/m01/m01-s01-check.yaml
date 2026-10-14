@@ -1,8 +1,17 @@
 id: m01-s01-check
 subtitle: Show what you know about PLM, its neighbours and where Windchill fits.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.0.1
+updated: "2026-10-13"
 tags: [checkpoint, plm, pdm, erp, mes, windchill, change]
+sources:
+  - id: te
+    where: "Module 1: What is PLM?; PLM and the enterprise; Manage product data; Manage changes to product data; Enable non-expert access to PLM data"
+  - id: te
+    where: "Module 4: Manage CAD data in Windchill: overview (supported CAD tools); CAD integration with Windchill; Register a Windchill server with your CAD tool (Workgroup Manager)"
+  - id: te
+    where: "Module 6: OOTB change management process: steps; Identify roles in the change management process (Change Review Board)"
+  - id: ac
+    where: "Module 11: Identify optional servers (visualization workers and Creo View without the authoring licence)"
 
 blocks:
   - type: quiz
@@ -58,7 +67,7 @@ blocks:
           - Windchill can only manage Creo files
           - Creo designers check models in and out of Windchill
         answers: [0, 1, 3]
-        explanation: Windchill is multi-CAD - Workgroup Managers bring in tools like SOLIDWORKS or NX. ThingWorx connects machines and products. Creo integrates with Windchill through a workspace.
+        explanation: Windchill is multi-CAD - Workgroup Managers bring in tools like SOLIDWORKS, CATIA or AutoCAD. ThingWorx connects machines and products. Creo integrates with Windchill through a workspace.
       - kind: order
         prompt: Put the steps of a typical design change in order.
         items: [Problem report, Change request, Change board approval, Change notice and tasks, Released revision]
@@ -95,8 +104,8 @@ blocks:
       - front: "Creo View"
         back: "Viewer to see and mark up 3D models and drawings without a CAD licence."
       - front: "Workgroup Manager"
-        back: "Plug-in that connects a non-PTC CAD tool (e.g. SOLIDWORKS, NX) to Windchill."
+        back: "Plug-in that connects a non-PTC CAD tool (e.g. SOLIDWORKS, CATIA) to Windchill."
       - front: "Change review board"
-        back: "The cross-functional group that approves or rejects a change request."
+        back: "The cross-functional group that approves or rejects a change request (in Windchill, a role used in the Full Track change process)."
       - front: "Change notice"
         back: "\"Approved - go do it\": the object that carries out a change through change tasks."

@@ -75,7 +75,7 @@ blocks:
     rows:
       - { label: When, cells: ["The change is interchangeable - fits and works everywhere", Some parent can't take the change] }
       - { label: Who is affected, cells: [Every parent that uses the part, Only the parents you replace it in] }
-      - { label: Parents change?, cells: ["No - their uses links point to the master, so they pick up the new revision", "Yes - each chosen parent replaces the line and iterates"] }
+      - { label: "Parents change?", cells: ["No - their uses links point to the master, so they pick up the new revision", "Yes - each chosen parent replaces the line and iterates"] }
       - { label: Example, cells: [Better coating on the M6 screw, Wider hole spacing on the hinge] }
     takeaway: Interchangeable → revise. Not interchangeable → new number. Many companies write this rule into their change process.
 
@@ -216,7 +216,7 @@ blocks:
     questions:
       - kind: single
         prompt: Which question does a where-used answer?
-        options: [What is this assembly made of?, Which assemblies use this part?, Who last edited this part?, Which CAD model owns this part?]
+        options: ["What is this assembly made of?", "Which assemblies use this part?", "Who last edited this part?", "Which CAD model owns this part?"]
         answer: 1
         explanation: The structure view looks down (children). Where-used looks up (parents and, multi-level, the end items).
       - kind: single

@@ -1,0 +1,257 @@
+id: m01-s01-l06
+subtitle: PDM keeps the design safe. The wider PLM toolkit carries it to the factory, the customer and the repair shop.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [plm, variability, options-and-variants, manufacturing, service, model-based-definition, basics]
+sources:
+  - id: te
+    where: "Module 1: Manage product data; Transform the bill of materials (BOM) for a product; Manage manufacturing processes; Manage product variability; Manage service part information and instruction; Model-based definition; Augmented Reality (AR) design share; Identify Windchill modules"
+  - id: te
+    where: "Appendix A: Manage the manufacturing process: overview; Describe Windchill Manufacturing Process Management; Describe the Manufacturing Process Management architecture; Support product variability and variant generation in Windchill; Enable Options and Variants; Describe Options and Variants capabilities; Manage service information in Windchill; The service bill of materials (sBOM); Organize and manage service content in Windchill; Manage spare parts information in Windchill; Integrate and manage supply chain data: overview; Standardize classifiable objects: overview; Manage projects and programs in Windchill"
+
+blocks:
+  - type: text
+    md: |
+      So far you've met the core: [[pdm|product data management]]. Parts, CAD, documents, versions
+      and controlled change. That's the base module of Windchill, and it's where most of this course
+      lives.
+
+      But a scooter's life doesn't end when the design is released. Customers want it in three
+      colours and two battery sizes. The factory needs to know *how* to build it. Service needs
+      spare-parts lists and repair steps. PLM covers all of that, and Windchill has a capability
+      (often a separately licensed module) for each job.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "one design, many customer versions" → *[[product-variability|product variability]]* (Windchill: *Options and Variants*)
+      - "turning one kind of BOM into another, kept linked" → *[[bom-transformation|BOM transformation]]* (xBOM)
+      - "planning how the factory builds it" → *Manufacturing Process Management* ([[mpmlink|MPM]])
+      - "the parts list for repairs" → *[[service-bom|service BOM (sBOM)]]*
+      - "all the dimensions and tolerances live in the 3D model" → *[[model-based-definition|model-based definition (MBD)]]*
+
+  - type: animation
+    title: "One e-bike, five teams"
+    diagram:
+      width: 800
+      height: 330
+      nodes:
+        - { id: mbd, label: Annotated 3D model, sublabel: design + MBD, x: 20, y: 40, w: 160, h: 64, tone: accent }
+        - { id: ebom, label: eBOM, sublabel: what it is, x: 230, y: 40, w: 150, h: 64, tone: primary, shape: cylinder }
+        - { id: variants, label: Options + variants, sublabel: battery / frame, x: 430, y: 40, w: 160, h: 64, tone: info }
+        - { id: mbom, label: mBOM + process plan, sublabel: how to build it, x: 230, y: 220, w: 170, h: 64, tone: warning }
+        - { id: shop, label: Shop floor + ERP, sublabel: work instructions, x: 20, y: 220, w: 160, h: 64, tone: neutral, shape: cylinder }
+        - { id: sbom, label: Service BOM, sublabel: parts lists + manuals, x: 450, y: 220, w: 170, h: 64, tone: success }
+        - { id: tech, label: Service technician, sublabel: in the field, x: 640, y: 220, w: 150, h: 64, tone: neutral, shape: pill }
+      edges:
+        - { from: mbd, to: ebom, label: CAD structure }
+        - { from: ebom, to: variants }
+        - { from: ebom, to: mbom, label: transform }
+        - { from: mbom, to: shop }
+        - { from: ebom, to: sbom, label: transform }
+        - { from: sbom, to: tech }
+    chapters:
+      - title: Design with everything in the model
+        caption: Leo designs the *Volt* e-bike frame in Creo. Tolerances and finishes go **into the 3D model** (model-based definition), not only onto a 2D drawing.
+        show: [mbd]
+        highlight: [mbd]
+      - title: The engineering BOM
+        caption: The CAD structure becomes the **eBOM** in Windchill, the engineering view of *what* the product is.
+        show: [mbd, ebom]
+        highlight: [ebom]
+        flow: [mbd>ebom]
+      - title: One platform, many bikes
+        caption: The team defines **options and choices** (battery 400 Wh or 600 Wh, step-through or high frame). Windchill filters one big structure into each **variant**.
+        show: [mbd, ebom, variants]
+        highlight: [variants]
+        flow: [ebom>variants]
+      - title: How the factory builds it
+        caption: Manufacturing engineers **transform** the eBOM into an **mBOM**, then plan operations and resources in a **process plan**.
+        show: [mbd, ebom, variants, mbom]
+        highlight: [mbom]
+        flow: [ebom>mbom]
+      - title: To the shop floor
+        caption: Work instructions reach the shop floor, and released data goes on to ERP and MES.
+        show: [mbd, ebom, variants, mbom, shop]
+        highlight: [shop]
+        flow: [mbom>shop]
+      - title: Years later, a repair
+        caption: Service authors build a **service BOM**, parts lists and manuals from the same engineering data, so the technician orders the right spare for *that* bike.
+        highlight: [sbom, tech]
+        flow: [ebom>sbom, sbom>tech]
+        seconds: 8
+
+  - type: diagram
+    title: Capabilities and who uses them
+    caption: Click a capability to see what it does and which team lives in it.
+    diagram:
+      width: 800
+      height: 420
+      nodes:
+        - id: pdmcore
+          label: Product Data Mgmt
+          sublabel: the base module
+          x: 300
+          y: 170
+          w: 200
+          h: 70
+          tone: primary
+          shape: cylinder
+          detail: Stores the master data securely, controls and records every change, and shares it with other departments. Every capability below builds on it.
+        - id: variability
+          label: Options and Variants
+          sublabel: engineering + sales
+          x: 30
+          y: 30
+          w: 220
+          h: 64
+          tone: info
+          detail: |
+            Define [[option|options]] and [[choice|choices]], build a configurable ("overloaded")
+            structure holding every possible component, then **configure** it into a variant part
+            structure. Options and Variants is installed with Windchill and switched on by an
+            administrator. More advanced rule management needs the separately licensed *Smart Platforms* module.
+
+            Who uses it: the configurable structure is built in engineering, and the configure step
+            serves sales orders and customer proposals.
+        - id: mpm
+          label: Manufacturing (MPM)
+          sublabel: manufacturing engineers
+          x: 550
+          y: 30
+          w: 220
+          h: 64
+          tone: warning
+          detail: |
+            Transform the eBOM into the mBOM, manage [[manufacturing-resource|manufacturing resources]],
+            define [[process-plan|process plans]] and generate [[work-instruction|work instructions]].
+            MPM is about *how* to build, while engineering defines *what*.
+        - id: service
+          label: Service information
+          sublabel: tech authors, illustrators
+          x: 30
+          y: 320
+          w: 220
+          h: 64
+          tone: success
+          detail: |
+            [[service-information-manager|Service Information Manager]] organizes service content and
+            builds publications. [[windchill-service-parts|Service Parts]] adds spare-parts lists and
+            illustrations. Both are added modules on top of Windchill.
+        - id: mbd2
+          label: Model-based definition
+          sublabel: design, manufacturing, quality
+          x: 550
+          y: 320
+          w: 220
+          h: 64
+          tone: accent
+          detail: |
+            The fully annotated 3D model becomes the source authority. It supports ASME and ISO standards
+            and semantic [[gdt|GD&T]], and makes design intent easier for manufacturing and quality to find.
+        - id: more
+          label: And more
+          sublabel: suppliers, classes, projects
+          x: 300
+          y: 20
+          w: 200
+          h: 60
+          tone: neutral
+          detail: |
+            Other licensed modules include Supplier Management (manufacturers, vendors and their parts),
+            Parts Classification (find and reuse parts by their attributes) and Project Management
+            (projects and programs with plans).
+      edges:
+        - { from: pdmcore, to: variability, bidirectional: true }
+        - { from: pdmcore, to: mpm, bidirectional: true }
+        - { from: pdmcore, to: service, bidirectional: true }
+        - { from: pdmcore, to: mbd2, bidirectional: true }
+        - { from: pdmcore, to: more, dashed: true, bidirectional: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      How you design a product isn't how you build it, and how you build it isn't how you service
+      it. Each team needs its own structure. When those structures are **linked** in one system, a
+      design change can flow through to the mBOM and the service parts list instead of being
+      re-typed (and mistyped) in three places.
+
+  - type: example
+    variant: real-world
+    title: The wrong battery bracket
+    industry: Micromobility
+    md: |
+      Acme's service team used to build spare-parts lists by hand from old PDFs. When engineering
+      changed the battery bracket on the 600 Wh *Volt*, the service list kept the old bracket for
+      months, and technicians ordered parts that didn't fit.
+
+      Building the service structure from the same engineering data in Windchill meant the next
+      bracket change showed up for service as part of the normal change process.
+    takeaway: Linked structures keep every team on the same revision of the truth.
+
+  - type: walkthrough
+    title: Check whether Options and Variants is switched on
+    who: A site administrator (most users never need this)
+    where: [Site, Utilities, Preference Management]
+    steps:
+      - title: Go to the site utilities
+        where: [Navigator, Browse, Site tab, Utilities]
+        md: In the **Navigator**, choose **Browse**, open the **Site** tab and click **Utilities**.
+      - title: Open preference management
+        where: [Utilities, Preference Management]
+        md: Click **Preference Management**.
+      - title: Find the Options and Variants section
+        where: [Preference Management, Options and Variants]
+        md: In the **Options and Variants** section, look at **Configurable Module Support**. *Yes* means the capability is enabled.
+    result: You know whether the site can use configurable structures, without guessing from the menus.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      Don't assume every Windchill has every capability. Most of these are **separate modules
+      enabled through licences**, and some (like Options and Variants) must also be switched on.
+      If a menu in a tutorial is missing for you, check the licence and setup before blaming yourself.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Learn the vocabulary of the team next to yours. An engineer who can say "eBOM vs mBOM" or
+      "which variant is the customer's?" in a meeting with manufacturing or service is the one who
+      gets pulled into the interesting projects.
+
+  - type: flashcards
+    cards:
+      - { front: Product variability, back: "Managing one product family with options and choices, then generating variants." }
+      - { front: Overloaded structure, back: "A configurable product structure that holds every possible component for all variants." }
+      - { front: BOM transformation (xBOM), back: "Turning one kind of BOM into another (eBOM to mBOM or service BOM) while keeping them linked." }
+      - { front: Manufacturing Process Management, back: "Defines how to build the product: mBOM, process plans, resources and work instructions." }
+      - { front: Service BOM (sBOM), back: "The list of serviceable parts needed to maintain a product in the field." }
+      - { front: Model-based definition, back: "Putting dimensions, tolerances and finishes in the 3D model so it becomes the source authority." }
+      - { front: Smart Platforms, back: "A separately licensed add-on for advanced Options and Variants features such as expanded rule management." }
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: A manufacturing engineer needs to plan the operations and tools used to assemble the e-bike. Which capability fits?
+        options: [Options and Variants, Manufacturing Process Management, Service Parts, Model-based definition]
+        answer: 1
+        explanation: Manufacturing Process Management covers the mBOM, process plans, manufacturing resources and work instructions, which is the "how to build it" side.
+      - kind: single
+        prompt: What does model-based definition change?
+        options:
+          - Drawings are printed in 3D
+          - Tolerances and other design information live in a fully annotated 3D model that drives downstream work
+          - The BOM is stored inside the CAD file
+          - Only quality teams can see the model
+        answer: 1
+        explanation: MBD moves design information that used to live only on 2D drawings into the 3D model, making it the source authority for engineering, manufacturing and quality.
+
+  - type: summary
+    points:
+      - Product Data Management is the base. Wider PLM capabilities build on the same data.
+      - Options and Variants manages product families; the configure process creates variants.
+      - Manufacturing Process Management turns the eBOM into an mBOM and process plans for the factory.
+      - Service Information Manager and Service Parts turn engineering data into service content and spare-parts lists.
+      - Model-based definition makes the annotated 3D model the source authority.

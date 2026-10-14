@@ -1,0 +1,304 @@
+id: m03-s02-l10
+subtitle: A shortcut for first releases - guarded by a rule so nobody uses it to sneak a revision B past the reviewers. Plus the intent that retires old data.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [change, initial-release, basic-track, business-rule, change-intent, pacesetter, cancel]
+sources:
+  - id: pf
+    where: "Module 4: The change process (Basic, Fast and Full Track); Identify the business rule that controls initial releases of business objects; What happens with initial releases of business objects?; Manually create a change notice when analyzing a change request; Activity: Use the Basic Track change process to initially release a business object; Activity: Test the business rule for the initial release of objects; Activity: Send an object to the Canceled state through the Cancel transition and Cancel change intent"
+  - id: te
+    where: "Module 6: Activity: Create a change notice to release product data (Set Change Intent to None; Set Release Target)"
+  - id: ac
+    where: "Module 5: Identify life cycle transition types (Change, Obsolescence and Production Released transitions; release target of a change notice)"
+
+blocks:
+  - type: text
+    md: |
+      Picture Acme's Windchill set up with PTC's **PLM Foundation Pacesetter**, a ready-made
+      configuration that adds its own change processes on top of standard Windchill.
+
+      Leo has written a brand-new **SC-1048 fold test procedure**. It's at **A.1, In Work**, and he
+      wants it Released today. Running a full board review for a document nobody has ever used would
+      be overkill. The Pacesetter gives him an express lane for exactly this: the **Basic Track**.
+
+      But express lanes get abused. What stops Priya from using the same lane to push **revision
+      B** of the bracket - a real change to released data - past the reviewers? A **business rule**.
+      This lesson is about that rule, and about **change intent**: the setting that tells a change what
+      to do with each object, including retiring it for good.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the express lane for first releases" → *[[basic-track-change|Basic Track]]* change process
+      - "marking a change request as a first release" → the *Category* attribute set to **Initial Release**
+      - "the guard that only lets revision A through" → the Pacesetter's initial-release business rule (*INITIAL_RELEASE_VALIDATOR*)
+      - "the task you get when the rule is broken" → *[[initial-release-conflict|Initial Release Conflict]]*
+      - "what this change should do to each affected object" → *[[change-intent]]*, for example None or Cancel
+      - "which life cycle path the result takes" → *[[release-target]]*, linked to life cycle transitions
+
+  - type: comparison
+    title: The three Pacesetter change processes
+    columns: [When to use, Board reviews]
+    rows:
+      - label: Basic Track
+        cells: ["Initial product release or long-lead items. A business rule blocks releasing anything above revision A.", "No CRB or CIB review in the course guide example - streamlined for first releases"]
+      - label: Fast Track
+        cells: ["Simple changes without cross-department collaboration", "CIB review of the change notice"]
+      - label: Full Track
+        cells: ["Complex changes that need several departments", "CRB review of the change request and CIB review of the change notice"]
+    takeaway: The Pacesetter's tracks are a starting point. PTC expects them to be adapted to each customer during implementation.
+
+  - type: diagram
+    title: How the initial-release rule works
+    caption: Follow Leo's document (top path) and Priya's attempt with revision B (bottom path). Click each box.
+    diagram:
+      width: 800
+      height: 420
+      nodes:
+        - id: cr
+          label: Change request
+          sublabel: "Category: Initial Release"
+          x: 20
+          y: 170
+          w: 160
+          h: 64
+          tone: warning
+          detail: |
+            The change request is created from the object with **Category = Initial Release**. This
+            sets the CR creator as the **Change Manager** of the CR and CN, and as the **Change Quality
+            Approver**.
+        - id: analyze
+          label: Analyze Change Request
+          sublabel: Basic Track routing
+          x: 210
+          y: 170
+          w: 160
+          h: 64
+          tone: warning
+          detail: |
+            In the **Analyze Change Request** task, the **Basic Track** routing option is chosen. The
+            change notice is then created automatically, and the *Complete Change Task* goes to the CR's
+            creator - no extra hand-offs.
+        - id: task
+          label: Complete Change Task
+          sublabel: resulting objects
+          x: 400
+          y: 170
+          w: 160
+          h: 64
+          tone: info
+          detail: The creator checks the change task's resulting objects (copied from the affected objects) and completes the task.
+        - id: audit
+          label: Audit Change Notice
+          sublabel: rule checks revision
+          x: 590
+          y: 170
+          w: 190
+          h: 64
+          tone: accent
+          detail: |
+            The **Change Quality Approver** audits the change notice. Now the business rule looks at the
+            **resulting objects**: are they all at the initial revision **A**?
+        - id: released
+          label: Released at A
+          sublabel: CR + CN Closed
+          x: 590
+          y: 40
+          w: 190
+          tone: success
+          shape: pill
+          detail: Revision A passes the rule. The document is Released at A.1, and the change request and change notice end up Closed.
+        - id: conflict
+          label: Initial Release Conflict
+          sublabel: rev B or higher
+          x: 590
+          y: 310
+          w: 190
+          tone: danger
+          detail: |
+            A resulting object at revision **B or higher** breaks the rule. An **Initial Release
+            Conflict** task appears after the audit, **View Rule Conflicts** names the object, and nothing
+            is released. The process stops here.
+        - id: fix
+          label: New Fast Track CN
+          sublabel: old CN Canceled
+          x: 330
+          y: 310
+          w: 220
+          tone: primary
+          detail: |
+            To fix it, create a **new change notice** with **Fast Track** complexity (Propagate
+            information copies the details), then complete the Initial Release Conflict task. The old
+            change notice goes to **Canceled**; the new one runs the normal Fast Track reviews and
+            releases revision B.
+      edges:
+        - { from: cr, to: analyze }
+        - { from: analyze, to: task, label: CN auto-created }
+        - { from: task, to: audit }
+        - { from: audit, to: released, label: rev A }
+        - { from: audit, to: conflict, label: rev B+ }
+        - { from: conflict, to: fix, label: resolve }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      The Basic Track removes checks and review steps on purpose - for a first release there is no old
+      version to protect. An object that has **already** been released is different: changing it needs
+      a closer look at who's affected. The rule turns that policy into something the system enforces,
+      instead of something people have to remember.
+
+  - type: scenario
+    variant: what-if
+    title: "What if Priya picks the express lane?"
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Priya needs to release **SC-1048 B.1**, the thicker bracket. She's in a hurry, so she creates a
+          change request with **Category: Initial Release**, and the analyst picks **Basic Track**. She
+          revises the bracket to B in the change task and completes it. The audit is approved. What happens?
+        choices:
+          - label: B.1 is Released - the audit was approved
+            next: wrong1
+            feedback: The audit approval isn't the last word here.
+          - label: An Initial Release Conflict task appears and nothing is released
+            next: s2
+            good: true
+            feedback: Right. The rule checks the resulting objects' revision after the audit.
+      - id: wrong1
+        md: Not with the Pacesetter rule in place. The rule runs after the audit and catches the revision B resulting object. Try again.
+        outcome: fail
+      - id: s2
+        md: |
+          The process has stopped at **Initial Release Conflict**. How should Priya get B.1 released properly?
+        choices:
+          - label: Create a new Fast Track change notice, then complete the conflict task
+            next: win
+            good: true
+            feedback: That sends the revision through the normal reviews.
+          - label: Ask an admin to set the bracket's state to Released directly
+            next: partial1
+            feedback: That would bypass the very reviews the rule is protecting.
+      - id: partial1
+        md: The bracket ends up Released, but with no change notice behind B.1, there's no review or audit trail for a change to released data.
+        outcome: partial
+      - id: win
+        md: The old change notice is **Canceled**, the new one passes its CIB review and audit, and SC-1048 B.1 is Released with a full record. Lesson learned - Initial Release means revision A.
+        outcome: success
+
+  - type: text
+    md: |
+      ### Change intent: telling a change what to do
+
+      Every affected object on a change task carries a **change intent**. You've already seen one value:
+      in a direct release, setting it to **None** means "release this version as it is - don't revise
+      it." The intent works together with the **release target** on the resulting objects, which picks
+      the life cycle transition the object follows when the change completes.
+
+      The Pacesetter adds a new value: **Cancel**. Use it to retire released data that's obsolete -
+      say, a temporary rework instruction for the old 3 mm bracket. Three pieces have to line up for it
+      to work:
+
+      1. A **Cancel** value in the *ChangeIntent* enumeration and a **Cancel** value in the
+         *ChangeTransitions* enumeration.
+      2. A **mapping rule** called *Change Intent Release Targets* that connects the Cancel intent to
+         the Cancel transition.
+      3. A **Cancel transition** from Released to **Canceled** in the object's life cycle template.
+
+      The Pacesetter deployment delivers the first two. The third you may need to switch on yourself.
+
+  - type: walkthrough
+    title: Cancel an obsolete document with the Cancel change intent
+    who: An organization administrator for the setup steps; any change participant for the last steps
+    steps:
+      - title: Look at the enumerations (site admin)
+        where: [Navigator, Browse, Site, Utilities, Type and Attribute Management]
+        md: |
+          Expand **Customize Modeled Enumerations**, open **ChangeIntent** and confirm the **Cancel**
+          value, then open **ChangeTransitions** and confirm its **Cancel** value.
+      - title: Look at the mapping rule
+        where: [Navigator, Browse, Organizations, "<your org>", Utilities, Business Rules]
+        md: In the **Mapping Rules** table, find **Change Intent Release Targets**. It maps the Cancel intent to the Cancel transition.
+      - title: Allow the Cancel transition in the life cycle
+        where: ["<your product>", Utilities, Life Cycle Template Administration]
+        md: |
+          Edit the document type's life cycle template, click the **Released** phase and, in the row for
+          the **Cancel** transition, select **Canceled**. Click **Save & Close**, then check the template
+          in. For documents that already exist, use **Reassign Life Cycles** so they pick up the change.
+      - title: Run the change and set the intent
+        where: [New Change Notice, Edit change task, Affected Objects]
+        md: |
+          Create the change request and change notice as usual (the Pacesetter example uses Fast Track).
+          In the change task's **Affected Objects** table, add the **Change Intent** column with a
+          customized table view if you can't see it, and set the document's intent to **Cancel**. Copy
+          it into the **Resulting Objects** table.
+      - title: Finish the process
+        where: [Tasks, CIB Review, Complete Change Task, Audit Change Notice]
+        md: Complete the remaining tasks and the audit. The document moves to **Canceled**, and the change request and change notice end up Closed.
+    result: The obsolete document is Canceled through a change, so the record shows who retired it and why.
+
+  - type: callout
+    variant: note
+    md: |
+      Everything in this lesson after the Fast/Full comparison is **Pacesetter** configuration, as
+      described in the PLM Foundation Pacesetter course guide. A system without the Pacesetter may not
+      have the Basic Track, the Initial Release category, the rule or the Cancel intent unless your
+      company configured something similar. The Pacesetter also lets you create the change notice
+      manually from the Analyze Change Request task, so you can choose its complexity and template.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Setting Cancel and forgetting the life cycle.** If the document's life cycle has no Cancel
+      transition from Released to Canceled, the intent has nowhere to go. Set up and test the
+      transition before you rely on the Cancel intent in a real change.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Treat **Initial Release** as a promise: "this object has never been released." If you're not
+      sure, check the revision first. Anything at B or later belongs in Fast or Full Track.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Which combination triggers the Pacesetter's initial-release business rule?
+        options:
+          - Any change notice with Fast Track complexity
+          - "A change request with Category: Initial Release, analysed with the Basic Track routing option"
+          - A promotion request to Released
+          - A change request with Category Other and Full Track routing
+        answer: 1
+        explanation: The rule applies when the CR category is Initial Release and the Basic Track routing is selected in Analyze Change Request.
+      - kind: single
+        prompt: The resulting object in a Basic Track initial release is at revision B. What happens after the audit?
+        options:
+          - It is released anyway
+          - An Initial Release Conflict task is generated and the object is not released
+          - It is automatically revised back to A
+          - The change request is rejected automatically
+        answer: 1
+        explanation: The rule only lets revision A through. Revision B or higher generates the conflict task and stops the release.
+      - kind: truefalse
+        prompt: To resolve an Initial Release Conflict, the Pacesetter example creates a new change notice and the original change notice ends up Canceled.
+        answer: true
+        explanation: A new Fast Track change notice carries the revision through normal reviews. Completing the conflict task cancels the original change notice.
+      - kind: multi
+        prompt: What must be in place for the Cancel change intent to move a document to Canceled? (Choose all that apply.)
+        options:
+          - A Cancel value in the ChangeIntent enumeration
+          - A mapping rule that links the Cancel intent to the Cancel transition
+          - A Cancel transition from Released to Canceled in the document's life cycle
+          - A promotion request with target state Canceled
+        answers: [0, 1, 2]
+        explanation: Intent, mapping rule and life cycle transition work together. Promotion requests aren't involved.
+
+  - type: summary
+    points:
+      - "In the Pacesetter, Basic Track is for first releases; Fast and Full Track handle real changes."
+      - "A business rule checks Initial Release + Basic Track changes: only revision A is released, anything higher raises an Initial Release Conflict."
+      - Fix a conflict with a new Fast Track change notice; the original change notice is Canceled.
+      - Change intent tells a change what to do with each affected object - None releases as is, Cancel retires it.
+      - The Cancel intent works only when the enumeration, mapping rule and life cycle transition line up.

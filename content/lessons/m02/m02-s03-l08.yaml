@@ -1,0 +1,267 @@
+id: m02-s03-l08
+subtitle: One BOM line says "4 screws". Occurrences say which screw is which - and where it sits.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [bom, occurrences, reference-designator, quantity, usage, structure]
+sources:
+  - id: te
+    where: "Module 5: Identify occurrences of a part in a BOM (occurrence, quantity, reference designator, location, Occurrences tab, process plans); Activity: Create occurrences in a BOM; Edit a BOM (usage attributes)"
+  - id: hc-cad-assoc
+    label: PTC Help Center supplement
+    title: "Association Usage Examples"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/ManagingCADandPartRelationships/MCPR_AssociationUsageExamples.html"
+    covers: "Several routings of one cable in a CAD assembly are rolled up by the build into a single uses link with the correct quantity"
+
+blocks:
+  - type: text
+    md: |
+      The Scooter S2 frame uses the M6 screw FS-0620 **four times**. In the BOM that's one line:
+      *FS-0620, quantity 4*. Good enough for purchasing - they just need to order four.
+
+      But the factory wants more. *Which* of the four is the one that keeps working loose? Where
+      exactly does each one go? Which assembly step fits which screw? A single line with a number
+      can't answer that.
+
+      Windchill can split that one usage into **named placements**, one per physical screw. Each is
+      an **occurrence**, and its name is a [[reference-designator|reference designator]] - you met
+      those as a usage attribute in the lesson on quantities and find numbers. This lesson goes one
+      level deeper: what an occurrence *is* and how you create them.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "one named placement of a part in its parent" → [[occurrence]]
+      - "the name of that placement (S1, D2, R4)" → [[reference-designator|reference designator]]
+      - "the BOM line itself, with its quantity" → the *usage* ([[uses-link|uses link]])
+      - "facts about the line" → *usage attributes* (quantity, unit, find number...)
+      - "facts about one placement" → *occurrence attributes* (reference designator, location)
+
+  - type: diagram
+    title: One usage, several occurrences
+    caption: The usage carries the quantity. Each occurrence is one named placement. Click each box.
+    diagram:
+      width: 820
+      height: 380
+      nodes:
+        - id: parent
+          label: Frame SC-2000
+          sublabel: parent assembly
+          x: 20
+          y: 150
+          w: 170
+          tone: primary
+          detail: The parent part. Its structure (the uses links to its children) belongs to it, so changing occurrences changes the parent.
+        - id: usage
+          label: "Usage: FS-0620"
+          sublabel: "quantity 4 · each"
+          x: 240
+          y: 150
+          w: 180
+          tone: accent
+          detail: |
+            One BOM line. **Quantity** is a *usage* attribute: it says how many of the child the
+            parent needs. It also sets the ceiling - you can define occurrences **up to** the
+            quantity, not more.
+        - id: o1
+          label: "S1"
+          sublabel: front-left
+          x: 480
+          y: 20
+          w: 140
+          tone: neutral
+          detail: One occurrence. Its reference designator **S1** is an *occurrence* attribute. A location can be added so this screw can be highlighted in the 3D image.
+        - id: o2
+          label: "S2"
+          sublabel: front-right
+          x: 480
+          y: 110
+          w: 140
+          tone: neutral
+          detail: Second occurrence of the same screw, with its own name and (optionally) its own location.
+        - id: o3
+          label: "S3"
+          sublabel: rear-left
+          x: 480
+          y: 200
+          w: 140
+          tone: neutral
+          detail: Third occurrence.
+        - id: o4
+          label: "S4"
+          sublabel: rear-right
+          x: 480
+          y: 290
+          w: 140
+          tone: neutral
+          detail: Fourth occurrence. Four occurrences for a quantity of 4 - the maximum.
+        - id: plan
+          label: Process plan
+          sublabel: manufacturing
+          x: 660
+          y: 150
+          w: 150
+          tone: success
+          detail: |
+            Manufacturing process plans must account for **every occurrence** a process operation
+            consumes. That's where named occurrences pay off.
+      edges:
+        - { from: parent, to: usage, label: uses }
+        - { from: usage, to: o1 }
+        - { from: usage, to: o2 }
+        - { from: usage, to: o3 }
+        - { from: usage, to: o4 }
+        - { from: o2, to: plan, dashed: true }
+        - { from: o3, to: plan, dashed: true }
+
+  - type: comparison
+    title: Usage vs occurrence
+    columns: [Usage (the BOM line), Occurrence]
+    rows:
+      - { label: Represents, cells: [The parent uses this child, One named placement of the child] }
+      - { label: How many, cells: [One per parent-child pair, "Up to the quantity on the usage"] }
+      - { label: Typical attributes, cells: ["Quantity, unit, find number, line number", "Reference designator, location"] }
+      - { label: Who cares most, cells: ["Purchasing, planning, ERP", "Manufacturing process plans, assembly, repair"] }
+    takeaway: The usage says how many. Occurrences say which one and where.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Electronics and assembly lines run on occurrences. A pick-and-place machine needs to know
+      where R1 goes; an assembly instruction needs to say "fit screw S3 first"; a manufacturing
+      process plan has to account for every placement it consumes. With location data on each
+      occurrence, you can even select "the right-front wheel" in the structure and see it light up
+      in the 3D image.
+
+  - type: example
+    variant: real-world
+    title: The screw that kept coming loose
+    industry: Micromobility
+    md: |
+      Field reports said "a frame screw loosens on the S2". With only *FS-0620 ×4* in the BOM,
+      nobody could tell which. Kai gave the four screws occurrences S1-S4. The next service report
+      named **S3** - the rear-left one, next to the folding hinge. The fix (a thread-locker step at
+      that spot) went into the assembly instructions for S3 only.
+    takeaway: Named occurrences turn "a screw" into "that screw".
+
+  - type: walkthrough
+    title: Create occurrences in a BOM
+    who: A configuration engineer or designer who can edit the parent part
+    where: ["<end item> information page", Structure tab]
+    steps:
+      - title: Open the structure
+        where: ["<end item> information page", Structure tab]
+        md: Open the product's end item and go to its **Structure** tab.
+      - title: Show the usage details
+        where: [Structure tab, Views, Default with Usage Details]
+        md: Choose the view **Default with Usage Details** so the Quantity column appears.
+      - title: Select the parent and open Uses
+        where: [Structure tab, "<parent part>", Uses tab]
+        md: Select the parent assembly in the left pane. The **Uses** tab on the right lists its children with quantity, unit, find number and reference designator.
+      - title: Set the quantity and reference designators
+        where: [Uses tab, Quantity, Reference Designator]
+        md: |
+          In the child's row, set **Quantity** (for example 3), then type the designators in the
+          **Reference Designator** cell - a range such as *D1-D3* works - and press Enter.
+      - title: Check the Occurrences tab
+        where: [Structure tab, "<parent part>", Occurrences tab]
+        md: Open the **Occurrences** tab. Each occurrence now shows its own designator. This tab is also the efficient place to edit individual occurrences.
+      - title: Check in the parent
+        where: [Structure tab, Check Out/In, Check In]
+        md: Editing quantity and designators checked the parent out automatically. Click **Check In** - the parent gets a new iteration.
+    result: The parent's BOM line now has named occurrences, one per placement, visible to everyone.
+
+  - type: simulation
+    title: Three dowel pins in the mainframe
+    intro: |
+      The mainframe needs **three** dowel pins, each with its own designator. Set it up, then check
+      in. Try adding more designators than the quantity allows.
+    headline: "Quantity: {quantity} · Occurrences: {occurrences} · Parent: {parent} {version}"
+    initial: { quantity: 1, occurrences: 0, parent: checked in, version: A.5, done: false }
+    actions:
+      - id: qty3
+        label: Set Quantity = 3
+        when: { done: false }
+        do: [{ set: { quantity: 3, parent: checked out } }]
+        log: Quantity is now 3. Editing the structure checked the mainframe out to you.
+        blockedHint: Already checked in - check out again to change it.
+      - id: refdes3
+        label: "Reference Designator = D1-D3"
+        when: { quantity: 3, done: false }
+        do: [{ set: { occurrences: 3, parent: checked out } }]
+        log: Three occurrences created - D1, D2 and D3 - visible on the Occurrences tab.
+        blockedHint: With quantity 1 you can only name one occurrence. Raise the quantity first.
+      - id: refdes4
+        label: "Reference Designator = D1-D4"
+        when: { quantity: 4 }
+        do: [{ set: { occurrences: 4 } }]
+        log: Four occurrences.
+        blockedHint: "Not allowed: you can define occurrences only up to the quantity (3 here)."
+      - id: checkin
+        label: Check In
+        when: { parent: checked out, done: false }
+        do: [{ set: { parent: checked in, version: A.6, done: true } }]
+        log: Mainframe checked in at {version}. Everyone now sees {occurrences} named occurrences.
+        blockedHint: Nothing to check in - the parent isn't checked out.
+    goals:
+      - label: Three named dowel pins, checked in
+        when: { occurrences: 3, done: true }
+        message: Quantity 3, occurrences D1-D3, parent iterated. That's the whole job.
+      - label: "Spot the trap: check in with quantity 3 but no designators"
+        when: { quantity: 3, occurrences: 0, done: true }
+        message: Purchasing is happy, manufacturing isn't - nobody can tell the three pins apart.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Forgetting the parent is checked out.** Changing quantity or designators checks out the
+      *parent* assembly, not the child. Until you check it in, nobody else sees the occurrences -
+      and nobody else can edit that structure.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Type designator **ranges** (D1-D3) instead of listing every name, and set the quantity first.
+      Then open the Occurrences tab to confirm each one exists before you check in.
+
+  - type: callout
+    variant: note
+    md: |
+      **PTC Help Center supplement:** the 13.1.2.0 association examples note that when one cable is
+      routed several times in a CAD assembly, the build rolls the routings up into a single uses
+      link with the correct quantity. See the lesson *Linking parts and CAD* for how CAD builds
+      structure.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: What is an occurrence in Windchill?
+        options:
+          - A separate part number for each copy of a part
+          - One named usage of a part within an assembly structure
+          - A new iteration of the parent
+          - A drawing view of the part
+        answer: 1
+        explanation: An occurrence stores information about one named placement of a part in its parent. The part number stays the same.
+      - kind: single
+        prompt: A usage has quantity 3. How many occurrences can you define for it?
+        options: [Exactly 1, Up to 3, Exactly 6, Unlimited]
+        answer: 1
+        explanation: Occurrences are defined up to the quantity on the usage - equal to it or fewer.
+      - kind: multi
+        prompt: Which are occurrence attributes rather than usage attributes? (Choose all that apply.)
+        options: [Reference designator, Quantity, Location, Unit]
+        answers: [0, 2]
+        explanation: Reference designator and location belong to each occurrence. Quantity and unit belong to the usage (the BOM line).
+      - kind: truefalse
+        prompt: Adding reference designators to a child's row checks out the child part.
+        answer: false
+        explanation: The structure belongs to the parent, so the parent is checked out - and iterates when you check it in.
+
+  - type: summary
+    points:
+      - An occurrence is one named placement of a part in its parent; its name is the reference designator.
+      - Quantity lives on the usage; you can define occurrences up to that quantity.
+      - Set quantity and designators on the Uses tab, confirm on the Occurrences tab, check in the parent.
+      - Occurrences (with locations) matter for assembly, 3D highlighting and manufacturing process plans.

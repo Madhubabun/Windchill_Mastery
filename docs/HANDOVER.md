@@ -21,10 +21,10 @@
 - Offline: service worker on the web; everything bundled in the Android app.
 - Android: daily reminder notifications, native print/share, back button, works in flight mode.
 
-**Content**: Module 1 (Fundamentals of Windchill & PLM) is complete: 19 lessons, 4 section
-checkpoints and a capstone. Module 2 (Product Data Management & Core Features) is complete: 23
+**Content**: Module 1 (Fundamentals of Windchill & PLM) is complete: 23 lessons, 4 section
+checkpoints and a capstone. Module 2 (Product Data Management & Core Features) is complete: 29
 lessons, 4 section checkpoints and a capstone. Module 3 (Change & Configuration Management) is
-complete: 20 lessons, 5 section checkpoints and a capstone. Module 4 (Business Administration) is
+complete: 25 lessons, 5 section checkpoints and a capstone. Module 4 (Business Administration) is
 complete: 38 lessons, 9 section checkpoints and a capstone. Module 5 (System Administration) is
 complete: 31 lessons, 7 section checkpoints and a capstone. Module 7 (Advanced Topics) is
 complete: 73 lessons, 14 section checkpoints and a capstone, including the developer track

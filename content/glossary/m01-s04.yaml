@@ -2,7 +2,7 @@
 - id: part-view
   term: View (part view)
   plain: A "lens" on the same part - how engineering sees it vs how the factory builds it.
-  definition: A label on a part version, such as Design or Manufacturing, that lets one part master carry separate view versions. Views support transforming an engineering BOM into a manufacturing BOM. The list of views is configured by each company.
+  definition: A label on a part version, such as Design or Manufacturing, that lets different departments see the same parts in structures suited to their role. Views support moving from an engineering BOM to a manufacturing BOM. The list of views is configured by each company.
   aka: [Design view, Manufacturing view]
   related: [part, ebom, mbom]
 
@@ -28,7 +28,7 @@
 - id: affected-object
   term: Affected object
   plain: A thing a change will touch, listed before the work starts.
-  definition: An object listed on a problem report, change request or change task as being affected by the change - typically the current released version that needs to be modified.
+  definition: An object listed on a problem report, change request or change task as being affected by the change - typically an existing version that needs to be modified or released.
   related: [resulting-object, change-request, change-task]
 
 - id: resulting-object
@@ -36,3 +36,17 @@
   plain: The new version a change produces.
   definition: An object version produced by the work of a change task, such as the new revision of a part or drawing. Resulting objects are typically released when the change notice completes.
   related: [affected-object, change-task, change-notice]
+
+- id: access-control
+  term: Access control
+  plain: The rules that decide who can see and do what with each object.
+  definition: The Windchill mechanisms that determine each user's permissions on an object. Access can be granted through domain policy rules applied to contexts, through life cycles, and through security policies or rules on folders and individual objects; security labels can deny access regardless.
+  aka: [access rights]
+  related: [permission, domain, access-control-list, role]
+
+- id: permission
+  term: Permission
+  plain: One thing you're allowed to do with an object, like read it or change it.
+  definition: A single access right on a Windchill object, such as Read, Modify, Create, Revise, Delete or Full Control (All). Your effective set of permissions comes from all the access control rules that apply to you and the object.
+  aka: [access permission, access right]
+  related: [access-control, effective-permissions]

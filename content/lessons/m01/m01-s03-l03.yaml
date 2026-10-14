@@ -1,8 +1,31 @@
 id: m01-s03-l03
 subtitle: Find any part in seconds - and fix the search that finds nothing.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-13"
 tags: [search, quick-search, advanced-search, saved-search, troubleshooting]
+sources:
+  - id: te
+    where: "Module 2: Locate data in Windchill, Save searches, Activity: Search for objects (Object Type list, wildcards, Edit Search Criteria, Save This Search, View Search History and Saved Searches)"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Windchill Search"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/search/LclSrchAbout.html"
+    covers: "Global vs advanced search; index search vs database search; without indexing keywords match Name and Number only; objects you lack access to don't appear in results"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Global Search"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/search/LclSrchPerformSimpleSearch.html"
+    covers: "Search field in the upper right with an object-type list; non-indexed keywords must match the complete field; * wildcard; results on the Search tab; drop-down to history, saved searches and Advanced Search"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Unexpected Results"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/search/LclSrchResultsUnexpected.html"
+    covers: "Missing results from lack of access, sticky type and context selections, indexing that runs on an admin-set schedule"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Saving a Search"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/search/LclSrchSearchSave.html"
+    covers: "Save This Search with a unique name; sharing with a context, organization, site or groups needs admin rights in at least one context; shared searches appear in the Manage Saved Searches window"
 
 blocks:
   - type: text
@@ -19,7 +42,7 @@ blocks:
     variant: terms
     md: |
       **Plain words → official term**
-      - "the box at the top" → [[quick-search]]
+      - "the box at the top" → [[quick-search]] (the Help Center calls it *global search*)
       - "search with filters" → [[advanced-search]]
       - "a search I keep" → [[saved-search]]
       - "the star that means 'anything here'" → [[wildcard]] (`*`)
@@ -36,7 +59,7 @@ blocks:
         - { id: criteria, label: Your criteria, sublabel: type + context, x: 180, y: 120, w: 140, tone: primary }
         - { id: index, label: Search index, sublabel: keywords, x: 360, y: 30, w: 140, tone: info, shape: cylinder }
         - { id: db, label: Database, sublabel: attributes, x: 360, y: 210, w: 140, tone: info, shape: cylinder }
-        - { id: access, label: Access check, sublabel: can you see it?, x: 540, y: 120, w: 140, tone: warning }
+        - { id: access, label: Access check, sublabel: "can you see it?", x: 540, y: 120, w: 140, tone: warning }
         - { id: results, label: Results, sublabel: table, x: 710, y: 120, w: 90, tone: success, shape: pill }
       edges:
         - { from: you, to: criteria }
@@ -56,7 +79,7 @@ blocks:
         highlight: [criteria]
         flow: [you>criteria]
       - title: Keywords hit the index
-        caption: Keyword searches go to the **search index** - a fast word list. Brand-new objects can take a short time to appear there.
+        caption: If Index Search is installed, keywords go to the **search index** - a fast word list that indexing fills on a schedule your admin sets. Without an index, keywords are matched against Name and Number only.
         show: [you, criteria, index, db]
         highlight: [index]
         flow: [criteria>index]
@@ -81,7 +104,7 @@ blocks:
     columns: [Quick search, Advanced search, Saved search]
     rows:
       - { label: Use when, cells: [You know the number or name, "You know properties (type, state, date, creator)", You run the same search again and again] }
-      - { label: Where, cells: [Search field in the header, "Advanced search page (link next to quick search, or the Navigator's search view)", Your saved searches list] }
+      - { label: Where, cells: [Search field at the top right of every page, "Advanced Search page (from the drop-down next to the search field, or the Navigator's Search tab)", "Search History and Saved Searches (Navigator, Search tab)"] }
       - { label: Speed, cells: [Seconds, A minute to set up, One click] }
       - { label: Example, cells: ["1000-0423", "All parts in Scooter S2 in state In Work, modified this week", "My team's open change requests"] }
     takeaway: Start with quick search. Move to advanced when quick search gives too many or zero results.
@@ -92,25 +115,26 @@ blocks:
       - title: Click the search field
         where: [Header, Search field]
         md: |
-          The search field sits in the header on every page. Many releases show a **type picker** next
-          to it (e.g. *All*, *Parts*, *Documents*) - check it's set to what you want.
+          The search field sits at the top right of every page, with an **object type** list to its
+          left (for example *All Types*, *Part*, *Document*). Check it's set to what you want.
       - title: Type and go
         where: [Header, Search field]
         md: |
           Type the number (`1000-0423`), a name (`hinge`) or use a wildcard (`1000-04*`, `*hinge*`).
-          Press **Enter**.
+          Press **Enter**. Without index search, a keyword must match the *whole* name or number, so
+          use `*` for partial text.
       - title: Open the result
         where: [Search results, "<object name>"]
-        md: If there's exactly one match, some releases jump straight to its information page. Otherwise click the name in the results table.
+        md: Results appear on the Navigator's **Search** tab. Click the *View information* icon (or the name) to open the information page.
 
   - type: walkthrough
     title: Advanced search by attributes
     steps:
       - title: Open advanced search
-        where: [Header, Advanced search]
+        where: [Header, search drop-down, Advanced Search]
         md: |
-          Use the advanced search link/icon beside the quick search field, or open the Navigator's
-          search view.
+          Open the drop-down next to the search field, or the Navigator's **Search** tab, and go to the
+          **Advanced Search** page. From a results page, **Edit Search Criteria** takes you there too.
       - title: Choose the object type
         where: [Advanced search, Type]
         md: Pick the type, e.g. **Part**. The type decides which attributes you can filter on.
@@ -124,7 +148,7 @@ blocks:
           Each criterion narrows the results.
       - title: Search
         where: [Advanced search, Search]
-        md: Run the search. Results appear in a table below or on a results page.
+        md: Click **Search**. The matches appear in a results table.
 
   - type: walkthrough
     title: Save and share a search
@@ -133,15 +157,16 @@ blocks:
         where: [Advanced search]
         md: Get the criteria right first - check that the results are what you want.
       - title: Save it
-        where: [Advanced search, Save Search]
+        where: [Advanced search, Save This Search]
         md: |
-          Use the **save search** option and give it a clear name, e.g. `S2 - parts in work - this week`.
+          Click **Save This Search** and give it a clear, unique name, e.g. `S2 - parts in work - this week`.
       - title: Rerun or share it
-        where: [Saved searches list, "<your search>"]
+        where: [Navigator, Search, Search History and Saved Searches]
         md: |
-          Pick it from your saved searches list (on the search page or the Navigator's search view),
-          or add it to your Home page as a table. Depending on your role and site settings, you can share
-          it with others; in many companies only admins can publish a saved search to everyone.
+          Pick it from **Search History and Saved Searches** on the Navigator's Search tab (the drop-down
+          next to the header search field has a shortcut). Sharing it with a context, organization, site
+          or group is an *Advanced Options* choice that needs admin rights in at least one context;
+          people you share with find it in their *Manage Saved Searches* window and choose to show it.
     result: One click reruns your criteria - and the results are always fresh, because the search runs again each time.
 
   - type: simulation
@@ -235,7 +260,7 @@ blocks:
           - label: "The new object may not be in the search index yet - wait a little, or browse the folder"
             next: "win"
             good: true
-            feedback: "Keyword search uses an index that updates shortly after objects are created or changed."
+            feedback: "Right. Indexing runs on a schedule your admin sets, so a brand-new object may not be in the index yet."
           - label: "The part must have been deleted"
             next: "f2"
             feedback: "Your colleague is looking at it right now. Deleted objects don't show up for anyone."
@@ -264,9 +289,9 @@ blocks:
     title: Saved search, saved Monday mornings
     industry: Micromobility
     md: |
-      Acme's change manager used to build the same advanced search every Monday: "all change requests in
-      state *Under Review* for Scooter S2". She saved it and added it to her Home page as a table. The
-      weekly review prep went from 15 minutes to zero - the table is simply there, always up to date.
+      Acme's change manager used to build the same advanced search every Monday: "all open change
+      requests for Scooter S2". She saved it. Now it's one click from her saved searches, and because it
+      runs fresh each time it's always up to date. The weekly review prep went from 15 minutes to one.
     takeaway: If you run a search twice, save it.
 
   - type: callout

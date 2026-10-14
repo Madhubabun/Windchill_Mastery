@@ -308,21 +308,21 @@
 
 - id: described-by
   term: Described-by relationship
-  plain: '"This document explains this part" - tied to one version.'
-  definition: A link from a specific part version to a specific document version that describes it. It does not automatically follow newer document versions.
+  plain: '"This document explains this part" - tied to one version of the document.'
+  definition: A link from a part to a specific version of a document that describes it (Described By Documents). It shows the latest iteration of that document version, and it is carried forward when the part is revised.
   related: [references-link, part, document]
 
 - id: references-link
   term: References relationship
-  plain: '"This part points at that document" - always the latest.'
-  definition: A link from a part to a document master, so it always resolves to the latest version of the document.
+  plain: '"This part points at that document" - the latest released version.'
+  definition: A link from a part to a document master (Reference Documents). It shows the latest Released version of the document, or the latest working version if none is released yet. By default it is used for documents of the Reference document type.
   related: [described-by]
 
 - id: build-link
-  term: Content (build) association
-  plain: 'The link that says "this CAD model defines this part."'
-  definition: An association between a CAD document and a part (for example Owner, Contributing or Image) that controls whether the part's structure and attributes are built from the CAD data.
-  aka: [Owner association]
+  term: CAD-part (build) association
+  plain: 'The link that says how much a CAD model feeds a part - its structure, its attributes, or just its picture.'
+  definition: An association between a CAD document and a part that controls what the build passes from CAD to the part. Windchill 13.1.2.0 names five types - Owner, Contributing Image, Image, Contributing Content and Content - each a different mix of building structure, passing attributes and representing the part. Only Owner builds the part's children; Content (formerly called passive) only describes the part.
+  aka: [CAD association, build association]
   related: [cad-document, part]
 
 - id: master

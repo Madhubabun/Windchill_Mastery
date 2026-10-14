@@ -1,8 +1,18 @@
 id: m01-s04-l05
 subtitle: "SC-1042 · Folding hinge · B.2 · Released. Learn to read that line like a pro."
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.0.1
+updated: "2026-10-13"
 tags: [identity, number, version, revision, iteration, lifecycle-state, master]
+sources:
+  - id: te
+    where: "Module 2: Describe revision and iteration control, Activity: Browse for objects (part number unique); Module 3: Activity: Explore and create documents (automatic numbering, A.1, OOTB states In Work, Released, Canceled), Activity: Update a document (Version History); Module 4: CAD integration with Windchill (version and state in drawing parameters); Module 5: Activity: Create a WTPart (View), structure filters (part master); Module 2: Activity: Open a CAD model in Creo View (version shown with its view, e.g. A3 (Design))"
+  - id: ac
+    where: "Module 7: Specify custom numbering scheme rules"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Renaming an Object"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/commonactions/CommonItemRename.html"
+    covers: "A new name or number applies to all versions of the object"
 
 blocks:
   - type: text
@@ -44,7 +54,7 @@ blocks:
           shape: cylinder
           detail: |
             The **master** is the identity card. It holds the number and name, shared by every version.
-            Rename or renumber it (with the right permissions) and every version shows the new value.
+            Rename or renumber the object (if you're allowed to) and every version shows the new value.
         - id: a1
           label: A.1
           sublabel: first save
@@ -99,7 +109,7 @@ blocks:
     title: Number vs name
     columns: [Number, Name]
     rows:
-      - { label: Unique?, cells: [Yes - for that kind of object, "No - many parts can be called 'Bracket'"] }
+      - { label: "Unique?", cells: [Yes - for that kind of object, "No - many parts can be called 'Bracket'"] }
       - { label: Who sets it, cells: [Usually generated automatically, The person creating it] }
       - { label: Use it for, cells: [Searching and talking precisely, Understanding what it is] }
       - { label: Acme example, cells: [SC-1042, Folding hinge] }
@@ -109,9 +119,9 @@ blocks:
     title: Check out, check in, release, revise
     intro: |
       Drive the folding hinge through its life. Check-in adds an **iteration**; Revise starts a new
-      **revision**. In most configurations you can't check out a Released version - you revise it.
-      Life cycle states differ by company; this sandbox uses a simple In Work → Under Review → Released
-      cycle.
+      **revision**. Business rules often stop you from changing a Released version - then you revise
+      it. Out of the box the states are In Work, Released and Canceled; this sandbox adds a made-up
+      *Under Review* step to stand for the review.
     headline: "SC-1042 · Folding hinge · {revision}.{iteration} · {state}"
     initial: { revision: A, iteration: 1, state: In Work, checkedOut: false }
     actions:
@@ -191,14 +201,14 @@ blocks:
         md: Find **State** (Released, In Work...). Also note who created and last modified it, and which context it lives in.
       - title: See every version
         where: ["<object> information page", History]
-        md: Open the version or iteration history to see A.1 through to the latest, each with its state.
+        md: Open the **History** tab. The Version History table lists A.1 through to the latest iteration and revision.
     result: You can read the identity line out loud - and know whether it's the version you should use.
 
   - type: callout
     variant: note
     md: |
       Numbering is often **automatic** but configurable - some companies type numbers by hand or use
-      smart prefixes. Revision letters are configurable too (some skip I and O, some use numbers).
+      smart prefixes. The versioning scheme can be set per object type too, so revisions don't have to be letters.
       Parts with views can also show the view next to the version, for example *B.2 (Design)*.
 
   - type: callout

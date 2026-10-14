@@ -24,3 +24,15 @@
   plain: Windchill asking you to decide yes or no.
   definition: A workflow task in which an approver votes, typically Approve or Reject, with a comment. A rejection on a promotion request stops the promotion; the exact vote options depend on the configured process.
   related: [task, workflow, review-task, promotion-request]
+
+- id: promotion-preference
+  term: Promotion preference
+  plain: The setting that says which sign-off process runs for which target state.
+  definition: A preference managed in the Promotion Preference Management utility (site, organization, product or library Utilities) that sets which promotion workflow can be selected for a given target state. Only site administrators can create new promotion preferences; other administrators can edit existing ones at their context level. Other promotion behaviour, such as Automatic Revision Mode, is set in the Promotion Process category of Preference Management.
+  related: [promotion-request, promotion-target-state, preference, promotion-scheme]
+
+- id: promotion-scheme
+  term: Promotion scheme
+  plain: A company's full set of rules for which promotions go through which sign-off.
+  definition: A configuration in which different target states use different promotion procedures - for example one workflow for In Work to Prototype and another for In Work to Production. It combines the roles involved, life cycle templates with the right Promote transitions, the workflows (often copied from the out-of-the-box promotion workflows) and promotion preferences that tie each target state to its workflow.
+  related: [promotion-preference, promotion-request, transition, life-cycle-template, workflow-template]
