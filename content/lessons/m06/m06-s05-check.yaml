@@ -1,0 +1,142 @@
+id: m06-s05-check
+subtitle: Rehosting, the ten upgrade steps, customization impact and cutover - moving Windchill itself forward.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [upgrade, rehosting, customization, cutover, checkpoint]
+sources:
+  - id: hc-rehost
+    label: PTC Help Center supplement
+    title: "Rehosting a Windchill Environment"
+    url: "https://support.ptc.com/help/windchill/cloud/r12.0.2.0/en/Windchill_Help_Center/WCRehostUtilOview_Intro.html"
+    covers: "Rehosting changes (host name, installation directory, hardware platform); not an alternative to upgrading (12.0.2.0 page)"
+  - id: hc-upgrade
+    label: PTC Help Center supplement
+    title: "Upgrade Overview"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCUpgradeGuide/WCUpgrade_OverviewSteps_10x.html"
+    covers: "Ordered upgrade steps; source and target systems; life cycle template Visibility Hide makes LoadNewData fail"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Gather Upgrade Properties"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCUpgradeGuide/WCUpgrade_UpgradeManager_GatherUpgProps_Upgrade.html"
+    covers: "Test and Production modes; Run Upgrade to Completion only in Test mode"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Verify the Upgraded Solution"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCUpgradeGuide/WCUpgrade_VerifyUpgradedSolution.html"
+    covers: "License retrieval in the License Management utility; new modules only after the upgrade"
+  - id: cust
+    where: "Module 1, Deploying Windchill custom code; Updates and server maintenance; Customer build. Module 2, wtSafeArea"
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **rehosting and upgrades**, built around Rosa's upgrade of Acme's Windchill and
+      Nia's dry run on a refreshed wc-test01. Score 80% to pass. Every answer explains itself.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: Rosa copies production data into wc-test01 for Nia's dry run. Which PTC tool updates the copy for its new host?
+        options:
+          - "The Windchill Rehost Utility"
+          - "The Upgrade Manager"
+          - "The Windchill Repair Utility (WinRU)"
+          - "Mapping Management"
+        answer: 0
+        explanation: Rehosting updates a test or development environment after production data is duplicated and the host changes. The Upgrade Manager converts a database to a new release, WinRU repairs data, and Mapping Management is for received deliveries.
+      - kind: truefalse
+        prompt: Rehosting is a quick alternative to upgrading Windchill to a new release.
+        answer: false
+        explanation: PTC states that rehosting is not an alternative to upgrading. Rehosting keeps the release and changes the host, install directory or hardware.
+      - kind: order
+        prompt: Put these upgrade steps in PTC's order.
+        items:
+          - Apply the latest CPS to the source system
+          - Run WinDU and fix every issue with WinRU
+          - Export the database and LDAP at the same time
+          - Set up the target system and verify it works
+          - Apply customizations on the target
+          - Import the database
+          - Run the Upgrade Manager
+          - Validate the upgraded solution
+        explanation: Prepare and clean the source, take the data out, build and customize the target, bring the data in, convert it, then validate. (Copying the vaults and the final upgrade steps also sit in this sequence.)
+      - kind: single
+        prompt: In PTC's upgrade overview, which system receives the customizations and the imported database?
+        options: [The target system, The source system, The QA system, The LDAP server]
+        answer: 0
+        explanation: The source system is the one being upgraded. The target system is a new installation that receives customizations and the database.
+      - kind: single
+        prompt: The Upgrade Manager fails in the LoadNewData phase. Which known cause should Rosa check first?
+        options:
+          - "A life cycle template with Visibility set to Hide"
+          - "A missing offline viewer"
+          - "A package that is still unlocked"
+          - "Too many saved searches"
+        answer: 0
+        explanation: PTC warns that a life cycle template whose Visibility is Hide makes the Upgrade Manager fail in the LoadNewData phase. Fix it on the source so every export carries the fix.
+      - kind: multi
+        prompt: Which statements about Upgrade Manager modes are true? (Choose all that apply.)
+        options:
+          - "Test mode is for trial upgrades"
+          - "Run Upgrade to Completion is disabled in Production mode"
+          - "Interactive, when on, pauses after each phase"
+          - "Production mode skips the database upgrade"
+        answers: [0, 1, 2]
+        explanation: Test mode allows trials and Run Upgrade to Completion; Production mode disables that option. Interactive (Yes by default) pauses after each phase. Every mode upgrades the database.
+      - kind: single
+        prompt: A Critical Patch Set brings a newer PTC version of a file Acme has in siteMod. Where does the installer put the newer version?
+        options: [ptcCurrent, ptcOrig, wtCustom, The production code base over Acme's file]
+        answer: 0
+        explanation: ptcCurrent holds a newer PTC version copied in when the installer finds a matching file in siteMod. ptcOrig holds the original; wtCustom is for display text.
+      - kind: multi
+        prompt: Which belong in a customization inventory before an upgrade? (Choose all that apply.)
+        options:
+          - "xconf file changes and object initialization rules"
+          - "Life cycle and workflow templates, access control rules"
+          - "Java, JSP and Info*Engine code"
+          - "The list of users' favourite searches"
+        answers: [0, 1, 2]
+        explanation: PTC's list of what customizations may change includes xconf files, OIRs, templates, access rules and code. Personal favourites are not customizations.
+      - kind: single
+        prompt: After the upgrade, what does PTC say to do in the License Management utility, and when should new optional modules be added?
+        options:
+          - "Retrieve the license; add new modules only after the upgrade with the PTC Solution Installer"
+          - "Delete the old license; add new modules during step 6"
+          - "Nothing; modules are added in the Upgrade Manager"
+          - "Export the license with LDAP; add modules before the CPS"
+        answer: 0
+        explanation: Verification includes retrieving the license in the License Management utility. New modules come after the upgrade, using the PTC Solution Installer.
+      - kind: multi
+        prompt: Which make good go/no-go criteria for the cutover? (Choose all that apply.)
+        options:
+          - "Every step completed with no open errors"
+          - "The key use cases pass on the upgraded system"
+          - "Enough time is left to roll back"
+          - "Nobody in the room objects loudly"
+        answers: [0, 1, 2]
+        explanation: Good criteria are agreed in advance and checkable with evidence. Silence in a tired room is not evidence. (Go/no-go criteria are general project practice built on PTC's fix-before-moving-on rule.)
+
+  - type: flashcards
+    title: Rehosting and upgrades deck
+    cards:
+      - { front: Rehosting, back: "Updating a copy of production in test or dev for a new host name, install directory or hardware. Not an upgrade." }
+      - { front: Source vs target system, back: "Source = the system being upgraded. Target = the new install that gets customizations and the database." }
+      - { front: Upgrade steps 1-3, back: "Latest CPS on the source; WinDU + WinRU; export database and LDAP together." }
+      - { front: Upgrade steps 4-7, back: "Copy vaults; set up and verify the target; apply customizations; import the database." }
+      - { front: Upgrade steps 8-10, back: "Run the Upgrade Manager; final upgrade steps; validate the upgraded solution." }
+      - { front: Upgrade Manager modes, back: "Test = trial upgrades with Run Upgrade to Completion. Production = real run; that option disabled." }
+      - { front: LoadNewData failure, back: "Check life cycle templates: Visibility must not be Hide." }
+      - { front: wtSafeArea folders, back: "ptcOrig = PTC original; siteMod = your version; ptcCurrent = newer PTC version from the installer." }
+      - { front: Customer build, back: "Base version + maintenance release + temp patches + customizations + configurations. Versioned." }
+      - { front: Go/no-go criteria, back: "Yes-or-no conditions with evidence, agreed before the cutover." }
+      - { front: Hypercare, back: "Extra-close support right after go-live, with a known team and issue list." }
+
+  - type: summary
+    points:
+      - Rehosting refreshes test and development with production data; it never replaces an upgrade.
+      - Upgrades follow ten ordered steps from a source system to a new target system.
+      - The Upgrade Manager converts the database in phases; trial in Test mode, go live in Production mode.
+      - Inventory customizations and use wtSafeArea so rework can be estimated.
+      - Cut over with a written plan, agreed go/no-go criteria, a rollback trigger and hypercare.

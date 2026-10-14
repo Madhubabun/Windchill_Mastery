@@ -1,0 +1,361 @@
+id: m06-s03-l01
+subtitle: Bundle the right objects, freeze them, ship them, and land them safely on the other side.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [migration, packages, deliveries, received-delivery, data-exchange]
+sources:
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Sending and Receiving Windchill Packages"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/packages/PackageOverview.html"
+    covers: "What a package is; standard vs replication packages; delivery methods; offline viewer, manifest and ZIP options; create packages in the product or library context; import supported in Windchill PDMLink only"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Packages: Sending Side"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/packages/PackageSendSide.html"
+    covers: "Package types; create, set content, lock, create a delivery, create ZIP files and send; initially selected objects; internal review before external sending"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Format Options"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/packages/PackageFormatOptions.html"
+    covers: "Export Only vs PTC Windchill format; same major and minor release; no Project or Program objects; PLM Connector Importable Package license group"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Packages: Receiving Side"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/packages/PackageReceiveSide.html"
+    covers: "ZIP contents per format; receive, upload, preview, map and import; imported objects are read-only"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Best Practices for Working with Packages"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/packages/PackageBestPractice.html"
+    covers: "Use the collector and collection rules; no unlocking after the first delivery without a new iteration or revision"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Working with the Import/Export Management Utility"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/exportimport/ExportImportAbout.html"
+    covers: "Import/Export Management as the other site-to-site route (JAR files)"
+
+versionNotes:
+  - versions: ["13.1.2.0"]
+    md: |
+      This lesson was checked against the 13.1.2.0 Help Center. Several package pages were read in
+      the **Windchill+** edition of that Help Center; the on-premises pages describe the same flow.
+      Exact button labels can differ between releases, so the walkthroughs name pages and steps, not
+      every button.
+
+blocks:
+  - type: text
+    md: |
+      Acme now owns Kestrel Cycles, and Nia's inbox is full of "can you send me...?" emails.
+
+      - **Voltra Cells** wants the battery tray drawings for the **Kestrel Cargo K1**. Voltra has no
+        Windchill at all.
+      - **Hexa Tooling** built the K1 frame jigs and runs its own Windchill. It wants to send its jig
+        designs to Acme.
+
+      Emailing loose files would be fast, and a disaster: no record of what went out, which version,
+      or who got it. Windchill's answer is the **package**: a tracked bundle of objects you send to
+      someone outside your own Windchill.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a tracked bundle of objects to send out" → *[[package]]*
+      - "the object you started the bundle from" → *[[initially-selected-object]]*
+      - "a rule that pulls in related objects automatically" → *[[collection-rule]]*
+      - "freezing the bundle's contents" → *[[package-lock|locking the package]]*
+      - "one shipment of the bundle to one recipient" → *[[package-delivery|delivery]]*
+      - "a ZIP anyone can open" → *[[export-only-format|Export Only format]]*
+      - "a ZIP another Windchill can import" → *[[ptc-windchill-format|PTC Windchill format]]*
+      - "a shipment you've been sent" → *[[received-delivery]]*, handled in *[[received-delivery-management|Received Delivery Management]]*
+
+  - type: animation
+    title: From Acme's objects to a partner's system
+    caption: Press play to follow one package from creation to import on the other side.
+    diagram:
+      width: 820
+      height: 380
+      groups:
+        - { label: Sending Windchill, x: 10, y: 10, w: 520, h: 360, tone: info }
+        - { label: Receiving side, x: 550, y: 10, w: 260, h: 360, tone: neutral }
+      nodes:
+        - id: object
+          label: Battery tray
+          sublabel: initially selected
+          x: 30
+          y: 50
+          w: 150
+          tone: accent
+          shape: doc
+          detail: Nia starts from an existing object. It becomes the package's **initially selected object**.
+        - id: package
+          label: Package
+          sublabel: K1 tray for Voltra
+          x: 210
+          y: 50
+          w: 150
+          tone: primary
+          detail: The package records which objects go out. It lives in the product or library context the content comes from.
+        - id: rules
+          label: Collection rules
+          sublabel: + filters
+          x: 390
+          y: 50
+          w: 120
+          tone: info
+          detail: Rules gather dependents (drawings, structure members) automatically. Filters and file-content options decide what's left in or out.
+        - id: lock
+          label: Lock
+          sublabel: content frozen
+          x: 210
+          y: 170
+          w: 150
+          tone: warning
+          shape: pill
+          detail: Once the content is final, the package is **locked** so nobody can change it. After the first delivery it can't be unlocked without a new iteration or revision.
+        - id: delivery
+          label: Delivery
+          sublabel: medium + recipient
+          x: 30
+          y: 290
+          w: 150
+          tone: primary
+          detail: One delivery = one shipment to one recipient by one medium (project share, email link, email attachment, download site, physical media).
+        - id: zip
+          label: Package ZIP
+          sublabel: format + options
+          x: 260
+          y: 290
+          w: 150
+          tone: success
+          shape: doc
+          detail: The ZIP is created after locking. You choose the format (Export Only or PTC Windchill) and options such as a manifest and an offline viewer.
+        - id: partner
+          label: Partner opens it
+          sublabel: Export Only
+          x: 590
+          y: 60
+          w: 190
+          tone: neutral
+          detail: Voltra unzips a CONTENTS folder, plus a manifest.txt and an offline viewer if Nia included them. No Windchill needed.
+        - id: rdm
+          label: Received Delivery Mgmt
+          sublabel: upload ZIP
+          x: 590
+          y: 170
+          w: 190
+          tone: primary
+          detail: A partner with Windchill uploads the ZIP as a **received delivery**, previews it, maps values and imports.
+        - id: imported
+          label: Imported objects
+          sublabel: read-only
+          x: 590
+          y: 290
+          w: 190
+          tone: success
+          shape: cylinder
+          detail: Imported objects land in the chosen product or library as read-only objects.
+      edges:
+        - { from: object, to: package }
+        - { from: rules, to: package, label: gathers, dashed: true }
+        - { from: package, to: lock }
+        - { from: lock, to: delivery }
+        - { from: delivery, to: zip }
+        - { from: zip, to: partner, label: Export Only }
+        - { from: zip, to: rdm, label: PTC Windchill }
+        - { from: rdm, to: imported }
+    chapters:
+      - title: Start from an object
+        caption: Nia picks the battery tray drawing and creates a package from it. That drawing is the **initially selected object**.
+        show: [object, package]
+        highlight: [object]
+        flow: [object>package]
+      - title: Let rules do the collecting
+        caption: Collection rules pull in dependents. Filters and file-content options trim the rest.
+        show: [object, package, rules]
+        highlight: [rules]
+        flow: [rules>package]
+      - title: Freeze it
+        caption: Content final? **Lock** the package. Now everyone reviews and ships the same thing.
+        show: [object, package, rules, lock]
+        highlight: [lock]
+        flow: [package>lock]
+      - title: Create a delivery
+        caption: A delivery names the **recipient** and the **medium**. One package can have several deliveries.
+        show: [object, package, rules, lock, delivery]
+        highlight: [delivery]
+        flow: [lock>delivery]
+      - title: Build the ZIP
+        caption: Choose the format and options, then create the ZIP and send it.
+        show: [object, package, rules, lock, delivery, zip]
+        highlight: [zip]
+        flow: [delivery>zip]
+      - title: Two kinds of landing
+        caption: Voltra just opens an **Export Only** ZIP. A Windchill site imports a **PTC Windchill** ZIP through Received Delivery Management, and gets **read-only** objects.
+        highlight: [partner, rdm, imported]
+        flow: [zip>partner, zip>rdm, rdm>imported]
+        seconds: 8
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      In regulated and contract-heavy industries, "what exactly did we send the supplier, and when?"
+      is a question you **will** be asked, often months later. A locked package with a delivery record
+      answers it in seconds. A shared-drive link answers it with a shrug.
+
+  - type: comparison
+    title: The two delivery formats
+    columns: [Export Only, PTC Windchill]
+    rows:
+      - label: Who it's for
+        cells: ["Anyone - no Windchill needed", "A partner who runs Windchill"]
+      - label: What's in the ZIP
+        cells: ["A CONTENTS folder, plus an optional manifest.txt and offline viewer", "Always an importData and a METADATA folder"]
+      - label: On the other side
+        cells: ["Open the files or the offline viewer", "Upload as a received delivery, preview, map, import"]
+      - label: Release rule
+        cells: ["None stated", "Full, incremental and sync deliveries need the same major and minor release on both sides"]
+      - label: Limits
+        cells: ["None stated", "No objects from Project or Program contexts; no objects you don't own"]
+      - label: Who can create it
+        cells: ["Package users", "Only members of the PLM Connector Importable Package license group"]
+    takeaway: Voltra gets Export Only. Hexa Tooling, with its own Windchill, can use PTC Windchill format.
+
+  - type: example
+    variant: real-world
+    title: Two partners, two formats
+    industry: Micromobility
+    md: |
+      Nia builds one package of K1 battery tray drawings for **Voltra Cells**. Because Voltra has no
+      Windchill, she picks **Export Only** and ticks the **offline viewer** and **manifest**, so
+      Voltra's engineers can browse the drawings and check the list of files.
+
+      **Hexa Tooling** goes the other way: its admin packages the K1 frame jigs in **PTC Windchill**
+      format and sends the ZIP to Acme. Nia uploads it as a received delivery. That's the receiving
+      walkthrough below, and the whole of the next lesson.
+    takeaway: Pick the format for the recipient, not for yourself.
+
+  - type: walkthrough
+    title: Create and send a package (sending side)
+    who: A user with rights to create packages in the product or library (Nia)
+    where: ["Kestrel Cargo K1 product", Packages page]
+    steps:
+      - title: Create the package where the content lives
+        where: ["Kestrel Cargo K1 product", Packages page]
+        md: |
+          When all the content comes from one product or library, create the package **in that
+          context**. Start from the **Packages page**, or start from an existing object such as the
+          tray drawing, which then becomes an initially selected object. Pick the package type:
+          *Package*, *Technical Data Package*, *CDRL Package*, *SDRL Package* or *Replication
+          Package* (lesson 4 covers the last one).
+      - title: Set the content
+        where: [Package, Content]
+        md: |
+          Add objects, then apply **collection rules** so dependents come along, set **filters**, and
+          choose whether **file content** is included. Prefer the collector over hand-picking every
+          object as an initially selected object.
+      - title: Review, then lock
+        where: [Package, Lock]
+        md: |
+          Packages going to an external partner are usually reviewed inside Acme first. When the
+          content is final, **lock** the package. Nothing can be added or removed now.
+      - title: Create a delivery
+        where: [Package, Deliveries]
+        md: |
+          Create a delivery from the package with the **recipient** (Voltra Cells) and the **medium**:
+          share to a project, email a link, email an attachment, manual transfer to a download site, or
+          physical media.
+      - title: Create the ZIP and send
+        where: [Delivery, Package ZIP]
+        md: |
+          After locking, create the package ZIP file or files. Choose the **format** (Export Only for
+          Voltra), options such as **manifest** and **offline viewer**, and security settings. Then send
+          it by the chosen medium.
+    result: Voltra receives a ZIP it can open without Windchill, and Acme keeps a record of exactly which locked content went to whom.
+
+  - type: walkthrough
+    title: Receive a delivery (receiving side)
+    who: An administrator of the target product or library (Nia, at Acme)
+    where: [Received Delivery Management]
+    steps:
+      - title: Obtain the files
+        md: Get the ZIP file or files from Hexa Tooling and tell Hexa you've received them.
+      - title: Upload
+        where: [Received Delivery Management]
+        md: Upload the ZIP file or files as a **received delivery** in the Received Delivery Management utility.
+      - title: Preview the import
+        where: [Received Delivery Management, Preview Received Delivery Import]
+        md: |
+          Strongly recommended. The preview shows the **conflict report**: values from Hexa's system,
+          such as folders or life cycle states, that have no match at Acme yet.
+      - title: Define mapping
+        where: [Utilities, Mapping Management]
+        md: Map Hexa's values to Acme's (next lesson). Mapping can also be opened straight from the preview window.
+      - title: Import
+        where: [Received Delivery Management, Import]
+        md: Import into the chosen product or library (for example *Kestrel Cargo K1*). The objects arrive **read-only**.
+    result: Hexa's jig designs sit in Acme's Windchill as read-only objects that Acme engineers can find and reference.
+
+  - type: callout
+    variant: note
+    title: Import is PDMLink only, and there's another route
+    md: |
+      Importing a package is supported in [[pdmlink]] only. For moving objects between sites with an
+      administrator-driven export to JAR files and an import on the other side, Windchill also has the
+      Import/Export Management utility (covered in the previous section). Packages add what that
+      utility lacks for partner exchange: recipients, deliveries and a record of what was sent.
+
+  - type: callout
+    variant: pitfall
+    title: Locked means locked
+    md: |
+      After the **first delivery**, a package can't be unlocked unless you create a new iteration or
+      revision of it. Don't lock "just to test the ZIP". Do the internal review first, then lock and
+      deliver.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Let **collection rules** do the work and make them include all dependents. A package built from
+      a few initially selected objects plus good rules is smaller to maintain and far less likely to
+      ship a drawing without the model it depends on.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: order
+        prompt: Put the sending side in order.
+        items:
+          - Create the package from an object or from the Packages page
+          - Set content with collection rules and filters
+          - Lock the package
+          - Create a delivery with recipient and medium
+          - Create the package ZIP and send it
+        explanation: Content first, then lock, then the delivery and its ZIP. The ZIP can only be created once the package is locked.
+      - kind: single
+        prompt: Voltra Cells has no Windchill. Which format should Nia choose?
+        options: [Export Only, PTC Windchill, Replication, A JAR from Import/Export Management]
+        answer: 0
+        explanation: Export Only produces a ZIP with the files (and optionally a manifest and offline viewer) that anyone can open. PTC Windchill format is for a recipient who imports into Windchill.
+      - kind: truefalse
+        prompt: Objects imported from a received delivery can be edited at Acme right away, like Acme's own objects.
+        answer: false
+        explanation: Imported package objects land in the chosen product or library as read-only.
+      - kind: multi
+        prompt: What is true about the PTC Windchill format? (Choose all that apply.)
+        options:
+          - "The ZIP always contains importData and METADATA folders"
+          - "Full and incremental deliveries need the same major and minor release on both sides"
+          - "Objects from Project contexts can be included"
+          - "Only members of the PLM Connector Importable Package license group can create it"
+        answers: [0, 1, 3]
+        explanation: Project and Program context objects, and objects you don't own, can't go into a PTC Windchill format package. The other three statements come straight from the format rules.
+
+  - type: summary
+    points:
+      - A package is a tracked bundle of objects for a recipient outside your Windchill.
+      - "Send side: create, set content with collection rules, lock, create a delivery, create the ZIP, send."
+      - Export Only is for anyone; PTC Windchill format is for a partner who imports into Windchill.
+      - "Receive side: upload in Received Delivery Management, preview, map, import. Imported objects are read-only."
+      - A package can't be unlocked after its first delivery without a new iteration or revision.

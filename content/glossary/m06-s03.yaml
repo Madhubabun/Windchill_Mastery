@@ -1,0 +1,126 @@
+# New glossary terms introduced in section m06-s03 (Packages and mapping).
+# Windchill facts come from the PTC Help Center 13.1.2.0 package and received-delivery pages
+# (Sending and Receiving Windchill Packages, Packages: Sending Side, Format Options, Packages:
+# Receiving Side, Best Practices for Working with Packages, Best Practices for Working with
+# Received Deliveries, Defining Received Delivery Mapping, Mapping Management Table).
+# reconciliation and migration-sign-off are general migration practice, not Windchill features.
+- id: package
+  term: Package
+  plain: A tracked bundle of Windchill objects you send to someone outside your own Windchill.
+  definition: A collection of related objects gathered for a recipient who will use them outside your Windchill system. You set its content (initially selected objects plus collection rules and filters), lock it, then create one or more deliveries, each with its own ZIP file. Package types include Package, Technical Data Package, CDRL Package, SDRL Package and Replication Package. Standard (collaboration) packages go to partners; replication packages go to a second internal Windchill.
+  aka: [Windchill package, collaboration package, standard package]
+  related: [package-lock, package-delivery, collection-rule, initially-selected-object, replication-package]
+
+- id: initially-selected-object
+  term: Initially selected object
+  plain: The object you started the package from, or picked by hand to put in it.
+  definition: An object explicitly chosen as a starting point of a package's content, for example the object you were on when you created the package from it. Collection rules then gather related objects around it. PTC recommends using the collector and collection rules rather than listing every object as an initially selected object.
+  related: [package, collection-rule]
+
+- id: collection-rule
+  term: Collection rule
+  plain: A rule that automatically pulls related objects into a package, so you don't pick them one by one.
+  definition: A setting applied while defining a package's content that collects objects related to the initially selected objects, such as dependents in a structure. Best practice is to make collection rules include all dependents and not to filter out objects needed for correct display, such as structure members, baselines, change objects and special CAD relationships like family table members.
+  related: [package, initially-selected-object]
+
+- id: package-lock
+  term: Package lock
+  plain: Freezing a package so its contents can't change any more.
+  definition: The step that fixes a package's content once it is final. Package ZIP files can only be created after the package is locked. After the first delivery, a package can't be unlocked unless a new iteration or revision of the package is created.
+  aka: [locking a package]
+  related: [package, package-delivery, iteration, revision]
+
+- id: package-delivery
+  term: Package delivery
+  plain: One shipment of a locked package to one recipient by one route.
+  definition: A record, created from a locked package, that names the recipient and the delivery medium (share to a project, email link, email attachment, manual transfer to a download site, or physical media). The package ZIP files are created for the delivery, in a chosen format with options such as a manifest and an offline viewer. A package can have several deliveries; importable deliveries can be full or incremental.
+  aka: [delivery]
+  related: [package, package-lock, full-delivery, incremental-delivery, export-only-format, ptc-windchill-format]
+
+- id: export-only-format
+  term: Export Only format
+  plain: A package ZIP anyone can open - no Windchill needed on the other side.
+  definition: A package delivery format that produces a ZIP for people without Windchill. On the receiving side it contains a CONTENTS folder, plus an optional manifest.txt and offline viewer if they were chosen when the ZIP was created. It can't be imported into another Windchill.
+  related: [ptc-windchill-format, offline-viewer, package-manifest, package-delivery]
+
+- id: ptc-windchill-format
+  term: PTC Windchill format
+  plain: A package ZIP another Windchill can import.
+  definition: A package delivery format that writes the ZIP in Windchill's proprietary format, always with importData and METADATA folders, so a target Windchill can import it as a received delivery. Full, incremental and sync deliveries need the target at the same major and minor release. Objects from Project or Program contexts and objects not owned by the sending site can't be included. Only members of the PLM Connector Importable Package license group can create this format.
+  aka: [importable format]
+  related: [export-only-format, received-delivery, license-group, full-delivery, incremental-delivery]
+
+- id: received-delivery
+  term: Received delivery
+  plain: A package ZIP someone sent you, uploaded into your Windchill so you can preview and import it.
+  definition: The receiving-side record of an importable (PTC Windchill format) package delivery. It is uploaded in Received Delivery Management, previewed, mapped and imported. Imported objects land in the chosen product or library as read-only objects. Import can start when its status is Ready, Unsuccessful - Import Failure, or Unsuccessful - Partial Import; it shows In Progress while running.
+  related: [received-delivery-management, preview-import, delivery-mapping, ptc-windchill-format]
+
+- id: received-delivery-management
+  term: Received Delivery Management
+  plain: The place in Windchill where you upload, preview and import package ZIPs from other sites.
+  definition: The Windchill utility for received deliveries. There you upload delivery ZIP files, open the Preview Received Delivery Import window, and start the import, from a table row, a table action, or a received delivery's Actions menu. Importing packages is supported in Windchill PDMLink only.
+  related: [received-delivery, preview-import, mapping-management, pdmlink]
+
+- id: mapping-management
+  term: Mapping Management
+  plain: The utility where you tell Windchill how a sender's values translate into yours.
+  definition: The Windchill utility, opened from the Utilities page of a product, library, organization or site (also from Business Administration Utilities at organization and site level), that lists the source systems you have received deliveries from and their mappings. Each source system row shows Last Known Domain, Source System Identifier and Windchill Version. Actions include Define Mapping, Edit, Delete (only after that source's received deliveries are deleted) and Download Resolutions as a CSV file.
+  related: [delivery-mapping, received-delivery, received-delivery-management]
+
+- id: delivery-mapping
+  term: Received delivery mapping
+  plain: A translation from a value in the sender's Windchill to the matching value in yours.
+  definition: A rule that resolves a conflict during received delivery import by translating a source value to a target value. Mapping kinds are Context, Owning Organization, View, Folder, Life Cycle and Security Label; version mapping is set by a system-wide property. Mappings are defined at site, organization, product or library level, and lower levels can override higher ones. Mapping is meant to resolve conflicts, not to change the business intent of the source data, and should not be changed after the first delivery from a source.
+  aka: [mapping definition]
+  related: [mapping-management, preview-import, received-delivery]
+
+- id: preview-import
+  term: Preview Received Delivery Import
+  plain: A dry run of a received delivery import that shows what would clash before anything is created.
+  definition: A window in Received Delivery Management that previews an import and produces a conflict report, listing source values (such as folders and life cycle states) that have no valid equivalent in the target. Mappings can be defined from it. PTC strongly recommends previewing before importing and using the same Import Into option in the preview as in the real import.
+  aka: [import preview, conflict report]
+  related: [received-delivery, delivery-mapping, received-delivery-management]
+
+- id: replication-package
+  term: Replication package
+  plain: A package that copies product or library design data to another of your own Windchill systems.
+  definition: A package type that gathers product design data in product or library contexts and replicates it to a second internal Windchill system, keeping a more detailed level of metadata than a standard package. Replicating a whole context generally isn't reviewed internally before sending. For incremental replication deliveries, base each one on the previous delivery. It is not the same thing as file replication to replica vaults.
+  related: [package, incremental-delivery, full-delivery, replica-vault]
+
+- id: full-delivery
+  term: Full delivery
+  plain: A delivery that contains every object in the package.
+  definition: An importable package delivery that includes all objects in the package. It can serve as the base delivery that later incremental deliveries are measured against.
+  related: [incremental-delivery, package-delivery, ptc-windchill-format]
+
+- id: incremental-delivery
+  term: Incremental delivery
+  plain: A delivery that only sends what changed since an earlier one.
+  definition: An importable package delivery that contains only the objects added or changed since its base delivery, plus information about deleted and moved objects. Importing it performs those deletes on the target. For replication packages, base each incremental delivery on the last previous delivery.
+  related: [full-delivery, package-delivery, replication-package]
+
+- id: package-manifest
+  term: Package manifest
+  plain: A file listing what is inside a package ZIP.
+  definition: An optional file (manifest.txt) that can be added to an Export Only package ZIP so the recipient can see the list of delivered content.
+  aka: [manifest.txt]
+  related: [export-only-format, offline-viewer]
+
+- id: offline-viewer
+  term: Offline viewer
+  plain: A browsable view of the package that the recipient opens without Windchill.
+  definition: An option chosen when creating an Export Only package ZIP that adds a viewer to the ZIP, so recipients without Windchill can view the delivered content.
+  related: [export-only-format, package-manifest]
+
+- id: reconciliation
+  term: Reconciliation
+  plain: Proving that what arrived in Windchill matches what was meant to be sent - counts, content and links.
+  definition: General migration practice, not a Windchill command. After each load or import, the team compares source and target - object counts by type, file content, structure links, key attribute values - and explains every difference before the batch is accepted. In Windchill, the import summary report, the log files and searches in the target context are the evidence used.
+  related: [migration-sign-off, received-delivery]
+
+- id: migration-sign-off
+  term: Migration sign-off
+  plain: The documented "yes, this batch is good" from the people who own the data.
+  definition: General migration practice. A recorded acceptance of one migration batch by named business and technical owners, made against criteria agreed before the load (for example zero unexplained count differences and sample checks passed). Sign-off closes the batch; later fixes go through normal change processes or a new batch.
+  related: [reconciliation]

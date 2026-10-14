@@ -1,0 +1,431 @@
+id: m06-cap
+subtitle: Kestrel's designs have to be in Windchill by Monday. You plan it, rehearse it and prove it worked.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [capstone, migration, data-assessment, mapping, validation, cutover]
+sources:
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Windchill Bulk Migrator Installation"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCInstallConfigGuide/WCInstall_BulkMigrator.html"
+    covers: "WBM is a set of tools for permanent, one-way migration into Windchill using Extract, Transform, Load and Validate (ETLV)"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "CAD Data Management in Windchill"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/cadx/CADxDMOview.html"
+    covers: "Bulk loading of Creo, CATIA V5, NX and Autodesk Inventor data uses the Windchill Bulk Migrator"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Overview of Load Utilities"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/WCDataLoadGuide/WCDataLoad_IntroOviewLoadUtility.html"
+    covers: "Load utilities take XML only; CSV2XML converts CSV data first"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Mapping Through Special Rules"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/ExpImpPolicyRules_Chp/ExpImpPolicyRulesChp_MapThroughSpecialRule.html"
+    covers: "Do not map number attributes of MCAD documents: it breaks assembly references and can't be reliably reverted"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Best Practices for Working with Received Deliveries"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/packages/ReceivedDeliveryBestPractice.html"
+    covers: "Review the import summary report and log files after a load"
+  - id: cust
+    where: "Module 1, Deploying Windchill custom code (development, test/integration and QA/validation environments)"
+
+blocks:
+  - type: text
+    md: |
+      Acme Mobility has just bought **Kestrel Cycles**, a small cargo-bike maker. Kestrel's
+      engineers join Acme on Monday, and the CEO wants them working in Windchill from day one.
+
+      Kestrel's designs live in two places: an ageing PDM system that nobody under forty knows how
+      to fix, and a file share, `\\kestrel-fs01\engineering`, that grew for twelve years. Tomas,
+      Kestrel's veteran CAD admin, sends you a note:
+
+      > "Roughly 18,000 CAD files, 4,000 part records, 2,500 documents. Some files exist three
+      > times. Some assemblies point at files nobody can find. The flagship, the **Kestrel Cargo
+      > K1**, is mid-change: two engineers have work checked out right now. Good luck, Nia."
+
+      You are **Nia**, Acme's migration specialist. Your mission: plan the move, rehearse it on the
+      test system, and prove the result is right before anyone calls it done.
+
+  - type: callout
+    variant: note
+    title: Your mission checklist
+    md: |
+      1. **Assess** a sample of the legacy data.
+      2. **Choose a strategy** and justify it.
+      3. **Write the attribute mapping.**
+      4. **Dry-run** on test and run a **validation checklist** on the results.
+
+  - type: callout
+    variant: note
+    title: Where this comes from
+    md: |
+      The planning steps here are general migration practice. The Windchill-specific facts (what
+      the Windchill Bulk Migrator is for, how load files and mapping rules work, what to review
+      after a load) come from the PTC Help Center pages listed as this capstone's sources.
+
+  - type: callout
+    variant: terms
+    title: Plain words → migration words
+    md: |
+      | Plain words | Official term |
+      | --- | --- |
+      | "Look at what's really in the old system" | Data assessment / profiling |
+      | "Move everything at once over a weekend" | Big-bang migration |
+      | "Old field → new field, old value → new value" | Attribute mapping |
+      | "Pull out, reshape, put in, check" | Extract, Transform, Load and Validate (ETLV) |
+      | "A full rehearsal on a copy" | Dry run on the test system |
+      | "The moment you switch users over" | Cutover |
+
+  - type: animation
+    title: The weekend, chapter by chapter
+    caption: Press play to watch Kestrel's data flow through the four ETLV stages into Acme's Windchill.
+    diagram:
+      width: 820
+      height: 380
+      groups:
+        - { label: Kestrel today, x: 10, y: 20, w: 200, h: 340, tone: neutral }
+        - { label: Nia's migration pipeline, x: 230, y: 20, w: 380, h: 340, tone: info }
+        - { label: Acme Windchill, x: 630, y: 20, w: 180, h: 340, tone: accent }
+      nodes:
+        - id: pdm
+          label: Old PDM
+          sublabel: parts + documents
+          x: 30
+          y: 70
+          w: 160
+          tone: neutral
+          shape: cylinder
+          detail: Kestrel's legacy PDM holds about 4,000 part records and 2,500 documents with their attributes and some revision history.
+        - id: share
+          label: File share
+          sublabel: ~18,000 CAD files
+          x: 30
+          y: 230
+          w: 160
+          tone: warning
+          shape: doc
+          detail: Loose CAD files with duplicates and missing references. Structure has to be rebuilt from the references inside the CAD files themselves.
+        - id: extract
+          label: Extract
+          x: 250
+          y: 70
+          w: 160
+          tone: info
+          detail: Pull data out of one or more source systems. Here, a metadata export from the PDM plus a scan of the file share.
+        - id: transform
+          label: Transform
+          x: 430
+          y: 70
+          w: 160
+          tone: info
+          detail: Map and reshape the data so it fits Acme's Windchill set-up - types, attributes, life cycle states, folders and contexts.
+        - id: load
+          label: Load
+          x: 250
+          y: 230
+          w: 160
+          tone: primary
+          detail: |
+            Put the data into the Windchill database and file vaults. CAD goes through the
+            **Windchill Bulk Migrator**; small metadata sets can go through load files
+            (CSV converted to XML with **CSV2XML**).
+        - id: validate
+          label: Validate
+          x: 430
+          y: 230
+          w: 160
+          tone: success
+          detail: Prove the result. Count objects, open assemblies, compare attributes, read the import logs. No sign-off without evidence.
+        - id: target
+          label: Kestrel Cargo K1
+          sublabel: product context
+          x: 650
+          y: 150
+          w: 140
+          h: 64
+          tone: accent
+          detail: The new product context in Acme's Windchill where Kestrel's data lands, with Acme's types, life cycle and access rules already in place.
+      edges:
+        - { from: pdm, to: extract }
+        - { from: share, to: extract }
+        - { from: extract, to: transform }
+        - { from: transform, to: load }
+        - { from: load, to: validate }
+        - { from: validate, to: target, label: sign-off }
+    chapters:
+      - title: Two messy sources
+        caption: Kestrel's data lives in a **PDM system** and on a **file share**. Neither is clean.
+        show: [pdm, share]
+        highlight: [share]
+        seconds: 6
+      - title: Extract
+        caption: Pull the metadata out of the PDM and scan the file share, including the references inside each CAD file.
+        show: [pdm, share, extract]
+        highlight: [extract]
+        flow: [pdm>extract, share>extract]
+        seconds: 6
+      - title: Transform
+        caption: Apply the **mapping**. Kestrel's "Status = APPR" becomes Acme's **Released**. Folders, types and contexts are mapped too.
+        show: [pdm, share, extract, transform]
+        highlight: [transform]
+        flow: [extract>transform]
+        seconds: 7
+      - title: Load
+        caption: CAD goes in through the **Windchill Bulk Migrator**; data lands in the database and the vaults.
+        show: [pdm, share, extract, transform, load]
+        highlight: [load]
+        flow: [transform>load]
+        seconds: 6
+      - title: Validate, then sign off
+        caption: Counts, content, structures and logs are checked. Only then does the data count as **in Windchill**.
+        highlight: [validate, target]
+        flow: [load>validate, validate>target]
+        seconds: 7
+
+  - type: comparison
+    title: "Task 1: what the assessment sample shows"
+    columns: [What Nia found, What she decides]
+    rows:
+      - label: Duplicate CAD files
+        cells: ["About 1 in 8 file names exists in more than one folder, sometimes with different content", "Pick a winner per name (latest saved and referenced by an assembly); park the rest in a review list"]
+      - label: Orphan files
+        cells: ["Files no assembly or drawing points to, many untouched for 8+ years", "Archive outside Windchill unless an engineer claims them"]
+      - label: Missing references
+        cells: ["Some assemblies point at parts that aren't on the share", "Find them with Tomas or exclude the assembly; never load a broken structure"]
+      - label: Status values
+        cells: ["Free text: WIP, In Work, APPR, Approved, OBS, blank", "Clean to three values, then map to Acme's life cycle states"]
+      - label: History
+        cells: ["Full revision history in the PDM, but nobody has opened revisions older than five years", "Bring released revisions plus the latest; archive the rest read-only"]
+    takeaway: Assessment turns "18,000 files" into a scope you can actually move and check.
+
+  - type: scenario
+    variant: challenge
+    title: "Task 2: choose the strategy"
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Kestrel is small: one product family, about 25 engineers, and nobody needs the old
+          system after Monday. Kai asks: *"Do we go all at once, in phases, or run both systems
+          side by side for a while?"*
+        choices:
+          - label: "Big bang over the weekend, after a full dry run on test"
+            next: s2
+            good: true
+            feedback: "Good fit. Small, self-contained data and a hard date. The dry run is what makes a big bang safe."
+          - label: "Phased, one product line per month"
+            next: phased
+            feedback: "Phasing helps when there are many product lines. Kestrel has one, so you'd only stretch the pain."
+          - label: "Run both systems side by side for six months"
+            next: coexist
+            feedback: "Coexistence means keeping two systems in sync. Let's see what that costs."
+      - id: phased
+        md: |
+          With one product family, "phase one" is everything. You'd split Kestrel Cargo K1 across two
+          systems for weeks, and assemblies would point across the gap.
+        choices:
+          - label: Go back and pick again
+            next: s1
+      - id: coexist
+        md: |
+          Engineers would ask "which system is right?" every day, and someone would have to keep
+          the two in step. The Windchill Bulk Migrator is built for **permanent, one-way**
+          migration, so a sync is a separate design the sources don't give you. A big cost for a
+          25-person team.
+        choices:
+          - label: Go back and pick again
+            next: s1
+      - id: s2
+        md: |
+          Big bang it is. But two engineers have **work checked out** in the old PDM on the K1.
+          What do you do about in-flight work?
+        choices:
+          - label: "Freeze the old PDM on Friday at 17:00: everyone checks in, then it goes read-only"
+            next: win
+            good: true
+            feedback: "Right. A clean cut-off means the data you extract is the data people last saved."
+          - label: "Migrate whatever is there, checked out or not"
+            next: messy
+            feedback: "Half-finished edits sitting on someone's laptop won't be in the extract."
+      - id: messy
+        md: On Monday, Priya's latest edits are missing. They were never saved back to the PDM. She redoes two days of work.
+        outcome: partial
+      - id: win
+        md: |
+          Friday 17:00, the PDM goes read-only. Extract starts at 18:00 with the same scripts you
+          rehearsed on test. You're on plan.
+        outcome: success
+
+  - type: comparison
+    title: "Task 3: the attribute mapping"
+    columns: [Kestrel source, Acme Windchill target, Rule]
+    rows:
+      - label: Item number
+        cells: ["KC-5001 (part record)", "Part number KC-5001", "Keep as is. People search for these numbers."]
+      - label: CAD file name
+        cells: ["kc-5001_frame.prt", "CAD document number unchanged", "Never remap CAD numbers: assemblies reference them."]
+      - label: Status
+        cells: ["WIP / In Work / blank", "In Work", "Cleaned first, then mapped"]
+      - label: Status (released)
+        cells: ["APPR / Approved", "Released", "Only if a released revision exists"]
+      - label: Status (old)
+        cells: ["OBS", "Obsolete", "Mapped, not deleted"]
+      - label: Material
+        cells: ["Free text (Alu 6061 / AL6061 / aluminium)", "Material, from a pick list", "Unify spellings first; unknowns go to a review list"]
+      - label: Folder
+        cells: ["Share path \\K1\\Frame\\Rev", "/Kestrel Cargo K1/Frame", "Flatten revision folders: revisions are versions, not folders"]
+    takeaway: Every value in the source needs a home in the target, or a decision about where it goes instead.
+
+  - type: callout
+    variant: pitfall
+    title: Renumbering CAD "to tidy it up"
+    md: |
+      It's tempting to give Kestrel's CAD documents Acme-style numbers during the move. Don't.
+      PTC's guidance on import and export mapping rules says **not to map the number attribute of
+      MCAD documents**: assembly references depend on it, and the change can't be reliably undone.
+      Keep Kestrel's numbers and relate them to Acme numbering later if you must.
+
+  - type: simulation
+    title: "Task 4: run the weekend"
+    intro: |
+      Drive the migration from assessment to a go decision. Each step unlocks the next, just like
+      the real runbook.
+    headline: "Assessed: {assessed} · Strategy: {strategy} · Mappings {mapped}/3 · Dry run: {dryRun} · Checks {checks}/4 · Decision: {decision}"
+    initial: { assessed: "no", strategy: none, mapped: 0, dryRun: none, checks: 0, decision: pending }
+    actions:
+      - id: assess-sample
+        label: Assess a data sample
+        when: { assessed: "no" }
+        do: [{ set: { assessed: "yes" } }]
+        log: "Sample profiled: duplicates, orphans, missing references and messy status values listed."
+        blockedHint: Already assessed.
+      - id: pick-big-bang
+        label: Choose big bang + dry run
+        when: { assessed: "yes", strategy: none }
+        do: [{ set: { strategy: big bang } }]
+        log: Strategy chosen. Weekend cutover after a full rehearsal on test.
+        blockedHint: Assess the data first, or reset the strategy.
+      - id: rethink-strategy
+        label: Rethink the strategy
+        when: { strategy: big bang, dryRun: none }
+        do: [{ set: { strategy: none, mapped: 0 } }]
+        log: Strategy reset. The mapping depends on it, so it's cleared too.
+        blockedHint: Nothing to rethink yet, or the dry run has already happened.
+      - id: write-mapping
+        label: Write the next mapping table
+        when: { strategy: big bang, mapped: [0, 1, 2] }
+        do: [{ inc: mapped }]
+        log: "Mapping table {mapped} of 3 done (attributes, life cycle states, folders)."
+        blockedHint: Pick a strategy first, or all three tables are done.
+      - id: dry-run
+        label: Dry-run on wc-test01
+        when: { mapped: 3, dryRun: none }
+        do: [{ set: { dryRun: done } }]
+        log: Dry run finished on the test system. Logs and the import summary are ready to review.
+        blockedHint: Finish all three mapping tables first.
+      - id: run-check
+        label: Run the next validation check
+        when: { dryRun: done, checks: [0, 1, 2, 3] }
+        do: [{ inc: checks }]
+        log: "Validation check {checks} of 4 passed (counts, content, structures, logs)."
+        blockedHint: Run the dry run first, or all checks have passed.
+      - id: decide-go
+        label: Call it - GO
+        when: { checks: 4, decision: pending }
+        do: [{ set: { decision: go } }]
+        log: GO. The production run starts Friday 18:00 with the rehearsed scripts.
+        blockedHint: All four validation checks must pass first.
+    goals:
+      - label: Reach a GO decision with all checks passed
+        when: { decision: go }
+        message: That's a migration you can defend. Every step was rehearsed and every result has evidence behind it.
+
+  - type: comparison
+    title: The validation checklist
+    columns: [Check, How Nia proves it]
+    rows:
+      - label: Counts
+        cells: ["Objects in = objects out", "Parts, documents and CAD documents counted per type in the extract and in Windchill; every gap explained"]
+      - label: Content
+        cells: ["Files open", "A random sample of documents and CAD files opened from Windchill, not from the share"]
+      - label: Structures
+        cells: ["Assemblies are whole", "The K1 top assembly opens in Creo with no missing components; part structure matches the PDM BOM"]
+      - label: Attributes
+        cells: ["Values mapped right", "Spot-check status, material and folder against the mapping tables"]
+      - label: Logs
+        cells: ["No silent errors", "Import summary report and log files reviewed for warnings, errors and conflicts"]
+      - label: People
+        cells: ["Engineers agree", "Tomas and Kai each check ten objects they know by heart"]
+    takeaway: A dry run you didn't validate is just a rehearsal you didn't watch.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Acquisitions live or die on how fast the new team can work. A sloppy migration shows up as
+      engineers redrawing parts they already had, assemblies that won't open, and a year of "is
+      this the right file?". A rehearsed, validated one is invisible, and that's the goal.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Run the dry run on a test system loaded with a **recent copy of production** and time every
+      step. The timings become your cutover plan, and they tell you, before Friday, whether the
+      weekend is actually long enough.
+
+  - type: exercise
+    title: Write Nia's one-page migration plan
+    environment: described
+    goal: Turn the capstone into a plan you could hand to Acme's leadership on Wednesday.
+    steps:
+      - "**Scope**: what moves (and what is archived instead), with counts."
+      - "**Strategy**: big bang, phased or coexistence, and one sentence on why."
+      - "**Mapping**: the three tables (attributes, states, folders) and who signed them off."
+      - "**Tools**: which data goes through the Windchill Bulk Migrator and which through load files."
+      - "**Validation**: your checklist, with the evidence each check produces."
+      - "**Cutover**: freeze time, go/no-go meeting time, and what you do if it's a no-go."
+    expected: A one-page plan where every line has an owner and every check has evidence. Someone who wasn't in the room can run the weekend from it.
+
+  - type: quiz
+    title: Capstone check
+    passMark: 0.7
+    questions:
+      - kind: order
+        prompt: Put Nia's weekend in the right order.
+        items:
+          - Assess a sample of the legacy data
+          - Choose the strategy
+          - Write and agree the mapping
+          - Dry-run on the test system and validate
+          - Freeze the old PDM and run production
+          - Validate production and sign off
+        explanation: Every later step depends on the earlier one. The mapping depends on what the assessment found, and the production run repeats a dry run that has already been checked.
+      - kind: single
+        prompt: Which tool does the PTC Help Center name for bulk loading Creo, CATIA V5, NX and Inventor data?
+        options: [Windchill Bulk Migrator, CSV2XML, The Mapping Management utility, A replication package]
+        answer: 0
+        explanation: The Windchill Bulk Migrator is the toolset for permanent, one-way bulk migration using Extract, Transform, Load and Validate. CSV2XML only converts CSV files to XML for the load utilities.
+      - kind: truefalse
+        prompt: Giving Kestrel's CAD documents new Acme-style numbers during the load is a safe way to tidy up.
+        answer: false
+        explanation: PTC advises against mapping the number attribute of MCAD documents. Assembly references rely on it, and the change can't be reliably reverted.
+      - kind: multi
+        prompt: "Which belong on the validation checklist? (Choose all that apply.)"
+        options: ["Object counts per type, source vs Windchill", "Opening the top assembly from Windchill", "Reviewing the import logs for warnings and errors", "Asking whether the server room is tidy"]
+        answers: [0, 1, 2]
+        explanation: Counts, content, structures and logs are the evidence that the data arrived intact. Server tidiness is nice, not evidence.
+      - kind: single
+        prompt: Two engineers have work checked out in the old PDM on Friday afternoon. What's the best move?
+        options: ["Freeze the PDM at a set time after everyone checks in", "Migrate the checked-out state as is", "Delay the migration by a month", "Ask them to email their files to Nia"]
+        answer: 0
+        explanation: A clear freeze point means the extract holds what people last saved, and nothing is stranded on a laptop.
+
+  - type: summary
+    points:
+      - "Assess first: duplicates, orphans, missing references and messy values decide your scope."
+      - "Pick the strategy for the situation: a small, self-contained data set with a hard date suits a rehearsed big bang."
+      - "Map every source value to a target value, and never remap CAD document numbers."
+      - "Follow Extract, Transform, Load and Validate; the Windchill Bulk Migrator is built for permanent, one-way bulk migration."
+      - "Rehearse on test, validate with evidence, then freeze, run and sign off."

@@ -1,0 +1,60 @@
+# New glossary terms introduced in section m06-s04 (Migrating from other systems).
+- id: file-share-migration
+  term: File share migration
+  plain: Moving designs out of shared network folders into PLM, where structure and history must be rebuilt from clues.
+  definition: General migration practice for loading files that were kept on a network share rather than in a PDM or PLM system. A file share holds no part numbers, revisions or approvals as data, so the team rebuilds structure from the references inside CAD assemblies and drawings, decides on duplicates and orphans, and archives what isn't migrated. For Creo, CATIA V5, NX and Autodesk Inventor data, PTC's bulk loading route is Windchill Bulk Migrator.
+  related: [orphan-file, duplicate-file, broken-reference, cad-dependency]
+
+- id: orphan-file
+  term: Orphan file
+  plain: A file in the old system that nothing uses and nobody claims.
+  definition: In migration practice, a source file that no assembly or drawing references and that no product or owner claims. Orphans need an explicit decision - migrate, archive or discard - from a named owner, because some are junk and some are the only copy of a useful design. Not the same as an unreferenced file, which is a file inside a Windchill vault that no Windchill object points to.
+  related: [duplicate-file, file-share-migration, unreferenced-file]
+
+- id: duplicate-file
+  term: Duplicate file
+  plain: The same design saved more than once under different names or in different folders.
+  definition: In migration practice, two or more source files that represent the same design (for example `KC-4120.prt` and `KC-4120_final2.prt`). Content and references are compared, an engineer decides whether they are one item, revisions of one item or different items, and assemblies are re-pointed to the chosen master before loading.
+  related: [orphan-file, file-share-migration, master]
+
+- id: broken-reference
+  term: Broken reference
+  plain: A link from one file to another file that isn't there.
+  definition: A CAD dependency that points to a file that was not loaded, was renamed or was replaced. Broken references make assemblies open with missing components and drawings open empty. They are found by checking what top-level assemblies expect and by opening real assemblies after a load, not by reading load logs alone.
+  related: [cad-dependency, cad-document, family-table]
+
+- id: family-table
+  term: Family table
+  plain: One generic CAD model with a table of variants, like one bolt design in ten lengths.
+  definition: A CAD technique in which a generic model defines a table of instances that differ in values such as dimensions. Instances depend on their generic, so a migration loads them together. PTC's package best practices list family table members as a special CAD relationship that must not be filtered out.
+  related: [cad-document, cad-dependency, broken-reference]
+
+- id: content-association
+  term: Content association
+  plain: Extra CAD content, such as a model's drawing, attached to a part without driving it.
+  definition: A CAD-to-part association used to include additional descriptive CAD content with a part, for example the drawing of the part's model. It does not pass attributes between the CAD document and the part. The related Contributing Content association is used in multi-CAD cases where secondary attributes matter to the BOM and does pass attributes.
+  related: [owner-association, image-association, contributing-association, cad-document, part]
+
+- id: data-model-mapping
+  term: Data-model mapping
+  plain: The translation table from the old system's objects, states and labels to Windchill's.
+  definition: In migration practice, the agreed list of how each legacy object type, attribute, state, revision label and other value maps to the target Windchill model, with exactly one target per source value. A complete mapping has no open items before a load. Mapping translates values; it should not change what the source data means.
+  related: [lifecycle-state, subtype, part, cad-document]
+
+- id: latest-only-migration
+  term: Latest-only migration
+  plain: Bringing only the current version of each object, and archiving the rest.
+  definition: A migration approach that loads only the latest (usually latest released) version of each object, keeping older history in a read-only, searchable archive. Cheaper to map, load and validate than full history; a good fit for mature or discontinued products.
+  related: [full-history-migration, data-model-mapping]
+
+- id: full-history-migration
+  term: Full-history migration
+  plain: Bringing every version of each object, in order, with its history.
+  definition: A migration approach that loads every version (and sometimes iteration) of each object in sequence, with the structure each version had. It answers audit and service questions inside PLM but multiplies mapping, load and validation effort. Many projects bring released history for active products only.
+  related: [latest-only-migration, revision, iteration]
+
+- id: in-flight-work
+  term: In-flight work
+  plain: Changes, approvals and tasks still open in the old system when you switch over.
+  definition: In migration practice, open change processes, approvals and workflow tasks at the moment of cutover. Workflow positions rarely translate between systems (Windchill's own export between sites leaves out change control information), so in-flight work is usually finished or cancelled before the source freeze and the rest re-created in Windchill after cutover.
+  related: [workflow, change-request, change-notice]

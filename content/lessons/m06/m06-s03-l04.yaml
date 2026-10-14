@@ -1,0 +1,262 @@
+id: m06-s03-l04
+subtitle: A partner gets a package. Your sister site gets a replica. Pick the right one, then the right format.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [migration, packages, replication-package, delivery-format, data-exchange]
+sources:
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Sending and Receiving Windchill Packages"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/packages/PackageOverview.html"
+    covers: "Standard (collaboration) vs replication packages; replication to a second internal Windchill with more detailed metadata; delivery methods; import in PDMLink only"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Packages: Sending Side"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/packages/PackageSendSide.html"
+    covers: "Package types; external packages usually reviewed internally, whole-context replication generally not"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Format Options"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/packages/PackageFormatOptions.html"
+    covers: "Export Only vs PTC Windchill format; same major and minor release; Project and Program objects and non-owned objects excluded; license group"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Best Practices for Working with Packages"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/packages/PackageBestPractice.html"
+    covers: "Full vs incremental deliveries; incremental deletes on target; base each replication incremental on the previous one; large-package and replication export properties; importable ZIP prerequisites"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Windchill Replication Package Command Line Utility (13.1.0.0)"
+    url: "https://support.ptc.com/help/windchill/r13.1.0.0/fr/Windchill_Help_Center/packagecommandutil/PackageCommandUtilOview.html"
+    covers: "Scheduled automation of replication package export and import; PLM Connector Server License"
+
+versionNotes:
+  - versions: ["13.1.0.0"]
+    md: |
+      The replication command line utility is described from the **13.1.0.0** Help Center (French
+      edition); no 13.1.2.0 English page was found. Check your release's Help Center before you rely
+      on it.
+  - versions: ["13.1.2.0"]
+    md: |
+      The other facts were checked against the 13.1.2.0 Help Center, some pages in its **Windchill+**
+      edition.
+
+blocks:
+  - type: text
+    md: |
+      Three requests land on Nia's desk in one morning:
+
+      1. **Voltra Cells** (no Windchill) needs the K1 battery tray drawings.
+      2. **Hexa Tooling** (its own Windchill) needs the K1 frame models to design new jigs.
+      3. **Acme Asia**, Acme's own second Windchill installation, wants the whole **Kestrel Cargo K1**
+         product, kept up to date every week, so its engineers can build a local variant.
+
+      All three are "send data out of Acme's Windchill". They are not the same job. The first two are
+      **standard packages** for partners. The third is a **replication package**.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a bundle for a partner to use" → *standard* (collaboration) *[[package]]*
+      - "a copy of product data for our own other Windchill" → *[[replication-package]]*
+      - "send everything" → *[[full-delivery]]*
+      - "send only what changed" → *[[incremental-delivery]]*
+      - "open with any tool" → *[[export-only-format|Export Only]]*; "import into Windchill" → *[[ptc-windchill-format|PTC Windchill]]*
+
+  - type: comparison
+    title: Standard vs replication packages
+    columns: [Standard package, Replication package]
+    rows:
+      - label: Who receives it
+        cells: ["A partner or supplier outside your Windchill", "A second internal Windchill system of your own company"]
+      - label: Typical content
+        cells: ["Selected objects for one purpose, gathered with collection rules", "Product design data of a product or library context"]
+      - label: Metadata
+        cells: ["What the recipient needs", "A more detailed level of metadata"]
+      - label: Package type to pick
+        cells: ["Package (or Technical Data / CDRL / SDRL Package)", "Replication Package"]
+      - label: Internal review before sending
+        cells: ["Usually, for external partners", "Generally not, when a whole context is replicated"]
+      - label: Format on the wire
+        cells: ["Export Only or PTC Windchill, depending on the recipient", "Importable ZIPs, imported on the other side as received deliveries"]
+      - label: Repeat sending
+        cells: ["Often one or a few deliveries", "Full, then regular incremental deliveries, each based on the previous one"]
+      - label: Automation
+        cells: ["Done by hand through the package and its deliveries", "Can be scheduled with the replication command line utility (needs a PLM Connector Server License)"]
+    takeaway: Partner outside the company? Standard package. Another Windchill of your own? Replication package.
+
+  - type: diagram
+    title: Choose the package and the format
+    caption: Follow the questions from the top. Click any box for the rule behind it.
+    diagram:
+      width: 820
+      height: 440
+      nodes:
+        - id: q1
+          label: Who receives it?
+          x: 310
+          y: 20
+          w: 200
+          tone: primary
+          shape: pill
+          detail: Start with the recipient, not with the data.
+        - id: q-wc
+          label: Partner runs Windchill?
+          sublabel: same major.minor?
+          x: 40
+          y: 140
+          w: 220
+          tone: info
+          detail: |
+            An importable delivery (full, incremental or sync) needs the target at the **same major and
+            minor release**. The recipient also needs matching optional products, subtypes, attributes
+            and versioning schemes.
+        - id: internal
+          label: Our own other Windchill
+          sublabel: e.g. Acme Asia
+          x: 560
+          y: 140
+          w: 220
+          tone: info
+          detail: A second internal Windchill that should hold a copy of a product's or library's design data.
+        - id: export-only
+          label: Standard package
+          sublabel: Export Only
+          x: 20
+          y: 300
+          w: 180
+          tone: success
+          shape: doc
+          detail: For Voltra. ZIP with a CONTENTS folder, plus a manifest and offline viewer if you add them. No Windchill needed.
+        - id: ptc-format
+          label: Standard package
+          sublabel: PTC Windchill format
+          x: 230
+          y: 300
+          w: 180
+          tone: success
+          shape: doc
+          detail: |
+            For Hexa. Imported as a received delivery. No objects from Project or Program contexts and no
+            objects you don't own. Only members of the PLM Connector Importable Package
+            [[license-group]] can create it.
+        - id: replication
+          label: Replication package
+          sublabel: full, then incremental
+          x: 560
+          y: 300
+          w: 220
+          tone: accent
+          shape: doc
+          detail: |
+            For Acme Asia. A full first delivery, then incremental deliveries that carry added and changed
+            objects plus delete and move information. **Importing an incremental performs the deletes on
+            the target.**
+      edges:
+        - { from: q1, to: q-wc, label: partner }
+        - { from: q1, to: internal, label: internal }
+        - { from: q-wc, to: export-only, label: no }
+        - { from: q-wc, to: ptc-format, label: yes }
+        - { from: internal, to: replication }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Choosing wrong is expensive in both directions. Send a partner a full replication of a product
+      and you may share far more design data than the contract allows. Feed a sister site with one-off
+      standard packages and it drifts out of date within weeks, with nobody sure which copy is current.
+
+  - type: example
+    variant: real-world
+    title: Keeping Acme Asia in step
+    industry: Micromobility
+    md: |
+      Rosa and Nia set up a **Replication Package** in the Kestrel Cargo K1 product. The first delivery
+      is **full**. After that, every Friday a new **incremental** delivery goes out, each one based on
+      the previous delivery, carrying only what changed that week: new and changed objects plus delete
+      and move information.
+
+      Because replicating the whole context isn't a hand-picked external send, there's no internal
+      content review each week. Instead, Acme Asia's admin previews and imports each delivery in order,
+      and reconciles the counts (last lesson). Later, they plan to schedule the routine with the
+      replication command line utility.
+    takeaway: Replication is a recurring pipeline, not a one-off parcel.
+
+  - type: callout
+    variant: note
+    title: Not the same as replica vaults
+    md: |
+      "Replication" also appears in file-server set-ups, where content files are copied to a
+      [[replica-vault]] near remote users. That's about **file content for one Windchill**. A
+      replication package copies **objects and metadata to a different Windchill**. Same word,
+      different job.
+
+  - type: callout
+    variant: pitfall
+    title: Incremental deletes are real deletes
+    md: |
+      An incremental delivery carries delete information, and importing it **performs those deletes**
+      on the target. Never import an incremental that is based on the wrong earlier delivery, and
+      always import replication deliveries in the order they were created.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      For big replication packages, talk to Rosa before the first full delivery. PTC documents admin
+      properties for this: packages over 60,000 objects need
+      `com.ptc.core.collectionsrv.engine.limitDependencyTracing`, and replication export can be tuned
+      with `wt.ixb.export.maxThreads` (2 recommended) and `wt.ixb.export.objPerThreadGuidance`. Use the
+      list view rather than the tree view when the package holds many objects.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Acme Asia wants a weekly up-to-date copy of the whole Kestrel Cargo K1 product. What should Nia set up?
+        options:
+          - "A Replication Package with a full delivery, then incremental deliveries"
+          - "A standard Package in Export Only format every week"
+          - "A standard Package in PTC Windchill format with a full delivery every week"
+          - "Copy the vault folders to Acme Asia"
+        answer: 0
+        explanation: Replication packages are made for keeping a second internal Windchill in step with a product or library, with detailed metadata and incremental deliveries.
+      - kind: single
+        prompt: Hexa Tooling runs an older major release of Windchill than Acme. Which statement is right?
+        options:
+          - "A PTC Windchill format delivery won't fit; Export Only is the safe choice"
+          - "PTC Windchill format works with any release"
+          - "Hexa must use a replication package"
+          - "Hexa needs a PLM Connector Server License to open Export Only ZIPs"
+        answer: 0
+        explanation: Full, incremental and sync importable deliveries need the target at the same major and minor release. Export Only needs no Windchill at all.
+      - kind: truefalse
+        prompt: Importing an incremental delivery can delete objects on the target system.
+        answer: true
+        explanation: Incremental deliveries carry delete and move information since their base delivery, and the import performs the deletes on the target.
+      - kind: multi
+        prompt: What can stop Nia from putting an object into a PTC Windchill format package? (Choose all that apply.)
+        options:
+          - "The object lives in a Project context"
+          - "Acme doesn't own the object"
+          - "Nia isn't in the PLM Connector Importable Package license group"
+          - "The object is a document"
+        answers: [0, 1, 2]
+        explanation: Project and Program context objects and non-owned objects can't be included, and only members of that license group can create the format. Documents are fine.
+      - kind: single
+        prompt: Which kind of package is usually reviewed inside the company before it's sent?
+        options:
+          - "A standard package for an external partner"
+          - "A replication of a whole product context"
+          - "Neither"
+          - "Both, always"
+        answer: 0
+        explanation: External collaboration packages are usually reviewed internally first; replicating a whole context generally isn't.
+
+  - type: summary
+    points:
+      - Standard packages go to partners; replication packages copy product or library design data to your own second Windchill.
+      - "Pick the format for the recipient: Export Only for no Windchill, PTC Windchill for a Windchill at the same major and minor release."
+      - "Replication runs as a pipeline: full first, then incrementals each based on the previous one."
+      - Importing an incremental performs deletes on the target, so order matters.
+      - Replication can be automated with the replication command line utility (PLM Connector Server License).

@@ -1,0 +1,347 @@
+id: m06-s05-l02
+subtitle: Ten steps, in order, from the system you have to the one you want. Skip one and it bites later.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [upgrade, upgrade-manager, source-system, target-system, system-admin]
+sources:
+  - id: hc-upgrade
+    label: PTC Help Center supplement
+    title: "Upgrade Overview"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCUpgradeGuide/WCUpgrade_OverviewSteps_10x.html"
+    covers: "The ten ordered upgrade steps; fix errors before moving on; source and target system definitions; life cycle template Visibility must not be Hide or the Upgrade Manager fails in the LoadNewData phase"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Gather Upgrade Properties"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCUpgradeGuide/WCUpgrade_UpgradeManager_GatherUpgProps_Upgrade.html"
+    covers: "Upgrade Manager runs the database upgrade in phases; Test and Production modes; Run Upgrade to Completion only in Test mode; Interactive pauses after each phase; source administrator credentials; Base Data Language must match the target"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Verify the Upgraded Solution"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCUpgradeGuide/WCUpgrade_VerifyUpgradedSolution.html"
+    covers: "Exercise your key use cases; retrieve the license with the License Management utility; add new modules only after the upgrade with the PTC Solution Installer"
+  - id: cust
+    where: "Module 1, Updates and server maintenance (upgrades and major platform changes need months of planning and end-to-end testing)"
+
+versionNotes:
+  - versions: ["13.1.2.0"]
+    md: |
+      The ten steps follow the 13.1.2.0 Help Center *Upgrade Overview*. The upgrade guide for your
+      own source and target releases is the authority: check it before you plan, because detailed
+      tasks inside each step can differ by release.
+  - versions: ["Windchill+"]
+    md: |
+      The upgrade guide describes systems you install and run yourself. How upgrades are handled for
+      Windchill+ is not covered by the sources used here; check with PTC.
+
+blocks:
+  - type: text
+    md: |
+      Acme is moving to a newer Windchill release. Rosa runs the upgrade; Nia joins because her
+      Kestrel data will land on whatever system wins.
+
+      First surprise for newcomers: a Windchill upgrade is **not** "click Update on the live server".
+      You build a brand-new system next to the old one, move the data across, and let the
+      **Upgrade Manager** convert the database. The old system keeps running until you say otherwise.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "moving Windchill to a newer release" → *[[windchill-upgrade|upgrade]]*
+      - "the system you're upgrading from" → *[[source-system|source system]]*
+      - "the new install you're upgrading to" → *[[target-system|target system]]*
+      - "the latest fix pack for your current release" → *[[critical-patch-set|Critical Patch Set (CPS)]]*
+      - "the health check before you start" → *[[windu|Windchill Diagnostic Utility (WinDU)]]*
+      - "the tool that fixes what it finds" → *[[winru|Windchill Repair Utility (WinRU)]]*
+      - "the tool that converts the database, phase by phase" → *[[upgrade-manager|Upgrade Manager]]*
+
+  - type: animation
+    title: From source to target in ten steps
+    caption: Press play. Watch which system each step happens on.
+    diagram:
+      width: 820
+      height: 420
+      groups:
+        - { label: Source system (old release), x: 10, y: 10, w: 300, h: 400, tone: neutral }
+        - { label: Target system (new release), x: 510, y: 10, w: 300, h: 400, tone: info }
+      nodes:
+        - id: src
+          label: Source Windchill
+          sublabel: wc-app01 / wc-db01
+          x: 70
+          y: 50
+          w: 180
+          tone: neutral
+          detail: The system being upgraded. Steps 1 to 3 happen here.
+        - id: cps
+          label: "1 Latest CPS"
+          x: 70
+          y: 140
+          w: 180
+          tone: warning
+          detail: Bring the source up to the latest Critical Patch Set for its release before anything else.
+        - id: diag
+          label: "2 WinDU + WinRU"
+          x: 70
+          y: 230
+          w: 180
+          tone: warning
+          detail: Run the upgrade-mandatory WinDU tasks and repair every issue with WinRU. Bad data upgraded is still bad data.
+        - id: export
+          label: "3 Export DB + LDAP"
+          x: 70
+          y: 320
+          w: 180
+          tone: danger
+          shape: doc
+          detail: Export the database **and** LDAP at the same time, so the two match.
+        - id: vaults
+          label: "4 Copy vaults"
+          x: 320
+          y: 190
+          w: 180
+          tone: accent
+          shape: cylinder
+          detail: Copy the file vaults from source to target - for the main site and any remote sites.
+        - id: tgt
+          label: "5 Target set up"
+          sublabel: verified working
+          x: 570
+          y: 50
+          w: 180
+          tone: info
+          detail: Install the new release on new hardware and prove it works on its own before any old data arrives.
+        - id: custo
+          label: "6 Customizations"
+          x: 570
+          y: 140
+          w: 180
+          tone: info
+          detail: Apply your customizations on the target. (Lesson 3 covers what that involves.)
+        - id: import
+          label: "7 Import DB"
+          x: 570
+          y: 230
+          w: 180
+          tone: info
+          detail: Import the database you exported in step 3.
+        - id: upgmgr
+          label: "8 Upgrade Manager"
+          sublabel: "then 9 final, 10 validate"
+          x: 570
+          y: 320
+          w: 180
+          h: 64
+          tone: success
+          detail: The Upgrade Manager converts the imported database in phases. Then come the final upgrade steps and validation of the upgraded solution.
+      edges:
+        - { from: src, to: cps }
+        - { from: cps, to: diag }
+        - { from: diag, to: export }
+        - { from: export, to: import, label: database + LDAP }
+        - { from: src, to: vaults, label: files }
+        - { from: vaults, to: tgt }
+        - { from: tgt, to: custo }
+        - { from: custo, to: import }
+        - { from: import, to: upgmgr }
+    chapters:
+      - title: Prepare the source
+        caption: "**Steps 1-2.** Patch the source to its latest CPS, then run WinDU and fix everything with WinRU."
+        show: [src, cps, diag]
+        highlight: [cps, diag]
+        flow: [src>cps, cps>diag]
+        seconds: 7
+      - title: Take the data out
+        caption: "**Steps 3-4.** Export the database and LDAP together, and copy the vaults to the target."
+        show: [src, cps, diag, export, vaults]
+        highlight: [export, vaults]
+        flow: [diag>export, src>vaults]
+        seconds: 7
+      - title: Build the target
+        caption: "**Steps 5-6.** Set up the target and verify it fully works. Then apply customizations."
+        show: [src, cps, diag, export, vaults, tgt, custo]
+        highlight: [tgt, custo]
+        flow: [vaults>tgt, tgt>custo]
+        seconds: 7
+      - title: Bring the data in and convert it
+        caption: "**Steps 7-10.** Import the database, run the Upgrade Manager, finish, then validate."
+        highlight: [import, upgmgr]
+        flow: [export>import, custo>import, import>upgmgr]
+        seconds: 8
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      PTC's rule is simple: do the steps **in order**, and fix every error before you move to the
+      next one. Upgrades are where shortcuts get expensive. A data problem skipped in step 2 can stop
+      the Upgrade Manager hours into step 8, and then you start that step again with the clock
+      running.
+
+  - type: walkthrough
+    title: The ten upgrade steps
+    who: Rosa (site administrator) with the upgrade team
+    where: [Source system, Target system]
+    steps:
+      - title: 1 - Apply the latest CPS to the source
+        where: [Source system]
+        md: Patch the source to the latest Critical Patch Set **for its current release**.
+      - title: 2 - Run WinDU and fix with WinRU
+        where: [Source system, WinDU, WinRU]
+        md: Run the **upgrade-mandatory** Windchill Diagnostic Utility tasks on the source. Fix every issue they report with the Windchill Repair Utility.
+      - title: 3 - Export the database and LDAP together
+        where: [Source system]
+        md: Export the database and the LDAP directory **at the same time**, so users, groups and data stay in step.
+      - title: 4 - Copy the vaults
+        where: [Source system, Target system]
+        md: Copy the vaults from source to target, for the main site and any remote sites.
+      - title: 5 - Set up and verify the target
+        where: [Target system]
+        md: Install the target system and check that it **fully works** on its own.
+      - title: 6 - Apply customizations
+        where: [Target system]
+        md: Apply your customizations on the target before the old data arrives.
+      - title: 7 - Import the database
+        where: [Target system]
+        md: Import the database exported in step 3.
+      - title: 8 - Run the Upgrade Manager
+        where: [Target system, Upgrade Manager]
+        md: |
+          Start the Upgrade Manager. It gathers configuration (for example the source administrator's
+          credentials, and a **Base Data Language** that must match the target) and upgrades the
+          database in phases. Choose **Test** mode for trial runs and **Production** mode for the real
+          one.
+      - title: 9 - Final upgrade steps
+        where: [Target system]
+        md: Complete the final steps the upgrade guide lists for your release.
+      - title: 10 - Validate
+        where: [Target system, License Management utility]
+        md: |
+          Exercise the use cases that matter most to Acme. Retrieve the license with the
+          [[license-management-utility|License Management utility]]. New optional modules are added
+          only **after** the upgrade, with the [[ptc-solution-installer|PTC Solution Installer]].
+    result: Acme's data runs on the new release, on the target system, validated against real use cases. The source still exists untouched by steps 5 to 10.
+
+  - type: comparison
+    title: Upgrade Manager modes
+    columns: [Test mode, Production mode]
+    rows:
+      - label: Use it for
+        cells: ["Trial upgrades", "The real upgrade"]
+      - label: Run Upgrade to Completion
+        cells: ["Available", "Disabled"]
+    takeaway: Test mode lets you rehearse the whole run quickly. Production mode makes you go phase by phase on purpose.
+
+  - type: callout
+    variant: note
+    title: Interactive runs
+    md: |
+      The Upgrade Manager also has an **Interactive** setting, Yes by default. When it is on, the
+      tool pauses after each phase so you can check the results before the next one starts.
+
+  - type: scenario
+    variant: what-if
+    title: Rosa's trial upgrade stops
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Rosa runs a trial upgrade on a copy in **Test** mode. Hours in, the Upgrade Manager fails in
+          the **LoadNewData** phase. What does she check first?
+        choices:
+          - label: The Visibility setting of the life cycle templates
+            next: s2
+            good: true
+            feedback: Right. PTC warns that a life cycle template with Visibility set to Hide makes the Upgrade Manager fail in LoadNewData.
+          - label: Skip the phase and carry on
+            next: fail1
+            feedback: The upgrade steps go in order and every error is fixed first. Skipping hides the cause.
+          - label: Switch to Production mode and retry
+            next: fail2
+            feedback: Production mode changes how you run phases, not the data problem.
+      - id: s2
+        md: |
+          An old, rarely used template, *Tooling LC*, is set to **Hide**. Where should the fix go so it
+          never happens again?
+        choices:
+          - label: Fix it on the source and add a check to the upgrade runbook
+            next: win
+            good: true
+            feedback: The next export will carry the fix, and the runbook stops it coming back.
+          - label: Fix it only on today's test copy
+            next: partial
+            feedback: It works today, but the next copy from the source has the same problem.
+      - id: win
+        md: |
+          Rosa changes the template's Visibility on the source, notes it in the runbook and reruns the
+          trial from a fresh export. LoadNewData passes. The finding goes in the go/no-go list for the
+          production run.
+        outcome: success
+      - id: partial
+        md: The trial passes, but the production run fails at the same phase, on a Saturday night. Fix at the source.
+        outcome: partial
+      - id: fail1
+        md: There's no safe way to skip a failed phase. The trial stays broken and nobody knows why.
+        outcome: fail
+      - id: fail2
+        md: Same data, same failure - now in the mode meant for the real run. Find the cause first.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    title: Adding new modules mid-upgrade
+    md: |
+      It's tempting to install that new optional module "while we're at it". PTC's guidance is to add
+      new modules **after** the upgrade, with the PTC Solution Installer. Change one thing at a time.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Do at least one full trial in **Test** mode on a recent copy of production and time each step.
+      Those timings turn into the cutover plan in lesson 4, and they tell you whether a weekend is
+      really enough.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: order
+        prompt: Put the upgrade steps in PTC's order.
+        items:
+          - Apply the latest CPS to the source system
+          - Run WinDU and fix issues with WinRU
+          - Export the database and LDAP at the same time
+          - Copy the vaults from source to target
+          - Set up the target system and verify it works
+          - Apply customizations on the target
+          - Import the database
+          - Run the Upgrade Manager
+        explanation: Prepare the source, take the data out, build and customize the target, then bring the data in and convert it. Final steps and validation follow.
+      - kind: single
+        prompt: What is the target system?
+        options:
+          - "The new installation that receives the customizations and the database"
+          - "The production system being upgraded"
+          - "A copy used only for rehosting"
+          - "The LDAP server"
+        answer: 0
+        explanation: The source is the system being upgraded; the target is the new install that receives customizations and the imported database.
+      - kind: truefalse
+        prompt: In Production mode, the Upgrade Manager offers Run Upgrade to Completion.
+        answer: false
+        explanation: Run Upgrade to Completion is for Test mode trials. It is disabled in Production mode.
+      - kind: single
+        prompt: Why are the database and LDAP exported at the same time?
+        options:
+          - "So the directory and the data match on the target"
+          - "Because the Upgrade Manager needs only LDAP"
+          - "To save disk space"
+          - "Because vaults are inside LDAP"
+        answer: 0
+        explanation: Users and groups live in LDAP and are referenced by the data. Exporting both together keeps them consistent.
+
+  - type: summary
+    points:
+      - An upgrade builds a new target system and moves the source system's data to it.
+      - Follow PTC's ten steps in order and fix every error before moving on.
+      - The Upgrade Manager upgrades the database in phases; Test mode for trials, Production mode for real.
+      - Life cycle templates with Visibility "Hide" make the LoadNewData phase fail.
+      - Validate with your key use cases, retrieve the license, and add new modules only afterwards.

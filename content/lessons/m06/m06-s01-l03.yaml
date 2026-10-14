@@ -1,0 +1,346 @@
+id: m06-s01-l03
+subtitle: Count it, question it, then decide. Every legacy file goes to one of four piles.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [migration, data-quality, profiling, cleansing, archive, legacy-data]
+sources:
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Windchill Bulk Migrator Installation"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCInstallConfigGuide/WCInstall_BulkMigrator.html"
+    covers: "ETLV: data is extracted from one or more source systems, then mapped and transformed to conform to Windchill, loaded into the database and vaults, and validated"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Upgrade Overview"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCUpgradeGuide/WCUpgrade_OverviewSteps_10x.html"
+    covers: "Before export, the upgrade-mandatory Windchill Diagnostic Utility (WinDU) tasks run on the source and every issue is fixed with the Windchill Repair Utility (WinRU)"
+
+blocks:
+  - type: text
+    md: |
+      Tomas swears Kestrel's data is "mostly fine". Nia believes him, and she still wants numbers.
+      Not because she doubts Tomas, but because "mostly" can mean 2% or 40%, and those are two very
+      different projects.
+
+      This lesson is about the unglamorous middle of every migration: **looking hard at the data before
+      you move it**, then deciding, object by object and bucket by bucket, what happens to it.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "counting and checking what's really in the old system" → *[[data-profiling]]*
+      - "fixing, merging or removing bad data before it moves" → *[[data-cleansing]]*
+      - "what moves, what doesn't, and how far back" → *[[migration-scope]]*
+      - "the data's information about itself: numbers, names, states" → *[[metadata]]*
+
+  - type: callout
+    variant: note
+    title: Where this comes from
+    md: |
+      This lesson teaches general migration practice used across PLM projects; it is not a PTC
+      procedure. The Windchill-specific facts (the Transform step of ETLV, WinDU and WinRU in the
+      upgrade process) come from the PTC Help Center pages listed as this lesson's sources.
+
+  - type: diagram
+    title: From profile to decision
+    caption: Profiling feeds four decisions. Click each box.
+    diagram:
+      width: 800
+      height: 420
+      groups:
+        - { label: Look, x: 20, y: 20, w: 230, h: 380, tone: info }
+        - { label: Decide, x: 280, y: 20, w: 500, h: 380, tone: neutral }
+      nodes:
+        - id: profile
+          label: Profile the data
+          sublabel: counts and checks
+          x: 40
+          y: 90
+          w: 190
+          h: 60
+          tone: info
+          detail: |
+            Count objects by type and product, then check them: duplicates, missing attributes, number
+            formats, states in use, files nothing references, last-modified dates, broken references.
+        - id: owners
+          label: Ask the owners
+          sublabel: engineers and Tomas
+          x: 40
+          y: 260
+          w: 190
+          h: 60
+          tone: info
+          detail: |
+            Numbers tell you *what* is odd. People tell you *why*. Take every surprising count to the
+            engineers who own the data and ask what it means.
+        - id: migrate
+          label: Migrate as is
+          sublabel: clean and needed
+          x: 300
+          y: 50
+          w: 210
+          h: 60
+          tone: success
+          detail: |
+            Data that is current, complete and needed for daily work. It moves without changes beyond
+            the normal transform (mapping values to Windchill's).
+        - id: clean
+          label: Clean, then migrate
+          sublabel: needed but messy
+          x: 550
+          y: 50
+          w: 210
+          h: 60
+          tone: warning
+          detail: |
+            Needed data with known problems: duplicates, missing attributes, odd number formats. Fix
+            it (in the source or in the transform) **before** the load, and record every rule you apply.
+        - id: archive
+          label: Archive
+          sublabel: keep, but not in PLM
+          x: 300
+          y: 250
+          w: 210
+          h: 60
+          tone: neutral
+          detail: |
+            Data that must be kept (contracts, product liability, old service needs) but that nobody
+            edits. A read-only archive is often cheaper than migrating and cleaning it.
+        - id: leave
+          label: Leave behind
+          sublabel: with sign-off
+          x: 550
+          y: 250
+          w: 210
+          h: 60
+          tone: danger
+          detail: |
+            True junk: temp files, scratch copies, abandoned experiments. Decide **with the business
+            owner's written agreement**, never by yourself.
+      edges:
+        - { from: profile, to: owners, bidirectional: true }
+        - { from: profile, to: migrate }
+        - { from: profile, to: clean }
+        - { from: owners, to: archive }
+        - { from: owners, to: leave }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Every object you migrate has to be mapped, loaded, validated and then supported for years.
+      Every object you *don't* look at can break a structure on go-live day. Profiling is how you stop
+      paying to move junk, and stop being surprised by the data you actually need.
+
+  - type: example
+    variant: case-study
+    title: Nia profiles Kestrel
+    industry: Cargo bikes
+    md: |
+      Nia exports file lists and metadata reports from Kestrel's old PDM and scans
+      `\\kestrel-fs01\engineering`. Two weeks later she has a profile:
+
+      | Finding | Count |
+      | --- | --- |
+      | CAD files in the old PDM | about 21,000 |
+      | CAD files on the file share | about 9,500 |
+      | Share files that are copies of PDM files (same name and content) | about 6,800 |
+      | Files with a `_final`, `_old` or `_copy` style suffix | 1,140 |
+      | Number formats in use | 3: `KC-1234`, `KC1234`, `kc_1234` |
+      | Parts with no description | 2,300 |
+      | Life cycle states in use | 9 (Acme uses fewer) |
+      | Files untouched for 10+ years, all K0 Classic | about 4,000 |
+
+      Then she sits down with **Kai** and **Tomas**:
+
+      - The share copies are mostly old exports. **Leave behind** the exact copies; the PDM is the master.
+      - The `_final` files hide 60 real parts that never made it into the PDM, such as `KC-1388_final.prt`.
+        Those **migrate**, after review.
+      - The three number formats are one scheme typed three ways. **Clean**: normalise all to `KC-1234`
+        in the transform rules.
+      - Missing descriptions on current K1 parts get **cleaned** by the K1 engineers; on K0 Classic
+        parts, nobody will ever fill them, so they stay blank.
+      - K0 Classic drawings are needed only for spare parts. Service agrees to keep released K0
+        drawings and **archive** the rest read-only.
+    takeaway: The profile turned "mostly fine" into a list of decisions with owners.
+
+  - type: text
+    md: |
+      **Where should cleansing happen?** There are two places:
+
+      - **In the source**, before extraction. Best for things only a human can fix (a wrong
+        description, a missing material). The legacy system then shows the corrected data too.
+      - **In the transform.** PTC's ETLV approach for Windchill Bulk Migrator includes a Transform
+        step in which data is mapped and transformed to conform to Windchill. Rule-based fixes (number
+        formats, state names) fit there, because they run the same way in every dry run.
+
+      PTC follows the same "fix the source first" idea in its own upgrade process: before the source
+      database is exported, the upgrade-mandatory **Windchill Diagnostic Utility (WinDU)** tasks run on
+      the source and every issue they find is fixed with the **Windchill Repair Utility (WinRU)**.
+
+  - type: scenario
+    variant: challenge
+    title: Which pile?
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Nia finds 420 drawings for **K0 Classic** frame parts. The product was discontinued six years
+          ago, but service still sells spare frames. Nobody edits the drawings. What does she propose?
+        choices:
+          - label: "Leave them behind; the product is dead"
+            next: f-lost
+            feedback: "Service still needs them. Deleting needed data is the one mistake you can't undo."
+          - label: "Agree with service: migrate the released drawings they use, archive the rest"
+            next: s2
+            good: true
+            feedback: "The business decides what it needs; you keep the migrated set small."
+          - label: "Clean and migrate all 420 with full history"
+            next: f-cost
+            feedback: "Possible, but you pay to clean data nobody will change."
+      - id: s2
+        md: |
+          Next: 1,140 files with suffixes like `_final2`. Nia's script says 1,080 are exact copies of a
+          file already in the PDM. The other 60 aren't in the PDM at all. What now?
+        choices:
+          - label: "Drop the 1,080 exact copies and review the 60 with Tomas"
+            next: s3
+            good: true
+            feedback: "Exact copies add nothing. The 60 unique files are the dangerous ones: they may be real parts."
+          - label: "Migrate all 1,140; storage is cheap"
+            next: f-dupes
+            feedback: "Storage is cheap. Assemblies picking the wrong copy is not."
+      - id: s3
+        md: |
+          Tomas confirms 52 of the 60 are real parts; 8 are abandoned experiments. Kai signs off. Nia
+          also adds the 52 parts to her **test sample** for the next dry run. Why?
+        choices:
+          - label: "They're the ugliest data she has, so they're the best test"
+            next: win
+            good: true
+            feedback: "Exactly. Test with the data most likely to break."
+          - label: "No reason; any 52 parts would do"
+            next: s3-retry
+            feedback: "Random clean parts would only prove the happy path works."
+      - id: s3-retry
+        md: |
+          Remember the last lesson: hand-picked, tidy test data proves the tool works, not that *your*
+          data works. Which sample finds problems earlier?
+        choices:
+          - label: "The 52 hard-won parts from the file share"
+            next: win
+            good: true
+            feedback: "Yes. Ugly data in the dry run, not on go-live day."
+      - id: f-lost
+        md: |
+          Eight months later a customer orders a replacement K0 frame. The drawing is gone. Engineering
+          re-measures a frame from the warehouse. Expensive, slow, and avoidable.
+        outcome: fail
+      - id: f-cost
+        md: |
+          Weeks go into cleaning and mapping drawings that nobody will ever revise. The K1 migration,
+          which matters most, gets squeezed.
+        outcome: partial
+      - id: f-dupes
+        md: |
+          `KC-1042.prt` and `KC-1042_final2.prt` both arrive. Some assemblies pick one, some the other.
+          It's Kestrel's first migration all over again.
+        outcome: fail
+      - id: win
+        md: |
+          Every bucket has a decision, an owner and a sign-off. The migrated set is smaller and cleaner,
+          the archive holds what must be kept, and the dry run is aimed at the data most likely to fail.
+        outcome: success
+
+  - type: scenario
+    variant: what-if
+    title: "What if we skip cleansing and fix it in Windchill later?"
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Three weeks before the K1 wave, the project sponsor suggests: *"Skip the number clean-up. Load
+          `KC1234` and `kc_1234` as they are; engineers can fix them in Windchill afterwards."* What does
+          Nia answer?
+        choices:
+          - label: "Agree; it saves three weeks"
+            next: s2
+            feedback: "Let's see where that goes."
+          - label: "Explain the cost and keep the transform rule, which is already written and tested"
+            next: win
+            good: true
+            feedback: "A rule-based fix in the transform is cheap and repeats in every run."
+      - id: s2
+        md: |
+          Go-live. Engineers search for `KC-1250` and miss `KC1250`. Someone creates a "new" `KC-1250`
+          because the search found nothing. Now there are two. What happened?
+        choices:
+          - label: "Unclean numbers became real duplicates once people started working"
+            next: f-late
+            good: true
+            feedback: "Right. After go-live, bad data stops being a data problem and becomes a business problem."
+      - id: f-late
+        md: |
+          Fixing it now means finding every pair, deciding which is right, and repairing every assembly,
+          change and document that points at the wrong one, while people keep using them. The three
+          weeks saved cost months.
+        outcome: fail
+      - id: win
+        md: |
+          Nia shows the sponsor the profile: 1,900 numbers in the wrong format and a transform rule that
+          already fixes them in every dry run. The rule stays. Nothing is "fixed later".
+        outcome: success
+
+  - type: callout
+    variant: pitfall
+    title: Cleansing without a record
+    md: |
+      If you fix data by hand and don't write down what you changed, the next dry run brings the
+      problem back and nobody can explain why the migrated value differs from the legacy one. Keep a
+      cleansing log: rule, reason, who approved it, how many objects it touched.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Profile **twice**: once at the start to size the project, and again shortly before cutover.
+      Engineers keep working in the legacy system while you plan, so numbers drift. The second profile
+      tells you whether your rules still cover everything.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: What is the main purpose of data profiling before a migration?
+        options:
+          - "To replace numbers like \"mostly fine\" with real counts that drive decisions"
+          - "To load the data faster"
+          - "To choose the Windchill version"
+          - "To train engineers on Windchill"
+        answer: 0
+        explanation: Profiling measures what's really in the legacy data (duplicates, gaps, formats, states) so you can plan cleansing, scope and testing on facts.
+      - kind: multi
+        prompt: Which decisions can a profiled bucket of data end in? (Choose all that apply.)
+        options: [Migrate as is, "Clean, then migrate", Archive, Leave behind with sign-off]
+        answers: [0, 1, 2, 3]
+        explanation: All four are valid. The key is that every bucket has a decision, an owner and, for anything not migrated, the business owner's agreement.
+      - kind: truefalse
+        prompt: In PTC's ETLV approach, mapping and transforming data to conform to Windchill is a step of its own.
+        answer: true
+        explanation: Transform is the T in ETLV. Rule-based cleansing such as normalising number formats fits naturally there.
+      - kind: single
+        prompt: Before exporting the source database in a Windchill upgrade, what does PTC have you do with problems WinDU finds?
+        options:
+          - "Fix every issue with WinRU on the source"
+          - "Ignore them; Upgrade Manager fixes them"
+          - "Write them down and fix them after the upgrade"
+          - "Delete the affected objects"
+        answer: 0
+        explanation: The upgrade overview runs the upgrade-mandatory WinDU tasks on the source and fixes every issue with WinRU before moving on. Same principle as migration cleansing - fix it before it moves.
+
+  - type: summary
+    points:
+      - Profile legacy data with counts - duplicates, gaps, formats, states, age - before planning the move.
+      - Take surprising numbers to the people who own the data; they explain the why.
+      - Every bucket ends in one of four piles - migrate, clean then migrate, archive, or leave behind with sign-off.
+      - Fix human-only problems in the source; put rule-based fixes in the transform so every dry run repeats them.
+      - Keep a cleansing log and profile again before cutover.

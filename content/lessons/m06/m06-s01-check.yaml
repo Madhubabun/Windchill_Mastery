@@ -1,0 +1,131 @@
+id: m06-s01-check
+subtitle: Why migrations fail, how to pick a strategy and how to judge legacy data - Nia's Kestrel groundwork.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [migration, strategy, data-quality, checkpoint]
+sources:
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Windchill Bulk Migrator Installation"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCInstallConfigGuide/WCInstall_BulkMigrator.html"
+    covers: "Windchill Bulk Migrator is for permanent, one-way migration into Windchill; ETLV order (Extract, Transform, Load, Validate); Transform maps data to conform to Windchill"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Upgrade Overview"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCUpgradeGuide/WCUpgrade_OverviewSteps_10x.html"
+    covers: "Steps in order, fixing errors before moving on; WinDU tasks on the source with every issue fixed by WinRU before export"
+
+blocks:
+  - type: text
+    md: |
+      Ten questions on **migration strategy**, built around Nia's plan for bringing **Kestrel Cycles**
+      into Acme's Windchill: why migrations fail, big bang vs phased vs coexistence, and profiling and
+      cleansing legacy data. Score 80% to pass. Every answer explains itself.
+
+  - type: quiz
+    title: Section checkpoint
+    passMark: 0.8
+    questions:
+      - kind: single
+        prompt: Kestrel's earlier migration reported "complete" but left assemblies broken. Which check would have caught it before go-live?
+        options:
+          - "Opening real assemblies and comparing counts after a full-volume dry run"
+          - "Reading the load log more carefully"
+          - "Loading on a faster server"
+          - "Testing with 40 more hand-picked clean parts"
+        answer: 0
+        explanation: Logs prove the tool ran, not that structures are right. Validation means comparing counts and opening real designs, on a dry run with real volumes and messy data.
+      - kind: multi
+        prompt: Which are early warning signs that a migration is heading for trouble? (Choose all that apply.)
+        options:
+          - "The go-live date was set before anyone measured the data"
+          - "The mapping sheet still says TBD for several legacy states"
+          - "Test loads used only tidy hand-picked samples"
+          - "The business owner has signed the written scope"
+        answers: [0, 1, 2]
+        explanation: Date-before-data, open mappings and happy-path tests are classic warning signs. A signed scope is a good sign.
+      - kind: order
+        prompt: Put the steps of PTC's Windchill Bulk Migrator approach in order.
+        items: [Extract, Transform, Load, Validate]
+        explanation: ETLV - pull data from the source systems, map and transform it to conform to Windchill, load it into the database and vaults, then validate it.
+      - kind: truefalse
+        prompt: Windchill Bulk Migrator is designed for permanent, one-way migration into Windchill.
+        answer: true
+        explanation: That's how PTC describes it. It suits big bang and phased plans; a coexistence period needs its own integration or sync design.
+      - kind: single
+        prompt: A company has 30 engineers, one product family, a modest data set and a legacy licence that ends on a fixed date. Which strategy fits best?
+        options: [Big bang, Phased, Coexistence]
+        answer: 0
+        explanation: Small, contained data and a hard end date favour one well-rehearsed cutover. Waves add duration without much benefit here, and coexistence needs an integration nobody wants.
+      - kind: single
+        prompt: Acme's battery partner must keep using an old system for two more years while Acme engineers move to Windchill. What does this situation force?
+        options:
+          - "A period of coexistence with clear one-master rules and some way to keep data consistent"
+          - "A big bang cutover next weekend"
+          - "Nothing special; Windchill Bulk Migrator syncs both ways"
+          - "Cancelling the migration"
+        answer: 0
+        explanation: When one side can't switch off, both systems stay live for a while. That needs ownership rules and an integration or sync approach - Windchill Bulk Migrator is one-way.
+      - kind: single
+        prompt: In a phased plan, K2 prototype assemblies (wave 2) reuse K1 frame parts (wave 3). What should happen?
+        options:
+          - "Move the shared frame parts in wave 2 with the assemblies that use them"
+          - "Load the frame parts in both waves"
+          - "Load the K2 assemblies and accept missing parts until wave 3"
+          - "Let engineers edit the frame parts in both systems meanwhile"
+        answer: 0
+        explanation: Objects that reference each other move together, once. Then Windchill becomes their only master.
+      - kind: multi
+        prompt: Nia's profile finds 1,080 file-share files that are exact copies of PDM files, and 60 suffixed files found nowhere else. What is sound practice? (Choose all that apply.)
+        options:
+          - "Leave the exact copies behind, with the business owner's agreement"
+          - "Review the 60 unique files with the people who know them"
+          - "Use the confirmed unique files in the next dry run's test sample"
+          - "Migrate all of them; storage is cheap"
+        answers: [0, 1, 2]
+        explanation: Exact copies add nothing and create duplicates. Unique files may be real parts, so review them, and use them as test data because they are the most likely to break.
+      - kind: single
+        prompt: Part numbers appear as KC-1234, KC1234 and kc_1234. Where is the best place to fix this?
+        options:
+          - "A transform rule that normalises them, so every dry run repeats the fix"
+          - "By hand in Windchill after go-live"
+          - "Nowhere; search will cope"
+          - "By renaming files on the share one at a time"
+        answer: 0
+        explanation: Rule-based fixes belong in the transform, where they run the same way every time. Fixing after go-live turns format noise into real duplicates.
+      - kind: truefalse
+        prompt: In PTC's upgrade process, issues found by WinDU on the source are noted and fixed after the upgrade.
+        answer: false
+        explanation: The upgrade overview has you run the upgrade-mandatory WinDU tasks on the source and fix every issue with WinRU before exporting - fix data before it moves.
+
+  - type: flashcards
+    cards:
+      - front: "Legacy system"
+        back: "The old system you're moving data out of - for Acme, Kestrel's old PDM and file share."
+      - front: "Migration scope"
+        back: "Written, signed agreement on what moves, how much history and what is archived or left behind."
+      - front: "Migration dry run"
+        back: "A full rehearsal on a copy with real volumes, repeated until it passes the agreed checks."
+      - front: "ETLV"
+        back: "Extract, Transform, Load, Validate - the Windchill Bulk Migrator approach."
+      - front: "Big bang migration"
+        back: "Everything in one cutover. Shortest; all risk in one window."
+      - front: "Phased migration"
+        back: "Waves by product line, site or data type. Risk spread; longer; move referencing data together."
+      - front: "Coexistence migration"
+        back: "Both systems live for a while. Needs integration or sync and one-master rules."
+      - front: "One-master rule"
+        back: "Every object has exactly one system allowed to change it, at every moment."
+      - front: "Data profiling"
+        back: "Counting and checking legacy data - duplicates, gaps, formats, states, age - to drive decisions."
+      - front: "Data cleansing"
+        back: "Fixing bad data before it moves: human fixes in the source, rule-based fixes in the transform. Log every rule."
+      - front: "Four piles"
+        back: "Migrate as is; clean then migrate; archive; leave behind with sign-off."
+
+  - type: summary
+    points:
+      - Migrations usually fail from scope, data quality, mapping and missing rehearsal - not from the tool.
+      - Big bang concentrates risk, phased spreads it, coexistence stretches it and needs an integration.
+      - Windchill Bulk Migrator is permanent and one-way, following Extract, Transform, Load, Validate.
+      - Profile with numbers, decide every bucket with its owner, and clean before data moves.

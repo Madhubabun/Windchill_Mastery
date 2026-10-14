@@ -1,0 +1,377 @@
+id: m06-s03-l03
+subtitle: "\"It imported\" is not the same as \"it's right\". Prove it with counts, content and a signature."
+version: 1.0.0
+updated: "2026-10-06"
+tags: [migration, validation, reconciliation, sign-off, received-delivery]
+sources:
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Importing Received Delivery Files"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/packages/ReceivedDeliveryImport.html"
+    covers: "Statuses that allow import; where to start the import; version mapping display; conflict resolution options; Current or Mapped Context; In Progress; over 50,000 objects split into transactions; import in export order by Source Zip Creation Time"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Best Practices for Working with Received Deliveries"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/packages/ReceivedDeliveryBestPractice.html"
+    covers: "Preview before import; same Import Into option as preview; save and reuse resolutions; review the import summary report and log files; import tuning properties"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Packages: Receiving Side"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/packages/PackageReceiveSide.html"
+    covers: "Receive, upload, preview, map, import; imported objects are read-only; failed imports from unmapped values"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Best Practices for Working with Packages"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/packages/PackageBestPractice.html"
+    covers: "Don't filter out objects needed for correct display (structures, baselines, change objects, family table members)"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Windchill Bulk Migrator Installation"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCInstallConfigGuide/WCInstall_BulkMigrator.html"
+    covers: "Validate is part of the ETLV migration methodology"
+
+versionNotes:
+  - versions: ["13.1.2.0"]
+    md: |
+      Windchill facts here were checked against the 13.1.2.0 Help Center, partly in its **Windchill+**
+      edition. The reconciliation checklist and sign-off process are general migration practice, not
+      Windchill features, and apply to any release.
+
+blocks:
+  - type: text
+    md: |
+      Hexa's first delivery is in: status **Imported**, no red text. Kai is ready to tell the shop
+      floor the K1 jigs are in Windchill.
+
+      Nia isn't. "No errors" only tells her the import *ran*. It doesn't tell her that **every** jig
+      arrived, that the files open, that assemblies still find their parts, or that the values landed
+      where the mapping spec said they would. That proof is called **reconciliation**, and the moment
+      the data owners accept it is the **sign-off**.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a dry run that shows what would clash" → *[[preview-import|Preview Received Delivery Import]]*
+      - "the after-import report" → *import summary report*, backed by the import *log files*
+      - "proving source and target match" → *[[reconciliation]]* (general practice)
+      - "the owners' documented yes" → *[[migration-sign-off]]* (general practice)
+      - "one chunk of data loaded and checked together" → a *migration batch*
+
+  - type: callout
+    variant: note
+    title: Where this comes from
+    md: |
+      The import statuses, reports and logs below come from the cited PTC Help Center pages. The
+      reconciliation checks and the sign-off process are **general migration practice**: Windchill
+      doesn't have a "reconcile" button. PTC's own migration method for Windchill Bulk Migrator does
+      include a **Validate** step (the V in ETLV), so the idea is very much part of the plan.
+
+  - type: diagram
+    title: Four gates between "uploaded" and "accepted"
+    caption: Click each gate. Windchill gives you the evidence in the first three; the fourth is people.
+    diagram:
+      width: 820
+      height: 300
+      nodes:
+        - id: preview
+          label: 1. Preview
+          sublabel: conflict report
+          x: 20
+          y: 40
+          w: 170
+          tone: info
+          detail: |
+            Run **Preview Received Delivery Import** first, and map every conflict. Use the same
+            *Import Into* option (Current Context or Mapped Context) that you'll use for the real import.
+        - id: import
+          label: 2. Import
+          sublabel: status + order
+          x: 220
+          y: 40
+          w: 170
+          tone: primary
+          detail: |
+            Import while the status is **Ready**, **Unsuccessful - Import Failure** or **Unsuccessful -
+            Partial Import**. It shows **In Progress** while running. Several ZIPs? Import them in the
+            order they were exported: sort by **Source Zip Creation Time**.
+        - id: report
+          label: 3. Reports and logs
+          sublabel: summary + log files
+          x: 420
+          y: 40
+          w: 170
+          tone: warning
+          shape: doc
+          detail: |
+            Review the **import summary report** and the **log files**: warnings, errors, imported
+            objects and links, and conflicts. A clean status with warnings you haven't read isn't clean.
+        - id: reconcile
+          label: 4. Reconcile
+          sublabel: counts · content · links
+          x: 620
+          y: 40
+          w: 180
+          tone: accent
+          detail: General practice. Compare what was sent with what arrived, by count, by content and by relationship, and explain every difference.
+        - id: signoff
+          label: Sign-off
+          sublabel: named owners
+          x: 320
+          y: 190
+          w: 180
+          tone: success
+          shape: pill
+          detail: General practice. The data owners accept the batch against criteria agreed before the load. Then, and only then, is the batch done.
+      edges:
+        - { from: preview, to: import }
+        - { from: import, to: report }
+        - { from: report, to: reconcile }
+        - { from: reconcile, to: signoff, label: all differences explained }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Migration problems are cheapest the day they happen. A missing drawing found during
+      reconciliation costs ten minutes. The same drawing found by the factory six months later, when
+      the source system has been switched off, can cost a production stop and a frantic search
+      through backups.
+
+  - type: walkthrough
+    title: Import a received delivery and collect the evidence
+    who: An administrator of the target product or library (Nia)
+    where: [Received Delivery Management]
+    steps:
+      - title: Check the status and the order
+        where: [Received Delivery Management]
+        md: |
+          The delivery must be **Ready** (or a previous attempt must show *Unsuccessful - Import
+          Failure* or *Unsuccessful - Partial Import*). With several deliveries from Hexa, sort by
+          **Source Zip Creation Time** and import oldest first.
+      - title: Preview with the real settings
+        where: [Received Delivery Management, Preview Received Delivery Import]
+        md: |
+          Preview with the same *Import Into* choice you'll use for the import. Map any conflicts
+          (previous lesson).
+      - title: Start the import
+        where: [Received Delivery Management, Import]
+        md: |
+          Start it from the delivery's row, the table action, or the received delivery's **Actions**
+          menu. Check the version mapping shown (*Position based* or *None*), pick how conflicts are
+          resolved (default resolutions, previously saved resolutions, or save the current ones for
+          reuse) and choose **Current Context** or **Mapped Context**. You need the same rights as for
+          the equivalent action done by hand.
+      - title: Let it run
+        md: |
+          The status shows **In Progress**. Very large deliveries (over 50,000 objects) are split into
+          several transactions automatically.
+      - title: Read the summary report and logs
+        md: |
+          Open the **import summary report** and the **log files**. Note every warning, error and
+          conflict, and the counts of imported objects and links. These are the raw material for
+          reconciliation.
+    result: A completed import plus the evidence you need to reconcile and sign off the batch.
+
+  - type: comparison
+    title: "Cheat sheet: what to reconcile after every batch (general practice)"
+    columns: [What you compare, Evidence at Acme, Common cause of a mismatch]
+    rows:
+      - label: Counts
+        cells: ["Objects per type sent vs arrived (parts, CAD documents, documents)", "Import summary report; a search in the target context", "Objects filtered out on the sending side; a partial import"]
+      - label: Content
+        cells: ["A sample of files opens and is the right file", "Open or view the primary content of sampled objects", "File content excluded when the package was built"]
+      - label: Links and structure
+        cells: ["Top assemblies still find every component", "Structure tab of sampled assemblies; imported links in the logs", "Dependents not collected; CAD relationships such as family table members filtered out"]
+      - label: Values
+        cells: ["Folder, life cycle, view and context match the mapping spec", "Information pages of sampled objects", "A mapping at the wrong level, or a changed mapping"]
+      - label: Warnings
+        cells: ["Every log warning has an explanation", "Log files", "Conflicts resolved by default where you expected a saved resolution"]
+    takeaway: Agree this list and the pass criteria before the load, not after you've seen the results.
+
+  - type: example
+    variant: case-study
+    title: The four missing jigs
+    industry: Micromobility
+    md: |
+      Hexa told Acme the locked package held **412** objects. Acme's import summary reported **408**.
+
+      Nia didn't round it off. The logs showed no errors, so the four were never in the ZIP. Tomas,
+      who had worked with Hexa for years, guessed it straight away: four jigs were **family table
+      members**, and Hexa's package filter had left them out. PTC's package best practice warns
+      about exactly this: don't filter out objects needed for correct display, and watch special
+      CAD relationships like family tables.
+
+      Hexa adjusted its collection settings and sent the four in its next delivery. Nia re-ran the
+      count, opened the affected jig assemblies, and only then asked Kai and Jordan to sign.
+    takeaway: A count that's "nearly right" is a finding, not a rounding error.
+
+  - type: scenario
+    variant: troubleshooting
+    title: "Kestrel batch 3: the numbers don't add up"
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          The trial load of Kestrel's K1 cargo-box parts (KC-3100 to KC-3399) is finished. Tomas's
+          extract from Kestrel's old PDM lists **300** parts. A search in the Kestrel Cargo K1 product
+          finds **296**. What does Nia check first?
+        choices:
+          - label: "The load's logs and summary for errors or skipped objects"
+            next: s2
+            good: true
+            feedback: Start with the evidence the tool already produced.
+          - label: "Re-run the whole load and hope the count fixes itself"
+            next: f1
+            feedback: Without knowing why, you'll likely get the same 296, or duplicates.
+          - label: "Accept it: 98.7% is close enough"
+            next: f2
+            feedback: Four parts could be four assemblies that won't build.
+      - id: s2
+        md: |
+          The logs show four errors, all for parts whose target folder doesn't exist in the Kestrel
+          Cargo K1 product. What's the fix?
+        choices:
+          - label: "Create the missing folder (agreed in the spec), then load those four again"
+            next: s3
+            good: true
+            feedback: Fix the cause, then reload only what failed. Keep the fix in the spec so the production load has it too.
+          - label: "Create the four parts by hand in Windchill"
+            next: f3
+            feedback: Hand-made parts lose the traceability of the migration and may not match the source.
+      - id: s3
+        md: |
+          The count is now 300 = 300. Nia opens five sampled assemblies and they build fully. Kai is
+          happy. Jordan asks whether the batch can be signed off. What does Nia bring?
+        choices:
+          - label: "The agreed criteria, the counts, the log review and the samples, for Kai and Jordan to sign"
+            next: win
+            good: true
+            feedback: Sign-off is a decision by named owners against evidence.
+          - label: "A thumbs-up message in chat"
+            next: f4
+            feedback: Nobody will be able to find that in six months.
+      - id: f1
+        md: |
+          The rerun gives the same 296, plus confusion about which objects were created twice. Find
+          the cause before you repeat anything.
+        outcome: fail
+      - id: f2
+        md: |
+          Two of the missing parts are used in the K1 cargo box assembly. Three months after go-live
+          the assembly won't build and the old PDM is already archived.
+        outcome: fail
+      - id: f3
+        md: |
+          The parts exist, but with no link to their source records and with typed-in values. The
+          next reconciliation can't tell migrated data from hand-made data.
+        outcome: partial
+      - id: f4
+        md: |
+          The batch "passed" but nobody recorded against what. When a question comes up later there
+          is no evidence and no owner.
+        outcome: partial
+      - id: win
+        md: |
+          Batch 3 is signed off with its evidence attached. If anything is questioned later, the
+          answer is one document away.
+        outcome: success
+
+  - type: scenario
+    variant: what-if
+    title: "What if the sponsor wants it signed today?"
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          It's Friday afternoon. Batch 4 reconciles except for **12 log warnings** nobody has read yet.
+          The project sponsor wants the batch signed off today so cutover planning can start Monday.
+        choices:
+          - label: "Sign off now; warnings aren't errors"
+            next: f1
+            feedback: Warnings are where conflicts resolved by default hide.
+          - label: "Sign off with the 12 warnings listed as open items, each with an owner and a date"
+            next: p1
+            feedback: Honest, but the batch isn't really done.
+          - label: "Read the 12 warnings first; sign off once each is explained or fixed"
+            next: win
+            good: true
+            feedback: The criteria said every warning explained. Keep to them.
+      - id: f1
+        md: |
+          Three warnings were conflicts resolved with defaults, so three folders landed in the wrong
+          place. Engineers find them on Tuesday. The batch has to be reopened.
+        outcome: fail
+      - id: p1
+        md: |
+          It works if the open items really are minor and someone follows them up. Many teams allow
+          this under a written rule. It's still better to read the warnings first: it often takes
+          less time than writing them up.
+        outcome: partial
+      - id: win
+        md: |
+          Eleven warnings are harmless and documented. One needs a mapping fix, done in an hour.
+          The batch is signed off on Monday morning with nothing left open.
+        outcome: success
+
+  - type: callout
+    variant: pitfall
+    title: '"No errors" is not reconciliation'
+    md: |
+      A successful status tells you the import finished. It does not tell you that everything you
+      meant to send was in the ZIP. Objects filtered out on the sending side never reach the log at
+      all. Only an independent count against the source catches them.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Write the **sign-off criteria** into the migration plan before the first trial load: which
+      counts, which samples, which warnings are acceptable, and who signs. Then run the same checks
+      on every dry run. By the production load, reconciliation is routine instead of a debate.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: order
+        prompt: Put the end of a received-delivery batch in order.
+        items:
+          - Preview the import and map conflicts
+          - Import with the same Import Into option as the preview
+          - Review the import summary report and log files
+          - Reconcile counts, content and links against the source
+          - Sign off the batch with the data owners
+        explanation: Windchill gives you evidence in the preview, the import and its reports. Reconciliation and sign-off turn that evidence into an accepted batch.
+      - kind: multi
+        prompt: From which statuses can a received delivery be imported? (Choose all that apply.)
+        options: [Ready, "Unsuccessful: Import Failure", "Unsuccessful: Partial Import", In Progress]
+        answers: [0, 1, 2]
+        explanation: Ready plus the two unsuccessful statuses allow an import (or retry). In Progress means an import is already running.
+      - kind: single
+        prompt: Hexa sends three ZIPs in one week. In what order should Nia import them?
+        options:
+          - "In the order they were exported, using Source Zip Creation Time"
+          - "Largest first"
+          - "Any order; Windchill sorts it out"
+          - "In the order they were uploaded"
+        answer: 0
+        explanation: Deliveries should be imported in the same order as exported. Sort by Source Zip Creation Time.
+      - kind: truefalse
+        prompt: If the import log shows no errors, every object the sender intended has arrived.
+        answer: false
+        explanation: Objects excluded on the sending side, for example by filters, never appear in the log. Only a count against the source shows they're missing.
+      - kind: single
+        prompt: Who should sign off a migration batch?
+        options:
+          - "Named data owners, against criteria agreed before the load"
+          - "Whoever ran the import"
+          - "Windchill, automatically, when the status is Imported"
+          - "The sending partner"
+        answer: 0
+        explanation: Sign-off is general migration practice. It's a business decision by the people who own the data, based on agreed criteria and evidence.
+
+  - type: summary
+    points:
+      - Preview first, and import with the same Import Into option you previewed with.
+      - Import deliveries in export order (Source Zip Creation Time); over 50,000 objects are split into transactions.
+      - Read the import summary report and every log warning; they are your evidence.
+      - "Reconcile counts, content, links and values against the source, and explain every difference."
+      - Sign off each batch with named owners against criteria agreed before the load.

@@ -1,0 +1,333 @@
+id: m06-s02-l02
+subtitle: Spreadsheet in, objects out. The catch - Windchill only reads XML, and only from the server.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [migration, load-files, loadfromfile, csv2xml, command-line]
+sources:
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Overview of Load Utilities"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/WCDataLoadGuide/WCDataLoad_IntroOviewLoadUtility.html"
+    covers: "LoadFromFile framework; LoadFromFile loads one data file and needs the server manager and method server running; LoadFileSet loads multiple files; Windchill Loader, installed.properties, LoaderConfiguration.properties, LDAP users and groups; CSV2XML; load utilities process only XML; data file, user, password and CONT_PATH parameters with Exchange as default container"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Using the LoadFromFile Utility"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/WCDataLoadGuide/WCDataLoad_LoadLegacyUseLoadFromFileUtility.html"
+    covers: "LoadFromFile syntax and options -d, -u, -p, -CONT_PATH; container path examples; only site administrators should run it; quoting arguments with spaces on Windows"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Loading Legacy Data"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/WCDataLoadGuide/WCDataLoad_LoadLegacyDataOview.html"
+    covers: "A legacy data load starts with a review of the container hierarchy"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Converting CSV Files to XML Format Files"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/WCDataLoadGuide/WCDataLoad_UseCSV2XML_ConvertCSVFilesXMLFormat.html"
+    covers: "PTC recommends creating data in CSV; CSV2XML syntax and options; CSV must match csvmapfile.txt and include all required data; default input location; XML is case-sensitive; validate against standardX20.dtd"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Windchill Bulk Migrator Installation"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCInstallConfigGuide/WCInstall_BulkMigrator.html"
+    covers: "WBM as the bulk alternative for permanent one-way migration"
+
+versionNotes:
+  - versions: ["13.1.2.0"]
+    md: |
+      The load utility pages were read in the **Windchill+** edition of the 13.1.2.0 Help Center.
+      They describe running commands on the Windchill server. Whether a Windchill+ customer gets
+      that kind of server access is not covered by these pages, so check with PTC before planning a
+      Windchill+ load this way.
+
+blocks:
+  - type: text
+    md: |
+      Kestrel's purchasing team kept their bought-in parts in a spreadsheet: bolts, bearings, chain,
+      the big front-box hinges. About 400 rows, numbered **KC-2000 to KC-2400**. No CAD files, just
+      records.
+
+      Firing up the whole bulk migration toolset for 400 rows would be overkill. Nia reaches for a
+      lighter tool: **load files** and the **load utilities**. You give Windchill a file of records,
+      run one command on the server, and objects appear.
+
+      There's one rule you can't skip: **the load utilities only read XML.** Your spreadsheet needs a
+      makeover first.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a file of records for Windchill to create" → *[[load-file]]*
+      - "the command that loads one file" → *[[loadfromfile]]*
+      - "the command that loads many files" → *[[loadfileset]]*
+      - "the loader for a whole Windchill solution's base data" → *[[windchill-loader]]*
+      - "the converter from spreadsheet CSV to XML" → *[[csv2xml]]*
+      - "the rule book saying what each CSV column means" → *[[csvmapfile]]*
+      - "where the new objects should land" → *[[container-path]]* (`CONT_PATH`)
+
+  - type: diagram
+    title: From spreadsheet to Windchill objects
+    caption: Follow the purchased-parts list from Kestrel's spreadsheet into the Kestrel Cargo K1 product. Click each box.
+    diagram:
+      width: 800
+      height: 380
+      groups:
+        - { label: Prepare (any PC then server), x: 20, y: 20, w: 380, h: 340, tone: neutral }
+        - { label: Windchill server, x: 420, y: 20, w: 360, h: 340, tone: info }
+      nodes:
+        - id: csv
+          label: kestrel_parts.csv
+          sublabel: 400 rows
+          x: 40
+          y: 70
+          w: 160
+          shape: doc
+          tone: neutral
+          detail: |
+            PTC recommends preparing load data as **CSV** because it's easier and less error-prone
+            than writing XML by hand. Every row must match the layout defined in `csvmapfile.txt`
+            and carry all the required data, such as the container.
+        - id: mapfile
+          label: csvmapfile.txt
+          sublabel: column layouts
+          x: 220
+          y: 70
+          w: 160
+          shape: doc
+          tone: warning
+          detail: Defines which columns each kind of CSV record must have. Found under `<Windchill>/loadFiles`. If your CSV doesn't match it, the conversion goes wrong.
+        - id: csv2xml
+          label: CSV2XML
+          sublabel: convert
+          x: 130
+          y: 200
+          w: 160
+          tone: accent
+          detail: The `windchill wt.load.util.CSV2XML` utility turns the CSV into XML load files.
+        - id: xml
+          label: XML load file
+          sublabel: case-sensitive
+          x: 130
+          y: 290
+          w: 160
+          shape: doc
+          tone: primary
+          detail: |
+            The only format the load utilities accept. The XML content is **case-sensitive**.
+            PTC recommends validating it against `standardX20.dtd` (in `<Windchill>/loadXMLFiles`)
+            so bad files are caught before the load.
+        - id: lff
+          label: LoadFromFile
+          sublabel: "-d -u -p -CONT_PATH"
+          x: 450
+          y: 200
+          w: 160
+          tone: accent
+          detail: |
+            Reads the data file (which must sit on the method server host), turns each record into
+            name-value pairs and hands them to object loaders that create the objects, set their
+            attributes and save them. Needs the **server manager** and **method server** running.
+        - id: ms
+          label: Method server
+          x: 450
+          y: 290
+          w: 160
+          tone: info
+          detail: The [[method-server]] does the actual work of creating and saving the objects.
+        - id: product
+          label: Kestrel Cargo K1
+          sublabel: product context
+          x: 630
+          y: 200
+          w: 130
+          h: 70
+          shape: cylinder
+          tone: success
+          detail: The target container, named with `-CONT_PATH`. Leave it out and the data goes to the **Exchange** container - the site - instead.
+      edges:
+        - { from: mapfile, to: csv2xml, label: rules, dashed: true }
+        - { from: csv, to: csv2xml }
+        - { from: csv2xml, to: xml }
+        - { from: xml, to: lff, label: copy to server }
+        - { from: lff, to: ms }
+        - { from: lff, to: product, label: CONT_PATH }
+
+  - type: comparison
+    title: The load utilities at a glance
+    columns: [What it does, When Nia would use it]
+    rows:
+      - label: LoadFromFile
+        cells: ["Loads one data file", "The Kestrel purchased-parts XML file"]
+      - label: LoadFileSet
+        cells: ["Loads multiple data files", "Several related load files in one run"]
+      - label: Windchill Loader
+        cells: ["Loads data for any installed Windchill solution; can initialize the database and add users and groups to LDAP", "Not for Kestrel - it's for base and solution data"]
+      - label: CSV2XML
+        cells: ["Converts CSV files to XML load files", "Before every load built from a spreadsheet"]
+    takeaway: Only CSV2XML touches CSV. Everything else reads XML.
+
+  - type: callout
+    variant: note
+    title: How the Windchill Loader knows what to load
+    md: |
+      The Windchill Loader reads the list of installed solutions from `installed.properties` and the
+      **load sets** - XML files listing the data files a solution needs - from
+      `LoaderConfiguration.properties`. That's why it's a system-set-up tool rather than a migration
+      tool. Its command syntax lives in the installation guide, not here.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Load files make a load **repeatable**. The same XML file can run on wc-dev01, then wc-test01,
+      then production, and produce the same objects each time. That is what makes a dry run mean
+      something: you rehearse with the exact file you'll use for real.
+
+  - type: walkthrough
+    title: Load Kestrel's purchased parts with LoadFromFile
+    who: Site administrator (Rosa runs it; Nia prepares the data)
+    where: [Windchill server, Windchill shell]
+    steps:
+      - title: Review the container hierarchy
+        where: [Planning]
+        md: |
+          PTC starts a legacy load with a review of the **container hierarchy**. Nia confirms the
+          target: organization *Acme Mobility*, product *Kestrel Cargo K1*.
+      - title: Build the CSV
+        where: [Spreadsheet, Save as CSV]
+        md: |
+          Shape the purchased-parts sheet so every row matches the record layout in
+          `<Windchill>/loadFiles/csvmapfile.txt` and includes all the required data.
+      - title: Convert it with CSV2XML
+        where: [Windchill shell]
+        md: |
+          In a [[windchill-shell]] on the server, run the converter, for example:
+
+          ```
+          windchill wt.load.util.CSV2XML -input kestrel_parts.csv -output <output directory>
+          ```
+
+          Other options include `-root`, `-encoding`, `-mapfile` (absolute path to
+          `csvmapfile.txt`), `-delimiter` and `-preservespace`. With defaults, it looks for input in
+          `<Windchill>/src/loadFiles`.
+      - title: Validate the XML
+        where: ["<Windchill>/loadXMLFiles", standardX20.dtd]
+        md: Validate the generated XML against `standardX20.dtd`. A format error found now is far cheaper than a failed load.
+      - title: Check the servers are up
+        where: [Windchill shell]
+        md: The [[server-manager]] and [[method-server]] must be running before LoadFromFile is run from the command line.
+      - title: Run LoadFromFile
+        where: [Windchill shell]
+        md: |
+          Give the full path of the data file on the server, and the target container:
+
+          ```
+          windchill wt.load.LoadFromFile -d <full path>/kestrel_parts.xml -CONT_PATH "/wt.inf.container.OrgContainer=Acme Mobility/wt.pdmlink.PDMLinkProduct=Kestrel Cargo K1"
+          ```
+
+          `-u` and `-p` are optional on the command line; leave them out and you're prompted for
+          credentials. On Windows, arguments containing spaces need quoting as shown on the PTC page
+          (with escaped quotes).
+      - title: Check the result
+        where: [Browse, Products, Kestrel Cargo K1]
+        md: Open the product and spot-check a few parts, say KC-2000, KC-2150 and KC-2400, against the spreadsheet.
+    result: The purchased parts exist in the Kestrel Cargo K1 product, created from a file that can be re-run on any environment.
+
+  - type: callout
+    variant: pitfall
+    title: The forgotten -CONT_PATH
+    md: |
+      Without `-CONT_PATH`, data goes to the **Exchange** container, which is the site. Your 400
+      parts don't appear in the product, and now somebody has to clean up site-level objects. Always
+      name the container when the target isn't the site.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Load a small slice first - ten rows - on wc-test01. If the parts land in the right product with
+      the right attributes, run the rest. Small loads fail fast and are easy to clean up.
+
+  - type: scenario
+    variant: what-if
+    title: What if the load goes sideways?
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Rosa runs LoadFromFile on wc-test01 with Nia's file. It finishes, but nobody can find
+          KC-2000 in the Kestrel Cargo K1 product. What do you check first?
+        choices:
+          - label: Whether -CONT_PATH was on the command line
+            next: s2
+            good: true
+            feedback: Right instinct. With no container path, objects go to the Exchange container - the site.
+          - label: Run the load again
+            next: f1
+            feedback: Running it again with the same command just repeats the same result.
+          - label: Rebuild the spreadsheet
+            next: f2
+            feedback: The data may be fine. Find out where it went before you change it.
+      - id: s2
+        md: |
+          Bingo - the command had no `-CONT_PATH`. The next run includes it. Now a new error: half the
+          records are rejected. Nia had hand-edited the XML to fix a typo and changed the capital
+          letters of a tag name in a few places. What now?
+        choices:
+          - label: Fix the CSV and regenerate with CSV2XML, then validate against standardX20.dtd
+            next: win
+            good: true
+            feedback: XML is case-sensitive. Regenerating from CSV and validating catches this every time.
+          - label: Tell the method server to ignore case
+            next: f3
+            feedback: There's no such switch in the sources. The XML has to be right.
+      - id: f1
+        md: Same command, same result. The parts are still not in the product. Go back and check where they went.
+        outcome: fail
+      - id: f2
+        md: Two days later the spreadsheet is "cleaner" but the parts still land in the wrong place. The data wasn't the problem.
+        outcome: fail
+      - id: f3
+        md: The load still rejects the records. Case-sensitive XML stays case-sensitive.
+        outcome: fail
+      - id: win
+        md: |
+          All 400 parts land in Kestrel Cargo K1. Nia adds two lines to her runbook - "always pass
+          -CONT_PATH" and "never hand-edit XML; regenerate and validate" - before the production run.
+        outcome: success
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Kestrel's parts are in a spreadsheet. Why can't Rosa point LoadFromFile straight at the CSV?
+        options:
+          - "The load utilities process only XML files"
+          - "LoadFromFile only reads JAR files"
+          - "CSV files can only be loaded by the Windchill Loader"
+          - "CSV files must be imported with Import/Export Management"
+        answer: 0
+        explanation: The load utilities accept only XML. Convert the CSV with CSV2XML first; PTC actually recommends preparing data as CSV because it's easier and less error-prone.
+      - kind: single
+        prompt: Which utility should Rosa use to load several related XML data files?
+        options: [LoadFileSet, LoadFromFile, CSV2XML, Windchill Loader]
+        answer: 0
+        explanation: LoadFileSet loads multiple data files; LoadFromFile loads one. The Windchill Loader is for a solution's base data, and CSV2XML only converts.
+      - kind: multi
+        prompt: What must be true before LoadFromFile runs from the command line? (Choose all that apply.)
+        options:
+          - "The server manager and method server are running"
+          - "The data file is on the method server host"
+          - "The person running it is a site administrator"
+          - "The file is a ZIP archive"
+        answers: [0, 1, 2]
+        explanation: The servers must be up, the data file must be on the server (a full path is recommended), and PTC says only site administrators should run it. Load files are XML, not ZIP.
+      - kind: truefalse
+        prompt: If you leave out -CONT_PATH, LoadFromFile puts the data in the Exchange container, which is the site.
+        answer: true
+        explanation: Exchange is the default. Pass -CONT_PATH whenever the target is an organization, product or library.
+
+  - type: summary
+    points:
+      - Load utilities process only XML; CSV2XML converts CSV prepared against csvmapfile.txt.
+      - LoadFromFile loads one file, LoadFileSet many; the Windchill Loader loads solution base data and LDAP users and groups.
+      - LoadFromFile needs the servers running, the file on the server and a site administrator.
+      - Pass -CONT_PATH or the data lands in the Exchange container (the site).
+      - Validate the XML against standardX20.dtd and test on a small slice first.

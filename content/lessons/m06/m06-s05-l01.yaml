@@ -1,0 +1,263 @@
+id: m06-s05-l01
+subtitle: Give test and dev a fresh copy of production, then teach the copy where it now lives.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [migration, rehosting, environments, test-system, system-admin]
+sources:
+  - id: hc-rehost
+    label: PTC Help Center supplement
+    title: "Rehosting a Windchill Environment"
+    url: "https://support.ptc.com/help/windchill/cloud/r12.0.2.0/en/Windchill_Help_Center/WCRehostUtilOview_Intro.html"
+    covers: "Windchill Rehost Utility; rehosting updates a test or development environment after a host name change when production data is duplicated; handles host name, installation directory and hardware platform changes; steps are in the separate Windchill Rehosting Utility Guide; rehosting is not an alternative to upgrading"
+  - id: hc-upgrade
+    label: PTC Help Center supplement
+    title: "Upgrade Overview"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCUpgradeGuide/WCUpgrade_OverviewSteps_10x.html"
+    covers: "An upgrade moves a source system to a separately installed target system; used here only to contrast with rehosting"
+  - id: cust
+    where: "Module 1, Deploying Windchill custom code (development, test/integration, QA/validation and production environments); Updates and server maintenance"
+
+versionNotes:
+  - versions: ["12.0.2.0"]
+    md: |
+      The rehosting facts come from the **12.0.2.0** Help Center page "Rehosting a Windchill
+      Environment" (cloud edition); no 13.1.2.0 version of that page was found. The step-by-step
+      procedure lives in PTC's separate *Windchill Rehosting Utility Guide* on the PTC Support site,
+      not in the Help Center, so this lesson does not list its steps. Check that guide for your
+      release before you plan a real rehost.
+  - versions: ["Windchill+"]
+    md: |
+      The sources describe installations you run yourself. How (or whether) customers rehost
+      environments on Windchill+ is not confirmed by them, so ask PTC for the Windchill+ process.
+
+blocks:
+  - type: text
+    md: |
+      Nia is about to rehearse the Kestrel migration. She wants the dry run to hit real Acme data:
+      the same product contexts, the same folders, the same life cycle states. Rehearsing on an empty
+      test system would prove almost nothing.
+
+      Rosa's answer: "Let's give **wc-test01** a fresh copy of production."
+
+      Copying the data is the easy part. The copy still *thinks* it is production. Its settings name
+      the production hosts (`wc-app01`, `wc-db01`) and the production install directory. Fixing that is
+      called **rehosting**, and PTC ships a tool for it.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "cloning production into test, then pointing the clone at its new home" → *[[rehosting]]*
+      - "PTC's tool for that" → *[[windchill-rehost-utility|Windchill Rehost Utility]]*
+      - "moving to a newer Windchill release" → *[[windchill-upgrade|upgrade]]* (a different job)
+      - "a small fix pack for the release you already run" → *[[critical-patch-set|Critical Patch Set (CPS)]]*
+
+  - type: diagram
+    title: What a rehost changes
+    caption: Production data is duplicated into test or development. The rehost then updates what is different about the new host. Click each box.
+    diagram:
+      width: 800
+      height: 430
+      groups:
+        - { label: Production, x: 20, y: 20, w: 230, h: 390, tone: success }
+        - { label: Rehost, x: 285, y: 20, w: 230, h: 390, tone: warning }
+        - { label: Test and development, x: 550, y: 20, w: 230, h: 390, tone: info }
+      nodes:
+        - id: prod
+          label: Acme production
+          sublabel: wc-app01 / wc-db01
+          x: 45
+          y: 80
+          w: 180
+          tone: success
+          shape: cylinder
+          detail: |
+            The live system: real users, real data. In PTC's environment model this is where the
+            finished build runs. Nobody experiments here.
+        - id: copy
+          label: Duplicate the data
+          sublabel: a copy of production
+          x: 45
+          y: 260
+          w: 180
+          tone: neutral
+          shape: doc
+          detail: |
+            Rehosting is typically done when production data is **duplicated** to test and development
+            systems. How you take and move the copy is a site decision; the Help Center page does not
+            describe it.
+          real: Many sites refresh test from production before every big test cycle.
+        - id: host
+          label: New host name
+          x: 310
+          y: 70
+          w: 180
+          tone: warning
+          detail: The clone now runs on a different machine name, for example **wc-test01** instead of wc-app01. Configuration and data that mention the old name must be updated.
+        - id: dir
+          label: New install directory
+          x: 310
+          y: 175
+          w: 180
+          tone: warning
+          detail: The Windchill installation directory can differ between production and the test machine. The Rehost Utility handles this change too.
+        - id: hw
+          label: New hardware platform
+          x: 310
+          y: 280
+          w: 180
+          tone: warning
+          detail: Test often runs on different (usually smaller) hardware than production. A hardware platform change is the third kind of change the utility handles.
+        - id: test
+          label: wc-test01
+          sublabel: test / integration
+          x: 575
+          y: 90
+          w: 180
+          tone: info
+          detail: |
+            Used for deployment, integration, functional and regression tests. PTC's customization
+            course says it can hold production or test data and should share production's
+            architecture.
+        - id: dev
+          label: wc-dev01
+          sublabel: development
+          x: 575
+          y: 270
+          w: 180
+          tone: info
+          detail: Developers' system, usually with a limited data set. A rehosted copy helps when a bug only shows up with production data.
+      edges:
+        - { from: prod, to: copy, label: duplicate }
+        - { from: copy, to: host }
+        - { from: copy, to: dir }
+        - { from: copy, to: hw }
+        - { from: host, to: test }
+        - { from: dir, to: test }
+        - { from: hw, to: dev }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      PTC's reason for rehosting is **risk**: validating a change on a realistic copy of production
+      catches problems before users do, and it avoids rework. A patch, a new workflow or Nia's
+      migration dry run is only as believable as the data you tested it on.
+
+  - type: comparison
+    title: Rehost, update or upgrade?
+    columns: [Rehost, "Update (for example a CPS)", Upgrade]
+    rows:
+      - label: What it is
+        cells: ["A cloned environment updated for its new host", "Maintenance on the release you already run", "A move to a newer Windchill release"]
+      - label: Windchill release
+        cells: ["Stays the same", "Stays the same major release", "Changes (for example 12.1 to 13.1)"]
+      - label: Typical trigger
+        cells: ["Refresh test or dev with production data", "A Critical Patch Set or a certificate renewal or hardware resize", "The business needs a newer release"]
+      - label: What changes
+        cells: ["Host name; install directory; hardware platform", "Patched files; may touch files in wtSafeArea", "Database and code base; customizations re-applied on a new target"]
+      - label: Planning horizon
+        cells: ["Part of every test cycle", "Little to no impact on planning", "Several months ahead with end-to-end testing"]
+      - label: Tool or guide
+        cells: ["Windchill Rehost Utility (separate PTC guide)", "The Windchill installer (it checks wtSafeArea)", "Upgrade guide and Upgrade Manager (next lesson)"]
+    takeaway: Rehosting is not a shortcut to a new release. PTC says so directly - it is not an alternative to upgrading.
+
+  - type: callout
+    variant: note
+    title: Where the update and upgrade rows come from
+    md: |
+      The "Update" and "Upgrade" columns follow PTC's *Introduction to Windchill Customization*
+      course, which separates updates and server maintenance (CPS, certificates, hardware resizing)
+      from upgrades and major platform changes. The upgrade itself is the topic of the next lesson.
+
+  - type: example
+    variant: real-world
+    title: The test system that emailed real engineers
+    industry: Micromobility (fictional)
+    md: |
+      At a company Nia worked with before Acme, someone copied production into test and skipped the
+      clean-up. The copy still believed it was production. Testers ran workflows, and real engineers
+      got task notifications for changes that didn't exist.
+
+      At Acme, Rosa's rehost checklist now has a line for **anything that points outside the
+      server**: mail, integrations, links. That line is general practice, not a PTC step, but it has
+      saved her more than once.
+    takeaway: A clone keeps production's identity until you change it. Treat the first hour after a copy as the most dangerous.
+
+  - type: exercise
+    title: Plan the rehost of wc-test01
+    environment: described
+    goal: Write a one-page plan for refreshing **wc-test01** from production before Nia's dry run.
+    steps:
+      - "**Why**: one sentence on what the copy is for (the Kestrel migration dry run on real Acme data)."
+      - "**What differs**: list the old and new value for each change the Rehost Utility handles - host name (wc-app01 to wc-test01), installation directory, hardware platform."
+      - "**Procedure**: name the source of the steps - PTC's *Windchill Rehosting Utility Guide* for your release - and who owns running it (Rosa)."
+      - "**Outward links**: list anything in the copy that could reach real people or systems (mail, ERP or other integrations) and how you will check it. This is your own site check, not a PTC step."
+      - "**Proof**: how testers confirm they are on test and not production before they start."
+      - "**Schedule**: when the copy is taken, so everyone knows how old the test data is."
+    expected: A plan that someone else could follow, with every rehost change listed and the PTC guide named as the authority for the steps.
+
+  - type: callout
+    variant: pitfall
+    title: "\"Let's just rehost to the new release\""
+    md: |
+      Rehosting does not change the Windchill release. If wc-test01 must run a newer release, that is
+      an **upgrade**, with its own ordered steps. Mixing the two jobs in one weekend makes it hard to
+      tell which change broke what.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Write the date of the production copy somewhere every tester sees it, for example in the
+      test plan header. "Is my change missing, or is the copy just older?" is the most common
+      question on a refreshed test system.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Rosa copies production into wc-test01. What is rehosting for?
+        options:
+          - "Updating the copy's configuration and data for its new host name, install directory or hardware"
+          - "Moving the copy to the next Windchill release"
+          - "Applying the latest Critical Patch Set"
+          - "Exporting the copy into a received delivery"
+        answer: 0
+        explanation: Rehosting updates a test or development environment after a host change, typically after production data is duplicated. It does not change the release.
+      - kind: multi
+        prompt: Which changes does the Windchill Rehost Utility handle? (Choose all that apply.)
+        options: [Host name, Windchill installation directory, Hardware platform, Windchill release]
+        answers: [0, 1, 2]
+        explanation: PTC lists host name, installation directory and hardware platform. A release change is an upgrade.
+      - kind: truefalse
+        prompt: Rehosting is a quicker alternative to an upgrade.
+        answer: false
+        explanation: PTC states that rehosting is not an alternative to upgrading. They solve different problems.
+      - kind: single
+        prompt: Where does Rosa find the step-by-step rehost procedure?
+        options:
+          - "In PTC's separate Windchill Rehosting Utility Guide on the support site"
+          - "On the Utilities page of the site context"
+          - "In Mapping Management"
+          - "In the Upgrade Manager"
+        answer: 0
+        explanation: The Help Center overview points to a separate guide for the steps. There is no navigation path in the Windchill UI for it in our sources.
+      - kind: single
+        prompt: Which environment does PTC's customization course describe as identical to production and used for performance tests, user acceptance tests and training?
+        options: [QA/validation, Development, Test/integration, Production]
+        answer: 0
+        explanation: Development is small and individual; test/integration is very similar to production; QA/validation is identical to it.
+
+  - type: flashcards
+    cards:
+      - { front: Rehosting, back: "Updating a cloned test or development environment for its new host name, install directory or hardware." }
+      - { front: Windchill Rehost Utility, back: "PTC's tool for rehosting. Its steps are in a separate Rehosting Utility Guide." }
+      - { front: Rehost vs upgrade, back: "Rehost keeps the release; an upgrade changes it. Rehosting is not an alternative to upgrading." }
+      - { front: Why rehost, back: "Test changes on realistic production data to cut risk and avoid rework." }
+
+  - type: summary
+    points:
+      - Rehosting updates a copy of production so it works on its new host in test or development.
+      - The Windchill Rehost Utility handles host name, installation directory and hardware platform changes.
+      - The steps are in PTC's separate Rehosting Utility Guide; plan from that guide, not from memory.
+      - Rehosting keeps the release. Moving to a newer release is an upgrade.
+      - Check everything in the clone that points outward before testers start.

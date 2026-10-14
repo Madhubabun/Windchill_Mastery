@@ -1,0 +1,281 @@
+id: m06-s01-l01
+subtitle: Most migrations don't fail on the last night. They fail months earlier, quietly. Learn to hear it.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [migration, strategy, risk, legacy-data, planning]
+sources:
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Windchill Bulk Migrator Installation"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCInstallConfigGuide/WCInstall_BulkMigrator.html"
+    covers: "Windchill Bulk Migrator is for permanent one-way migration into Windchill; Extract, Transform, Load and Validate (ETLV) approach with validation as part of the method"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Upgrade Overview"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCUpgradeGuide/WCUpgrade_OverviewSteps_10x.html"
+    covers: "Steps are followed in order and errors are fixed before moving on; source data is checked and repaired before the move; the result is validated at the end"
+
+blocks:
+  - type: text
+    md: |
+      Big news at Acme Mobility: we just bought **Kestrel Cycles**, the cargo-bike makers. Their
+      flagship, the **Kestrel Cargo K1**, is brilliant. Their data is... somewhere. Some of it sits in
+      **Kestrel's old PDM**, some in a file share called `\\kestrel-fs01\engineering`, and some
+      (Tomas admits) "on my laptop, but it's backed up. Mostly."
+
+      **Nia**, Acme's migration specialist, owns getting all of it into Acme's Windchill. Before she
+      picks a single tool, she asks a different question: *how do migrations usually go wrong?*
+
+      Spoiler: rarely because the tool broke. Usually because of people, scope and data nobody looked
+      at closely enough.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the old system we're leaving" → *[[legacy-system]]*
+      - "what moves, what doesn't, and how far back" → *[[migration-scope]]*
+      - "a full practice run on a copy, before the real one" → *[[migration-dry-run]]*
+      - "pull it out, reshape it, put it in, prove it's right" → *Extract, Transform, Load, Validate (ETLV)*
+
+  - type: callout
+    variant: note
+    title: Where this comes from
+    md: |
+      This lesson teaches general migration practice used across PLM projects; it is not a PTC
+      procedure. The few Windchill-specific facts (Windchill Bulk Migrator, the upgrade steps) come
+      from the PTC Help Center pages listed as this lesson's sources.
+
+  - type: diagram
+    title: Where migrations break
+    caption: Six common failure points, grouped by where they start. Click each box for the warning sign to look for.
+    diagram:
+      width: 800
+      height: 440
+      groups:
+        - { label: People and plan, x: 20, y: 20, w: 240, h: 400, tone: info }
+        - { label: Data, x: 280, y: 20, w: 240, h: 400, tone: warning }
+        - { label: Execution, x: 540, y: 20, w: 240, h: 400, tone: danger }
+      nodes:
+        - id: scope
+          label: Fuzzy scope
+          sublabel: "\"just move everything\""
+          x: 40
+          y: 70
+          w: 200
+          h: 60
+          tone: info
+          detail: |
+            Nobody wrote down **what** moves, **how much history** and **what stays behind**. Scope
+            then grows every week. Warning sign: the answer to "what are we migrating?" changes
+            depending on who you ask.
+          real: Agree the scope in writing with the business owner before any tool work starts.
+        - id: owner
+          label: No business owner
+          sublabel: IT-only project
+          x: 40
+          y: 200
+          w: 200
+          h: 60
+          tone: info
+          detail: |
+            Migration is treated as "an IT copy job". But only engineers can say whether a K1 assembly
+            *looks right* after the move. Warning sign: no engineer has time booked for testing.
+        - id: timeline
+          label: Date before data
+          sublabel: deadline set first
+          x: 40
+          y: 330
+          w: 200
+          h: 60
+          tone: info
+          detail: |
+            The go-live date was fixed before anyone measured the data. Warning sign: the plan has no
+            time for a second dry run "because we won't need it".
+        - id: dirty
+          label: Unknown data quality
+          sublabel: never profiled
+          x: 300
+          y: 70
+          w: 200
+          h: 60
+          tone: warning
+          detail: |
+            Duplicates, missing attributes, files with no owner, numbers in five formats. Nobody
+            counted them, so nobody planned for them. Warning sign: "the data is fine" with no numbers
+            to back it up.
+        - id: mapping
+          label: Mapping gaps
+          sublabel: old values, no new home
+          x: 300
+          y: 200
+          w: 200
+          h: 60
+          tone: warning
+          detail: |
+            A legacy state like *Frozen* or a folder like *Misc_Old* has no agreed equivalent in the
+            target. Warning sign: a mapping spreadsheet full of "TBD".
+        - id: refs
+          label: Broken relationships
+          sublabel: files without their links
+          x: 300
+          y: 330
+          w: 200
+          h: 60
+          tone: warning
+          detail: |
+            The files arrive, but the links between them (assembly to component, drawing to model)
+            don't. Warning sign: test loads only check that *files* arrived, not that structures open.
+        - id: norehearsal
+          label: No dry run
+          sublabel: first try = real try
+          x: 560
+          y: 70
+          w: 200
+          h: 60
+          tone: danger
+          detail: |
+            The cutover weekend is the first time the full data set goes through. Every surprise
+            happens live. Warning sign: test loads used 50 hand-picked objects.
+        - id: novalidate
+          label: No validation
+          sublabel: "\"the log said OK\""
+          x: 560
+          y: 200
+          w: 200
+          h: 60
+          tone: danger
+          detail: |
+            The load finished, so the team declared victory. Nobody compared counts or opened real
+            designs. PTC's Windchill Bulk Migrator method makes **Validate** an explicit step after
+            Extract, Transform and Load for exactly this reason.
+        - id: carryover
+          label: Errors carried forward
+          sublabel: "\"fix it later\""
+          x: 560
+          y: 330
+          w: 200
+          h: 60
+          tone: danger
+          detail: |
+            Problems are noted and pushed to "after go-live". PTC's own upgrade overview takes the
+            opposite line: do the steps in order and fix the errors of each step before moving to
+            the next.
+      edges:
+        - { from: scope, to: dirty, dashed: true }
+        - { from: dirty, to: norehearsal, dashed: true }
+        - { from: mapping, to: novalidate, dashed: true }
+        - { from: timeline, to: carryover, dashed: true }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      A PLM migration isn't just moving files. Manufacturing builds from the released data, service
+      looks up spare parts in it, and the next design change starts from it. If the K1's structure
+      arrives wrong, nobody notices on day one. They notice when a frame is built from an old
+      revision. Fixing data after people start using it costs far more than fixing it before.
+
+  - type: example
+    variant: case-study
+    title: Kestrel's first migration (the one nobody talks about)
+    industry: Cargo bikes
+    md: |
+      Over coffee, **Tomas** tells Nia about the last time Kestrel moved data, years ago, from the file
+      share into the old PDM.
+
+      - **The plan:** "copy everything over one weekend." No list of what *everything* meant.
+      - **The test:** 40 hand-picked parts, all clean, all from one product line. They loaded fine.
+      - **The weekend:** about 30,000 files went in. The load tool said *complete*.
+      - **Monday:** half the older assemblies opened with missing components. Duplicate copies of the
+        same part (one called `KC-1042.prt`, one called `KC-1042_final2.prt`) had both been
+        loaded, and assemblies pointed to whichever one the tool found first.
+      - **The next six months:** Tomas fixed structures by hand, one complaint at a time. Some old
+        assemblies were never fixed; people learned not to trust them.
+
+      Nia maps each problem to a failure point: fuzzy scope, unprofiled data (duplicates), no
+      realistic dry run, validation that only read the log, and errors carried forward.
+    takeaway: The tool did what it was told. The plan didn't tell it the right things.
+
+  - type: comparison
+    title: "Cheat sheet: warning sign vs what to do"
+    columns: [You hear..., Do this instead]
+    rows:
+      - label: Scope
+        cells: ["\"Just move everything\"", "Write down what moves, how much history and what gets archived; get it signed"]
+      - label: Ownership
+        cells: ["\"IT will handle it\"", "Name a business owner and book engineers for testing"]
+      - label: Data quality
+        cells: ["\"Our data is pretty clean\"", "Profile it: counts, duplicates, gaps, formats - with numbers"]
+      - label: Mapping
+        cells: ["\"We'll map states later\"", "Map every legacy value (states, folders, types) before the first test load"]
+      - label: Rehearsal
+        cells: ["\"The test load of 50 parts worked\"", "Run a full dry run on a copy, with real volumes"]
+      - label: Validation
+        cells: ["\"The log says it finished\"", "Compare counts and open real designs; sign off against agreed checks"]
+    takeaway: Every warning sign is cheap to fix in month one and expensive at go-live.
+
+  - type: callout
+    variant: pitfall
+    title: Testing only the happy path
+    md: |
+      Test loads built from hand-picked, tidy data prove the tool works. They prove nothing about
+      *your* data. Pick test samples on purpose from the ugly corners: the oldest product, the
+      biggest assembly, the parts Tomas warns you about.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Find your **Tomas** in week one. Every legacy system has someone who knows which folder is
+      "the real one", which numbers were reused and which product was cancelled but never deleted.
+      An hour with them saves weeks of profiling guesswork. Write down what they tell you; it becomes
+      your list of test cases.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Kestrel's old migration loaded 30,000 files and the tool reported success, yet assemblies were broken. What was the root cause?
+        options:
+          - "Duplicate parts nobody profiled, plus a test that only used clean hand-picked data"
+          - "The load tool was too slow"
+          - "Too many engineers tested the result"
+          - "The go-live happened on a weekend"
+        answer: 0
+        explanation: The tool did its job. Unprofiled duplicates and a happy-path test let the problem through, and validation only read the log.
+      - kind: multi
+        prompt: Which are early warning signs of a migration in trouble? (Choose all that apply.)
+        options:
+          - "Nobody can say in one sentence what is in scope"
+          - "The mapping sheet still has many \"TBD\" values"
+          - "No engineers are booked for testing"
+          - "A full dry run is scheduled on a copy of production data"
+        answers: [0, 1, 2]
+        explanation: Fuzzy scope, open mappings and no business testers are classic warning signs. A scheduled full dry run is a good sign, not a warning.
+      - kind: truefalse
+        prompt: In PTC's Windchill Bulk Migrator approach, validation is an explicit part of the method, not an optional extra.
+        answer: true
+        explanation: The method is Extract, Transform, Load and Validate (ETLV). Proving the data is right is a named step.
+      - kind: single
+        prompt: During a test load Nia finds 200 parts with no owning product. What does good practice say?
+        options:
+          - "Fix or decide on them now, before moving to the next step"
+          - "Load them anyway and clean up after go-live"
+          - "Delete them from the legacy system without asking"
+          - "Ignore them; 200 is a small number"
+        answer: 0
+        explanation: Errors carried forward get more expensive. PTC's upgrade overview follows the same rule - fix the errors of each step before moving on.
+
+  - type: flashcards
+    cards:
+      - { front: Legacy system, back: "The old system you are moving data out of - here, Kestrel's old PDM and file share." }
+      - { front: Migration scope, back: "The written agreement on what moves, how much history and what stays behind or is archived." }
+      - { front: Migration dry run, back: "A full practice migration on a copy, with real volumes, before the real cutover." }
+      - { front: ETLV, back: "Extract, Transform, Load, Validate - the approach behind Windchill Bulk Migrator." }
+
+  - type: summary
+    points:
+      - Migrations usually fail from fuzzy scope, unknown data quality, missing mappings, no rehearsal or weak validation - not from the tool.
+      - Each failure point has an early warning sign you can spot months before go-live.
+      - Test with ugly data, not just clean samples, and run a full dry run with real volumes.
+      - Validate by checking counts and opening real designs, not by reading a log.
+      - Fix errors at each step before moving on; don't carry them into production.

@@ -1,0 +1,312 @@
+id: m06-s04-l02
+subtitle: Another PLM has its own words for everything. Translate the model, choose your history, and land the work that's still moving.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [migration, plm, data-model, history, workflow, cutover]
+sources:
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Windchill Bulk Migrator Installation"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCInstallConfigGuide/WCInstall_BulkMigrator.html"
+    covers: "Windchill Bulk Migrator is for permanent one-way migration into Windchill; the Transform step maps data to conform to Windchill"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Association Usage Examples"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/ManagingCADandPartRelationships/MCPR_AssociationUsageExamples.html"
+    covers: "Owner, Image, Contributing and Content associations between CAD documents and parts"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Working with the Import/Export Management Utility"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/exportimport/ExportImportAbout.html"
+    covers: "Export between Windchill sites does not include change control information"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Packages: Receiving Side"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/packages/PackageReceiveSide.html"
+    covers: "A package import fails when values such as life cycle states or folders have no valid mapping until they are mapped or created"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Defining Received Delivery Mapping"
+    url: "https://support.ptc.com/help/windchill/plus/r13.1.2.0/en/Windchill_Help_Center/packages/ReceivedDeliveryDefineMap.html"
+    covers: "Mapping translates source values to target values and is not meant to change the business intent of the source information"
+
+blocks:
+  - type: text
+    md: |
+      Kestrel's old PDM is more than a file cabinet. It has items, revisions, approval workflows and
+      a change process. That makes it closer to a **PLM system** than a file share - and that brings
+      a new problem.
+
+      Every PLM system has its own **data model**: its own object types, its own states, its own
+      idea of what a "revision" is. Kestrel's says *Item*, *Released (Frozen)* and *ECO*. Windchill
+      says *part*, *Released* and *change notice*. Same ideas, different shapes.
+
+      Nia's job is to **translate**, not just copy. And to answer two uncomfortable questions: *how
+      much history comes along?* and *what happens to work that's still in progress on cutover day?*
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a translation table from their objects to ours" → *[[data-model-mapping]]*
+      - "bring only the current version" → *[[latest-only-migration]]*
+      - "bring every version with its history" → *[[full-history-migration]]*
+      - "changes and approvals still open at cutover" → *[[in-flight-work]]*
+      - "the Windchill stages an object moves through" → *[[lifecycle-state]]*
+
+  - type: callout
+    variant: note
+    title: Where this comes from
+    md: |
+      This lesson teaches general migration practice. No supplied course or Help Center page covers
+      other vendors' PLM systems, so it contains **no vendor-specific facts** - "Kestrel's old PDM"
+      is fictional. The few Windchill facts come from the PTC Help Center pages listed as sources.
+
+  - type: comparison
+    title: "Data-model mapping: Kestrel's words → Windchill's"
+    columns: [Kestrel's old PDM, Windchill target, Watch out for]
+    rows:
+      - label: Product item
+        cells: ["Item KC-4410", "Part (or a subtype of Part)", "Extra item attributes need a home on the target type before load"]
+      - label: CAD file record
+        cells: ["Dataset attached to an item", "CAD document associated with the part", "Which association? Owner vs Image vs Content changes behaviour"]
+      - label: Spec sheet
+        cells: ["Document record", "Document", "Document categories may map to subtypes"]
+      - label: Revision label
+        cells: ["01, 02, 03", "A, B, C (if Acme's scheme)", "Keep or translate? Decide once - and record the rule"]
+      - label: Status
+        cells: ["Draft / Frozen / Obsolete", "In Work / Released / Obsolete (Acme's life cycle)", "Every legacy state needs exactly one target"]
+      - label: Change record
+        cells: ["ECO with approvals", "Change notice - or archived as a document", "Closed changes rarely need to be live objects"]
+      - label: Users
+        cells: ["Kestrel user IDs", "Acme accounts", "Creator and modifier names for history: map or keep as text"]
+    takeaway: If a row has "TBD" in it, you are not ready to load.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      A mapping mistake repeats itself thousands of times. Map *Frozen* to *In Work* by accident and
+      every released Kestrel design arrives looking editable. Windchill's own package import shows how
+      seriously this is taken: if a life cycle state or folder has **no valid mapping**, the import
+      **fails** until someone maps it or creates the missing value. PTC also stresses that mapping
+      **translates** values; it isn't meant to change what the source data means.
+
+  - type: diagram
+    title: Two kinds of history
+    caption: Latest-only and full history are the two ends of the scale. Most projects land somewhere in between. Click to compare.
+    diagram:
+      width: 800
+      height: 380
+      groups:
+        - { label: Latest only, x: 20, y: 20, w: 370, h: 340, tone: info }
+        - { label: Full history, x: 410, y: 20, w: 370, h: 340, tone: accent }
+      nodes:
+        - id: lo-legacy
+          label: "KC-4410 rev 01-04"
+          sublabel: in old PDM
+          x: 40
+          y: 70
+          w: 160
+          tone: neutral
+          detail: Four revisions exist in Kestrel's old PDM.
+        - id: lo-wc
+          label: "KC-4410 rev 04"
+          sublabel: in Windchill
+          x: 210
+          y: 70
+          w: 160
+          tone: info
+          detail: |
+            Only the latest released revision moves. Fast, simple and cheap to validate. The older
+            revisions stay readable in an **archive** for audits and service questions.
+        - id: lo-arch
+          label: Archive
+          sublabel: revs 01-03 read-only
+          x: 120
+          y: 220
+          w: 170
+          shape: cylinder
+          tone: neutral
+          detail: The legacy system (or an export of it) kept read-only, with an index people can search.
+        - id: fh-legacy
+          label: "KC-4410 rev 01-04"
+          sublabel: in old PDM
+          x: 430
+          y: 70
+          w: 160
+          tone: neutral
+          detail: The same four revisions.
+        - id: fh-wc
+          label: "KC-4410 rev 01-04"
+          sublabel: all in Windchill
+          x: 600
+          y: 70
+          w: 160
+          tone: accent
+          detail: |
+            Every revision moves, in order, with the structure each one had. Much more data to map,
+            load and validate - and every old mess comes along too.
+        - id: fh-why
+          label: When it's worth it
+          sublabel: regulated or active
+          x: 510
+          y: 220
+          w: 180
+          tone: warning
+          detail: |
+            When products are regulated, still in service with old revisions in the field, or engineers
+            need to compare revisions inside PLM every week.
+      edges:
+        - { from: lo-legacy, to: lo-wc, label: latest }
+        - { from: lo-legacy, to: lo-arch, dashed: true, label: older }
+        - { from: fh-legacy, to: fh-wc, label: all revisions }
+        - { from: fh-wc, to: fh-why, dashed: true }
+
+  - type: comparison
+    title: Latest-only or full history?
+    columns: [Latest only, Full history]
+    rows:
+      - label: Volume
+        cells: ["Small - one version per object", "Large - every version and iteration"]
+      - label: Mapping effort
+        cells: ["Today's values only", "Every value ever used (old states, retired types)"]
+      - label: Validation
+        cells: ["Quick: counts plus current structures", "Long: structures per revision"]
+      - label: Audit questions
+        cells: ["Answered from the archive", "Answered in Windchill"]
+      - label: Good fit
+        cells: ["Mature products; acquisitions; short timelines", "Regulated products; long-life products with field service"]
+    takeaway: A common middle path - released history for active products, latest only for the rest, archive for everything.
+
+  - type: example
+    variant: case-study
+    title: What Kestrel decided
+    industry: Cargo bikes
+    md: |
+      Nia brought the comparison to a one-hour meeting with Kai (engineering), Maya (change) and
+      Tomas (Kestrel).
+
+      - **K1 (active, in the field):** all **released** revisions move, so service can see which
+        frame went into which year's bikes. Work-in-progress iterations of old revisions don't.
+      - **Discontinued products:** latest released revision only. The rest goes to the archive.
+      - **Closed ECOs:** not migrated as change objects. Each one is exported as a PDF summary
+        and attached to the affected item as a document, so the "why" isn't lost.
+      - **Revision labels:** Kestrel's 01, 02, 03 are kept on migrated history; new work continues in
+        Acme's scheme. The rule is written in the migration scope.
+
+      Everyone signed. When an auditor later asked about a 2019 K1 frame change, Maya found the ECO
+      summary in two minutes.
+    takeaway: History is a business decision per product line, not an all-or-nothing technical setting.
+
+  - type: scenario
+    variant: what-if
+    title: Cutover Friday, and twelve ECOs are still open
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Cutover is Friday. Kestrel's old PDM has **12 open ECOs**: some waiting for approval, some
+          half-implemented. The old PDM goes read-only on Friday night. What's your plan?
+        choices:
+          - label: Set a cut-off - finish or cancel changes in the old system before the freeze
+            next: s2
+            good: true
+            feedback: Closing work in the system where it started is the cleanest path.
+          - label: Migrate the open ECOs with their workflow position
+            next: fail1
+            feedback: Workflow state rarely translates between systems. Even Windchill-to-Windchill export leaves change control information out.
+          - label: Ignore them - people will remember
+            next: fail2
+            feedback: They won't, and nobody will know which designs are mid-change.
+      - id: s2
+        md: |
+          Nine ECOs close before the freeze. Three can't: they wait for a supplier test due next
+          month. What about those?
+        choices:
+          - label: Re-create them as new Windchill change requests after cutover, linked to the migrated parts
+            next: win
+            good: true
+            feedback: The work restarts cleanly in Windchill, with the history attached as a document.
+          - label: Keep the old PDM writable just for these three
+            next: partial1
+            feedback: It works, but now you run two live systems and must remember to come back.
+      - id: win
+        md: |
+          Maya re-creates the three as change requests in Acme's process, attaches each ECO's old
+          approval record, and the affected KC parts are flagged. Nothing is lost, and nothing is
+          "half in" either system.
+        outcome: success
+      - id: partial1
+        md: |
+          The supplier test slips. Three months later the old PDM is still "temporarily" writable, and
+          someone has saved two new designs into it.
+        outcome: partial
+      - id: fail1
+        md: |
+          The migrated ECOs land as data with no working workflow behind them. Approvers get no tasks;
+          the changes stall silently until a production issue exposes them.
+        outcome: fail
+      - id: fail2
+        md: |
+          Two months later a K1 bracket ships at the old revision because its change was "in progress"
+          in a system nobody opens anymore.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    title: Migrating the old process along with the data
+    md: |
+      It's tempting to recreate every legacy state and workflow step in Windchill so the mapping is
+      one-to-one. Don't. You end up with two processes in one system forever. Map legacy values to
+      the target model Acme already uses, and keep the legacy meaning in an attribute or archive if
+      someone truly needs it.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Ask for the legacy system's **list of values**, not just its data: every state, type and
+      category ever used, with counts. A state used by three objects in 2014 still needs a mapping
+      row - or a decision to leave those three behind.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Kestrel's old PDM has a state called Frozen. What must happen before the load?
+        options:
+          - "Map Frozen to exactly one target state in Acme's life cycle"
+          - "Create a Frozen state in every Acme life cycle"
+          - "Leave it blank and fix it after go-live"
+          - "Rename all Frozen objects to In Work"
+        answer: 0
+        explanation: Every legacy value needs one agreed target. Unmapped values break loads (Windchill's package import fails on unmapped states), and copying legacy states into Acme's model creates two processes forever.
+      - kind: single
+        prompt: Which situation most strongly favours full-history migration?
+        options:
+          - "A regulated product still in the field, where service must see each released revision"
+          - "A discontinued product nobody changes"
+          - "A short timeline with a small team"
+          - "Data that is mostly duplicates"
+        answer: 0
+        explanation: Full history pays off when people actively need old revisions in PLM. Otherwise latest-only plus a searchable archive is cheaper and cleaner.
+      - kind: truefalse
+        prompt: Open change workflows usually migrate between PLM systems with their approval position intact.
+        answer: false
+        explanation: Workflow state rarely translates. Even exporting from one Windchill site to another leaves change control information out. Close, cancel or re-create in-flight changes instead.
+      - kind: multi
+        prompt: Which belong in a good data-model mapping? (Choose all that apply.)
+        options:
+          - "Legacy object types and their Windchill target types"
+          - "Every legacy state with one target state"
+          - "The rule for revision labels"
+          - "A note that remaining values are TBD"
+        answers: [0, 1, 2]
+        explanation: Types, states and revision rules are core rows. "TBD" means the mapping isn't finished, so the load isn't ready.
+
+  - type: summary
+    points:
+      - Another PLM has its own data model; your job is to translate it into Acme's, not copy it.
+      - Every type, state and revision rule needs one agreed target - no TBDs at load time.
+      - Latest-only is cheap and clean; full history suits regulated or long-life products. Many projects mix both, with an archive.
+      - Close, cancel or re-create in-flight changes; don't try to migrate live workflow positions.
+      - Mapping translates values - it shouldn't change what the source data means.

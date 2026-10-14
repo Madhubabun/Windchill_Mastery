@@ -1,0 +1,272 @@
+id: m06-s05-l04
+subtitle: Rehearse until it's boring, write the plan down, and decide go or no-go with evidence, not hope.
+version: 1.0.0
+updated: "2026-10-06"
+tags: [upgrade, cutover, testing, go-no-go, rollback, hypercare]
+sources:
+  - id: cust
+    where: "Module 1, Deploying Windchill custom code (development, test/integration, QA/validation and production environments); Updates and server maintenance (upgrades need months of planning and end-to-end testing); Customer build"
+  - id: hc-upgrade
+    label: PTC Help Center supplement
+    title: "Upgrade Overview"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCUpgradeGuide/WCUpgrade_OverviewSteps_10x.html"
+    covers: "Ordered steps; fix errors before moving on; source and target are separate systems; validate the upgraded solution"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Gather Upgrade Properties"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCUpgradeGuide/WCUpgrade_UpgradeManager_GatherUpgProps_Upgrade.html"
+    covers: "Upgrade Manager Test mode for trial upgrades and Production mode for the real run"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Verify the Upgraded Solution"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WCUpgradeGuide/WCUpgrade_VerifyUpgradedSolution.html"
+    covers: "Exercise the use cases that matter most; retrieve the license with the License Management utility"
+  - id: hc-rehost
+    label: PTC Help Center supplement
+    title: "Rehosting a Windchill Environment"
+    url: "https://support.ptc.com/help/windchill/cloud/r12.0.2.0/en/Windchill_Help_Center/WCRehostUtilOview_Intro.html"
+    covers: "Production data duplicated to test and development to validate changes with less risk (12.0.2.0 page)"
+
+blocks:
+  - type: text
+    md: |
+      Three months of trial upgrades are done. Rosa's team has a validated target, Kai's
+      customizations pass their tests and Nia's Kestrel dry run worked on the upgraded test system.
+
+      Now comes the part that has nothing to do with software: **one weekend**, a few dozen people,
+      and a moment on Saturday evening when someone has to say "go" or "stop". That moment goes
+      well only if it was planned weeks earlier.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "a practice upgrade on a copy" → *[[test-upgrade|test (trial) upgrade]]*
+      - "the hour-by-hour script for switching over" → *[[cutover-plan|cutover plan]]*
+      - "the conditions that must be true to switch" → *[[go-no-go-criteria|go/no-go criteria]]*
+      - "how we get back if it goes wrong" → *[[rollback-plan|rollback plan]]*
+      - "extra-close support right after go-live" → *[[hypercare]]*
+
+  - type: callout
+    variant: note
+    title: Where this comes from
+    md: |
+      Cutover plans, go/no-go criteria, rollback and hypercare are general IT project practice, not a
+      PTC procedure. The Windchill-specific parts - the environments, the ordered upgrade steps,
+      Test and Production modes and the final verification - come from the PTC sources listed for
+      this lesson.
+
+  - type: diagram
+    title: The test ladder before go-live
+    caption: Each rung uses a more production-like system. Click each one.
+    diagram:
+      width: 800
+      height: 300
+      nodes:
+        - id: dev
+          label: wc-dev01
+          sublabel: development
+          x: 20
+          y: 110
+          w: 165
+          tone: neutral
+          detail: Customizations are re-built and unit-tested here against the new release. Small data set; ideally the same OS, database and Windchill version as production.
+        - id: test
+          label: wc-test01
+          sublabel: test / integration
+          x: 220
+          y: 110
+          w: 165
+          tone: info
+          detail: |
+            Trial upgrades in the Upgrade Manager's **Test** mode, on a recent copy of production
+            (rehosted). Integration, functional and regression tests. Nia's Kestrel dry run runs here.
+        - id: qa
+          label: QA / validation
+          sublabel: identical to production
+          x: 420
+          y: 110
+          w: 165
+          tone: warning
+          detail: Performance and load tests, user acceptance tests and user training. PTC's course describes it as identical to production.
+        - id: prod
+          label: Production
+          sublabel: wc-app01 / wc-app02
+          x: 620
+          y: 110
+          w: 160
+          tone: success
+          detail: The real run, in **Production** mode, following the cutover plan. Then validation, licensing and hypercare.
+      edges:
+        - { from: dev, to: test, label: build }
+        - { from: test, to: qa, label: rehearse }
+        - { from: qa, to: prod, label: go }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      PTC's customization course says upgrades need planning **several months** in advance and
+      **end-to-end testing**. The cutover weekend is where all that testing is cashed in. If the
+      weekend holds surprises, the rehearsals weren't close enough to the real thing.
+
+  - type: comparison
+    title: "Cheat sheet: a cutover plan on one page"
+    columns: [What to write, Acme example]
+    rows:
+      - label: Freeze
+        cells: ["When users stop changing data on the source", "Friday 18:00; banner sent Monday; Maya holds all change notices"]
+      - label: Steps and owners
+        cells: ["Every upgrade step with a named owner and the time it took in rehearsal", "Rosa: export DB + LDAP (rehearsed 2 h); vault copy (rehearsed 5 h)"]
+      - label: Checkpoints
+        cells: ["Points where you stop and check before continuing", "After the import; after each Upgrade Manager phase (Interactive on)"]
+      - label: Go/no-go meeting
+        cells: ["Time, who decides, and the criteria", "Saturday 20:00; Rosa and Jordan decide; criteria list below"]
+      - label: Validation
+        cells: ["Key use cases to exercise; license retrieval", "Kai opens the K1 top assembly; Jordan runs a change; Rosa retrieves the license"]
+      - label: Rollback
+        cells: ["The trigger and the steps to return", "If no-go: users stay on the source system; the target is fixed and retried"]
+      - label: Communication
+        cells: ["Who is told what and when", "Go-live email Sunday 18:00; hypercare channel opens"]
+      - label: Hypercare
+        cells: ["How long and who is on call", "Two weeks; daily stand-up; Rosa and Kai on call"]
+    takeaway: If someone outside the team can't run the weekend from the page, the plan isn't finished.
+
+  - type: comparison
+    title: "Cheat sheet: go/no-go criteria"
+    columns: [What it means, Evidence]
+    rows:
+      - label: Every step completed without open errors
+        cells: ["PTC's rule: fix errors before moving on", "Step log signed off by each owner"]
+      - label: Upgrade Manager finished all phases
+        cells: ["Production mode, no failed phase", "Upgrade Manager results reviewed"]
+      - label: Key use cases pass
+        cells: ["The use cases that matter most to Acme", "Test scripts from rehearsal re-run on production"]
+      - label: License retrieved
+        cells: ["Done in the License Management utility", "Rosa confirms"]
+      - label: Within the time box
+        cells: ["Enough time left for rollback if needed", "Clock vs plan at the meeting"]
+    takeaway: Write criteria that are yes or no. "Looks fine" is not a criterion.
+
+  - type: example
+    variant: real-world
+    title: The rollback that wasn't scary
+    industry: Micromobility (fictional)
+    md: |
+      In Acme's second rehearsal, the vault copy took nine hours instead of five. Rosa added a
+      rule to the plan: if the copy isn't done by Saturday 08:00, it's a **no-go**.
+
+      Because an upgrade builds a **separate target system**, the source is still there. Rolling back
+      before go-live mostly means *not switching*: users come back to the source on Monday and the
+      team fixes the target. That's an inference from how the upgrade is structured; Acme also keeps
+      backups taken at the freeze, as its own rule.
+    takeaway: A rollback is cheapest before users create data on the target. After that, every hour makes going back harder.
+
+  - type: scenario
+    variant: challenge
+    title: Saturday, 20:00 - the go/no-go meeting
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          All steps are done. The Upgrade Manager finished in Production mode. Then Kai reports: the
+          **K1 top assembly** opens, but one custom menu action, "Send to supplier", throws an error.
+          Every other key use case passes. What does Rosa do?
+        choices:
+          - label: Check it against the written criteria
+            next: s2
+            good: true
+            feedback: The criteria were agreed before the weekend, so the decision isn't made in a tired room at 20:00.
+          - label: Go - it's only one button
+            next: partial
+            feedback: Maybe right, but nobody agreed that in advance. If it is critical for suppliers, you just broke it.
+          - label: Roll back immediately
+            next: fail1
+            feedback: Rolling back without checking the criteria throws away a weekend for what may be a minor issue.
+      - id: s2
+        md: |
+          The criteria say: *key use cases pass*. Maya confirms supplier sends can wait a week with a
+          documented manual workaround. Is it a go?
+        choices:
+          - label: Go, and log the action as the first hypercare item
+            next: win
+            good: true
+            feedback: A known issue with an owner and a workaround is not a reason to stop. An unknown one would be.
+          - label: No-go until it is fixed
+            next: partial2
+            feedback: Defensible, but the criteria didn't list this action as critical. Next time, list it if it is.
+      - id: win
+        md: |
+          Go. Acme's users log in on Monday. The "Send to supplier" fix is item 1 on the hypercare
+          board; Kai fixes it by Wednesday using the siteMod and ptcCurrent comparison from lesson 3.
+        outcome: success
+      - id: partial
+        md: Monday morning, suppliers call. The action turns out to be used daily. Next time, put it on the criteria list.
+        outcome: partial
+      - id: partial2
+        md: The weekend is lost and the next window is in a month. Safe, but costly. The criteria needed to say what matters.
+        outcome: partial
+      - id: fail1
+        md: Users return to the source. The team spends a week finding a fix that took two hours. Decide on criteria, not adrenaline.
+        outcome: fail
+
+  - type: callout
+    variant: pitfall
+    title: The first full run is the real one
+    md: |
+      If the production cutover is the first time the whole sequence runs end to end at real volume,
+      you have no timings, no rehearsed checkpoints and no tested rollback. Use the Upgrade Manager's
+      **Test** mode on a recent production copy until the run is predictable.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Write the criteria and the rollback trigger **before** the weekend and get the decision makers
+      to agree them in writing. On Saturday night you then read the list - you don't debate it.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Where should Acme run its trial upgrades?
+        options:
+          - "On a test system with a recent copy of production, in the Upgrade Manager's Test mode"
+          - "On production, in Test mode, during the day"
+          - "On a developer's laptop with no data"
+          - "Nowhere - the first run should be the real one"
+        answer: 0
+        explanation: Test mode is for trial upgrades, and a rehosted copy of production makes the trial realistic.
+      - kind: multi
+        prompt: Which are good go/no-go criteria? (Choose all that apply.)
+        options:
+          - "All upgrade steps finished with no open errors"
+          - "The key use cases pass on the upgraded system"
+          - "The team feels good about it"
+          - "Enough time remains to roll back if needed"
+        answers: [0, 1, 3]
+        explanation: Criteria must be checkable yes or no, with evidence. A feeling is not evidence.
+      - kind: truefalse
+        prompt: Because the upgrade builds a separate target system, the source system is still available if the go/no-go decision is no-go.
+        answer: true
+        explanation: Source and target are separate systems in PTC's upgrade process, so not switching is the simplest rollback before go-live.
+      - kind: single
+        prompt: Which environment does PTC's customization course name for user acceptance tests and training?
+        options: [QA/validation, Development, Test/integration, Production]
+        answer: 0
+        explanation: QA/validation is identical to production and used for performance tests, UAT and training.
+      - kind: single
+        prompt: What is hypercare?
+        options:
+          - "A short period of extra-close support right after go-live"
+          - "A Windchill utility that repairs data"
+          - "The Upgrade Manager's final phase"
+          - "A backup type"
+        answer: 0
+        explanation: Hypercare is general project practice - a known support team watches the new system closely for the first days or weeks.
+
+  - type: summary
+    points:
+      - Climb the test ladder - development, test, QA - before production.
+      - Rehearse in the Upgrade Manager's Test mode on a recent production copy and time every step.
+      - A cutover plan names every step, owner, checkpoint, the go/no-go meeting and the rollback trigger.
+      - Go/no-go criteria are yes-or-no and agreed in advance.
+      - After go-live, validate, retrieve the license, and run hypercare with a clear issue list.
