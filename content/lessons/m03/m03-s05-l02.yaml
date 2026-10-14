@@ -1,8 +1,11 @@
 id: m03-s05-l02
 subtitle: '"Which bracket is in scooter 3010?" Two honest answers, and why both matter.'
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [effectivity, date-effectivity, lot-effectivity, serial-effectivity, as-designed, as-built]
+sources:
+  - id: te
+    where: "Module 2: Activity: View information pages (Structure tab Effectivity tab: displayed, not set; set through a change notice as best practice); Activity: Explore the Windchill user interface (Variances: departure from the as-designed configuration for a number of units or a period). Module 5: Describe product structures (end item); Specify a configuration specification and Activity: Filter BOMs (Unit Effectivity, Date Effectivity), Edit Filter. Module 6: Activity: Create a change notice to address a requested change (Set effectivity in the change task, Effectivity By Version, Set Effectivity Range, only WTParts managed by effectivity, split ranges on an end item); Activity: Analyze a problem report (variances: deviation and waiver)"
 
 blocks:
   - type: text
@@ -58,9 +61,9 @@ blocks:
           w: 200
           tone: warning
           detail: |
-            The change notice released B.1 and recorded the cut-over: serial 3000 onward. Depending on
-            your company's configuration, effectivity is entered on the change notice or set on the
-            resulting part version.
+            The change notice released B.1 and recorded the cut-over: serial 3000 onward. In
+            Windchill, effectivity is set on the **change task** of a change notice - the course
+            manual calls that the best practice. Only parts (WTParts) carry effectivity.
         - id: b1
           label: SC-1048 B.1
           sublabel: "S2 serials 3000 and up"
@@ -86,8 +89,9 @@ blocks:
           tone: danger
           detail: |
             As-designed says **B.1**. But the factory used up old A.2 brackets under variance
-            **VR-0551** (approved for 20 units). The as-built record must show A.2 so service orders
-            the right spare.
+            **VR-0551** (approved for 20 units - a variance authorizes a departure from the
+            as-designed configuration for a number of units or a period). The as-built record must
+            show A.2 so service orders the right spare.
           real: This gap is legal and approved - but only if it's recorded.
         - id: u3050
           label: Scooter 3050
@@ -114,7 +118,7 @@ blocks:
         cells: [Calendar time, "Batches of end items", Individual end items]
       - label: Precision
         cells: ["Low - dates slip, stock lingers", Medium, "High - exact unit"]
-      - label: Typical use
+      - label: Typical use (general practice)
         cells: ["Consumer goods, documents, rules that start on a date", "Batch production: batteries, food, chemicals, cables", "Aerospace, vehicles, medical devices, anything serviced per unit"]
       - label: Acme example
         cells: ["New warning label from 1 March", "New grip compound from battery lot 24", "Bracket B.1 from Scooter S2 serial 3000"]
@@ -128,7 +132,7 @@ blocks:
         cells: ["What should this unit contain?", "What does this unit actually contain?"]
       - label: Source
         cells: ["Released engineering data plus effectivity", "Build records, scans, variances, repairs"]
-      - label: Usually lives in
+      - label: Usually lives in (general practice)
         cells: ["Windchill (PLM)", "MES, ERP or a service system - sometimes fed back to PLM"]
       - label: Can it differ?
         cells: [It's the plan, "Yes - variances, substitutions, field repairs"]
@@ -221,23 +225,24 @@ blocks:
     where: ["<part> information page"]
     steps:
       - title: See a version's effectivity
-        where: ["<part> information page", Effectivity]
+        where: ["<part> information page", Structure tab, Effectivity tab]
         md: |
-          Open the part version and look for its **effectivity** information (on the information
-          page or under a related tab). You'll see the type (date, lot or serial), the end item
-          (such as the Scooter S2) and the range.
+          Open the part's **Structure** tab and, in the right pane, its **Effectivity** tab. It shows
+          the effectivity but you can't set it there (unless your site added an effectivity table
+          through customization).
       - title: Where effectivity is set
-        where: ["<change notice>", Resulting objects]
+        where: ["<change notice>", "<change task>", Set effectivity]
         md: |
-          Effectivity is usually set as part of a change, for the resulting objects. Depending on
-          your company's configuration, you enter it on the change notice or use an effectivity action
-          from the part's **Actions** menu. Many companies limit this to change or configuration
-          managers.
+          Effectivity is set while planning the change: select the change task, click **Set
+          effectivity**, open **Effectivity By Version** for the part and use **Set Effectivity Range**
+          to add the range for an end item. You can enter several values and split ranges (for example
+          serials 1-5 and 9-11). Only parts are managed with effectivity; documents and CAD files are left out.
       - title: Filter the structure
-        where: ["<end item> information page", Structure tab, Filter]
+        where: ["<end item> information page", Structure tab, Edit Filter]
         md: |
-          Open the end item's structure and edit the filter. Choose **effectivity**, then a date, lot
-          or serial number. The structure now shows the versions valid for that unit.
+          Open the end item's structure, click **Edit Filter** and, on the **Configuration
+          Specification** tab, choose **Unit Effectivity** (serial or lot) or **Date Effectivity**.
+          The structure now shows the versions valid for that unit or date.
       - title: Compare two units
         where: [Structure tab, Filter]
         md: Switch the serial from 2950 to 3050 and watch SC-1048 change from A.2 to B.1.
@@ -246,9 +251,10 @@ blocks:
   - type: callout
     variant: note
     md: |
-      Effectivity options, where they appear and who may edit them depend on your company's
-      configuration. Some companies don't use effectivity in Windchill at all and manage cut-overs
-      in ERP instead.
+      Who may set effectivity depends on your company's access rules. As general practice, some
+      companies don't use effectivity in Windchill at all and manage cut-overs in ERP instead.
+      The date/lot/serial trade-offs and the as-built ideas in this lesson are general
+      configuration management practice, not Windchill settings.
 
   - type: callout
     variant: pitfall
@@ -260,7 +266,7 @@ blocks:
   - type: callout
     variant: pro-tip
     md: |
-      Set the cut-over **late, then confirm**. Plan serial effectivity on the change notice, then let
+      Set the cut-over **late, then confirm** (general practice). Plan serial effectivity on the change notice, then let
       manufacturing confirm the first unit actually built with the new part. Update the range if
       the line was slower than planned. Truth beats a tidy plan.
 

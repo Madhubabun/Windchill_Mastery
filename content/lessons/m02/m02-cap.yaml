@@ -1,8 +1,16 @@
 id: m02-cap
 subtitle: Build it, link it, fix it, freeze it. Take Acme's new handlebar all the way to Released.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [capstone, bom, structure, cad, markup, revise, release, baseline]
+sources:
+  - id: te
+    where: "Module 2: Activity: Open a CAD model in Creo View (Actions > Open in > Open in Creo View, Save Annotation Set); Module 4: Activity: Create a CAD part in Creo (check-in wizard, Auto Associate Parts to CAD Documents); Module 5: Edit a BOM; Activity: Create a WTPart and add it to a BOM (Insert Existing, automatic check-out, Check In); Activity: Create occurrences in a BOM (Uses tab quantity); Manage object associations in a BOM (Edit Associations in a workspace); Create baselines; Activity: Create a baseline of a BOM (Actions > Add to > Add to Baseline, New Baseline, Collect Objects as a structure with associated objects, Related Objects tab, lock); Module 6: Windchill's change and promotion processes: overview; change notice activity (Revise from the affected objects); Promotion process: overview; Create a promotion request (Actions > New > New Promotion Request)"
+  - id: hc-cad-assoc-overview
+    label: PTC Help Center supplement
+    title: "CAD and Part Association Overview"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/ManagingCADandPartRelationships/MCPR_AssociationOview.html"
+    covers: "One Owner link per part; Auto Associate vs Edit Association"
 
 blocks:
   - type: text
@@ -51,8 +59,9 @@ blocks:
           h: 60
           tone: primary
           detail: |
-            The top of your eBOM. New, never released - so it can go to Released with a
-            [[promotion-request]] rather than the full change process.
+            The top of your eBOM. New, never released - and Acme's rule is that first releases go
+            through a [[promotion-request]], while changes to released data use the change process.
+            (Both processes are configured per company.)
         - id: drw
           label: SC-4100.drw
           sublabel: drawing
@@ -151,16 +160,15 @@ blocks:
       - title: Open the structure for editing
         where: [Information page, Structure tab]
         md: |
-          Open the **Structure** tab (or the structure editor your release offers, such as Product
-          Structure Explorer). Editing checks the parent part out for you, or asks you to check it out.
+          Open the **Structure** tab. Your first structure edit checks the parent part out for you.
       - title: Add the existing parts
-        where: [Structure, Insert existing part]
+        where: [Structure tab, "right-click SC-4100", Insert, Insert Existing]
         md: Search for each child by **number** - SC-4110 to SC-4150 - and add them. Add the M5 screw from the fasteners **library**.
       - title: Set quantities and units
-        where: [Structure, "<child row>", Quantity / Unit]
+        where: [Structure tab, "select SC-4100", Uses tab, Quantity / Unit]
         md: Set grips and brake levers to **2**, screws to **6**, and the grip adhesive to **15 ml**. Leave single items at 1 each.
       - title: Check in
-        where: [Actions, Check In]
+        where: [Structure tab, Check Out/In, Check In]
         md: Check the parent in with a short comment such as "Initial handlebar structure". The structure becomes visible to everyone as a new iteration.
     result: SC-4100 now has seven children with correct quantities, saved as a new iteration of A.
 
@@ -227,12 +235,12 @@ blocks:
       - id: promote
         label: Submit promotion request
         when: { state: In Work, checkedOut: false, cadLinked: true }
-        do: [{ set: { state: Under Review } }]
-        log: Promotion request submitted. SC-4100 {revision}.{iteration} is Under Review.
+        do: [{ set: { state: In Work - promotion pending } }]
+        log: Promotion request submitted. SC-4100 {revision}.{iteration} stays In Work until the approvers decide.
         blockedHint: The structure needs to be checked in and linked to CAD before review.
       - id: approve
         label: Reviewers approve
-        when: { state: Under Review }
+        when: { state: In Work - promotion pending }
         do: [{ set: { state: Released } }]
         log: Approved. SC-4100 {revision}.{iteration} is Released - purchasing and the pilot line can use it.
         blockedHint: Nothing is waiting for review.
@@ -248,7 +256,7 @@ blocks:
         message: Quantities live on the uses links - one line per part, the count on the link.
       - label: Release it
         when: { state: Released }
-        message: New data, never released before, so a promotion request was the right road.
+        message: New data, never released before - by Acme's rule a promotion request was the right road.
       - label: Freeze it with a baseline
         when: { baseline: true }
         message: Mission complete. Even after future revisions, the baseline still points at exactly these versions.
@@ -258,18 +266,19 @@ blocks:
     who: The designer who owns the CAD data
     steps:
       - title: Check the links from the part side
-        where: ["SC-4100 information page", "Related CAD / Dynamic Documents"]
+        where: ["SC-4100 information page", Related Objects, "CAD/Dynamic Documents"]
         md: |
-          See which CAD documents are associated and how - **owner**, **content**, **image**, and
-          so on. Tab wording varies by release.
+          On the **Related Objects** tab, the **CAD/Dynamic Documents** table shows which CAD
+          documents are associated and how - **Owner**, **Image**, **Content** and so on.
       - title: Let Creo build the owner links
-        where: [Creo Parametric, Windchill check-in, Auto associate]
+        where: [Creo, Workspace, Check In, Next, Auto Associate Parts to CAD Documents]
         md: |
-          Checking the assembly in from Creo with auto-associate on links each model to the part
-          with the same number as its **owner**. Priya's models carry the SC-41xx numbers, so this
-          does most of the work.
+          Check the assembly in from the workspace with **Auto Associate Parts to CAD Documents**
+          selected. Auto-association can link models to matching existing parts or create new parts
+          (lesson 4 of section 3), so check afterwards that each model landed on its SC-41xx part
+          as **Owner**.
       - title: Link the leftovers by hand
-        where: ["<part> information page", Actions, Edit Associations]
+        where: [Workspace, select CAD document and part, Edit Associations]
         md: |
           For the bought brake lever and throttle, associate the supplier's simplified models. Ask
           your CAD admin which association type your company uses for supplier models - many use a
@@ -328,22 +337,23 @@ blocks:
     title: "Tasks 3 and 4: mark up, revise, release, baseline"
     steps:
       - title: View the drawing and mark it up
-        where: ["SC-4100.drw information page", Visualization, Open in Creo View]
-        md: Open the drawing's [[representation]] in Creo View, add a markup with a dimension note and a short comment, and **save** it so it's stored with the drawing in Windchill.
+        where: ["SC-4100.drw information page", Actions, Open in, Open in Creo View]
+        md: Open the drawing's [[representation]] in Creo View, add a measurement and a note on the **Markup** tab, and **save the annotation set** so it's stored with the drawing in Windchill.
       - title: Revise the drawing
-        where: ["SC-4100.drw information page", Actions, Revise]
-        md: Revise from the latest Released version. Then check it out in Creo, apply the clamp-gap fix and check it in.
+        where: [Change task, Affected Objects, Revise]
+        md: In the change task, select the drawing (and its related CAD and parts) and click **Revise**. The new revision starts In Work; check it out in Creo, apply the clamp-gap fix and check it in.
       - title: Release the new revision
-        where: [Actions, New Promotion Request]
+        where: [Actions, New, New Promotion Request]
         md: Promote (or complete the change task for) the new revision so it reaches **Released**, following your company's process.
       - title: Create the baseline
-        where: ["SC-4100 information page", Actions, Add to Baseline]
+        where: ["SC-4100 information page", Actions, Add to, Add to Baseline]
         md: |
-          Create a new **managed [[baseline]]** named "S2 handlebar - pilot build" and add the handlebar
-          with its **whole structure** and related CAD documents. Exact menu wording varies by release.
+          Click **New Baseline** and name the **managed [[baseline]]** "S2 handlebar - pilot build".
+          Use **Collect Objects** with **As a Structure with Associated Objects**, then collect the
+          related CAD/dynamic documents and documents so the whole structure goes in.
       - title: Check the baseline
-        where: [Baseline information page, Contents]
-        md: Confirm every part and CAD document is listed at its **Released** version. Lock the baseline if your company does so for audits.
+        where: [Baseline information page, Related Objects]
+        md: Confirm on the **Related Objects** tab that every part and CAD document is listed at its **Released** version. Lock the baseline if your company does so for audits.
     result: The pilot build has a frozen, provable record of exactly which versions it was built from.
 
   - type: scenario
@@ -400,18 +410,18 @@ blocks:
           The structure's checked in. Priya says: "My models are numbered SC-41xx too - just check
           the assembly in from Creo." What happens?
         choices:
-          - label: "Auto-associate links each model to its matching part as owner"
+          - label: "Auto-associate links each model to its matching part as Owner"
             next: s4
             good: true
             feedback: Matching numbers make auto-association painless.
           - label: "Windchill creates a second, duplicate set of parts"
             next: s3-dup
-            feedback: Only if the numbers don't match.
+            feedback: Only if it can't match them to the existing parts.
       - id: s3-dup
         md: |
-          That's the risk when CAD numbers don't match existing part numbers - auto-associate can
-          create new parts instead of linking to yours. Here the numbers match, so it links. Worth
-          checking the result on the part's related CAD list anyway.
+          That's the risk when auto-associate can't match the models to existing parts - it can
+          create new parts instead of linking to yours. Here the parts already exist with matching
+          numbers, so it should link. Check the result in the part's CAD/Dynamic Documents table anyway.
         choices:
           - label: "Check the associations and move on"
             next: s4
@@ -532,6 +542,6 @@ blocks:
   - type: summary
     points:
       - Build BOMs with one line per part and the quantity and unit on the uses link.
-      - Link Acme-made parts to their CAD models as owner; matching numbers make it automatic.
+      - Link Acme-made parts to their CAD models as Owner; auto-associate does most of it - then verify.
       - Review in Creo View with markups; fix released data by revising, never by editing in place.
       - Release the part, model and drawing together, then baseline the result to freeze it.

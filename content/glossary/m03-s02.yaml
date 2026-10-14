@@ -2,35 +2,35 @@
 - id: change-administrator
   term: Change administrator
   plain: The person who keeps change paperwork moving - triages reports, sets up the plan and checks the work is done.
-  definition: A role in the change process (often split into several numbered roles in standard processes, depending on configuration) responsible for reviewing incoming problem reports and change requests, creating change notices and their implementation plans, and auditing the change notice before it is closed. Role names and duties are set by each company.
+  definition: A role in the change process. Windchill's out-of-the-box process has three - Change Admin I screens problem reports and analyses change requests, Change Admin II creates the implementation plan in the change notice, and Change Admin III audits the finished change notice before release. Companies can rename or reshape the roles.
   aka: [Change admin, Change analyst, Change coordinator]
   related: [problem-report, change-request, change-notice, change-review-board]
 
 - id: change-impact-analysis
   term: Change impact analysis
   plain: '"If we change this, what else gets hit?" - answered before anyone says yes.'
-  definition: The study done on a change request to find everything a proposed change touches - where-used assemblies and end items, related documents and CAD, other open changes, stock and orders, suppliers, cost and schedule. Its result helps the change review board decide.
+  definition: General PLM practice - the study done on a change request to find everything a proposed change touches - where-used assemblies and end items, related documents and CAD, other open changes, stock and orders, suppliers, cost and schedule. Its result helps the change review board decide. Configurations such as the PLM Foundation Pacesetter add formal impact assessment tasks to the full track.
   aka: [Impact analysis, Impact assessment]
   related: [change-request, where-used, affected-object, change-review-board]
 
 - id: implementation-plan
   term: Implementation plan
   plain: The to-do list of a change - who does which piece, by when.
-  definition: The set of change tasks on a change notice, each with an assignee, a reviewer, a need date and its own affected and resulting objects. When every task is complete and the change notice is resolved, the resulting objects are typically released.
+  definition: The set of change tasks on a change notice, each with an assignee, a reviewer, a need date and its own affected and resulting objects. A Change Admin II creates it; when every task is complete and the Change Admin III approves the audit, the resulting objects are released.
   aka: [Change plan]
   related: [change-notice, change-task, resulting-object]
 
 - id: redline
   term: Redline (BOM redline)
   plain: Marking up a structure in red - "remove this, add that" - as a proposal before anyone edits the real thing.
-  definition: A set of proposed edits to a product structure (adds, removes, replacements, quantity changes) captured in the context of a change, so reviewers can see exactly what will change. Depending on release and configuration, a redline is created from a change task and applied to the real structure when the work is approved.
+  definition: A set of planned edits to a product structure (inserts, removals, replacements, quantity changes) created on the latest released affected object while a change notice is planned, instead of creating the next revision. The edits are merged when the next revision is created with Revise inside the change, so several change notices can plan changes to the same object at once. An administrator must enable it with the Enable BOM Redline preference.
   aka: [Redlining, BOM markup]
-  related: [change-task, bom, change-request]
+  related: [change-task, bom, change-notice]
 
 - id: variance
   term: Variance
   plain: An approved "just this once" exception to the released design.
-  definition: A change object that authorizes a temporary, one-time departure from released data for a limited quantity, lot, serial range or period, without changing the released design. Companies often classify variances as deviations or waivers.
+  definition: A change object that authorizes a departure from the as-designed configuration for a specific number of units or a specified time, without changing the released design. A variance is either a deviation or a waiver, and it should be followed by a permanent solution.
   aka: [Deviation request, Concession]
   related: [deviation, waiver, change-request, affected-object]
 

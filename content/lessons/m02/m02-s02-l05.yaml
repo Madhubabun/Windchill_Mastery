@@ -1,8 +1,18 @@
 id: m02-s02-l05
 subtitle: Same scooter, same structure - four different answers. The filter you pick decides which truth you see.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [structure, configuration-specification, baseline, effectivity, bom]
+sources:
+  - id: te
+    where: "Module 2: Activity: Explore the Windchill user interface (Effectivity tab). Module 5: Describe product structures; Specify a configuration specification; Activity: modify the configuration specification (Edit Filter, Choose a Type list, As Matured, unresolved dependents, Saved Filters > System Default); Create baselines"
+  - id: trn-pdmlink
+    where: "04 Introduction to Windchill PDMLink - BOM: uses relationship from an assembly part version to the child part master"
+  - id: hc-as-stored
+    label: PTC Help Center supplement
+    title: "Specifying an As Stored Configuration Specification"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/cadx/CADxConfigSpecChooseAsStored.html"
+    covers: "An As Stored configuration specification selects the CAD document versions that were in the workspace when the structure was checked in"
 
 blocks:
   - type: text
@@ -24,7 +34,7 @@ blocks:
       **Plain words → official term**
       - "the rule that picks which version you see" → *[[configuration-specification|configuration specification]]* (config spec, or structure filter)
       - "the newest of everything" → *Latest*
-      - "the newest approved" → *[[latest-released|latest Released]]* (Latest limited to the Released state)
+      - "the newest approved" → *[[latest-released|latest Released]]* (Latest limited to the Released state, or the *As Matured* filter)
       - "a frozen snapshot" → *[[baseline]]*
       - "valid from this date or serial number on" → *[[effectivity]]*
       - "parent → child, pointing at all versions" → *[[uses-link|uses link]]* to the child's *[[master]]*
@@ -65,9 +75,10 @@ blocks:
           w: 170
           tone: info
           detail: |
-            Latest, Latest Released, Baseline, Effectivity - or for CAD, As Stored. The structure
-            asks the spec: "for this master, which version?"
-          real: Most structure screens show the active filter somewhere near the top. Check it before you trust what you see.
+            Latest (optionally limited to a state such as Released), As Matured, Baseline, Change,
+            Unit or Date Effectivity, Promotion Request - and for CAD structures, As Stored. The
+            structure asks the spec: "for this master, which version?"
+          real: The Structure tab shows the active filter in its Filter section. Check it before you trust what you see.
         - id: a3
           label: A.3 Released
           sublabel: "eff. serial 1-999"
@@ -91,7 +102,7 @@ blocks:
           y: 300
           w: 170
           tone: warning
-          detail: Picked only by **Latest** - the newest iteration of the newest revision, whatever its state.
+          detail: Picked only by **Latest** with no state limit - the most recently checked-in version, whatever its state.
       edges:
         - { from: s2, to: master, label: uses (qty 2) }
         - { from: spec, to: s2, label: filters }
@@ -139,7 +150,7 @@ blocks:
         label: "Spec → Latest Released"
         when: {}
         do: [{ set: { spec: Latest Released, hinge: "B.1 Released", frame: "B.1 Released" } }]
-        log: Latest limited to Released skips B.2 In Work and shows B.1 - the newest approved hinge.
+        log: Latest limited to Released skips B.2 In Work and shows B.1 - the newest approved hinge. (The As Matured filter, which defaults to Released, gives the same answer here.)
       - id: spec-baseline
         label: "Spec → Baseline \"S2 Launch\""
         when: {}
@@ -203,21 +214,25 @@ blocks:
       - title: Find the active filter
         where: [Structure tab, Filter]
         md: |
-          Look for the filter or configuration specification control near the top of the
-          structure. It shows what is active now, often *Latest*. Its exact look and name vary by
-          release.
+          The **Filter** section shows what is active now. By default that's **Latest** in the
+          Design view.
       - title: Edit the config spec
-        where: [Structure tab, Filter, Edit filter]
+        where: [Structure tab, Filter, Edit Filter, Configuration Specification]
         md: |
-          Choose the type: **Latest** (optionally limited to a lifecycle state such as Released and
-          to a view such as Design), **Baseline** (pick the baseline), or **Effectivity** (enter a
-          date, lot or serial number and the end-item context). Apply it.
+          Click **Edit Filter**, stay on the **Configuration Specification** tab, remove the filter
+          in the *To Be Applied* pane and pick from **Choose a Type**: **Latest** (with a view and
+          optionally a life cycle state such as Released), **As Matured** (most mature state as of
+          a date), **Baseline** (pick the baseline), **Unit Effectivity** (a serial number or lot)
+          or **Date Effectivity**. Click **Add**, then apply it.
       - title: Read the result
         where: [Structure tab]
-        md: The versions in the tree update. Children with no version that matches the filter may be hidden or flagged - that's useful information too.
-      - title: Save a filter you use often
-        where: [Structure tab, Filter, Save]
-        md: Many releases let you save named filters ("Released only - Design view") so you don't rebuild them each time.
+        md: |
+          The versions in the tree update. Children with no version that matches the filter show
+          as **part masters** (unresolved) - you can hide them with *Hide unresolved dependents*.
+          That's useful information too.
+      - title: Go back to the default
+        where: [Structure tab, Filter, Saved Filters, System Default]
+        md: Choose **Saved Filters > System Default** to return to the standard filter.
     result: You see the same structure resolved for the question you're answering.
 
   - type: example
@@ -236,10 +251,10 @@ blocks:
   - type: callout
     variant: note
     md: |
-      For CAD structures there's also **As Stored**: the exact versions that were saved together
-      when the assembly was checked in. Effectivity is optional - some companies use only Latest and
-      baselines, and how effectivity is assigned (often through change notices) is configured per
-      company.
+      For CAD structures there's also **As Stored**: the CAD document versions that were in the
+      workspace when the assembly was checked in. Effectivity is optional - some companies use only
+      Latest and baselines. Where it is used, setting it through a change notice is the
+      recommended practice.
 
   - type: callout
     variant: pitfall

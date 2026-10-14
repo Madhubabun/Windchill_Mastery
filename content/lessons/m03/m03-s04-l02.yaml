@@ -1,8 +1,23 @@
 id: m03-s04-l02
 subtitle: Your task list is where the whole change process waits on you. Clear it like a pro.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [workflow, task, work-item, accept, reassign, complete]
+sources:
+  - id: te
+    where: "Module 2: Activity: Explore the Windchill user interface (Tasks are work items assigned to you directly or through a role; My Tasks table on the Home page). Module 6: Activity: Complete a change notice to release product data (sorting the My Tasks table, Workflow Tasks or All list); Activity: Analyze a change request (Task Completion comments and routing options); Activity: Create and approve a promotion request (Process tab, Task History)"
+  - id: ac
+    where: "Module 5: Assign activities in a workflow (Tasks table; task form with instructions, primary business object link, input fields and Complete Task); Define assigned activities (Activity, Deadline, Participant and Routing tabs); Activity: Create a workflow template (participants: users, groups, roles, actors, team; required or optional). Module 2: Delete a user (reassign assignments first)"
+  - id: hc-my-tasks-actions
+    label: PTC Help Center supplement
+    title: "Actions on the My Tasks Table"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/assignments/AssignmentsMyTasksTableRef.html"
+    covers: "Accept and Decline actions; Accept on an activity classified as Any removes the other assignees' tasks, on All it does not; Reassign and Reassign Tasks actions"
+  - id: hc-reassign-task
+    label: PTC Help Center supplement
+    title: "Reassigning a Task"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/assignments/AssignmentsTaskReassign.html"
+    covers: "Reassign from the Tasks table toolbar or the Actions list; Reassign to list; Reason for reassignment; email to the new assignee; Reassignment History; optional restriction to the task's role"
 
 blocks:
   - type: text
@@ -20,9 +35,9 @@ blocks:
     md: |
       **Plain words → official term**
       - "a to-do from a process" → *[[task]]*, technically a *[[work-item|work item]]*
-      - "your list of to-dos" → *My Tasks* (or *Tasks*, on the Home page)
+      - "your list of to-dos" → the *My Tasks* table on your Home page
       - "the box in the process that created it" → *[[workflow-activity|assigned activity]]*
-      - "grab a shared task so others know it's yours" → *Accept*
+      - "take responsibility for a task" → *Accept* (and *Decline* to undo it)
       - "give it to someone else" → *Reassign*
       - "your answer, like Approve or Reject" → *[[routing|routing option]]*
       - "finish and send it on" → *Complete Task*
@@ -43,8 +58,8 @@ blocks:
           h: 70
           tone: primary
           detail: |
-            The task itself. It belongs to one running process and one activity in it, such as
-            "Review change notice". It stays open until someone completes it.
+            The task itself. It belongs to one running process and one assigned activity in it, such
+            as *Review Change Notice Task*. It stays open until someone completes it.
         - id: subject
           label: Subject
           sublabel: "CN-0451 + SC-1048"
@@ -54,9 +69,9 @@ blocks:
           tone: info
           shape: doc
           detail: |
-            The **primary business object**, such as the change notice or promotion request, plus
-            links to the affected and resulting objects you need to look at. Always open them
-            before you vote.
+            The task form links to the **primary business object** - the change notice or promotion
+            request the process manages - and from there to the objects you need to look at, such as
+            resulting objects. Always open them before you vote.
         - id: instructions
           label: Instructions
           sublabel: what to do
@@ -65,7 +80,7 @@ blocks:
           w: 180
           tone: neutral
           shape: doc
-          detail: Text written into the activity by whoever designed the workflow, for example "Check the drawing matches the 3D model". Read it. It's often the checklist auditors expect.
+          detail: Text written on the activity's **Activity** tab by whoever designed the workflow, for example "Check the drawing matches the 3D model". Read it. It's often the checklist auditors expect.
         - id: deadline
           label: Deadline
           sublabel: due date
@@ -73,7 +88,7 @@ blocks:
           y: 30
           w: 180
           tone: warning
-          detail: Many activities have a due date. Overdue tasks can trigger reminder emails or escalate to a manager, depending on configuration.
+          detail: An activity can have a due date (its **Deadline** tab), plus actions the designer chose for when it is close or past due. Setting a deadline is optional.
         - id: assignee
           label: Assignee
           sublabel: you or your role
@@ -83,9 +98,9 @@ blocks:
           tone: accent
           shape: pill
           detail: |
-            Tasks are usually assigned to a **role** (Reviewer, Quality) and resolved to people from
-            the team of the product or change. If several people share the role, the setup may ask
-            one of them to **Accept** it first.
+            The activity's **Participants** tab can name users, groups, roles, actors or a team. Roles
+            are resolved to people through the product's team. If a group or team is named, every
+            member gets the task in their own list.
         - id: options
           label: Routing options
           sublabel: Approve / Reject
@@ -94,7 +109,7 @@ blocks:
           w: 180
           tone: warning
           shape: pill
-          detail: The choices you pick when you complete the task. Your choice decides where the process goes next.
+          detail: The routing events set on the activity's **Routing** tab, such as Approve or Reject. You pick one when you complete the task, and it decides where the process goes next.
         - id: comments
           label: Comments
           sublabel: why you chose
@@ -103,7 +118,7 @@ blocks:
           w: 180
           tone: neutral
           shape: doc
-          detail: Your reason, saved with the process history forever. Some setups make comments mandatory when you reject.
+          detail: Typed in the **Comments** box of the Task Completion section. Your reason stays with the process.
       edges:
         - { from: subject, to: task }
         - { from: instructions, to: task }
@@ -120,52 +135,57 @@ blocks:
       - title: Open your task list
         where: [Home, My Tasks]
         md: |
-          Go to the **Home** page and open **Tasks** (often labelled **My Tasks**). You'll see a
-          table of open work items: the task name, the subject object, the context and the
-          deadline. Sort by deadline so the urgent ones float to the top.
-      - title: Or jump in from the email
-        where: [Email notification, task link]
-        md: Many setups send an email when a task arrives. Its link opens the task directly. Same task, faster route.
+          Go to the **Home** page and find the **My Tasks** table. It lists the tasks you're
+          responsible for as owner or assignee, across contexts. Click a column header such as
+          **Assigned** or **State** to sort it. (A product's own **Tasks** link shows only that
+          product's tasks.)
+      - title: Check the list filter
+        where: [My Tasks, list beside My Tasks]
+        md: The list beside **My Tasks** is often set to **Workflow Tasks**. Switch it to **All** if you also want to see tasks you've already finished.
       - title: Accept it if it's shared
-        where: ["<task>", Actions menu, Accept]
+        where: [My Tasks, "<task> row", Accept]
         md: |
-          If the task went to a role shared by several people, some setups ask one person to
-          **Accept** it. That puts your name on it so your teammates don't double up. If you
-          don't see Accept, the task is already yours.
+          **Accept** means "I take responsibility for this task". If the activity is set to **Any**
+          (any one assignee may do it), accepting removes the same task from the other assignees'
+          lists. If it is set to **All**, their tasks stay. **Decline** undoes an Accept.
       - title: Read before you click
         where: ["<task> page", Subject and objects]
-        md: Read the instructions. Open the subject (for example **CN-0451**) and its affected objects. Look at SC-1048 in a viewer if you're reviewing geometry.
+        md: Read the instructions. Open the subject (for example **CN-0451**) and its objects. Look at SC-1048 in a viewer if you're reviewing geometry.
       - title: Choose an option and comment
-        where: ["<task> page", Routing options, Comments]
-        md: Pick a routing option such as **Approve** or **Reject**. Write a comment that would make sense to a stranger in two years.
+        where: ["<task> page", Task Completion]
+        md: In **Task Completion**, pick a routing option such as **Approve** or **Reject** and type a comment that would make sense to a stranger in two years.
       - title: Complete it
         where: ["<task> page", Complete Task]
         md: Click **Complete Task**. The task leaves your list and the process moves on.
-    result: The task disappears from My Tasks and shows as completed in the process history, with your name, choice, comment and time.
+    result: The task leaves your open tasks and shows as completed in the process's task list (for example the Process Status table on the change object's Process tab).
 
   - type: walkthrough
     title: Reassign a task
-    who: The assignee, or a process owner or admin, depending on configuration
+    who: The assignee (context managers and administrators can also reach other people's tasks)
     steps:
       - title: Select the task
-        where: [Home, My Tasks, "<task>"]
-        md: Select the task in your list, or open it.
+        where: [Home, My Tasks, "<task> check box"]
+        md: Select the check box of each task you want to hand over.
       - title: Choose Reassign
-        where: ["<task>", Actions menu, Reassign]
+        where: [Tasks table toolbar, Reassign]
         md: |
-          Use **Reassign** from the task's actions. Pick the new person, ideally someone who
-          holds the same role, and add a short comment saying why.
-      - title: Tell them
+          Click the **reassign** icon on the toolbar, or choose **Reassign** from the task's
+          **Actions** list. In **Reassign to**, pick the new person - your site may limit the list to
+          people in the task's role.
+      - title: Say why
+        where: [Reassign window, Reason for reassignment]
+        md: Type a short **Reason for reassignment**, then click **OK**.
+      - title: Give them a heads-up
         where: [Chat or email]
-        md: Windchill notifies them in many setups, but a quick "this one's yours, here's why" message saves a day.
-    result: The task leaves your list and appears in theirs. The history records who reassigned it to whom.
+        md: Windchill emails the new assignee, but a quick "this one's yours, here's why" message still saves a day.
+    result: The task leaves your list and appears in theirs, and the reason is kept in the reassignment history.
 
   - type: simulation
     title: Clear Leo's review task
     intro: |
       A review task for change notice **CN-0451** went to the **Quality role**, shared by Leo and
-      Ana. Play Leo. Accept it, review the objects, vote and complete it. Or hand it to Ana.
-      This is a concept sandbox - real setups vary.
+      Ana. The activity is set to **Any**, so one of them is enough. Play Leo. Accept it, review the
+      objects, vote and complete it. Or hand it to Ana. This is a concept sandbox, not a Windchill screen.
     headline: "CN-0451 review · {status} · held by {assignee}"
     initial: { assignee: Quality role, accepted: false, reviewed: false, vote: none, status: Open }
     actions:
@@ -173,13 +193,13 @@ blocks:
         label: Accept
         when: { accepted: false, status: Open }
         do: [{ set: { accepted: true, assignee: Leo } }]
-        log: Leo accepted the task. Ana sees it's taken.
+        log: Leo accepted the task. Because the activity is set to Any, Ana's copy of the task disappears from her list.
         blockedHint: Already accepted, or the task is closed.
       - id: reassign
         label: Reassign to Ana
         when: { status: Open, assignee: [Quality role, Leo] }
         do: [{ set: { assignee: Ana, accepted: true, reviewed: false, vote: none } }]
-        log: Reassigned to Ana with a comment. She starts her own review.
+        log: Reassigned to Ana with a reason for reassignment. She gets an email and starts her own review.
         blockedHint: Only an open task held by Leo or the role can be reassigned here.
       - id: review
         label: Open the objects
@@ -219,8 +239,8 @@ blocks:
   - type: callout
     variant: why-it-matters
     md: |
-      Change cycle time is one of the numbers managers watch most closely, and most of it is
-      **waiting time** in task lists, not work time. A one-day review that sits for a week costs
+      Change cycle time is one of the numbers managers watch most closely, and in practice much of
+      it is **waiting time** in task lists, not work time. A one-day review that sits for a week costs
       a week of old parts being built. Clearing or reassigning tasks quickly is the simplest way
       you personally speed up your company's changes.
 
@@ -230,9 +250,9 @@ blocks:
     industry: Micromobility
     md: |
       Leo went on a two-week trip. Three review tasks for SC-1048 changes landed in his list on day
-      one. Nobody else could act on them, and the CN sat still. Maya, as change manager, spotted
-      the stalled process and asked an admin to reassign the tasks to Ana. The changes moved again
-      within an hour.
+      one. Nobody else could act on them, and the CN sat still. Maya, Acme's Change Admin I, spotted
+      the stalled process, and with context-manager rights she could see the product's tasks. She had the
+      tasks reassigned to Ana. The changes moved again within an hour.
     takeaway: Before time off, clear or reassign your tasks - or set up a stand-in. Next lesson shows how.
 
   - type: callout
@@ -245,23 +265,23 @@ blocks:
   - type: callout
     variant: pro-tip
     md: |
-      Treat My Tasks like a zero-inbox. Check it at the start of each day, sort by deadline, and
-      either complete, reassign or comment on every task. Many companies also let you filter the
-      list or save a view, so you can see only change tasks.
+      Treat My Tasks like a zero-inbox. Check it at the start of each day, sort it, and either
+      complete or reassign every task. You can also build a custom table view with the **New View
+      Wizard** (from the menu at the top of the table), for example to show only change tasks.
 
   - type: quiz
     passMark: 0.7
     questions:
       - kind: single
         prompt: Where do you normally find the workflow tasks waiting for you?
-        options: ["Home → My Tasks (or Tasks)", "The product's Folders", "Your CAD workspace", "The object's Structure tab"]
+        options: ["The My Tasks table on the Home page", "The product's Folders", "Your CAD workspace", "The object's Structure tab"]
         answer: 0
-        explanation: The Home page task list collects every open work item assigned to you, across all contexts. Email links often take you to the same task.
+        explanation: The My Tasks table on the Home page lists the tasks you're responsible for as owner or assignee. A product's Tasks link shows only that product's tasks.
       - kind: single
-        prompt: A task went to the Quality role, shared by Leo and Ana. What does **Accept** do in setups that use it?
-        options: [Approves the change, Puts your name on the task so others know you've taken it, Closes the process, Deletes the task for everyone]
+        prompt: A task went to the Quality role, shared by Leo and Ana, on an activity set to **Any**. What does **Accept** do?
+        options: [Approves the change, "Takes responsibility for the task - and removes Ana's copy", Closes the process, Deletes the task for everyone]
         answer: 1
-        explanation: Accept claims a shared task. It does not complete it or vote on anything.
+        explanation: Accept takes responsibility for the task. On an Any activity the other assignees' copies are removed (Decline brings them back). It does not complete the task or vote.
       - kind: order
         prompt: Put the steps for handling a review task in order.
         items: [Open the task from My Tasks, Read the instructions and open the objects, Choose a routing option and comment, Click Complete Task]
@@ -269,11 +289,11 @@ blocks:
       - kind: truefalse
         prompt: Reassigning a task leaves a record of who handed it to whom.
         answer: true
-        explanation: The process history keeps the reassignment, which is useful when someone later asks why a different person approved.
+        explanation: The reason for reassignment is kept in the reassignment history (and the Process tab's Task History shows assignment changes) - useful when someone later asks why a different person approved.
 
   - type: summary
     points:
       - Tasks (work items) are where workflows wait for people.
-      - Find them in Home → My Tasks or via the email link.
+      - Find them in the My Tasks table on the Home page.
       - Accept a shared task, review the real objects, choose an option, comment, then Complete Task.
-      - Can't do it? Reassign with a comment instead of letting it sit.
+      - Can't do it? Reassign with a reason instead of letting it sit.

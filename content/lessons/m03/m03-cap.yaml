@@ -1,8 +1,11 @@
 id: m03-cap
 subtitle: A bracket is cracking in the field. Take it from angry customer to released fix, the controlled way.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [capstone, problem-report, change-request, change-review-board, change-notice, resulting-object, form-fit-function]
+sources:
+  - id: te
+    where: "Module 6: OOTB change management process: steps; Identify roles in the change management process (Change Admin I, II, III; Change Review Board in Full Track); Change management process: Identify Need and Activity: Create a problem report (from the part's Actions > New > New Problem Report, affected object preselected, attachments, Submit Now, Analyze Problem Report task for Change Admin I); Change management process: Investigate Need and Activity: Create a change request (from the problem report); Activity: Analyze a change request (Fast-Track Approval, Full-Track Online Review); Change management process: Change Planning; Activity: Create a change notice to address a requested change (affected and resulting objects); Change management process: Review and Audit Change (Audit Change Notice by Change Admin III releases the resulting objects; Changes tab Associated Changes)"
 
 blocks:
   - type: text
@@ -14,7 +17,7 @@ blocks:
       > Photos attached. This one's getting serious."
 
       The part is **SC-1048 Fold-lock bracket, C.2, Released**. It's in every Scooter S2 that has
-      left the factory. Kai, your engineering lead, looks at you: "You know the change process now.
+      left the factory. Kai, your engineering lead and Acme's Change Admin II, looks at you: "You know the change process now.
       Run it. I want a released fix, and I want it done properly - no hero edits."
 
       This is everything from Module 3 in one mission: problem reports, change requests, the CCB,
@@ -70,13 +73,17 @@ blocks:
             bracket (where-used), and how to treat scooters already sold.
         - id: ccb
           label: CCB decision
-          sublabel: chaired by Maya
+          sublabel: Full Track review
           x: 220
           y: 170
           w: 170
           tone: primary
           shape: pill
-          detail: The change control board (Maya chairs it, with engineering, quality, manufacturing and service) approves, rejects or sends the request back for more analysis.
+          detail: |
+            Acme's change board (Windchill's **Change Review Board** role, used in Full Track) - with
+            engineering, quality, manufacturing and service - approves, rejects or asks for more
+            investigation. Maya, as Change Admin I, routes the request to Full Track and communicates
+            the decision.
         - id: cn
           label: CN-0187
           sublabel: change notice
@@ -84,7 +91,7 @@ blocks:
           y: 40
           w: 160
           tone: accent
-          detail: The **change notice** turns the approved request into a plan of change tasks with owners and due dates.
+          detail: The **change notice** turns the approved request into an implementation plan of change tasks with owners and due dates. Kai (Change Admin II) builds it.
         - id: tasks
           label: Change tasks
           sublabel: Priya, Ana
@@ -100,7 +107,7 @@ blocks:
           y: 190
           w: 170
           tone: success
-          detail: When every task is done and the notice is approved, the resulting objects are released together. C.2 stays in history, untouched.
+          detail: When every task is done, Leo (Change Admin III) audits the change notice. Completing the audit releases the resulting objects together. C.2 stays in history, untouched.
       edges:
         - { from: field, to: pr, label: report }
         - { from: pr, to: cr, label: analyse }
@@ -139,7 +146,7 @@ blocks:
         flow: [ccb>cn, cn>tasks]
         seconds: 7
       - title: Release the fix
-        caption: Resulting objects are released together. Revision D is what the factory builds next.
+        caption: Leo audits the change notice and the resulting objects are released together. Revision D is what the factory builds next.
         highlight: [released]
         flow: [tasks>released]
         seconds: 6
@@ -147,33 +154,33 @@ blocks:
   - type: walkthrough
     title: "Task 1: raise the problem report"
     who: Any user allowed to create problem reports in the Scooter S2 product (often everyone)
-    where: ["SC-1048 information page", Actions, New Problem Report]
+    where: ["SC-1048 information page", Actions, New, New Problem Report]
     steps:
       - title: Start from the part
         where: [Search, "SC-1048", "Information page"]
         md: |
-          Open SC-1048's information page. Starting from the object means Windchill can add it to
-          the report as an **affected object** for you.
+          Open SC-1048's information page. Starting from the object means Windchill selects it as
+          the **affected object** for you.
       - title: Create the report
-        where: [Actions, New Problem Report]
+        where: [Actions, New, New Problem Report]
         md: |
-          From the Actions menu choose the new problem report action. Give it a name a stranger would
-          understand: *"Fold-lock bracket cracks after ~6 months of use"*.
+          Choose **Actions → New → New Problem Report**. Give it a name a stranger would understand:
+          *"Fold-lock bracket cracks after ~6 months of use"*, and fill in the **Requester** (Sam).
       - title: Describe what, where and how bad
-        where: [New Problem Report, Details]
+        where: [New Problem Report, Category, Priority, Need Date, Description]
         md: |
-          Describe the symptom, how often it happens (3 of roughly 4,000 units in one week) and the
-          risk (the stem can wobble while riding). Set the priority and category your company uses.
-      - title: Attach the evidence
-        where: [New Problem Report, Attachments]
-        md: Add the three photos and a short list of the scooter serial numbers and their ages.
+          Pick a **Category** and **Priority**, set a **Need Date**, and describe the symptom, how often
+          it happens (3 of roughly 4,000 units in one week) and the risk (the stem can wobble while riding).
       - title: Check the affected objects
         where: [New Problem Report, Affected Objects]
         md: Make sure **SC-1048 C.2** is listed. Don't add things you haven't proven are affected yet.
+      - title: Attach the evidence
+        where: [New Problem Report, Attachments]
+        md: Add the three photos and a short list of the scooter serial numbers and their ages.
       - title: Submit
-        where: [New Problem Report, Finish]
-        md: Submit it. The workflow routes it to the change administrator for review.
-    result: PR-0412 exists, with evidence, linked to SC-1048 C.2, and someone owns the next step.
+        where: [New Problem Report, Finish, Submit Now]
+        md: Click **Finish**, then **Submit Now**. Members of the **Change Admin I** role - at Acme, Maya - get an *Analyze Problem Report* task.
+    result: PR-0412 exists, with evidence, linked to SC-1048 C.2, and Maya owns the next step.
 
   - type: simulation
     title: Drive the fix from report to release
@@ -212,13 +219,13 @@ blocks:
         label: "CCB: approve"
         when: { stage: Request in analysis }
         do: [{ set: { stage: Request approved } }]
-        log: Approved. Maya signs off for the board.
+        log: Approved by the board. Maya, as Change Admin I, records and communicates the decision.
         blockedHint: The board only looks at a request in analysis.
       - id: create-cn
         label: Create change notice
         when: { stage: Request approved }
         do: [{ set: { stage: Notice in work } }]
-        log: CN-0187 created with two change tasks for Priya and Ana.
+        log: Kai (Change Admin II) creates CN-0187 with two change tasks for Priya and Ana.
         blockedHint: You need an approved change request first.
       - id: revise-part
         label: Revise bracket (task)
@@ -236,13 +243,13 @@ blocks:
         label: Complete tasks
         when: { stage: Notice in work, partDone: true, drawingDone: true }
         do: [{ set: { stage: Ready to release } }]
-        log: All tasks complete. The notice goes for final approval.
+        log: All tasks complete. Leo (Change Admin III) gets the Audit Change Notice task.
         blockedHint: Both the bracket and its drawing must be resulting objects first.
       - id: release
-        label: Release
+        label: "Audit and release"
         when: { stage: Ready to release }
         do: [{ set: { stage: Released, partState: Released } }]
-        log: CN-0187 approved. SC-1048 {rev}.1 and its drawing are Released together.
+        log: Leo completes the audit. SC-1048 {rev}.1 and its drawing are Released together.
         blockedHint: Finish the change tasks first.
     goals:
       - label: Submit a report with evidence
@@ -408,9 +415,9 @@ blocks:
       - label: Problem report
         cells: ["What's wrong and where?", Sam (service)]
       - label: Change request
-        cells: ["What should we change, and is it worth it?", Priya (analysis) and Maya's CCB (decision)]
+        cells: ["What should we change, and is it worth it?", "Priya (analysis), Maya (Change Admin I) and the board (decision)"]
       - label: Change notice
-        cells: ["How and by when do we do it?", Maya (plans) with Kai]
+        cells: ["How and by when do we do it?", "Kai (Change Admin II) plans; Leo (Change Admin III) audits"]
       - label: Change tasks
         cells: ["Who changes which objects?", Priya (design) and Ana (manufacturing)]
     takeaway: One question per object. That's why the process has more than one step.
@@ -433,8 +440,8 @@ blocks:
     variant: pro-tip
     md: |
       Link everything. Create the change request *from* the problem report and the notice *from* the
-      request. Windchill then shows the chain on each object's information page, so anyone can
-      trace a released part back to the original complaint.
+      request. Each part's **Changes** tab then lists the problem report, change request and change
+      notice behind it, so anyone can trace a released part back to the original complaint.
 
   - type: quiz
     title: Capstone check

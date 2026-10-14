@@ -1,8 +1,23 @@
 id: m02-s04-check
 subtitle: Viewing, thumbnails, markups, measuring and compare - prove you can review a design without CAD.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [checkpoint, visualization]
+sources:
+  - id: te
+    where: "Module 2: Access CAD documents using Creo View; Activity: Open a CAD model in Creo View (Open in Creo View, Markup tab measurements, Note with Leader, Sectioning presets, Save Annotation Set, Representations/Annotations table)"
+  - id: ac
+    where: "Describe Windchill Visualization Services (WVS); Describe the WVS architecture; View and manage WVS publication jobs; Describe the WVS Publisher (queues)"
+  - id: hc-create-rep
+    label: PTC Help Center supplement
+    title: "Creating a Representation from a CAD Document"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wvsvisual/VisualRepCreateDocument.html"
+    covers: "Several representations per object; Set as Default Representation"
+  - id: hc-cv-compare
+    label: PTC Help Center supplement
+    title: "Comparing in Creo View Desktop"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wvsvisual/WVSComparingInCVClient.html"
+    covers: "Comparing two versions in Creo View from the History tab"
 
 blocks:
   - type: text
@@ -32,10 +47,10 @@ blocks:
           - By downloading the CAD file first
           - From the workspace in Creo Parametric only
         answer: 0
-        explanation: The information page shows the thumbnail; clicking it (or the View in Creo View action) opens the default representation. The exact icon and menu wording vary by release.
+        explanation: The information page shows the thumbnail; clicking it, or choosing Actions > Open in > Open in Creo View, opens the model in Creo View.
       - kind: order
         prompt: Put the publishing chain in order.
-        items: [A check-in triggers a publish job, The job waits in the queue, A CAD worker converts the model, Representation and thumbnail are stored with the version]
+        items: [A check-in triggers a publish job, The job waits in the queue, A CAD worker converts the model, Representation and thumbnail are stored with the iteration]
         explanation: Publishing runs in the background. That's why a fresh check-in briefly has no thumbnail - and why a stuck worker makes thumbnails disappear across the system.
       - kind: single
         prompt: A new iteration of the frame shows no thumbnail, but older iterations do. What's the most likely reason?
@@ -49,66 +64,66 @@ blocks:
       - kind: truefalse
         prompt: One CAD document version can have more than one representation, and the default one opens when you click the thumbnail.
         answer: true
-        explanation: Companies can publish several representations - for example a full one and a simplified one. The default is the one used on click; users with permission can change it.
+        explanation: An object can have several representations - for example a full one and one from a simplified rep. The default is the one used on click; a new representation can be marked Set as Default Representation.
       - kind: multi
         prompt: Which make a markup useful as review evidence? (Choose all that apply.)
         options:
           - It's saved to Windchill, not just on a laptop
-          - It's tied to the exact version that was reviewed
+          - It's saved with the object and version that was reviewed
           - It has a clear name with number, version and finding
           - It's emailed as a flat screenshot
         answers: [0, 1, 2]
-        explanation: Saved markups live with the version's representation, so anyone with access can find them and reopen the 3D view. Screenshots in email lose the version and the context.
+        explanation: An annotation set saved to Windchill is listed on the reviewed object's page, so anyone with access can find it and reopen the 3D view. Screenshots in email lose the version and the context.
       - kind: single
-        prompt: Kai saved a markup on hinge B.2. Priya checks in B.3. Where is Kai's markup?
+        prompt: Kai saved an annotation set on hinge B.2. Priya checks in B.3 with the fix. How does Kai confirm it?
         options:
-          - Moved automatically to B.3
-          - Deleted, because the design changed
-          - Still with B.2's representation
-          - Inside the CAD model as a feature
+          - Point to his B.2 annotation set - it covers B.3 too
+          - Save his old notes onto B.3 without looking
+          - Open B.3 in Creo View, check the wall and record the result
+          - Ask Priya for a screenshot
         answer: 2
-        explanation: Markups describe the version they were made on. To confirm a fix, open B.3, check it and record the result - don't copy the old markup across.
+        explanation: A review describes the version it looked at. To confirm a fix, open B.3, check it and record the result - don't reuse the old notes.
       - kind: single
         prompt: You need to see whether the steering-column joint has an internal gusset. Which tool?
         options: [Measure, Cross-section, Thumbnail, Attribute compare]
         answer: 1
-        explanation: A cross-section cuts the model open along a plane. Drag the plane through the whole joint - a single slice at the edge can miss the gusset.
+        explanation: A cross-section cuts the model open along a plane. Try more than one axis - a single cut can miss the gusset.
       - kind: truefalse
-        prompt: A measurement taken on a representation that only has tessellated geometry is always exactly the design value.
+        prompt: A diameter measured in Creo View is the official value to order and inspect against.
         answer: false
-        explanation: Tessellated geometry is a triangle mesh, so curved surfaces measure close but not exact. Representations published with exact geometry give precise values, and the released drawing remains the official spec.
+        explanation: Viewer measurements are for checking and exploring. The released drawing, with its dimensions and tolerances, remains the official spec.
       - kind: single
-        prompt: A change reviewer wants to know which components were added to the frame between A.4 and B.1. What should they use?
+        prompt: A change reviewer wants a line-by-line list of components added to the frame BOM between A.4 and B.1. What should they use?
         options:
-          - Creo View geometry compare
+          - Creo View visual compare
           - Part structure compare in Windchill
           - A cross-section
           - A markup
         answer: 1
-        explanation: Visual compare shows shape changes. Added or removed components and quantity changes are structure differences, which you check by comparing part structures in Windchill.
+        explanation: Visual compare is for seeing the design. A line-by-line list of added or removed components and quantity changes comes from Compare to Part Structure in Windchill.
 
   - type: flashcards
     title: Visualization deck
     cards:
       - front: "Creo View"
-        back: "PTC's viewer for 3D models and drawings. No CAD licence needed to look."
+        back: "PTC's viewer for 3D models and drawings. No CAD tool needed to look."
       - front: "Representation"
-        back: "The lightweight viewable published from CAD data, stored with a specific version."
+        back: "The lightweight viewable published from CAD data, belonging to a specific iteration."
       - front: "Thumbnail"
-        back: "Small preview image generated during publishing. No representation, no thumbnail."
+        back: "Small preview image created during publishing. No representation, no thumbnail."
       - front: "Visualization publishing (WVS)"
         back: "Trigger → queue → CAD worker → representation + thumbnail."
       - front: "Default representation"
         back: "The one that opens when you click the thumbnail."
       - front: "Markup"
-        back: "Notes and shapes on a captured view in Creo View. Save it to Windchill."
+        back: "Notes and measurements on Creo View's Markup tab. Save them to Windchill as an annotation set."
       - front: "Annotation set"
-        back: "A named bundle of annotations saved as its own object in Windchill."
-      - front: "Does a new version inherit old markups?"
-        back: "No. Markups stay with the version they describe."
+        back: "A named set of annotations (and the view they sit on) saved from Creo View to Windchill; listed in the Representations/Annotations table."
+      - front: "Does a B.2 review prove B.3 is fixed?"
+        back: "No. A review describes the version it looked at - check B.3 itself."
       - front: "Cross-section"
-        back: "Cut the model with a plane to see inside. Drag it through the area."
-      - front: "Exact vs tessellated geometry"
-        back: "Exact = precise measurements. Tessellated = triangle mesh, approximate."
+        back: "Sectioning tab: cut along X, Y or Z (or Quarter Cut) to see inside. Try more than one cut."
+      - front: "Viewer measurement vs drawing"
+        back: "Measure in Creo View to check. The released drawing and its tolerances are the spec."
       - front: "Visual compare vs structure compare"
-        back: "Visual: shape changes. Structure: components added, removed or changed in the BOM."
+        back: "Visual (Creo View): see the design change. Structure (Compare to Part Structure): line-by-line parts, quantities and attributes."

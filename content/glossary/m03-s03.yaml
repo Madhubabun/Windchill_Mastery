@@ -2,27 +2,27 @@
 - id: promotion-target-state
   term: Promotion target state
   plain: The state you want the objects to end up in, like Released.
-  definition: The lifecycle state chosen on a promotion request that its objects move to when the request is approved. The states you can pick depend on the objects' life cycle and your company's configuration.
-  aka: [Target state, Maturity state]
+  definition: The lifecycle state chosen in the Target Promotion State list of a promotion request, which its objects move to when the request is approved. The states offered come from the Promote transitions in the objects' life cycle; if there are none from the current state, Windchill reports that no valid states for promotion are available.
+  aka: [Target state, Target Promotion State]
   related: [promotion-request, lifecycle-state, life-cycle]
 
 - id: promotion-candidate
   term: Promotion candidate (promotion object)
   plain: One of the items in the bundle that's asking to level up.
-  definition: An object version added to a promotion request to be moved to the target state. All candidates on an approved request are promoted together; items that cannot be promoted (for example checked-out objects) are flagged when the request is created.
+  definition: An object version in a promotion request's Promotion Objects table that has been set for promotion, so it moves to the target state when the request is approved. Objects can be added or gathered with Collect Objects; every request needs at least one object set for promotion, and all candidates on an approved request are promoted together.
   aka: [Promotion object, Promotable]
   related: [promotion-request, promotion-target-state, version]
 
 - id: review-task
   term: Review task
   plain: Windchill asking you to look at something and leave comments.
-  definition: A workflow task that asks a reviewer to inspect the objects of a request, such as a promotion request, and record comments. Reviewers inform the decision but usually do not vote.
+  definition: A workflow task that asks a reviewer to inspect the objects of a request, such as the Review Promotion Request task, and record comments. In the out-of-the-box promotion processes, reviewers do not control the outcome, but the process does not end until they have given feedback.
   related: [task, workflow, approval-task]
 
 - id: approval-task
   term: Approval task
   plain: Windchill asking you to decide yes or no.
-  definition: A workflow task in which an approver votes, typically Approve or Reject, with a comment. A rejection on a promotion request stops the promotion; the exact vote options depend on the configured process.
+  definition: A workflow task in which an approver votes, typically Approve or Reject, with a comment - for example the Approve Promotion Request task. In the Promotion Request Approval process, any rejection ends the process in a rejection; the routing options of custom workflows are defined by the administrator.
   related: [task, workflow, review-task, promotion-request]
 
 - id: promotion-preference

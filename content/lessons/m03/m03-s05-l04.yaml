@@ -1,8 +1,11 @@
 id: m03-s05-l04
 subtitle: Measure the change process like a coach, and walk into an audit like you own the place.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [kpi, metrics, configuration-audit, fca, pca, status-accounting]
+sources:
+  - id: te
+    where: "Module 2: Activity: Explore the Windchill user interface (Change Monitor, Reports, Saved Reports, Data Monitors; report output formats such as CSV); Build custom Windchill table views (New View Wizard); Save searches (Advanced Search, Save This Search). Module 5: Create baselines. Module 6: Identify roles in the change management process (about 80% Fast Track, 20% Full Track); Activity: Analyze a change request (Fast-Track Approval, Full-Track Online and Offline Review)"
 
 blocks:
   - type: text
@@ -13,7 +16,9 @@ blocks:
 
       Good change metrics tell you where the process gets stuck and whether it fixes things for
       real. And an audit is the moment someone outside your team checks that your product matches
-      your data. Both get much easier when Windchill holds the records.
+      your data. Both get much easier when Windchill holds the records. (The KPIs and audit types
+      here are general configuration management practice; the Windchill parts are the tools you
+      pull the data with.)
 
   - type: callout
     variant: terms
@@ -39,7 +44,7 @@ blocks:
       - label: Reopen or rework rate
         cells: ["Changes that needed a follow-up change to fix them", "Measures change quality, not just speed", "Link follow-ups to the original change to count them"]
       - label: Fast-track share
-        cells: ["Share of changes that skipped the full CR route", "Healthy for small fixes; too high = control is leaking", "What counts as fast track depends on your configuration"]
+        cells: ["Share of change requests routed Fast-Track Approval instead of a Full-Track review", "Fast Track still has a CR but skips the CRB and CIB approvals; the course manual says about 80% of changes are Fast Track", "Too high for risky changes = control is leaking"]
       - label: Variance count
         cells: ["Approved one-time departures per product or period", "Rising variances = the design doesn't match reality", "Repeated variances should become a real change"]
       - label: Release-to-build lag
@@ -69,34 +74,41 @@ blocks:
       | Final release | 5 |
 
       The work itself took 11 days. Changes spent **19 days waiting** for a CCB that met once a month.
-      Maya switched to a weekly 30-minute CCB plus a fast-track route for low-risk document fixes.
+      Maya switched to a weekly 30-minute CCB and routed low-risk document fixes Fast Track, which
+      skips the board approvals.
       Six months later the average was 18 days, and the rework rate didn't rise.
     takeaway: Split cycle time by stage. The bottleneck is rarely where people think.
 
   - type: walkthrough
     title: Pull change data for your KPIs
-    who: Change managers and business administrators
-    where: [Search, Advanced Search]
+    who: Change administrators and business administrators
+    where: [Navigator, Search, Advanced Search]
     steps:
+      - title: Start with the Change Monitor
+        where: ["<product>", Change Monitor]
+        md: |
+          The product's **Change Monitor** shows the status of change objects, such as opened versus
+          closed problem reports over a period, and gives access to all open problem reports, change
+          requests and change notices.
       - title: Search for change objects
-        where: [Search, Advanced Search]
+        where: [Navigator, Search, Advanced Search]
         md: |
-          Choose the type, for example **Change Notice** or **Change Request**. Add criteria such as
-          the product context, state and a created-date range.
+          On the **Advanced Search** page, choose the type, for example **Change Notice** or **Change
+          Request**, and add criteria such as context and state.
       - title: Add the columns you need
-        where: [Search results, Table view]
+        where: [Search results, table menu, Customize, New View Wizard]
         md: |
-          Use a [[table-view|table view]] to show number, state, created date, last modified date and
-          any dates your company tracks (such as need date or resolution date).
+          Build a [[table-view|table view]] with the **New View Wizard** to show number, state, dates and
+          any other attributes your company tracks.
       - title: Save it
-        where: [Search results, Save search]
-        md: Save the search so you can run the same query every month. Consistent queries make trends meaningful.
-      - title: Export and analyse
-        where: [Search results, Actions or Export]
+        where: [Advanced Search, Save This Search]
+        md: Click **Save This Search** so you can run the same query every month. Consistent queries make trends meaningful.
+      - title: Use reports for the numbers
+        where: ["<product>", Reports]
         md: |
-          Export the table to a spreadsheet and calculate cycle time and aging. Many companies use
-          prebuilt Windchill reports or a dashboard tool for this instead; ask your administrator
-          what's available.
+          The **Reports** table lists predefined reports; run one and output it as CSV to calculate
+          cycle time and aging in a spreadsheet. Saved reports can feed a **data monitor**, which
+          emails you when a threshold is met - say, too many old change requests.
     result: A repeatable data pull for cycle time, backlog and aging.
 
   - type: animation

@@ -1,8 +1,23 @@
 id: m03-s04-l04
 subtitle: Nothing's moving and nobody knows why. Become the person who finds the jam in five minutes.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [workflow, troubleshooting, process-manager, robot, administrator]
+sources:
+  - id: ac
+    where: "Module 5: Define workflow template properties (Responsible Role receives error and deadline notifications and is the backup for role resolution; initiator by default; notify or abort on error); Add connectors and terminals to a workflow (And connector); Use robots to automate tasks; Identify OOTB promotion request settings (No valid states for Promotion). Module 2: Delete a user and delete groups (tasks without anyone go to the responsible role; then the initiator; otherwise the workflow is suspended and the administrator notified). Module 6: Identify context roles in OOTB context templates (Promotion Approvers and Reviewers); Describe team instances"
+  - id: te
+    where: "Module 6: Activity: Create and approve a promotion request (Process tab: Routing/Process History lets you end the process and delete user tasks, open the workflow process manager if you are an administrator; Process Status table); Activity: Complete a change notice to release product data (change notice Process tab, Tasks for Change Process)"
+  - id: hc-process-manager-node-display
+    label: PTC Help Center supplement
+    title: "Process Manager Node Display"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wfprocessmgr/WFProcessMgrProcessStatusAbout.html"
+    covers: "Node colours (running, completed, not started, suspended, failed or terminated, aborted); Restart Aborted Activity; Suspend, Resume, Terminate and Complete for activities and processes; appropriate permissions needed"
+  - id: hc-reassign-task
+    label: PTC Help Center supplement
+    title: "Reassigning a Task"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/assignments/AssignmentsTaskReassign.html"
+    covers: "Reassigning tasks with a reason"
 
 blocks:
   - type: text
@@ -19,12 +34,12 @@ blocks:
     variant: terms
     md: |
       **Plain words → official term**
-      - "the live map of the process" → *[[process-manager|Process Manager]]* (or a process view)
-      - "the step that's running now" → *open* or *running* [[workflow-activity|activity]]
-      - "a task nobody can see" → an activity whose **role** resolved to no one
-      - "the automatic step that failed" → a failed *robot* (for example a set state robot)
-      - "wait for all branches" → an *AND connector* or *synchronize* step
-      - "admin pause or stop" → *suspend*, *resume* or *terminate* a process
+      - "the live map of the process" → *[[process-manager|Process Manager]]*
+      - "the step that's running now" → the *running* [[workflow-activity|activity]] (shown green)
+      - "the backup when nobody can take a task" → the workflow's *Responsible Role*
+      - "the automatic step that failed" → a failed or *aborted* [[workflow-robot|robot]]
+      - "wait for all branches" → an *And connector*
+      - "admin pause or stop" → *Suspend*, *Resume* or *Terminate* a process or activity
 
   - type: diagram
     title: Where workflows get stuck
@@ -41,7 +56,7 @@ blocks:
           w: 200
           h: 70
           tone: primary
-          detail: The process is still running, but nothing visible is happening. Open its graphical view to see which activity is open.
+          detail: The process is still running, but nothing visible is happening. Open the Process Manager to see which node is running (green) or failed (orange or red).
         - id: person
           label: Waiting on a person
           sublabel: most common
@@ -51,8 +66,8 @@ blocks:
           tone: warning
           detail: |
             A task is sitting in someone's list - busy, on holiday or ignoring the email.
-            **Symptom:** an activity is open and has an assignee. **Fix:** remind them, or get
-            the task reassigned. Users and change managers can often handle this.
+            **Symptom:** an activity is running and has an assignee. **Fix:** remind them, or get
+            the task reassigned. Users and context managers can often handle this.
         - id: nobody
           label: Role with nobody in it
           sublabel: task assigned to no one
@@ -61,11 +76,12 @@ blocks:
           w: 220
           tone: danger
           detail: |
-            The activity is assigned to a role (say *Quality Reviewer*) but the team of that
-            product has nobody in that role, or the person left the company. **Symptom:** an open
-            activity, but no one has the task, or it went to a fallback person such as the
-            process creator. **Fix:** add someone to the team role and reassign. Usually a
-            product manager or admin job.
+            The activity is assigned to a role (say *Promotion Reviewers*) but the team of that
+            product has nobody in that role, or the person left the company. **Symptom:** the task
+            landed with the workflow's **Responsible Role** - by default the process initiator -
+            instead of a reviewer. If the user, the responsible role and the initiator are all
+            gone, Windchill suspends the workflow and notifies the administrator. **Fix:** add someone
+            to the team role and reassign. Usually a product manager or admin job.
         - id: parallel
           label: Waiting on a branch
           sublabel: AND / sync
@@ -74,9 +90,9 @@ blocks:
           w: 220
           tone: info
           detail: |
-            Several change tasks ran in parallel. The process only moves on when **all** are
-            done. **Symptom:** "my task is complete but nothing happened". **Fix:** find the other
-            open task - often a manufacturing or documentation task.
+            Several tasks ran in parallel and join at an **And** connector, which waits until every
+            incoming branch has fired. **Symptom:** "my task is complete but nothing happened".
+            **Fix:** find the other open task - often a manufacturing or documentation task.
         - id: robot
           label: Failed robot
           sublabel: automatic step errored
@@ -85,21 +101,23 @@ blocks:
           w: 220
           tone: danger
           detail: |
-            An automatic step failed, for example a **set state robot** could not move an object
-            to Released because it was still **checked out**, or the transition is not allowed in
-            its life cycle. **Symptom:** human tasks are all done, but states didn't change. Some
-            fixes are simple (check the object in), but restarting the step is an **admin** job.
+            An automatic step failed, for example a **Set State** robot. **Symptom:** human tasks are
+            all done, but states didn't change; in the Process Manager the node is **orange**
+            (execution failed or terminated) or **red** (aborted). Depending on the workflow's
+            settings, the Responsible Role gets an error notification. Restarting an aborted
+            activity needs the right permissions - usually an **admin** job.
         - id: object
-          label: Object not ready
-          sublabel: checked out or wrong state
+          label: Life cycle says no
+          sublabel: no allowed transition
           x: 290
           y: 330
           w: 220
           tone: warning
           detail: |
-            A resulting object is still checked out, is in an unexpected state, or a needed
-            object is missing from the change task. **Fix:** the task owner checks it in or
-            corrects the data, then the admin retries the step if it already failed.
+            The object's life cycle doesn't allow the move - it uses the wrong life cycle, or has no
+            transition from its current state. For promotion requests this shows up early as "No valid
+            states for Promotion are available." **Fix:** an administrator corrects the life cycle
+            template or reassigns the right one.
       edges:
         - { from: person, to: process, dashed: true }
         - { from: nobody, to: process, dashed: true }
@@ -117,21 +135,20 @@ blocks:
       - title: Look at its tasks and process
         where: ["CN-0451 information page", Tasks or Processes]
         md: |
-          Find the area that lists the change tasks and the process or routing history. Look for
-          anything **open**: which activity, who holds it, and since when. Names and tabs differ
-          between releases.
+          Click the **Process** tab. Its tables show the tasks of the process, which are done and which
+          are open, who holds them and the task history. Look for anything **open** and note since when.
       - title: Open the graphical view
-        where: ["<process>", Process Manager or View Process]
+        where: [Process tab, Routing/Process History, workflow process manager]
         md: |
-          If available, open the **Process Manager** view. Completed activities, the running one
-          and the ones not started yet are shown differently. The running one is where the
-          process waits.
+          Administrators can open the **Process Manager** from the Routing/Process History table.
+          Running nodes are green, completed ones light grey, not-started ones white, suspended ones
+          blue, failed or terminated ones orange and aborted ones red.
       - title: Check the objects
         where: ["CN-0451", Change tasks, Resulting objects]
-        md: Open each resulting object, such as the new revision of SC-1048. Is anything still **checked out**? Is it in the state you expect?
+        md: Open each resulting object, such as the new revision of SC-1048. Is it in the state you expect?
       - title: Write it down
         where: [Your notes or ticket]
-        md: "Record: process name, open activity, assignee (or none), how long it has waited and any object problems. That's your diagnosis."
+        md: "Record: process name, open or failed node, assignee (or none), how long it has waited and any object problems. That's your diagnosis."
     result: You can say in one sentence what the process is waiting on - and whether you can fix it or need an admin.
 
   - type: comparison
@@ -140,14 +157,14 @@ blocks:
     rows:
       - label: Task in a colleague's list
         cells: [Remind them or ask for a reassign, Only if nobody with rights can reassign]
-      - label: Your own object still checked out
-        cells: [Check it in or undo the checkout, If a robot already failed and must be retried]
       - label: Role empty or person left
         cells: [Tell the product or change manager, To fix team roles and reassign orphaned tasks]
-      - label: Robot failed or error message
-        cells: [Note the exact message and time, Always - they can view errors and retry or restart steps]
+      - label: Life cycle has no allowed transition
+        cells: [Note the object and the target state, To fix or reassign the life cycle template]
+      - label: Robot failed or aborted
+        cells: [Note the node and the time, "Always - Restart Aborted Activity needs the right permissions"]
       - label: Process must be stopped or redone
-        cells: ["Never terminate on your own", Suspend - resume - terminate are admin actions]
+        cells: ["Never terminate on your own", "Suspend, resume and terminate need the right permissions - an admin job"]
     takeaway: People problems you can chase. System problems you report - with evidence.
 
   - type: scenario
@@ -189,28 +206,28 @@ blocks:
           completes the task. The process moves to the release step... and stops again. All human
           tasks are done, but SC-1048 is still Under Review.
         choices:
-          - label: Check whether any resulting object is still checked out
+          - label: Ask an admin to open the Process Manager and look for a failed node
             next: s4
             good: true
-            feedback: A classic cause of a failed set state step.
+            feedback: When people are done but states didn't change, look at the automatic steps.
           - label: Wait another week
             next: p1
             feedback: Automatic steps don't fix themselves.
       - id: s4
         md: |
-          The drawing **SC-1048.drw** is still checked out to Priya from a last-minute fix. The
-          set state step couldn't move it. What now?
+          The Process Manager shows the **Set State** robot node in **red** - aborted. Maya, the
+          workflow's Responsible Role, had an error notification in her inbox. What now?
         choices:
-          - label: Priya checks it in, then you ask an admin to retry the failed step with the details
+          - label: Send the admin the node, the error details and the time, and ask them to fix the cause and use Restart Aborted Activity
             next: win
             good: true
-            feedback: Fix the data, then let the admin restart the robot.
-          - label: Priya checks it in and you wait for it to retry by itself
+            feedback: Fix the cause, then let the admin restart the robot.
+          - label: Wait for it to retry by itself
             next: p2
-            feedback: Some failed steps won't retry on their own.
+            feedback: An aborted activity stays aborted until someone restarts it.
       - id: win
         md: |
-          The admin retries the step. SC-1048 B.1 and its drawing go to **Released** and Ana's
+          The admin fixes the cause and restarts the aborted activity. SC-1048 B.1 and its drawing go to **Released** and Ana's
           line switches over. Your ticket - process, activity, cause and fix - took the admin
           five minutes.
         outcome: success
@@ -218,7 +235,7 @@ blocks:
         md: A week later it's still waiting. Someone finally reports it, and you lose a week of production on the new steel.
         outcome: partial
       - id: p2
-        md: Nothing happens for two days. An admin finally retries the step. Right fix, slow route.
+        md: Nothing happens for two days. An admin finally restarts the step. Right fix, slow route.
         outcome: partial
       - id: f1
         md: The admin restarts the process. Everyone gets their tasks again and Sam's task is still the problem. Two days lost and a messy history.
@@ -238,10 +255,10 @@ blocks:
       - id: s1
         md: |
           Promotion request **PROM-0453** for SC-4510 (a new brake cable clip) has an open review
-          activity. The Process Manager shows it was assigned to **Jordan**, who left Acme last
-          month. Jordan's account is disabled. What's the best move?
+          task. The Process tab shows it was assigned to **Jordan**, who left Acme last month and is
+          still listed in the product team's **Promotion Reviewers** role. What's the best move?
         choices:
-          - label: Ask an admin or the product manager to reassign the task and replace Jordan in the team role
+          - label: Ask an admin or the product manager to reassign the task and replace Jordan in the Promotion Reviewers role
             next: win
             good: true
             feedback: Fix this task and every future one.
@@ -252,13 +269,13 @@ blocks:
             next: p2
             feedback: The new one hits the same empty role.
       - id: win
-        md: The task moves to Leo, and the team role now lists Leo as reviewer. Future processes route correctly.
+        md: The task moves to Leo, and the Promotion Reviewers role now lists Leo. Future promotion requests pre-fill the right reviewer.
         outcome: success
       - id: p1
         md: This one moves. Next week's promotion request stalls in exactly the same place.
         outcome: partial
       - id: p2
-        md: The new request resolves the same role to the same disabled user. You're back where you started, with an extra canceled request in the history.
+        md: The new request pre-fills its reviewers from the same team role - Jordan again. You're back where you started, with an extra canceled request in the history.
         outcome: fail
 
   - type: callout
@@ -277,26 +294,28 @@ blocks:
       After a reorganisation, Acme's e-bike team found that **40 promotion requests** had stalled
       over three weeks. Every one was waiting on the same review activity. Maya opened a few in
       the Process Manager: the review role on the e-bike product's team had been emptied when
-      people moved teams. The tasks had gone to a fallback user who didn't know what to do with
-      them.
+      people moved teams. With nobody to take them, the tasks had gone to the workflow's
+      Responsible Role - a user who didn't know what to do with them.
 
-      The admin added two reviewers to the role and bulk-reassigned the open tasks. All 40 moved
+      The admin added two reviewers to the role and reassigned the open tasks in one go (the Tasks
+      table can reassign several selected tasks at once). All 40 moved
       within a day. Acme then added "check team roles" to its reorganisation checklist.
     takeaway: When many processes stall at the same step, suspect the setup (roles), not the people.
 
   - type: callout
     variant: pitfall
     md: |
-      **Asking for a restart before a diagnosis.** Terminating and restarting a process throws
-      away where it was, can send duplicate tasks, and rarely fixes the cause. Find the open
-      activity and the reason first.
+      **Asking for a restart before a diagnosis.** Terminating a process can't be undone, and starting
+      over sends everyone their tasks again without fixing the cause. Find the open or failed node
+      and the reason first.
 
   - type: callout
     variant: pro-tip
     md: |
-      Write admin tickets like this: *"CN-0451, release step, set state failed after Sam's task
-      completed on the 12th. SC-1048.drw was checked out - now checked in. Please retry."* One
-      sentence with object, activity, symptom and what you already fixed gets solved fast.
+      Write admin tickets like this: *"CN-0451, Set State robot aborted (red in Process Manager) after
+      Sam's task completed on the 12th. Maya has the error notification. Please check the cause and
+      restart the aborted activity."* One sentence with object, node, symptom and evidence gets
+      solved fast.
 
   - type: quiz
     passMark: 0.7
@@ -305,12 +324,12 @@ blocks:
         prompt: All human tasks on a change are complete, but the parts never reached Released. What's the most likely cause?
         options: [A task is still in someone's list, An automatic step such as a set state robot failed, The vault is full, The CCB voted twice]
         answer: 1
-        explanation: When people are done but states didn't change, suspect the automatic steps. A checked-out object or a blocked transition is a common reason.
+        explanation: When people are done but states didn't change, suspect the automatic steps. Look for an orange or red node in the Process Manager.
       - kind: single
         prompt: Your change task is complete, but the process hasn't moved. Other change tasks ran in parallel. What do you check?
         options: [Whether the other parallel tasks are still open, Your workspace, The revision letter, Nothing - it's broken]
         answer: 0
-        explanation: Parallel branches often join at a step that waits for all of them. Find the other open task.
+        explanation: Parallel branches often join at an And connector, which waits for all of them. Find the other open task.
       - kind: multi
         prompt: Which of these should go to an administrator? (Choose all that apply.)
         options:
@@ -319,7 +338,7 @@ blocks:
           - Reminding a colleague about their task
           - Fixing an empty team role across many processes
         answers: [0, 1, 3]
-        explanation: Reminders are something anyone can do. Retrying steps, terminating processes and fixing roles in bulk need admin rights and care.
+        explanation: Reminders are something anyone can do. Restarting aborted activities, terminating processes and fixing roles in bulk need the right permissions and care.
       - kind: truefalse
         prompt: If many processes stall at the same activity, the likeliest cause is the setup, such as an empty team role.
         answer: true
@@ -328,6 +347,6 @@ blocks:
   - type: summary
     points:
       - Workflows rarely break - they wait. Find what the open activity is waiting on.
-      - Five usual suspects - a busy person, an empty role, a parallel branch, a failed robot, an object not ready.
-      - Use the change object's tasks and the Process Manager view to diagnose.
+      - Five usual suspects - a busy person, an empty role, a parallel branch, a failed robot, a life cycle that says no.
+      - Use the change object's Process tab and the Process Manager to diagnose.
       - Chase people yourself. Send system issues to admins with a one-sentence diagnosis. Never restart blindly.

@@ -1,8 +1,23 @@
 id: m02-s04-l02
 subtitle: That tiny picture on the information page has a backstory. Learn it and you'll know why it's sometimes missing.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [visualization, thumbnail, representation, publishing, browser-viewing]
+sources:
+  - id: ac
+    where: "Describe Windchill Visualization Services (WVS); Describe the WVS architecture (Publisher, Worker Agent, Loader creates 2D and 3D thumbnails); Administer worker agents (Site > Utilities); View and manage WVS publication jobs (WVS Job Monitor from Quick Links, the Representations/Annotations table or Utilities; Resubmit failed jobs); Manage publishing and thumbnail generation; Configure Creo View and Publish Rules; Visualize large assemblies with QuickView; Describe the WVS Publisher (waiting and processing queues)"
+  - id: te
+    where: "Module 2: mini-thumbnails in tables; part Structure tab > Visualization tab; Activity: Open a CAD model in Creo View (Representations/Annotations table, default row, Visualization tab is added by an administrator); Module 4: Identify characteristics of CAD documents (Content tab holds representations and annotations); drawing activity (Save Representation)"
+  - id: hc-create-rep
+    label: PTC Help Center supplement
+    title: "Creating a Representation from a CAD Document"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/wvsvisual/VisualRepCreateDocument.html"
+    covers: "New Representation in the Representations/Annotations table; Set as Default Representation; Creo Representation (simplified rep) structure type; Submit Publish Job and track it in the WVS Job Monitor"
+  - id: hc-copy-forward
+    label: PTC Help Center supplement
+    title: "Copying Representations Forward"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/WVSPrintManagement/WVSVisualizationCopyForwardReps.html"
+    covers: "Representations belong to iterations; whether they are carried to a new iteration depends on how they were made (restricted copy forward by default)"
 
 blocks:
   - type: text
@@ -44,21 +59,21 @@ blocks:
         - { from: thumb, to: page }
     chapters:
       - title: Something triggers publishing
-        caption: Priya checks in the frame. Depending on company rules, check-in, a state change or a scheduled job can trigger publishing - or someone can request it by hand.
+        caption: Priya checks in the frame. Depending on the company's publish rules, a check-in or a schedule can trigger publishing - or someone can request it by hand.
         show: [checkin]
         highlight: [checkin]
       - title: The job waits its turn
-        caption: The publish job joins a **queue**. On a busy Monday morning, big assemblies can wait a while.
+        caption: The publish job joins a **queue** (high, medium or low priority). On a busy Monday morning, big assemblies can wait a while.
         show: [checkin, queue]
         highlight: [queue]
         flow: [checkin>queue]
       - title: A CAD worker opens the data
-        caption: A **CAD worker** loads the model with an adapter for that CAD tool (Creo, or another CAD system via its adapter) and converts it.
+        caption: A **CAD worker** loads the model with a Creo View adapter for that CAD tool and converts it into a lightweight viewable.
         show: [checkin, queue, worker]
         highlight: [worker]
         flow: [queue>worker]
       - title: Two outputs at once
-        caption: The worker writes the **representation** and generates **thumbnail** images from it. Both are stored with this version of the object.
+        caption: The converted data is loaded into Windchill as a **representation**, and 2D and 3D **thumbnail** images are created for it. Both belong to this iteration of the object.
         show: [checkin, queue, worker, rep, thumb]
         highlight: [rep, thumb]
         flow: [worker>rep, worker>thumb]
@@ -85,8 +100,8 @@ blocks:
           tone: accent
           shape: doc
           detail: |
-            The CAD document version. Representations belong to a **specific version** - A.4 has its own,
-            A.3 kept its own.
+            The CAD document iteration. Representations belong to a **specific iteration** - A.3 keeps
+            its own when A.4 is checked in, and A.4 needs its own publish.
         - id: default
           label: Default rep
           sublabel: opens on click
@@ -97,7 +112,7 @@ blocks:
           shape: doc
           detail: |
             The representation marked as **default** is the one that opens when you click the thumbnail.
-            Users with the right permissions can change which one is default.
+            Creating a new representation offers a **Set as Default Representation** check box.
         - id: simplified
           label: Simplified rep
           sublabel: no fasteners
@@ -107,9 +122,9 @@ blocks:
           tone: info
           shape: doc
           detail: |
-            A second representation, for example a lighter one without screws and washers, or one built
-            from a CAD simplified representation. Handy for huge assemblies.
-          real: Which extra representations exist is decided by publishing rules your admin sets up.
+            A second representation, for example one built from a Creo simplified representation.
+            Handy for huge assemblies.
+          real: Which extra outputs are published is controlled by publish rules that business administrators manage.
         - id: thumb
           label: Thumbnail
           sublabel: preview image
@@ -118,8 +133,9 @@ blocks:
           w: 160
           tone: success
           detail: |
-            A small image generated during publishing. Shown in the information page and, in many setups,
-            in search results and tables. It comes from the representation - so it's only as fresh as that.
+            A small image created during publishing. Shown on the information page and, if your site
+            allows mini-thumbnails, in tables such as Folder Contents and Search Results. It comes from
+            the representation - so it's only as fresh as that.
         - id: markups
           label: Markups
           sublabel: review notes
@@ -127,7 +143,7 @@ blocks:
           y: 160
           w: 160
           tone: warning
-          detail: Saved review notes and sketches made in Creo View. You'll meet them in the next lesson.
+          detail: Annotation sets saved from Creo View appear in the same Representations/Annotations table. You'll meet them in the next lesson.
         - id: part
           label: Part SC-2000
           sublabel: may show a rep too
@@ -136,9 +152,8 @@ blocks:
           w: 200
           tone: primary
           detail: |
-            The part linked to this CAD document can also have a representation - often published from
-            its owner CAD document - so you can view it straight from the part. How this is set up varies
-            by company.
+            The part's **Structure** tab has a **Visualization** tab that shows published geometry from
+            the CAD models linked to its parts, so you can view it straight from the part.
       edges:
         - { from: cad, to: default }
         - { from: cad, to: simplified }
@@ -190,7 +205,7 @@ blocks:
         label: Fix the issue and republish
         when: { publish: Failed }
         do: [{ set: { publish: Queued, recovered: true } }]
-        log: After fixing the cause, the job is resubmitted for A.{iteration}. It's back in the queue.
+        log: After fixing the cause, the failed job is resubmitted from the WVS Job Monitor for A.{iteration}. It's back in the queue.
         blockedHint: Republishing is for failed jobs.
     goals:
       - label: Get a thumbnail on a new iteration
@@ -209,34 +224,35 @@ blocks:
       "Windchill lost the files" and started emailing CAD models around.
 
       Actually the CAD files were fine. The **CAD worker machine** had been rebooted for updates over the
-      weekend and its service didn't restart. Publish jobs piled up in the queue. The admin restarted the
-      worker, the queue drained in an hour, and the thumbnails appeared - with nobody's data lost.
+      weekend and its worker didn't restart. Publish jobs piled up in the queue. The admin started the
+      worker again from the Worker Agent Administration utility, the queue drained in an hour, and the
+      thumbnails appeared - with nobody's data lost.
     takeaway: Missing thumbnails usually mean a publishing problem, not missing data. Check the queue before panicking.
 
   - type: walkthrough
-    title: View a representation in the browser
+    title: Find and open a specific representation
     who: Any user with read access
-    where: ["<object> information page", Representations]
+    where: ["<object> information page", "Representations/Annotations"]
     steps:
       - title: Open the information page
         where: [Search, "SC-2000", Information page]
         md: Open the CAD document or part. Check the version you're on.
       - title: Find its representations
-        where: [Information page, "Representations/Annotations"]
+        where: [Information page, Content tab, "Representations/Annotations"]
         md: |
-          Look for the table of representations and annotations. In many releases it sits on a tab such
-          as **Visualization** or **Related Objects**; the exact tab name varies. It lists each
-          representation, which one is **default**, and any markups.
+          On a CAD document, the **Content** tab has the **Representations/Annotations** table. It
+          lists each representation, marks the **default** one, and shows saved annotation sets. On
+          a part, the table is not shown out of the box - an administrator adds it, for example on a
+          **Visualization** tab.
       - title: Open the one you want
-        where: [Representations, "<representation>", View]
+        where: [Representations/Annotations, "<representation>", thumbnail]
+        md: Click the thumbnail in that row to open the representation in Creo View.
+      - title: See it inside Windchill
+        where: ["SC-2000 part information page", Structure tab, Visualization tab]
         md: |
-          Click the view icon for a representation. Depending on your release and setup it opens in a
-          **browser-based viewer** (nothing to install) or in the Creo View desktop app.
-      - title: Optional - change the default
-        where: [Representations, "<representation>", Actions]
-        md: |
-          If you have permission, an action lets you set a different representation as default. The
-          thumbnail and the click-to-view then use that one.
+          For a quick look without launching Creo View, open the part's **Structure** tab and its
+          **Visualization** tab. Very large assemblies may be too big for the browser; admins can
+          publish compressed *QuickView* viewables for those.
     result: You opened a specific representation - not just whatever the thumbnail shows.
 
   - type: walkthrough
@@ -247,16 +263,17 @@ blocks:
         where: [Information page]
         md: Is this a version that was just checked in? Give the queue a few minutes, then refresh.
       - title: Look for representations
-        where: [Information page, "Representations/Annotations"]
+        where: [Information page, Content tab, "Representations/Annotations"]
         md: |
-          An empty table means nothing was published for this version. Some setups offer an action to
-          request publishing (wording such as *Create Representation* or *Publish* - varies by release).
+          An empty table means nothing was published for this iteration. You can request one with
+          the **New Representation** icon in that table, then **Submit Publish Job**. The **WVS Job
+          Monitor** (reachable from the table or Quick Links) shows the jobs you submitted.
       - title: Admins - check the job queue
-        where: [Site, Utilities, "WVS Job Monitor"]
+        where: [Site, Utilities, WVS Job Monitor]
         md: |
-          Administrators can see queued, running and failed publish jobs in the Windchill Visualization
-          Services job monitor and the publishing queue, and read the error for each failure. Location
-          and naming vary by release.
+          From **Site > Utilities > WVS Job Monitor** administrators see executing, failed and
+          successful jobs with their details, can **Resubmit** a failed job, and reach tools such as
+          **Job Statistics** and **Publish and Thumbnail Control**.
     result: You know whether the thumbnail is pending, failed, or simply never requested.
 
   - type: callout
@@ -269,13 +286,14 @@ blocks:
   - type: callout
     variant: pro-tip
     md: |
-      For huge assemblies like the full Scooter S2, ask whether a **simplified representation** is
-      published. It loads in seconds instead of minutes on a laptop or tablet.
+      For huge assemblies like the full Scooter S2, ask whether a lighter representation is
+      published - one built from a Creo simplified representation, or a QuickView viewable for the
+      browser. It loads far faster on a laptop.
 
   - type: flashcards
     cards:
       - front: "Where does a thumbnail come from?"
-        back: "It's generated during publishing, from the representation of that version."
+        back: "It's created during publishing, alongside the representation of that iteration."
       - front: "No thumbnail on a new version - most likely cause?"
         back: "Publishing hasn't run yet or it failed. The CAD data is usually fine."
       - front: "Default representation"
@@ -283,7 +301,7 @@ blocks:
       - front: "Windchill Visualization Services (WVS)"
         back: "The part of Windchill that manages publishing representations and thumbnails."
       - front: "Do representations belong to a version?"
-        back: "Yes. Each version has its own. A.3's representation doesn't update when A.4 is checked in."
+        back: "Yes, to an iteration. A.3's representation doesn't update when A.4 is checked in; A.4 is published on its own."
 
   - type: quiz
     passMark: 0.7
@@ -307,4 +325,4 @@ blocks:
       - Thumbnails are a by-product of publishing a representation - no representation, no thumbnail.
       - Publishing runs in the background through a queue and CAD workers; triggers are configurable.
       - Each version can have several representations; the default one opens on click.
-      - View a specific representation from the information page's representations table.
+      - Open a specific representation from the Representations/Annotations table (Content tab of a CAD document).
