@@ -1,8 +1,15 @@
 id: m01-s01-l04
 subtitle: Follow one cracked kickstand from a service report to the factory floor.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-13"
 tags: [change, workflow, roles, day-in-the-life, basics]
+sources:
+  - id: te
+    where: "Module 6: OOTB change management process: steps; Identify roles in the change management process (Change Review Board, Change Admin I/II/III, Fast Track and Full Track); Change management process: Identify Need (create a problem report from a part's information page, Actions > New > New Problem Report; all users can create problem reports); completing tasks from the My Tasks table (Complete Task)"
+  - id: te
+    where: "Module 2: Use the Windchill Home page (My Tasks table); Locate data in Windchill (Search field in the header); View information about objects; Describe revision and iteration control"
+  - id: te
+    where: "Module 4: Update CAD documents: check out and check in from Creo"
 
 blocks:
   - type: text
@@ -54,12 +61,12 @@ blocks:
         show: [pr]
         highlight: [pr]
       - title: "Monday 14:00 - Propose a fix"
-        caption: Priya, the change analyst, turns it into a **change request**. She checks what's affected - the part, its drawing, the BOM and the spare-parts list.
+        caption: Priya, a change administrator, turns it into a **change request**. She checks what's affected - the part, its drawing, the BOM and the spare-parts list.
         show: [pr, cr]
         highlight: [cr]
         flow: [pr>cr]
       - title: "Tuesday 10:00 - The board decides"
-        caption: The **change review board** (engineering, manufacturing, quality, service) looks at cost and impact. Approved, but old stock may be used up first.
+        caption: The **change review board** (engineering, manufacturing, quality; Windchill uses this role in its Full Track change process) looks at cost and impact. Approved, but old stock may be used up first.
         show: [pr, cr, crb]
         highlight: [crb]
         flow: [cr>crb]
@@ -94,25 +101,25 @@ blocks:
 
   - type: walkthrough
     title: Sam's Monday - report a problem against a part
-    who: Users your company allows to create problem reports
+    who: Any Windchill user (out of the box, all users can create problem reports)
     steps:
       - title: Find the part
-        where: [Search box in the header]
-        md: Type the part number or name (for example `KICKSTAND`) and open the part from the results.
+        where: [Windchill header, Search field]
+        md: Type the part number or name (for example `KICKSTAND`) and press Enter.
       - title: Open its information page
-        where: ["<the part>", Information page]
+        where: ["<the part>", View Information]
         md: The part's **information page** shows its attributes, revision, state and related data. Check you're on the latest revision.
       - title: Start a problem report
         where: ["<the part>", Actions, New, New Problem Report]
         md: |
-          From the part's **Actions** menu choose the new problem report action. Starting from the part
-          usually adds it as an affected object for you. (You can also create one from the product's change area.)
+          On the part's information page, open the **Actions** menu, point to **New** and choose **New Problem
+          Report**. Because you started from the part, it is already selected as the affected object.
       - title: Describe the problem
         where: [New Problem Report window]
-        md: Give it a clear name and description, set the priority or category your company uses, and attach photos or test results.
+        md: Give it a clear name and description, pick a category and priority, set a need date, and attach photos or test results on the attachments step.
       - title: Submit
         where: [New Problem Report window, Finish]
-        md: Finish the wizard. The problem report starts its workflow, and the change analyst gets a task to review it.
+        md: Finish the wizard. The problem report starts its workflow, and out of the box the users in the **Change Admin I** role get an *Analyze Problem Report* task.
     result: A problem report linked to the kickstand part, visible to everyone working on the product.
 
   - type: walkthrough
@@ -120,10 +127,10 @@ blocks:
     who: Any user who has been assigned a workflow task
     steps:
       - title: Go home
-        where: [Navigator, Home]
-        md: Your **Home** page lists the workflow tasks assigned to you (the exact table name varies by release and setup).
+        where: [Home icon, My Tasks table]
+        md: Your **Home** page has a **My Tasks** table listing the tasks assigned to you, directly or through a role you hold.
       - title: Open the task
-        where: [Home, "<your task>"]
+        where: [My Tasks table, "<your task>"]
         md: Click the task. It explains what's needed and links to the change notice and the affected objects.
       - title: Do the work, then complete the task
         where: ["<your task>", Complete Task]
@@ -201,7 +208,7 @@ blocks:
   - type: callout
     variant: pro-tip
     md: |
-      Check your **Home** task list at the start and end of each day. In many companies a change stalls
+      Check the **My Tasks** table on your Home page at the start and end of each day. In many companies a change stalls
       for days simply because one approval task sat unnoticed.
 
   - type: quiz
@@ -215,7 +222,7 @@ blocks:
         prompt: Who decides whether a proposed change goes ahead?
         options: [The engineer who found it, The change review board, ERP, The factory supervisor]
         answer: 1
-        explanation: The change review board - a cross-functional group - weighs cost, impact and timing before approving a change request.
+        explanation: The change review board - a cross-functional group - weighs cost, impact and timing before approving a change request. In Windchill's out-of-the-box process this role is used in the Full Track change process.
 
   - type: summary
     points:

@@ -1,0 +1,246 @@
+id: m02-s01-l08
+subtitle: Check in a Word file without ever opening a browser tab.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [documents, office, desktop-integration, dti, word, outlook]
+sources:
+  - id: te
+    where: "Module 3: Manage documents in Windchill: overview (integration with Microsoft Office and File Explorer); Activity: Create a document from a template (DTI note); Create Windchill documents in Microsoft Office: overview"
+  - id: hc-dti-create
+    label: PTC Help Center supplement
+    title: "Creating Windchill Documents Using DTI"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/dti/DTIDocCreate.html"
+    covers: "Ways to create documents with DTI (New Document, New Document from Template, New Document from Attachment in Outlook, drag and drop under the Windchill Documents node, Save As); file must be open and saved; previously downloaded files open Check In instead; New Document dialog fields (context, type, name, description, location, keep checked out, keep document open)"
+  - id: hc-dti-menu
+    label: PTC Help Center supplement
+    title: "Windchill Menu Actions (Desktop Integration)"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/dti/DTIMenuRef.html"
+    covers: "Windchill tab actions in Office: New Document, New Document from Template, New Template, Open, Search, Update to Latest, Revert to Server Copy, Check Out, Check In, Undo Checkout, Set State, Revise, Promote, View Information, Edit Attributes, Insert, Compare, Remove Windchill Info, Server, Configuration, Disconnect"
+  - id: hc-dti-office
+    label: PTC Help Center supplement
+    title: "Microsoft Office Integration"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/dti/DTIMicrosoftIntegration.html"
+    covers: "DTI adds a Windchill tab to Word, Excel, PowerPoint and Outlook"
+
+blocks:
+  - type: text
+    md: |
+      Kai writes the Scooter S2 user manual in Word. Every update used to go like this: save in
+      Word, open the browser, find the document, check out, upload, check in, type a comment, close
+      the tab. Ten clicks of context switching, five times a day.
+
+      With **Windchill Desktop Integration** installed, Word grows a **Windchill** tab. Kai checks
+      out, edits and checks in right where he's typing. Same Windchill document, same versions, same
+      rules - just a different doorway.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the Windchill add-in for Office" → [[desktop-integration|Windchill Desktop Integration (DTI)]]
+      - "the extra ribbon tab in Word" → the *Windchill* tab
+      - "save this file as a new Windchill document" → *New Document*
+      - "start from a company template" → *New Document from Template*
+      - "turn this file into a template" → *New Template*
+      - "the main file the document manages" → [[primary-content|primary content]]
+
+  - type: diagram
+    title: Two doorways, one document
+    caption: Office with DTI and the browser both talk to the same Windchill server. Click each box.
+    diagram:
+      width: 800
+      height: 360
+      groups:
+        - { label: "Kai's laptop", x: 10, y: 10, w: 330, h: 340, tone: neutral }
+      nodes:
+        - id: word
+          label: Word / Excel / PPT
+          sublabel: with Windchill tab
+          x: 40
+          y: 40
+          w: 270
+          tone: accent
+          detail: |
+            DTI adds a **Windchill** tab to Word, Excel, PowerPoint and Outlook. From it you can
+            create documents, open and search, check out and in, update to the latest iteration,
+            set state, revise, promote, view information and edit attributes - without the browser.
+        - id: outlook
+          label: Outlook
+          sublabel: attachments → documents
+          x: 40
+          y: 140
+          w: 270
+          tone: accent
+          detail: Outlook gets an extra action that creates Windchill documents from message attachments.
+        - id: explorer
+          label: File Explorer
+          sublabel: Windchill Documents node
+          x: 40
+          y: 240
+          w: 270
+          tone: neutral
+          detail: |
+            You can also create documents from File Explorer - for example by dragging files into a
+            folder under the **Windchill Documents** node, which opens a multiple-documents dialog.
+        - id: server
+          label: Windchill server
+          sublabel: must be connected
+          x: 420
+          y: 140
+          w: 180
+          tone: info
+          shape: cylinder
+          detail: DTI only works while it's connected to an active Windchill server. The Connection group on the tab manages servers.
+        - id: browser
+          label: Web browser
+          sublabel: the usual UI
+          x: 620
+          y: 40
+          w: 160
+          tone: neutral
+          detail: The normal Windchill interface. Anything done through DTI shows up here too - it's the same document.
+        - id: doc
+          label: Document
+          sublabel: "MAN-0012 A.3"
+          x: 620
+          y: 240
+          w: 160
+          tone: primary
+          shape: doc
+          detail: One Windchill document with versions, state and history - whichever doorway created or changed it.
+      edges:
+        - { from: word, to: server, bidirectional: true }
+        - { from: outlook, to: server }
+        - { from: explorer, to: server }
+        - { from: browser, to: server, bidirectional: true }
+        - { from: server, to: doc }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      People who live in Office all day - technical writers, quality engineers, project managers -
+      are exactly the people who "forget" to check in. Putting check-out and check-in on the ribbon
+      they already use removes the excuse. Fewer stale copies on laptops, more of the truth in
+      Windchill.
+
+  - type: comparison
+    title: Which doorway for which job?
+    columns: [Office with DTI, Browser]
+    rows:
+      - label: Writing or editing an Office file
+        cells: [Best - check out and in from the ribbon, Works - download then upload]
+      - label: Starting from a company template
+        cells: [New Document from Template, New Document wizard - Template list]
+      - label: Saving emailed attachments
+        cells: [New Document from Attachment in Outlook, Download then upload each one]
+      - label: Non-Office files or no DTI installed
+        cells: [Not the right tool, Best]
+      - label: Exploring structure or where-used
+        cells: [View Information links to the browser page, Best]
+    takeaway: Use DTI when the work happens inside an Office file. Use the browser for everything around it.
+
+  - type: walkthrough
+    title: Create a Windchill document from Word
+    who: An Office user with DTI installed and create rights in the target folder
+    where: [Word, Windchill tab, New]
+    steps:
+      - title: Connect and save the file
+        where: [Word, Windchill tab, Connection]
+        md: |
+          Make sure DTI is connected to your Windchill server. Save the file locally first - DTI
+          shows an error if the file hasn't been saved.
+      - title: Choose New Document
+        where: [Word, Windchill tab, New, New Document]
+        md: |
+          **New Document** uses the open file as primary content. (**New Document from Template**
+          starts from a Windchill template instead; **New Template** turns the current file into a
+          template.)
+      - title: Set the context and type
+        where: [Windchill Desktop Integration dialog, Set Context]
+        md: Pick the product or library, then choose the document **Type**. Available types depend on your site.
+      - title: Fill in attributes and location
+        where: [Windchill Desktop Integration dialog, Attributes]
+        md: |
+          The name is generated from the file name - check it. Add a description. For the location,
+          let Windchill pick the folder automatically or select one yourself.
+      - title: Choose the options and finish
+        where: [Windchill Desktop Integration dialog, Finish]
+        md: |
+          Decide whether to **keep it checked out** and **keep the document open** in Word. Your DTI
+          preferences set the defaults. Click **Finish**.
+    result: The Word file is now the primary content of a new Windchill document - visible in the browser like any other.
+
+  - type: walkthrough
+    title: Edit an existing document from Word
+    where: [Word, Windchill tab]
+    steps:
+      - title: Open it from Windchill
+        where: [Windchill tab, Open, Search]
+        md: Use **Open** or **Search** on the Windchill tab to find the document.
+      - title: Check out
+        where: [Windchill tab, Check Out]
+        md: Click **Check Out** so nobody else changes it while you work.
+      - title: Edit, then check in
+        where: [Windchill tab, Check In]
+        md: |
+          Make your changes and click **Check In**. A new iteration is created. Changed your mind?
+          **Undo Checkout** releases it without a new iteration.
+    result: The new iteration is in Windchill without a single browser tab.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **"I wanted a *new* document, but Windchill opened Check In."** If the file was downloaded
+      from the same Windchill server before, DTI recognises it and offers Check In for the existing
+      document. To make a genuinely new document, use **Remove Windchill Info** first (it saves a
+      local copy disconnected from Windchill), or hold **Ctrl** while dragging the file.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Use **Insert** on the Windchill tab to place Windchill attribute fields (like the number or
+      revision) into the document body, and **Refresh Properties** to update them. Your title page
+      then always shows the real revision instead of whatever someone typed last month.
+
+  - type: callout
+    variant: note
+    md: Which Office versions DTI supports depends on your Windchill release - PTC lists them in the Release Advisor. DTI is an add-in that has to be installed before the Windchill tab appears.
+
+  - type: flashcards
+    cards:
+      - { front: Windchill Desktop Integration (DTI), back: "An add-in that puts a Windchill tab in Word, Excel, PowerPoint and Outlook so you can work with Windchill documents without the browser." }
+      - { front: New Document (DTI), back: Creates a Windchill document with the open file as primary content. }
+      - { front: New Document from Template (DTI), back: Creates a Windchill document from an existing Windchill document template. }
+      - { front: New Template (DTI), back: Creates a new Windchill template using the current file as primary content. }
+      - { front: New Document from Attachment, back: The Outlook action that turns message attachments into Windchill documents. }
+      - { front: Remove Windchill Info, back: "Saves a local copy that's no longer linked to Windchill - so it can become a new document." }
+      - { front: DTI prerequisite, back: "A connection to an active Windchill server, and (for Office files) the file saved first." }
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Kai has the Scooter S2 manual open in Word and wants to save it as a brand-new Windchill document. Which DTI action?
+        options: [New Template, New Document, Revert to Server Copy, Compare]
+        answer: 1
+        explanation: New Document uses the current file as primary content. New Template would make it a template; the others work on existing documents.
+      - kind: single
+        prompt: When is the browser the better choice than DTI?
+        options:
+          - Editing a Word file you checked out
+          - Saving Outlook attachments as documents
+          - Working with a CAD part structure
+          - Checking in an Excel sheet you just changed
+        answer: 2
+        explanation: DTI is built for Office files. Structures, CAD data and most non-document work stay in the browser (or the CAD tool).
+      - kind: truefalse
+        prompt: A document created through DTI is a different kind of object from one created in the browser.
+        answer: false
+        explanation: It's the same Windchill document with the same versions, states and history. DTI is just another doorway.
+
+  - type: summary
+    points:
+      - DTI adds a Windchill tab to Word, Excel, PowerPoint and Outlook; File Explorer works too.
+      - New Document, New Document from Template and New Template create documents and templates from Office.
+      - Check out, check in, undo checkout, set state, revise and promote are on the ribbon.
+      - Use DTI when the work is inside an Office file; use the browser for everything else.

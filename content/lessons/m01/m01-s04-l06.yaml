@@ -1,0 +1,195 @@
+id: m01-s04-l06
+subtitle: Same folder, two people, two different views. Here's who decides what you see.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [access-control, permissions, teams, roles, lifecycle-state, basics]
+sources:
+  - id: te
+    where: "Module 2: Describe products and libraries (rules per context); Describe revision and iteration control (state with access rules); Identify how access is controlled; Activity: Explore products and libraries (Team link, Members table); Subscribe to Windchill objects; Communicate with Windchill team members (Email Page)"
+  - id: te
+    where: "Module 1: Manage product data (secure access control); Enable non-expert access to PLM data (access governed by ACLs)"
+  - id: ac
+    where: "Manage Windchill teams: overview (teams, roles and their two functions; guest role); Plan access control strategies (domain policies, ad hoc permissions, security labels); Life cycle access control; Implement ad hoc access control (Edit Access Control from the Actions menu); Troubleshoot access control issues (Access Information page); Describe security labeled objects"
+
+blocks:
+  - type: text
+    md: |
+      Priya (design) and Sam (service) open the same *Zip* scooter product at the same moment.
+      Priya sees the CAD models, the work-in-progress drawings and an **Edit** action. Sam sees the
+      released parts and documents, with no Edit in sight.
+
+      Nothing is broken. Windchill checks **who you are** and **what the object is** every time,
+      and shows each person only what they're allowed to see and do. Product data is a company's
+      crown jewels, so this is on purpose.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "what you're allowed to do with an object" → *[[permission|permission]]* (Read, Modify, Create, Revise, Delete, Full Control)
+      - "the whole system of who-can-do-what" → *[[access-control|access control]]*
+      - "your job on this product's team" → *[[role|team role]]* in the *[[context-team|context team]]*
+      - "rules for everything stored in a context" → *[[domain|domain]]* policy rules
+      - "extra rights on one single object" → *[[ad-hoc-access|ad hoc access]]*
+
+  - type: animation
+    title: "Can Sam edit the kickstand drawing?"
+    diagram:
+      width: 800
+      height: 320
+      nodes:
+        - { id: user, label: Sam opens it, sublabel: service technician, x: 20, y: 130, w: 150, h: 64, tone: neutral, shape: pill }
+        - { id: team, label: Team role, sublabel: "member? guest?", x: 230, y: 20, w: 160, h: 60, tone: info }
+        - { id: domain, label: Context rules, sublabel: domain policies, x: 230, y: 130, w: 160, h: 60, tone: primary }
+        - { id: state, label: Lifecycle state, sublabel: "In Work? Released?", x: 230, y: 240, w: 160, h: 60, tone: warning }
+        - { id: object, label: Object-level extras, sublabel: "ad hoc, labels", x: 450, y: 130, w: 160, h: 60, tone: accent }
+        - { id: result, label: "Read: yes. Modify: no", sublabel: what Sam gets, x: 640, y: 130, w: 150, h: 64, tone: success, shape: pill }
+      edges:
+        - { from: user, to: team }
+        - { from: user, to: domain }
+        - { from: user, to: state }
+        - { from: team, to: object }
+        - { from: domain, to: object }
+        - { from: state, to: object }
+        - { from: object, to: result }
+    chapters:
+      - title: Sam asks for the drawing
+        caption: Sam clicks the kickstand drawing. Before showing anything, Windchill works out **Sam's permissions on this exact object**.
+        show: [user]
+        highlight: [user]
+      - title: Which team role?
+        caption: An administrator added Sam to the product's **team** in a service role with fewer rights than the designers. Roles are how most access is handed out.
+        show: [user, team]
+        highlight: [team]
+        flow: [user>team]
+      - title: What do the context's rules say?
+        caption: The product's **domain policy rules** say which roles may Read, Modify or Create each type of object stored there.
+        show: [user, team, domain]
+        highlight: [domain]
+        flow: [user>domain]
+      - title: Where is it in its life?
+        caption: The drawing is **Released**. Life cycles can grant extra access in specific states (say, Modify while *In Work*), so a released drawing is usually locked for most people.
+        show: [user, team, domain, state]
+        highlight: [state]
+        flow: [user>state]
+      - title: Anything special on this one object?
+        caption: Someone can grant **ad hoc** rights on a single object. And a **security label** can block people outside an approved group, whatever the other rules say.
+        show: [user, team, domain, state, object]
+        highlight: [object]
+        flow: [team>object, domain>object, state>object]
+      - title: The answer
+        caption: Sam can **read** the drawing but not **modify** it. If Sam couldn't even read it, it wouldn't show up in his search results at all.
+        highlight: [result]
+        flow: [object>result]
+        seconds: 7
+
+  - type: text
+    md: |
+      ### The main things that decide what you see
+
+      | What | In plain words | Who usually sets it |
+      | --- | --- | --- |
+      | **Context and team role** | Which product or library you're in, and your role on its team | Product or library manager, or an administrator |
+      | **Domain policy rules** | Default rules for each object type stored in a context | Business administrator |
+      | **Lifecycle state** | Extra rights while the object is in a certain state | Business administrator (in the life cycle) |
+      | **Object-level rules** | Rights set on one folder or object, including ad hoc grants | Users with the right to change permissions |
+      | **Security labels** | A "keep out unless authorized" tag that overrides the rest | Set up by system administrators and developers |
+
+      The Technical Essentials course sums it up as: access comes through **domains applied to
+      contexts**, through **life cycles**, and through **security policies on folders or single
+      objects**. The full rule set is Module 4 material.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Access control is what lets a company put *everything* in one system and still share it
+      safely: suppliers see only their parts, interns can't release drawings, and confidential
+      projects stay hidden. Without it, companies go back to emailing copies, and the copies are
+      exactly what PLM is trying to get rid of.
+
+  - type: example
+    variant: real-world
+    title: The link that went nowhere
+    industry: Micromobility
+    md: |
+      Mia emails a Windchill link to the new kickstand drawing to an outside tester. The tester
+      clicks it and gets nothing useful. Windchill checks access for whoever opens a link, and the
+      tester isn't on the product's team.
+
+      Mia asks the product manager, who shares the drawing in a controlled way instead of granting
+      the tester access to the whole product.
+    takeaway: A link carries no rights. The person opening it needs their own access.
+
+  - type: walkthrough
+    title: "\"I can't do that\": what to check before you ask for help"
+    who: Any user
+    steps:
+      - title: Check the object's state
+        where: ["<the object>", Information page]
+        md: Open the object's **information page** and look at its state. Many actions are only allowed while an object is *In Work*. A released object usually needs a new revision first.
+      - title: Check your team role
+        where: [Navigator, Browse, "<your product>", Team]
+        md: Open the product's **Team** page and see which role you're in, if you're there at all.
+      - title: Ask the right person
+        where: ["<your product>", Team]
+        md: Ask the product's manager or your business administrator. Tell them the object number, the action you tried and the message you saw.
+      - title: What the admin will do
+        where: ["<the object>", Actions, Edit Access Control]
+        md: An admin can open **Edit Access Control** from the object's **Actions** menu, then the **Access Information** page, which shows exactly which rules produced your permissions.
+    result: A clear request that an admin can solve in minutes instead of a vague "Windchill is broken".
+
+  - type: callout
+    variant: pitfall
+    md: |
+      Missing objects don't announce themselves. As you saw with search earlier in this module, if
+      you can't read something, Windchill just leaves it out. Subscriptions also only notify you
+      about objects you can access. "It's not there" can really mean "you can't see it".
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Ask for access through your **team role**, not as a personal favour on single objects. One
+      role change fixes every object of that type in the product. Granting rights object by object
+      is meant to be used sparingly, and it quickly turns into a mess nobody can explain.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: Priya and Sam open the same product but see different objects and actions. What is the most likely reason?
+        options:
+          - Their browsers cache different pages
+          - Their roles and the access rules give them different permissions
+          - Sam's search is broken
+          - Windchill shows random samples to save time
+        answer: 1
+        explanation: Windchill works out each person's permissions from their team role, the context's rules, the object's state and any object-level rules. Different permissions mean different views.
+      - kind: multi
+        prompt: Which of these can grant you access to an object? (Choose all that apply.)
+        options:
+          - Domain policy rules applied to the context
+          - The object's life cycle in its current state
+          - Rules set on a folder or a single object
+          - Your job title in the company directory
+        answers: [0, 1, 2]
+        explanation: Access comes through domains, life cycles and folder- or object-level rules. A job title on its own grants nothing; your team role does.
+      - kind: single
+        prompt: You can't check out a released drawing. What should you check first?
+        options:
+          - Your internet connection
+          - The drawing's lifecycle state and your team role
+          - Whether the drawing has a thumbnail
+          - The vault's free disk space
+        answer: 1
+        explanation: Many changes are only allowed while an object is In Work, and your role decides what you can do. Released objects usually need a new revision.
+      - kind: truefalse
+        prompt: Emailing someone a Windchill link gives them access to the object.
+        answer: false
+        explanation: The person opening the link still needs their own permissions to see the object.
+
+  - type: summary
+    points:
+      - Windchill checks your permissions on every object, so two people can see different data.
+      - Permissions include Read, Modify, Create, Revise, Delete and Full Control.
+      - Team roles, domain policy rules, lifecycle state, object-level rules and security labels decide what you get.
+      - If something is missing or locked, check the state and your team role, then ask an admin with specifics.

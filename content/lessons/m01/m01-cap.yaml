@@ -1,8 +1,33 @@
 id: m01-cap
 subtitle: Your first real mission. Find the frame, read its story, brief the team - no hand-holding.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-13"
 tags: [capstone, search, information-page, structure, vault, objects]
+sources:
+  - id: te
+    where: "Module 2: Locate data in Windchill, Save searches, Activity: Search for objects, Activity: Explore the Windchill user interface (Team, Members table), View information about objects, Activity: View information pages (Structure, Related Objects, Where Used, History); Module 3: Associate Windchill parts with documents; Module 4: CAD and Windchill product structures (eBOMs), workspace local cache; Module 5: View part usage details (Quantity, Unit)"
+  - id: ac
+    where: "Module 14: Store content using file vaults (vaults vs BLOBs in the database, replica vaults); Module 15: Tune servers (method servers)"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Saving a Search"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/search/LclSrchSearchSave.html"
+    covers: "Save This Search; sharing a saved search needs admin rights in at least one context"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Windchill Search"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/search/LclSrchAbout.html"
+    covers: "Advanced Search opens from the global search drop-down or the Navigator's Search tab; it searches by object type, context and attribute criteria"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Association Usage Examples"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/ManagingCADandPartRelationships/MCPR_AssociationUsageExamples.html"
+    covers: "Owner association for the driving CAD model"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "CAD and Part Association Overview"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/ManagingCADandPartRelationships/MCPR_AssociationOview.html"
+    covers: "Definitions of Owner, Contributing Image, Image, Contributing Content and Content; a drawing of an Owner-associated model gets a Calculated association automatically"
 
 blocks:
   - type: text
@@ -32,15 +57,15 @@ blocks:
     who: Any member of the Scooter S2 product team
     steps:
       - title: Build the search
-        where: [Header, Advanced search]
+        where: [Header, search drop-down, Advanced Search]
         md: |
-          Set **Type** to *Part*, limit the **Context** to *Scooter S2*, and add criteria such as
-          name contains `frame`. Run it and check the results make sense.
+          Set **Type** to *Part*, limit the **Context** to *Scooter S2*, and add a criterion such as
+          **Name** equals `*frame*`. Run it and check the results make sense.
       - title: Save it for next time
-        where: [Advanced search, Save Search]
-        md: Save it with a clear name like `S2 - frame assemblies`. Next week it's one click away in your saved searches list.
+        where: [Advanced search, Save This Search]
+        md: Click **Save This Search** and name it clearly, like `S2 - frame assemblies`. Next week it's one click away in your saved searches.
       - title: Run the saved search
-        where: [Saved searches list, "S2 - frame assemblies"]
+        where: [Navigator, Search, Search History and Saved Searches, "S2 - frame assemblies"]
         md: Pick it from your saved searches. The search runs fresh every time, so results are always current.
       - title: Open the right version
         where: [Search results, "SC-2000 Frame assembly"]
@@ -50,17 +75,18 @@ blocks:
       - title: Read identity and owner
         where: [Information page, Details]
         md: |
-          Note the **number, name, version and state**. For "who owns it", read **Created By**,
-          **Modified By** and the **context**; many companies also name a responsible person or team
-          role in attributes or on the team.
+          Note the **number, name, version and state**. For "who owns it", read the creator and
+          last-modified details, then check the product's **Team** page (the Members table) to see
+          who holds which role. Many companies also add an attribute for the responsible engineer.
       - title: List the top-level parts
         where: [Information page, Structure]
         md: Expand **one level** only. Those children are the top-level parts, each with its quantity.
       - title: Find the drawings
-        where: [Information page, related CAD and documents]
+        where: [Information page, Related Objects]
         md: |
-          Look at the associated CAD documents (the assembly model as Owner, drawings usually as
-          content) and any described-by documents. Tab names vary by release.
+          Open **Related Objects** (or the **Documents** tab inside Structure) for the associated CAD
+          documents - the assembly model as Owner, the drawing linked automatically (Calculated) - and
+          any described-by documents.
     result: You have everything for the brief - and a saved search you'll reuse all year.
 
   - type: diagram
@@ -79,7 +105,7 @@ blocks:
           h: 60
           tone: accent
           shape: doc
-          detail: The frame drawing - the "attached drawing" Kai asked about. It depends on frame.asm and is usually associated with the part as content.
+          detail: The frame drawing - the "attached drawing" Kai asked about. It depends on frame.asm, and because frame.asm is the Owner, Windchill links the drawing to the part automatically (a Calculated association).
         - id: asm
           label: frame.asm
           sublabel: CAD model · Owner
@@ -109,7 +135,7 @@ blocks:
           h: 60
           tone: info
           shape: doc
-          detail: A document that describes this exact version of the frame.
+          detail: A document linked to the frame with a described-by link - a specific version of the weld spec.
         - id: tube
           label: Main tube
           sublabel: "part ×1"
@@ -196,7 +222,7 @@ blocks:
           You need the current Scooter S2 frame assembly. You remember it's called something like
           "frame". What's your first move?
         choices:
-          - label: "Advanced search - type Part, context Scooter S2, name contains frame"
+          - label: "Advanced search - type Part, context Scooter S2, Name = *frame*"
             next: "s3"
             good: true
             feedback: "Precise from the start: right type, right context."
@@ -264,7 +290,7 @@ blocks:
         md: |
           The team will ask who owns the frame. Where do you look?
         choices:
-          - label: "Information page details: Created By, Modified By, context and team"
+          - label: "Information page details (creator, last modified) plus the product's team"
             next: "s6"
             good: true
             feedback: "That's where Windchill records who did what - and the context tells you which team is responsible."
@@ -355,7 +381,7 @@ blocks:
 
   - type: callout
     variant: pro-tip
-    md: Add your saved search to your Home page or favourites. On busy weeks, the fastest route to the frame is the one you don't have to rebuild.
+    md: Keep your saved search in your saved searches list - and if you have admin rights in the Scooter S2 context, share it with the team. On busy weeks, the fastest route to the frame is the one you don't have to rebuild.
 
   - type: quiz
     title: Capstone check
@@ -396,7 +422,7 @@ blocks:
           - It copies the files to your laptop
           - Bookmarks are forbidden in Windchill
         answer: 0
-        explanation: Saved searches keep the criteria, rerun them each time so results are current, and can be added to your Home page or shared depending on settings.
+        explanation: Saved searches keep the criteria, rerun them each time so results are current, and can be shared with a context or group by someone with admin rights there.
 
   - type: summary
     points:

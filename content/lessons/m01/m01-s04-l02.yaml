@@ -1,8 +1,23 @@
 id: m01-s04-l02
 subtitle: Specs, test reports and manuals on one side. 3D models and drawings on the other.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-13"
 tags: [documents, wtdocument, cad, epmdocument]
+sources:
+  - id: te
+    where: "Module 2: Describe business objects; Module 3: Manage documents in Windchill: overview, Activity: Explore and create documents (primary content, attachments, New Document, Type list, numbering, In Work), Create Windchill documents in Microsoft Office: overview; Module 4: CAD integration with Windchill, CAD and Windchill product structures (eBOMs), Identify characteristics of CAD documents, Activity: Update a CAD part and associated WTPart (Related Objects, Parts table, owner association)"
+  - id: ac
+    where: "Module 9: Manage organization (object initialization rules for wt.doc.WTDocument and wt.epm.EPMDocument)"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Association Usage Examples"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/ManagingCADandPartRelationships/MCPR_AssociationUsageExamples.html"
+    covers: "The five CAD document to part association types: Owner, Contributing Image, Image, Contributing Content, Content"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "CAD and Part Association Overview"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/ManagingCADandPartRelationships/MCPR_AssociationOview.html"
+    covers: "Definitions of Owner, Contributing Image, Image, Contributing Content and Content; a drawing of an Owner-associated model gets a Calculated association automatically"
 
 blocks:
   - type: text
@@ -45,8 +60,8 @@ blocks:
           tone: info
           detail: |
             A **WTDocument**. It has a number, name, version and state, just like a part. Companies
-            usually define document *types* (Specification, Test Report, Work Instruction...) so each
-            kind gets the right attributes and approval process.
+            usually add their own document *types* (Specification, Test Report, Work Instruction...) -
+            they aren't there out of the box - so each kind gets the right attributes and templates.
         - id: primary
           label: Primary content
           sublabel: report.pdf
@@ -100,8 +115,10 @@ blocks:
           tone: primary
           detail: |
             The **part**. The CAD model is associated to it - usually as the *Owner*, meaning the CAD
-            data defines the part. Other association types (for example Contributing, Image, or a
-            drawing's content association) say how strongly the CAD drives the part.
+            data drives the part's structure and attributes. Other types do less: *Image* only stands
+            for the part, and *Content* just describes it (like a layout). *Contributing Image* and
+            *Contributing Content* also pass attributes. A drawing of the owner model is linked to the
+            part automatically (a *Calculated* association).
       edges:
         - { from: spec, to: primary, label: primary }
         - { from: spec, to: attach, label: attached }
@@ -117,7 +134,7 @@ blocks:
       - { label: Represents, cells: [A physical item, Information about something, A CAD model or drawing] }
       - { label: Files, cells: [None required, Primary content + attachments, The CAD file(s)] }
       - { label: Links to its own kind, cells: [Uses (the BOM), Optional document structure, CAD dependencies] }
-      - { label: Created mostly, cells: [In the browser or from CAD, In the browser, From the CAD tool via a workspace] }
+      - { label: Created mostly, cells: [In the browser or from CAD, In the browser (or from Microsoft Office), From the CAD tool via a workspace] }
       - { label: Acme example, cells: [Folding hinge SC-1042, Hinge test report, "hinge.prt, hinge.drw"] }
     takeaway: Same identity rules (number, name, version, state) - different jobs.
 
@@ -152,15 +169,15 @@ blocks:
         where: [Navigator, Browse, Products, "<your product>", Folders]
         md: Open the folder where this kind of document belongs. Folder rules differ by company, so follow your team's structure.
       - title: Start a new document
-        where: [Folder toolbar, New, New Document]
-        md: Choose **New Document** from the folder's New actions.
+        where: [Folder Contents, New Document]
+        md: Click the **New Document** icon on the Folder Contents toolbar.
       - title: Pick the type and fill in attributes
-        where: [New Document window, type and attributes step]
-        md: Choose the document type (for example *Test Report*), then enter the name and any required attributes. The number is often generated automatically.
+        where: [New Document, Type]
+        md: Choose the document type from the **Type** list (for example *Test Report*, if your admin added it), then enter the name and any required attributes. The number is usually assigned automatically.
       - title: Add the files
-        where: [New Document window, content step]
-        md: Upload the **primary content** (the main file). Add **attachments** if you have supporting files. Finish to create version A.1.
-    result: A new document at A.1, usually in the In Work state, in the folder you chose.
+        where: [New Document, content and attachments]
+        md: Browse to the **primary content** (the main file) and click **Next**. Add **attachments** on the next step if you have supporting files, then click **Finish**.
+    result: A new document at A.1, in the In Work state (the out-of-the-box starting state), in the folder you chose.
 
   - type: walkthrough
     title: See a CAD document's dependencies
@@ -171,10 +188,10 @@ blocks:
         md: Search for the CAD document (for example `frame.asm`) and open its information page.
       - title: Look at its structure
         where: [CAD document information page, Structure tab]
-        md: The structure shows the components the assembly depends on. For a drawing, look at its references to see which model it shows.
+        md: For an assembly, the Structure tab shows the CAD structure - the components it is made of.
       - title: Find the associated part
-        where: [CAD document information page, related parts area]
-        md: The related parts table shows which part this CAD document is associated with, and the association type, such as Owner.
+        where: [CAD document information page, Related Objects]
+        md: On the **Related Objects** tab, the **Parts** table shows which part this CAD document is associated with, and **Where Used** shows the assemblies it belongs to.
     result: You can tell what this CAD file needs to open and which part it defines.
 
   - type: callout

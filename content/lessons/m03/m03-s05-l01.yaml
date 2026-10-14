@@ -1,8 +1,13 @@
 id: m03-s05-l01
 subtitle: Four jobs that keep "what we designed" and "what we built" telling the same story.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-13"
 tags: [configuration-management, identification, change-control, status-accounting, audit]
+sources:
+  - id: te
+    where: "Module 6: Identify roles in the change management process (OOTB roles follow the CMII standard); Change management process steps; Explore the Changes tab (Change Monitor, Reports); Activity: Create a problem report (Released parts change only through change management); Change management process: Review and Audit Change; Promotion process: overview. Module 5: Create baselines. Module 2-3: History and Where Used tabs on information pages"
+  - id: pf
+    where: "Module 4: The change process (Basic, Fast and Full Track) - Windchill support for change control only"
 
 blocks:
   - type: text
@@ -33,6 +38,18 @@ blocks:
       These four functions come from public CM standards such as EIA-649 and are used across
       aerospace, defence, automotive, medical devices and consumer products. Many standards add a
       fifth function on top: **CM planning and management** (who owns CM, which rules apply).
+
+  - type: callout
+    variant: note
+    title: General CM practice, not a Windchill feature list
+    md: |
+      The four functions in this lesson are **general configuration management practice**. None of
+      the PTC course guides used for this module lists them, and Windchill has no screen or setting
+      called "identification" or "status accounting". What the lesson says about **Windchill** - change
+      objects, life cycle states, baselines, the Changes tab, Change Monitor, the change notice audit -
+      comes from the Windchill 13.x course manuals. The mapping between the two is our teaching aid.
+      The closest link in the course manual: Windchill's out-of-the-box change roles were added to
+      follow the **CMII** change management standard.
 
   - type: diagram
     title: The four CM functions and where Windchill helps
@@ -101,7 +118,7 @@ blocks:
           detail: |
             Parts, documents and CAD documents each get a number and a version (revision.iteration).
             Uses links build the product structure. Products and libraries give each item a home.
-            Baselines (covered in Module 2) freeze an approved set of versions.
+            Baselines (covered in Module 2) capture a snapshot of a set of versions at a point in time.
         - id: wc-control
           label: Change objects, life cycles
           sublabel: PR, CR, CN, tasks
@@ -112,8 +129,9 @@ blocks:
           detail: |
             [[problem-report|Problem reports]], [[change-request|change requests]],
             [[change-notice|change notices]] and [[change-task|change tasks]] carry the change.
-            [[lifecycle-state|Lifecycle states]] and access rules stop people editing Released data.
-            [[promotion-request|Promotion requests]] control first release.
+            Once a part is Released, it can only be updated through the change process, and its
+            [[lifecycle-state|lifecycle state]] shows where it stands. [[promotion-request|Promotion requests]]
+            formally request a state change, such as In Work to Released.
         - id: wc-account
           label: History, Changes tab, reports
           sublabel: who, what, when, why
@@ -123,19 +141,21 @@ blocks:
           tone: info
           detail: |
             Each object's [[information-page|information page]] shows its version history and the
-            change objects that touched it. [[where-used|Where-used]] shows impact. Searches and
-            reports list open changes, their state and age.
+            change objects that touched it. [[where-used|Where-used]] shows impact. Change Monitor and
+            the standard change reports show open and closed change objects and stalled changes.
         - id: wc-audit
-          label: Compare, baselines, records
+          label: Baselines, audits, records
           sublabel: evidence on demand
           x: 460
           y: 320
           w: 280
           tone: info
           detail: |
-            Compare a structure with a baseline or with another version. Pull the closed change
-            notices for a release. Show approvals and votes recorded by the [[workflow]]. Windchill
-            supplies the evidence; the audit itself is done by people.
+            [[baseline|Baselines]] capture a snapshot of a set of objects at a point in time. The
+            change notice audit (Review and Audit Change) checks a change before release, and each
+            object's Changes tab lists the change notices behind it. Task comments recorded by the
+            [[workflow]] show who approved what. Windchill supplies the evidence; a configuration audit
+            is still done by people.
       edges:
         - { from: ident, to: wc-ident }
         - { from: control, to: wc-control }
@@ -227,11 +247,11 @@ blocks:
       - label: Identification
         cells: ["What exactly is this?", "Numbers, versions, BOM, documents, baselines", "Everyone - it's the shared language"]
       - label: Change control
-        cells: ["Who allowed this change?", "PR, CR, CN, change tasks, life cycles, promotion requests", "Change manager, CCB"]
+        cells: ["Who allowed this change?", "PR, CR, CN, change tasks, life cycles, promotion requests", "Change admins, change review board"]
       - label: Status accounting
         cells: ["Where are we, and how did we get here?", "History, Changes tab, where-used, reports", "Service, quality, management"]
       - label: Audit
-        cells: ["Does the product match its documents?", "Baselines, compares, closed change records", "Quality, customers, regulators"]
+        cells: ["Does the product match its documents?", "Baselines, change notice audits, closed change records", "Quality, customers, regulators"]
     takeaway: Identify → control → track → check. Skip one and the others wobble.
 
   - type: walkthrough
@@ -313,7 +333,7 @@ blocks:
       - kind: truefalse
         prompt: Windchill performs the configuration audit for you automatically.
         answer: false
-        explanation: Windchill provides the evidence (history, baselines, compares, change records). People plan and perform the audit.
+        explanation: Windchill provides the evidence (history, baselines, change records). People plan and perform the configuration audit.
 
   - type: summary
     points:

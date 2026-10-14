@@ -1,0 +1,304 @@
+id: m03-s03-l04
+subtitle: Prototype or production? Pick the target state and Windchill picks the right sign-off process - once an admin sets up the scheme.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [promotion-request, preferences, workflow, life-cycle, administration]
+sources:
+  - id: ac
+    where: "Module 5: Identify life cycle transition types (Promote, Lock, Revise, Set State); Describe transition examples; life cycle best practices on Promote, Lock and Set State transitions; Compare promotion requests to change management objects; Identify OOTB promotion request settings; Create a promotion scheme: example; Describe the Promotion Request Approval process; Describe the Promotion Request Review process; Manage promotion preferences; Promotion Preference Management"
+  - id: ac
+    where: "Module 6: Identify context roles in OOTB context templates (Promotion Approvers and Promotion Reviewers)"
+  - id: te
+    where: "Module 6: Promotion process: overview (two OOTB promotion workflows; mostly used for non-engineering data)"
+
+blocks:
+  - type: text
+    md: |
+      Acme is building **20 prototype Scooter S3s** for a test fleet. Priya's new parts need to reach
+      a **Prototype** state fast - Kai's engineering sign-off is enough for a test build. Later, the same
+      kind of parts need to reach **Production**, and then Ana (manufacturing) and Leo (quality) must
+      approve too.
+
+      Same promotion request button, two very different sign-offs. How does Windchill know which one
+      to run? Through a **promotion scheme**: life cycle transitions, workflows and **promotion
+      preferences** set up by an administrator so that the **target state** you pick decides the process.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "the path that lets an object be promoted" → the *Promote* [[transition]] in its [[life-cycle-template]]
+      - "the temporary frozen state during review" → a state reached by the *Lock* transition, such as Under Review
+      - "the two sign-off processes you get out of the box" → *Promotion Request Approval* and *Promotion Request Review*
+      - "the people who vote / the people who comment" → the *Promotion Approvers* and *Promotion Reviewers* roles
+      - "which process goes with which target state" → *[[promotion-preference|promotion preferences]]*, managed in *Promotion Preference Management*
+      - "a full set of these rules for a company" → a *[[promotion-scheme]]*
+
+  - type: diagram
+    title: "Acme's promotion scheme"
+    caption: The target state chosen on the promotion request decides which workflow runs. Click each box.
+    diagram:
+      width: 800
+      height: 400
+      groups:
+        - { label: Life cycle, x: 10, y: 10, w: 250, h: 380, tone: neutral }
+        - { label: Promotion preferences, x: 280, y: 10, w: 240, h: 380, tone: info }
+        - { label: Workflows, x: 540, y: 10, w: 250, h: 380, tone: primary }
+      nodes:
+        - id: inwork
+          label: In Work
+          sublabel: Priya's new parts
+          x: 40
+          y: 170
+          w: 190
+          tone: neutral
+          detail: |
+            The starting state. Its life cycle has **Promote** transitions to both Prototype and
+            Production, so both appear as target states when Priya creates a promotion request.
+        - id: proto
+          label: Prototype
+          sublabel: target state 1
+          x: 40
+          y: 50
+          w: 190
+          tone: warning
+          detail: |
+            Reached by promotion from In Work. In this scheme there is **no** path from Prototype
+            straight to Production: to go to production, the object is revised and the new In Work
+            version is promoted.
+        - id: prod
+          label: Production
+          sublabel: target state 2
+          x: 40
+          y: 290
+          w: 190
+          tone: success
+          detail: Reached by promotion from In Work only, through the stricter procedure.
+        - id: pref1
+          label: Prototype → Procedure 1
+          sublabel: preference
+          x: 300
+          y: 50
+          w: 200
+          tone: info
+          detail: A promotion preference for the **Prototype** target state makes Procedure 1 the selectable workflow.
+        - id: pref2
+          label: Production → Procedure 2
+          sublabel: preference
+          x: 300
+          y: 290
+          w: 200
+          tone: info
+          detail: A promotion preference for the **Production** target state makes Procedure 2 the selectable workflow.
+        - id: wf1
+          label: Promotion Procedure 1
+          sublabel: engineering sign-off
+          x: 560
+          y: 50
+          w: 210
+          tone: primary
+          detail: |
+            A workflow for prototype promotions with its own roles - at Acme, Kai approves. Good practice:
+            start it as a **save-as** copy of an out-of-the-box promotion workflow.
+        - id: wf2
+          label: Promotion Procedure 2
+          sublabel: engineering + mfg + quality
+          x: 560
+          y: 290
+          w: 210
+          tone: primary
+          detail: A workflow for production promotions with different business roles - Kai, Ana and Leo all approve.
+      edges:
+        - { from: inwork, to: proto, label: Promote }
+        - { from: inwork, to: prod, label: Promote }
+        - { from: proto, to: pref1 }
+        - { from: prod, to: pref2 }
+        - { from: pref1, to: wf1 }
+        - { from: pref2, to: wf2 }
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Without a scheme, every promotion gets the same process - too heavy for a test build or too light
+      for production. With one, people just pick where the objects should go and the right reviewers get
+      the right tasks. Nobody has to remember "for prototypes, only ask Kai".
+
+  - type: comparison
+    title: The two out-of-the-box promotion processes
+    columns: [Promotion Request Approval, Promotion Request Review]
+    rows:
+      - label: Roles the author fills
+        cells: [Promotion Approvers and Promotion Reviewers, Promotion Reviewers only]
+      - label: Who controls the outcome
+        cells: ["Approvers vote Approve or Reject; reviewers only comment", "Nobody - objects are promoted regardless of feedback"]
+      - label: When objects are promoted
+        cells: [When all approvers approve, Right when the workflow starts]
+      - label: If someone rejects
+        cells: ["Any rejection resets the objects to their original state", Not applicable]
+      - label: When the process ends
+        cells: [After approvers decide and reviewers give feedback, After all reviewers give feedback]
+    takeaway: Approval is a gate; Review is a heads-up. Pick per target state with promotion preferences.
+
+  - type: text
+    md: |
+      ### What an admin sets up
+
+      The course manual lists four ingredients for a scheme like Acme's:
+
+      1. **Roles** - select or create the roles each procedure needs.
+      2. **Life cycle** - make sure the objects use a life cycle template with the right **Promote**
+         transitions (and, if you want objects frozen during review, a **Lock** transition to an interim state).
+      3. **Workflows** - create the procedures, ideally by saving a copy of an out-of-the-box promotion workflow.
+      4. **Promotion preferences** - tie each target state to its selectable workflow.
+
+      Two kinds of preferences shape promotions: **promotion process preferences** in the normal
+      Preference Management utility, and **promotion workflow preferences** in Promotion Preference Management.
+
+  - type: walkthrough
+    title: Tie a workflow to a target state
+    who: Site administrators create new promotion preferences; other administrators can edit existing ones at their own context level
+    where: [Site or Organization or Product or Library, Utilities, Promotion Preference Management]
+    steps:
+      - title: Open Promotion Preference Management
+        where: ["<site, organization, product or library>", Utilities, Promotion Preference Management]
+        md: |
+          The table shows the current value of the site-level **Default Promotion Processes**
+          preference and any custom promotion preferences, each with a name and short description.
+      - title: Add a preference for a target state (site admin)
+        where: [Promotion Preference Management, New Promotion Preference]
+        md: |
+          Click the **new promotion preference** icon (only site administrators see it) and create a
+          preference for the destination state, such as Prototype, with the workflow to use.
+      - title: Restrict the default list if needed
+        where: [Promotion Preference Management, Default Promotion Processes]
+        md: |
+          If you built a custom workflow and want only that one offered, update **Default Promotion
+          Processes** accordingly.
+      - title: Clean up lower-level overrides
+        where: [Promotion Preference Management, delete child instances]
+        md: Site and organization administrators can use the **delete child instances** icon to remove values set at lower context levels.
+    result: Choosing Prototype or Production on a new promotion request now offers the matching procedure.
+
+  - type: walkthrough
+    title: Turn on automatic revision after promotion
+    who: An administrator for the context, organization or site
+    where: ["<context>", Utilities, Preference Management, Promotion Process]
+    steps:
+      - title: Open Preference Management
+        where: [Navigator, "<context, organization or site>", Utilities, Preference Management]
+        md: Open **Utilities** for the context, then **Preference Management** under Business Administration, and expand **Promotion Process**.
+      - title: Set Automatic Revision Mode
+        where: [Promotion Process, Automatic Revision Mode, Set Preference]
+        md: |
+          Right-click **Automatic Revision Mode** and choose **Set Preference**. The values are **Do
+          nothing**, **Automatically revise all the promotion candidates**, and **Automatically revise
+          only the promotion candidates with versioning scheme changed**.
+      - title: Watch for locks
+        where: [Preference Management, locked preference]
+        md: If you can see a preference but can't edit it, it has been [[preference-lock|locked]] at a higher level. Ask the administrator of that level.
+    result: When a promotion completes, candidates are revised (or not) the way your company wants.
+
+  - type: scenario
+    variant: troubleshooting
+    title: '"No valid states for Promotion are available"'
+    start: s1
+    nodes:
+      - id: s1
+        md: |
+          Priya tries to promote the new SC-3600 kickstand part and gets the message **"No valid states
+          for Promotion are available."** Kai asks you to find out why. Where do you look first?
+        choices:
+          - label: The part's life cycle and its Promote transitions
+            next: s2
+            good: true
+            feedback: The course manual names two causes, and both live in the life cycle.
+          - label: Promotion Preference Management
+            next: s3
+            feedback: Preferences pick the workflow for a target state - but here there's no target state to pick.
+          - label: Priya's user preferences
+            next: s3
+            feedback: Personal promotion process preferences don't create target states.
+      - id: s3
+        md: Nothing wrong there. The message is about **states**, and target states come from the life cycle. Go back and check that.
+        outcome: partial
+      - id: s2
+        md: |
+          The kickstand uses a life cycle template that was copied from an old one. What could explain the message?
+        choices:
+          - label: The part uses the wrong life cycle, or its life cycle has no Promote transition from its current state
+            next: win
+            good: true
+            feedback: Exactly the two causes the course manual gives.
+          - label: The part is in a library, and promotion requests only work in products
+            next: wrong1
+            feedback: Promotion requests can be created in products and libraries.
+      - id: wrong1
+        md: Not the cause. Promotion requests work in both product and library contexts - just not elsewhere.
+        outcome: fail
+      - id: win
+        md: You add a Promote transition from In Work to Prototype and Production in the right life cycle template and reassign the part to it. Priya's promotion request now offers both target states.
+        outcome: success
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Promote, Lock and Set State fighting a workflow.** In advanced life cycles these transitions can
+      change an object's state without regard to the workflow process that's supposed to control it.
+      Revise and Change transitions don't have that problem. Also, avoid reusing the promotion
+      **Reviewer** and **Approver** roles in other advanced life cycles and workflows.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Start every custom procedure as a **save-as** of an out-of-the-box promotion workflow, then change
+      only the roles and steps you need. And remember the course manual's hint: promotion requests are
+      mostly used for releasing **non-engineering** data; changes to released engineering data belong in
+      the change process.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: How many promotion workflows does Windchill provide out of the box?
+        options: [One, Two, Three, Four]
+        answer: 1
+        explanation: Promotion Request Approval and Promotion Request Review.
+      - kind: single
+        prompt: In the Promotion Request Review process, when are the objects promoted?
+        options:
+          - After all reviewers comment
+          - When the workflow starts, regardless of feedback
+          - After an approver votes Approve
+          - Never - it only collects comments
+        answer: 1
+        explanation: Review has no approval event. Objects are promoted at the start; reviewers must still give feedback before the process ends.
+      - kind: single
+        prompt: Where do you make Prototype use Procedure 1 and Production use Procedure 2?
+        options:
+          - In the Promotion Preference Management table
+          - In each user's My Settings
+          - In the change notice template
+          - In the Type and Attribute Management utility
+        answer: 0
+        explanation: Promotion preferences tie a target state to its selectable workflow, in Promotion Preference Management.
+      - kind: truefalse
+        prompt: Any administrator can create new promotion preferences at their own context level.
+        answer: false
+        explanation: Only site administrators can create new promotion preferences. Other administrators can edit existing ones at their level.
+      - kind: multi
+        prompt: Which are values of the Automatic Revision Mode preference? (Choose all that apply.)
+        options:
+          - Do nothing
+          - Automatically revise all the promotion candidates
+          - Automatically revise only the promotion candidates with versioning scheme changed
+          - Automatically release all the promotion candidates
+        answers: [0, 1, 2]
+        explanation: Those are the three values. Promotion to Released is decided by the target state and workflow, not by this preference.
+
+  - type: summary
+    points:
+      - Out of the box there are two promotion workflows - Approval (approvers vote) and Review (feedback only).
+      - Target states come from the life cycle's Promote transitions; no Promote transition means no valid target state.
+      - A promotion scheme ties each target state to a workflow through promotion preferences.
+      - Promotion Preference Management handles workflow preferences; Preference Management handles settings like Automatic Revision Mode.
+      - Only site administrators create new promotion preferences; others edit at their own level.

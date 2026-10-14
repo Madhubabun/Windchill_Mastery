@@ -1,0 +1,232 @@
+id: m03-s02-l08
+subtitle: Brand-new data, nothing broken, no debate needed. Skip straight to the change notice - and still get a full audit trail.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [change, change-notice, release, initial-release, change-intent, change-task]
+sources:
+  - id: te
+    where: "Module 6: Release product data directly through the change management process; Activity: Create a change notice to release product data; Activity: Complete a change notice to release product data; Change management process: Change Planning"
+  - id: pf
+    where: "Module 4: The change process (Basic Track for initial product release); Manually create a change notice when analyzing a change request"
+
+blocks:
+  - type: text
+    md: |
+      Rewind two years. The **SC-1048 fold-lock bracket** is brand new. Priya's model, the
+      drawing and Leo's test spec are all finished and sitting **In Work** at A.2. Nothing is broken
+      and there's no old version to argue about. The team just needs it **Released** so the supplier
+      can start building.
+
+      Raising a problem report would be silly - there's no problem. A change request would be a
+      debate with only one side. So Kai does what the course manual recommends for this case: he
+      creates a **[[change-notice]] on its own** and releases the data through it. Same tasks, same
+      reviews, same audit trail, just without the first two steps.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "release new data without a PR or CR" → releasing data **directly through a change notice**
+      - "the switch that allows a CN without a CR" → the *Change Notice without Change Request* preference
+      - "how big a deal is this CN?" → *Complexity*: Fast Track, Full Track or Basic
+      - "keep this version or make a new one?" → *[[change-intent]]* on each [[affected-object]] (here: **None**)
+      - "which way it releases" → *[[release-target]]* on each [[resulting-object]] (here: **Change**)
+      - "do task 1 before task 2" → the task *Sequence* in the [[implementation-plan]]
+
+  - type: animation
+    title: "CN-0040: releasing SC-1048 for the first time"
+    diagram:
+      width: 800
+      height: 380
+      nodes:
+        - { id: data, label: SC-1048 A.2, sublabel: "part + CAD + spec · In Work", x: 20, y: 150, w: 170, h: 64, tone: neutral }
+        - { id: cn, label: CN-0040, sublabel: no CR needed, x: 230, y: 150, w: 150, h: 64, tone: primary }
+        - { id: t1, label: "Task 1 · CAD + parts", sublabel: sequence 1, x: 420, y: 40, w: 170, tone: info }
+        - { id: t2, label: "Task 2 · documents", sublabel: sequence 2, x: 420, y: 260, w: 170, tone: info }
+        - { id: audit, label: Audit, sublabel: Change Admin III, x: 630, y: 150, w: 150, tone: accent }
+        - { id: rel, label: Released, sublabel: still A.2, x: 630, y: 290, w: 150, tone: success, shape: pill }
+      edges:
+        - { from: data, to: cn, label: added }
+        - { from: cn, to: t1 }
+        - { from: cn, to: t2 }
+        - { from: t1, to: t2, label: then, dashed: true }
+        - { from: t1, to: audit }
+        - { from: t2, to: audit }
+        - { from: audit, to: rel, label: approve }
+    chapters:
+      - title: Ready, but not released
+        caption: SC-1048 A.2, its CAD model, its drawing and the test spec are all **In Work**. The design is well understood - no problem report or change request is needed.
+        show: [data]
+        highlight: [data]
+        seconds: 6
+      - title: A change notice on its own
+        caption: Kai creates **CN-0040** straight from the part. That only works because the *Change Notice without Change Request* preference is **Yes** for this product.
+        show: [data, cn]
+        highlight: [cn]
+        flow: [data>cn]
+      - title: Two tasks, in order
+        caption: Task 1 finalizes the parts and CAD; task 2 finalizes the documents. Sequence **1** and **2** means task 2 isn't sent out until task 1 is done and reviewed.
+        show: [data, cn, t1, t2]
+        highlight: [t1, t2]
+        flow: [cn>t1, cn>t2, t1>t2]
+        seconds: 7
+      - title: Do it, review it
+        caption: Each assignee completes their task with a comment, then a reviewer accepts it - or picks **Rework** to send the CN back for fixes.
+        show: [data, cn, t1, t2, audit]
+        highlight: [t1, t2]
+        flow: [t1>audit, t2>audit]
+      - title: Audit and release
+        caption: The Change Admin III audits CN-0040 and completes the task. Everything moves to **Released** - still at **A.2**, because nothing was revised.
+        highlight: [audit, rel]
+        flow: [audit>rel]
+        seconds: 7
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      Why not just set the state to Released and move on? Because a change notice **formalises** the
+      release and leaves a record you can audit later: who prepared the data, who reviewed it, who
+      approved it and when. Two years from now, when PR-0101 arrives, the bracket's **Changes** tab
+      will show CN-0040 as the change that first released A.2.
+
+  - type: comparison
+    title: Full change process or direct release?
+    columns: [Full process (PR → CR → CN), Direct release (CN only)]
+    rows:
+      - label: Typical use
+        cells: ["Fixing or improving data that's already released", "New, well-understood data going through its first release"]
+      - label: Starts with
+        cells: [A problem report or change request, A change notice created from the data]
+      - label: Needs a setting?
+        cells: [No, "Yes - Change Notice without Change Request must allow it"]
+      - label: Change intent on affected objects
+        cells: ["Objects are usually revised, so new revisions are produced", "None - release the current version as it is"]
+      - label: Still has tasks, reviews and an audit?
+        cells: [Yes, Yes]
+    takeaway: Direct release skips the debate, not the control.
+
+  - type: walkthrough
+    title: Release a part through a change notice
+    who: A user allowed to create change notices in the product - in the course manual, a Change Admin II
+    where: ["<part> information page", Actions, New, New Change Notice]
+    steps:
+      - title: Check the preference
+        where: [Navigator, Browse, "<your product>", Utilities, Preference Management, Change Management]
+        md: |
+          Open **Utilities** for your product, click **Preference Management** and expand
+          **Change Management**. **Change Notice without Change Request** must be **Yes**. If you can't
+          edit it, ask your administrator.
+      - title: Start the change notice from the part
+        where: ["SC-1048 information page", Actions, New, New Change Notice]
+        md: |
+          Open the part, click **Actions**, point to **New** and choose **New Change Notice**. Give it a
+          name ("Initial release of the SC-1048 fold-lock bracket"), a need date and a description.
+          Pick a **Template** if your company has one, and set the **Complexity**.
+      - title: Add the first change task
+        where: [New Change Notice, Implementation plan, New Change Task]
+        md: |
+          Click **New Change Task**, name it ("Finalize CAD and part data") and set a need date. On the
+          affected objects step add SC-1048, then use **Collect affected objects** and **Collect related
+          CAD / Dynamic documents** to pull in its child parts and CAD.
+      - title: Set change intent to None
+        where: [New Change Task, Affected Objects, Actions, Set Change Intent]
+        md: |
+          Select all affected objects, choose **Set Change Intent** and pick **None**. You are releasing
+          these versions as they are, not revising them.
+      - title: Copy them to the resulting objects
+        where: [New Change Task, Affected Objects, Copy Selected Object]
+        md: |
+          Select all affected objects and click **Copy Selected Object**. In the **Resulting Objects**
+          table click **Paste objects from clipboard**, select them all and use **Set Release Target**
+          to confirm **Change**. Click **Finish**.
+      - title: Add the document task and set the order
+        where: [Implementation Plan, New change task, Sequence]
+        md: |
+          Add a second task ("Finalize documentation") for the spec document the same way. Then type
+          **1** and **2** in the **Sequence** boxes so the CAD task is done and reviewed first.
+      - title: Attach, associate, submit
+        where: [New Change Notice, Set Attachments, Select Associations, Finish, Submit Now]
+        md: |
+          Add attachments if useful, check the associations, click **Finish** and choose **Submit Now**
+          (or submit later if you might still edit it). The first task appears in **My Tasks** on Home.
+      - title: Complete, review, audit
+        where: [Home, My Tasks]
+        md: |
+          Assignees complete each **Complete Change Notice Task**; reviewers complete each **Review
+          Change Notice Task** with **Complete** (or **Rework**). Then the Change Admin III completes
+          **Audit Change Notice**.
+    result: SC-1048 A.2 and its CAD and documents are Released, and the part's Changes tab shows the change notice that did it.
+
+  - type: callout
+    variant: note
+    title: Using the PLM Foundation Pacesetter?
+    md: |
+      If your system uses the **PLM Foundation Pacesetter** configuration, initial releases usually go
+      through its **Basic Track** change process instead, which adds a business rule that only allows
+      revision A to be released that way. The *Initial releases and change intent* lesson covers it.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      **Forgetting to set change intent to None.** If you leave a revise intent on the affected
+      objects, you're asking for a new revision instead of releasing the one you've finished. For a
+      first release, release what you have - don't create B before anyone has built A.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      Use **Collect affected objects** and **Collect related CAD / Dynamic documents** instead of
+      adding things one by one. Switch the display to **As a Structure with Associated Objects** to
+      see what you picked up. A child part you forget to release stays In Work, and the supplier
+      can't build the assembly.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: When does the course manual suggest releasing data directly through a change notice?
+        options:
+          - When a released part has a field problem
+          - When the design data is well understood and a PR or CR would add nothing - for example a first release
+          - Whenever the change review board is busy
+          - Only for documents, never for parts
+        answer: 1
+        explanation: Direct release fits well-understood data, and the common case is an initial release. Field problems with released data go through the full process.
+      - kind: single
+        prompt: Kai can't create a change notice without a change request. What should he check first?
+        options:
+          - The part's life cycle template
+          - The Change Notice without Change Request preference under Change Management
+          - Whether he is in the Change Review Board role
+          - The change notice's Complexity
+        answer: 1
+        explanation: A CN without a CR only works if the process is configured to allow it - in the course manual, by that preference set to Yes.
+      - kind: truefalse
+        prompt: Releasing SC-1048 A.2 through CN-0040 with change intent None creates revision B.
+        answer: false
+        explanation: Change intent None releases the current version as it is. The part stays at A.2 and moves to Released.
+      - kind: order
+        prompt: Put these steps of a direct release in order.
+        items:
+          - Create the change notice from the part
+          - Add change tasks with affected and resulting objects
+          - Submit the change notice
+          - Complete and review each change task
+          - Audit the change notice
+        explanation: Plan in the CN, submit it, do and review the tasks, then the audit releases the data.
+      - kind: multi
+        prompt: What still happens in a direct release? (Choose all that apply.)
+        options:
+          - Change tasks are assigned and completed
+          - Reviewers check each task
+          - A change review board votes on a change request
+          - The change notice is audited
+        answers: [0, 1, 3]
+        explanation: Direct release skips the problem report and change request - and with them the CRB vote. Tasks, reviews and the audit stay.
+
+  - type: summary
+    points:
+      - Well-understood new data can be released through a change notice with no PR or CR - typically an initial release.
+      - The Change Notice without Change Request preference must allow it.
+      - Set change intent to None to release the current version, copy the objects to Resulting Objects and keep the release target Change.
+      - Tasks, reviews and the Change Admin III audit still happen, so the release is fully traceable.

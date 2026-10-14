@@ -1,19 +1,68 @@
 - id: thingworx
   term: ThingWorx
   plain: PTC's platform for connecting machines and products to the internet and building apps on that data.
-  definition: PTC's Industrial IoT (IIoT) platform. It connects machines, factory systems and products in the field, and is used to build industrial apps. PTC's role-based Navigate apps for viewing Windchill data were built on it.
+  definition: PTC's Industrial IoT (IIoT) platform for connecting machines, factory systems and products in the field (general background, not a Windchill feature). In the Windchill course material it appears as the engine behind the Windchill Performance Advisor dashboard and ThingWorx View for AR experiences.
   aka: [IIoT platform]
   related: [windchill, plm]
 
 - id: workgroup-manager
   term: Workgroup Manager
   plain: The plug-in that connects a non-PTC CAD tool to Windchill.
-  definition: A Windchill client add-on that integrates third-party CAD applications (for example SOLIDWORKS, NX, CATIA or AutoCAD) with Windchill, so their files can be checked in and out as CAD documents.
+  definition: An application installed with a third-party CAD tool (for example SOLIDWORKS, CATIA or AutoCAD) to connect it to Windchill, so its files can be checked in and out as CAD documents. Creo connects to Windchill out of the box.
   related: [cad-document, workspace, creo]
 
 - id: change-review-board
   term: Change Review Board (CRB)
   plain: The group of people who say yes or no to a proposed change.
-  definition: The cross-functional group (typically engineering, manufacturing, quality and service) that reviews a change request's impact and cost and decides whether to approve it. In Windchill it is usually a role in the change request workflow.
+  definition: The cross-functional group (typically design engineering, manufacturing engineering and quality) that reviews a change request and approves it, denies it or asks for more investigation. In Windchill it is an out-of-the-box role used only in the Full Track change process.
   aka: [CRB, CCB, change board]
   related: [change-request, change-notice]
+
+- id: pacesetter
+  term: Pacesetter (PTC)
+  plain: PTC's ready-made, proven starting point for a Windchill implementation project.
+  definition: A PTC prescriptive services engagement framework - methods, materials, best practices and a deployable pre-configuration - that gives an implementation a proven starting point to scope and refine. Delivered through a statement of work, led by PTC or a partner. Called value ready deployment (VRD) until June 2025. The Windchill PLM Foundation Pacesetter targets small and midsize discrete manufacturers new to Windchill.
+  aka: [VRD, value ready deployment, PLM Foundation Pacesetter]
+  related: [windchill, greenfield-implementation, out-of-the-box]
+
+- id: greenfield-implementation
+  term: Greenfield implementation
+  plain: Setting up a brand-new system with no old configuration to carry over.
+  definition: An implementation for a customer that is new to the system (or starting again from scratch), so it can begin from a standard configuration instead of migrating an existing setup. General implementation term; PTC uses it to describe the target customers of Pacesetters.
+  aka: [greenfield]
+  related: [pacesetter]
+
+- id: out-of-the-box
+  term: Out-of-the-box (OOTB)
+  plain: How Windchill works as shipped, before anyone customizes it.
+  definition: The standard functionality and configuration delivered with Windchill, without custom code. PTC course material uses OOTB for default settings, roles, processes and templates that a company can then configure.
+  aka: [OOTB, standard configuration]
+  related: [pacesetter, windchill]
+
+- id: product-variability
+  term: Product variability (Options and Variants)
+  plain: Managing one product family that comes in many customer versions.
+  definition: The PLM capability for defining a family of products through features, options and choices, with rules for how they interact, and generating specific variants from one configurable structure. In Windchill it is provided by Options and Variants, which an administrator enables with the Configurable Module Support preference; advanced features need the separately licensed Smart Platforms module.
+  aka: [Options and Variants, variant management]
+  related: [option, choice, overloaded-bom, configurable-module]
+
+- id: bom-transformation
+  term: BOM transformation (xBOM)
+  plain: Turning one kind of BOM into another while keeping them linked.
+  definition: The Windchill capability to create multiple linked BOMs from one another - for example an engineering BOM into a manufacturing BOM or service BOM - with associative links so changes can be synchronized. The "x" stands for any kind of BOM.
+  aka: [xBOM]
+  related: [ebom, mbom, service-bom, bom]
+
+- id: model-based-definition
+  term: Model-based definition (MBD)
+  plain: Putting dimensions, tolerances and finishes in the 3D model instead of only on a 2D drawing.
+  definition: A PLM capability where design information such as tolerances, surface finish and dimensions is added to a fully annotated 3D CAD model, making the model the source authority for downstream engineering, manufacturing and quality. Supports ASME and ISO standards and semantic GD&T.
+  aka: [MBD]
+  related: [gdt, creo, cad-document]
+
+- id: gdt
+  term: GD&T (geometric dimensioning and tolerancing)
+  plain: The standard symbol language engineers use to say how precise each feature must be.
+  definition: A system of symbols and rules for defining the allowed variation of part geometry. Semantic GD&T stores it in the 3D model in a machine-readable form, which model-based definition relies on.
+  aka: [geometric dimensioning and tolerancing]
+  related: [model-based-definition]

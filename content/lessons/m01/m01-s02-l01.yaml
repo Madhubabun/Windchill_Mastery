@@ -1,8 +1,21 @@
 id: m01-s02-l01
-subtitle: Four tiers, one click. See what really happens when you use Windchill.
-version: 1.0.0
-updated: "2026-10-05"
+subtitle: Four boxes, one click. See what really happens when you use Windchill.
+version: 1.1.0
+updated: "2026-10-13"
 tags: [architecture, tiers, basics]
+sources:
+  - id: ac
+    where: "Module 11: Describe the Windchill architecture (client, application and database layers); Describe the Windchill client; Describe the web server; Describe the Windchill server; Describe the database server; Describe LDAP integration; Identify optional servers (Solr indexing, visualization workers, file servers and replication)"
+  - id: ac
+    where: "Module 14: What are file vaults?; Identify storage options; Describe the file vaulting architecture (content streamed from the vault via the Windchill server); Identify types of file vaults (replica vault)"
+  - id: ac
+    where: "Module 17: Back up file vaults (vault file names are sequential)"
+  - id: ac
+    where: "Module 8: access permissions (Read lets a user see an object listed)"
+  - id: te
+    where: "Module 1: Identify Windchill core architecture and enterprise systems; Identify types of Windchill implementations (Windchill+)"
+  - id: te
+    where: "Module 4: Register a Windchill server with your CAD tool (Creo out of the box, Workgroup Manager for other CAD tools)"
 
 blocks:
   - type: text
@@ -10,7 +23,9 @@ blocks:
       When you open Windchill, it *feels* like one website. It's actually a team of machines and
       programs passing your request along like a relay race.
 
-      The good news: you only need **four boxes** to understand it.
+      The good news: you only need **four boxes** to understand it. (PTC's course describes three layers -
+      client, application and database. We split storage into two boxes because facts and files live
+      in different places.)
 
       1. **Your screen** - a web browser, or a CAD tool like [[creo|Creo]].
       2. **The Windchill server** - the brain that runs the rules.
@@ -21,13 +36,13 @@ blocks:
     variant: terms
     md: |
       **Plain words → official term**
-      - "your screen" → *client tier* (browser, Creo + [[workgroup-manager|Workgroup Manager]])
-      - "the brain" → *server tier* ([[web-server]], [[servlet-engine]], [[method-server|method servers]])
+      - "your screen" → *client layer* (browser, Creo or a [[workgroup-manager|Workgroup Manager]])
+      - "the brain" → *application layer* ([[web-server]], plus application servers running [[method-server|method servers]] with an embedded [[servlet-engine]])
       - "the facts" → *[[metadata]]* in a relational [[database]] (Oracle or SQL Server)
       - "the files" → *content* in a [[vault|file vault]]
 
   - type: diagram
-    title: Windchill's four tiers (plus helpers)
+    title: Windchill in four boxes (plus helpers)
     caption: Click each box to see what it does. The bottom row are helper services the server calls on.
     diagram:
       width: 760
@@ -47,8 +62,8 @@ blocks:
           h: 60
           tone: accent
           detail: |
-            Most people use Windchill in a normal web browser. Nothing to install - the browser just
-            sends requests and shows the pages that come back.
+            Most people use Windchill in a normal web browser such as Chrome, Firefox or Edge. You need
+            network access, the Windchill URL and a valid user ID and password.
         - id: cad
           label: CAD tool
           sublabel: Creo + Workgroup Mgr
@@ -58,8 +73,8 @@ blocks:
           h: 60
           tone: accent
           detail: |
-            Designers work inside a CAD tool such as Creo. A connector called **Workgroup Manager**
-            (built into Creo, separate for other CAD tools) talks to the same Windchill server.
+            Designers work inside a CAD tool such as Creo. Creo connects to Windchill out of the box;
+            other CAD tools need a **Workgroup Manager**. Both talk to the same Windchill server.
         - id: server
           label: Windchill server
           sublabel: web + app + logic
@@ -83,8 +98,8 @@ blocks:
           shape: cylinder
           detail: |
             A relational database (**Oracle** or **Microsoft SQL Server**). It stores the metadata:
-            numbers, names, versions, states, owners, links between parts, access rules - and a
-            *pointer* to each file.
+            numbers, names, versions, states, owners, links between parts - and the link to each
+            file stored outside the database.
         - id: vault
           label: File vault
           sublabel: the files
@@ -95,8 +110,9 @@ blocks:
           tone: success
           shape: cylinder
           detail: |
-            Folders on disk that Windchill manages. The heavy stuff lives here: CAD models, drawings,
-            PDFs, spreadsheets. Remote sites can get **replica** copies for faster downloads.
+            Folders that Windchill manages, on the server or elsewhere on the network. By default all
+            content lives here: CAD models, drawings, PDFs, spreadsheets. Remote sites can get
+            **replica** copies for faster downloads.
         - id: ldap
           label: Directory (LDAP)
           sublabel: users + groups
@@ -106,8 +122,8 @@ blocks:
           h: 56
           tone: neutral
           detail: |
-            The address book of users and groups - either the Windchill Directory Server or your
-            company's own LDAP directory. Used when you log in and when teams are built.
+            The address book of users and groups - the Windchill Directory Server, your company's own
+            LDAP directory, or both. PTC's course places it in the database layer next to the database.
         - id: index
           label: Search index
           sublabel: Solr
@@ -117,8 +133,8 @@ blocks:
           h: 56
           tone: neutral
           detail: |
-            A pre-built keyword index (based on Apache Solr) that makes keyword searches fast instead of
-            scanning the whole database.
+            An optional indexing server that uses Solr for full-text search across object metadata and
+            file content, so searches stay efficient as data grows.
         - id: viz
           label: Visualization
           sublabel: CAD workers
@@ -128,8 +144,8 @@ blocks:
           h: 56
           tone: neutral
           detail: |
-            Helper machines that turn heavy CAD files into lightweight viewables you can open in
-            **Creo View** - no CAD licence needed.
+            Visualization workers that turn heavy CAD files into lightweight viewables you can open in
+            **Creo View** - no licence for the authoring CAD tool needed.
       edges:
         - { from: browser, to: server, label: HTTPS, bidirectional: true }
         - { from: cad, to: server, bidirectional: true }
@@ -229,15 +245,15 @@ blocks:
     variant: version-note
     versions: ["Windchill+"]
     md: |
-      On **Windchill+** (PTC's cloud/SaaS offering), the same tiers exist, but PTC hosts and runs the
-      server, database and vaults. You still use a browser and CAD tools exactly as described here.
+      On **Windchill+** (PTC's SaaS offering), the application and data tiers run in a cloud
+      environment managed by PTC. You still use a browser and CAD tools exactly as described here.
 
   - type: callout
     variant: pitfall
     md: |
       "The file is in Windchill, so I can grab it from the server's disk." No - vault files are stored
-      with system-generated names, and only the database knows which file is which. Always get files
-      **through** Windchill.
+      under sequential, system-assigned names, and only the database links each file to its object.
+      Always get files **through** Windchill.
 
   - type: callout
     variant: pro-tip
@@ -269,7 +285,7 @@ blocks:
 
   - type: summary
     points:
-      - "Windchill has four main tiers: client (browser/CAD), server, database and file vault."
+      - "Think of Windchill as four boxes: client (browser/CAD), server, database and file vault. PTC groups them into client, application and database layers."
       - The database stores the facts (metadata); the vault stores the files (content).
       - Every request goes through the server, which checks who you are and what you may do.
       - Helpers like LDAP, the search index and visualization workers support the server.

@@ -1,8 +1,21 @@
 id: m02-s03-check
 subtitle: BOMs, usage details, CAD links, compare, plan B parts and where-used - prove you've got them.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.0.1
+updated: "2026-10-13"
 tags: [checkpoint, bom, structure]
+sources:
+  - id: te
+    where: "Module 4: Update CAD documents: check in (owner association); Module 5: Describe product structures; Create a BOM: techniques; Edit a BOM; Identify occurrences of a part in a BOM; Manage object associations in a BOM"
+  - id: hc-cad-assoc-overview
+    label: PTC Help Center supplement
+    title: "CAD and Part Association Overview"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/ManagingCADandPartRelationships/MCPR_AssociationOview.html"
+    covers: "One Owner link per part; Image provides representation only and participates in structure; Contributing Content passes attributes only"
+  - id: hc-cad-assoc-compare
+    label: PTC Help Center supplement
+    title: "Comparing CAD and Part Association Types"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/ManagingCADandPartRelationships/MCPR_ComparingCADandPartAssocTypes.html"
+    covers: "Which association types create structure, pass attributes and let the part participate in structure"
 
 blocks:
   - type: text
@@ -42,12 +55,12 @@ blocks:
       - kind: multi
         prompt: Which statements about part-CAD associations are true? (Choose all that apply.)
         options:
-          - An owner CAD document rebuilds the part's structure on check-in
-          - A part can have several contributing content CAD documents
-          - With an image association, CAD changes rebuild the BOM
-          - A part has at most one owner CAD document
-        answers: [0, 1, 3]
-        explanation: Owner (one per part) and contributing content (many) build structure. Image links only provide the picture - the BOM is maintained in Windchill.
+          - An Owner CAD document builds the part's structure when it is checked in
+          - A Contributing Content link builds the part's children
+          - An Image link passes CAD attributes such as material to the part
+          - A part has at most one Owner CAD document
+        answers: [0, 3]
+        explanation: Only Owner builds structure, and a part has one Owner link. Contributing Content passes attributes only, and Image provides representation only - no attributes, though its part still appears where the model is assembled.
       - kind: single
         prompt: A structure compare of frame A.3 vs A.5 shows SC-1042 only on the left and SC-1043 only on the right. What does it mean?
         options: [The hinge was revised, The hinge was replaced by a different part, A compare error, Quantity changed]
@@ -96,7 +109,7 @@ blocks:
       - front: "Owner association"
         back: "CAD is in charge: builds the part's structure and mapped attributes on check-in. Max one per part."
       - front: "Image association"
-        back: "CAD is the picture only. The BOM is edited in Windchill."
+        back: "Representation only - no children built, no attributes passed. The part still shows up where the model is assembled into an Owner-driven assembly."
       - front: "Structure compare"
         back: "Marks added, removed and changed lines between two structures. A replace = removed + added."
       - front: "Alternate vs substitute"

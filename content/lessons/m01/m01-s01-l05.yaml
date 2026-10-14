@@ -1,0 +1,259 @@
+id: m01-s01-l05
+subtitle: Nobody builds a house without a floor plan. Pacesetters are PTC's floor plan for a first Windchill go-live.
+version: 1.0.0
+updated: "2026-10-13"
+tags: [pacesetter, implementation, best-practices, plm-foundation, basics]
+sources:
+  - id: pf
+    where: "About this course; Implementation strategy; Module 1: What is a PTC Pacesetter?; Why do Pacesetters exist today?; Identify the scope and design of the Windchill PLM Foundation Pacesetter; What is included in the Windchill PLM Foundation Pacesetter?; Activity: Explore the contents of the Windchill PLM Foundation Pacesetter; Module 2: Deploy the Windchill PLM Foundation Pacesetter: overview; Module 3: Identify the foundational configurations; Activity: Explore the preferences set by Pacesetter deployment (navigation); Module 4: Identify the business configurations; The change process"
+  - id: te
+    where: "Module 1: What is a PTC value ready deployment (VRD)?; Why do VRDs exist today?; Identify the scope and design of the PLM Foundation VRD (including the renaming notes)"
+
+blocks:
+  - type: text
+    md: |
+      Picture a company that just bought [[windchill]]. A totally empty system is waiting. Somebody
+      has to decide which folders products get, what kinds of documents exist, who can edit what,
+      and how a change gets approved. Start from zero and you could spend months just arguing.
+
+      PTC's answer is a **Pacesetter**: a ready-made starting point, packed with PTC's experience
+      from many earlier projects. You don't start from a blank page. You start from something that
+      already works, then tune it to fit.
+
+  - type: callout
+    variant: terms
+    md: |
+      **Plain words → official term**
+      - "PTC's ready-made starting point for a project" → *[[pacesetter|Pacesetter]]* (older name: *value ready deployment*, or VRD)
+      - "the Pacesetter for a company's first Windchill PLM system" → *Windchill PLM Foundation Pacesetter*
+      - "a brand-new system, no old setup to carry" → *[[greenfield-implementation|greenfield]]*
+      - "what Windchill does as shipped, no custom code" → *[[out-of-the-box|out-of-the-box (OOTB)]]*
+      - "the paper that says what the project will deliver" → *statement of work (SOW)*
+
+  - type: callout
+    variant: note
+    title: Same thing, new name
+    md: |
+      PTC renamed *value ready deployments (VRDs)* to **Pacesetters** in June 2025. Older course
+      material and colleagues may still say "VRD" or "PLM Foundation VRD". It's the same idea.
+
+  - type: diagram
+    title: What's inside the PLM Foundation Pacesetter
+    caption: Two kits plus a deployment package. Click a box to see what it's for.
+    diagram:
+      width: 800
+      height: 400
+      groups:
+        - { label: Sales and Deal Crafting Kit, x: 20, y: 20, w: 230, h: 360, tone: info }
+        - { label: Delivery Kit, x: 270, y: 20, w: 510, h: 360, tone: success }
+      nodes:
+        - id: deck
+          label: Positioning deck
+          sublabel: slides
+          x: 45
+          y: 80
+          w: 180
+          h: 60
+          tone: info
+          shape: doc
+          detail: A slide deck that explains the Pacesetter at a high level, its benefits, what the customer needs to have ready, and the project's assumptions.
+        - id: deal
+          label: Deal Crafting Tool
+          sublabel: spreadsheet
+          x: 45
+          y: 220
+          w: 180
+          h: 60
+          tone: info
+          shape: doc
+          detail: A spreadsheet that helps shape the **statement of work**, with estimated hours, pricing, roles, scope, risks, timeline and assumptions.
+        - id: best
+          label: Best practices
+          sublabel: BOM, CAD, change...
+          x: 295
+          y: 60
+          w: 210
+          h: 60
+          tone: success
+          shape: doc
+          detail: PTC's documented best practices for BOM management, CAD data management, change management and foundational setup (contexts, unique identifiers, groups, roles and access).
+        - id: questions
+          label: Questionnaires
+          sublabel: ask the customer
+          x: 545
+          y: 60
+          w: 210
+          h: 60
+          tone: success
+          shape: doc
+          detail: High-level questions about how the customer works today, used to gather information and check they are ready for the project kickoff.
+        - id: guide
+          label: Delivery guide
+          sublabel: phases + tasks
+          x: 295
+          y: 160
+          w: 210
+          h: 60
+          tone: success
+          shape: doc
+          detail: Explains how to run the service, phase by phase, with tasks and expected outcomes.
+        - id: checklist
+          label: Pre-mobilization list
+          sublabel: + kickoff deck
+          x: 545
+          y: 160
+          w: 210
+          h: 60
+          tone: success
+          shape: doc
+          detail: A checklist that catches blockers that hurt past projects, plus a kickoff deck that sets expectations with the customer on day one.
+        - id: package
+          label: Accelerator package
+          sublabel: ready-to-deploy setup
+          x: 395
+          y: 280
+          w: 260
+          h: 70
+          tone: primary
+          shape: cylinder
+          detail: |
+            The technical heart: a set of **pre-configurations** plus documentation, deployed onto a
+            plain ("vanilla") Windchill with PTC's [[windchill-plus-ccd|Code and Configuration Deployment (CCD) utility]].
+            The pre-configurations follow the [[windchill-plus-guardrails|Windchill+ guidelines and guardrails]].
+      edges:
+        - { from: guide, to: package, dashed: true }
+        - { from: best, to: guide, dashed: true }
+
+  - type: text
+    md: |
+      ### What the deployment package sets up
+
+      Once the package is deployed, the "empty" Windchill is no longer empty. The PLM Foundation
+      course guide lists, among other things:
+
+      - **Templates** for products and libraries, for example generic, collaboration and restricted
+        product templates, plus a common modules library and a standard parts library.
+      - **Subtypes** of parts, documents and CAD documents, as a common framework to grow from.
+      - **Preferences, access rules, groups and roles**, mostly held at the organization level so
+        they apply the same way to every product and library.
+      - **Change processes** in three tracks: *Basic Track* (first release), *[[fast-track-change|Fast Track]]*
+        (simple changes inside one team) and *[[full-track-change|Full Track]]* (complex changes
+        across departments).
+      - Support for both top-down and bottom-up design, and Creo starter models.
+
+      You'll meet all of these properly in later modules. For now, the point is: **a lot of
+      decisions are already made, in a way PTC has seen work before.**
+
+  - type: comparison
+    title: What a Pacesetter is, and what it isn't
+    columns: [It is, It is not]
+    rows:
+      - label: Scope
+        cells: ["A starting point for scoping the project", "A fixed, finished solution: you keep configuring it to fit the customer"]
+      - label: Built from
+        cells: ["PTC Professional Services experience and industry and product best practices", "Custom code: the PLM Foundation one uses OOTB configuration and supported customizations"]
+      - label: Best fit
+        cells: ["New or re-implementing small and midsize discrete manufacturers", "Aimed at every kind of customer"]
+      - label: How it's bought
+        cells: ["Through a statement of work, led by PTC or a partner", "Bought through Success Points"]
+    takeaway: A Pacesetter gives you a proven head start, not a finish line.
+
+  - type: callout
+    variant: why-it-matters
+    md: |
+      PTC says it has seen many struggles with **requirements-based, highly customized**
+      deployments. Pacesetters exist for three reasons:
+
+      1. **Stay out of trouble** by following proven best practices.
+      2. **Get people to actually use the system**, with role-based training and adoption planning,
+         not only the technical setup.
+      3. **Reach value quickly.** PTC estimates the PLM Foundation Pacesetter cuts implementation
+         time by about 30% to 70% for the first half of a typical deployment.
+
+  - type: example
+    variant: case-study
+    title: Acme's first go-live
+    industry: Micromobility
+    md: |
+      Before Windchill, **Acme Mobility** kept scooter CAD on a shared server and BOMs in a
+      spreadsheet. Fifteen engineers, one location, design and manufacturing under one roof: a
+      textbook match for the PLM Foundation Pacesetter's target customer.
+
+      The implementation partner deployed the Pacesetter on a fresh Windchill, so in week one Acme
+      could already *see* a working system with products, document types and change processes.
+      Workshops then became "here's how it works, what needs to change for you?" instead of "what
+      do you want?". Acme kept most of the setup, renamed a few document types and adjusted who
+      approves Fast Track changes.
+    takeaway: Reacting to a working example is faster than designing from nothing.
+
+  - type: walkthrough
+    title: Peek at what a Pacesetter configured
+    who: An organization administrator on a training or test system where the Pacesetter is deployed
+    where: [Navigator, Browse, Organizations]
+    steps:
+      - title: Open the organizations list
+        where: [Navigator, Browse, Organizations tab]
+        md: In the **Navigator**, choose **Browse**, then open the **Organizations** tab.
+      - title: Open the customer's organization
+        where: [Organizations tab, "<the organization>"]
+        md: Expand the organization that was named during deployment. Most Pacesetter settings live here, at organization level.
+      - title: Look at the preferences
+        where: ["<the organization>", Utilities, Preference Management]
+        md: Open **Utilities**, then **Preference Management**. Pacesetter preferences (for example for change management and CAD naming) are set here and locked.
+    result: You can see that the "empty" system already carries decisions you can review with the customer.
+
+  - type: callout
+    variant: pitfall
+    md: |
+      Don't treat the Pacesetter as "done, go live tomorrow". The course guide is clear that you
+      still have to **explore and refine** both the foundational setup and the business processes
+      for the real customer. Skipping that step means people work around the system instead of in it.
+
+  - type: callout
+    variant: pro-tip
+    md: |
+      When someone says "we used the VRD", they mean a Pacesetter. Ask *which* one and *how much*
+      was changed afterwards. That tells you how close the system is to PTC's standard setup, which
+      makes training material and upgrades much easier to match.
+
+  - type: quiz
+    passMark: 0.7
+    questions:
+      - kind: single
+        prompt: What is a PTC Pacesetter?
+        options:
+          - A Windchill add-on module you license separately
+          - A prescriptive services framework that gives an implementation a proven starting point
+          - A finished, fixed configuration that can't be changed
+          - A training course for end users
+        answer: 1
+        explanation: A Pacesetter is a services framework (methods, materials and a deployable setup) that gives the project a head start. It's a starting point, not a module and not a fixed solution.
+      - kind: multi
+        prompt: Which of these are part of the PLM Foundation Pacesetter? (Choose all that apply.)
+        options:
+          - A deal crafting spreadsheet for the statement of work
+          - Customer questionnaires and a delivery guide
+          - An accelerator deployment package with pre-configurations
+          - A custom Java application that replaces the Windchill UI
+        answers: [0, 1, 2]
+        explanation: The Pacesetter has a sales and deal crafting kit and a delivery kit (best practices, questionnaires, guide, checklist, kickoff deck, deployment package). It is built from OOTB configuration, not a replacement UI.
+      - kind: single
+        prompt: Which company fits the PLM Foundation Pacesetter best?
+        options:
+          - A global group with ten plants, each with its own processes, replacing a heavily customized system
+          - A small discrete manufacturer with design and manufacturing in one location, new to Windchill
+          - A clothing brand that needs retail PLM
+          - A company that only wants to rent cloud storage
+        answer: 1
+        explanation: The target profile is new (greenfield) or re-implementing small and medium discrete manufacturers with design and manufacturing, in a single location or with a single business process.
+      - kind: truefalse
+        prompt: VRD and Pacesetter are two different PTC offerings.
+        answer: false
+        explanation: Same idea, new name. PTC renamed value ready deployments to Pacesetters in June 2025.
+
+  - type: summary
+    points:
+      - A Pacesetter (formerly VRD) is PTC's prescriptive starting point for a Windchill implementation.
+      - It exists to avoid customization trouble, drive user adoption and reach value faster.
+      - The PLM Foundation Pacesetter brings sales and delivery kits plus a deployable package of templates, subtypes, preferences, access setup and change processes.
+      - It covers the common needs of small and midsize discrete manufacturers and must still be refined for each customer.

@@ -1,8 +1,36 @@
 id: m01-s03-l05
 subtitle: Hundreds of rows, zero scrolling. Columns, sorts, filters and views that work for you.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-13"
 tags: [tables, table-views, filters, sorting]
+sources:
+  - id: te
+    where: "Module 2: Use the Windchill Home page (Tables), Build custom Windchill table views, Activity: Build a custom table view (view drop-down list, Customize, New View wizard), Browse for objects (Folder Contents), Activity: View information pages (Search in table); Module 3: Modify documents: workflow (checked-out icon); Module 5: View part usage details (structure views)"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Creating and Editing New Table Views"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/usersetup_personal/UserSetupTableViewNew.html"
+    covers: "Customize > Customize View List > New View; wizard steps (name, object type, filters, columns, sorting); sharing with all users, an organization or a context depends on access rights"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Searching for Objects in a Table"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/usersetup_personal/UserSetupTableSearch.html"
+    covers: "Search in table filters the rows shown; the cancel button shows all rows again; previously selected rows are cleared"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Sorting Objects in a Table"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/usersetup_personal/UserSetupTableSort.html"
+    covers: "Click a column title to sort; Shift+click adds a secondary sort; arrows show the sort direction"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Performing Actions in Tables"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/usersetup_personal/UserSetupTableActions.html"
+    covers: "Actions on several selected objects from the Actions menu or right-click menu; actions that don't apply are skipped or hidden"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Getting Started (Using Tables)"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/usersetup_personal/UserSetupTableUse.html"
+    covers: "Table changes last only for the browser session unless saved as a table view"
 
 blocks:
   - type: text
@@ -18,9 +46,9 @@ blocks:
     md: |
       **Plain words → official term**
       - "my saved way of looking at a table" → [[table-view]] (or just *view*)
-      - "quickly narrow what's on screen" → *find in table* / *filter*
+      - "quickly narrow what's on screen" → the *Search in table* box
       - "order the rows" → *sort*
-      - "the list of views at the top of a table" → *view picker* (often shows the *Current View*)
+      - "the list of views next to a table's name" → the *view drop-down list*
 
   - type: diagram
     title: Anatomy of a Windchill table
@@ -37,27 +65,27 @@ blocks:
           w: 250
           h: 56
           tone: accent
-          detail: Actions that apply to selected rows - e.g. check out, add to a change, export the list. Select rows with the checkboxes first.
+          detail: Select rows with their check boxes, then use the Actions menu (or right-click) to act on all of them at once. Actions that don't fit every selected object are hidden or skipped.
         - id: views
-          label: View picker
-          sublabel: Current View ▾
+          label: View list
+          sublabel: "All ▾"
           x: 290
           y: 20
           w: 230
           h: 56
           tone: primary
           detail: |
-            Switch between saved views, or open the option to **customise/create** a view. Each view stores
-            columns, sort order and filter criteria.
+            Switch between views, or choose **Customize** to open the view list manager and create a
+            **New View**. A view stores the object types, filters, columns and sort order.
         - id: find
-          label: Find in table
+          label: Search in table
           sublabel: quick text filter
           x: 540
           y: 20
           w: 240
           h: 56
           tone: info
-          detail: Type a few letters to hide rows that don't match. Fast, but temporary - it isn't saved.
+          detail: Type a few characters and only matching rows stay. Click the cancel X to see all rows again. Fast, but not part of any view (and it clears rows you had selected).
         - id: headers
           label: Column headers
           sublabel: click to sort
@@ -66,7 +94,7 @@ blocks:
           w: 760
           h: 50
           tone: warning
-          detail: Click a header to sort by that column; click again to reverse. Many tables also let you resize or drag columns.
+          detail: Click a column title to sort by it; arrows show the direction. Shift+click another title to add a second sort. You can also resize columns and change their order.
         - id: rows
           label: Rows
           sublabel: one object per row
@@ -75,57 +103,57 @@ blocks:
           w: 760
           h: 80
           tone: success
-          detail: Click a name or number to open the object's information page. Icons in the row often show type and status (e.g. checked out).
+          detail: Click an object's name or *View information* icon to open its information page. Icons in the row show its type and status (for example, checked out).
         - id: paging
-          label: Row count + paging
-          sublabel: "e.g. 1-50 of 820"
+          label: Long tables
+          sublabel: hundreds of rows
           x: 20
           y: 270
           w: 300
           h: 50
           tone: neutral
-          detail: Big tables are split into pages. If the number is huge, filter with a view instead of paging through.
+          detail: A busy folder can hold hundreds of rows. Rather than scrolling, pick a view that filters them or search in the table.
       edges: []
 
   - type: comparison
     title: Sort, find, view filter or search?
-    columns: [Sort, Find in table, View filter, Search]
+    columns: [Sort, Search in table, View filter, Search]
     rows:
       - { label: What it does, cells: [Reorders rows, Hides rows not matching some text, Shows only rows meeting criteria, Finds objects across contexts] }
-      - { label: Saved?, cells: [In a view, No - temporary, Yes - in the view, Yes - as a saved search] }
-      - { label: Scope, cells: [This table, Rows already loaded, This table, Everything you can access] }
+      - { label: "Saved?", cells: [In a view, No - temporary, Yes - in the view, Yes - as a saved search] }
+      - { label: Scope, cells: [This table, This table, This table, Everything you can access] }
       - { label: Best for, cells: [Newest first, "Quick 'where is it?'", Your daily work list, Finding things anywhere] }
-    takeaway: Find in table for right now; a view for every day; a search for anywhere.
+    takeaway: Search in table for right now; a view for every day; a search for anywhere.
 
   - type: walkthrough
     title: Create your own table view
-    who: Any user (personal views are only visible to you)
+    who: Any user (a view stays yours unless you share it, which depends on your access rights)
     steps:
       - title: Go to the table
         where: [Products, "Scooter S2", Folders, Frame]
-        md: Open any table - here, the Frame folder of Scooter S2.
-      - title: Open the view picker
-        where: [Table, View picker, "Customize / Create view"]
+        md: Open any table - here, the Folder Contents of the Frame folder in Scooter S2.
+      - title: Open Customize
+        where: [Folder Contents, view drop-down list, Customize]
         md: |
-          Open the view list at the top of the table and choose the option to customise or create a
-          new view. A view editor opens.
+          Open the view drop-down list next to the table name and choose **Customize**. In the window
+          that opens, click **New View** to start the wizard.
       - title: Name it
-        where: [View editor, Name]
-        md: Give it a name you'll recognise, e.g. `My in-work parts`.
-      - title: Set filters
-        where: [View editor, Filters]
-        md: Add criteria, e.g. **Type = Part** and **State = In Work**.
+        where: [New View, Name]
+        md: Give it a name you'll recognise, e.g. `My in-work parts`. Keep *Show in current view list* selected.
+      - title: Pick types and filters
+        where: [New View, "Object types / Filters"]
+        md: Select the object type (**Part**), then add filter criteria such as **State** equal to **In Work**.
       - title: Choose columns
-        where: [View editor, Columns]
+        where: [New View, Columns]
         md: |
-          Add the columns you need (e.g. *State*, *Last Modified By*, *Last Modified*) and remove the ones
-          you don't. Put the most important first.
+          Move the columns you need (e.g. *State*, *Last Modified*) into Selected Columns and put the
+          most important first.
       - title: Set sorting
-        where: [View editor, Sorting]
-        md: Sort by **Last Modified**, newest first.
-      - title: Save and use it
-        where: [View editor, OK / Save]
-        md: Save. The table switches to your view. Pick it from the view list any time; on many tables you can also make it your default.
+        where: [New View, Sorting]
+        md: Sort by **Last Modified**, newest first, then click **Finish**.
+      - title: Use it
+        where: [Folder Contents, view drop-down list, "My in-work parts"]
+        md: Close the Customize window and pick your new view from the view drop-down list. It's there next time too.
     result: A table that shows only in-work parts, with the columns you care about, newest first.
 
   - type: simulation
@@ -161,16 +189,16 @@ blocks:
         log: The most recently changed parts float to the top.
         blockedHint: Already sorted newest first.
       - id: find
-        label: Find in table "hinge"
+        label: Search in table for "hinge"
         when: { rows: 37 }
         do: [{ set: { rows: 3 } }]
-        log: "Find in table shows 3 matching rows - handy, but it's temporary and won't be saved in the view."
+        log: "Search in table shows 3 matching rows - handy, but it's temporary and won't be saved in the view."
         blockedHint: Apply the In Work filter first, or clear the current find text.
       - id: clear-find
-        label: Clear find in table
+        label: Clear the table search
         when: { rows: 3 }
         do: [{ set: { rows: 37 } }]
-        log: Find text cleared - all 37 in-work rows are back.
+        log: Search text cleared - all 37 in-work rows are back.
         blockedHint: There's no find text to clear.
       - id: save
         label: Save view as "In work - newest"
@@ -208,25 +236,26 @@ blocks:
     md: |
       **Forgetting a view is active.** You filtered to *In Work* last week, and today you think half the
       folder is missing. If a table looks wrong, check which view is selected and clear any
-      find-in-table text before you panic.
+      search-in-table text before you panic.
 
   - type: callout
     variant: pro-tip
     md: |
-      Ask your admin whether shared views exist for your team. Admins can often publish views to
-      everyone, so the whole change board looks at the same columns in a meeting.
+      Ask whether shared views exist for your team. Depending on access rights, a view can be shared
+      with all users, an organization or a context, so the whole change board looks at the same
+      columns in a meeting.
 
   - type: quiz
     questions:
       - kind: single
         prompt: You want a table to show only Released parts every time you open it. What do you do?
         options:
-          - Type "Released" in find in table each time
+          - Type "Released" in the Search in table box each time
           - Create a view with the filter State = Released
           - Sort by state
           - Run a quick search
         answer: 1
-        explanation: A view saves the filter so it applies every time. Find in table is temporary, and sorting only reorders rows.
+        explanation: A view saves the filter so it applies every time. Search in table is temporary, and sorting only reorders rows.
       - kind: multi
         prompt: What does a table view store? (Choose all that apply.)
         options: [Which columns are shown, Sort order, Filter criteria, A frozen copy of the rows]
@@ -235,15 +264,15 @@ blocks:
       - kind: truefalse
         prompt: A personal view you create changes the table for all your teammates.
         answer: false
-        explanation: Personal views are yours alone. Admins can create shared views for everyone.
+        explanation: A view you create is yours unless you share it - and sharing with all users, an organization or a context depends on your access rights.
       - kind: order
         prompt: Put the steps for creating a view in order.
-        items: [Open the view picker, Name the view, Set filters and columns, Set sorting, Save and select it]
-        explanation: Name it, define what rows (filters) and what columns, decide the order, then save and use it.
+        items: [Open Customize from the view list, Name the view, Set filters and columns, Set sorting, Finish and select it]
+        explanation: The New View wizard asks for a name, then what rows (types and filters) and what columns, then the order. Finish, then pick it from the view list.
 
   - type: summary
     points:
       - Most Windchill pages are tables, and tables are customisable.
-      - Sort by clicking headers; find in table for quick, temporary filtering.
-      - A view saves columns, filters and sorting under a name - personal unless an admin shares it.
+      - Sort by clicking column titles; Search in table for quick, temporary filtering.
+      - A view saves types, filters, columns and sorting under a name - yours unless you share it.
       - If a table looks "wrong", check the active view first.

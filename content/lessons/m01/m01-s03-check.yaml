@@ -1,8 +1,23 @@
 id: m01-s03-check
 subtitle: Prove you can find your way around Windchill.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-13"
 tags: [checkpoint, navigation, search]
+sources:
+  - id: te
+    where: "Module 2: Describe products and libraries, Use the Windchill Home page, Activity: Explore the Windchill user interface, Locate data in Windchill, Save searches, Browse for objects, View information about objects, Build custom Windchill table views, Subscribe to Windchill objects; Module 3: Activity: Explore and create documents (History tab)"
+  - id: ac
+    where: "Module 1: Describe the Windchill context architecture (context types)"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Unexpected Results"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/search/LclSrchResultsUnexpected.html"
+    covers: "Missing search results from access, type and context selections, and indexing schedules"
+  - id: help-center
+    label: PTC Help Center supplement
+    title: "Creating a Subscription"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/subscriptions/Subscribe.html"
+    covers: "Subscription events and expiration dates"
 
 blocks:
   - type: text
@@ -59,28 +74,28 @@ blocks:
         answer: false
         explanation: It saves the criteria. Each run searches again, so results are always current.
       - kind: single
-        prompt: You need to know who checked in iteration A.3 of a bracket and why. Where do you look?
+        prompt: You need to see every iteration of a bracket, from A.1 up to A.3. Where do you look?
         options:
-          - The Details tab's Created By field
-          - The iteration history on the History tab
+          - The Details tab
+          - The version history on the History tab
           - Where Used
           - The Actions menu
         answer: 1
-        explanation: The iteration history lists every check-in with the user, date and check-in comment. Created By only tells you who made the first iteration.
+        explanation: The version history on the History tab lists all previous iterations and revisions. Details shows the attributes of the version you're looking at.
       - kind: single
         prompt: A folder table shows 820 rows, but you only ever need In Work parts with a State column. What's the lasting fix?
         options:
-          - Type "In Work" in find in table every morning
+          - Type "In Work" in the Search in table box every morning
           - Create and save a table view with the filter and the column
           - Export the table to a spreadsheet
           - Sort by name
         answer: 1
-        explanation: A view saves filters, columns and sorting under a name. Find in table is temporary and isn't saved.
+        explanation: A view saves filters, columns and sorting under a name. Search in table is temporary and isn't saved.
       - kind: multi
         prompt: Which are good subscription habits? (Choose all that apply.)
         options:
           - Subscribe only to events you will act on, like a state change
-          - Set an expiration date when offered
+          - Set an expiration date
           - Subscribe to every event on every part you've ever opened
           - Clean up subscriptions when you change projects
         answers: [0, 1, 3]
@@ -90,7 +105,7 @@ blocks:
     title: Getting around Windchill
     cards:
       - front: "Navigator"
-        back: "The panel on the left for jumping to Home, Products, Libraries, Projects and recent places."
+        back: "The panel on the left - Browse (recent products, libraries, recently visited), Changes and Search tabs."
       - front: "Context"
         back: "An object's home - product, library or project - which sets its team, access and rules."
       - front: "Library vs product"
@@ -108,7 +123,7 @@ blocks:
       - front: "Where Used"
         back: "Lists the parent assemblies that use a part. Check it before changing the part."
       - front: "Table view"
-        back: "A saved setup of a table's columns, filters and sorting. Personal unless an admin shares it."
+        back: "A saved setup of a table's object types, filters, columns and sorting. Yours unless you share it (if your rights allow)."
       - front: "Subscription"
         back: "Ask Windchill to notify you (usually by email) when chosen events happen to an object."
       - front: "Favorite vs subscription"
