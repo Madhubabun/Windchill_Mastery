@@ -1,8 +1,18 @@
 id: m03-s03-l01
 subtitle: "A brand-new design is ready. A promotion request gets it reviewed, approved and Released in one move."
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [promotion-request, lifecycle-state, review, approval, release]
+sources:
+  - id: te
+    where: "Module 6: Windchill's change and promotion processes: overview; Promotion process: overview (Promotion Request Approval and Review processes); Create a promotion request; Activity: Create and approve a promotion request (Home page My Tasks, task Promotion Objects and Details tabs, Task Completion, History tab, Process tab)"
+  - id: ac
+    where: "Module 5: Identify life cycle transition types (Lock); Compare promotion requests to change management objects; Identify OOTB promotion request settings; Describe the Promotion Request Approval process; Manage promotion preferences (Automatic Revision Mode)"
+  - id: hc-create-promotion-request
+    label: PTC Help Center supplement
+    title: "Create a Promotion Request"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/promotionrequest/ProdMatPromoReqCreate.html"
+    covers: "Wizard steps (Set Attributes, Select Promotion Objects, Select Participants); Need By date; Collect Objects and Add Promotion Objects toolbar actions; Target Promotion State; set object for promotion; Promotion Comments column"
 
 blocks:
   - type: text
@@ -22,12 +32,12 @@ blocks:
     variant: terms
     md: |
       **Plain words → official term**
-      - "a bundle of stuff asking to level up" → *[[promotion-request]]* (numbered like PROM-0310)
-      - "where the stuff should end up" → *[[promotion-target-state]]* (for example Released)
-      - "each item in the bundle" → *[[promotion-candidate]]* (often shown as *promotion objects*)
+      - "a bundle of stuff asking to level up" → *[[promotion-request]]* (Acme's example: PROM-0310)
+      - "where the stuff should end up" → *[[promotion-target-state]]*, picked from the *Target Promotion State* list
+      - "each item in the bundle" → *[[promotion-candidate]]*, listed in the *Promotion Objects* table
       - "people who look and comment" → *reviewers*, who get a *[[review-task]]*
       - "people who say yes or no" → *approvers*, who get an *[[approval-task]]*
-      - "the steps the request goes through" → its *[[workflow]]* (the promotion process)
+      - "the steps the request goes through" → its *[[workflow]]*, for example the *Promotion Request Approval Process*
 
   - type: animation
     title: "PROM-0310: the phone mount levels up"
@@ -50,7 +60,7 @@ blocks:
         - { from: brk, to: prom }
         - { from: drw, to: prom }
         - { from: prom, to: rev }
-        - { from: rev, to: appr }
+        - { from: prom, to: appr }
         - { from: appr, to: rel }
         - { from: appr, to: prom, label: rejected, dashed: true }
     chapters:
@@ -64,18 +74,18 @@ blocks:
         highlight: [prom]
         flow: [asm>prom, brk>prom, drw>prom]
       - title: Lock and review
-        caption: The request is submitted. In many setups the candidates move to **Under Review** and get locked, so nobody sneaks in a change. **Ana** (manufacturing) and **Leo** (quality) get **review tasks** and add comments.
+        caption: The request is submitted. Acme's life cycle has a **Lock** transition, so the candidates sit in **Under Review** while the request runs. **Ana** (manufacturing) and **Leo** (quality) get **review tasks** and add comments.
         show: [asm, brk, drw, prom, rev]
         highlight: [rev]
         flow: [prom>rev]
         seconds: 7
       - title: The vote
-        caption: Kai, the engineering lead, gets an **approval task**. He reads the comments, opens the drawing in Creo View and votes **Approve**.
+        caption: At the same time, Kai, the engineering lead, gets an **approval task**. Reviews and approvals run in parallel, so he can read comments as they arrive before he votes **Approve**.
         show: [asm, brk, drw, prom, rev, appr]
         highlight: [appr]
-        flow: [rev>appr]
+        flow: [prom>appr]
       - title: Everything moves together
-        caption: Approved! Windchill sets **every** candidate to **Released** at once. If Kai had voted **Reject**, the objects would go back to In Work for fixes instead.
+        caption: All approvers said yes, so **every** candidate is promoted to **Released**. If any approver had rejected, the objects would stay in, or go back to, their original state (In Work) instead.
         highlight: [rel, asm, brk, drw]
         flow: [appr>rel]
         seconds: 7
@@ -99,65 +109,63 @@ blocks:
       came back wrong.
 
       Now the rule is simple: **part, CAD model and drawing travel in the same promotion
-      request.** Windchill can help you collect the related objects so nothing gets left
-      behind.
+      request.** The promotion request wizard has a **Collect Objects** action to gather related
+      objects, such as the drawing for a part, so nothing gets left behind.
     takeaway: Release things that belong together, together.
 
   - type: walkthrough
     title: Create a promotion request
     who: The person who owns the work (for example a design engineer)
-    where: ["<object> information page", Actions menu, New Promotion Request]
+    where: ["<object> information page", Actions, New, New Promotion Request]
     steps:
       - title: Start from your objects
-        where: ["<folder or object> page", Actions menu, New Promotion Request]
+        where: ["<folder, object or search results>", Actions, New, New Promotion Request]
         md: |
-          Select the objects in a folder table (or open one object's information page) and
-          choose **New Promotion Request** from the **Actions** menu. You can usually also
-          start one from a workspace or a search result. The exact place depends on your
-          release and setup.
-      - title: Pick the target state
-        where: [Promotion request wizard, Target state]
-        md: |
-          Choose where the objects should end up, for example **Released**. The list only
-          offers states your company's life cycle allows the objects to be promoted to. If
-          the state you want isn't there, that's a configuration question, not a bug.
-      - title: Add and collect objects
-        where: [Promotion request wizard, Promotion objects]
-        md: |
-          Check the list of candidates. Use the collect option to pull in related objects,
-          such as the drawing and the CAD model that belong with your part. Windchill flags
-          anything that can't be promoted, for example something still checked out or already
-          in a different state. Fix it or remove it.
+          Start from the **Folder Contents** table, an object's **information page** or the
+          **Search Results** table: select the objects, then choose **Actions → New → New Promotion
+          Request**. The objects you select go into the promotion baseline that reviewers and
+          approvers look at. Promotion requests can only be created in product and library contexts.
       - title: Describe it
-        where: [Promotion request wizard, Details]
+        where: [Set Attributes, Name and Description]
         md: |
-          Give it a clear name and description: what this is, why it's ready and what reviewers
-          should focus on. "Phone mount v1 for S2. Check the clamp torque note on sheet 2." beats
-          "Please release."
+          The name is filled in from the first object - change it to something clear. Then say what
+          this is, why it's ready and what reviewers should focus on. "Phone mount v1 for S2. Check the
+          clamp torque note on sheet 2." beats "Please release." You can also set a **Need By** date.
+      - title: Pick the target state and the objects
+        where: [Select Promotion Objects, Target Promotion State]
+        md: |
+          Choose the **Target Promotion State**, for example **Released**. The list only offers the
+          states your life cycle's **Promote** transitions allow. Use **Collect Objects** or **Add
+          Promotion Objects** to pull in the drawing and CAD model that belong with your part. Then
+          select the rows to promote and click **set object for promotion** - every request needs at
+          least one object set for promotion.
       - title: Choose the process and people
-        where: [Promotion request wizard, Process or participants step]
+        where: [Select Participants, Process]
         md: |
-          Depending on configuration you pick a process (for example review then approval) and
-          the **reviewers** and **approvers**. Some companies fill these in automatically from
-          team roles. Then click **Finish** to submit.
+          Pick the process. The **Promotion Request Approval Process** (often the default) uses
+          Approver and Reviewer roles; the **Promotion Request Review Process** uses Reviewers only.
+          The participant lists are pre-filled from the **Promotion Approvers** and **Promotion
+          Reviewers** roles of the product team. Click **Finish**.
     result: |
-      You get a new promotion request (for example PROM-0310). Reviewers and approvers see new
-      tasks under **Home → Tasks / My Tasks**, and you can follow its progress from the
-      promotion request's information page.
+      You get a new promotion request (Acme's example: PROM-0310). Reviewers and approvers find their
+      tasks in the **My Tasks** table on their Home page. Later, the object's **History** tab links to
+      the promotion request, and its **Process** tab shows the members, the task history and the
+      process status.
 
   - type: text
     md: |
       ### What reviewers actually see
 
-      When Ana opens her task, she doesn't get a random email. She gets the **promotion request
-      itself**:
+      When Ana opens her task from **My Tasks**, she doesn't get a random email. She gets a task page
+      tied to the **promotion request itself**:
 
-      - the **name and description** you wrote (this is why a good description matters)
-      - the **target state** - so she knows "this is about to be Released"
-      - the **list of promotion objects** with their exact versions, like SC-3510 A.2
-      - links to open each object, view it in Creo View and see its history
-      - a **comments** box, and for approvers, the **vote** (Approve or Reject)
-      - the process status, so she sees who else has already responded
+      - a **Promotion Objects** tab listing the objects, their exact versions (like SC-3510 A.2) and
+        the state they move from and to
+      - a **Details** tab with the request's name and description (this is why a good description
+        matters) and a **Process Status** table showing the other tasks of the process
+      - links to open each object's information page
+      - a **Task Completion** section with a **Comments** box and the **Complete Task** button;
+        approvers also vote **Approve** or **Reject**
 
   - type: callout
     variant: pitfall
@@ -176,9 +184,15 @@ blocks:
   - type: callout
     variant: note
     md: |
-      Promotion processes, available target states and who must approve are all **set by your
-      company's configuration**. Some companies have a review step plus an approval step, some
-      only approval, some different processes per target state.
+      Windchill ships **two** promotion processes: *Approval* (approvers must all approve) and
+      *Review* (objects are promoted right away and reviewers only comment). Administrators often
+      copy and adapt them, and can offer a different process per target state.
+
+      One more thing from the course manual: promotion requests are **mostly used for releasing
+      non-engineering data**, while engineering data (parts, CAD, engineering documents) is usually
+      released through the change process. Acme's configuration lets engineers promote brand-new
+      designs like the phone mount; many companies use a change notice instead. The next lesson
+      shows how to choose.
 
   - type: quiz
     passMark: 0.7
@@ -187,7 +201,7 @@ blocks:
         prompt: What does a promotion request change on its objects when it's approved?
         options: [Their revision letter, Their lifecycle state, Their number, Their folder]
         answer: 1
-        explanation: Promotion moves objects to the target state, like In Work → Released. It does not create a new revision or renumber anything.
+        explanation: Promotion moves objects to the target state, like In Work → Released. It doesn't renumber anything, and it only revises objects if an admin has turned on the Automatic Revision Mode preference.
       - kind: multi
         prompt: Which of these does a reviewer see on the promotion request? (Choose all that apply.)
         options:
@@ -196,25 +210,24 @@ blocks:
           - The description written by the requester
           - A private chat log between the approvers
         answers: [0, 1, 2]
-        explanation: The request shows its target state, the list of promotion objects with versions and the description. There's no hidden approver chat - comments are on the tasks and request.
+        explanation: The task shows the promotion objects with their versions and states, plus the request's details. There's no hidden approver chat - comments go on the tasks.
       - kind: order
-        prompt: Put these promotion steps in order.
+        prompt: Put these steps for creating a promotion request in order.
         items:
-          - Finish the design work and check in
-          - Create the promotion request and set the target state
-          - Reviewers comment on their tasks
-          - Approver votes
-          - Objects move to the target state
-        explanation: Work first, then bundle and submit, then review, then the vote. Only an approval moves the objects.
+          - Select the objects and choose New Promotion Request
+          - Name and describe the request
+          - Pick the target state and set the objects for promotion
+          - Choose the process and participants, then Finish
+        explanation: That's the wizard order - attributes, promotion objects with the target state, then participants. Reviewers and approvers then work their tasks in parallel.
       - kind: truefalse
-        prompt: If the approver rejects the request, the objects are Released anyway but flagged with a warning.
+        prompt: In the Promotion Request Approval Process, if one approver rejects, the objects are Released anyway but flagged with a warning.
         answer: false
-        explanation: A rejection stops the promotion. In typical setups the objects go back to their earlier state (like In Work) so the owner can fix them.
+        explanation: Any rejection ends the process in a rejection. The objects stay in, or return to, their original state, such as In Work.
 
   - type: summary
     points:
       - A promotion request bundles objects and asks to move them to one target state.
-      - Reviewers comment; approvers vote. Approval moves every candidate together.
-      - Create it from the Actions menu with New Promotion Request; collect related objects.
+      - Reviewers comment; approvers vote. When all approvers approve, every candidate moves together.
+      - Create it with Actions → New → New Promotion Request; collect related objects.
       - Write a description that tells reviewers what to check.
-      - Processes, target states and approvers depend on your company's configuration.
+      - Out of the box there are two processes (Approval and Review); target states come from the life cycle.

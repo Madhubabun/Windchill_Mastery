@@ -1,8 +1,21 @@
 id: m02-s01-l02
 subtitle: Borrow it, change it, give it back. Or say "never mind" - safely.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [check-out, check-in, undo-checkout, iteration, documents]
+sources:
+  - id: te
+    where: "Module 2: Describe revision and iteration control; Customize the Home page (Checked-Out Work table). Module 3: Modify documents: workflow; Activity: Update a document"
+  - id: hc-undo-checkout
+    label: PTC Help Center supplement
+    title: "Undoing a Checkout"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/commonactions/CommonObjCheckoutUndo.html"
+    covers: "Undo Checkout from the Actions menu or a table row's right-click menu, confirmed with OK; changes on the working copy are deleted and no new iteration is created; only the user who checked the object out can undo it this way; the object leaves the Home > Checked-Out Work table"
+  - id: hc-admin-undo
+    label: PTC Help Center supplement
+    title: "Administrative Undo Checkout"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/cadx/CADxFileMenuAdminUndoCheckout.html"
+    covers: "An administrative Undo Check Out of objects checked out by another user, available to users with the Product Manager user role"
 
 blocks:
   - type: text
@@ -92,37 +105,39 @@ blocks:
       - title: Check it out
         where: [Information page, Actions, Check Out]
         md: |
-          Choose **Check Out**. Some releases also offer **Check Out and Download** or **Check Out
-          and Edit**, which combine steps. The page now shows that it's checked out to you.
-      - title: Get the file and edit it
-        where: [Information page, Primary content]
-        md: Download the primary content, make your changes locally and save the file.
-      - title: Put your changes on the working copy
-        where: [Information page, Actions, Edit]
-        md: |
-          Use **Edit** to upload the changed file as the new primary content and update attributes.
-          Depending on the release, you may also upload the file in the check-in window. Wording
-          varies.
-      - title: Check in with a comment
+          Choose **Check Out**. The menu also offers **Check Out and Download** (reserve it and get
+          the file in one go) and **Check Out and Edit** (reserve it and change the primary
+          content, attributes or attachments in the edit window). An icon now shows it's checked
+          out to you.
+      - title: Download the file
+        where: [Information page, Actions, Download Primary File]
+        md: Download the primary content to your computer.
+      - title: Edit it locally
+        where: ["Your computer"]
+        md: Make your changes in the file's own application and save it.
+      - title: Check in with the new file and a comment
         where: [Information page, Actions, Check In]
         md: |
-          Choose **Check In** and write a useful comment ("Fixed brake force table, row 4"). Your
-          comment is kept in the iteration history.
+          Choose **Check In**, keep the **Upload file** option selected and browse to your changed
+          file. Write a useful comment ("Fixed brake force table, row 4") and click **OK**. The
+          comment is kept in the version history.
     result: The document moves from A.1 to A.2. The lock is released and everyone now sees A.2 as the latest.
 
   - type: walkthrough
     title: Undo a check-out
-    who: The user who checked it out (or an administrator)
+    who: The user who checked it out
     steps:
-      - title: Open the checked-out object
-        where: [Home, Checked Out items]
+      - title: Find the checked-out object
+        where: [Home, Checked-Out Work]
         md: |
-          Your Home page usually lists everything you have checked out (look for a *Checked Out*
-          table or filter). Or open the object's information page directly.
+          The **Checked-Out Work** table on your Home page lists what you have checked out. Or open
+          the object's information page directly.
       - title: Undo the check-out
         where: [Information page, Actions, Undo Checkout]
-        md: Choose **Undo Checkout** and confirm. Any changes on the working copy are discarded.
-    result: The object is back at the iteration it had before (still A.1 - no new iteration) and anyone can check it out again.
+        md: |
+          Choose **Undo Checkout** (also on the row's right-click menu) and click **OK** to confirm.
+          Any changes on the working copy are deleted.
+    result: The object is back at the iteration it had before (still A.1 - no new iteration), it leaves your Checked-Out Work table and anyone can check it out again.
 
   - type: simulation
     title: Drive the edit cycle
@@ -180,13 +195,13 @@ blocks:
           - label: Ask an administrator to look at the check-out
             next: s2
             good: true
-            feedback: Right - administrators can undo another user's check-out.
+            feedback: Right - Windchill has an administrative undo checkout for objects checked out by someone else.
           - label: Wait two weeks
             next: p1
             feedback: Safe, but the audit is today.
       - id: s2
         md: |
-          The admin can **undo Priya's check-out**. But first: did Priya change anything on the
+          The admin can **undo Priya's check-out** with the administrative undo. But first: did Priya change anything on the
           working copy? If she uploaded a new file but never checked in, undoing the check-out
           throws that work away. What should happen first?
         choices:
@@ -219,9 +234,9 @@ blocks:
     industry: Micromobility
     md: |
       During a release review, Acme found **47 objects** still checked out to people - some for
-      months. The release couldn't continue because checked-out objects block state changes in
-      many configurations. Kai now asks his team to clear their *Checked Out* list every Friday:
-      check in what's done, undo what isn't needed.
+      months. Nobody else could change them, and the release team spent days chasing owners to
+      find out which locks hid real work. Kai now asks his team to clear their *Checked-Out Work*
+      table every Friday: check in what's done, undo what isn't needed.
     takeaway: A check-out is a lock. Locks you forget about block everyone else.
 
   - type: callout
@@ -242,8 +257,8 @@ blocks:
     questions:
       - kind: order
         prompt: Put the edit cycle in order.
-        items: [Check out, Download and edit the file, Upload the file to the working copy, Check in with a comment]
-        explanation: You reserve the object, make the change locally, put it on your working copy, then check in to create the new iteration.
+        items: [Check out, Download the primary file, Edit and save the file locally, Check in with the new file and a comment]
+        explanation: You reserve the object, get its file, change it on your computer, then check in - uploading the new file - to create the new iteration.
       - kind: single
         prompt: TR-0057 is at A.2. You check it out, then choose Undo checkout. What's the version now?
         options: [A.1, A.2, A.3, B.1]
@@ -255,9 +270,9 @@ blocks:
         explanation: Kai sees the last checked-in iteration. The working copy is private until check-in.
       - kind: single
         prompt: A document is checked out to someone who left the company. Who can usually release it?
-        options: [Anyone on the team, Nobody - it's locked forever, An administrator or user with the right permission, Only the original creator]
+        options: [Anyone on the team, Nobody - it's locked forever, A user with administrative rights in that context, Only the original creator]
         answer: 2
-        explanation: Administrators (or users given that permission) can undo another user's check-out. Check first whether the working copy holds work worth keeping.
+        explanation: A normal Undo Checkout only works for the person who checked it out. The Help Center describes an administrative undo checkout for users with the Product Manager role. Check first whether the working copy holds work worth keeping.
 
   - type: summary
     points:

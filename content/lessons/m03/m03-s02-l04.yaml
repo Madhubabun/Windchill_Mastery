@@ -1,8 +1,13 @@
 id: m03-s02-l04
 subtitle: Before and after. Get these two lists right and the release takes care of itself.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [change, affected-objects, resulting-objects, change-task]
+sources:
+  - id: te
+    where: "Module 6: Activity: Create a problem report (affected object); Activity: Create a change request; Activity: Create a change notice to release product data (Set Change Intent, Copy Selected Object, Paste objects from clipboard, resulting objects definition); Activity: Create a change notice to address a requested change (Revise, Set Release Target); Change management process: Change Implementation; Activity: Review and audit an implemented change (Audit Change Summary)"
+  - id: ac
+    where: "Appendix B: Describe the change notice life cycle and workflow (audit approval releases resulting objects); Describe change management business rules; Describe business rules and links (checkout rule, release target rule)"
 
 blocks:
   - type: text
@@ -12,8 +17,8 @@ blocks:
 
       Windchill keeps these as two lists on each change task. The before list says *"this is what
       we're changing"*. The after list says *"this is what we made"*. When the change notice
-      resolves, it's the **after list** that gets released. So if something is missing from it...
-      it simply doesn't ship.
+      audit is approved, it's the **after list** that gets released. So if something is missing from
+      it... it simply doesn't ship.
 
   - type: callout
     variant: terms
@@ -21,8 +26,8 @@ blocks:
       **Plain words → official term**
       - "the before list" → *[[affected-object|affected objects]]* - on problem reports, change requests and change tasks
       - "the after list" → *[[resulting-object|resulting objects]]* - on change tasks
-      - "the CN's view of all of it" → the union of its tasks' lists, often shown as a change summary
-      - "what happens to old stock" → *disposition*, often recorded per affected part
+      - "what each object should become" → *[[change-intent]]* on affected objects; "which way it releases" → *[[release-target]]* on resulting objects
+      - "the auditor's view of all of it" → the *Audit Change Summary*, with its *Change Intent* and *Release Content* views
 
   - type: diagram
     title: Task 1 of CN-0101 - before and after
@@ -52,7 +57,7 @@ blocks:
           y: 50
           w: 210
           tone: danger
-          detail: The released version being changed. It stays Released (and untouched) until the change resolves.
+          detail: The released version being changed. It stays Released (and untouched) while the change runs.
         - id: a-model
           label: SC-1048.prt A.2
           sublabel: CAD model · Released
@@ -77,7 +82,7 @@ blocks:
           y: 40
           w: 210
           tone: success
-          detail: The new revision. In Work while the change is open; typically released when the CN resolves.
+          detail: The new revision, created by revising the affected object inside the task. In Work while the change is open; released when the change notice audit is approved.
         - id: r-model
           label: SC-1048.prt B.1
           sublabel: CAD model · In Work
@@ -103,8 +108,9 @@ blocks:
           w: 210
           tone: accent
           detail: |
-            A brand-new part created by the change. It has **no affected object** - there was no
-            "before". It's resulting-only, and it still needs to be on the list to get released.
+            A brand-new part created by the change. There was no released "before" to revise.
+            Whatever else you do with it, it has to be in the **resulting objects** - that's the list
+            that gets released.
       edges:
         - { from: a-part, to: task }
         - { from: a-model, to: task }
@@ -123,8 +129,8 @@ blocks:
         cells: ["Problem reports, change requests and change tasks", Change tasks]
       - { label: Typical version, cells: [The current Released one (A.2), The new one (B.1)] }
       - { label: State during the change, cells: [Stays Released, In Work] }
-      - { label: When CN resolves, cells: [Superseded by the new revision, Typically released] }
-      - { label: "Can be empty?", cells: [Yes - for brand-new objects, "Usually not - no result means no change"] }
+      - { label: Key setting, cells: [Change intent (for example None or a revise), "Release target (for example Change)"] }
+      - { label: When the audit is approved, cells: [Superseded by the new revision, Released] }
     takeaway: Affected is the promise. Resulting is the delivery.
 
   - type: callout
@@ -148,7 +154,7 @@ blocks:
           - label: Approve - the part and model are the important bits
             next: f1
             feedback: The drawing is what the supplier builds from. Approving now ships a change without its drawing.
-          - label: Reject the task with a comment naming what's missing
+          - label: Choose Rework with a comment naming what's missing
             next: s2
             good: true
             feedback: Right. A precise comment saves a round of guessing.
@@ -157,9 +163,9 @@ blocks:
             feedback: Reviewers usually shouldn't edit the work they review - and you may not even have permission.
       - id: s2
         md: |
-          Priya gets the task back: *"Drawing B.1 missing from resulting objects."* She checks the
-          drawing's history and sees **SC-1048.drw B.1, In Work** already exists - she revised it
-          from her workspace, not from the task. What should she do?
+          The work comes back with Kai's comment: *"Drawing B.1 missing from resulting objects."*
+          Priya checks the drawing's history and sees **SC-1048.drw B.1, In Work** already exists -
+          she revised it from her workspace, not from the change. What's the fix?
         choices:
           - label: Revise the drawing again from inside the task
             next: s2x
@@ -167,7 +173,7 @@ blocks:
           - label: Add the existing B.1 to the task's resulting objects
             next: s3
             good: true
-            feedback: Exactly. Use the resulting objects table's add action and pick SC-1048.drw B.1.
+            feedback: Exactly. The change task's Resulting Objects table must list SC-1048.drw B.1.
       - id: s2x
         md: The system refuses or creates a confusing extra revision. Priya undoes it. What next?
         choices:
@@ -190,13 +196,13 @@ blocks:
             feedback: Right. New objects created by the change are resulting objects with no matching affected object.
       - id: win
         md: |
-          Task 1 now lists part, model, drawing and bushing. Kai approves. When CN-0101 resolves,
-          all four release together and the supplier gets a complete, consistent package.
+          Task 1 now lists part, model, drawing and bushing. Kai approves. When Leo approves the
+          audit, all four release together and the supplier gets a complete, consistent package.
         outcome: success
       - id: f1
         md: |
-          CN-0101 resolves. SC-1048 B.1 is Released but the drawing is still A.2 Released (B.1 sits
-          In Work). The supplier makes 2,000 brackets to the old 3 mm drawing. A new change notice
+          The audit is approved. SC-1048 B.1 is Released but the drawing is still A.2 Released (B.1
+          sits In Work). The supplier makes 2,000 brackets to the old 3 mm drawing. A new change notice
           is needed to release the drawing - and a variance to deal with the wrong parts.
         outcome: fail
       - id: p1
@@ -204,13 +210,13 @@ blocks:
           You find you can't edit the list - and even if you could, the record would now show you
           reviewing your own edit. Send it back to Priya instead.
         choices:
-          - label: Reject with a comment
+          - label: Choose Rework with a comment
             next: s2
             good: true
             feedback: Better.
       - id: p2
         md: |
-          The CN resolves with the drawing released but the bushing still In Work. The drawing
+          The change releases the drawing but the bushing stays In Work. The drawing
           points at a part nobody can order. Purchasing raises a PR. Fixable - but it's another change.
         outcome: partial
 
@@ -224,19 +230,23 @@ blocks:
       3. **Look for newcomers.** Parts or documents created for this change are resulting-only.
       4. **Follow the CAD.** Part, model and drawing usually travel as a trio.
 
-      Some companies add automatic checks that block completion when lists don't match. Whether
-      yours does **depends on your company's configuration**.
+      Windchill can also check things for you. The change notice workflow calls **business rules**
+      before release - out of the box, for example, a rule fails if a changeable object is still
+      checked out, and another checks that each one has a valid release target. Failures show up
+      as conflicts in the audit. Which rules run **depends on your company's configuration**, and
+      they don't count your lists for you.
 
   - type: callout
     variant: pitfall
     md: |
-      **Revising outside the task.** It's the most common cause of missing resulting objects. If you
-      revise from the workspace or the part's own page, the new version isn't linked to the change
-      - you must add it to the resulting objects yourself.
+      **Revising outside the change.** It's the most common cause of missing resulting objects.
+      Revising inside the change task puts the new version in the Resulting Objects table. Revise
+      anywhere else and the new version isn't linked to the change - it has to be added to the
+      resulting objects separately.
 
   - type: callout
     variant: pro-tip
-    md: Open the part's **Changes** tab after you've added it. If your task shows up there with the new revision as a result, the link is in place.
+    md: Open the new revision's **Changes** tab after it's been added. If CN-0101 shows up in its **Associated Changes** table, the link is in place.
 
   - type: quiz
     passMark: 0.7
@@ -247,22 +257,22 @@ blocks:
         answer: 2
         explanation: Problem reports and change requests list affected objects (what's being looked at or proposed). Resulting objects are produced by work, and work happens in change tasks.
       - kind: single
-        prompt: A change creates a brand-new bushing part SC-2530. How should it appear on the change task?
+        prompt: A change creates a brand-new bushing part SC-2530. Which list must it be on so it gets released?
         options:
-          - As an affected object only
-          - As a resulting object only
-          - As both an affected and a resulting object
+          - The affected objects only
+          - The resulting objects
+          - A reference on the change request
           - It doesn't need to be listed
         answer: 1
-        explanation: There was no "before" version, so it isn't affected. But it's an output of the change and needs to be released with it - so it's a resulting object.
+        explanation: There was no released "before" version to revise, but it's an output of the change and needs to be released with it. Resulting objects are what get released.
       - kind: truefalse
         prompt: While CN-0101 is open, SC-1048 A.2 stays Released and the factory keeps building it.
         answer: true
-        explanation: The affected version is untouched until the change resolves. That's why the timing of the release matters so much.
+        explanation: The affected version is untouched until the audit approves the change. That's why the timing of the release matters so much.
       - kind: multi
         prompt: Kai sees resulting objects that don't match the affected list. Which are good moves? (Choose all that apply.)
         options:
-          - Reject the task with a comment naming the missing item
+          - Choose Rework with a comment naming the missing item
           - Approve and hope the audit catches it
           - Check whether the missing new version already exists in its history
           - Ask Priya to add it to the resulting objects table
@@ -273,5 +283,5 @@ blocks:
     points:
       - Affected objects are the before (what you're changing); resulting objects are the after (what you made).
       - Affected objects appear on PRs, CRs and change tasks; resulting objects on change tasks.
-      - Resulting objects are typically released when the CN resolves - anything missing doesn't ship.
-      - New objects are resulting-only; revise from inside the task or add results yourself.
+      - Resulting objects are released when the change notice audit is approved - anything missing doesn't ship.
+      - New objects must be resulting objects; revise inside the change task so new versions are linked.

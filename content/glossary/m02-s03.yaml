@@ -10,20 +10,20 @@
 - id: find-number
   term: Find number
   plain: The balloon number that matches a BOM line to the picture on the drawing.
-  definition: A usage attribute on a uses link that identifies the child in its parent's BOM, typically matching the item balloon on the assembly drawing. It is stored as text. Whether it is required, unique or generated automatically is set by company preferences.
+  definition: A usage attribute on a uses link that cross-references a part in the product structure with the same part on the assembly drawing, typically the item balloon. Keeping find numbers unique within a parent avoids confusion.
   aka: [item number, balloon number]
   related: [line-number, uses-link, bom]
 
 - id: line-number
   term: Line number
   plain: The row number of a child in its parent's BOM, often used by ERP.
-  definition: A numeric usage attribute on a uses link that orders the lines of a parent's BOM and can identify a line uniquely within that parent. It is often what downstream systems such as ERP key on. Whether it is required and how it is numbered (for example in steps of 10) is configured per company.
+  definition: A usage attribute on a uses link that identifies the position of the part within a manufacturing BOM in an ERP system, where one is used. Numbering in steps (10, 20, 30) is common practice rather than a Windchill rule.
   related: [find-number, uses-link, erp]
 
 - id: reference-designator
   term: Reference designator
   plain: The label printed on a circuit board that says exactly which spot a component goes in, like R1 or C3.
-  definition: A usage attribute that names each individual occurrence of a child in its parent, mostly used for electronic assemblies (R1, R2, C1, U4). Each designator marks one physical position, so the number of designators normally matches the quantity. Pick-and-place machines, test and repair all rely on them.
+  definition: An alphanumeric code that names one occurrence of a child in its parent, such as R1, R2 or C1. A usage can have up to as many occurrences as its quantity. They are common in electronic assemblies, where pick-and-place machines, test and repair rely on them, so there the count usually matches the quantity.
   aka: [ref des, refdes]
   related: [uses-link, find-number]
 
@@ -49,21 +49,21 @@
 - id: alternate-part
   term: Alternate part
   plain: A part that can replace another part anywhere it is used.
-  definition: A replacement defined between two part masters, meaning the alternate is interchangeable with the original in every assembly that uses it. Because it sits at master level it applies globally and does not change any parent structure.
+  definition: A replacement part that may be used in any assembly where the specified part is used. An alternate is one-way (it may replace the original, not the reverse) or two-way (each may replace the other). Alternates are added with Manage Replacements on the Structure tab.
   aka: [alternate, global alternate]
-  related: [substitute-part, master, where-used]
+  related: [substitute-part, where-used]
 
 - id: substitute-part
   term: Substitute part
   plain: A part that can replace another part, but only inside one specific assembly.
-  definition: A replacement defined on a particular uses link, so it applies only to that parent's use of the child. Because the uses link belongs to the parent, adding or removing a substitute changes the parent's structure and needs the parent checked out.
+  definition: A replacement part that may be used in place of the specified part only in one specific assembly, where the relationship is created. Substitutes are added with Manage Replacements on the Structure tab, and Replace with Alternate/Substitute can swap one in.
   aka: [substitute, local substitute]
   related: [alternate-part, uses-link]
 
 - id: structure-compare
   term: Structure compare
   plain: Spot-the-difference for two BOMs, done by Windchill.
-  definition: A comparison of two part structures - two versions of one assembly, an assembly against a baseline, or two different assemblies - that marks added, removed and changed lines, including changes to usage attributes such as quantity or find number.
+  definition: Windchill's side-by-side comparison of two part structures (the Compare to Part Structure action). Each side can be another part, another version or a different filter, such as a baseline. It flags parts with no equivalent on the other side, usage attribute differences such as quantity, and attribute differences, and can show only the differences.
   aka: [BOM compare, compare structure]
   related: [bom, multi-level-bom, master]
 

@@ -1,8 +1,18 @@
 id: m03-s03-check
 subtitle: Promote, review, approve or reject - and know when it's not a promotion at all.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [checkpoint, promotion-request, tasks]
+sources:
+  - id: te
+    where: "Module 6: Windchill's change and promotion processes: overview; Promotion process: overview; Create a promotion request; Activity: Create and approve a promotion request"
+  - id: ac
+    where: "Module 5: Identify OOTB promotion request settings (No valid states for Promotion); Describe the Promotion Request Approval process; Manage promotion preferences (Automatic Revision Mode)"
+  - id: hc-create-promotion-request
+    label: PTC Help Center supplement
+    title: "Create a Promotion Request"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/promotionrequest/ProdMatPromoReqCreate.html"
+    covers: "Collect Objects action; at least one object set for promotion"
 
 blocks:
   - type: text
@@ -16,10 +26,10 @@ blocks:
     passMark: 0.8
     questions:
       - kind: single
-        prompt: Priya's new SC-3500 phone mount has never been released. She wants it Released for production. What does she create?
+        prompt: Priya's new SC-3500 phone mount has never been released, and Acme's rules let engineers promote brand-new designs. She wants it Released. What does she create?
         options: [A change notice, A promotion request, A variance, A problem report]
         answer: 1
-        explanation: First release of new data is what promotion requests are for. Nothing released is being changed, so the full change process isn't needed.
+        explanation: At Acme, first release of a new design goes through a promotion request - nothing released is being changed. (Many companies use a light change notice for this instead; the course manual sends most engineering data through change.)
       - kind: single
         prompt: What does a promotion request change when it's approved?
         options:
@@ -28,16 +38,16 @@ blocks:
           - The part numbers
           - The folders the objects live in
         answer: 1
-        explanation: Promotion moves the exact versions you added to the target state. It doesn't revise, renumber or move them.
+        explanation: Promotion moves the exact versions you added to the target state. It doesn't renumber or move them, and it only revises them if an admin turned on Automatic Revision Mode.
       - kind: multi
         prompt: Ana opens her review task on PROM-0310. What can she see? (Choose all that apply.)
         options:
           - The target state
           - The promotion objects and their exact versions
           - The requester's description
-          - Links to open and view each object
+          - Links to open each object's information page
         answers: [0, 1, 2, 3]
-        explanation: The task shows the promotion request itself - description, target state and the list of objects - so the reviewer can open and inspect each one.
+        explanation: The task's Promotion Objects tab lists the objects, versions and states; the Details tab shows the request's description - and each object can be opened from there.
       - kind: single
         prompt: Kai wants a thicker wall on the released SC-1048 fold-lock bracket. Priya suggests revising it and promoting revision B. What's the main risk?
         options:
@@ -48,14 +58,14 @@ blocks:
         answer: 1
         explanation: Changing released data needs the change process so stock, suppliers and where-used are checked and the why is recorded. A promotion only records who approved.
       - kind: order
-        prompt: Put the promotion steps in order.
+        prompt: Put the promotion steps in order (Promotion Request Approval Process).
         items:
           - Finish the work and check in
           - Create the promotion request with a target state
-          - Reviewers complete their review tasks
-          - Approver votes on the approval task
+          - Reviewers and approvers get their tasks in parallel
+          - All approvers vote Approve
           - Objects move to the target state
-        explanation: Work, bundle, review, vote, promote. Only an approval moves the objects.
+        explanation: Work, bundle, then parallel review and approval. Only when every approver approves do the objects move.
       - kind: single
         prompt: Which is the most useful rejection comment?
         options:
@@ -66,53 +76,53 @@ blocks:
         answer: 2
         explanation: A useful rejection says what is wrong, where, why it matters and what to do. The others force a follow-up conversation.
       - kind: truefalse
-        prompt: Reviewers on a promotion request usually vote, and any single reviewer comment automatically rejects the request.
+        prompt: In the Promotion Request Approval Process, reviewers vote, and any single reviewer comment automatically rejects the request.
         answer: false
-        explanation: Reviewers comment to inform the decision. Approvers vote, and an approver's Reject stops the promotion. Exact rules depend on the configured process.
+        explanation: Reviewers only give feedback; they don't control the outcome. Approvers vote, and any approver's Reject ends the process in a rejection.
       - kind: single
-        prompt: Leo wants to promote a part, but Windchill flags it as not promotable. What's a likely reason?
+        prompt: Leo tries to promote a part and gets "No valid states for Promotion are available." What's a likely reason?
         options:
           - The part has a description
-          - The part is still checked out
+          - The part's life cycle has no Promote transition from its current state
           - The part has a drawing
           - The part is in a folder
         answer: 1
-        explanation: Checked-out objects (or objects in a state that can't be promoted to the target) are flagged. Check it in or remove it from the request.
+        explanation: The course manual names two causes - the part uses the wrong life cycle, or its life cycle has no Promote transition from the current state.
       - kind: multi
         prompt: Which statements about promotion requests are true? (Choose all that apply.)
         options:
           - The target states you can choose depend on the life cycle and configuration
           - Related objects like the drawing should travel in the same request
-          - Approving creates the next revision automatically
+          - Approving always creates the next revision automatically
           - Approvals leave a record of who approved which versions and when
         answers: [0, 1, 3]
-        explanation: Target states come from configuration, related objects should be promoted together and approvals are recorded. Promotion never creates revisions.
+        explanation: Target states come from the life cycle's Promote transitions, related objects should be promoted together (Collect Objects helps) and approvals are recorded. Revisions are only created automatically if an admin set Automatic Revision Mode.
       - kind: single
-        prompt: You find a task in Home → My Tasks, review the objects and write a comment. What finishes your part?
+        prompt: You find a task in the My Tasks table on Home, review the objects and write a comment. What finishes your part?
         options: [Closing the browser tab, Complete Task, Checking out the part, Emailing the requester]
         answer: 1
-        explanation: Complete Task submits your comment (and vote, for approvers) and moves the process on. Until then the task stays open in your list.
+        explanation: Complete Task submits your comment (and vote, for approvers). Until then the task stays open in your list.
 
   - type: flashcards
     title: Promotion requests deck
     cards:
       - front: "Promotion request"
-        back: "Bundles object versions and moves them to one target state after review and approval."
+        back: "Formally requests a state change for a set of objects, to one target state. Mostly used for non-engineering data."
       - front: "Promotion target state"
         back: "Where the objects end up when approved, for example Released."
       - front: "Promotion candidate"
         back: "One object version in the bundle. All candidates move together."
       - front: "Promotion or change notice?"
-        back: "Never released: promote. Released and changing: change request and change notice."
+        back: "Released and changing: always the change process. First release: promotion or a light change, by company rule."
       - front: "Does promotion create revisions?"
-        back: "No. It only changes the state of the versions you added."
+        back: "Not by default. Only if an admin set Automatic Revision Mode."
       - front: "Review task"
         back: "Look and comment. Informs the approvers."
       - front: "Approval task"
-        back: "Vote Approve or Reject with a comment. A Reject stops the promotion."
+        back: "Vote Approve or Reject with a comment. Any Reject ends the promotion in a rejection."
       - front: "Useful rejection"
         back: "What is wrong, where, why it matters, what to do."
       - front: "Where are my tasks?"
-        back: "Home → Tasks / My Tasks, plus email notifications."
+        back: "In the My Tasks table on your Home page."
       - front: "On rejection, objects..."
-        back: "Typically go back to an earlier state like In Work for fixes."
+        back: "Stay in, or return to, their original state, such as In Work."

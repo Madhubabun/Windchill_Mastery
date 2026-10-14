@@ -1,8 +1,13 @@
 id: m02-s02-l04
 subtitle: One is a light switch, the other is a signed permission slip. Know which one your company expects you to use.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [lifecycle, set-state, promotion-request, approval, governance]
+sources:
+  - id: te
+    where: "Module 5: Set State activities (Actions > Set State, Target State). Module 6: Windchill's change and promotion processes: overview; Promotion process: overview; Create a promotion request; Activity: Create and approve a promotion request"
+  - id: ac
+    where: "Access control permissions (Set State); Identify life cycle transition types (Set State, Promote, Lock)"
 
 blocks:
   - type: text
@@ -14,18 +19,23 @@ blocks:
          someone approves, and *then* Windchill moves them. Every step is recorded.
 
       Both end with "Released" on the screen. Only one of them can answer the auditor's question
-      *"who approved this, and when?"* That's why most companies lock Set State away and hand
-      everyone else the promotion request.
+      *"who approved this, and when?"* That's why many companies give Set State to very few
+      people.
+
+      (There's a third road: PTC's course notes that engineering data - parts, CAD documents -
+      is usually released through the **change process** with a change notice, while promotion
+      requests are mostly used for non-engineering data. Some companies use both together. The
+      change process gets its own lessons later; here we compare the two direct roads.)
 
   - type: callout
     variant: terms
     md: |
       **Plain words → official term**
       - "flip the state directly" → *[[set-state|Set State]]*
-      - "ask for approval to move it" → *[[promotion-request|promotion request]]* (the action is often called *Promote*)
-      - "the objects you're moving" → *promotion objects* (or promotion targets)
-      - "the state you're asking for" → *target state* (the maturity state)
-      - "the automatic approval route" → *[[workflow]]* with review and approve *[[task|tasks]]*
+      - "ask for approval to move it" → *[[promotion-request|promotion request]]* (action: *New Promotion Request*)
+      - "the objects you're moving" → *promotion objects*
+      - "the state you're asking for" → *target promotion state*
+      - "the automatic approval route" → a promotion *[[workflow]]* with review and approve *[[task|tasks]]*
 
   - type: animation
     title: A promotion request, step by step
@@ -35,7 +45,7 @@ blocks:
       nodes:
         - { id: priya, label: Priya, sublabel: creates request, x: 20, y: 40, w: 150, tone: primary, shape: pill }
         - { id: req, label: Promotion request, sublabel: "hinge + drawing", x: 210, y: 40, w: 170, tone: info, shape: doc }
-        - { id: lock, label: Under Review, sublabel: objects locked, x: 210, y: 200, w: 170, tone: warning }
+        - { id: lock, label: Locked state, sublabel: if configured, x: 210, y: 200, w: 170, tone: warning }
         - { id: kai, label: Kai approves, sublabel: workflow task, x: 420, y: 40, w: 160, tone: accent }
         - { id: rel, label: Released, sublabel: target state, x: 620, y: 40, w: 160, tone: success, shape: pill }
         - { id: record, label: Approval record, sublabel: "who · when · what", x: 520, y: 200, w: 180, tone: neutral, shape: doc }
@@ -47,22 +57,22 @@ blocks:
         - { from: kai, to: record, dashed: true }
     chapters:
       - title: Collect the objects
-        caption: Priya starts a promotion from the hinge A.3, picks **Released** as the target state, and adds its drawing too. Windchill can help collect related objects so nothing is left behind.
+        caption: Priya selects the hinge A.3 and its drawing, starts a **New Promotion Request** and picks **Released** as the target promotion state. Both objects land in the promotion objects list.
         show: [priya, req]
         highlight: [req]
         flow: [priya>req]
       - title: Freeze while reviewing
-        caption: In many setups the objects move to **Under Review** while the request runs, so nobody changes them mid-review.
+        caption: If the administrator has configured a **Lock** transition, the objects move to an interim locked state while the request is reviewed, so nobody changes them mid-review.
         show: [priya, req, lock]
         highlight: [lock]
         flow: [req>lock]
       - title: Route to the approver
-        caption: The workflow sends Kai a task. He opens the hinge, checks the drawing in a viewer and approves - or rejects with a comment.
+        caption: The Promotion Request Approval Process sends Kai, the approver, a task. He checks the promotion objects and approves - or denies, which leaves the objects in (or returns them to) their original state.
         show: [priya, req, lock, kai]
         highlight: [kai]
         flow: [req>kai]
       - title: Released, with receipts
-        caption: On approval Windchill sets the target state to **Released**. The request stays on record with the exact versions, the approver, the date and the comments.
+        caption: When all approvers approve, Windchill promotes the objects to **Released**. The request stays on record with its objects, the tasks, who completed them and their comments.
         highlight: [rel, record]
         flow: [kai>rel, kai>record]
         seconds: 8
@@ -80,12 +90,12 @@ blocks:
       - label: Speed
         cells: [Instant, Hours to days]
       - label: Who can use it
-        cells: [Usually admins or librarians only, Usually any team member]
+        cells: [Only users granted the Set State permission, "Team members; approvers come from the team's promotion roles"]
       - label: New iteration?
         cells: [No, No]
       - label: Best for
         cells: ["Fixing mistakes, migration clean-up, admin tasks", "Everyday releases of new data"]
-    takeaway: Set State is a tool for admins. Promotion is the everyday road to Released.
+    takeaway: Set State is an admin tool. A promotion request is the approved road - and for engineering data, check whether your company expects a change notice instead.
 
   - type: callout
     variant: why-it-matters
@@ -93,7 +103,7 @@ blocks:
       In ISO 9001, medical, automotive or aerospace audits, "Released" means nothing without
       evidence of approval. A promotion request **is** that evidence. A Set State click leaves a
       line in the history saying who flipped it - but no review, no approver, no reason. That's
-      why most companies grant Set State only to a few people through access rules.
+      why many companies grant the Set State permission to only a few people.
 
   - type: example
     variant: real-world
@@ -158,34 +168,37 @@ blocks:
     who: Team members allowed to create promotion requests in the context
     steps:
       - title: Start the promotion
-        where: ["<object> information page", Actions, Promote]
+        where: ["<object> information page", Actions, New, New Promotion Request]
         md: |
-          Start from the object (or select several in a folder or structure table). The action is
-          often called **Promote** or **New Promotion Request** - wording varies by release.
-      - title: Choose the target state
-        where: [Promotion wizard, Target state]
-        md: Pick the state you're asking for, for example **Released**. Only states your life cycle allows from the current state are offered.
-      - title: Collect related objects
-        where: [Promotion wizard, Objects, Collect]
-        md: Add the drawing and other related CAD or documents so they release together. Objects must be checked in - a checked-out object can't be promoted.
-      - title: Pick the process and reviewers
-        where: [Promotion wizard, Process, Reviewers]
-        md: Depending on your configuration you choose a review or approval process and who takes part, or the workflow assigns them by role.
-      - title: Submit and follow it
+          Start from the object's information page - or select several objects (for example the
+          hinge and its drawing) in Folder Contents or search results first. Give the request a
+          clear name and click **Next**.
+      - title: Choose the target state and objects
+        where: [New Promotion Request, Target Promotion State]
+        md: |
+          Pick the state you're asking for, for example **Released**. In the **Promotion Objects**
+          table, select the rows and click **Set Object for Promotion**, then **Next**.
+      - title: Pick the process
+        where: [New Promotion Request, Process]
+        md: |
+          The **Promotion Request Approval Process** (the default) needs approvers to approve; the
+          **Promotion Request Review Process** promotes and just notifies reviewers. Approver and
+          reviewer roles are pre-filled from the product team. Click **Finish**.
+      - title: Follow it
         where: [Home, Tasks]
-        md: Approvers receive tasks. You can follow the request from the object's information page. On approval, Windchill sets the target state.
+        md: Reviewers and approvers get tasks on their Home page. When all approvers approve, Windchill promotes the objects to the target state.
     result: The objects are Released and the promotion request records exactly who approved which versions, and when.
 
   - type: walkthrough
     title: Set State (only if you're allowed)
-    who: Usually administrators or librarians
+    who: Users granted the Set State permission
     steps:
       - title: Open Set State
         where: ["<object> information page", Actions, Set State]
-        md: If you don't see the action, your access rules don't allow it - that's normal for most users.
-      - title: Pick the new state and confirm
-        where: [Set State, New state]
-        md: Choose the state, add a comment explaining why, and confirm. The state changes immediately; the version number does not.
+        md: If you don't see the action, your access rules or the life cycle don't allow it - that's normal for most users.
+      - title: Pick the target state and confirm
+        where: [Set State, Target State]
+        md: Select the rows, choose the state from the **Target State** list and click **OK**. The state changes immediately; the version number does not.
     result: The state changes at once. The history records who changed it, but no review took place.
 
   - type: callout
@@ -198,8 +211,8 @@ blocks:
   - type: callout
     variant: pro-tip
     md: |
-      If you hold Set State rights, add a comment **every** time, saying why and referencing a
-      ticket or plan. Months later, that comment is the only evidence that the change was intended.
+      If you hold Set State rights, record **every** use somewhere traceable - a ticket or a plan
+      that says why. Months later, that note is the only evidence that the change was intended.
 
   - type: quiz
     passMark: 0.7
@@ -217,7 +230,7 @@ blocks:
         prompt: Priya's new e-bike bracket and its drawing are ready for first release. Which path fits best?
         options: [Set State, Promotion request, Save As, Revise]
         answer: 1
-        explanation: A promotion request collects the bracket and drawing, routes them for approval and then releases them together, leaving evidence.
+        explanation: Of these options, a promotion request is the one that routes the bracket and drawing for approval and releases them together, leaving evidence. (Many companies release engineering data through a change notice instead - check your process.)
       - kind: truefalse
         prompt: Set State creates a new iteration of the object.
         answer: false
@@ -226,7 +239,7 @@ blocks:
         prompt: Which are reasonable uses of Set State? (Choose all that apply.)
         options:
           - Moving migrated, already-approved legacy data to Released
-          - Correcting an object accidentally left in the wrong state, with a comment
+          - Correcting an object accidentally left in the wrong state, with the reason recorded
           - Releasing a drawing quickly because the approver is busy
           - Skipping review for "small" changes
         answers: [0, 1]
@@ -235,6 +248,6 @@ blocks:
   - type: summary
     points:
       - Set State flips the state directly - no review, no approval. Usually admin-only.
-      - A promotion request collects objects, routes review and approval, then moves them to the target state.
+      - A promotion request collects objects, routes review and approval, then moves them to the target state. Engineering data often goes through a change notice instead.
       - The promotion request is your evidence of approval in an audit.
       - Neither creates a new iteration - they change the state of existing versions.

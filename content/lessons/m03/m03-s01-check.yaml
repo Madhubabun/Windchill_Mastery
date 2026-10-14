@@ -1,8 +1,15 @@
 id: m03-s01-check
 subtitle: Cost of change, the four change objects and choosing the right track - prove you've got them.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [checkpoint, change-management]
+sources:
+  - id: te
+    where: "Module 6: OOTB change management process: steps; Identify roles in the change management process; Change management process: Identify Need, Investigate Need, Change Planning, Change Implementation; Activity: Analyze a change request"
+  - id: pf
+    where: "Module 4: The change process (Basic, Fast and Full Track)"
+  - id: ac
+    where: "Appendix B: Describe the change request life cycle and workflow"
 
 blocks:
   - type: text
@@ -38,20 +45,20 @@ blocks:
         prompt: Which object carries the decision "should we make this change at all"?
         options: [Problem Report, Change Request, Change Notice, Change Task]
         answer: 1
-        explanation: The Change Request holds the business case - fix, cost, stock and urgency - and the change board approves or rejects it. The PR only describes the problem; the CN plans an already-approved change.
+        explanation: The Change Request holds the business case - scope, impact, cost and the proposed solution. Change Admin I analyses it and, on the full track, the change review board approves or denies it. The PR only describes the problem; the CN plans an already-approved change.
       - kind: multi
         prompt: Which statements about change tasks are true? (Choose all that apply.)
         options:
           - They belong to a Change Notice
-          - They are assigned to a person or role
+          - They name an assignee who does the work and a reviewer who checks it
           - They record the resulting objects - the new versions produced
           - They are where the change board votes
         answers: [0, 1, 2]
-        explanation: Change tasks are the units of work inside a CN. The board decides on the Change Request, not on individual tasks.
+        explanation: Change tasks are the units of work inside a CN's implementation plan. The CRB decides on the Change Request, not on individual tasks.
       - kind: truefalse
         prompt: Every Problem Report must become a Change Request.
         answer: false
-        explanation: Some PRs are duplicates, already fixed or not worth changing. Several PRs can also be grouped into one CR.
+        explanation: Change Admin I can reject a PR or find it's a duplicate. Several unresolved PRs can also be collected into one CR.
       - kind: single
         prompt: Sam reports that some fold-locks open while riding. The fix is a stronger latch spring that costs a few cents. Which track?
         options:
@@ -60,7 +67,7 @@ blocks:
           - No change needed - just tell riders to check the lock
           - Email the new spring spec to the supplier
         answer: 1
-        explanation: Judge by impact, not part size. Safety-related changes always go through the full process with evidence and a board decision.
+        explanation: Judge by impact, not part size. A safety issue needs evidence and the board reviews of the full track.
       - kind: single
         prompt: Which change is the best fast track candidate?
         options:
@@ -73,7 +80,7 @@ blocks:
       - kind: truefalse
         prompt: A fast track change skips the Change Notice and edits the released version directly.
         answer: false
-        explanation: Fast track is shorter, not sloppier. It usually skips the separate Change Request and board, but still uses a Change Notice and produces a new traceable revision.
+        explanation: Fast track is shorter, not sloppier. It skips the CRB and CIB reviews, but still has a Change Request, a Change Notice with tasks and an audit, and it produces a new traceable revision.
       - kind: multi
         prompt: You find odd brackets on the line. Which first moves are good change practice? (Choose all that apply.)
         options:
@@ -88,7 +95,7 @@ blocks:
     title: Why change management matters deck
     cards:
       - front: "Rule of ten"
-        back: "The same fix costs roughly ten times more in each later phase - design, prototype, production, field."
+        back: "A general rule of thumb: the same fix costs roughly ten times more in each later phase - design, prototype, production, field."
       - front: "Uncontrolled change"
         back: "Editing what others depend on without reporting, deciding or telling anyone. Leads to scrap, mixed stock and recalls."
       - front: "Change control"
@@ -96,14 +103,14 @@ blocks:
       - front: "Problem Report (PR)"
         back: "What's wrong? The issue, evidence and affected objects."
       - front: "Change Request (CR)"
-        back: "Should we change it? The business case the change board decides on."
+        back: "Should we change it? The business case. Change Admin I analyses it; on the full track the CRB decides."
       - front: "Change Notice (CN)"
         back: "How and when? The implementation plan, holding the change tasks."
       - front: "Change Task"
         back: "Who does what? One piece of work that produces resulting objects."
       - front: "Full track"
-        back: "PR → CR → board decision → CN with tasks. For changes with real impact."
+        back: "CR reviewed by the CRB, then a CN whose plan the CIB reviews, then tasks and audit. For high-impact changes - about 20%."
       - front: "Fast track"
-        back: "A shorter route for low-risk changes, usually a CN without a separate CR. Setup depends on configuration."
+        back: "Change Admin I approves the CR as fast track, so there are no CRB or CIB reviews. Still a CN, tasks and audit. About 80% of changes."
       - front: "Quick test for full track"
-        back: "Form, fit or function, interchangeability, safety, cost, suppliers or stock affected? Then full track."
+        back: "General practice: form, fit or function, interchangeability, safety, cost, suppliers or stock affected? Then full track."

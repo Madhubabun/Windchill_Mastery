@@ -1,8 +1,15 @@
 id: m03-s02-l02
 subtitle: Before anyone touches CAD, figure out what the change hits - then let the board decide.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [change, change-request, impact-analysis, ccb, crb]
+sources:
+  - id: te
+    where: "Module 2: Activity: View information pages (Where Used and Changes tabs); Module 6: Identify roles in the change management process; Change management process: Investigate Need; Activity: Create a change request; Activity: Analyze a change request"
+  - id: ac
+    where: "Appendix B: Describe the out-of-the-box change objects data model; Describe the change request life cycle and workflow; Describe the change request process for offline and online CRB processes; Describe process and life cycle relationships"
+  - id: trn-cm-itc
+    where: "Creating change requests: Analyzing change requests, Fast Track versus Full Track (reject resolves the CR and PR) - used only where the 13.x course manual agrees"
 
 blocks:
   - type: text
@@ -24,8 +31,8 @@ blocks:
       **Plain words → official term**
       - "a formal proposal to change released stuff" → *[[change-request]]* (CR, sometimes ECR)
       - "working out everything the change hits" → *[[change-impact-analysis]]*
-      - "the group that says yes or no" → *[[change-review-board]]* (CRB), also called change control board (CCB)
-      - "what we do with old stock: use it, rework it, scrap it" → *disposition*
+      - "the group that says yes or no" → *[[change-review-board]]* (CRB); general PLM practice often calls it a change control board (CCB)
+      - "what we do with old stock: use it, rework it, scrap it" → *disposition* (a general PLM term; our Windchill sources don't name a field for it)
       - "the products customers buy that are hit" → *affected end items*
 
   - type: diagram
@@ -129,7 +136,8 @@ blocks:
           tone: neutral
           detail: |
             Another change is already working on SC-2000. Two changes on the same assembly at the
-            same time can collide - check each affected object's **Changes** tab.
+            same time can collide - check each affected object's **Changes** tab. (BOM redlines,
+            in the redlines lesson, are Windchill's tool for planning such parallel changes.)
         - id: pr
           label: PR-0101
           sublabel: the original issue
@@ -155,65 +163,75 @@ blocks:
       nobody checked. The CR is where a company spends an hour of thinking to save months of mess.
 
   - type: walkthrough
-    title: Analyse the impact of CR-0101
-    who: The engineer or change analyst assigned to the CR (here Priya)
-    where: [Home, My Tasks, CR-0101 analysis task]
+    title: Raise and analyse CR-0101
+    who: The CR author (here Priya), then a member of the Change Admin I role (here Maya)
+    where: [PR-0101 information page, Actions, New, New Change Request]
     steps:
-      - title: Open your task
-        where: [Home, My Tasks]
+      - title: Create the CR from the problem report
+        where: [PR-0101 information page, Actions, New, New Change Request]
         md: |
-          The CR's workflow assigns an analysis task. Open it from your task list, then open the
-          CR itself from the task's link to see its [[information-page]].
-      - title: Review the affected objects and end items
-        where: [CR information page, Affected Objects or Change Summary area]
+          Open PR-0101 and choose **Actions** > **New** > **New Change Request**. Select **Propagate
+          information** so the PR's details are copied in, and a **Proposed Solution** box appears.
+      - title: Review the affected end items and objects
+        where: [New Change Request, Affected End Items, Affected Objects]
         md: |
-          Check that the right **versions** are listed (SC-1048 A.2, SC-1048.drw). Add anything
-          the PR missed. Table and tab names vary by release - look for "Affected".
+          The PR's affected objects are already listed. Check that the right **versions** are there
+          (SC-1048 A.2 and its drawing) and add anything the PR missed.
       - title: Run Where Used on each affected part
-        where: ["<affected part> information page", Where Used]
+        where: ["<affected part> information page", Where Used tab]
         md: |
-          Find every parent assembly and end item. For SC-1048 you discover the SC-2550 service fold
-          kit as well as the Scooter S2. Add newly found end items to the CR.
+          The **Where Used** tab shows every parent assembly up to the top-level end items. For
+          SC-1048 you discover the SC-2550 service fold kit as well as the Scooter S2. Add newly found
+          end items to the CR.
       - title: Look for clashing changes
         where: ["<affected object> information page", Changes tab]
         md: |
           Open changes on the same objects (like CN-0095 on SC-2000) mean two teams could edit the
           same thing. Note them and talk to the owner.
-      - title: Record the analysis
-        where: [CR, Edit, description or impact fields plus attachments]
+      - title: Record the solution and evidence
+        where: [New Change Request, Proposed Solution, Set Attachments]
         md: |
-          Write the proposed solution, the options you rejected (and why), cost, weight, lead
-          time and the suggested disposition for stock. Attach the supplier quote. Your company
-          may have dedicated impact fields or a template document.
-      - title: Complete the task
-        where: [Task page, Complete Task]
-        md: Mark your task complete. The workflow sends the CR to the change review board.
-    result: CR-0101 tells the whole story - the problem, the fix, everything it touches and what it will cost.
+          Write the proposed solution, then attach the analysis: options you rejected (and why), cost,
+          weight, lead time, the suggested disposition for stock and the supplier quote. Any extra
+          impact fields are added by your company.
+      - title: Submit for analysis
+        where: [New Change Request, Finish, Submit Now]
+        md: |
+          Check that PR-0101 is in **Associated Process Objects**, click **Finish** and **Submit Now**.
+          The users in **Change Admin I** get an **Analyze Change Request** task, where Maya picks a
+          routing option: fast track, full track with the review in Windchill (online) or outside it
+          (offline), reject, or reassign.
+    result: CR-0101 tells the whole story - the problem, the fix, everything it touches and what it will cost - and it's waiting for Maya's routing decision.
 
   - type: text
     md: |
       ### The board: who sits there and what it decides
 
-      Maya chairs Acme's **[[change-review-board|CCB]]**. Around the (virtual) table: Kai for
-      engineering, Leo for quality, Ana for manufacturing, someone from purchasing and service.
-      Each seat brings a different "what does this break for *me*?"
+      Maya routes CR-0101 **full track**, so it goes to Acme's **[[change-review-board]]** (CRB).
+      Around the (virtual) table: Kai for design engineering, Ana for manufacturing, Leo for
+      quality, with Maya running the meeting. Each seat brings a different "what does this break
+      for *me*?"
 
       The board makes a **business decision**, not a CAD decision:
 
       | Decision | What it means | What happens next |
       | --- | --- | --- |
-      | **Approve** | The change is worth it | A [[change-notice]] is created to implement it |
-      | **Reject** | Not worth it, or wrong fix | CR closes with a reason; PR may stay open |
-      | **More info** | Can't decide yet | CR goes back to the analyst with questions |
-      | **Approve with conditions** | Yes, but... (e.g. rework stock first) | Conditions go into the change notice plan |
+      | **Approve** | The change is worth it | The CR moves to Implementation and a Change Admin II gets a task to create the [[change-notice]] |
+      | **Reject** | Not worth it, or wrong fix | The CR is resolved without a change, and so are its linked problem reports |
+      | **More info** | Can't decide yet | The creator is asked to clarify or investigate further |
 
-      In Windchill, board members usually get a **review task** in their task list and record a
-      vote with comments. How votes are counted (unanimous, majority, chair decides) depends on
-      your company's [[workflow]] configuration.
+      Boards often approve **with conditions** (for example "rework stock first"). That's general
+      practice rather than a separate Windchill option: write the conditions in the comments so the
+      change notice's plan includes them.
+
+      With **Full-Track Online Review**, CRB members get approval tasks in Windchill, and the online
+      track can capture each member's feedback and voting rules. With **Full-Track Offline
+      Review**, the board meets outside Windchill and a Change Admin II records the result. Who sits
+      on the board and how votes count are set in your company's [[workflow]] configuration.
 
   - type: scenario
     variant: challenge
-    title: You're in the CCB meeting for CR-0101
+    title: You're in the CRB meeting for CR-0101
     start: s1
     nodes:
       - id: s1
@@ -315,5 +333,5 @@ blocks:
     points:
       - A change request proposes a fix for released data and holds the analysis and decision.
       - Impact analysis checks where-used, related documents, stock and orders, suppliers, cost and clashing changes.
-      - The change review board (CCB) makes a business decision - approve, reject, ask for more info or approve with conditions.
-      - Votes usually happen as review tasks; how they're counted depends on your workflow configuration.
+      - Change Admin I analyses the CR and picks the route; on the full track the change review board (often called a CCB) approves, rejects or asks for more information.
+      - Online reviews happen as tasks in Windchill, offline reviews are recorded afterwards; voting rules depend on your workflow configuration.

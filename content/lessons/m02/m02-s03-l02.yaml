@@ -1,8 +1,20 @@
 id: m02-s03-l02
 subtitle: Add, swap and remove parts - and why the parent is the one that changes.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [bom, structure, uses-link, check-in, editing]
+sources:
+  - id: te
+    where: "Module 5: Edit a BOM (Product Structure Browser, add existing/new parts, remove parts); Activity: Create a WTPart and add it to a BOM (Insert Existing, automatic check-out, Check Out/In > Check In with comment, parent iterates); Activity: Create a baseline of a BOM (right-click Remove with CAD-build synchronization prompt, Insert > Insert Existing, Insert > Insert New, Check In); Specify a configuration specification; Module 6: Activity on problem reports (Released parts are changed through change management)"
+  - id: pf
+    where: "BOM Redline activity: right-click > Replace > Replace with New, Insert new, Remove selected; Undo Checkout"
+  - id: trn-pdmlink
+    where: "03 Document: check-out reserves the object, Undo Checkout discards changes without a new iteration; 04 Parts and Product Structure: uses links a parent version to the child's part master"
+  - id: hc-replace
+    label: PTC Help Center supplement
+    title: "Replacing a Part in a Structure"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/prodstructure/PMPartReplacementsReplace.html"
+    covers: "Replace with Existing and Replace with New from the right-click menu; Replace keeps the usage information; the parent is checked out automatically and iterates at check-in; CAD-synchronization prompt"
 
 blocks:
   - type: text
@@ -19,9 +31,9 @@ blocks:
     variant: terms
     md: |
       **Plain words → official term**
-      - "put a part that already exists into the assembly" → *Insert Existing Part* (wording varies)
-      - "create a brand-new part right inside the assembly" → *Insert New Part*
-      - "swap one child for another in the same spot" → *Replace*
+      - "put a part that already exists into the assembly" → *Insert Existing*
+      - "create a brand-new part right inside the assembly" → *Insert New*
+      - "swap one child for another in the same spot" → *Replace* (*Replace with Existing* or *Replace with New*)
       - "take a line out of this assembly" → *Remove* (deletes the link, **not** the part)
       - "lock the parent so I can edit it" → *[[check-out|check out]]*; "save it for everyone" → *check in*
       - "the parent's new save number" → *[[iteration]]* (A.3 → A.4)
@@ -95,7 +107,7 @@ blocks:
           y: 180
           w: 160
           tone: accent
-          detail: Added with **Insert Existing Part**. The latch part itself didn't change - it just gained a new parent.
+          detail: Added with **Insert Existing**. The latch part itself didn't change - it just gained a new parent.
         - id: screw-b
           label: M6 screw ×4
           sublabel: same part FS-0620
@@ -121,7 +133,7 @@ blocks:
       | --- | --- | --- |
       | **Insert existing** | A new uses link from the parent to a part that already exists | Reusing a library screw or an existing part |
       | **Insert new** | Creates a new part and links it in one go | Designing a brand-new component inside the assembly |
-      | **Replace** | Points the line at a different child | Swapping the old hinge for the new one |
+      | **Replace** | Points the line at a different child and keeps the line's usage information | Swapping the old hinge for the new one |
       | **Remove** | Deletes the uses link from this parent | The part is no longer needed *in this assembly* |
 
       A uses link points from the parent's **iteration** to the child's [[master]] - the child as a
@@ -145,37 +157,41 @@ blocks:
         where: ["SC-2000 information page", Structure tab]
         md: |
           Open the parent assembly's information page and choose the **Structure** tab. Make sure
-          the parent is not Released - released data is normally changed through a revise and the
-          change process, not edited in place.
-      - title: Check out the parent
-        where: [Structure tab, Actions, Check Out]
+          the parent is not Released - in the course manual a Released part is only changed through
+          the change management process, not edited in place.
+      - title: Know when the parent is checked out
+        where: [Structure tab, "right-click SC-2000", Check Out]
         md: |
-          Check out the parent part. In many releases Windchill checks it out for you the moment you
-          start an edit in the Structure tab; you'll see the checked-out icon on the parent row.
+          You can check out the parent yourself (right-click it, **Check Out**), but you don't have
+          to: the first structure edit checks it out for you, and the checked-out icon appears on
+          the parent.
       - title: Insert an existing part
-        where: [Structure tab, select parent row, Insert, Insert Existing Part]
+        where: [Structure tab, "right-click SC-2000", Insert, Insert Existing]
         md: |
-          Select the **parent** row, choose the insert-existing action (toolbar or right-click), then
-          search for the part (for example **SC-1050**) and pick it. A new line appears with a default
-          quantity of 1. Wording and icons vary by release.
+          Right-click the **parent** and choose **Insert > Insert Existing** (the **Editing** section
+          of the toolbar has it too). Search by name or number (for example **SC-1050**), select the
+          part and click OK. The new line starts with a quantity of 1.
       - title: Or insert a new part
-        where: [Structure tab, select parent row, Insert, Insert New Part]
-        md: Fill in the new part's type, number (or let Windchill generate it), name and location. Windchill creates the part and links it to the parent.
+        where: [Structure tab, "right-click SC-2000", Insert, Insert New]
+        md: Choose the type and enter the name (the number may be generated for you), then click **Finish**. Windchill creates the part and links it to the parent.
       - title: Replace a child
-        where: [Structure tab, select child row, Replace]
+        where: [Structure tab, "right-click SC-1042", Replace, Replace with Existing]
         md: |
-          Select the child row (here **SC-1042**), choose **Replace**, and pick the new part
-          (**SC-1043**). The line now points at the new part. Check the quantity and find number on
-          the replaced line afterwards - how much is carried over can depend on release and settings.
+          Right-click the child (here **SC-1042**), choose **Replace > Replace with Existing** and
+          pick the new part (**SC-1043**). The line now points at the new part and keeps its usage
+          information.
       - title: Remove a child
-        where: [Structure tab, select child row, Remove]
-        md: The line disappears from this parent. The child part still exists in Windchill and in every other assembly that uses it.
-      - title: Check in the parent
-        where: [Structure tab, select parent row, Check In]
+        where: [Structure tab, "right-click the child", Remove]
         md: |
-          Check in the parent with a short comment ("Added fold latch, replaced hinge per CN-0042").
-          If you created new parts, make sure they're checked in too. To throw away every change
-          instead, use **Undo Checkout**.
+          The line disappears from this parent. The child part still exists in Windchill and in
+          every other assembly that uses it. If the structure is built from CAD, Windchill asks
+          whether the change should be synchronized with future CAD builds.
+      - title: Check in the parent
+        where: [Structure tab, Check Out/In, Check In]
+        md: |
+          With the parent selected, click **Check In** and add a comment ("Added fold latch,
+          replaced hinge per CN-0042"). If you created new parts, make sure they're checked in too.
+          To throw away every change instead, use **Undo Checkout**.
     result: SC-2000 goes from A.3 to A.4 with the new structure. Everyone with access now sees the latch and the new hinge.
 
   - type: simulation
@@ -230,7 +246,7 @@ blocks:
         when: { canDelete: true }
         do: [{ set: { hinge: deleted } }]
         log: Deleted.
-        blockedHint: "Stop! Removing a line is not deleting a part. SC-1042 has released history and other assemblies use it. Deleting is usually blocked by access rules - and you never need it to edit a structure."
+        blockedHint: "Stop! Removing a line is not deleting a part. SC-1042 has released history and other assemblies use it. Access rules decide who may delete - and you never need deleting to edit a structure."
       - id: undo
         label: Undo Checkout
         when: { checkedOut: true, iteration: 3 }
@@ -258,24 +274,26 @@ blocks:
     md: |
       An Acme designer added three new brackets to the E-bike E1 battery tray, then went on holiday
       with the tray **still checked out**. For a week, everyone else - including purchasing - kept
-      seeing the old structure, and nobody else could edit the tray. Kai had to ask an administrator
-      to resolve the check-out.
+      seeing the old structure, and nobody else could edit the tray: a check-out reserves the object
+      until its owner checks it in or undoes the check-out.
     takeaway: A structure edit only counts once the parent is checked in. Check in at the end of every working session.
 
   - type: callout
     variant: pitfall
     md: |
-      **Remove + Insert instead of Replace.** It gives the same parts, but you lose the line's place
-      and its usage details (find number, line number, reference designators) and must re-enter
-      them. When one part takes over another's role, use **Replace**.
+      **Remove + Insert instead of Replace.** It gives the same parts, but the new line starts from
+      scratch and you must re-enter its usage details. **Replace** keeps the line's usage
+      information. When one part takes over another's role, use Replace.
 
   - type: callout
     variant: pitfall
     title: Editing a CAD-driven structure in Windchill
     md: |
-      If the parent part is built from a CAD assembly (an *owner* association, lesson 4), structure
-      lines that came from CAD are rebuilt from CAD on the next check-in. Change those in Creo
-      instead. Windchill-only items - glue, labels, packaging - can be added in Windchill and are kept.
+      If the parent part is built from a CAD assembly (an *owner* association, lesson 4), a Remove
+      or Replace makes Windchill ask whether the change should be **synchronized with future CAD
+      builds**. Don't click through that prompt - agree the change with the CAD designer first.
+      Parts with no CAD at all, such as liquids, are the kind the course manual edits directly in
+      the Product Structure Browser.
 
   - type: callout
     variant: pro-tip

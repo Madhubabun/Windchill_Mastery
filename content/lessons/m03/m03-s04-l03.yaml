@@ -1,8 +1,33 @@
 id: m03-s04-l03
 subtitle: Your click picks the path. Learn how votes steer a workflow and how to keep it moving while you're away.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [workflow, routing, voting, delegation, change-review-board]
+sources:
+  - id: ac
+    where: "Module 5: Define assigned activities (Routing tab: approve or reject); Add connectors and terminals to a workflow (And, Or, Conditional router, Threshold); Link nodes in a workflow; Set link properties (Rework event); Activity: Create a workflow template (Manual Exclusive routing, Release and Rework events). Module 6: Describe team instances; Identify context roles in OOTB context templates"
+  - id: te
+    where: "Module 6: Identify roles in the change management process (Change Review Board, Full Track only); Activity: Analyze a change request (routing options, reassign); Activity: Complete a change notice to release product data (delegating planning activities)"
+  - id: hc-routing-events
+    label: PTC Help Center supplement
+    title: "Routing Events"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/workflow/WFTabProcessPropRoute.html"
+    covers: "Routing types None, Conditional, Manual and Manual exclusive"
+  - id: hc-voting-example
+    label: PTC Help Center supplement
+    title: "Voting Example: Three Events"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/workflow/WFEventRoute3.html"
+    covers: "Tally methods for multiple assignees: any, all, percent, number, plurality, notPlurality"
+  - id: hc-delegate-work
+    label: PTC Help Center supplement
+    title: "Delegate Work"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/calendar/CalDelegWork.html"
+    covers: "Delegating selected days or indefinitely from the calendar; delegate email; Reset; feature disabled unless site administrators enable it"
+  - id: hc-reassign-task
+    label: PTC Help Center supplement
+    title: "Reassigning a Task"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/assignments/AssignmentsTaskReassign.html"
+    covers: "Reassign action, Reason for reassignment, optional restriction to the task's role"
 
 blocks:
   - type: text
@@ -12,7 +37,7 @@ blocks:
       process down one track or another.
 
       Change request **CR-0450** asks to switch the SC-1048 fold-lock bracket to a stronger steel.
-      Maya's change board has to vote. What happens if one person rejects? What if Kai is on
+      It's a Full Track change, so Maya's change board has to vote. What happens if one person rejects? What if Kai is on
       vacation? Let's find out.
 
   - type: callout
@@ -20,12 +45,12 @@ blocks:
     md: |
       **Plain words → official term**
       - "the track the process takes next" → *[[routing]]*
-      - "your choice in a task" → *routing option* (often called a *vote*: Approve, Reject, Rework)
-      - "one person picks the path" → *manual routing*
-      - "count everyone's choices first" → *voting* or *tally* routing
-      - "a rule decides automatically" → *conditional routing*
+      - "your choice in a task" → *routing event* (often called a *vote*: Approve, Reject, Rework)
+      - "the assignee picks the path" → *Manual* or *Manual exclusive* routing (exclusive = only one choice)
+      - "count everyone's choices first" → a *tally* of the votes, such as *any* or *all*
+      - "a rule decides automatically" → *Conditional* routing
       - "a stand-in who acts for you" → *[[delegation|delegate]]*
-      - "the board that votes on a change" → *[[change-review-board|change review board]]* (CCB/CRB)
+      - "the board that votes on a change" → *[[change-review-board|Change Review Board]]* (CRB; Acme calls it the CCB)
 
   - type: comparison
     title: Three ways a workflow picks a path
@@ -34,9 +59,11 @@ blocks:
       - label: Who decides
         cells: [One assignee picks an option, Several assignees each vote, A rule or expression - no human]
       - label: When it routes
-        cells: [As soon as that person completes, "When enough votes are in, as the tally rule says", The moment the activity finishes]
+        cells: [As soon as that person completes, "When the votes are in and tallied", The moment the activity finishes]
       - label: Typical rule
-        cells: [Approve goes on and Reject goes back, "Any Reject sends it back - or majority wins", "If the part is safety-critical then add a quality review"]
+        cells: [Approve goes on and Reject goes back, "Any Reject sends it back - or all must agree", "If the part is safety-critical then add a quality review"]
+      - label: How it's built
+        cells: [Manual or Manual exclusive routing type, "A tally such as any, all, percent, number or plurality", Conditional routing type or a Conditional router - code written by an admin]
       - label: Acme example
         cells: ["Kai approves PROM-0452", "Maya's CCB votes on CR-0450", "Extra review when the bracket's class is Safety"]
     takeaway: The rule is set in the workflow template by an admin. As a user you just need to know which kind you're in.
@@ -48,7 +75,7 @@ blocks:
       height: 340
       nodes:
         - { id: cr, label: CR-0450, sublabel: stronger steel, x: 20, y: 140, w: 140, tone: info, shape: doc }
-        - { id: maya, label: Maya votes, sublabel: change manager, x: 220, y: 20, w: 160, tone: accent }
+        - { id: maya, label: Maya votes, sublabel: Change Admin I, x: 220, y: 20, w: 160, tone: accent }
         - { id: ana, label: Ana votes, sublabel: manufacturing, x: 220, y: 140, w: 160, tone: accent }
         - { id: leo, label: Leo votes, sublabel: quality, x: 220, y: 260, w: 160, tone: accent }
         - { id: tally, label: Tally, sublabel: "any Reject → rework", x: 440, y: 140, w: 150, tone: warning, shape: pill }
@@ -75,7 +102,7 @@ blocks:
         highlight: [ana]
         flow: [maya>tally, ana>tally, leo>tally]
       - title: The tally rule decides
-        caption: This template's rule is **any Reject wins**. One Reject is enough, so the process routes to **Rework** and Priya gets a task with Ana's comment.
+        caption: This template's rule is an **any** tally on Reject - one Reject is enough. The process routes to **Rework** and Priya gets a task with Ana's comment.
         show: [cr, maya, ana, leo, tally, rework]
         highlight: [tally, rework]
         flow: [tally>rework]
@@ -88,15 +115,18 @@ blocks:
   - type: callout
     variant: note
     md: |
-      Tally rules differ by company and by template. Common ones are **all must approve**,
-      **any reject sends it back** and **majority wins**. Some templates also let the chair (here,
-      Maya) make the final call. Ask your change manager which rule your CCB uses.
+      Tally rules differ by template. Windchill's voting tallies include **any** (an option wins if
+      anyone picks it), **all** (only if everyone picks it), **percent** and **number** (above a
+      share or count of votes) and **plurality** (most votes wins). Connectors matter too: an
+      **And** connector waits for every incoming branch, a **Threshold** connector for a set number.
+      Ask your change manager which rule your board uses.
 
   - type: callout
     variant: why-it-matters
     md: |
-      Your vote is a **signature**. In regulated industries (medical, aerospace, automotive) a
-      change approved by the wrong people, or with a missing vote, is an audit finding. Routing
+      Your vote is a **signature** (an activity can even require a digital signature). In regulated
+      industries (medical, aerospace, automotive) a change approved by the wrong people, or with a
+      missing vote, is an audit finding. Routing
       rules make sure the right people said yes before anything is released. Delegation keeps that
       true when people are sick or on holiday, without anyone faking approvals.
 
@@ -111,35 +141,36 @@ blocks:
         where: ["<task> page", Subject, Affected objects]
         md: Read the change request, its impact notes and the affected objects such as SC-1048 and SC-1048.drw.
       - title: Pick your routing option
-        where: ["<task> page", Routing options]
+        where: ["<task> page", Task Completion, Routing options]
         md: |
-          Choose **Approve**, **Reject** or whatever options this activity offers (some show
-          *Rework* or *Need more info*). If you reject, explain exactly what needs to change.
+          Choose **Approve**, **Reject** or whatever options this activity offers (an admin can define
+          others, such as *Rework*). If you reject, explain exactly what needs to change.
       - title: Complete the task
         where: ["<task> page", Complete Task]
-        md: Click **Complete Task**. In a voting activity, the process routes only when the tally rule is satisfied, so it may keep waiting on others.
+        md: Click **Complete Task**. In a voting activity, the process routes once the votes can be tallied, so it may keep waiting on others.
     result: Your vote and comment are stored in the process history. The process either routes on or waits for the remaining votes.
 
   - type: walkthrough
     title: Keep your tasks moving while you're away
-    who: Any user - options depend on your company's configuration
+    who: Any user - delegation must be enabled by your site administrators
     steps:
       - title: Clear what you can
         where: [Home, My Tasks]
-        md: Before leaving, complete the tasks you can. Sort by deadline.
+        md: Before leaving, complete the tasks you can.
       - title: Reassign the rest
-        where: ["<task>", Actions menu, Reassign]
-        md: Reassign each remaining task to a colleague with the same role, with a comment.
-      - title: Set a stand-in if your setup has one
-        where: [Your user profile or preferences, Out of office or Delegate]
+        where: [My Tasks, Reassign]
+        md: Reassign each remaining task to a colleague with the same role, with a **Reason for reassignment**.
+      - title: Delegate your days if your site allows it
+        where: [Your Windchill calendar, Delegate]
         md: |
-          Some configurations let you name a **delegate** and dates in your user profile or
-          preferences, so new tasks go to them while you're out. Not every setup offers this. If
-          you can't find it, ask your admin.
+          Select the days you're away in your calendar, then choose **Delegate selected days** (or
+          **Delegate indefinitely** for an open-ended absence) and pick the delegate. They get an
+          email with the period. If the Delegate options stay greyed out after you select a date,
+          your site administrators haven't enabled delegation - ask them.
       - title: Tell the process owner
         where: [Chat or email]
-        md: Let your change manager (at Acme, Maya) know who is covering. They may also update the team role so new changes go to the right person.
-    result: No process waits on an empty desk. The history shows who acted for whom.
+        md: Let your change admin (at Acme, Maya - Change Admin I) know who is covering. They may also update the team role so new changes go to the right person.
+    result: No process waits on an empty desk, and the reassignments are on record.
 
   - type: scenario
     variant: what-if
@@ -191,7 +222,7 @@ blocks:
             next: p3
             feedback: It will happen again next holiday.
       - id: win
-        md: The change hit its Friday date with an independent, qualified approval on record. Next time a delegate catches the tasks automatically.
+        md: The change hit its Friday date with an independent, qualified approval on record. Next time Kai delegates his days before he leaves.
         outcome: success
       - id: p1
         md: The change moves, but quality flags it in the next audit - the designer approved her own change. Many companies forbid this.
@@ -227,10 +258,10 @@ blocks:
     passMark: 0.7
     questions:
       - kind: single
-        prompt: A CCB activity uses "any Reject sends it back". Maya and Leo approve, Ana rejects. Where does the process go?
+        prompt: A CCB activity tallies votes with "any" on Reject. Maya and Leo approve, Ana rejects. Where does the process go?
         options: [Approved path, Back to rework, It waits forever, It picks randomly]
         answer: 1
-        explanation: With an "any Reject" tally, one Reject is enough to route the process back. The rule lives in the workflow template.
+        explanation: With an "any" tally, one Reject is enough to route the process back. The rule lives in the workflow template.
       - kind: single
         prompt: Which kind of routing needs no human click?
         options: [Manual, Voting, Conditional]
@@ -240,7 +271,7 @@ blocks:
         prompt: Kai is away for two weeks with open tasks. Which actions are good practice? (Choose all that apply.)
         options:
           - Reassign his tasks to someone who holds the same role
-          - Use a delegate or out-of-office setting if your setup has one
+          - Delegate his calendar days, if the site has enabled delegation
           - Log in with his password and approve
           - Leave a comment explaining the reassignment
         answers: [0, 1, 3]
@@ -248,11 +279,11 @@ blocks:
       - kind: truefalse
         prompt: In a voting activity, completing your task always moves the process on immediately.
         answer: false
-        explanation: The process routes only when the tally rule is met, so it may still be waiting for other voters.
+        explanation: The process routes once the votes can be tallied, so it may still be waiting for other voters.
 
   - type: summary
     points:
       - Routing is how a workflow picks its next path - manual, voting (tally) or conditional.
       - Your routing option is a signature. Review first, comment always, especially on Reject.
-      - Tally rules such as "any reject" or "majority" are set by admins in the workflow template.
-      - Going away? Clear, reassign or delegate - never share logins.
+      - Tallies such as any, all or plurality are set by admins in the workflow template.
+      - Going away? Clear, reassign or delegate your calendar days - never share logins.

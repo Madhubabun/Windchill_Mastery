@@ -1,8 +1,15 @@
 id: m03-s01-l01
 subtitle: One "quick fix" by email can turn into a pile of scrap and a recall. Here's why companies control change.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [change-management, cost-of-change, rule-of-ten, recall, scrap]
+sources:
+  - id: te
+    where: "Module 2: Activity: View information pages (Changes and Where Used tabs); Module 6: Change and Configuration Management; Change management process: overview (capabilities); Value of the change management process; OOTB change management process: steps; Change management process: Identify Need"
+  - id: pf
+    where: "Module 4: The change process (Basic, Fast and Full Track)"
+  - id: trn-cm-itc
+    where: "Intro to the change process: closed loop change process overview (used only where the 13.x course manual agrees)"
 
 blocks:
   - type: text
@@ -30,7 +37,7 @@ blocks:
 
   - type: diagram
     title: The rule of ten
-    caption: A rule of thumb, not a law of physics. Each later phase multiplies the cost of the same fix by roughly ten. Click a step.
+    caption: "General PLM practice, not a Windchill feature: a rule of thumb that each later phase multiplies the cost of the same fix by roughly ten. Click a step."
     diagram:
       width: 800
       height: 380
@@ -99,11 +106,12 @@ blocks:
   - type: callout
     variant: why-it-matters
     md: |
-      Most of a product's cost is locked in by early design decisions, but most of the money is
-      **spent** later, in tooling, stock and service. A late change throws away work that was
-      already paid for. That's why real companies don't let anyone change released data on a whim:
-      every change has to be **reported, decided, planned and traced**. That system is change
-      management, and Windchill runs it.
+      As a general rule in product development, most of a product's cost is decided by early
+      design choices, but most of the money is **spent** later, in tooling, stock and service. A
+      late change throws away work that was already paid for. That's why real companies don't let
+      anyone change released data on a whim: every change has to be **reported, decided, planned
+      and traced**. Windchill's change management gives you a closed-loop process for that, and it
+      records the change history, electronic signatures and audit trail for you.
 
   - type: animation
     title: How one untracked edit spreads
@@ -185,7 +193,7 @@ blocks:
     columns: [Uncontrolled change, Controlled change]
     rows:
       - label: How it starts
-        cells: ["An email or a quick word in the hallway", "A Problem Report or Change Request in Windchill"]
+        cells: ["An email or a quick word in the hallway", "A change object in Windchill - usually a Problem Report or Change Request"]
       - label: Who decides
         cells: ["Whoever happens to make the edit", "The right people, such as a change board"]
       - label: Who's told
@@ -223,10 +231,10 @@ blocks:
           You raise a **Problem Report** against SC-1048 and attach your measurements. Leo from quality
           puts the bin on hold. The next question is who decides what happens now.
         choices:
-          - label: Let the change process route it - a Change Request goes to the change board chaired by Maya
+          - label: Let the change process route it - Maya screens the report, and a Change Request goes to the change review board
             next: win
             good: true
-            feedback: Exactly. The board looks at cost, stock, supplier and safety before anyone edits released data.
+            feedback: Exactly. Maya (a change admin) confirms the problem, and the board looks at cost, stock, supplier and safety before anyone edits released data.
           - label: Decide yourself and tell the supplier to go back to 3 mm
             next: partial2
             feedback: Maybe the 4 mm one is actually better. One person can't see the whole picture.
@@ -261,13 +269,13 @@ blocks:
         where: [Search, "SC-1048"]
         md: Search by **number**, not name, and open the part's information page.
       - title: Open the change history
-        where: ["<part> information page", Changes]
+        where: ["<part> information page", Changes tab, Associated Changes]
         md: |
-          Open the **Changes** tab (in some setups it sits under a related-objects area). It lists the
-          problem reports, change requests and change notices that involve this part.
-      - title: Check for open changes
-        where: [Changes tab, open items]
-        md: Look for items that are still open. If someone is already changing the part, join that change instead of starting a parallel one.
+          Click the **Changes** tab. The **Associated Changes** table lists the change objects linked
+          to this part, such as problem reports, change requests and change notices.
+      - title: Check for changes in progress
+        where: [Changes tab, Associated Changes]
+        md: The table shows past changes and changes still in progress. If someone is already changing the part, talk to them before starting a parallel change.
     result: Before you touch a released part you know its change story, and whether a fix is already on the way.
 
   - type: callout
@@ -305,7 +313,7 @@ blocks:
   - type: summary
     points:
       - Uncontrolled change means editing what others depend on without telling or asking them.
-      - The rule of ten - a fix costs roughly ten times more in each later phase, up to recalls in the field.
+      - The rule of ten (a general rule of thumb) - a fix costs roughly ten times more in each later phase, up to recalls in the field.
       - Late changes waste paid-for work - scrap, rework, tooling, sorting and service.
       - Change control routes every change to released data through report, decide, plan and trace.
       - Found a problem late? Contain first, report with evidence, then let the process decide.

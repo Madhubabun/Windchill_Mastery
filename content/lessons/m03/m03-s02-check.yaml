@@ -1,8 +1,15 @@
 id: m03-s02-check
 subtitle: PRs, CRs, CNs, redlines and variances - prove you can run a change end to end.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [checkpoint, change]
+sources:
+  - id: te
+    where: "Module 6: Change management process: Identify Need, Investigate Need, Change Planning, Change Implementation, Review and Audit Change; Activity: Create a change notice to address a requested change; Activity: Complete a change notice to release product data (Rework); Plan concurrent changes to the same affected objects; Activity: Analyze a problem report (variance, deviation, waiver)"
+  - id: pf
+    where: "Module 4: Activity: Plan concurrent changes using the BOM redline"
+  - id: ac
+    where: "Appendix B: Describe the out-of-the-box change objects data model; Describe the change request life cycle and workflow; Describe the change notice life cycle and workflow"
 
 blocks:
   - type: text
@@ -26,7 +33,7 @@ blocks:
         answer: 1
         explanation: A specific title, evidence and the affected object make the PR searchable, visible on the part's Changes tab and ready for triage. Proposing a solution belongs in the change request; a chat message leaves no trail.
       - kind: multi
-        prompt: Priya analyses CR-0101. What belongs in the change impact analysis? (Choose all that apply.)
+        prompt: Priya prepares CR-0101. What belongs in the change impact analysis? (Choose all that apply.)
         options:
           - Where-used assemblies and end items of SC-1048
           - Other open changes on the same objects
@@ -35,62 +42,62 @@ blocks:
         answers: [0, 1, 2]
         explanation: Impact analysis is done before the design work, to let the board decide. Where used, clashing changes and stock are classic items. The new CAD model is created later, in a change task.
       - kind: single
-        prompt: What does the change review board (CCB) decide on a change request?
+        prompt: On a full-track change, what does the change review board (CRB, often called a CCB) decide on a change request?
         options:
           - Which CAD tool to use for the fix
-          - Whether the change is worth doing - approve, reject, ask for more info or approve with conditions
+          - Whether the change is worth doing - approve, reject or ask for more investigation
           - The revision letter of the new part
           - Who gets which Windchill license
         answer: 1
-        explanation: The board makes a business decision, weighing the impact analysis. Approval leads to a change notice; conditions flow into its implementation plan.
+        explanation: The board makes a business decision, weighing the impact analysis. Approval leads to a change notice; any conditions written in the comments flow into its implementation plan.
       - kind: order
         prompt: Put the life of the bracket fix in order.
         items:
           - PR-0101 reports the stretched pin hole
-          - CR-0101 is analysed and approved by the CCB
-          - CN-0101 is created with change tasks
-          - Assignees revise affected objects and link resulting objects
+          - CR-0101 is analysed and approved by the CRB
+          - CN-0101 is planned with change tasks and resulting objects
+          - Assignees edit the resulting objects and complete their tasks
           - Reviewers approve each task
-          - The CN is resolved and resulting objects are released
+          - Change Admin III approves the audit and resulting objects are released
         explanation: Report, decide, plan, do, review, release. Each step leaves a linked record, so the whole story can be traced later.
       - kind: single
-        prompt: Kai rejects Task 1 of CN-0101 during review. What happens to Task 2?
+        prompt: Kai reviews Task 1 of CN-0101 and the drawing is missing a tolerance. What should he do?
         options:
-          - It is rejected too
-          - It keeps going - only Task 1 returns to its assignee
-          - The whole CN is cancelled
-          - The CR goes back to the CCB
+          - Complete the review anyway - the audit will catch it
+          - Choose Rework with a comment naming the missing tolerance
+          - Cancel the whole change request
+          - Fix the drawing himself and approve his own edit
         answer: 1
-        explanation: Change tasks are reviewed independently. A rejection sends only that task back, which is one reason to split work into several tasks.
+        explanation: Rework sends the work back for fixes before anything is released. A precise comment saves a round of guessing; fixing it himself would leave nobody reviewing the edit.
       - kind: single
-        prompt: A change creates a brand-new bushing SC-2530. How should it be listed on the change task?
+        prompt: A change creates a brand-new bushing SC-2530. Which list must it be on to be released with the change?
         options:
-          - Affected only
-          - Resulting only
-          - Both affected and resulting
-          - Not at all
+          - Affected objects only
+          - Resulting objects
+          - Associated reference objects
+          - None - new parts release themselves
         answer: 1
-        explanation: There was no previous version, so nothing is affected. It's produced by the change and must be released with it, so it's a resulting object.
+        explanation: Resulting objects are what the change releases. A new part produced by the change must be in that list, or it stays In Work.
       - kind: truefalse
         prompt: If Priya revises the drawing from her workspace instead of from the change task, the new drawing revision may not be linked as a resulting object.
         answer: true
-        explanation: Revising from inside the task usually adds the result automatically. Revising elsewhere means you must add it to the resulting objects table yourself - otherwise it doesn't release with the CN.
+        explanation: Revising inside the change task puts the new version in the Resulting Objects table. Revised elsewhere, it has to be added separately - otherwise it doesn't release with the CN.
       - kind: single
         prompt: Kai redlines SC-2000 to swap screw SC-2510 for SC-2511. When does the real structure change?
         options:
           - As soon as he marks the swap
-          - When he saves the redline
-          - When the approved redline is applied
+          - When he checks in the redline
+          - When SC-2000 is revised inside the change, which merges the redline into the new revision
           - Never - redlines are only comments
         answer: 2
-        explanation: A redline is a proposal that reviewers can see line by line. Only applying the approved redline creates the new structure version, which becomes a resulting object.
+        explanation: A redline plans edits on the latest released version without creating the next revision. The edits become real when the next revision is created with Revise inside the change; that revision is a resulting object.
       - kind: single
         prompt: The impact report shows SC-2510 is used in SC-2000 and the SC-4000 handlebar. Ana suggests revising SC-2510 to be 16 mm long. What's the problem?
         options:
           - None - fewer part numbers is always better
           - The handlebar would get the longer screw too, and old and new screws would share one number
           - Screws can't be revised in Windchill
-          - The CCB doesn't approve screws
+          - The CRB doesn't approve screws
         answer: 1
         explanation: Revising a shared part changes it everywhere it's used, and a change in fit with the same number mixes non-interchangeable stock. A new number (SC-2511), swapped only where needed, is safer.
       - kind: multi
@@ -101,7 +108,7 @@ blocks:
           - Use clear anodizing on the next 500 brackets while black dye is out of stock
           - The drawing has a permanent dimension error
         answers: [0, 2]
-        explanation: Variances are limited, one-time departures - a waiver for the existing lot, a deviation for the planned 500. Permanent design changes or corrections go through a change request and change notice.
+        explanation: Variances are limited, temporary departures - a waiver for the existing lot, a deviation for the planned 500. Permanent design changes or corrections go through a change request and change notice.
 
   - type: flashcards
     title: Change objects deck
@@ -112,21 +119,21 @@ blocks:
         back: "Proposes a fix for released data and holds the impact analysis and the board's decision."
       - front: "Change impact analysis"
         back: "Where used, end items, open changes, stock and orders, documents, cost and schedule."
-      - front: "Change review board (CCB / CRB)"
-        back: "Makes the business decision on a CR: approve, reject, more info or approve with conditions."
+      - front: "Change review board (CRB, often called CCB)"
+        back: "On the full track, makes the business decision on a CR: approve, deny or ask for more investigation."
       - front: "Change notice (CN)"
         back: "Implements an approved change through an implementation plan of change tasks."
       - front: "Change task"
         back: "One assignee's piece of work, with a reviewer, need date, affected and resulting objects."
       - front: "Affected vs resulting"
-        back: "Affected = before (what you change). Resulting = after (what you made). Resulting objects release when the CN resolves."
-      - front: "Resulting-only object"
-        back: "A brand-new object created by a change, such as a new bushing part."
+        back: "Affected = before (what you change). Resulting = after (what you made). Resulting objects release when the CN audit is approved."
+      - front: "Brand-new part in a change"
+        back: "Must be a resulting object, such as a new bushing part - otherwise it never gets released."
       - front: "Redline"
-        back: "Marked-up BOM edits (added, removed, changed) proposed in a change task. Applied only after approval."
+        back: "Planned BOM edits (added, removed, changed) on the latest released structure. Merged when the next revision is created inside the change."
       - front: "Variance"
-        back: "An approved, limited, one-time departure from the released design. The design itself doesn't change."
+        back: "An authorization to depart from the as-designed configuration for a set number of units or time. The design itself doesn't change."
       - front: "Deviation vs waiver"
         back: "Deviation: agreed before building. Waiver: accepting items already built that don't conform."
-      - front: "Change administrator"
-        back: "Triages reports, creates change notices and their plans, and audits changes before they close."
+      - front: "Change Admin I, II and III"
+        back: "CA I screens PRs and analyses CRs; CA II plans the change notice; CA III audits it before release."

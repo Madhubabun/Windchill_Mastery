@@ -1,8 +1,18 @@
 id: m02-s01-l01
 subtitle: Upload a file, give it a name and a home - and it's instantly version A.1.
-version: 1.0.0
-updated: "2026-10-05"
+version: 1.1.0
+updated: "2026-10-14"
 tags: [documents, create, primary-content, attributes, folders]
+sources:
+  - id: te
+    where: "Module 2: Describe products and libraries; Describe revision and iteration control. Module 3: Manage documents in Windchill: overview; Create a document: workflow; Activity: Explore and create documents. Appendix A: Identify project characteristics"
+  - id: ac
+    where: "Module 14: What are file vaults?; Identify storage options. Access control permissions (Change Context)"
+  - id: hc-doc-create
+    label: PTC Help Center supplement
+    title: "Creating a Document"
+    url: "https://support.ptc.com/help/windchill/r13.1.2.0/en/Windchill_Help_Center/docmgmt/DocMgmtDocCreate.html"
+    covers: "New Document launch points (Folder Contents toolbar icon, New > New Document); wizard order (Type, optional Template, Primary Content Source, Name/Description/Location, Keep checked out after checkin, Attachments, Finish); primary content options Local File, URL Link, External Storage, No Content (No Content depends on the Primary Content Enforcement preference); name pre-filled from the file depending on the Document Name preference; Autoselect Folder location"
 
 blocks:
   - type: text
@@ -61,16 +71,16 @@ blocks:
         show: [pdf, where]
         highlight: [where]
       - title: Say what it is
-        caption: She picks the type **Test Report** and fills in attributes - name, description and any fields her company requires. The number is often generated automatically.
+        caption: She picks the type **Test Report** and fills in attributes - name, description and any fields her company requires. Windchill assigns the number automatically in a standard setup.
         show: [pdf, where, what]
         highlight: [what]
       - title: Attach the main file
-        caption: The PDF is uploaded as **primary content**. It goes to a file vault; the document keeps a pointer to it.
+        caption: The PDF is uploaded as **primary content**. Windchill stores the file (most company setups keep content files in file vaults) and keeps the document's facts linked to it.
         show: [pdf, where, what, file]
         highlight: [file]
         flow: [pdf>file]
       - title: Born as A.1
-        caption: Click Finish and the document exists - version **A.1**, usually in state **In Work**. It's already checked in, so the team can find it.
+        caption: Click Finish and the document exists - version **A.1**, in state **In Work** in a standard setup. Unless she asked to keep it checked out, the team can find it right away.
         highlight: [doc, team]
         flow: [where>doc, what>doc, file>doc, doc>team]
         seconds: 8
@@ -100,51 +110,52 @@ blocks:
   - type: walkthrough
     title: Create a document with primary content
     who: A product team member with create rights in the folder
-    where: [Navigator, Browse, Products, "<your product>", Folders]
+    where: [Navigator, Browse, Recent Products, "<your product>", Folders]
     steps:
       - title: Go to the right folder first
-        where: [Navigator, Browse, Products, "Scooter S2", Folders, Tests]
+        where: [Navigator, Browse, Recent Products, "Scooter S2", Folders, Tests]
         md: |
-          Open the product, choose **Folders** and click the folder the document belongs in.
+          Expand the product, choose **Folders** and click the folder the document belongs in.
           Starting here means the wizard already knows the location.
       - title: Start a new document
-        where: [Folder contents, New, New Document]
+        where: [Folder Contents, New Document]
         md: |
-          Use the **New Document** action in the folder's toolbar or **Actions** menu (some
-          releases show it under a *New* icon). A wizard opens.
+          Click the **New Document** icon on the Folder Contents toolbar (or choose **New > New
+          Document** from the table's Actions menu). A wizard opens.
       - title: Choose the type
         where: [New Document wizard, Type]
         md: |
-          Pick the document type, for example *Test Report*. Types are configured by your company,
-          and each type can have its own attributes and rules.
+          Pick the document type, for example *Test Report*. Document types like this are added by
+          your company when Windchill is set up - they are not out of the box. Leave the
+          *Template* list empty when you are uploading your own file.
       - title: Add the primary content
-        where: [New Document wizard, Primary content]
+        where: [New Document wizard, Primary Content Source]
         md: |
-          Choose where the main file comes from - usually a **local file** you browse to. Other
-          options can include a URL link or no content at all. Many releases fill in the name from
-          the file name; check it.
+          Choose where the main file comes from - usually **Local File**, then browse to it. The
+          other choices are **URL Link**, **External Storage** and, if your administrator allows
+          it, **No Content**. The name is usually pre-filled from the file; check it.
       - title: Fill in the attributes
         where: [New Document wizard, Attributes]
         md: |
-          Enter the **name**, description and any required fields (marked with an asterisk). The
-          **number** is usually generated automatically. Confirm the **location** shows the right
-          context and folder.
+          Enter the **name**, description and any fields your company requires. The **number** is
+          assigned automatically in a standard setup. Confirm the **location** - either the
+          automatically selected folder or one you pick. Tick *Keep checked out after checkin*
+          only if you plan to keep editing straight away. Click **Next**.
       - title: Add attachments (optional)
         where: [New Document wizard, Attachments]
         md: Add supporting files such as raw test data. Attachments are covered in a later lesson.
       - title: Finish
         where: [New Document wizard, Finish]
-        md: |
-          Click **Finish**. If you plan to keep editing right away, some wizards offer a *keep
-          checked out* option.
-    result: The document exists at version A.1 in its first life cycle state (often In Work). It's checked in, so your team can search for it and open its information page.
+        md: Click **Finish** and dismiss the confirmation message.
+    result: The document exists at version A.1 in its first life cycle state (In Work out of the box). Unless you kept it checked out, your team can search for it and open its information page.
 
   - type: callout
     variant: note
     md: |
-      Exact step names and order vary by release and by your company's configuration - some types
-      skip steps or add their own. Office users may also create documents straight from Word or
-      Excel if Windchill's desktop integration is installed.
+      Which fields you see depends on your company's configuration - some sites add a life cycle
+      template, revision or classification field, or their own business attributes. Office users
+      can also create documents straight from Word if Windchill Desktop Integration is installed
+      (lesson 8).
 
   - type: simulation
     title: Create the brake test report
@@ -215,7 +226,7 @@ blocks:
         message: Right home, right type, right file. This document will turn up in every search the brake team runs.
       - label: "Spot the trap: create a document with no primary content"
         when: { created: true, content: none }
-        message: Windchill allows it - some documents are just placeholders - but a test report with no file is useless. Always check the content before you click Finish.
+        message: Windchill can allow it if your administrator's settings permit *No Content* - useful for placeholders - but a test report with no file is useless. Always check the content before you click Finish.
 
   - type: example
     variant: real-world
@@ -248,12 +259,12 @@ blocks:
         prompt: Priya creates a new test report document and clicks Finish. What's its version?
         options: [A.0, A.1, "1.0", B.1]
         answer: 1
-        explanation: A new object starts at the first revision letter and iteration 1 - typically A.1. The revision scheme is configurable, but A.1 is the usual default.
+        explanation: A new object starts at the first revision and iteration 1 - A.1 with the out-of-the-box scheme. Administrators can configure a different versioning scheme per type.
       - kind: multi
         prompt: Which choices do you make when creating a document? (Choose all that apply.)
         options: [Context and folder, Document type, Primary content, The vault folder the file is stored in]
         answers: [0, 1, 2]
-        explanation: You choose where it lives, what type it is and its main file. Vault storage is handled by Windchill automatically - users never pick vault folders.
+        explanation: You choose where it lives, what type it is and its main file. Where content files are physically stored (for example file vaults) is set up by administrators - users never pick it.
       - kind: single
         prompt: A spec will be shared temporarily with an external supplier only. Where should it be created?
         options: [In the Scooter S2 product, In a project shared with the supplier, In the standard library, On a USB stick]
@@ -262,7 +273,7 @@ blocks:
       - kind: truefalse
         prompt: A newly created document must be checked in before anyone else can see it.
         answer: false
-        explanation: Creating a document stores it as A.1 straight away. Unless you chose to keep it checked out, it's already visible to people with access.
+        explanation: Creating a document stores it as A.1 straight away. Unless you ticked *Keep checked out after checkin*, it's already visible to people with access.
 
   - type: summary
     points:

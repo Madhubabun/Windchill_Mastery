@@ -2,7 +2,7 @@
 - id: cost-of-change
   term: Cost of change (rule of ten)
   plain: The later you fix something, the more it costs - roughly ten times more each phase.
-  definition: The rule of thumb that the cost of the same change rises by about an order of magnitude in each later phase of a product's life - concept, design, prototype and test, production and finally the field, where it can mean scrap, rework and recalls.
+  definition: A general product-development rule of thumb (not a Windchill feature) that the cost of the same change rises by about an order of magnitude in each later phase of a product's life - concept, design, prototype and test, production and finally the field, where it can mean scrap, rework and recalls.
   aka: [Rule of ten]
   related: [change-control, plm]
 
@@ -15,14 +15,14 @@
 
 - id: full-track-change
   term: Full track change
-  plain: The complete route - report it, get it approved by a board, then plan and do the work.
-  definition: A change that goes through the full process - typically a problem report, a change request reviewed and approved by a change review board, then a change notice with change tasks. Used for changes with real impact on form, fit, function, safety, cost, suppliers or stock.
+  plain: The route with board reviews - a board approves the request, and another board approves the plan.
+  definition: In Windchill's out-of-the-box change process, the route a Change Admin I picks in the Analyze Change Request task (Full-Track Online or Offline Review) for high-impact, high-cost changes. The change review board reviews the change request and the change implementation board reviews the change notice's implementation plan before work starts. The course manual gives about 20% of changes as typical.
   aka: [Full-track change]
-  related: [fast-track-change, change-request, change-review-board, change-notice]
+  related: [fast-track-change, change-request, change-review-board, change-implementation-board, change-notice]
 
 - id: fast-track-change
   term: Fast track change
-  plain: A short route for small, low-risk changes that skips the full board review.
-  definition: A shortened change route for low-impact changes, for example raising a change notice without a separate change request, or using a simplified review. Exactly how fast track works, and who may use it, depends on the company's configuration and change policy.
+  plain: The route for low-impact changes - same change objects, but no board reviews.
+  definition: In Windchill's out-of-the-box change process, the route a Change Admin I picks with Fast-Track Approval in the Analyze Change Request task. The change still has a change request, a change notice with tasks and a Change Admin III audit, but skips the change review board and change implementation board reviews. The course manual gives about 80% of changes as typical; which changes qualify is set by company policy.
   aka: [Fast-track change]
   related: [full-track-change, change-notice, change-task]
